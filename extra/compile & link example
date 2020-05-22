@@ -1,5 +1,7 @@
 Compling and making a library, linking to it
 
+https://github.com/xiaoyeli/superlu
+
 gfortran -O2 -c *.for
 ar cr libspli.a *.o
 gfortran -c intdif.for
