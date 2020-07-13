@@ -1,0 +1,46 @@
+These executable routines illustrate several ways of packaging
+subroutines for solving linear systems of algebraic equations. Use
+is made of Lapack double precision codes.
+
+In each case the user will be asked to enter a size for the dense
+matrix, A. The matrix elements are assigned [0,1] random values. A
+random [0,1] vector y is used to compute b = A*y. Then the system
+A*x = b is solved, which mathematically implies x=y. The relative
+error norm(x-y)/norm(y) and compute time is printed. The relative
+error should be small. The values of this error will vary depending
+on the system size and the compiler.
+
+The following executable programs may be generated using the
+makefile provided
+* libf77 uses exampleLapack77.f and the blas and lapack library
+  files
+* libf90 uses exampleLapack90.f90, set_precision.f90 and the blas
+  and lapack library files
+* exampleLapack77 uses exampleLapack77.f, LapackSrc.f BlasSrc.f
+* exampleLapack90 uses exampleLapack90.f90, LapackSrc.f BlasSrc.f,
+  set_precision.f90
+* exampleLapackInterface uses exampleLapackInterface.f90,
+  set_precision.f90 BlasInterface.f90 LapackInterface.f90 and the
+  lapack and blas libraries.
+* exampleLapackModules.f90 uses exampleLapackModules.f90,
+  set_precision.f90 Background.f BlasModule.f90 LapackModule.f90
+The makefile may also be used to generate the subset blas and lapack
+libraries whose sources are provided as part of the chapter software.
+
+Sample output from libf77
+=========================
+
+Input the required dimension of the linear system :
+500
+The compute time for solving a system of size   500 is  0.1580E+00 seconds
+The relative error  Y - inverse(A)*(A*Y) = 9.451529D-13
+Input the required dimension of the linear system :
+0
+
+Sample output from libf90
+=========================
+
+Input the required dimension of the linear system : 500
+The compute time for solving a system of size   500 is  0.1600D+00 seconds
+The relative error  Y - inverse(A)*(A*Y) = 9.451529D-13
+Input the required dimension of the linear system : 0

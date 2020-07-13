@@ -1,0 +1,157 @@
+<p>
+These are examples of numerical quadrature.  The underlying integrator
+is a version of the routine qag, found in the classic Quadpack program
+suite.  This has been modernized to allow for multiple integrals,
+vector integrals, and to facilitate importing user data into the
+integrand evaluation function.  The names of the scalar and vector
+integration routines are generic, qag2003, in all examples.
+</p>
+<p>
+Each examples uses the module quadpack2003.  As a first step, compile
+set_precision.f90 and then quadpack2003.f90.  Have these modules accessible
+for the compilation of the examples.
+</p>
+
+<p>
+There are five driver programs that may be built using the makefile.
+<ul>
+
+<li> TestEx1fs uses testEx1fs.f90, testModEx1fs.f90
+<p>
+A quadrature computes the values of a Bessel function with a real
+argument.  The base derived type quadpackbase is extended to include a
+parameter, the function argument. This is passed to the evaluation
+routine for the integrand.
+</p>
+
+<li>TestEx1fv uses testEx1fv.f90, testModEx1fs.f90
+<p>
+Computes the values of an array of Bessel functions.  The base
+derived type quadpackbase is extended as in example TestEx1fs.
+An array of these extended types is allocated for the 101 values
+of the array of arguments. A do loop evaluates the array values,
+returning the Bessel function values as the result.  OpenMP is
+used on this loop, since each array component is independent of
+the others.
+</p>
+
+<li>TestEx2 uses testEx2.f90, testModEx2.f90
+<p>
+A multiple integral, for two dimensions, is evaluated.  The algorithm
+is based on recursive calls to the one-dimensional routine.  The outer
+integral evaluates the integrand of the inner integral by calls to the 
+one-dimensional routine.
+</p>
+<p>
+The inner integral has variable limit functions.  The base derived
+type is extended to include procedure pointers for the limit functions,
+the integrand evaluation routine itself, and problem data.  Use of
+the ASSOCIATE construct is illustrated.
+</p>
+
+<li>TestEx3 uses testEx3.f90, testModEx3.f90
+<p>
+A complex-valued line integral is evaluated by casting it as
+a vector integral with two components, the first one for the real
+part and the second for the imaginary part.
+</p>
+
+<li>extraTests uses extraTests.f90, testextraTests.f90
+<p>
+ This main program illustrates six quadrature problems.
+</p>
+<p>
+There is performance information obtained for evaluating the
+same problem as in TestEx1fs.  The number of function
+evaluations, and array or vector evaluations of the integrand, 
+are printed.  An additional scalar is included in the extended type.
+This is used in an evaluation of a real Laplace transform
+integral, both for a scalar and a vector function.  This is
+for problems five and six.
+</p>
+</ul>
+</p>
+
+<h3>Sample output from TestEx1fs</h3>
+<pre>
+ Integral (PI*J_0(100)) is  =  0.062787
+</pre>
+
+<h3>Sample output from TestEx1fv</h3>
+<pre>
+Integral (PI*J_0(i)) is  =  3.141593, with i =    0
+Integral (PI*J_0(i)) is  =  2.403939, with i =    1
+Integral (PI*J_0(i)) is  =  0.703374, with i =    2
+Integral (PI*J_0(i)) is  = -0.816977, with i =    3
+Integral (PI*J_0(i)) is  = -1.247683, with i =    4
+Integral (PI*J_0(i)) is  = -0.557937, with i =    5
+Integral (PI*J_0(i)) is  =  0.473266, with i =    6
+Integral (PI*J_0(i)) is  =  0.942727, with i =    7
+Integral (PI*J_0(i)) is  =  0.539257, with i =    8
+Integral (PI*J_0(i)) is  = -0.283791, with i =    9
+Values for i=10,95 are not shown.
+Integral (PI*J_0(i)) is  =  0.145564, with i =   96
+Integral (PI*J_0(i)) is  = -0.097875, with i =   97
+Integral (PI*J_0(i)) is  = -0.249292, with i =   98
+Integral (PI*J_0(i)) is  = -0.171136, with i =   99
+Integral (PI*J_0(i)) is  =  0.062787, with i =  100
+</pre>
+
+<h3>Sample output from TestEx2</h3>
+<pre>
+ALPHA, BETA, MY_PHI(ALPHA,BETA) =  1.000000 1.000000 2.257974
+</pre>
+
+<h3>Sample output from TestEx2</h3>
+<pre>
+ Complex Value of ALPHA =   0.500000  0.000000
+ Upper Unit Circle Integral of 1/z**ALPHA is  =
+                      -2.000      + I *   2.000
+  IER from line integration =            0
+ Line integral max. error estimate =   2.2204E-14
+
+</pre>
+
+<h3>Sample Output from extraTests</h3>
+<pre>
+ Integral (PI*J_0(100)) is  =   6.278740049149326E-002
+ Result flag from integration  =            0
+ Formula class, evaluations =            6 ,        1525
+ Formula class, vector evaluations =            6 ,          25
+
+ A multiple - or double - integral has an exact value that is known.
+ This provides a test case for the algorithm.  The base type is
+ extended in a similar manner for the case TestEx2.
+ Double Integral (4*log(2+sqrt(3)-2*PI/6) is  =    3.17343648530607
+ Relative error is  =   0.000000000000000E+000
+ Result flag from integration =            0
+ Formula class, evaluations =            6 ,          61
+
+ The previous integrand function is modified so that the inner
+ integral has variable limits that describe a curved sub-region.
+ Double Integral over curved region is  =    2.25797353331653
+ Result flag from integration =            0
+ Formula class, evaluations =            6 ,          61
+
+ A one-dimensional infinite integral is evaluated.  The
+ infinite upper limit is truncated to a finite value.
+ Infinite Integral is  =  -0.361689424516046
+ Result flag from integration =            0
+ Vector evaluations =          173
+
+ A one-dimensional infinite integral is evaluated.
+ The infinite upper limit is truncated to a finite value.
+ Laplace Transform  =   0.500000000000000
+ Result flag from integration =            0
+
+ A vector of one-dimensional infinite integrals is evaluated.
+ The infinite upper limit is truncated to a finite value.  An alternate
+ error norm is used for the vector result.  A procedure pointer in
+ the base type points to a root-mean-square norm, overriding 
+ the default max norm.  The evaluation routine returns a matrix
+ of function values and the number of these evaluations is printed.  
+  Laplace Transform  =   0.500000000000000       0.249999999999998
+  0.124999999999981
+ Result flag from integration =            0
+ Matrix evaluations =            2
+ </pre>

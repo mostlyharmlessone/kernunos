@@ -1,0 +1,29 @@
+This executable puts the sparse matrix utilities and defined
+operations through tests. Each of the defined operations .p., .t.,
+and defined + (for HB represented matrices) are tested by comparing
+with dense matrix operations.
+
+There is a single executable file which the makefile will generate
+* testSparseStruct uses set_precision.f90, sortElements.f90,
+  sparseSort.f90, sparseTypes.f90, sparseAssign.f90, sparseOps.f90,
+  sparseUtils.f90.
+
+Sample output from testSparseStruct
+===================================
+
+Test   Status        Description
+  1    Passed        set and getExpansion factor tests
+
+  2    Passed        HB Matrix Agrees with Dense Equivalent Matrix.
+
+  3    Passed        HB Matrix Accumulation test
+
+  4    Passed        HB Matrix (.t.) Agrees with Dense Matrix Transpose.
+
+  5    Passed        HB Matrix * Vector (.p.) Agrees with Dense Matrix * Vector
+
+  6    Passed        Vector * HB Matrix (.p.) Agrees with Vector * Dense Matrix
+
+  7    Passed        HB Matrix + HB Matrix Agrees with Dense Matrix Sum.
+
+

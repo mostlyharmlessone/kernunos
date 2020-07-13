@@ -1,0 +1,131 @@
+These examples illustrate a number of issues that are intended as
+helpers when getting started using OpenMP. The Fortran compiler must
+be configured to process OpenMP directives, i.e. those source lines
+starting with '!$OMP'.
+
+* Example1 uses Example1.f90
+
+  Two threads are used. There is a danger that thread 1 uses x
+  before thread 0 defines it to have the value 5. This has not
+  happened here, but it could.
+
+* Example2 uses Example2.f90, set_precision.f90
+
+  Four threads are used. The question is: Which thread processes a
+  do loop index with the upper limit of value n = 101?
+
+* Example3 uses Example3.f90, set_precision.f90
+
+  Thread 0 asks for input. Each of the alternate threads wait for a
+  (random) fraction of a second before pausing on thread 0 to
+  complete the input. When input is completed all threads print a
+  message. This uses a VOLATILE routine argument to support the
+  pausing step.
+
+* Example4 uses Example4.f90, set_precision.f90
+
+  A sum of weighted vector dot or inner products is computed. The
+  vectors are random and the generator is entered in a critical
+  section so that the results are repeatable. The outer sum of the
+  weighted dot products uses an ATOMIC designation so that a race
+  condition will not occur.
+
+* Example5 uses Example5.f90, set_precision.f90
+
+  A parallel do loop records the loop index associated with each
+  thread number + 1. These values here match, but that is not
+  assured. Sample Output, 16 threads:
+
+* Example6 uses Example6.f90, set_precision.f90
+
+  A subprogram needs work space. This is allocated in the main
+  program and passed to the threads. Each thread uses its index to
+  construct a pointer that uses a specified part of the global work
+  space for its local work space.
+
+* dotp uses dotp.f90, set_precision.f90
+
+  A loop for computing a dot product has a race condition. The
+  accumulation step is invalid. This is a purposeful error and it is
+  fixed in the example dotpAtomic.
+
+* dotpAtomic use dotpAtomic.f90, set_precision.f90
+
+  By using an ATOMIC designation before the accumulation step, the
+  race condition of example dotp is eliminated.
+
+  Sample Output from Example1 using 2 threads
+  ===========================================
+
+Race condition: Thread:     1, x =    5
+After barrier:  Thread:     1, x =    5
+After barrier:  Thread:     0, x =    5
+
+  Sample Output from Example2 using 4 threads
+  ===========================================
+
+Thread   3 processes index   101
+
+  Sample Output from Example3 using 16 threads
+  ============================================
+
+Enter an integer -- 1
+Thread  10 waited  0.345 secs before (Volatile) FLAG was tested
+Thread   9 waited  0.833 secs before (Volatile) FLAG was tested
+Thread  14 waited  0.701 secs before (Volatile) FLAG was tested
+Thread  15 waited  0.735 secs before (Volatile) FLAG was tested
+Thread  11 waited  0.871 secs before (Volatile) FLAG was tested
+Thread   4 waited  0.963 secs before (Volatile) FLAG was tested
+Thread   6 waited  0.335 secs before (Volatile) FLAG was tested
+Thread   2 waited  0.353 secs before (Volatile) FLAG was tested
+Thread  13 waited  0.888 secs before (Volatile) FLAG was tested
+Thread   1 waited  0.025 secs before (Volatile) FLAG was tested
+Thread   8 waited  0.796 secs before (Volatile) FLAG was tested
+Thread  12 waited  0.090 secs before (Volatile) FLAG was tested
+Thread   7 waited  0.915 secs before (Volatile) FLAG was tested
+Thread   0 did no waiting after input.
+Thread   5 waited  0.838 secs before (Volatile) FLAG was tested
+Thread   3 waited  0.667 secs before (Volatile) FLAG was tested
+
+  Sample Output from Example4 using 16 threads
+  ============================================
+
+Weighted dot product =  0.1296754E+04
+
+  Sample Output from Example5 using 16 threads
+  ============================================
+
+Natural Numbers for Each Thread =
+    1  1.00
+    2  2.00
+    3  3.00
+    4  4.00
+    5  5.00
+    6  6.00
+    7  7.00
+    8  8.00
+    9  9.00
+   10 10.00
+   11 11.00
+   12 12.00
+   13 13.00
+   14 14.00
+   15 15.00
+   16 16.00
+
+  Sample Output from Example6 using 16 threads
+  ============================================
+
+If no "Error" messages, work assignment succeeded.
+
+  Sample Output from dotp using 16 threads
+  ========================================
+
+Dot product - n*6 =  -0.2060E+05 Thread number =   0
+ Race condition, stop!
+
+  Sample Output from dotpAtomic using 16 threads
+  ==============================================
+
+Sample Output, 16 threads: 
+No race condition with ATOMIC construct!

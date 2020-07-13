@@ -1,0 +1,12 @@
+make clean; make QuickMain
+./QuickMain
+make clean; make QuickMainIn
+./QuickMainIn
+make clean; make qstypeSepMain
+./qstypeSepMain
+make clean; make qstypeExtMain
+./qstypeExtMain
+make clean; make concreteMain
+./concreteMain
+make clean; make concreteDriver
+./concreteDriver

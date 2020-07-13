@@ -1,0 +1,10 @@
+NAG Fortran Compiler Release 5.3.1(907)
+Warning: problem2.f90, line 1789: Unused dummy variable EXTEND
+Warning: problem2.f90, line 166: Unused PARAMETER GK15RULE
+Warning: problem2.f90, line 166: Unused PARAMETER GK21RULE
+Warning: problem2.f90, line 166: Unused PARAMETER GK31RULE
+Warning: problem2.f90, line 166: Unused PARAMETER GK41RULE
+Warning: problem2.f90, line 166: Unused PARAMETER GK51RULE
+Warning: problem2.f90, line 166: Unused PARAMETER GK61RULE
+Segmentation violation
+Internal error - please report this bug

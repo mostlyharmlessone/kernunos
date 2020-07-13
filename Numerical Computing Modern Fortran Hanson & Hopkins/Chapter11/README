@@ -1,0 +1,27 @@
+The code associated with this chapter requires version 4.3 of the
+SuperLU package.
+
+There is a single executable that may be built using the makefile.
+
+* testSLUInterop uses set_precision.f90, sluInterop.f90,
+  sortElements.f90, sparseAssign.f90, sparseOps.f90, sparseSort.f90,
+  sparseTypes.f90, fortran_double_call_SuperLU.c, and SuperLU v4.3
+  as a library.
+
+Sample output from testSLUInterop
+=================================
+
+This used the Intel compiler, XE 14.0.1.139, and Intel MKL for
+routine DNRM2.
+
+The SuperLU factorization completed with N =         5
+
+The nonzero values of L, U and their sum =        11        11        22
+
+Memory Usage (KBytes) for LU step   = 2.720000E-01
+Total Usage  (KBytes) for all terms = 1.412000E+00
+
+Test   Status        Description
+  1    Passed        H-B Matrix (.ip.) b(:) Agrees with known solution.
+
+  2    Passed        b(:) (.pi.) H-B Matrix Agrees with known solution.

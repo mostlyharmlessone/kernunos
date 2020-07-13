@@ -1,0 +1,11 @@
+type -all make
+make clean; make extraTests
+./extraTests
+make clean; make testEx1fs
+./testEx1fs
+make clean; make testEx1fv
+./testEx1fv
+make clean; make testEx2
+./testEx2
+make clean; make testEx3
+./testEx3
