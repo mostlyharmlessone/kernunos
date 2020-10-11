@@ -1,0 +1,3 @@
+[submodule "RZ/libigl"]
+	path = RZ/libigl
+	url = https://github.com/libigl/libigl.git
