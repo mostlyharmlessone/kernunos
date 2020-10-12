@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(RZ)
+project(Janus)
 enable_language(Fortran)
 enable_language(CXX)
 enable_language(C)
@@ -62,7 +62,8 @@ if ( CGAL_FOUND )
       list(APPEND CGAL_3RD_PARTY_LIBRARIES ${Boost_PROGRAM_OPTIONS_LIBRARY})
    endif()
 
-#  create_single_source_cgal_program( "view.cpp" )
+#    create_single_source_cgal_program( "Mesh_estimation.cpp" )
+#    create_single_source_cgal_program( "Single_estimation.cpp" )
 
 find_package(LIBIGL)
 
