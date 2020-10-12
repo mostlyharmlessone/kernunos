@@ -1,0 +1,27 @@
+subroutine bsearch(r,rv,n,high,low)
+ use set_precision, only : wp
+real(wp), intent(in) :: r, rv(n)
+integer, intent(in) :: n
+integer, intent(out) :: high, low
+integer m
+ low=1
+ high=n
+ if (r > rv(n)) then
+  low=n-1
+ else
+ if (r < rv(1)) then
+  high=2
+  else
+  do while ((high-low) > 1) 
+    m=floor((low + high)/ 2.)
+    if (rv(m) > r) then
+       high=m
+    else
+       low=m
+    endif
+  end do
+ endif 
+endif  
+return
+end subroutine bsearch        
+
