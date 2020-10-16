@@ -48,15 +48,6 @@
          if (Present(ft)) then
           call pspli(thta,fTmp,MM,fttTmp)  
           call SplineEval(1,thta,fTmp,fttTmp,MM,v,f,ft)
-
-        if (ABS(ft) > 10000) then
-         write(*,*) 'Spline1Dx1D:', u,v,ft
-        endif
-
-        if (ABS(ft) > 20000) then
-         write(*,*) 'Spline1Dx1D:', fttTmp
-        endif
-
          else          
           if (Present(f)) then
            call pspli(thta,fTmp,MM,fttTmp)

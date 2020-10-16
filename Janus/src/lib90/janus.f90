@@ -3,12 +3,12 @@
   USE set_precision, ONLY : wp
   USE cornea_arrays
 
-  integer IMV(MM), IZ
+  integer IMV(MM), IZ, i
 ! character(len=*), intent(in) :: InputDataFile
   character(len=8)::  InputDataFile       
   character(len=16) :: AxialPowerDataKnots
-  character(len=10) :: PowerAtKnots
-  character(len=11) :: BigPlot
+  character(len=8) :: BigGrainyPlot
+  character(len=7) :: BigPlot
   character(len=8) :: LinesOfCurv     
   integer ::  IuseG, IuseF
   real :: time_start, time_end, t(10)
@@ -59,8 +59,8 @@
   
   InputDataFile='TEST.CSV'
   AxialPowerDataKnots='RCNVRTA.ORIG.CAR'
-  PowerAtKnots='TANCS2.CAR'
-  BigPlot='AXIALS2.CAR'
+  BigGrainyPlot='BIGG.CAR'
+  BigPlot='BIG.CAR'
   LinesOfCurv='LIOC.CAR'
                
   call init_mat(MM,N,EyeSys,Atlas,RadSlope,DiaSlope)  ! initialize the arrays
@@ -151,19 +151,19 @@
    endif 
   endif
 ! done with Atlas
-  Atlas=0  
+!  Atlas=0  
       
 ! GENERATE RADIAL SPLINES ACROSS CENTER
   call CPU_TIME(time_start)
   DiaSlope=RadSlope              ! move to diagonal format
-!  DiaSlope%Zpd2 = .n. DiaSlope   ! generate the splines diagonally (generate zp2)
-  DiaSlope%Zpd2 = DiaSplineCenter(DiaSlope)   ! generate the splines diagonally with center node added
+  DiaSlope%Zpd2 = .n. DiaSlope   ! generate the splines diagonally (generate zp2)
+!  DiaSlope%Zpd2 = DiaSplineCenter(DiaSlope)   ! generate the splines diagonally with center node added
   call CPU_TIME(time_end)
   t(5)=time_end-time_start
   write(*,*) 'Time to run splines: ',t(5)*1000
   
 ! Rewrite RadSlope with round rings and new values 
-  call CPU_TIME(time_start)
+
 ! roadmap: now generate round rings, not at previous knots
 ! generate new Rs using rOMIN, rOMAX, riMIN, riMAX but they have to be constant with theta
 ! get a global value for those four to generate R's no ORIGIN to avoid singularity
@@ -172,17 +172,40 @@
 !  use fillarray to fill DiaSlope Zp with calculated value based on IuseG, optionally generate LIOC
 !  using SplineEval1Dx1D to refill a new matrix RadSlope using f0, derivatives to get calculated powers
 
+!  plot 'LIOC.CAR' using 1:2:3:4 with vectors
+   call FILLARRAY(8,LinesOfCurv,POWMIN2,POWMAX2)    ! don't redo bounds consider optional 
+
 !  write an OFF file
   call FILLARRAY(7,LinesOfCurv,POWMIN,POWMAX)
   call WriteOFF(RadSlope,'elevation.off')
-  stop
 
-  call FILLARRAY(IuseG,LinesOfCurv,POWMIN,POWMAX)  ! consider changing LIOC to different program  
-  call FILLARRAY(8,LinesOfCurv,POWMIN2,POWMAX2)    ! don't redo bounds consider optional
-  ! plot 'LIOC.CAR' using 1:2:3:4 with vectors
-  call CPU_TIME(time_end)
-  t(6)=time_end-time_start
-  write(*,*) 'Time to rewrite RadSlope without origin: ',t(6)*1000
+  call init_augmented_mat(MM,N,M,ARadSlope,ADiaSlope) ! prepare more space
+    
+! make more than one plot  
+  do i=1,2
+  if (i==1) then
+   call CPU_TIME(time_start)  
+   call FILLARRAY(IuseG,LinesOfCurv,POWMIN,POWMAX)     
+   call CPU_TIME(time_end)
+   t(6)=time_end-time_start
+   write(*,*) 'Time to rewrite RadSlope without origin: ',t(6)*1000    
+  endif
+  if (i==2) then
+   call CPU_TIME(time_start)  
+   RadSlope=Atlas
+   call refineborders(Atlas,RadSlope)
+   DiaSlope=RadSlope             
+   DiaSlope%Zpd2 = .n. DiaSlope
+   RadSlope%r=make_rings(DiaSlope,.FALSE.)            
+   call FILLARRAY(7,LinesOfCurv,POWMIN2,POWMAX2)  ! generate elevation
+   DiaSlope=RadSlope             
+   DiaSlope%Zpd2 = .n. DiaSlope 
+   RadSlope%r=make_rings(DiaSlope,.FALSE.)
+   call FILLARRAY(14,LinesOfCurv,POWMIN2,POWMAX2) ! get derivatives from elevation 14 is the same as 4 but should be grainy
+   call CPU_TIME(time_end)
+   t(6)=time_end-time_start
+   write(*,*) 'Time to re-generate a new RadSlope/DiaSlope from Atlas: ',t(6)*1000   
+  endif   
 
 ! REGENERATE SPLINES ACROSS CENTER (repeating because new values in RadSlope and round rings)
   call CPU_TIME(time_start)  
@@ -191,8 +214,6 @@
   call CPU_TIME(time_end)
   t(7)=time_end-time_start
   write(*,*) 'Time to re-run splines: ',t(7)*1000
-
-  call init_augmented_mat(MM,N,M,ARadSlope,ADiaSlope) ! prepare more space
 
   call CPU_TIME(time_start)
 ! load bounds
@@ -215,7 +236,14 @@
   
 
 ! GENERATE PRINT FILES
+ if (i==1) then
   call WRITEARRAY(ARadSlope,BigPlot)
+ endif 
+ if (i==2) then
+  call WRITEARRAY(ARadSlope,BigGrainyPlot)
+ endif  
+  
+ end do
 
 ! put in module with printgraph and put loop in; might be able to read the max/min off each file
 ! or embed in the file with a comment/header
@@ -229,11 +257,12 @@
    WRITE(17,*) 'NOYTICS = "set format y ''''; unset ylabel"'     
    WRITE(17,*) 'set multiplot layout 1,2 rowsfirst'
    CALL PRINTGRAPH(POWMIN,POWMAX,BigPlot)
-!  CALL PRINTGRAPH(POWMIN2,POWMAX2,PowerAtKnots)
+   CALL PRINTGRAPH(POWMIN2,POWMAX2,BigGrainyPlot)
    WRITE(17,*) 'unset multiplot'
   CLOSE (17)
 
-! deallocate      
+! deallocate 
+  Atlas=0     
   RadSlope=0
   DiaSlope=0
   ARadSlope=0

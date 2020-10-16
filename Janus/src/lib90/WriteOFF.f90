@@ -20,7 +20,7 @@
        write(12,*) 'OFF'
        
       donut = .TRUE.
-      quad = .TRUE.
+      quad = .FALSE.
 !     if no missing faces
       if (donut) then
        vertices=M1*N1

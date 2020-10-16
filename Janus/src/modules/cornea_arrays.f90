@@ -705,7 +705,7 @@ subroutine instantp(X2,Y1X,Y1T,Y2X,TANC,ZNMEX)
    ZNMEX=TANC    
  else
    ZNMEX=RFCT*Y2X/((1+Y1X**2)*SQRT(1+(Y1T/X2)**2+Y1X**2))
-   If (ZNMEX < 1) then
+   If (ABS(ZNMEX) < 1) then
     write(*,*) 'instantp:X2,Y1X,Y1T,Y2X,TANC,ZNMEX',X2,Y1X,Y1T,Y2X,TANC,ZNMEX
    endif 
  endif

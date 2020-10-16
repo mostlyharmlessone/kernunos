@@ -1,5 +1,8 @@
-cmake_minimum_required(VERSION 3.5)
+# Created by the script cgal_create_cmake_script
+# This is the CMake script for compiling a CGAL application.
 
+
+cmake_minimum_required(VERSION 3.1...3.15)
 project(Janus)
 enable_language(Fortran)
 enable_language(CXX)
@@ -36,17 +39,12 @@ Set (CGAL_DO_NOT_WARN_ABOUT_CMAKE_BUILD_TYPE "TRUE")
 
 find_package(CGAL QUIET)
 
-if ( CGAL_FOUND ) 
+if ( CGAL_FOUND )
 
-# glad
-#  set(GLAD_DIR "/home/debeus/build/glad")
-#  add_library("glad" "${GLAD_DIR}/src/glad.c")
-#  target_include_directories("glad" PRIVATE "${GLAD_DIR}/include")
-        
   # use Eigen
   find_package(Eigen3 3.1.0) #(requires 3.1.0 or greater)
   if (EIGEN3_FOUND)
-    include_directories( ${EIGEN3_USE_FILE} )
+    include( ${EIGEN3_USE_FILE} )
     # Link with Boost.ProgramOptions (optional)
     find_package(Boost QUIET COMPONENTS program_options)
     if(Boost_PROGRAM_OPTIONS_FOUND)
@@ -62,18 +60,18 @@ if ( CGAL_FOUND )
       list(APPEND CGAL_3RD_PARTY_LIBRARIES ${Boost_PROGRAM_OPTIONS_LIBRARY})
    endif()
 
-#    create_single_source_cgal_program( "Mesh_estimation.cpp" )
-#    create_single_source_cgal_program( "Single_estimation.cpp" )
-
-find_package(LIBIGL)
+    create_single_source_cgal_program( "Mesh_estimation.cpp" )
+    create_single_source_cgal_program( "Single_estimation.cpp" )
+    
+    find_package(LIBIGL)
 
    if ( LIBIGL_FOUND )
     file(GLOB_RECURSE src/cxx *.cpp)
     add_executable(view2 src/cxx/main.cpp)
     target_include_directories(view2 PRIVATE "${GLAD_DIR}/include")    
     target_link_libraries(view2 igl::core igl::opengl_glfw "glad")
-   endif() 
-   
+   endif()     
+    
   else()
     message(STATUS "NOTICE: This program requires Eigen 3.1 (or greater) and will not be compiled.")
   endif()
@@ -112,8 +110,6 @@ if ( OpenCL_FOUND )
 else()
  target_link_libraries(${PROJECT_NAME} splia modules ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} )
 endif()
-
-
 
 
 
