@@ -26,16 +26,16 @@
        vertices=M1*N1
        if (quad) then
         faces=(N1-1)*M1    !quadrilaterals
-        edges=(2*N1-1)*M1  
+        edges=(2*N1-1)*(M1-1)  ! don't do the last set of edges
        else
         faces=2*(N1-1)*M1  !triangles
-        edges=(3*N1-2)*M1  
+        edges=(3*N1-2)*(M1-1)  
        endif
       else 
 !      closed 
        vertices=M1*N1+1
        faces=(2*N1-1)*M1  !triangles
-       edges=(3*N1-1)*M1  
+       edges=(3*N1-1)*(M1-1)  
       endif
 !     write(12,*) vertices,faces,edges 
   
@@ -62,11 +62,10 @@
        end do  
        
 !       Last one is different
-!       i=M1, but second terms have i=1
-        i=M1
+!       for i=M1
         do j=1,N1-1
-         if ((ABS(b%Zp(1,j)) > 0) .AND. (ABS(b%Zp(M1,j)) > 0) .AND. & 
-           & (ABS(b%Zp(1,j+1)) > 0) .AND. (ABS(b%Zp(M1,j+1)) > 0)) then
+         if ((ABS(b%Zp(M1,j)) > 0) .AND. (ABS(b%Zp(1,j)) > 0) .AND. & 
+           & (ABS(b%Zp(M1,j+1)) > 0) .AND. (ABS(b%Zp(1,j+1)) > 0)) then
          if (donut) then
           if (quad) then
            faces=faces+1
@@ -91,7 +90,7 @@
          vert1 = ABS(X2)*COS(X1) 
          vert2 = ABS(X2)*SIN(X1) 
          vert3 = X3            
-         write(12,*) vert1,vert2,vert3
+         write(12,*) vert1,vert2,vert3         
         end do
        end do
         
@@ -118,15 +117,14 @@
        end do  
        
 !       Last one is different
-!       i=M1, but second terms have i=1
-        i=M1
+!       i=M1 because "i+1"=M1, but second terms have 0 because "i" is (i-1)  
         do j=1,N1-1
-         vert1=(i-1)*N1+j-1
-         vert2=(i-1)*N1+j
-         vert3=N1+j
-         vert4=N1+j-1
-         if ((ABS(b%Zp(1,j)) > 0) .AND. (ABS(b%Zp(M1,j)) > 0) .AND. & 
-           & (ABS(b%Zp(1,j+1)) > 0) .AND. (ABS(b%Zp(M1,j+1)) > 0)) then
+         vert1=(M1-1)*N1+j-1
+         vert2=(M1-1)*N1+j
+         vert3=j
+         vert4=j-1
+         if ((ABS(b%Zp(M1,j)) > 0) .AND. (ABS(b%Zp(1,j)) > 0) .AND. & 
+           & (ABS(b%Zp(M1,j+1)) > 0) .AND. (ABS(b%Zp(1,j+1)) > 0)) then
          if (donut) then
           if (quad) then
            write(12,*) '4',vert1,vert2,vert3,vert4    

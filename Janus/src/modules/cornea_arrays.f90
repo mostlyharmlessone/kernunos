@@ -232,7 +232,7 @@ subroutine RadSlope_eq_Atlas(RadSlope,Atlas)
     imv=0
     do i=1,MM
      RadSlope%thta(i)=PI*Atlas%DEG(i)/180.0_wp  
-     ! RadSlope%thta(i)=PI*(2*i-1)/180_wp should always be true for "real" Atlas
+     ! RadSlope%thta(i)=PI*2*(i-1)/180_wp should always be true for "real" Atlas
      ! RadSlope%thta(i)=PI*(i-1)/180_wp should always be true for EyeSys generated Atlas
      do j=1,N
       if ((Atlas%AP(i,j) > 0) .AND. (Atlas%AR(i,j) > 0)) then    ! Only for Atlas with POW /= 0 
@@ -706,7 +706,7 @@ subroutine instantp(X2,Y1X,Y1T,Y2X,TANC,ZNMEX)
  else
    ZNMEX=RFCT*Y2X/((1+Y1X**2)*SQRT(1+(Y1T/X2)**2+Y1X**2))
    If (ABS(ZNMEX) < 1) then
-    write(*,*) 'instantp:X2,Y1X,Y1T,Y2X,TANC,ZNMEX',X2,Y1X,Y1T,Y2X,TANC,ZNMEX
+    write(*,*) 'Warning ABS(ZNMEX)<1 instantp:X2,Y1X,Y1T,Y2X,TANC,ZNMEX',X2,Y1X,Y1T,Y2X,TANC,ZNMEX
    endif 
  endif
 end subroutine instantp 

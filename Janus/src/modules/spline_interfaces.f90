@@ -37,6 +37,17 @@ module spline_interfaces
   INTEGER, intent(in) :: n
   REAL(wp), intent(out) ::zt2(n)
  end subroutine
+ 
+      SUBROUTINE TRIDIAG(A,B,C,R,U,N)
+      use set_precision, only :  wp
+      IMPLICIT REAL(wp) (A-H,P-Z)
+      end subroutine
+      
+      SUBROUTINE CYCLIC(X,Y,N,Y2)
+      use set_precision, only :  wp
+      IMPLICIT REAL(wp) (A-H,P-Z)
+      end subroutine
+ 
       
  subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
   USE set_precision, ONLY : wp

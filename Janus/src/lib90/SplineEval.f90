@@ -82,8 +82,7 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
 
    IsInf=ieee_is_finite(f)
    If(.not.IsInf) then
-    write(*,*) 'from splineEval',u,n,i1,i,z,z2
-    stop
+    write(*,*) 'Warning from splineEval',KP,u,n,i1,i,z,z2
    endif
                            
   return

@@ -184,6 +184,7 @@
 ! make more than one plot  
   do i=1,2
   if (i==1) then
+   write(*,*) 'Plot: ',i  
    call CPU_TIME(time_start)  
    call FILLARRAY(IuseG,LinesOfCurv,POWMIN,POWMAX)     
    call CPU_TIME(time_end)
@@ -191,10 +192,11 @@
    write(*,*) 'Time to rewrite RadSlope without origin: ',t(6)*1000    
   endif
   if (i==2) then
+   write(*,*) 'Next Plot: ',i
    call CPU_TIME(time_start)  
    RadSlope=Atlas
-   call refineborders(Atlas,RadSlope)
-   DiaSlope=RadSlope             
+   call refineborders(Atlas,RadSlope)  
+   DiaSlope=RadSlope            
    DiaSlope%Zpd2 = .n. DiaSlope
    RadSlope%r=make_rings(DiaSlope,.FALSE.)            
    call FILLARRAY(7,LinesOfCurv,POWMIN2,POWMAX2)  ! generate elevation

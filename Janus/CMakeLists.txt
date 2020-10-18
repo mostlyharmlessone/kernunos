@@ -36,6 +36,7 @@ Set (CGAL_DO_NOT_WARN_ABOUT_CMAKE_BUILD_TYPE "TRUE")
  option (LIBIGL_WITH_OPENGL "Use OpenGL" ON)
  option (LIBIGL_WITH_OPENGL_GLFW "Use GLFW" ON)
  option (LIBIGL_WITH_OPENGL_GLFW_IMGUI "Use ImGui" ON)
+ option (LIBIGL_WITH_CGAL "use with CGAL" ON)
 
 find_package(CGAL QUIET)
 
@@ -62,7 +63,8 @@ if ( CGAL_FOUND )
 
     create_single_source_cgal_program( "Mesh_estimation.cpp" )
     create_single_source_cgal_program( "Single_estimation.cpp" )
-    
+#   use ./Mesh_estimation -f elevation.off -d2 -m2 -a2 -vtrue     
+#       ./Compute_Ridges_Umbilics -f elevation.off -d4 -m4 -a4 -t3 -v0     
     find_package(LIBIGL)
 
    if ( LIBIGL_FOUND )
@@ -70,6 +72,9 @@ if ( CGAL_FOUND )
     add_executable(view2 src/cxx/main.cpp)
     target_include_directories(view2 PRIVATE "${GLAD_DIR}/include")    
     target_link_libraries(view2 igl::core igl::opengl_glfw "glad")
+    add_executable(view src/cxx/view.cpp)
+    target_include_directories(view PRIVATE "${GLAD_DIR}/include")    
+    target_link_libraries(view igl::core igl::opengl_glfw "glad")   
    endif()     
     
   else()

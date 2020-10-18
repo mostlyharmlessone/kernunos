@@ -2,6 +2,7 @@
       USE cornea_arrays, ONLY : DiaSlope, RadSlope, MM, N
       USE set_precision, ONLY : wp
       USE spline_interfaces, ONLY : pspli, SplineEval
+      USE zernicke, ONLY : OPERATOR(.p.) !tensor summation convention      
       use,intrinsic :: ieee_arithmetic
       implicit none
       integer, INTENT(IN) :: iflag     ! iflag=0 no integration
@@ -10,7 +11,7 @@
       real(wp) :: g,g0,gr,grr
       real(wp) :: fTmp(MM),frTmp(MM),frrTmp(MM)
       real(wp) :: thta(MM),fttTmp(MM),frttTmp(MM),frrttTmp(MM)
-      real(wp) :: r(2*N),z(2*N),zr2(2*N)
+      real(wp) :: r(2*N),z(2*N),zr2(2*N),sumzr2
       integer :: L2,j,L
       logical :: IsInf
                             
@@ -19,11 +20,11 @@
         thta(j)=RadSlope%thta(j)
         r=DiaSlope%rd(j,:)
         z=DiaSlope%Zpd(j,:)
-        zr2=DiaSlope%Zpd2(j,:)
+        zr2=DiaSlope%Zpd2(j,:)   
         L=j+MM/2
         thta(L)=RadSlope%thta(L)
         if (iflag == 0) then
-         call SplineEval(0,r,z,zr2,L2,u,g,gr,grr) !first parameter = 0 nonperiodic
+         call SplineEval(0,r,z,zr2,L2,u,g,gr,grr) !first parameter = 0 nonperiodic                             
          fTmp(j)=g
         else                         
          call SplineEval(0,r,z,zr2,L2,u,gr,grr) 
@@ -51,18 +52,27 @@
          else          
           if (Present(f)) then
            call pspli(thta,fTmp,MM,fttTmp)
-           call SplineEval(1,thta,fTmp,fttTmp,MM,v,f)
+           call SplineEval(1,thta,fTmp,fttTmp,MM,v,f)           
           endif
          endif 	
 	endif
 !       SECOND CALL FOR PERIODIC SPLINE OF fr (df/dR), frrtTmp is d3Y/dRdTHETA2 	
 	if (Present(frt)) then
-	 call pspli(thta,frTmp,MM,frttTmp)
-	 call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr,frt) 
+	 call cyclic(thta,frTmp,MM,frttTmp)
+
+   sumzr2=frttTmp .p. frttTmp
+   IsInf=ieee_is_finite(sumzr2)
+   If(.not.IsInf) then
+    write(*,*) 'from splineeval1dx1d  : ',thta
+    write(*,*) MM
+    write(*,*) 'from splineeval1dx1d  : ',frTmp    
+    stop
+   endif
+	 call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr,frt)	  
 	else 
 	 if (Present(fr)) then
           call pspli(thta,frTmp,MM,frttTmp)
-	  call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr)
+	  call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr)	  	  
 	 endif 
 	endif
 !       THIRD CALL FOR PERIODIC SPLINE OF frr (d2f/dR2), frrttTmp is d4Y/dR2dTHETA2	
