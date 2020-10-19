@@ -1,17 +1,21 @@
        subroutine pspli(t,z,n,zt2)
        use cornea_arrays, only : PI, MM, EPS
        use set_precision, only :  wp
+       USE zernicke, ONLY : OPERATOR(.p.) !tensor summation convention
+       use,intrinsic :: ieee_arithmetic
 
 !      THIS VERSION USES MY ALGORITHM
 !      PERIODIC BOUNDARY CONDITION SPLINE
        REAL(wp), intent(in) :: t(n),z(n)
        INTEGER, intent(in) :: n
        REAL(wp), intent(out) ::zt2(n)
-       REAL(wp) :: DET,PERD
+       REAL(wp) :: DET,PERD,error
        REAL(wp) :: d(n),a(n),b(n),c(n)
        REAL(wp) :: ud(2,2,n),ue(2,n)  !  ud is my set of matrices Aj ue is my vectors vj 
-       INTEGER :: m,i,j  
+       INTEGER :: m,i,j 
+       logical :: IsInf 
        PERD=2*PI
+!       PERD=0
 !      ill-conditioning with PERD close to t(n)-t(1); following ameliorates but doesn't solve   
 !      CASE WHERE c(n)/=a(1) AND z(1)/=z(n) AND t(1)-t(n)+PERD/=0        
        if (ABS(t(1)-t(n)+PERD) > PERD/MM+EPS) then  ! this test implicitly assumes t(i) are spaced MM apart over PERD 
@@ -21,7 +25,8 @@
 !      REDUCE TO n-1 POINTS, BECAUSE THERE ARE ONLY n-1 UNIQUE POINTS AND t(n),z(n) ARE DEGENERATE
 !       if (ABS((z(1)-z(n))/(z(1)+z(n))) > EPS) because if t(1)==t(n) and z(fct(t)) then z(1)==z(n)    
         m=n-1   !this effectively takes the next point and skips t(n)
-       endif 
+       endif
+!       m=n 
 !      INITIALIZE           
        a(1)=(t(1)-t(m)+PERD)/6.0
        b(1)=(t(2)-t(m)+PERD)/3.0
@@ -115,10 +120,18 @@
         zt2(i)=ue(1,i)+ud(1,1,i)*zt2(i+1)+ud(1,2,i)*zt2(m-i)
         zt2(m-i+1)=ue(2,i)+ud(2,1,i)*zt2(i+1)+ud(2,2,i)*zt2(m-i)
        end do
-       if (m > n) then  
+       if (m < n) then  
        zt2(n)=zt2(1)
        else
 !      DONE if m == n
-       endif     
+       endif 
+
+   error=zt2 .p. zt2
+   IsInf=ieee_is_finite(error)
+   If(.not.IsInf) then
+    write(*,*) 'Warning from pspli',m,n,t(1),t(n),ABS(t(1)-t(n)+PERD),ABS(t(1)-t(m)+PERD)
+    stop
+   endif
+    
        end subroutine pspli
        

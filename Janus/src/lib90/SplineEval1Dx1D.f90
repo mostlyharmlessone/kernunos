@@ -1,7 +1,7 @@
       subroutine SplineEval1Dx1D(iflag,u,v,f,fr,ft,frt,frr,ftt) 
       USE cornea_arrays, ONLY : DiaSlope, RadSlope, MM, N
       USE set_precision, ONLY : wp
-      USE spline_interfaces, ONLY : pspli, SplineEval
+      USE spline_interfaces, ONLY : pspli, SplineEval, trapez, CubicSplineQuad
       USE zernicke, ONLY : OPERATOR(.p.) !tensor summation convention      
       use,intrinsic :: ieee_arithmetic
       implicit none
@@ -28,8 +28,10 @@
          fTmp(j)=g
         else                         
          call SplineEval(0,r,z,zr2,L2,u,gr,grr) 
-         call CubicSplineQuad(r,z,zr2,L2,0._wp,g0)    
-         call CubicSplineQuad(r,z,zr2,L2,u,g) 
+!         call CubicSplineQuad(r,z,zr2,L2,0._wp,g0)    
+!         call CubicSplineQuad(r,z,zr2,L2,u,g) 
+         call trapez(r,z,zr2,L2,0._wp,g0)    
+         call trapez(r,z,zr2,L2,u,g) 
          fTmp(j)=g-g0
         endif      
         frTmp(j)=gr
@@ -58,7 +60,7 @@
 	endif
 !       SECOND CALL FOR PERIODIC SPLINE OF fr (df/dR), frrtTmp is d3Y/dRdTHETA2 	
 	if (Present(frt)) then
-	 call cyclic(thta,frTmp,MM,frttTmp)
+	 call pspli(thta,frTmp,MM,frttTmp)
 
    sumzr2=frttTmp .p. frttTmp
    IsInf=ieee_is_finite(sumzr2)
