@@ -5,7 +5,7 @@ MODULE cornea_arrays
  USE spline_interfaces 
  REAL(wp), PARAMETER :: PI=3.1415926535897932384626433832795_wp
  REAL(wp), PARAMETER :: RFCT=33750_wp
- REAL(wp), PARAMETER :: EPS=0.00001
+ REAL(wp), PARAMETER :: EPS=0.000000
  INTEGER, PARAMETER :: MM=180, N=22 
 ! INTEGER, PARAMETER :: MM=360, N=16
  integer, PARAMETER :: M=10 ! augmented multiplier for number of rings

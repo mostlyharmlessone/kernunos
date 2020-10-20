@@ -1,5 +1,5 @@
        subroutine pspli(t,z,n,zt2)
-       use cornea_arrays, only : PI, MM, EPS
+       use cornea_arrays, only : PI, MM, EPS, RadSlope
        use set_precision, only :  wp
        USE zernicke, ONLY : OPERATOR(.p.) !tensor summation convention
        use,intrinsic :: ieee_arithmetic
@@ -10,12 +10,12 @@
        INTEGER, intent(in) :: n
        REAL(wp), intent(out) ::zt2(n)
        REAL(wp) :: DET,PERD,error
-       REAL(wp) :: d(n),a(n),b(n),c(n)
-       REAL(wp) :: ud(2,2,n),ue(2,n)  !  ud is my set of matrices Aj ue is my vectors vj 
+       REAL(wp) :: d(n),a(n),b(n),c(n),zt2c(n),thta(MM)
+       REAL(wp) :: ud(2,2,n/2+1),ue(2,n/2+1)  !  ud is my set of matrices Aj ue is my vectors vj 
        INTEGER :: m,i,j 
        logical :: IsInf 
        PERD=2*PI
-!       PERD=0
+       PERD=0
 !      ill-conditioning with PERD close to t(n)-t(1); following ameliorates but doesn't solve   
 !      CASE WHERE c(n)/=a(1) AND z(1)/=z(n) AND t(1)-t(n)+PERD/=0        
        if (ABS(t(1)-t(n)+PERD) > PERD/MM+EPS) then  ! this test implicitly assumes t(i) are spaced MM apart over PERD 
@@ -26,7 +26,7 @@
 !       if (ABS((z(1)-z(n))/(z(1)+z(n))) > EPS) because if t(1)==t(n) and z(fct(t)) then z(1)==z(n)    
         m=n-1   !this effectively takes the next point and skips t(n)
        endif
-!       m=n 
+       m=n 
 !      INITIALIZE           
        a(1)=(t(1)-t(m)+PERD)/6.0
        b(1)=(t(2)-t(m)+PERD)/3.0
@@ -54,6 +54,7 @@
         ud(2,2,j)=-a(1-j+m)*b(j)/DET
         ue(1,j)=(d(j)*b(1-j+m)-c(1-j+m)*d(1-j+m))/DET
         ue(2,j)=(-a(j)*d(j)+d(1-j+m)*b(j))/DET
+
 !      ALL BUT THE LAST EQUATION (zt2(j-1),zt(n-j+2)=A(j-1).p.((zt2(j),zt(n-j+1))+v(j-1)
        do j=2,INT(1+(m-1)/2)
         DET=b(j)*b(1-j+m)+a(j)*b(1-j+m)*ud(1,1,-1+j)-& 
@@ -68,9 +69,12 @@
                 (d(j)-a(j)*ue(1,-1+j))*(b(1-j+m)+c(1-j+m)*ud(2,2,-1+j)))/DET
         ue(2,j)=((d(1-j+m)-c(1-j+m)*ue(2,-1+j))*(b(j)+a(j)*ud(1,1,-1+j))-&
                 c(1-j+m)*(d(j)-a(j)*ue(1,-1+j))*ud(2,1,-1+j))/DET
+
+!        write(*,*) 'DET', DET,ud
+
        end do 
        j=INT(m/2)
-        if ( mod(j,2) > 0 ) then
+        if ( mod(j,2) == 0 ) then
 !      EVEN CASE (2x2) 
 !      NO ud(,,j); ue(,j) iS THE SOLUTION AT j,j+1
         DET=b(j)*b(1+j)-a(1+j)*c(j)+a(j)*b(1+j)*ud(1,1,-1+j)-&
@@ -86,6 +90,11 @@
 
         zt2(j)=ue(1,j)
         zt2(j+1)=ue(2,j)
+
+        if (ue(2,j) > 1) then
+        write(*,*) 'DET', DET,ud(1,2,:)
+        endif
+
 !      READY FOR BACKSUBSTITUTION       
         else
 !      (m-2*j+1 == 2)
@@ -129,9 +138,21 @@
    error=zt2 .p. zt2
    IsInf=ieee_is_finite(error)
    If(.not.IsInf) then
-    write(*,*) 'Warning from pspli',m,n,t(1),t(n),ABS(t(1)-t(n)+PERD),ABS(t(1)-t(m)+PERD)
+    write(*,*) 'Warning from pspli',m,n,t(1),t(n),ABS(t(1)-t(n)+PERD),PERD/MM+EPS
     stop
    endif
+
+   error=zt2 .p. zt2
+   If(error > 4000) then
+    write(*,*) 'from pspli * : ',m,n,t(1),t(n),ABS(t(1)-t(n)+PERD),PERD/MM+EPS
+    write(*,*) ' '
+    write(*,*) 'from pspli * : ',ue(1,:)
+    write(*,*) ' '
+    call cyclic(t,z,n,zt2c)
+    write(*,*) 'from pspli * : ',ue(2,:)
+    stop
+   endif
+
     
        end subroutine pspli
        

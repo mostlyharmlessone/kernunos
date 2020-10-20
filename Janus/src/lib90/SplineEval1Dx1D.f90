@@ -54,7 +54,17 @@
          else          
           if (Present(f)) then
            call pspli(thta,fTmp,MM,fttTmp)
-           call SplineEval(1,thta,fTmp,fttTmp,MM,v,f)           
+           call SplineEval(1,thta,fTmp,fttTmp,MM,v,f) 
+ 
+   sumzr2=fttTmp .p. fttTmp
+   If(sumzr2 > 4000) then
+    write(*,*) 'from splineeval1dx1d * : ',fTmp
+    write(*,*) MM
+    write(*,*) 'from splineeval1dx1d * : ',fttTmp    
+    stop
+   endif
+
+         
           endif
          endif 	
 	endif
@@ -70,6 +80,7 @@
     write(*,*) 'from splineeval1dx1d  : ',frTmp    
     stop
    endif
+
 	 call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr,frt)	  
 	else 
 	 if (Present(fr)) then
