@@ -54,33 +54,13 @@
          else          
           if (Present(f)) then
            call pspli(thta,fTmp,MM,fttTmp)
-           call SplineEval(1,thta,fTmp,fttTmp,MM,v,f) 
- 
-   sumzr2=fttTmp .p. fttTmp
-   If(sumzr2 > 4000) then
-    write(*,*) 'from splineeval1dx1d * : ',fTmp
-    write(*,*) MM
-    write(*,*) 'from splineeval1dx1d * : ',fttTmp    
-    stop
-   endif
-
-         
+           call SplineEval(1,thta,fTmp,fttTmp,MM,v,f)         
           endif
          endif 	
 	endif
 !       SECOND CALL FOR PERIODIC SPLINE OF fr (df/dR), frrtTmp is d3Y/dRdTHETA2 	
 	if (Present(frt)) then
 	 call pspli(thta,frTmp,MM,frttTmp)
-
-   sumzr2=frttTmp .p. frttTmp
-   IsInf=ieee_is_finite(sumzr2)
-   If(.not.IsInf) then
-    write(*,*) 'from splineeval1dx1d  : ',thta
-    write(*,*) MM
-    write(*,*) 'from splineeval1dx1d  : ',frTmp    
-    stop
-   endif
-
 	 call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr,frt)	  
 	else 
 	 if (Present(fr)) then

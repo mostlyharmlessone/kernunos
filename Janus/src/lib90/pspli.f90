@@ -15,18 +15,15 @@
        INTEGER :: m,i,j 
        logical :: IsInf 
        PERD=2*PI
-       PERD=0
-!      ill-conditioning with PERD close to t(n)-t(1); following ameliorates but doesn't solve   
+!      ill-conditioning with PERD close to t(n)-t(1)   
 !      CASE WHERE c(n)/=a(1) AND z(1)/=z(n) AND t(1)-t(n)+PERD/=0        
-       if (ABS(t(1)-t(n)+PERD) > PERD/MM+EPS) then  ! this test implicitly assumes t(i) are spaced MM apart over PERD 
-                           ! if t(1)-t(n)+PERD > 0 not just /= 0 
-        m=n                ! EPS = small number but not 0 to avoid ill-conditioning   
+       if (ABS(t(1)-t(n)+PERD) > EPS) then  ! this test implicitly assumes t(i) are spaced MM apart over PERD 
+        m=n                   
        else
 !      REDUCE TO n-1 POINTS, BECAUSE THERE ARE ONLY n-1 UNIQUE POINTS AND t(n),z(n) ARE DEGENERATE
 !       if (ABS((z(1)-z(n))/(z(1)+z(n))) > EPS) because if t(1)==t(n) and z(fct(t)) then z(1)==z(n)    
         m=n-1   !this effectively takes the next point and skips t(n)
-       endif
-       m=n 
+       endif 
 !      INITIALIZE           
        a(1)=(t(1)-t(m)+PERD)/6.0
        b(1)=(t(2)-t(m)+PERD)/3.0
@@ -53,8 +50,7 @@
         ud(2,1,j)=a(j)*c(j)/DET
         ud(2,2,j)=-a(1-j+m)*b(j)/DET
         ue(1,j)=(d(j)*b(1-j+m)-c(1-j+m)*d(1-j+m))/DET
-        ue(2,j)=(-a(j)*d(j)+d(1-j+m)*b(j))/DET
-
+        ue(2,j)=(-a(j)*d(j)+d(1-j+m)*b(j))/DET               
 !      ALL BUT THE LAST EQUATION (zt2(j-1),zt(n-j+2)=A(j-1).p.((zt2(j),zt(n-j+1))+v(j-1)
        do j=2,INT(1+(m-1)/2)
         DET=b(j)*b(1-j+m)+a(j)*b(1-j+m)*ud(1,1,-1+j)-& 
@@ -64,14 +60,11 @@
         ud(1,1,j)=-((c(j)*(b(1-j+m)+c(1-j+m)*ud(2,2,-1+j)))/DET)
         ud(1,2,j)=(a(j)*a(1-j+m)*ud(1,2,-1+j))/DET
         ud(2,1,j)=(c(j)*c(1-j+m)*ud(2,1,-1+j))/DET
-        ud(2,2,j)=-((a(1-j+m)*(b(j)+a(j)*ud(1,1,-1+j)))/DET)
+        ud(2,2,j)=-((a(1-j+m)*(b(j)+a(j)*ud(1,1,-1+j)))/DET)        
         ue(1,j)=(-a(j)*(d(1-j+m)-c(1-j+m)*ue(2,-1+j))*ud(1,2,-1+j)+&
                 (d(j)-a(j)*ue(1,-1+j))*(b(1-j+m)+c(1-j+m)*ud(2,2,-1+j)))/DET
         ue(2,j)=((d(1-j+m)-c(1-j+m)*ue(2,-1+j))*(b(j)+a(j)*ud(1,1,-1+j))-&
-                c(1-j+m)*(d(j)-a(j)*ue(1,-1+j))*ud(2,1,-1+j))/DET
-
-!        write(*,*) 'DET', DET,ud
-
+                c(1-j+m)*(d(j)-a(j)*ue(1,-1+j))*ud(2,1,-1+j))/DET                
        end do 
        j=INT(m/2)
         if ( mod(j,2) == 0 ) then
@@ -80,21 +73,13 @@
         DET=b(j)*b(1+j)-a(1+j)*c(j)+a(j)*b(1+j)*ud(1,1,-1+j)-&
             a(j)*a(1+j)*ud(1,2,-1+j)-c(j)*c(1+j)*ud(2,1,-1+j)-&
             a(j)*c(1+j)*ud(1,2,-1+j)*ud(2,1,-1+j)+b(j)*c(1+j)*ud(2,2,-1+j)+&
-            a(j)*c(1+j)*ud(1,1,-1+j)*ud(2,2,-1+j)
-            
+            a(j)*c(1+j)*ud(1,1,-1+j)*ud(2,2,-1+j)            
         ue(1,j)=((d(1+j)-c(1+j)*ue(2,-1+j))*(-c(j)-a(j)*ud(1,2,-1+j))+&
-                (d(j)-a(j)*ue(1,-1+j))*(b(1+j)+c(1+j)*ud(2,2,-1+j)))/DET
-                 
+                (d(j)-a(j)*ue(1,-1+j))*(b(1+j)+c(1+j)*ud(2,2,-1+j)))/DET                 
         ue(2,j)=((d(1+j)-c(1+j)*ue(2,-1+j))*(b(j)+a(j)*ud(1,1,-1+j))+&
                 (d(j)-a(j)*ue(1,-1+j))*(-a(1+j)-c(1+j)*ud(2,1,-1+j)))/DET 
-
         zt2(j)=ue(1,j)
         zt2(j+1)=ue(2,j)
-
-        if (ue(2,j) > 1) then
-        write(*,*) 'DET', DET,ud(1,2,:)
-        endif
-
 !      READY FOR BACKSUBSTITUTION       
         else
 !      (m-2*j+1 == 2)
@@ -120,8 +105,7 @@
         zt2(j+2)=((d(2+j)-c(2+j)*ue(2,-1+j))*(b(j)*b(1+j)-a(1+j)*c(j)+&
                  a(j)*b(1+j)*ud(1,1,-1+j))+(d(j)-a(j)*ue(1,-1+j))*(a(1+j)*a(2+j)-&
                  b(1+j)*c(2+j)*ud(2,1,-1+j))+d(1+j)*(-a(2+j)*b(j)-a(j)*a(2+j)*ud(1,1,-1+j)+&
-                 c(j)*c(2+j)*ud(2,1,-1+j)))/DET
-                 
+                 c(j)*c(2+j)*ud(2,1,-1+j)))/DET                 
 !      READY FOR BACKSUBSTITUTION
         endif
 !      BACKSUBSTITUTION
@@ -142,14 +126,12 @@
     stop
    endif
 
-   error=zt2 .p. zt2
-   If(error > 4000) then
-    write(*,*) 'from pspli * : ',m,n,t(1),t(n),ABS(t(1)-t(n)+PERD),PERD/MM+EPS
-    write(*,*) ' '
-    write(*,*) 'from pspli * : ',ue(1,:)
-    write(*,*) ' '
-    call cyclic(t,z,n,zt2c)
-    write(*,*) 'from pspli * : ',ue(2,:)
+   call cyclic(t,z,n,zt2c)
+   error=SQRT((zt2-zt2c) .p. (zt2-zt2c))
+   If(error > 40000) then
+    call cyclic(t,z,n,zt2c)    
+    write(*,*) 'pspli-cyclic',SQRT((zt2-zt2c) .p. (zt2-zt2c))
+    write(*,*) 'diff',FLOOR(ABS(zt2-zt2c))   
     stop
    endif
 
