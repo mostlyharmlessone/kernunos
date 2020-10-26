@@ -2,7 +2,7 @@
 ! DRIVER PROGRAM FOR SPLINE ROUTINES
   USE set_precision, ONLY : wp
   USE cornea_arrays
-
+  TYPE(wpRadSlopeMatrix) :: atmp
   integer IMV(MM), IZ, i
 ! character(len=*), intent(in) :: InputDataFile
   character(len=8)::  InputDataFile       
@@ -10,7 +10,7 @@
   character(len=8) :: BigGrainyPlot
   character(len=7) :: BigPlot
   character(len=8) :: LinesOfCurv     
-  integer ::  IuseG, IuseF
+  integer ::  IuseG, IuseF, MV(MM)
   real :: time_start, time_end, t(10)
   real(wp) :: POWMIN,POWMAX,POWMIN2,POWMAX2
   
@@ -26,7 +26,14 @@
       character(len=*), intent(in) :: KX1     
       real(wp), intent(out) :: POWMIN, POWMAX
     END SUBROUTINE
-  
+
+    SUBROUTINE WriteOFF(b,KXNAME)
+      USE cornea_arrays
+      USE set_precision, ONLY : wp
+      TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
+      character(len=*), intent(in) :: KXNAME 
+    END SUBROUTINE  
+
     SUBROUTINE WRITEARRAY(b,KXNAME)
       USE cornea_arrays
       USE set_precision, ONLY : wp
@@ -112,13 +119,13 @@
   IuseG=0  ! IuseG=-1 or 0 here only, presplining; 0 just finds POWMIN/MAX can skip entirely here
   CALL FILLARRAY(IuseG,LinesOfCurv,POWMIN,POWMAX) 
   IuseG=4  ! if above IuseG=-1, then change to 0, 1 or 2  ! IuseG=0 then change to 3 through 8
- 
+
 ! get rid of holes/find RadSlope%MV based on Atlas array data
   call CPU_TIME(time_start)
   call refineborders(Atlas,RadSlope) ! substitute operator .b. or something: only affects MV in RadSlope
   call CPU_TIME(time_end)
   t(2)=time_end-time_start
-  write(*,*) 'Time to refine borders: ',t(2)*1000   
+  write(*,*) 'Time to refine borders: ',t(2)*1000 
     
   IuseF=0  ! only valid approach is IuseF=0 because    
 !  R is not constant; they're not circles, so splining along the curve gives curvatures that
@@ -156,8 +163,8 @@
 ! GENERATE RADIAL SPLINES ACROSS CENTER
   call CPU_TIME(time_start)
   DiaSlope=RadSlope              ! move to diagonal format
-  DiaSlope%Zpd2 = .n. DiaSlope   ! generate the splines diagonally (generate zp2)
-!  DiaSlope%Zpd2 = DiaSplineCenter(DiaSlope)   ! generate the splines diagonally with center node added
+!  DiaSlope%Zpd2 = .n. DiaSlope   ! generate the splines diagonally (generate zp2)
+  DiaSlope%Zpd2 = DiaSplineCenter(DiaSlope)   ! generate the splines diagonally with center node added (slopes only)
   call CPU_TIME(time_end)
   t(5)=time_end-time_start
   write(*,*) 'Time to run splines: ',t(5)*1000
@@ -176,8 +183,13 @@
    call FILLARRAY(8,LinesOfCurv,POWMIN2,POWMAX2)    ! don't redo bounds consider optional 
 
 !  write an OFF file
+  MV(:)=RadSlope%MV(:) ! store a copy
+  RadSlope%MV(:)=N   !full diameters for elevation for Zernicke
   call FILLARRAY(7,LinesOfCurv,POWMIN,POWMAX)
+  atmp=Normalize(RadSlope) !allocates atmp
   call WriteOFF(RadSlope,'elevation.off')
+  RadSlope%MV(:)=MV(:)  ! restore
+  atmp=0 ! deallocate
 
   call init_augmented_mat(MM,N,M,ARadSlope,ADiaSlope) ! prepare more space
     
@@ -197,7 +209,8 @@
    RadSlope=Atlas
    call refineborders(Atlas,RadSlope)  
    DiaSlope=RadSlope            
-   DiaSlope%Zpd2 = .n. DiaSlope
+!   DiaSlope%Zpd2 = .n. DiaSlope
+   DiaSlope%Zpd2 = DiaSplineCenter(DiaSlope)   ! generate the splines diagonally with center node added (slopes only)
    RadSlope%r=make_rings(DiaSlope,.FALSE.)            
    call FILLARRAY(7,LinesOfCurv,POWMIN2,POWMAX2)  ! generate elevation
    DiaSlope=RadSlope             

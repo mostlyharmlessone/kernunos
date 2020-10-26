@@ -8,7 +8,7 @@ MODULE cornea_arrays
  REAL(wp), PARAMETER :: EPS=0.000000
  INTEGER, PARAMETER :: MM=180, N=22 
 ! INTEGER, PARAMETER :: MM=360, N=16
- integer, PARAMETER :: M=10 ! augmented multiplier for number of rings
+ integer, PARAMETER :: M=5 ! augmented multiplier for number of rings
  integer, PARAMETER :: M2=3 ! lsq fourier cosine series terms
  
 ! Defining common data arrays
@@ -439,6 +439,25 @@ function make_bad_rings(b,Origin) result(a)   ! works on DiaSlope (needs bounds)
  end ASSOCIATE
 end function make_bad_rings
 
+function Normalize(b) result(a) ! puts b on unit circle
+ TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
+ TYPE(wpRadSlopeMatrix) :: a
+ real(wp) :: rBo
+ integer :: M1,N1,i,j 
+ N1=size(b%r,2) !N1=N 
+ M1=size(b%r,1) !M1=MM
+ allocate (a%r(MM,N),a%Zp(MM,N),a%Zp2(MM,N),&
+            a%Zt2(MM,N),a%thta(MM),a%MV(MM))
+ rBo=-1E30
+  do i=1,N1 
+   do j=1,M1
+    if (ABS(b%r(j,i)) >= rBo) rBo=ABS(b%r(j,i)) !find maximum radius
+   end do
+  end do
+  a%r(:,:)=b%r(:,:)/rBo
+  a%Zp(:,:)=b%Zp(:,:)/rBo  
+end function Normalize
+
 function AngSpline(b) result(a) 
  TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
  TYPE(wpsplinevect) :: spline
@@ -480,7 +499,7 @@ function fillin(b) result(a)
   do i=1,N1 
      do j=1,M1
        Q=b%AR(j,i)        
-        if (ABS(Q) > 0.) then ! ABS is optional for AR or AP, contrast with AngSpline below
+        if (ABS(Q) > 0.) then ! ABS is optional for AR or AP, contrast with AngSpline above
          mvjr(i)=mvjr(i)+1
          t(mvjr(i))=b%DEG(j)*PI/180.0_wp         
          z(mvjr(i))=Q 
@@ -495,8 +514,7 @@ function fillin(b) result(a)
          write(*,*) 'spline error 3 in cornea_arrays fillin',K,I,b%AR(K,I),RTEMP
          endif
         endif 
-        a(k,i)=RTEMP                
-!       a(k,i)=zt2(mvjr(i))	
+        a(k,i)=RTEMP                	
       end do           	 
    end do   
    end associate

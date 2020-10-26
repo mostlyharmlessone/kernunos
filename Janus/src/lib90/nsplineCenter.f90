@@ -13,9 +13,11 @@
    rr(i)=r(i)
    zz(i)=z(i)
   end do
-! add a centerpoint for slopes calc
+! add a centerpoint for slopes calc zero slope at origin
    rr(low+1)=0_wp
-   zz(low+1)=0_wp  
+   zz(low+1)=0_wp
+!  Or zero slope at average/linear interpolation for each diagonal instead of single point
+   rr(low+1)=(r(low)+r(high))/2.0
   do i=high,n  ! high=low+1
    rr(i+1)=r(i)
    zz(i+1)=z(i)

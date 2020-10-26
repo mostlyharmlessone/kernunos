@@ -9,10 +9,10 @@ END TYPE wpArray
 TYPE (wpArray) :: Zern
 
 INTERFACE OPERATOR (.p.) ! binary operator summation convention/tensors
-!a .p. b returns scalar sum rank 0 of a(i,j)*b(i,j) a,b rank 2
-!a .p. b returns scalar sum rank 0 of a(i)*b(i) a,b rank 1
-!a .p. b returns vector sum(j) rank 1 of a(i)*b(i,j) a,b rank 1,2
-!a .p. b returns vector sum(i) rank 1 of a(i,j)*b(j) a,b rank 2,1
+!   a .p. b returns scalar sum matrices; rank 0 of a(i,j)*b(i,j) a,b rank 2
+!   a .p. b returns scalar sum of vectors; rank 0 of a(i)*b(i) a,b rank 1
+!   a .p. b returns vector sum(j) rank 1 of a(i)*b(i,j) a,b rank 1,2
+!   a .p. b returns vector sum(i) rank 1 of a(i,j)*b(j) a,b rank 2,1
  MODULE PROCEDURE sum_of_sum_matrix_by_matrix, sum_of_vector_by_matrix, &
                   sum_of_matrix_by_vector, sum_of_vector_by_vector
 END INTERFACE
@@ -64,9 +64,14 @@ end function R
 ! Sum over integers (m,n)( (Sum over points MM,N elevation(i=1,MM, J=1,N)*Z(at knots(MM,N),m,n) )
 ! compute Zmn for m,n at knots -> array or big array, matrix multiply with elevation array scaled to unit circle
 
+!Zernicke coefficients on UNIT circle 0<rho<1, 0<phi<2pi
+!G(rho,phi)=Sum(m,n){amnZmn(rho,phi)+bmnZ-mn(rho,phi)} can be expressed where
+!amn=(2n+2)/(eps(m)*PI)<G,Z+mn>
+!bmn=(2n+2)/(eps(m)*PI)<G,Z-mn>
+
+! vector & matrix operations
+
 !! scalar matrix (inner) product
-!!  v3=1 ! v3(n) n=size(array1,1)
-!!  dot_product(v3,matmul(v3,array1*array2))
 !function sum_of_sum_matrix_by_matrix(array1,array2) result(dL2)
 ! REAL (wp), INTENT (IN) :: array1(:,:),array2(:,:)
 ! REAL (wp) :: dL2
@@ -91,7 +96,6 @@ function sum_of_sum_matrix_by_matrix(array1,array2) result(dL2)
 end function sum_of_sum_matrix_by_matrix
 
 !! scalar vector (inner) product
-!! dot_product(v1,v2)
 !function sum_of_vector_by_vector(v1,v2) result(dL2)
 ! REAL (wp), INTENT (IN) :: v1(:),v2(:)
 ! REAL (wp) :: dL2
@@ -111,7 +115,6 @@ function sum_of_vector_by_vector(v1,v2) result(dL2)
 end function sum_of_vector_by_vector
 
 !! vector x matrix (inner) product
-!! matmul(v1,array2)
 !function sum_of_vector_by_matrix(v1,array2) result(v2)
 ! REAL (wp), INTENT (IN) :: v1(:),array2(:,:)
 ! REAL (wp) :: v2(SIZE(array2,1))
@@ -128,7 +131,6 @@ end function sum_of_vector_by_vector
 !end function sum_of_vector_by_matrix
 
 ! vector x matrix (inner) product
-! matmul(v1,array2)
 function sum_of_vector_by_matrix(v1,array2) result(v2)
  REAL (wp), INTENT (IN) :: v1(:),array2(:,:)
  REAL (wp) :: v2(SIZE(array2,1))
@@ -136,7 +138,6 @@ function sum_of_vector_by_matrix(v1,array2) result(v2)
 end function sum_of_vector_by_matrix
 
 !! matrix x vector (inner) product
-!! matmul(array1,v2)
 !function sum_of_matrix_by_vector(array1,v2) result(v1)
 ! REAL (wp), INTENT (IN) :: v2(:),array1(:,:)
 ! REAL (wp) :: v1(SIZE(array1,2))
@@ -153,36 +154,32 @@ end function sum_of_vector_by_matrix
 !end function sum_of_matrix_by_vector
 
 ! matrix x vector (inner) product
-! matmul(array1,v2)
 function sum_of_matrix_by_vector(array1,v2) result(v1)
  REAL (wp), INTENT (IN) :: v2(:),array1(:,:)
  REAL (wp) :: v1(SIZE(array1,2))
  v1=matmul(array1,v2)
 end function sum_of_matrix_by_vector
 
-!Zernicke coefficients on UNIT circle 0<rho<1, 0<phi<2pi
-!G(rho,phi)=Sum(m,n){amnZmn(rho,phi)+bmnZ-mn(rho,phi)} can be expressed where
-!amn=(2n+2)/(eps(m)*PI)<G,Z+mn>
-!bmn=(2n+2)/(eps(m)*PI)<G,Z-mn>
+! epsilon & factorial functions
 
 function eps(m) result(e) !eps(0)=2, eps(m)=1 m /=0
-INTEGER :: e
-INTEGER, INTENT(IN) :: m
-if (m == 0) then
+ INTEGER :: e
+ INTEGER, INTENT(IN) :: m
+ if (m == 0) then
   e=2
-else
+ else
   e=1
-endif    
+ endif    
 end function eps
 
 recursive function fact(n)  result(f) ! factorial
-!INTEGER :: f
-!INTEGER, INTENT(IN) :: n
-if (n == 0) then
+ INTEGER :: f
+ INTEGER, INTENT(IN) :: n
+ if (n == 0) then
    f = 1
-else
+ else
    f = n * fact(n-1)
-endif
+ endif
 end function fact
 
 
