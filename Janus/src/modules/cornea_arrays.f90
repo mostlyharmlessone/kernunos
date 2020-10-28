@@ -91,6 +91,7 @@ END INTERFACE
 
 ! declaring common data arrays
 
+ real(wp) :: RadSplineCenter(MM)
  TYPE(wpEyeSysMatrix) :: EyeSys
  TYPE(wpRadSlopeMatrix) :: RadSlope
  TYPE(wpAtlasMatrix) :: Atlas

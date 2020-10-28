@@ -41,6 +41,7 @@
      AB(5,i-1)=c(i-1)   
    end do       
    call dgbsv(n-1,1,2,1,AB,5,ipiv,zz2,n-1,info)
+!   call thomas(a,b,c,d,z2,n-1) ! can use to check against lapack
 ! The lapack insertion below from Hanson & Hopkins chapter 2: exampleLapack90.f90
 ! Check that the Lapack routine has been successful
    if (info<0) then
