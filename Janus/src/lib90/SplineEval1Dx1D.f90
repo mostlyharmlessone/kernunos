@@ -1,14 +1,14 @@
       subroutine SplineEval1Dx1D(iflag,u,v,f,fr,ft,frt,frr,ftt) 
-      USE cornea_arrays, ONLY : DiaSlope, RadSlope, MM, N
+      USE cornea_arrays, ONLY : DiaSlope, RadSlope, MM, N, RadSplineCenter
       USE set_precision, ONLY : wp
-      USE spline_interfaces, ONLY : pspli, SplineEval, trapez, CubicSplineQuad
+      USE spline_interfaces, ONLY : pspli, SplineEval, trapez, CubicSplineQuad, SplineCenter
       USE zernicke, ONLY : OPERATOR(.p.) !tensor summation convention      
       use,intrinsic :: ieee_arithmetic
       implicit none
       integer, INTENT(IN) :: iflag     ! iflag=0 no integration
       real(wp), INTENT(IN) :: u, v
       real(wp), INTENT(OUT),OPTIONAL ::  f,fr,ft,frt,frr,ftt
-      real(wp) :: g,g0,gr,grr
+      real(wp) :: g,g0,gr,grr,w,gr1
       real(wp) :: fTmp(MM),frTmp(MM),frrTmp(MM)
       real(wp) :: thta(MM),fttTmp(MM),frttTmp(MM),frrttTmp(MM)
       real(wp) :: r(2*N),z(2*N),zr2(2*N),sumzr2
@@ -24,8 +24,10 @@
         L=j+MM/2
         thta(L)=RadSlope%thta(L)
         if (iflag == 0) then
-         call SplineEval(0,r,z,zr2,L2,u,g,gr,grr) !first parameter = 0 nonperiodic                             
+         call SplineEval(0,r,z,zr2,L2,u,g,gr,grr) !first parameter = 0 nonperiodic                            
          fTmp(j)=g
+         call SplineCenter(r,z,zr2,L2,w)                                  
+         RadSplineCenter(j)=w
         else                         
          call SplineEval(0,r,z,zr2,L2,u,gr,grr) 
 !         call CubicSplineQuad(r,z,zr2,L2,0._wp,g0)    
@@ -33,16 +35,19 @@
          call trapez(r,z,zr2,L2,0._wp,g0)    
          call trapez(r,z,zr2,L2,u,g) 
          fTmp(j)=g-g0
+         call SplineCenter(r,z,zr2,L2,w)
+         RadSplineCenter(j)=w
         endif      
         frTmp(j)=gr
         frrTmp(j)=grr 
-!       odd as it seems, each angle j is also angle L since we're on a diagonal  
+!       odd as it seems, each angle j is also angle L since we're on a diagonal 
+        RadSplineCenter(L)=RadSplineCenter(j)
         fTmp(L)=fTmp(j)   
         frTmp(L)=frTmp(j)
         frrTmp(L)=frrTmp(j)
 	 	
       end do
-
+      
 !       FIRST CALL FOR PERIODIC SPLINE OF f0, fttTmp is d2Y/dTHETA2 
         if (Present(ftt)) then
          call pspli(thta,fTmp,MM,fttTmp)

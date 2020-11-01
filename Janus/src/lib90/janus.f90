@@ -33,6 +33,13 @@
       TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
       character(len=*), intent(in) :: KXNAME 
     END SUBROUTINE  
+    
+    subroutine WriteCenter(b,KXNAME)
+      USE cornea_arrays
+      USE set_precision, ONLY : wp
+      TYPE(wpRadSlopeMatrix),INTENT(IN) :: b 
+      character(len=*), intent(in) :: KXNAME   
+    end subroutine      
 
     SUBROUTINE WRITEARRAY(b,KXNAME)
       USE cornea_arrays
@@ -163,12 +170,12 @@
 ! GENERATE RADIAL SPLINES ACROSS CENTER
   call CPU_TIME(time_start)
   DiaSlope=RadSlope              ! move to diagonal format
-!  DiaSlope%Zpd2 = .n. DiaSlope   ! generate the splines diagonally (generate zp2)
-  DiaSlope%Zpd2 = DiaSplineCenter(DiaSlope)   ! generate the splines diagonally with center node added (slopes only)
+  DiaSlope%Zpd2 = .n. DiaSlope   ! generate the splines diagonally (generate zp2)
+!  DiaSlope%Zpd2 = DiaSplineCenter(DiaSlope)   ! generate the splines diagonally with center node added (slopes only)
   call CPU_TIME(time_end)
   t(5)=time_end-time_start
   write(*,*) 'Time to run splines: ',t(5)*1000
-  
+ 
 ! Rewrite RadSlope with round rings and new values 
 
 ! roadmap: now generate round rings, not at previous knots
@@ -181,16 +188,21 @@
 
 !  plot 'LIOC.CAR' using 1:2:3:4 with vectors
    call FILLARRAY(8,LinesOfCurv,POWMIN2,POWMAX2)    ! don't redo bounds consider optional 
-
+!  WriteCenter shows where the spline of slopes is zero, it should be close to zero   
+!  use with polar plot, has to come after SplineEval1Dx1D is called, ie. 'set polar' then plot 'Center.dat'
+   call WriteCenter(RadSlope,'Center.dat')   ! biggest deviation with nSplineCenter zero slope forced at origin, 
+                                             ! then with zero slope forced at average (r(low)+r(high))/2.0
+                                             ! smallest deviation without nSplineCenter   
 !  write an OFF file
   MV(:)=RadSlope%MV(:) ! store a copy
   RadSlope%MV(:)=N   !full diameters for elevation for Zernicke
   call FILLARRAY(7,LinesOfCurv,POWMIN,POWMAX)
-  atmp=Normalize(RadSlope) !allocates atmp
+  atmp=Normalize(RadSlope) !allocates atmp, normalizes RadSlope
   call WriteOFF(RadSlope,'elevation.off')
+  call WriteOFF(atmp,'elevation1.off')
   RadSlope%MV(:)=MV(:)  ! restore
   atmp=0 ! deallocate
-
+  
   call init_augmented_mat(MM,N,M,ARadSlope,ADiaSlope) ! prepare more space
     
 ! make more than one plot  

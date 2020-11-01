@@ -4,8 +4,8 @@ MODULE cornea_arrays
  USE LapackInterface, ONLY : dgetrf, dgetrs
  USE spline_interfaces 
  REAL(wp), PARAMETER :: PI=3.1415926535897932384626433832795_wp
- REAL(wp), PARAMETER :: RFCT=33750_wp
- REAL(wp), PARAMETER :: EPS=0.000000
+ REAL(wp), PARAMETER :: RFCT=33750.0_wp
+ REAL(wp), PARAMETER :: EPS=0.0000001_wp  ! used in pspli and SplineCenter
  INTEGER, PARAMETER :: MM=180, N=22 
 ! INTEGER, PARAMETER :: MM=360, N=16
  integer, PARAMETER :: M=5 ! augmented multiplier for number of rings
@@ -456,7 +456,8 @@ function Normalize(b) result(a) ! puts b on unit circle
    end do
   end do
   a%r(:,:)=b%r(:,:)/rBo
-  a%Zp(:,:)=b%Zp(:,:)/rBo  
+  a%Zp(:,:)=b%Zp(:,:)/rBo 
+  a%thta(:)=b%thta(:) 
 end function Normalize
 
 function AngSpline(b) result(a) 

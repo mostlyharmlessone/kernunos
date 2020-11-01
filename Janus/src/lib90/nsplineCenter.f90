@@ -1,5 +1,6 @@
  subroutine nsplineCenter(r,z,n,z2)
  use set_precision, only : wp
+ use spline_interfaces, ONLY : bsearch
  use LapackInterface, ONLY : dgbsv
   real(wp), INTENT(IN) ::  r(n),z(n)
   integer, INTENT(IN) :: n
@@ -7,8 +8,10 @@
   real(wp) ::  a(n-1),b(n-1),c(n-1),d(n-1),zz2(n-1),AB(5,n-1),rr(n+1),zz(n+1)
   integer :: ipiv(n-1), info, high, low
 
+! PURPOSE adds a central node to the radial spline either at the origin or at the mean distance between central points
+
 ! find center
-  call bsearch(0_wp,r,n,high,low)
+  call bsearch(0.0_wp,r,n,high,low)
   do i=1,low
    rr(i)=r(i)
    zz(i)=z(i)
