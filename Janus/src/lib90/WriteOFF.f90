@@ -3,7 +3,7 @@
        USE set_precision, ONLY : wp
        TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
        character(len=*), intent(in) :: KXNAME 
-       real(wp):: X1,X2,X3,R,vert1,vert2,vert3,vert4
+       real(wp):: X1,X2,X3,vert1,vert2,vert3,vert4
        integer :: i,j,M1,N1,vertices,faces,edges
        logical :: donut,quad
 
