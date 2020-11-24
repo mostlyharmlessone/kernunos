@@ -2,12 +2,6 @@ module zernicke
 
 USE set_precision, ONLY : wp
 
-TYPE wpArray
- REAL(wp), ALLOCATABLE :: a(:,:)
-END TYPE wpArray
-
-TYPE (wpArray) :: Zern
-
 INTERFACE OPERATOR (.p.) ! binary operator summation convention/tensors
 !   a .p. b returns scalar sum matrices; rank 0 of a(i,j)*b(i,j) a,b rank 2
 !   a .p. b returns scalar sum of vectors; rank 0 of a(i)*b(i) a,b rank 1
@@ -17,58 +11,32 @@ INTERFACE OPERATOR (.p.) ! binary operator summation convention/tensors
                   sum_of_matrix_by_vector, sum_of_vector_by_vector
 END INTERFACE
 
-INTERFACE ASSIGNMENT (=)
- ! Type(oneofthesebelow) = INTEGER(0) deallocates the matrix
- MODULE PROCEDURE destroy_array
-END INTERFACE
-
 CONTAINS
 
-subroutine init_array(MM,N,Zern)  !Zern(fct(rho,phi))
- INTEGER, INTENT(IN) :: MM,N
- TYPE(wpArray) :: Zern
- allocate (Zern%a(MM,N))
- Zern%a(i,j)=Z(i,j,rho,phi)
-end subroutine init_array
-
-subroutine destroy_array(array,iflag)
-  TYPE(wpArray), INTENT(INOUT) :: array
-  INTEGER, INTENT (IN) :: iflag 
-  IF (iflag==0) THEN
-  deallocate (array%a)
-  ENDIF
-end subroutine destroy_array
-
-
-function Z(m,n,rho,phi) result(zed)
- if (n >= ABS(m)) then ! n>=m>=0 m=0 only for sin variation
-  if (m > 0) then
-   zed=R(m,n,rho)*cos(m*phi)
+function Zern(m,n,rho,phi) result(zed)
+real(wp),INTENT(IN) :: rho,phi
+INTEGER,INTENT(IN) :: m,n
+ if (n >= ABS(m)) then ! n>=m>=0 m=0 only for cos variation
+  if (m >= 0) then
+   zed=RZern(m,n,rho)*cos(m*phi)
   else
-   zed=R(ABS(m),n,rho)*sin(ABS(m)*phi)
+   zed=RZern(ABS(m),n,rho)*sin(ABS(m)*phi)
   endif
  else
   write(*,*) 'Illegal n,m in Z:',n,m
+  stop
  endif
-end function Z
+end function Zern
 
-function R(m,n,rho) result(arr)  !r(m,n,rho)=sum(k,0,(n-m)/2) sum over k=0,(n-m)/2
+function RZern(m,n,rho) result(radk)  !r(m,n,rho)=sum(k,0,(n-m)/2) sum over k=0,(n-m)/2
+real(wp),INTENT(IN) :: rho
+INTEGER,INTENT(IN) :: m,n
   radk=0
   do k=0,(n-m)/2
    radk=radk+(rho**(n-(2*k)))*(fact(n-1)*(-1)**k)/(fact(k)*fact((n+m)/2-k)*fact((n-m)/2-k)) 
   end do
-end function R  
+end function RZern
   
-!G(rho,phi),F(rho,phi)
-!L2 inner product/norm <F,G>=integral{(F*G*rho)(drho)(dphi)}
-! Sum over integers (m,n)( (Sum over points MM,N elevation(i=1,MM, J=1,N)*Z(at knots(MM,N),m,n) )
-! compute Zmn for m,n at knots -> array or big array, matrix multiply with elevation array scaled to unit circle
-
-!Zernicke coefficients on UNIT circle 0<rho<1, 0<phi<2pi
-!G(rho,phi)=Sum(m,n){amnZmn(rho,phi)+bmnZ-mn(rho,phi)} can be expressed where
-!amn=(2n+2)/(eps(m)*PI)<G,Z+mn>
-!bmn=(2n+2)/(eps(m)*PI)<G,Z-mn>
-
 ! vector & matrix operations
 
 !! scalar matrix (inner) product
@@ -162,7 +130,7 @@ end function sum_of_matrix_by_vector
 
 ! epsilon & factorial functions
 
-function eps(m) result(e) !eps(0)=2, eps(m)=1 m /=0
+function eps2(m) result(e) !eps2(0)=2, eps2(m)=1 m /=0
  INTEGER :: e
  INTEGER, INTENT(IN) :: m
  if (m == 0) then
@@ -170,11 +138,15 @@ function eps(m) result(e) !eps(0)=2, eps(m)=1 m /=0
  else
   e=1
  endif    
-end function eps
+end function eps2
 
 recursive function fact(n)  result(f) ! factorial
  INTEGER :: f
  INTEGER, INTENT(IN) :: n
+ if (n < 0) then
+  write(*,*) 'Illegal negative n in Factorial(n): ',n
+  stop
+ endif
  if (n == 0) then
    f = 1
  else

@@ -201,6 +201,12 @@
   call WriteOFF(RadSlope,'elevation.off')
   call WriteOFF(atmp,'elevation1.off')
   RadSlope%MV(:)=MV(:)  ! restore
+  write (*,*) 'c0,4: ',ZernickeC(atmp,0,4) ! compute Zernicke coefficient
+  write (*,*) 'c2,-2: ',ZernickeC(atmp,2,-2) ! compute Zernicke coefficient
+  write (*,*) 'c12: ',ZernickeC(atmp,1,2) ! compute Zernicke coefficient
+  write (*,*) 'c22: ',ZernickeC(atmp,2,2) ! compute Zernicke coefficient
+  write (*,*) 'c23: ',ZernickeC(atmp,2,3) ! compute Zernicke coefficient
+  pause
   atmp=0 ! deallocate
   
   call init_augmented_mat(MM,N,M,ARadSlope,ADiaSlope) ! prepare more space

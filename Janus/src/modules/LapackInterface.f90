@@ -15,6 +15,17 @@
 !     December 2016
 
         INTERFACE
+
+         SUBROUTINE DGESV( N, NRHS, A, LDA, IPIV, B, LDB, INFO )
+
+!     .. Scalar Arguments ..
+         INTEGER            INFO, LDA, LDB, N, NRHS
+!     ..
+!     .. Array Arguments ..
+         INTEGER            IPIV( * )
+         DOUBLE PRECISION   A( LDA, * ), B( LDB, * )
+         END SUBROUTINE DGESV
+
           SUBROUTINE DGETRF( M, N, A, LDA, IPIV, INFO )
 !
 !     .. Scalar Arguments ..

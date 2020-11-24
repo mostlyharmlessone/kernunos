@@ -1,8 +1,9 @@
 MODULE cornea_arrays
 
  USE set_precision, ONLY : wp
- USE LapackInterface, ONLY : dgetrf, dgetrs
+ USE LapackInterface, ONLY : dgetrf, dgetrs, dgesv
  USE spline_interfaces 
+ USE zernicke
  REAL(wp), PARAMETER :: PI=3.1415926535897932384626433832795_wp
  REAL(wp), PARAMETER :: RFCT=33750.0_wp
  REAL(wp), PARAMETER :: EPS=0.0000001_wp  ! used in pspli and SplineCenter
@@ -460,6 +461,30 @@ function Normalize(b) result(a) ! puts b on unit circle
   a%thta(:)=b%thta(:) 
 end function Normalize
 
+!G(rho,phi),F(rho,phi)
+!L2 inner product/norm <F,G>=integral{(F*G*rho)(drho)(dphi)}
+! Sum over integers (m,n)( (Sum over points MM,N elevation(i=1,MM, J=1,N)*Z(at knots(MM,N),m,n) )
+! compute Zmn for m,n at knots -> array or big array, matrix multiply with elevation array scaled to unit circle
+
+!Zernicke coefficients on UNIT circle 0<rho<1, 0<phi<2pi
+!G(rho,phi)=Sum(m,n){amnZmn(rho,phi)+bmnZ-mn(rho,phi)} can be expressed where
+!amn=(2n+2)/(eps(m)*PI)<G,Z+mn>
+!bmn=(2n+2)/(eps(m)*PI)<G,Z-mn>
+
+function ZernickeC(a,m2,n2) result(c) 
+ TYPE(wpRadSlopeMatrix),INTENT(IN) :: a ! has to be normalized to unit circle
+ INTEGER,INTENT(IN) :: m2,n2 ! denotes zernicke coefficient
+ real(wp) :: b(size(a%r,1),size(a%r,2))
+ N1=size(a%r,2) !N1=N 
+ M1=size(a%r,1) !M1=MM
+  do i=1,N1 
+    do j=1,M1
+     b(j,i)=Zern(m2,n2,a%r(j,i),a%thta(j))
+    end do
+  end do
+ c = (2*n2+2)/(eps2(m2)*PI) * (a%Zp .p. b)
+ end function ZernickeC
+
 function AngSpline(b) result(a) 
  TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
  TYPE(wpsplinevect) :: spline
@@ -568,6 +593,7 @@ function lsqfill(b) result(a)
 ! get solution fit coefficients c to XTX.c=z.X
   c=0
 !  call gauss_2(XTX,zpX,c,M2) ! simple G-J routine
+!  call DGESV(M2, 1, XTX, M2, ipvt, zpX, M2, INFO )
 ! The lapack insertion below from Hanson & Hopkins chapter 2: exampleLapack90.f90
   call dgetrf(M2,M2,XTX,M2,ipvt,info)
 ! Check that the Lapack routine has been successful
