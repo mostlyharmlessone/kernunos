@@ -35,7 +35,7 @@
        c(m)=(t(1)-t(m)+PERD)/6.0
        d(m)=(z(1)-z(m))/(t(1)-t(m)+PERD)-&
             (z(m)-z(m-1))/(t(m)-t(m-1))    
-!      SOLVE THE TRIADIAGONAL CYCLIC CASE       
+!      SOLVE THE TRIADIAGONAL PERIODIC CASE       
        do j=2,m-1
         a(j)=(t(j)-t(j-1))/6.0
         b(j)=(t(j+1)-t(j-1))/3.0
@@ -66,6 +66,7 @@
         ue(2,j)=((d(1-j+m)-c(1-j+m)*ue(2,-1+j))*(b(j)+a(j)*ud(1,1,-1+j))-&
                 c(1-j+m)*(d(j)-a(j)*ue(1,-1+j))*ud(2,1,-1+j))/DET                
        end do 
+!      LAST EQUATION 
        j=INT(m/2)
         if ( mod(j,2) == 0 ) then
 !      EVEN CASE (2x2) 
@@ -79,8 +80,7 @@
         ue(2,j)=((d(1+j)-c(1+j)*ue(2,-1+j))*(b(j)+a(j)*ud(1,1,-1+j))+&
                 (d(j)-a(j)*ue(1,-1+j))*(-a(1+j)-c(1+j)*ud(2,1,-1+j)))/DET 
         zt2(j)=ue(1,j)
-        zt2(j+1)=ue(2,j)
-!      READY FOR BACKSUBSTITUTION       
+        zt2(j+1)=ue(2,j)       
         else
 !      (m-2*j+1 == 2)
 !       ODD CASE (3x3)
@@ -106,7 +106,6 @@
                  a(j)*b(1+j)*ud(1,1,-1+j))+(d(j)-a(j)*ue(1,-1+j))*(a(1+j)*a(2+j)-&
                  b(1+j)*c(2+j)*ud(2,1,-1+j))+d(1+j)*(-a(2+j)*b(j)-a(j)*a(2+j)*ud(1,1,-1+j)+&
                  c(j)*c(2+j)*ud(2,1,-1+j)))/DET                 
-!      READY FOR BACKSUBSTITUTION
         endif
 !      BACKSUBSTITUTION
        do i=j-1,1,-1
@@ -129,7 +128,7 @@
    call cyclic(t,z,n,zt2c)
    error=SQRT((zt2-zt2c) .p. (zt2-zt2c))
    If(error > 40000) then
-    call cyclic(t,z,n,zt2c)    
+    call PERIODIC(t,z,n,zt2c)    
     write(*,*) 'pspli-cyclic',SQRT((zt2-zt2c) .p. (zt2-zt2c))
     write(*,*) 'diff',FLOOR(ABS(zt2-zt2c))   
     stop
