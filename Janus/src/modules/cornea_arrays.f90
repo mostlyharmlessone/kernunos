@@ -1,7 +1,7 @@
 MODULE cornea_arrays
 
  USE set_precision, ONLY : wp
- USE LapackInterface, ONLY : dgetrf, dgetrs, dgesv
+ USE LapackInterface, ONLY : dgetrf, dgetrs, dgesv, dsyev
  USE spline_interfaces 
  USE zernicke
  REAL(wp), PARAMETER :: PI=3.1415926535897932384626433832795_wp
@@ -11,7 +11,7 @@ MODULE cornea_arrays
 ! INTEGER, PARAMETER :: MM=360, N=16
  integer, PARAMETER :: M=5 ! augmented multiplier for number of rings
  integer, PARAMETER :: M2=3 ! lsq fourier cosine series terms
- 
+
 ! Defining common data arrays
  
  TYPE wpEyeSysMatrix

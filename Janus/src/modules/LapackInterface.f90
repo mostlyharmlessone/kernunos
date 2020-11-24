@@ -16,8 +16,19 @@
 
         INTERFACE
 
-         SUBROUTINE DGESV( N, NRHS, A, LDA, IPIV, B, LDB, INFO )
 
+         SUBROUTINE DSYEV( JOBZ, UPLO, N, A, LDA, W, WORK, LWORK, INFO )
+
+!     .. Scalar Arguments ..
+         CHARACTER          JOBZ, UPLO
+         INTEGER            INFO, LDA, LWORK, N
+!     ..
+!     .. Array Arguments ..
+         DOUBLE PRECISION   A( LDA, * ), W( * ), WORK( * )
+         END SUBROUTINE DSYEV
+
+
+         SUBROUTINE DGESV( N, NRHS, A, LDA, IPIV, B, LDB, INFO )
 !     .. Scalar Arguments ..
          INTEGER            INFO, LDA, LDB, N, NRHS
 !     ..
@@ -26,8 +37,8 @@
          DOUBLE PRECISION   A( LDA, * ), B( LDB, * )
          END SUBROUTINE DGESV
 
+
           SUBROUTINE DGETRF( M, N, A, LDA, IPIV, INFO )
-!
 !     .. Scalar Arguments ..
           INTEGER            INFO, LDA, M, N
 !     ..
@@ -36,8 +47,8 @@
           DOUBLE PRECISION   A( LDA, * )
           END SUBROUTINE DGETRF
 
+
           SUBROUTINE DGETRS( TRANS, N, NRHS, A, LDA, IPIV, B, LDB, INFO )
-!
 !     .. Scalar Arguments ..
           CHARACTER          TRANS
           INTEGER            INFO, LDA, LDB, N, NRHS
@@ -47,8 +58,8 @@
           DOUBLE PRECISION   A( LDA, * ), B( LDB, * )
           END SUBROUTINE DGETRS
 
+
           SUBROUTINE dgbsv( N, KL, KU, NRHS, AB, LDAB, IPIV, B, LDB, INFO )
-!
 !      .. Scalar Arguments ..
           INTEGER            INFO, KL, KU, LDAB, LDB, N, NRHS
 !      ..
