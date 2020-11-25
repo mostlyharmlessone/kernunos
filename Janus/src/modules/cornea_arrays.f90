@@ -649,6 +649,197 @@ function lsqfill(b) result(a)
  end do   
 end function lsqfill
 
+function lsqfill2(b) result(a) 
+ use set_precision, ONLY : wp
+ TYPE(wpAtlasMatrix),INTENT(IN) :: b
+ integer :: M1,N1,i,j,k,info,ipvt(M2)
+ real(wp) :: a(size(b%AR,1),size(b%AR,2)),t(size(b%AR,1)),z(size(b%AR,1))
+ real(wp) :: c(M2),X(M2,size(b%AR,1)),XpX(M2),zpX(M2),XTX(M2,M2)
+ logical :: Q
+! real (wp) res(size(b%AR,1)),respres,sumr2,zpz
+ N1=size(b%AR,2) !N1=N 
+ M1=size(b%AR,1) !M1=MM
+ z=0
+ t=0
+ a=0
+ do i=1,N1
+  XpX=0
+  zpX=0 
+  c=0  
+! X is cosine terms of fourier, t are angles, Z are radii for current ring
+  do j=1,M2
+   do k=1,M1  
+    Q=ABS(b%AR(k,i)) > 0  
+    if (Q) then ! means it is  =/ 0
+     t(k)=b%DEG(k)*PI/180.0_wp         
+     z(k)=b%AR(k,i)
+     X(j,k)=cos((j-1)*t(k))    ! cosine series including 0 term
+     XpX(j)=XpX(j)+X(j,k)*X(j,k)
+     zpX(j)=zpX(j)+z(k)*X(j,k)
+    endif      
+   end do 
+  end do
+! X transpose X
+  XTX=0
+  do j=1,M2
+   do l=1,M2 
+    do k=1,M1 
+     Q=ABS(b%AR(k,i)) > 0  
+     if (Q) then ! means it is  =/ 0    
+      XTX(j,l)=XTX(j,l)+X(j,k)*X(l,k)
+     endif
+    end do
+   end do
+  end do
+! get solution fit coefficients c to XTX.c=z.X
+  c=0
+!  call gauss_2(XTX,zpX,c,M2) ! simple G-J routine
+  call DGESV(M2, 1, XTX, M2, ipvt, zpX, M2, INFO )
+  if ( info /= 0 ) then
+   WRITE (*,'(''Argument '',i3,'' has an illegal value'')') - info
+  endif
+  c=zpX
+! generate lsq fillin values
+  do k=1,M1
+    Q=ABS(b%AR(k,i)) > 0  
+    if (Q) then ! means it is  =/ 0
+     a(k,i)=b%AR(k,i)   ! retain old values where they exist
+    else
+     do j=1,M2
+      a(k,i)=a(k,i)+c(j)*cos((j-1)*b%DEG(k)*PI/180.0_wp) ! just replace missing values
+     end do 
+    endif    
+  end do         	 	
+ end do   
+end function lsqfill2
+
+function pcafill2(b) result(a) 
+ use set_precision, ONLY : wp
+ TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
+ integer, PARAMETER :: M3=2 ! pca terms
+ integer :: M1,N1,i,j,k,info,lwork
+ real(wp) :: a(size(b%r,1),size(b%r,2)),t(size(b%r,1)),z(size(b%r,1))
+ real(wp) :: X(M3,size(b%r,1)),XTX(M3,M3),work(3*M3),w(M3) !M3=2
+ logical :: Q
+ lwork=size(work)
+ N1=size(b%r,2) !N1=N 
+ M1=size(b%r,1) !M1=MM
+ z=0
+ t=0
+ a=0 
+ do i=1,N1
+ 
+   do k=1,M1  
+    Q=ABS(b%r(k,i)) > 0  
+    if (Q) then ! means it is  =/ 0
+     t(k)=b%thta(k)*PI/180.0_wp         
+     z(k)=b%r(k,i)
+     X(1,k+i-1)=z(k)*cos(t(k))
+     X(2,k+i-1)=z(k)*sin(t(k)) 
+    endif       
+  end do 
+
+! X transpose X
+  XTX=0
+  do j=1,M3
+   do l=1,M3 
+    do k=1,M1 
+     Q=ABS(b%r(k,i)) > 0  
+     if (Q) then ! means it is  =/ 0    
+      XTX(j,l)=XTX(j,l)+X(j,k)*X(l,k)
+     endif
+    end do
+   end do
+  end do
+
+  call DSYEV( 'V', 'U', M3, XTX, M3, W, WORK, LWORK, INFO )
+
+  if ( info /= 0 ) then
+   WRITE (*,'(''Argument '',i3,'' has an illegal value'')') - info
+  endif
+
+  write(*,*) 'W: ',W
+  stop
+  
+! generate lsq fillin values
+  do k=1,M1
+    Q=ABS(b%r(k,i)) > 0  
+    if (Q) then ! means it is  =/ 0
+     a(k,i)=b%r(k,i)   ! retain old values where they exist
+    else
+     do j=1,M2
+      a(k,i)=a(k,i)+c(j)*cos((j-1)*b%thta(k)*PI/180.0_wp) ! just replace missing values
+     end do 
+    endif    
+  end do
+           	 	
+ end do
+end function pcafill2
+
+
+function pcafill(b) result(a) 
+ use set_precision, ONLY : wp
+ TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
+ integer, PARAMETER :: M3=3 ! pca terms
+ integer :: M1,N1,i,j,k,info,lwork
+ real(wp) :: a(size(b%r,1),size(b%r,2)),t(size(b%r,1)),z(size(b%r,1))
+ real(wp) :: X(M3,size(b%r,1)*size(b%r,2)),XTX(M3,M3),work(3*M3),w(M3)
+ logical :: Q
+ lwork=size(work)
+ N1=size(b%r,2) !N1=N 
+ M1=size(b%r,1) !M1=MM
+ z=0
+ t=0
+ a=0 
+ do i=1,N1
+   do k=1,M1  
+    Q=ABS(b%r(k,i)) > 0  
+    if (Q) then ! means it is  =/ 0
+     t(k)=b%thta(k)*PI/180.0_wp         
+     z(k)=b%r(k,i)
+     X(1,k+i-1)=z(k)*cos(t(k))
+     X(2,k+i-1)=z(k)*sin(t(k)) 
+     X(3,k+i-1)=b%Zp(k,i) 
+    endif       
+  end do
+ end do 
+
+! X transpose X
+  XTX=0
+  do j=1,M3
+   do l=1,M3 
+    do k=1,M1 
+     Q=ABS(b%r(k,i)) > 0  
+     if (Q) then ! means it is  =/ 0    
+      XTX(j,l)=XTX(j,l)+X(j,k)*X(l,k)
+     endif
+    end do
+   end do
+  end do
+
+  call DSYEV( 'V', 'U', M3, XTX, M3, W, WORK, LWORK, INFO )
+
+  if ( info /= 0 ) then
+   WRITE (*,'(''Argument '',i3,'' has an illegal value'')') - info
+  endif
+
+  write(*,*) 'W: ',W
+  stop
+  
+! generate lsq fillin values
+  do k=1,M1
+    Q=ABS(b%r(k,i)) > 0  
+    if (Q) then ! means it is  =/ 0
+     a(k,i)=b%r(k,i)   ! retain old values where they exist
+    else
+     do j=1,M2
+      a(k,i)=a(k,i)+c(j)*cos((j-1)*b%thta(k)*PI/180.0_wp) ! just replace missing values
+     end do 
+    endif    
+  end do         	 	
+         	 	  
+end function pcafill
+
 !  finds MV based on Atlas%AR and Atlas%AP
 subroutine refineborders(Atlas,RadSlope)
  TYPE(wpAtlasMatrix) :: Atlas

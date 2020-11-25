@@ -16,6 +16,7 @@ CONTAINS
 function Zern(m,n,rho,phi) result(zed)
 real(wp),INTENT(IN) :: rho,phi
 INTEGER,INTENT(IN) :: m,n
+ write(*,*) m,n 
  if (n >= ABS(m)) then ! n>=m>=0 m=0 only for cos variation
   if (m >= 0) then
    zed=RZern(m,n,rho)*cos(m*phi)
@@ -33,7 +34,7 @@ real(wp),INTENT(IN) :: rho
 INTEGER,INTENT(IN) :: m,n
   radk=0
   do k=0,(n-m)/2
-   radk=radk+(rho**(n-(2*k)))*(fact(n-1)*(-1)**k)/(fact(k)*fact((n+m)/2-k)*fact((n-m)/2-k)) 
+   radk=radk+(rho**(n-(2*k)))*(fact(n-k)*(-1)**k)/(fact(k)*fact((n+m)/2-k)*fact((n-m)/2-k)) 
   end do
 end function RZern
   
@@ -145,6 +146,10 @@ recursive function fact(n)  result(f) ! factorial
  INTEGER, INTENT(IN) :: n
  if (n < 0) then
   write(*,*) 'Illegal negative n in Factorial(n): ',n
+  stop
+ endif
+  if (ABS(n) > 100) then
+  write(*,*) 'Runaway factorial: ',n
   stop
  endif
  if (n == 0) then

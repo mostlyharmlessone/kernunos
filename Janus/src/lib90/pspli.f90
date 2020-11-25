@@ -128,7 +128,7 @@
    call cyclic(t,z,n,zt2c)
    error=SQRT((zt2-zt2c) .p. (zt2-zt2c))
    If(error > 40000) then
-    call PERIODIC(t,z,n,zt2c)    
+    call cyclic(t,z,n,zt2c)    
     write(*,*) 'pspli-cyclic',SQRT((zt2-zt2c) .p. (zt2-zt2c))
     write(*,*) 'diff',FLOOR(ABS(zt2-zt2c))   
     stop

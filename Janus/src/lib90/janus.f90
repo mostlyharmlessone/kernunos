@@ -134,7 +134,7 @@
   t(2)=time_end-time_start
   write(*,*) 'Time to refine borders: ',t(2)*1000 
     
-  IuseF=0  ! only valid approach is IuseF=0 because    
+  IuseF=0 ! only valid approach is IuseF=0 because    
 !  R is not constant; they're not circles, so splining along the curve gives curvatures that
 !  are not orthogonal to R, nor z2(deriv of theta)  probably best not to do this
   if (IuseF == 1) then ! partial Atlas or full Atlas via FILL IN MISSING RING DATA USING CIRCUMFERENTIAL SPLINES
@@ -201,12 +201,17 @@
   call WriteOFF(RadSlope,'elevation.off')
   call WriteOFF(atmp,'elevation1.off')
   RadSlope%MV(:)=MV(:)  ! restore
+  x=ZernickeC(atmp,0,4)
+  write(*,*) x
   write (*,*) 'c0,4: ',ZernickeC(atmp,0,4) ! compute Zernicke coefficient
-  write (*,*) 'c2,-2: ',ZernickeC(atmp,2,-2) ! compute Zernicke coefficient
   write (*,*) 'c12: ',ZernickeC(atmp,1,2) ! compute Zernicke coefficient
   write (*,*) 'c22: ',ZernickeC(atmp,2,2) ! compute Zernicke coefficient
   write (*,*) 'c23: ',ZernickeC(atmp,2,3) ! compute Zernicke coefficient
+  write (*,*) 'c2,-2: ',ZernickeC(atmp,-2,2) ! compute Zernicke coefficient
+
   pause
+  write(*,*)  pcafill2(RadSlope) 
+  write (*,*) pcafill(RadSlope)
   atmp=0 ! deallocate
   
   call init_augmented_mat(MM,N,M,ARadSlope,ADiaSlope) ! prepare more space
