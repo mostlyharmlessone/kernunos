@@ -202,7 +202,7 @@
   call WriteOFF(atmp,'elevation1.off')
   RadSlope%MV(:)=MV(:)  ! restore
   x=ZernickeC(atmp,0,4)
-  write(*,*) x
+  write(*,*) 'x: ',x
   write (*,*) 'c0,4: ',ZernickeC(atmp,0,4) ! compute Zernicke coefficient
   write (*,*) 'c12: ',ZernickeC(atmp,1,2) ! compute Zernicke coefficient
   write (*,*) 'c22: ',ZernickeC(atmp,2,2) ! compute Zernicke coefficient

@@ -1,0 +1,3 @@
+gfortran -c -llapack badwrite.f90
+gfortran  -llapack badwrite.f90 bugs.f90
+

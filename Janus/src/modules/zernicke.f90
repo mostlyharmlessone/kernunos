@@ -16,7 +16,7 @@ CONTAINS
 function Zern(m,n,rho,phi) result(zed)
 real(wp),INTENT(IN) :: rho,phi
 INTEGER,INTENT(IN) :: m,n
- write(*,*) m,n 
+ !write(*,*) m,n 
  if (n >= ABS(m)) then ! n>=m>=0 m=0 only for cos variation
   if (m >= 0) then
    zed=RZern(m,n,rho)*cos(m*phi)
