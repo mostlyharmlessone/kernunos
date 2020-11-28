@@ -1,3 +1,73 @@
 gfortran -c -llapack badwrite.f90
 gfortran  -llapack badwrite.f90 bugs.f90
 
+Using 5.7.19-2-MANJARO and GNU Fortran (GCC) 10.2.0, we have a program calling a function as part of a write statement, where the function also has a write statement.
+
+PROGRAM bugs
+USE badwrite
+ x=AC(0)  
+ write(*,*) 'x: ',x  ! this works
+ write (*,*) '0: ',AC(0)  !this does not  
+STOP
+END
+
+MODULE badwrite 
+ CONTAINS
+ function AC(m2) result(c) 
+ INTEGER,INTENT(IN) :: m2
+ write(*,*) m2    !killer statement with lapack or other linked library
+ c = m2+3
+ end function AC
+END MODULE badwrite
+
+compiled with 
+gfortran -c -llapack badwrite.f90
+gfortran  -llapack badwrite.f90 bugs.f90
+
+should result in
+0
+x: 3.0000000
+0:  0
+3.00000000
+
+However with the -llapack library (or the blas library, and possibly other external libraries)
+the result is 
+0
+x: 3.000000
+
+(program hangs here)
+
+Adding the -ggdb flag, running in gdb and interrupting with ^C results in
+ 
+Starting program: /home/debeus/build/Janus/bugs.lib90/a.out 
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/usr/lib/libthread_db.so.1".
+           0
+ x:    3.00000000    
+^C
+Program received signal SIGINT, Interrupt.
+0x00007ffff6baddb0 in __lll_lock_wait () from /usr/lib/libpthread.so.0
+
+Apparently the two writes are deadlocked?
+  
+Conditions:
+
+(1) Only happens with an external library linked in, so
+    gfortran -c badwrite.f90
+    gfortran badwrite.f90 bugs.f90
+   runs normally without hanging
+
+(2) Removing the write statement in the function AC also removes the hang.
+
+(3) Separating the writes, as in the first statement with x=AC(0) then    write(*,*) x, removes the deadlock/hang
+
+Does not happen under gfortran 8.3.0 running under kernel 5.3.5-64 (knoppix)
+nor 4.19.128-microsoft-standard (ubuntu under Win10) with gfortran 9.3.0
+
+not under kernel 5.9.8-2-MANJARO kernel bug
+strace -o stack.txt -f ./a.out 
+ldd a.out
+
+ONLY HAPPENS with atlas-lapack, not lapack & blas
+
+

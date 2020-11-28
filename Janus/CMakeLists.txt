@@ -7,11 +7,15 @@ enable_language(C)
 #enable_language(CUDA)
 enable_language(ASM)
 
+set (CMAKE_Fortran_COMPILER_ID "pgfortran")
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_DEBUG_MODE 1) #second option shows dependencies
 
 # after wiping CMakeFiles folder run the following to reset
 # FC=gfortran cmake -DCMAKE_Fortran_COMPILER_ID=gfortran ./
+set (FC "pgfortran") 
+#cmake -DCMAKE_Fortran_COMPILER_ID=pgfortran ./
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
 #    set(dialect "-ffree-form -std=f2008 -fimplicit-none")
      set(dialect "-std=gnu")
@@ -22,9 +26,9 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
     set(bounds "-check bounds")
 endif()
 #  nvfortran==pgi
-if(CMAKE_Fortran_COMPILER_ID MATCHES "PGI")
-    set(dialect "-Mfreeform -Mdclchk -Mstandard -Mallocatable=03")
-    set(bounds "-C")
+if(CMAKE_Fortran_COMPILER_ID MATCHES "pgfortran")
+#    set(dialect "-Mfreeform -Mdclchk -Mstandard -Mallocatable=03")
+#    set(bounds "-C")
 endif()
 
 Set (CGAL_DO_NOT_WARN_ABOUT_CMAKE_BUILD_TYPE "TRUE")
