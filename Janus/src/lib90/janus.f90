@@ -202,15 +202,18 @@
   call WriteOFF(atmp,'elevation1.off')
   RadSlope%MV(:)=MV(:)  ! restore
   x=ZernickeC(atmp,0,4)
-  write(*,*) 'x: ',x
-  write (*,*) 'c0,4: ',ZernickeC(atmp,0,4) ! compute Zernicke coefficient
-  write (*,*) 'c12: ',ZernickeC(atmp,1,2) ! compute Zernicke coefficient
-  write (*,*) 'c22: ',ZernickeC(atmp,2,2) ! compute Zernicke coefficient
-  write (*,*) 'c23: ',ZernickeC(atmp,2,3) ! compute Zernicke coefficient
-  write (*,*) 'c2,-2: ',ZernickeC(atmp,-2,2) ! compute Zernicke coefficient
+  write (*,*) 'c0,4: ',x ! compute Zernicke coefficient
+  x=ZernickeC(atmp,1,2)
+  write (*,*) 'c12: ',x ! compute Zernicke coefficient
+  x=ZernickeC(atmp,2,2)
+  write (*,*) 'c22: ',x ! compute Zernicke coefficient
+  x=ZernickeC(atmp,2,3)
+  write (*,*) 'c23: ',x ! compute Zernicke coefficient
+  x=ZernickeC(atmp,2-2)
+  write (*,*) 'c2,-2: ',x ! compute Zernicke coefficient
 
   pause
-  write(*,*)  pcafill2(RadSlope) 
+  write(*,*)  pcafill2(RadSlope) ! these may have an io error also!
   write (*,*) pcafill(RadSlope)
   atmp=0 ! deallocate
   
