@@ -59,7 +59,7 @@
           END SUBROUTINE DGETRS
 
 
-          SUBROUTINE dgbsv( N, KL, KU, NRHS, AB, LDAB, IPIV, B, LDB, INFO )
+          SUBROUTINE DGBSV( N, KL, KU, NRHS, AB, LDAB, IPIV, B, LDB, INFO )
 !      .. Scalar Arguments ..
           INTEGER            INFO, KL, KU, LDAB, LDB, N, NRHS
 !      ..
@@ -67,8 +67,23 @@
           INTEGER            IPIV( * )
           DOUBLE PRECISION   AB( ldab, * ), B( ldb, * )
           
-          END SUBROUTINE dgbsv
-          
+          END SUBROUTINE DGBSV
+
+          SUBROUTINE DGETRI( N, A, LDA, IPIV, WORK, LWORK, INFO )
+!      .. Scalar Arguments ..
+          INTEGER            INFO, LDA, LWORK, N
+!       ..
+!       .. Array Arguments ..
+          INTEGER            IPIV( * )
+          DOUBLE PRECISION   A( LDA, * ), WORK( * )
+          END SUBROUTINE DGETRI
+
+          SUBROUTINE XERBLA( SRNAME, INFO )
+!         .. Scalar Arguments ..
+          CHARACTER*6        SRNAME
+          INTEGER            INFO
+          END SUBROUTINE XERBLA      
+
         END INTERFACE
 
       END MODULE LapackInterface
