@@ -93,17 +93,17 @@ find_package(LAPACK)
 find_package(OpenCL)
 
 # to use LAPACK95 from GIT
-include(FetchContent)
-FetchContent_Declare(
-    lapack95
-    GIT_REPOSITORY https://github.com/scivision/LAPACK95.git
-)
+#include(FetchContent)
+#FetchContent_Declare(
+#    lapack95
+#    GIT_REPOSITORY https://github.com/scivision/LAPACK95.git
+#)
 
-FetchContent_GetProperties(lapack95)
-if(NOT lapack95_POPULATED)
-    FetchContent_Populate(lapack95)
-    add_subdirectory(${lapack95_SOURCE_DIR})
-endif()
+#FetchContent_GetProperties(lapack95)
+#if(NOT lapack95_POPULATED)
+#    FetchContent_Populate(lapack95)
+#    add_subdirectory(${lapack95_SOURCE_DIR})
+#endif()
 
 #add_executable(myexe ${CMAKE_CURRENT_SOURCE_DIR}/myexe.f90)
 #target_link_libraries(myexe ${LAPACK_LIBRARIES} lapack95)
@@ -131,7 +131,8 @@ add_executable(${PROJECT_NAME} src/lib90/janus.f90)
 if ( OpenCL_FOUND )
  target_link_libraries(${PROJECT_NAME} splia modules ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OpenCL_LIBRARIES})
 else()
- target_link_libraries(${PROJECT_NAME} splia modules ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} lapack95)
+# target_link_libraries(${PROJECT_NAME} splia modules ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} lapack95)
+ target_link_libraries(${PROJECT_NAME} splia modules ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 endif()
 
 

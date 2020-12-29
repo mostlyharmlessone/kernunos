@@ -209,10 +209,9 @@
   write (*,*) 'c22: ',x ! compute Zernicke coefficient
   x=ZernickeC(atmp,2,3)
   write (*,*) 'c23: ',x ! compute Zernicke coefficient
-  x=ZernickeC(atmp,2-2)
-  write (*,*) 'c2,-2: ',x ! compute Zernicke coefficient
 
   pause
+
   write(*,*)  pcafill2(RadSlope) ! these may have an io error also!
   write (*,*) pcafill(RadSlope)
   atmp=0 ! deallocate

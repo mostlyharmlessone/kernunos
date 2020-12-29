@@ -126,9 +126,18 @@
    endif
 
    call cyclic(t,z,n,zt2c)
+
+   call DCTSV( n, 1, a, b, c, d, n, INFO ) ! overwrites d into solution 
+
+   error=SQRT((zt2-d) .p. (zt2-d))
+   If(error > 40000) then    
+    write(*,*) 'pspli-DCTSV',SQRT((zt2-d) .p. (zt2-d))
+    write(*,*) 'diff',FLOOR(ABS(zt2-d))   
+    stop
+   endif
+
    error=SQRT((zt2-zt2c) .p. (zt2-zt2c))
-   If(error > 40000) then
-    call cyclic(t,z,n,zt2c)    
+   If(error > 40000) then   
     write(*,*) 'pspli-cyclic',SQRT((zt2-zt2c) .p. (zt2-zt2c))
     write(*,*) 'diff',FLOOR(ABS(zt2-zt2c))   
     stop
