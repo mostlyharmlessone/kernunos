@@ -82,7 +82,25 @@
 !         .. Scalar Arguments ..
           CHARACTER*6        SRNAME
           INTEGER            INFO
-          END SUBROUTINE XERBLA      
+          END SUBROUTINE XERBLA  
+
+          SUBROUTINE DGEMM(TRANSA,TRANSB,M,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC)
+!         .. Scalar Arguments ..
+          DOUBLE PRECISION ALPHA,BETA
+          INTEGER K,LDA,LDB,LDC,M,N
+          CHARACTER TRANSA,TRANSB
+!         .. Array Arguments ..
+          DOUBLE PRECISION A(LDA,*),B(LDB,*),C(LDC,*) 
+          END SUBROUTINE DGEMM  
+
+          SUBROUTINE DGEMV(TRANS,M,N,ALPHA,A,LDA,X,INCX,BETA,Y,INCY)
+!         .. Scalar Arguments ..
+          DOUBLE PRECISION ALPHA,BETA
+          INTEGER INCX,INCY,LDA,M,N
+          CHARACTER TRANS
+!         .. Array Arguments ..
+          DOUBLE PRECISION A(LDA,*),X(*),Y(*) 
+          END SUBROUTINE DGEMV    
 
         END INTERFACE
 
