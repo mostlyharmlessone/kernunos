@@ -14,6 +14,9 @@
        REAL(wp) :: ud(2,2,n/2+1),ue(2,n/2+1)  !  ud is my set of matrices Aj ue is my vectors vj 
        INTEGER :: m,i,j 
        logical :: IsInf 
+
+       REAL(wp) :: AB(3,n)   ! for testing of  DCBSv only
+
        PERD=2*PI
 !      ill-conditioning with PERD close to t(n)-t(1)   
 !      CASE WHERE c(n)/=a(1) AND z(1)/=z(n) AND t(1)-t(n)+PERD/=0        
@@ -126,8 +129,11 @@
    endif
 
    call cyclic(t,z,n,zt2c)
-
-   call DCTSV( n, 1, a, b, c, d, n, INFO ) ! overwrites d into solution 
+   AB(1,:)=a
+   AB(2,:)=b
+   AB(3,:)=c
+   call DCBSV( N,1,1,AB,3,d,n,INFO )       ! overwrites d into solution
+!   call DCTSV( n, 1, a, b, c, d, n, INFO ) ! overwrites d into solution 
 
    error=SQRT((zt2-d) .p. (zt2-d))
    If(error > 40000) then    
