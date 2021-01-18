@@ -132,13 +132,11 @@
    AB(1,:)=a
    AB(2,:)=b
    AB(3,:)=c
-   call BADMATRIX(N,1,1,AB,3,d,n,INFO)
-write(*,*) 'made it here 1'   
-
+   
    call DCBSV( N,1,1,AB,3,d,n,INFO)       ! overwrites d into solution
 !   call DCTSV( n, 1, a, b, c, d, n, INFO ) ! overwrites d into solution 
 
-write(*,*) 'made it here'
+write(*,*) 'made it out'
 
    error=SQRT((zt2-d) .p. (zt2-d))
    If(error > 40000) then    
