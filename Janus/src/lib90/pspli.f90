@@ -136,8 +136,6 @@
    call DCBSV( N,1,1,AB,3,d,n,INFO)       ! overwrites d into solution
 !   call DCTSV( n, 1, a, b, c, d, n, INFO ) ! overwrites d into solution 
 
-write(*,*) 'made it out'
-
    error=SQRT((zt2-d) .p. (zt2-d))
    If(error > 40000) then    
     write(*,*) 'pspli-DCTSV',SQRT((zt2-d) .p. (zt2-d))

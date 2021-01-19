@@ -16,7 +16,7 @@ set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_DEBUG_MODE 1) #second option shows d
 
 set (FC "gfortran") 
 #cmake -DCMAKE_Fortran_COMPILER_ID=gfortran ./
-if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
+if(CMAKE_Fortran_COMPILER_ID MATCHES "gfortran")
 #    set(dialect "-ffree-form -std=f2008 -fimplicit-none")
      set(dialect "-std=gnu")
      set(bounds "-fbounds-check")
