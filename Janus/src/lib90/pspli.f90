@@ -15,9 +15,10 @@
        INTEGER :: m,i,j 
        logical :: IsInf 
 
-       REAL(wp) :: AB(3,n)   ! for testing of  DCBSv only
+       REAL(wp) :: AB(3,n)   ! for testing of  DCBSV only
 
-       PERD=2*PI
+      ! PERD=2*PI
+       PERD=0
 !      ill-conditioning with PERD close to t(n)-t(1)   
 !      CASE WHERE c(n)/=a(1) AND z(1)/=z(n) AND t(1)-t(n)+PERD/=0        
        if (ABS(t(1)-t(n)+PERD) > EPS) then  ! this test implicitly assumes t(i) are spaced MM apart over PERD 
@@ -129,27 +130,36 @@
    endif
 
    call cyclic(t,z,n,zt2c)
-   AB(1,:)=a
-   AB(2,:)=b
-   AB(3,:)=c
-   
-   call DCBSV( N,1,1,AB,3,d,n,INFO)       ! overwrites d into solution
-!   call DCTSV( n, 1, a, b, c, d, n, INFO ) ! overwrites d into solution 
-
-   error=SQRT((zt2-d) .p. (zt2-d))
-   If(error > 40000) then    
-    write(*,*) 'pspli-DCTSV',SQRT((zt2-d) .p. (zt2-d))
-    write(*,*) 'diff',FLOOR(ABS(zt2-d))   
-    stop
-   endif
 
    error=SQRT((zt2-zt2c) .p. (zt2-zt2c))
-   If(error > 40000) then   
-    write(*,*) 'pspli-cyclic',SQRT((zt2-zt2c) .p. (zt2-zt2c))
+   If(error > 1.0) then   
+    write(*,*) 'pspli-cyclic',SQRT((zt2-zt2c) .p. (zt2-zt2c))  !HAD TO AMKE PERD=0 FOR THIS
     write(*,*) 'diff',FLOOR(ABS(zt2-zt2c))   
     stop
    endif
 
+   zt2c=d  ! store a copy of d into zt2c
+   call DCTSV( n, 1, a, b, c, zt2c, n, INFO )   ! overwrites d into solution 
+
+   error=SQRT((zt2-zt2c) .p. (zt2-zt2c))
+   If(error > 1.0) then   
+    write(*,*) 'pspli-DCTSV',SQRT((zt2-zt2c) .p. (zt2-zt2c))
+    write(*,*) 'diff',FLOOR(ABS(zt2-zt2c))   
+    stop
+   endif
+
+!  only for DCBSV testing
+   AB(1,:)=a
+   AB(2,:)=b
+   AB(3,:)=c
+   call DCBSV( N,1,1,AB,3,d,n,INFO)       ! overwrites zt2c aka d into solution
+
+   error=SQRT((zt2-d) .p. (zt2-d))
+   If(error > 1.0) then    
+    write(*,*) 'pspli-DCBSV',SQRT((zt2-d) .p. (zt2-d))
+    write(*,*) 'diff',FLOOR(ABS(zt2-d))   
+    stop
+   endif
     
        end subroutine pspli
        
