@@ -42,7 +42,8 @@
         b(j)=(t(j+1)-t(j-1))/3.0
         c(j)=(t(j+1)-t(j))/6.0
         d(j)=(z(j+1)-z(j))/(t(j+1)-t(j))-(z(j)-z(j-1))/(t(j)-t(j-1))
-       end do                
+       end do  
+              
 !      FIRST EQUATION (zt2(j-1),zt(n-j+2)=A(j-1).p.((zt2(j),zt(n-j+1))+v(j-1) A(0)=((0,1),(1,0) v(0)=(0,0)
        j=1
         DET=b(j)*b(1-j+m)-a(j)*c(1-j+m)
