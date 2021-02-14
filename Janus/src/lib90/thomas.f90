@@ -1,4 +1,5 @@
 subroutine thomas(a,b,c,d,z,n) ! "Llewellyn Thomas" algorithm for tridiagonal banded matrices"
+! Adapted from https://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm
 use set_precision, only : wp
 integer, INTENT(IN) :: n
 real(wp), INTENT(INOUT) :: a(n),b(n),c(n),d(n)
@@ -15,4 +16,4 @@ do i=n-1,1,-1
  z(i)=(d(i)-c(i)*z(i+1))/b(i)
 end do 
 return
-end
+end subroutine thomas

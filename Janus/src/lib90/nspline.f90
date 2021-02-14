@@ -6,7 +6,8 @@
   real(wp), INTENT(OUT) :: z2(n)
   real(wp) ::  a(n-2),b(n-2),c(n-2),d(n-2),zz2(n-2),AB(5,n-2)
   integer :: ipiv(n-2), info     
-  AB=0  
+  AB=0 
+  INFO=0 
 ! boundary conditions for natural spline   
   z2(1)=0.      
   z2(n)=0.      
@@ -24,17 +25,7 @@
      AB(5,i-1)=c(i-1)   
    end do       
    call dgbsv(n-2,1,2,1,AB,5,ipiv,zz2,n-2,info)
-!   call thomas(a,b,c,d,z2,n-2) ! can use to check against lapack
-! The lapack insertion below from Hanson & Hopkins chapter 2: exampleLapack90.f90
-! Check that the Lapack routine has been successful
-   if (info<0) then
-    WRITE (*,'(''Argument '',i3,'' has an illegal value'')') - info
-   else if (info>0) then
-    WRITE (*,'(''Zero diagonal value detected in upper ''// &
-     &                       ''triangular factor at position &
-     &'',i7)') info
-     stop
-   endif   
+!   call thomas(a,b,c,d,z2,n-2) ! can use to check against lapack 
    do i=2,n-1
      z2(i)=zz2(i-1)
    end do   
