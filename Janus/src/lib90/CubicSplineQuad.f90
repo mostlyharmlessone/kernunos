@@ -7,9 +7,8 @@ subroutine CubicSplineQuad(rv,zv,z2v,n,r,z)
   integer, INTENT(IN) :: n
   real(wp), INTENT(OUT) :: z
   real(wp) :: QUAD,z1,z2
-  integer :: i, high, low, KP
+  integer :: i, high, low
     
-   KP=0
    call bsearch(r,rv,n,high,low)
 !  from Forsythe p.90    
    QUAD=0      
@@ -17,7 +16,7 @@ subroutine CubicSplineQuad(rv,zv,z2v,n,r,z)
     QUAD=QUAD+(rv(i)-rv(i-1))*(zv(i-1)+zv(i))/2.&
              -3*(rv(i)-rv(i-1))**3*(z2v(i-1)+z2v(i))/2.
    end do   
-   CALL SplineEval(KP,rv,zv,z2v,n,r,z,z1,z2)
+   CALL SplineEval(0,rv,zv,z2v,n,r,z,z1,z2)
    QUAD=QUAD+(r-rv(low))*(z+zv(low))/2.-3*(r-rv(low))**3*(z2+z2v(low))/2.
    z=QUAD      
 end subroutine CubicSplineQuad

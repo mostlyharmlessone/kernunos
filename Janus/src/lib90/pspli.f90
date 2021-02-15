@@ -1,5 +1,5 @@
        subroutine pspli(t,z,n,zt2)
-       use cornea_arrays, only : PI, MM, EPS, RadSlope
+       use cornea_arrays, only : PI, MM, EPS
        use set_precision, only :  wp
        USE zernicke, ONLY : OPERATOR(.p.) !tensor summation convention
        use,intrinsic :: ieee_arithmetic

@@ -20,8 +20,8 @@
      zz2(i-1)=d(i-1) ! for lapack
 !    lapack bandform
 !    AB(KL+KU+1+i-j,j) = A(i,j) KU includes main diagonal
-     AB(4,i-1)=b(i-1)
      AB(3,i-1)=a(i-1)
+     AB(4,i-1)=b(i-1)
      AB(5,i-1)=c(i-1)   
    end do       
    call dgbsv(n-2,1,2,1,AB,5,ipiv,zz2,n-2,info)

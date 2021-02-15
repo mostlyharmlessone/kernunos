@@ -751,14 +751,14 @@ function pcafill2(b) result(a)
     end do
    end do
   end do
-
+! compute the eigenvalues
   call DSYEV( 'V', 'U', M3, XTX, M3, W, WORK, LWORK, INFO )
 
   if ( info /= 0 ) then
    WRITE (*,'(''Argument '',i3,'' has an illegal value'')') - info
   endif
 
-  write(*,*) 'W: ',W
+  write(*,*) 'eigenvalues W from pcafill2 in cornea_arrays: ',W
   stop
   
 ! generate lsq fillin values
