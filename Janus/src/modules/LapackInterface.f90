@@ -1,21 +1,13 @@
       MODULE LapackInterface
       IMPLICIT NONE
-! This interface module is an example using two Lapack
-! routines of how to ensure calls to library routines are
-! correct.  Each user-callable routine in the library has
-! its calling parameters defined:
-
-!
-! We just use the header statements as defined in the
-! original Lapack routines; i.e., this is Fortran 77 with
-! Fortran 90 comments!
+      
+!  -- suggested from http://www.siam.org/books/ot134 Numerical Computing with Modern Fortran Richard J.Hanson and Tim Hopkins SIAM 
 !  -- LAPACK driver routine (version 3.7.0) --
 !  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 !  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
 !     December 2016
 
         INTERFACE
-
 
          SUBROUTINE DSYEV( JOBZ, UPLO, N, A, LDA, W, WORK, LWORK, INFO )
 
