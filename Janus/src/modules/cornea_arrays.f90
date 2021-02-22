@@ -713,11 +713,11 @@ function lsqfill2(b) result(a)
  end do   
 end function lsqfill2
 
-function pcafill2(b) result(a) 
+function pcafill(M3,b) result(a) 
  use set_precision, ONLY : wp
  TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
  TYPE(wpRadSlopeMatrix) :: a
- integer, PARAMETER :: M3=2 ! pca terms
+ integer, INTENT(IN) :: M3  ! pca terms, 2 or 3
  integer :: M1,N1,i,j,k,info,lwork
  real(wp) :: t(size(b%r,1)),z(size(b%r,1))
  real(wp) :: X(M3,size(b%r,1)),XTX(M3,M3),work(3*M3),w(M3) !M3=2
@@ -731,7 +731,7 @@ function pcafill2(b) result(a)
  t=0
  a=0 
  do i=1,N1
- 
+  if (M3==2) then  
    do k=1,M1  
     Q=ABS(b%r(k,i)) > 0  
     if (Q) then ! means it is  =/ 0
@@ -740,8 +740,20 @@ function pcafill2(b) result(a)
      X(1,k)=z(k)*cos(t(k))
      X(2,k)=z(k)*sin(t(k)) 
     endif       
-  end do 
-
+   end do   
+  else    
+   do k=1,M1  
+    Q=ABS(b%r(k,i)) > 0  
+    if (Q) then ! means it is  =/ 0
+     t(k)=b%thta(k)*PI/180.0_wp         
+     z(k)=b%r(k,i)
+     X(1,k)=z(k)*cos(t(k))
+     X(2,k)=z(k)*sin(t(k)) 
+     X(3,k)=b%Zp(k,i) 
+    endif       
+   end do   
+  endif
+  
 ! X transpose X
   XTX=0
   do j=1,M3
@@ -756,14 +768,10 @@ function pcafill2(b) result(a)
   end do
 ! compute the eigenvalues
   call DSYEV( 'V', 'U', M3, XTX, M3, W, WORK, LWORK, INFO )
-
   if ( info /= 0 ) then
    WRITE (*,'(''Argument '',i3,'' has an illegal value'')') - info
   endif
-
-  write(*,*) i,'th eigenvalues W from pcafill2 in cornea_arrays: ',W
-
-  
+  write(*,*) i,'th eigenvalues W from pcafill in cornea_arrays: ',W 
 ! generate lsq fillin values
   do k=1,M1
     Q=ABS(b%r(k,i)) > 0  
@@ -774,77 +782,8 @@ function pcafill2(b) result(a)
 !      a%r(k,i)=a%r(k,i)+c(j)*cos((j-1)*b%thta(k)*PI/180.0_wp) ! just replace missing values
      end do 
     endif    
-  end do
-  
- end do
-           	 	
-end function pcafill2
-
-
-function pcafill(b) result(a) 
- use set_precision, ONLY : wp
- TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
-  TYPE(wpRadSlopeMatrix) :: a
- integer, PARAMETER :: M3=3 ! pca terms
- integer :: M1,N1,i,j,k,info,lwork
- real(wp) :: t(size(b%r,1)),z(size(b%r,1))
- real(wp) :: X(M3,size(b%r,1)*size(b%r,2)),XTX(M3,M3),work(3*M3),w(M3)
- logical :: Q
- allocate (a%r(MM,N),a%Zp(MM,N),a%Zp2(MM,N),&
-            a%Zt2(MM,N),a%thta(MM),a%MV(MM))
- lwork=size(work)
- N1=size(b%r,2) !N1=N 
- M1=size(b%r,1) !M1=MM
- z=0
- t=0
- a=0 
- do i=1,N1
-   do k=1,M1  
-    Q=ABS(b%r(k,i)) > 0  
-    if (Q) then ! means it is  =/ 0
-     t(k)=b%thta(k)*PI/180.0_wp         
-     z(k)=b%r(k,i)
-     X(1,k)=z(k)*cos(t(k))
-     X(2,k)=z(k)*sin(t(k)) 
-     X(3,k)=b%Zp(k,i) 
-    endif       
-  end do
- end do 
-
-! X transpose X
-  XTX=0
-  do j=1,M3
-   do l=1,M3 
-    do k=1,M1 
-     Q=ABS(b%r(k,i)) > 0  
-     if (Q) then ! means it is  =/ 0    
-      XTX(j,l)=XTX(j,l)+X(j,k)*X(l,k)
-     endif
-    end do
-   end do
-  end do
-
-  call DSYEV( 'V', 'U', M3, XTX, M3, W, WORK, LWORK, INFO )
-
-  if ( info /= 0 ) then
-   WRITE (*,'(''Argument '',i3,'' has an illegal value'')') - info
-  endif
-
-  write(*,*) i,'th eigenvalues W from pcafill in cornea_arrays: ',W
-  stop
-  
-! generate lsq fillin values
-  do k=1,M1
-    Q=ABS(b%r(k,i)) > 0  
-    if (Q) then ! means it is  =/ 0
-!     a%r(k,i)=b%r(k,i)   ! retain old values where they exist
-    else
-     do j=1,M2
-!      a%r(k,i)=a%r(k,i)+c(j)*cos((j-1)*b%thta(k)*PI/180.0_wp) ! just replace missing values
-     end do 
-    endif    
-  end do         	 	
-         	 	  
+  end do  
+end do           	 	
 end function pcafill
 
 !  finds MV based on Atlas%AR and Atlas%AP

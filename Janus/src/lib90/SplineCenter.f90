@@ -25,14 +25,38 @@
   g=(z(high)-z(low))/2.0_wp
   u=(r(high)+r(low))/2.0_wp
   gr=2*g/(r(high)-r(low))
-  do while ((j < 1000) .AND. (ABS(g/gr) > eps)) 
+  do while ((j < 10) .AND. (ABS(g/gr) > eps)) 
    j=j+1
+      
+        if (ABS(u) > 10) then 
+        
+     write(*,*) 'Probable error on iterations in SplineCenter', high,low      
+         write(*,*) 'j,u,g,gr,g/gr:',j,u,g,gr,g/gr
+         write(*,*) ' '
+           write(*,*) 'r:',r
+   write(*,*) ' '
+   write(*,*) 'z:',z
+   write(*,*) ' '
+   write(*,*) 'zr2:',zr2
+   write(*,*) ' ' 
+   stop 
+         
+        endif
+   
    call SplineEval(0,r,z,zr2,n,u,g,gr)
+      
    u=u-g/gr
+   
   end do
 ! should take under 10 iterations  
-  if (j > 999) then
-   write(*,*) 'Probable error on iterations in SplineCenter'
+  if (j > 9) then
+   write(*,*) 'Probable error on iterations in SplineCenter', high,low
+   write(*,*) 'r:',r
+   write(*,*) ' '
+   write(*,*) 'z:',z
+   write(*,*) ' '
+   write(*,*) 'z2:',zr2
+   write(*,*) ' '   
    stop
   endif 
    

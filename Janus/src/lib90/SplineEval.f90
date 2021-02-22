@@ -4,6 +4,7 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
  USE zernicke, ONLY : OPERATOR(.p.) !tensor summation convention
  USE spline_interfaces, ONLY : bsearch
  use,intrinsic :: ieee_arithmetic
+ IMPLICIT NONE
 
 ! !1-D version
 ! shamelessly adapted from Computer Methods for Mathematical Computations Forsythe et al. 1977
@@ -68,7 +69,7 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
    
    if ((A*B) < 0) then 
     if (KP == 0) then  !  natural spline extrapolation z2=0 outside spline 
-     z2=0.
+     z2=0._wp
     end if
    end if
        
@@ -79,6 +80,21 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
    if (Present(fpp)) fpp = (AB.p.z2)  ! fpp=A*y2(i)+B*y2(i1) 
 !  3rd deriv 
    if (Present(fppp)) fppp = (dAB.p.z2) ! fppp=(y2(i1)-y2(i))/dr   
+
+   if (ABS(f) >44 .AND. KP ==0 ) then 
+   write(*,*) 'x:',x
+   write(*,*) ' '
+   write(*,*) 'y:',y
+   write(*,*) ' '
+   write(*,*) 'y2:',y2
+   write(*,*) ' '   
+   write(*,*) 'i,i1',i,i1
+
+   write(*,*) 'AB .p. z',AB.p.z
+  
+   
+   endif
+
 
    IsInf=ieee_is_finite(f)
    If(.not.IsInf) then

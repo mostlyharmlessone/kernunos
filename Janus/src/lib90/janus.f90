@@ -210,12 +210,11 @@
   x=ZernickeC(atmp,2,3)
   write (*,*) 'c23: ',x ! compute Zernicke coefficient
 
-  atmp=pcafill2(RadSlope) ! these may have an io error also!
-
-  atmp=pcafill(RadSlope)
+  atmp=pcafill(3,RadSlope) 
+  atmp=pcafill(3,RadSlope)
 !  call WriteOFF(atmp,'atmp.off')
-  atmp=0 ! deallocate
-  pause
+!  atmp=0 ! deallocate
+ ! pause
   
   call init_augmented_mat(MM,N,M,ARadSlope,ADiaSlope) ! prepare more space
     
@@ -275,7 +274,6 @@
   t(8)=time_end-time_start
   write(*,*) 'Time to make new ARadSlope with origin: ',t(8)*1000
   
-
 ! GENERATE PRINT FILES
  if (i==1) then
   call WRITEARRAY(ARadSlope,BigPlot)
