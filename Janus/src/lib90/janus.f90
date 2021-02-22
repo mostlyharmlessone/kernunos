@@ -241,7 +241,7 @@
    DiaSlope=RadSlope             
    DiaSlope%Zpd2 = .n. DiaSlope 
    RadSlope%r=make_rings(DiaSlope,.FALSE.)
-   call FILLARRAY(14,LinesOfCurv,POWMIN2,POWMAX2) ! get derivatives from elevation 14 is the same as 4 but should be grainy
+   call FILLARRAY(14,LinesOfCurv,POWMIN2,POWMAX2) ! get derivatives from elevation 14 is the same as 4 but might be grainy
    call CPU_TIME(time_end)
    t(6)=time_end-time_start
    write(*,*) 'Time to re-generate a new RadSlope/DiaSlope from Atlas: ',t(6)*1000   

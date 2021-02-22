@@ -81,24 +81,10 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
 !  3rd deriv 
    if (Present(fppp)) fppp = (dAB.p.z2) ! fppp=(y2(i1)-y2(i))/dr   
 
-   if (ABS(f) >44 .AND. KP ==0 ) then 
-   write(*,*) 'x:',x
-   write(*,*) ' '
-   write(*,*) 'y:',y
-   write(*,*) ' '
-   write(*,*) 'y2:',y2
-   write(*,*) ' '   
-   write(*,*) 'i,i1',i,i1
-
-   write(*,*) 'AB .p. z',AB.p.z
-  
-   
-   endif
-
-
    IsInf=ieee_is_finite(f)
    If(.not.IsInf) then
     write(*,*) 'Warning from splineEval',KP,u,n,i1,i,z,z2
+    stop
    endif
                            
   return
