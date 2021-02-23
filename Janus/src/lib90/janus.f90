@@ -192,29 +192,17 @@
 !  use with polar plot, has to come after SplineEval1Dx1D is called, ie. 'set polar' then plot 'Center.dat'
    call WriteCenter(RadSlope,'Center.dat')   ! biggest deviation with nSplineCenter zero slope forced at origin, 
                                              ! then with zero slope forced at average (r(low)+r(high))/2.0
-                                             ! smallest deviation without nSplineCenter   
+                                             ! smallest deviation without nSplineCenter; view with set polar; plot 'Center.dat'
 !  write an OFF file
   MV(:)=RadSlope%MV(:) ! store a copy
-  RadSlope%MV(:)=N   !full diameters for elevation for Zernicke
+  RadSlope%MV(:)=N   !full diameters for elevation 
   call FILLARRAY(7,LinesOfCurv,POWMIN,POWMAX)
-  atmp=Normalize(RadSlope) !allocates atmp, normalizes RadSlope
   call WriteOFF(RadSlope,'elevation.off')
-  call WriteOFF(atmp,'elevation1.off')
-  RadSlope%MV(:)=MV(:)  ! restore
-  x=ZernickeC(atmp,0,4)
-  write (*,*) 'c0,4: ',x ! compute Zernicke coefficient
-  x=ZernickeC(atmp,1,2)
-  write (*,*) 'c12: ',x ! compute Zernicke coefficient
-  x=ZernickeC(atmp,2,2)
-  write (*,*) 'c22: ',x ! compute Zernicke coefficient
-  x=ZernickeC(atmp,2,3)
-  write (*,*) 'c23: ',x ! compute Zernicke coefficient
 
-  atmp=pcafill(3,RadSlope) 
-  atmp=pcafill(3,RadSlope)
-!  call WriteOFF(atmp,'atmp.off')
-!  atmp=0 ! deallocate
- ! pause
+  atmp=pca(2,RadSlope) 
+  atmp=pca(3,RadSlope)
+
+stop
   
   call init_augmented_mat(MM,N,M,ARadSlope,ADiaSlope) ! prepare more space
     

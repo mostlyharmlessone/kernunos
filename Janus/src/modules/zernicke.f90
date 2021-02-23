@@ -13,15 +13,64 @@ END INTERFACE
 
 CONTAINS
 
-function Zern(m,n,rho,phi) result(zed)
+
+!!!!!!!
+! this section removed from cornea_arrays.f90
+
+!function Normalize(b) result(a) ! puts b on unit circle
+! TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
+! TYPE(wpRadSlopeMatrix) :: a
+! real(wp) :: rBo
+! integer :: M1,N1,i,j 
+! N1=size(b%r,2) !N1=N 
+! M1=size(b%r,1) !M1=MM
+! allocate (a%r(MM,N),a%Zp(MM,N),a%Zp2(MM,N),&
+!            a%Zt2(MM,N),a%thta(MM),a%MV(MM))
+! rBo=-1E30
+!  do i=1,N1 
+!   do j=1,M1
+!    if (ABS(b%r(j,i)) >= rBo) rBo=ABS(b%r(j,i)) !find maximum radius
+!   end do
+!  end do
+!  a%r(:,:)=b%r(:,:)/rBo
+!  a%Zp(:,:)=b%Zp(:,:)/rBo 
+!  a%thta(:)=b%thta(:) 
+!end function Normalize
+
+!G(rho,phi),F(rho,phi)
+!L2 inner product/norm <F,G>=integral{(F*G*rho)(drho)(dphi)}
+! Sum over integers (m,n)( (Sum over points MM,N elevation(i=1,MM, J=1,N)*Z(at knots(MM,N),m,n) )
+! compute Zmn for m,n at knots -> array or big array, matrix multiply with elevation array scaled to unit circle
+
+!Zernicke coefficients on UNIT circle 0<rho<1, 0<phi<2pi
+!G(rho,phi)=Sum(m,n){amnZmn(rho,phi)+bmnZ-mn(rho,phi)} can be expressed where
+!amn=(2n+2)/(eps(m)*PI)<G,Z+mn>
+!bmn=(2n+2)/(eps(m)*PI)<G,Z-mn>
+
+!function ZernickeC(a,n2,m2) result(c) 
+! TYPE(wpRadSlopeMatrix),INTENT(IN) :: a ! has to be normalized to unit circle
+! INTEGER,INTENT(IN) :: n2,m2 ! denotes zernicke coefficient indices
+! N1=size(a%r,2) !N1=N 
+! M1=size(a%r,1) !M1=MM
+!  do i=1,N1 
+!    do j=1,M1
+!     b(j,i)=Zern(n2,m2,a%r(j,i),a%thta(j))*a%r(j,i)
+!    end do
+!  end do
+! c = (2*n2+2)/(eps2(m2)*PI) * (a%Zp .p. b) 
+! end function ZernickeC
+
+!!!!!!!!!!!!
+
+function Zern(n,m,rho,phi) result(zed)
 real(wp),INTENT(IN) :: rho,phi
 INTEGER,INTENT(IN) :: m,n
  !write(*,*) m,n 
  if (n >= ABS(m)) then ! n>=m>=0 m=0 only for cos variation
   if (m >= 0) then
-   zed=RZern(m,n,rho)*cos(m*phi)
+   zed=RZern(n,m,rho)*cos(m*phi)
   else
-   zed=RZern(ABS(m),n,rho)*sin(ABS(m)*phi)
+   zed=RZern(n,ABS(m),rho)*sin(ABS(m)*phi)
   endif
  else
   write(*,*) 'Illegal n,m in Z:',n,m
@@ -29,13 +78,21 @@ INTEGER,INTENT(IN) :: m,n
  endif
 end function Zern
 
-function RZern(m,n,rho) result(radk)  !r(m,n,rho)=sum(k,0,(n-m)/2) sum over k=0,(n-m)/2
+function RZern(n,m,rho) result(radk)  !r(m,n,rho)=sum(k,0,(n-m)/2) sum over k=0,(n-m)/2
 real(wp),INTENT(IN) :: rho
 INTEGER,INTENT(IN) :: m,n
+  if (rho == 1) then
+   radk=1
+   return
+  endif
   radk=0
+  if (mod(n-m,2) == 0) then
   do k=0,(n-m)/2
    radk=radk+(rho**(n-(2*k)))*(fact(n-k)*(-1)**k)/(fact(k)*fact((n+m)/2-k)*fact((n-m)/2-k)) 
   end do
+  else
+   radk=0
+  endif
 end function RZern
   
 ! vector & matrix operations

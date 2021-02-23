@@ -441,50 +441,6 @@ function make_bad_rings(b,Origin) result(a)   ! works on DiaSlope (needs bounds)
  end ASSOCIATE
 end function make_bad_rings
 
-function Normalize(b) result(a) ! puts b on unit circle
- TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
- TYPE(wpRadSlopeMatrix) :: a
- real(wp) :: rBo
- integer :: M1,N1,i,j 
- N1=size(b%r,2) !N1=N 
- M1=size(b%r,1) !M1=MM
- allocate (a%r(MM,N),a%Zp(MM,N),a%Zp2(MM,N),&
-            a%Zt2(MM,N),a%thta(MM),a%MV(MM))
- rBo=-1E30
-  do i=1,N1 
-   do j=1,M1
-    if (ABS(b%r(j,i)) >= rBo) rBo=ABS(b%r(j,i)) !find maximum radius
-   end do
-  end do
-  a%r(:,:)=b%r(:,:)/rBo
-  a%Zp(:,:)=b%Zp(:,:)/rBo 
-  a%thta(:)=b%thta(:) 
-end function Normalize
-
-!G(rho,phi),F(rho,phi)
-!L2 inner product/norm <F,G>=integral{(F*G*rho)(drho)(dphi)}
-! Sum over integers (m,n)( (Sum over points MM,N elevation(i=1,MM, J=1,N)*Z(at knots(MM,N),m,n) )
-! compute Zmn for m,n at knots -> array or big array, matrix multiply with elevation array scaled to unit circle
-
-!Zernicke coefficients on UNIT circle 0<rho<1, 0<phi<2pi
-!G(rho,phi)=Sum(m,n){amnZmn(rho,phi)+bmnZ-mn(rho,phi)} can be expressed where
-!amn=(2n+2)/(eps(m)*PI)<G,Z+mn>
-!bmn=(2n+2)/(eps(m)*PI)<G,Z-mn>
-
-function ZernickeC(a,m2,n2) result(c) 
- TYPE(wpRadSlopeMatrix),INTENT(IN) :: a ! has to be normalized to unit circle
- INTEGER,INTENT(IN) :: m2,n2 ! denotes zernicke coefficient
- real(wp) :: b(size(a%r,1),size(a%r,2))
- N1=size(a%r,2) !N1=N 
- M1=size(a%r,1) !M1=MM
-  do i=1,N1 
-    do j=1,M1
-     b(j,i)=Zern(m2,n2,a%r(j,i),a%thta(j))
-    end do
-  end do
- c = (2*n2+2)/(eps2(m2)*PI) * (a%Zp .p. b)
- end function ZernickeC
-
 function AngSpline(b) result(a) 
  TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
  TYPE(wpsplinevect) :: spline
@@ -649,142 +605,86 @@ function lsqfill(b) result(a)
  end do   
 end function lsqfill
 
-function lsqfill2(b) result(a) 
- use set_precision, ONLY : wp
- TYPE(wpAtlasMatrix),INTENT(IN) :: b
- integer :: M1,N1,i,j,k,info,ipvt(M2)
- real(wp) :: a(size(b%AR,1),size(b%AR,2)),t(size(b%AR,1)),z(size(b%AR,1))
- real(wp) :: c(M2),X(M2,size(b%AR,1)),XpX(M2),zpX(M2),XTX(M2,M2)
- logical :: Q
-! real (wp) res(size(b%AR,1)),respres,sumr2,zpz
- N1=size(b%AR,2) !N1=N 
- M1=size(b%AR,1) !M1=MM
- z=0
- t=0
- a=0
- do i=1,N1
-  XpX=0
-  zpX=0 
-  c=0  
-! X is cosine terms of fourier, t are angles, Z are radii for current ring
-  do j=1,M2
-   do k=1,M1  
-    Q=ABS(b%AR(k,i)) > 0  
-    if (Q) then ! means it is  =/ 0
-     t(k)=b%DEG(k)*PI/180.0_wp         
-     z(k)=b%AR(k,i)
-     X(j,k)=cos((j-1)*t(k))    ! cosine series including 0 term
-     XpX(j)=XpX(j)+X(j,k)*X(j,k)
-     zpX(j)=zpX(j)+z(k)*X(j,k)
-    endif      
-   end do 
-  end do
-! X transpose X
-  XTX=0
-  do j=1,M2
-   do l=1,M2 
-    do k=1,M1 
-     Q=ABS(b%AR(k,i)) > 0  
-     if (Q) then ! means it is  =/ 0    
-      XTX(j,l)=XTX(j,l)+X(j,k)*X(l,k)
-     endif
-    end do
-   end do
-  end do
-! get solution fit coefficients c to XTX.c=z.X
-  c=0
-!  call gauss_2(XTX,zpX,c,M2) ! simple G-J routine
-  call DGESV(M2, 1, XTX, M2, ipvt, zpX, M2, INFO )
-  if ( info /= 0 ) then
-   WRITE (*,'(''Argument '',i3,'' has an illegal value'')') - info
-  endif
-  c=zpX
-! generate lsq fillin values
-  do k=1,M1
-    Q=ABS(b%AR(k,i)) > 0  
-    if (Q) then ! means it is  =/ 0
-     a(k,i)=b%AR(k,i)   ! retain old values where they exist
-    else
-     do j=1,M2
-      a(k,i)=a(k,i)+c(j)*cos((j-1)*b%DEG(k)*PI/180.0_wp) ! just replace missing values
-     end do 
-    endif    
-  end do         	 	
- end do   
-end function lsqfill2
-
-function pcafill(M3,b) result(a) 
+function pca(M3,b) result(a) 
  use set_precision, ONLY : wp
  TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
  TYPE(wpRadSlopeMatrix) :: a
  integer, INTENT(IN) :: M3  ! pca terms, 2 or 3
- integer :: M1,N1,i,j,k,info,lwork
- real(wp) :: t(size(b%r,1)),z(size(b%r,1))
- real(wp) :: X(M3,size(b%r,1)),XTX(M3,M3),work(3*M3),w(M3) !M3=2
+ integer :: M1,N1,i,j,k,info,lwork,M
+ real(wp) :: X(M3,size(b%r,1)),XTX(M3,M3),work(3*M3),w(M3) 
  logical :: Q
- allocate (a%r(MM,N),a%Zp(MM,N),a%Zp2(MM,N),&
-            a%Zt2(MM,N),a%thta(MM),a%MV(MM))
  lwork=size(work)
  N1=size(b%r,2) !N1=N 
  M1=size(b%r,1) !M1=MM
- z=0
- t=0
- a=0 
- do i=1,N1
-  if (M3==2) then  
+
+ if (M3==2) then ! each ring
+  do i=1,N1 
    do k=1,M1  
     Q=ABS(b%r(k,i)) > 0  
     if (Q) then ! means it is  =/ 0
-     t(k)=b%thta(k)*PI/180.0_wp         
-     z(k)=b%r(k,i)
-     X(1,k)=z(k)*cos(t(k))
-     X(2,k)=z(k)*sin(t(k)) 
+     X(1,k)=b%r(k,i)*cos(360*b%thta(k)/MM)
+     X(2,k)=b%r(k,i)*sin(360*b%thta(k)/MM) 
     endif       
    end do   
-  else    
-   do k=1,M1  
-    Q=ABS(b%r(k,i)) > 0  
-    if (Q) then ! means it is  =/ 0
-     t(k)=b%thta(k)*PI/180.0_wp         
-     z(k)=b%r(k,i)
-     X(1,k)=z(k)*cos(t(k))
-     X(2,k)=z(k)*sin(t(k)) 
-     X(3,k)=b%Zp(k,i) 
-    endif       
-   end do   
-  endif
-  
 ! X transpose X
   XTX=0
+  M=0
   do j=1,M3
    do l=1,M3 
     do k=1,M1 
      Q=ABS(b%r(k,i)) > 0  
      if (Q) then ! means it is  =/ 0    
       XTX(j,l)=XTX(j,l)+X(j,k)*X(l,k)
+      M=M+1
      endif
     end do
    end do
   end do
+  XTX=M3*M3*XTX/M
 ! compute the eigenvalues
   call DSYEV( 'V', 'U', M3, XTX, M3, W, WORK, LWORK, INFO )
-  if ( info /= 0 ) then
-   WRITE (*,'(''Argument '',i3,'' has an illegal value'')') - info
-  endif
-  write(*,*) i,'th eigenvalues W from pcafill in cornea_arrays: ',W 
-! generate lsq fillin values
-  do k=1,M1
+   if ( info /= 0 ) then
+    WRITE (*,'(''Argument '',i3,'' has an illegal value'')') - info
+   endif
+   write(*,*) i,'th eigenvalues W from pca in cornea_arrays: ',SQRT(W)  
+  end do 
+
+ else          ! whole data set
+
+  do i=1,N1   
+   do k=1,M1  
     Q=ABS(b%r(k,i)) > 0  
     if (Q) then ! means it is  =/ 0
-!     a%r(k,i)=b%r(k,i)   ! retain old values where they exist
-    else
-     do j=1,M2
-!      a%r(k,i)=a%r(k,i)+c(j)*cos((j-1)*b%thta(k)*PI/180.0_wp) ! just replace missing values
-     end do 
-    endif    
-  end do  
-end do           	 	
-end function pcafill
+     X(1,k)=b%r(k,i)*cos(360*b%thta(k)/MM)
+     X(2,k)=b%r(k,i)*sin(360*b%thta(k)/MM) 
+     X(3,k)=b%Zp(k,i)
+    endif       
+   end do 
+! X transpose X
+  XTX=0
+  M=0
+  do j=1,M3
+   do l=1,M3 
+    do k=1,M1 
+     Q=ABS(b%r(k,i)) > 0  
+     if (Q) then ! means it is  =/ 0    
+      XTX(j,l)=XTX(j,l)+X(j,k)*X(l,k)
+      M=M+1
+     endif
+    end do
+   end do
+  end do
+  end do
+  XTX=M3*M3*XTX/M          ! same as division by M1 if no missing points
+! compute the eigenvalues
+  call DSYEV( 'V', 'U', M3, XTX, M3, W, WORK, LWORK, INFO )
+   if ( info /= 0 ) then
+    WRITE (*,'(''Argument '',i3,'' has an illegal value'')') - info
+   endif
+   write(*,*) 'The eigenvalues W from pca in cornea_arrays: ',SQRT(W)
+ endif
+          	 	
+end function pca
 
 !  finds MV based on Atlas%AR and Atlas%AP
 subroutine refineborders(Atlas,RadSlope)
