@@ -1,7 +1,7 @@
        subroutine pspli(t,z,n,zt2)
        use cornea_arrays, only : PI, MM, EPS
        use set_precision, only :  wp
-       USE zernicke, ONLY : OPERATOR(.p.) !tensor summation convention
+       USE special_fct, ONLY : OPERATOR(.p.) !tensor summation convention
        use,intrinsic :: ieee_arithmetic
 
 !      PERIODIC BOUNDARY CONDITION SPLINE
@@ -41,8 +41,8 @@
         d(j)=(z(j+1)-z(j))/(t(j+1)-t(j))-(z(j)-z(j-1))/(t(j)-t(j-1))
        end do 
         
-!      SOLVE THE TRIADIAGONAL PERIODIC CASE                     
-       call DCTSV( N,1, a, b, c, d, N, INFO ) ! d is overwritten                    
+!      SOLVE THE TRIDIAGONAL PERIODIC CASE                     
+       call DCTSV( m,1, a, b, c, d, m, INFO ) ! d is overwritten                    
        zt2=d             
        if (m < n) then  !degenerate case where these points are identical
        zt2(n)=zt2(1)

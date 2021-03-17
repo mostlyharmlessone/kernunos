@@ -3,7 +3,7 @@ MODULE cornea_arrays
  USE set_precision, ONLY : wp
  USE LapackInterface, ONLY : dgetrf, dgetrs, dgesv, dsyev
  USE spline_interfaces 
- USE zernicke
+ USE special_fct
  REAL(wp), PARAMETER :: PI=3.1415926535897932384626433832795_wp
  REAL(wp), PARAMETER :: RFCT=33750.0_wp
  REAL(wp), PARAMETER :: EPS=0.0000001_wp  ! used in pspli and SplineCenter

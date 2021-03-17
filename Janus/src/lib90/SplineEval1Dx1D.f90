@@ -2,7 +2,7 @@
       USE cornea_arrays, ONLY : DiaSlope, RadSlope, MM, N, RadSplineCenter
       USE set_precision, ONLY : wp
       USE spline_interfaces, ONLY : pspli, SplineEval, trapez, CubicSplineQuad, SplineCenter
-      USE zernicke, ONLY : OPERATOR(.p.) !tensor summation convention      
+      USE special_fct, ONLY : OPERATOR(.p.) !tensor summation convention      
       use,intrinsic :: ieee_arithmetic
       implicit none
       integer, INTENT(IN) :: iflag     ! iflag=0 no integration

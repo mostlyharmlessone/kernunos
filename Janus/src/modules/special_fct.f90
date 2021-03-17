@@ -1,4 +1,4 @@
-module zernicke
+module special_fct
 
 USE set_precision, ONLY : wp
 
@@ -198,15 +198,15 @@ function eps2(m) result(e) !eps2(0)=2, eps2(m)=1 m /=0
  endif    
 end function eps2
 
-recursive function fact(n)  result(f) ! factorial
+recursive function fact(n)  result(f) ! classic recursive factorial
  INTEGER :: f
  INTEGER, INTENT(IN) :: n
  if (n < 0) then
-  write(*,*) 'Illegal negative n in Factorial(n): ',n
+  write(*,*) 'No negative n in fact(n): ',n
   stop
  endif
   if (ABS(n) > 100) then
-  write(*,*) 'Runaway factorial: ',n
+  write(*,*) 'too large factorial: ',n
   stop
  endif
  if (n == 0) then
@@ -216,6 +216,44 @@ recursive function fact(n)  result(f) ! factorial
  endif
 end function fact
 
+function binomial(n,k) result m
+ INTEGER :: m
+ INTEGER, INTENT(IN) :: n,k
+! m= fact(n)/(fact(k)*fact(n-k)) ! inefficient
+ if (k > (n-k)) then
+   m= pfact(n,k)/pfact(n-k,1)
+  else
+   m= pfact(n,n-k)/pfact(k,1)
+ endif
+end function binomial
 
-end module zernicke
+function pfact(n,k)  result(f) ! partial factorial k to n pfact(n,1)=pfact(n,0)=fact(n)
+ INTEGER :: f,i
+ INTEGER, INTENT(IN) :: n,k
+ if (n < 0 .OR. k < 0) then
+  write(*,*) 'No n < 0 or k < 0 in pfact(n): ',n
+  stop
+ endif
+ if (n < k) then
+  write(*,*) 'n < k in pfact(n): ',n
+  stop
+ endif
+  if (ABS(n) > 100) then
+  write(*,*) 'too large factorial: ',n
+  stop
+ endif
+ if ((n-k) == 0) then
+  f = 1
+ else
+  f = 1
+  if (k == 0) then
+   k = 1
+  endif
+  do i=k,n                     ! do loop factorial k to n
+   f = f*i
+  end do
+ endif
+end function pfact(n,k)
+
+end module special_fct
 
