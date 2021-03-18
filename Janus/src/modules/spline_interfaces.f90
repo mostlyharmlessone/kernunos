@@ -58,7 +58,7 @@ module spline_interfaces
       
  subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
   USE set_precision, ONLY : wp
-  USE zernicke, ONLY : OPERATOR(.p.) !tensor summation convention
+  USE special_fct, ONLY : OPERATOR(.p.) !tensor summation convention
   use,intrinsic :: ieee_arithmetic
   INTEGER, INTENT(IN) :: KP ! periodic vs natural spline flag
   INTEGER, INTENT(IN) :: n ! vector input length
@@ -79,7 +79,7 @@ module spline_interfaces
       
  subroutine SplineEval2D(u,v,f0,fr,ft,frt,frr,ftt)
   USE set_precision, ONLY : wp
-  USE zernicke, ONLY : OPERATOR(.p.) !tensor summation convention
+  USE special_fct, ONLY : OPERATOR(.p.) !tensor summation convention
   REAL(wp),INTENT(IN) :: u, v ! coordinates at which the spline is to be evaluated
   REAL(wp),INTENT(OUT),OPTIONAL:: f0,fr,ft,frt,frr,ftt ! function & derivs at (u,v)         
  end subroutine

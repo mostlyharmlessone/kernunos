@@ -216,18 +216,18 @@ recursive function fact(n)  result(f) ! classic recursive factorial
  endif
 end function fact
 
-function binomial(n,k) result m
+function binomial(n,k)  result (m)
  INTEGER :: m
  INTEGER, INTENT(IN) :: n,k
-! m= fact(n)/(fact(k)*fact(n-k)) ! inefficient
+! m = fact(n)/(fact(k)*fact(n-k)) ! inefficient
  if (k > (n-k)) then
-   m= pfact(n,k)/pfact(n-k,1)
+   m = pfact(n,k)/pfact(n-k,1)
   else
-   m= pfact(n,n-k)/pfact(k,1)
+   m = pfact(n,n-k)/pfact(k,1)
  endif
 end function binomial
 
-function pfact(n,k)  result(f) ! partial factorial k to n pfact(n,1)=pfact(n,0)=fact(n)
+function pfact(n,k)  result(f) ! partial factorial k+1 to n: pfact(n,1)=pfact(n,0)=fact(n)
  INTEGER :: f,i
  INTEGER, INTENT(IN) :: n,k
  if (n < 0 .OR. k < 0) then
@@ -246,14 +246,11 @@ function pfact(n,k)  result(f) ! partial factorial k to n pfact(n,1)=pfact(n,0)=
   f = 1
  else
   f = 1
-  if (k == 0) then
-   k = 1
-  endif
-  do i=k,n                     ! do loop factorial k to n
-   f = f*i
-  end do
+   do i=k+1,n                     ! do loop factorial: k+1 to n
+    f = f*i
+   end do
  endif
-end function pfact(n,k)
+end function pfact
 
 end module special_fct
 
