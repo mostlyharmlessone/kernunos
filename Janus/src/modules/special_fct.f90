@@ -221,9 +221,9 @@ function binomial(n,k)  result (m)
  INTEGER, INTENT(IN) :: n,k
 ! m = fact(n)/(fact(k)*fact(n-k)) ! inefficient
  if (k > (n-k)) then
-   m = pfact(n,k)/pfact(n-k,1)
+   m = pfact(n,k)/pfact(n-k,0)
   else
-   m = pfact(n,n-k)/pfact(k,1)
+   m = pfact(n,n-k)/pfact(k,0)
  endif
 end function binomial
 
@@ -235,11 +235,11 @@ function pfact(n,k)  result(f) ! partial factorial k+1 to n: pfact(n,1)=pfact(n,
   stop
  endif
  if (n < k) then
-  write(*,*) 'n < k in pfact(n): ',n
+  write(*,*) 'n < k in pfact(n): ',n,k
   stop
  endif
   if (ABS(n) > 100) then
-  write(*,*) 'too large factorial: ',n
+  write(*,*) 'too large factorial in pfact: ',n
   stop
  endif
  if ((n-k) == 0) then
