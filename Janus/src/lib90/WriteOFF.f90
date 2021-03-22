@@ -5,6 +5,7 @@
        character(len=*), intent(in) :: KXNAME 
        real(wp):: X1,X2,X3,vert1,vert2,vert3,vert4
        integer :: i,j,M1,N1,vertices,faces,edges
+       integer :: ivert1,ivert2,ivert3,ivert4
        logical :: donut,quad
 
 !       RGB colors can follow after list of faces       
@@ -44,8 +45,7 @@
        edges=0
        do i=1,M1-1
         do j=1,N1-1
-         if ((ABS(b%Zp(i,j)) > 0) .AND. (ABS(b%Zp(i+1,j)) > 0) .AND. &
-           & (ABS(b%Zp(i,j+1)) > 0) .AND. (ABS(b%Zp(i+1,j+1)) > 0)) then
+        if  ( (j < b%MV(i)) .AND. (j < b%MV(i+1)) ) then           
          if (donut) then
           if (quad) then
            faces=faces+1
@@ -64,8 +64,7 @@
 !       Last one is different
 !       for i=M1
         do j=1,N1-1
-         if ((ABS(b%Zp(M1,j)) > 0) .AND. (ABS(b%Zp(1,j)) > 0) .AND. & 
-           & (ABS(b%Zp(M1,j+1)) > 0) .AND. (ABS(b%Zp(1,j+1)) > 0)) then
+        if  ( (j < b%MV(M1)) .AND. (j < b%MV(1)) ) then                     
          if (donut) then
           if (quad) then
            faces=faces+1
@@ -90,24 +89,25 @@
          vert1 = ABS(X2)*COS(X1) 
          vert2 = ABS(X2)*SIN(X1) 
          vert3 = X3            
-         write(12,*) vert1,vert2,vert3         
+         write(12,*) vert1,vert2,vert3 
         end do
        end do
+
+!      these HAVE to be written/formatted as integers for igl 
         
        do i=1,M1-1
         do j=1,N1-1
-         vert1=(i-1)*N1+j-1
-         vert2=(i-1)*N1+j
-         vert3=i*N1+j
-         vert4=i*N1+j-1
-         if ((ABS(b%Zp(i,j)) > 0) .AND. (ABS(b%Zp(i+1,j)) > 0) .AND. &
-           & (ABS(b%Zp(i,j+1)) > 0) .AND. (ABS(b%Zp(i+1,j+1)) > 0)) then
-         if (donut) then
-          if (quad) then
-           write(12,*) '4',vert1,vert2,vert3,vert4              
-          else
-           write(12,*) '3',vert1,vert2,vert3                     
-           write(12,*) '3',vert3,vert4,vert1                                  
+         ivert1=(i-1)*N1+j-1
+         ivert2=(i-1)*N1+j
+         ivert3=i*N1+j
+         ivert4=i*N1+j-1
+         if  ( (j < b%MV(i)) .AND. (j < b%MV(i+1)) ) then                      
+          if (donut) then
+           if (quad) then
+            write(12,*) '4',ivert1,ivert2,ivert3,ivert4              
+           else
+            write(12,*) '3',ivert1,ivert2,ivert3                     
+            write(12,*) '3',ivert3,ivert4,ivert1                                  
           endif
          else
 !        nothing here yet                 
@@ -119,19 +119,18 @@
 !       Last one is different
 !       i=M1 because "i+1"=M1, but second terms have 0 because "i" is (i-1)  
         do j=1,N1-1
-         vert1=(M1-1)*N1+j-1
-         vert2=(M1-1)*N1+j
-         vert3=j
-         vert4=j-1
-         if ((ABS(b%Zp(M1,j)) > 0) .AND. (ABS(b%Zp(1,j)) > 0) .AND. & 
-           & (ABS(b%Zp(M1,j+1)) > 0) .AND. (ABS(b%Zp(1,j+1)) > 0)) then
-         if (donut) then
-          if (quad) then
-           write(12,*) '4',vert1,vert2,vert3,vert4    
-          else
-           write(12,*) '3',vert1,vert2,vert3               
-           write(12,*) '3',vert3,vert4,vert1
-          endif
+         ivert1=(M1-1)*N1+j-1
+         ivert2=(M1-1)*N1+j
+         ivert3=j
+         ivert4=j-1
+         if  ( (j < b%MV(M1)) .AND. (j < b%MV(1)) ) then           
+          if (donut) then
+           if (quad) then
+            write(12,*) '4',ivert1,ivert2,ivert3,ivert4    
+           else
+            write(12,*) '3',ivert1,ivert2,ivert3               
+            write(12,*) '3',ivert3,ivert4,ivert1
+           endif
          else
 !        nothing here yet
          endif

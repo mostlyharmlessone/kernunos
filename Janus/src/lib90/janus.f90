@@ -176,13 +176,14 @@
   t(5)=time_end-time_start
   write(*,*) 'Time to run splines: ',t(5)*1000
 
- 
 ! Rewrite RadSlope with round rings and new values 
 
 ! roadmap: now generate round rings, not at previous knots
 ! generate new Rs using rOMIN, rOMAX, riMIN, riMAX but they have to be constant with theta
 ! get a global value for those four to generate R's no ORIGIN to avoid singularity
+
  RadSlope%r=make_rings(DiaSlope,.FALSE.)
+
 !  RadSlope%r=make_bad_rings(DiaSlope,.FALSE.)
 !  use fillarray to fill DiaSlope Zp with calculated value based on IuseG, optionally generate LIOC
 !  using SplineEval1Dx1D to refill a new matrix RadSlope using f0, derivatives to get calculated powers
@@ -196,7 +197,7 @@
                                              ! smallest deviation without nSplineCenter; view with set polar; plot 'Center.dat'
 !  write an OFF file
   MV(:)=RadSlope%MV(:) ! store a copy
-  RadSlope%MV(:)=N   !full diameters for elevation 
+!  RadSlope%MV(:)=N   !full diameters for elevation 
   call FILLARRAY(7,LinesOfCurv,POWMIN,POWMAX)
   call WriteOFF(RadSlope,'elevation.off')
 
