@@ -92,7 +92,18 @@
           CHARACTER TRANS
 !         .. Array Arguments ..
           DOUBLE PRECISION A(LDA,*),X(*),Y(*) 
-          END SUBROUTINE DGEMV    
+          END SUBROUTINE DGEMV   
+
+          FUNCTION DNRM2(N,DX,INCX) RESULT(RES)
+          DOUBLE PRECISION RES
+!          .. Scalar Arguments ..
+          INTEGER  INCX,N
+!         .. Array Arguments ..
+          DOUBLE PRECISION DX(*)
+          END FUNCTION DNRM2
+
+        END INTERFACE    
+ 
 
         END INTERFACE
 
