@@ -15,7 +15,8 @@ OBJS = set_precision.o Background.o BlasModule.o sortElements.o \
 
 executables = driverAiryBVP driverPiecewiseLinear
 
-SuperLULib = ./libsuperlu_4.3.a
+SuperLULib = /usr/local/lib/libsuperlu.so
+LIBS = /usr/lib/libblas.so
 
 all: $(executables)
 

@@ -120,7 +120,7 @@ extern void
 dgssvx(superlu_options_t *, SuperMatrix *, int *, int *, int *,
        char *, double *, double *, SuperMatrix *, SuperMatrix *,
        void *, int, SuperMatrix *, SuperMatrix *,
-       double *, double *, double *, double *,
+       double *, double *, double *, double *, GlobalLU_t *,
        mem_usage_t *, SuperLUStat_t *, int *);
     /* ILU */
 extern void
@@ -159,7 +159,7 @@ extern void    fixupL (const int, const int *, GlobalLU_t *);
 extern void    dallocateA (int, int, double **, int **, int **);
 extern void    dgstrf (superlu_options_t*, SuperMatrix*,
                        int, int, int*, void *, int, int *, int *, 
-                       SuperMatrix *, SuperMatrix *, SuperLUStat_t*, int *);
+                       SuperMatrix *, SuperMatrix *, GlobalLU_t *, SuperLUStat_t*, int *);
 extern int     dsnode_dfs (const int, const int, const int *, const int *,
 			     const int *, int *, int *, GlobalLU_t *);
 extern int     dsnode_bmod (const int, const int, const int, double *,
