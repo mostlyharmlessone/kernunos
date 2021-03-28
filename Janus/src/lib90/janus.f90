@@ -206,7 +206,7 @@
   atmp=pca(2,RadSlope) 
   atmp=pca(3,RadSlope)
 
-stop
+!stop
   
   call init_augmented_mat(MM,N,M,ARadSlope,ADiaSlope) ! prepare more space
     

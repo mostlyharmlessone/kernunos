@@ -8,7 +8,9 @@ vpath %.f90 ../Chapter02 ../Chapter04 ../Chapter06
 
 executables = testSLUInterop
 
-SuperLULib = libsuperlu_4.3.a
+SuperLULib = /usr/local/lib/libsuperlu.so
+#SuperLULib = /usr/local/lib/libsuperlu_4.3.a
+LIBS = /usr/lib/libblas.so
 
 all: $(executables)
 
@@ -22,7 +24,7 @@ testSLUInterop: $(OBJS) $(SuperLULib) $(LIBS)
 
 testSLUInterop.o: set_precision.o sparseTypes.o sortElements.o \
                   sparseSort.o sparseAssign.o  sparseOps.o \
-	          sluInterop.o fortran_double_call_SuperLU.o
+	          sluInterop.o fortran_double_call_SuperLU.o 
 
 sluInterop.o: set_precision.o sparseTypes.o
 

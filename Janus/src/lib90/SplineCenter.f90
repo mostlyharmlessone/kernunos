@@ -25,10 +25,24 @@
 ! should take under 10 iterations  
   if (j > 99) then
    write(*,*) 'Probable error on iterations in SplineCenter finding root',u,g,gr
-   stop
+   u=(r(high)+r(low))/2.0_wp      ! just make it in the center; no guarantee of a local root
   endif 
-  else                            ! no root, just make it in the center; no guarantee of a local minmax
+  else 
+   j=0
    u=(r(high)+r(low))/2.0_wp
+   gr=2*g/(r(high)-r(low))
+   grr=2*gr/(r(high)-r(low))
+   do while ((j < 100) .AND. (ABS(gr/grr) > eps)) 
+    j=j+1
+    call SplineEval(0,r,z,zr2,n,u,g,gr,grr)  
+    u=u-gr/grr
+  end do  
+! should take under 10 iterations  
+  if (j > 99) then
+   write(*,*) 'Probable error on iterations in SplineCenter finding minmax',u,gr,grr
+   u=(r(high)+r(low))/2.0_wp      ! just make it in the center; no guarantee of a local minmax
+  endif 
+        
   endif
    
   end subroutine SplineCenter
