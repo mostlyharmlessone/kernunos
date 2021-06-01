@@ -118,6 +118,7 @@
 !  IuseG == 7  import slopes, return Y (elevation)
 !  IuseG == 8  import slopes, compute LIOC
 !  IuseG == 9  import slopes, return slopes from splining
+!  IuseG == 14 has to follow 7, import elevation, return ZNMEX (instantp)  Should be grainy or have other issues
 
 ! (IuseG=-1) then IuseG=0,1 or 2), IuseF=0-> intdifM
 ! (IuseG=0)  then IuseG=(3..7) , IuseF=0-> intdifR
@@ -203,8 +204,8 @@
 
 ! eigenvalues show shape of RadSlope without make_rings but with FillArray 7 elevations
 
-  atmp=pca(2,RadSlope) 
-  atmp=pca(3,RadSlope)
+!  atmp=pca(2,RadSlope) 
+!  atmp=pca(3,RadSlope)
 
 !stop
   
@@ -215,7 +216,13 @@
   if (i==1) then
    write(*,*) 'Plot: ',i  
    call CPU_TIME(time_start)  
-   call FILLARRAY(IuseG,LinesOfCurv,POWMIN,POWMAX)     
+   RadSlope=Atlas
+   call refineborders(Atlas,RadSlope)  
+   DiaSlope=RadSlope            
+   DiaSlope%Zpd2 = .n. DiaSlope
+!   DiaSlope%Zpd2 = DiaSplineCenter(DiaSlope)   ! generate the splines diagonally with center node added (slopes only)
+   RadSlope%r=make_rings(DiaSlope,.FALSE.)              
+   call FILLARRAY(4,LinesOfCurv,POWMIN,POWMAX)  
    call CPU_TIME(time_end)
    t(6)=time_end-time_start
    write(*,*) 'Time to rewrite RadSlope without origin: ',t(6)*1000    
@@ -233,7 +240,7 @@
    DiaSlope=RadSlope             
    DiaSlope%Zpd2 = .n. DiaSlope 
    RadSlope%r=make_rings(DiaSlope,.FALSE.)
-   call FILLARRAY(14,LinesOfCurv,POWMIN2,POWMAX2) ! get derivatives from elevation 14 is the same as 4 but might be grainy
+ !  call FILLARRAY(14,LinesOfCurv,POWMIN2,POWMAX2) ! get derivatives from elevation 14 is the same as 4 but might be grainy
    call CPU_TIME(time_end)
    t(6)=time_end-time_start
    write(*,*) 'Time to re-generate a new RadSlope/DiaSlope from Atlas: ',t(6)*1000   

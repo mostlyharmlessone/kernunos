@@ -103,8 +103,6 @@
           END FUNCTION DNRM2
 
         END INTERFACE    
- 
 
-        END INTERFACE
 
       END MODULE LapackInterface

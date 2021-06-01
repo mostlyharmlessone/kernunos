@@ -70,7 +70,7 @@ if ( CGAL_FOUND )
     create_single_source_cgal_program( "Single_estimation.cpp" )
 #   use ./Mesh_estimation -f elevation.off -d2 -m2 -a2 -vtrue     
 #       ./Compute_Ridges_Umbilics -f elevation.off -d4 -m4 -a4 -t3 -v0     
-    find_package(LIBIGL)
+#    find_package(LIBIGL)
 
    if ( LIBIGL_FOUND )
     file(GLOB_RECURSE src/cxx *.cpp)
