@@ -56,51 +56,6 @@ CMAKE_BINARY_DIR = "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanso
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target install/local
-install/local: preinstall
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
-	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
-.PHONY : install/local
-
-# Special rule for the target install/local
-install/local/fast: preinstall/fast
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
-	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
-.PHONY : install/local/fast
-
-# Special rule for the target install
-install: preinstall
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
-	/usr/bin/cmake -P cmake_install.cmake
-.PHONY : install
-
-# Special rule for the target install
-install/fast: preinstall/fast
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
-	/usr/bin/cmake -P cmake_install.cmake
-.PHONY : install/fast
-
-# Special rule for the target list_install_components
-list_install_components:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
-.PHONY : list_install_components
-
-# Special rule for the target list_install_components
-list_install_components/fast: list_install_components
-
-.PHONY : list_install_components/fast
-
-# Special rule for the target rebuild_cache
-rebuild_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/usr/bin/cmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
-.PHONY : rebuild_cache
-
-# Special rule for the target rebuild_cache
-rebuild_cache/fast: rebuild_cache
-
-.PHONY : rebuild_cache/fast
-
 # Special rule for the target install/strip
 install/strip: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
@@ -113,6 +68,39 @@ install/strip/fast: preinstall/fast
 	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
 .PHONY : install/strip/fast
 
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+
+.PHONY : list_install_components/fast
+
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local/fast
+
+# Special rule for the target rebuild_cache
+rebuild_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
+	/usr/bin/cmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+.PHONY : rebuild_cache
+
+# Special rule for the target rebuild_cache
+rebuild_cache/fast: rebuild_cache
+
+.PHONY : rebuild_cache/fast
+
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
@@ -123,6 +111,18 @@ edit_cache:
 edit_cache/fast: edit_cache
 
 .PHONY : edit_cache/fast
+
+# Special rule for the target install
+install: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install
+
+# Special rule for the target install
+install/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install/fast
 
 # Special rule for the target test
 test:
@@ -168,36 +168,6 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
-TESTING/CMakeFiles/d_test.dir/rule:
-	cd "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu" && $(MAKE) -f CMakeFiles/Makefile2 TESTING/CMakeFiles/d_test.dir/rule
-.PHONY : TESTING/CMakeFiles/d_test.dir/rule
-
-# Convenience name for target.
-d_test: TESTING/CMakeFiles/d_test.dir/rule
-
-.PHONY : d_test
-
-# fast build rule for target.
-d_test/fast:
-	cd "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu" && $(MAKE) -f TESTING/CMakeFiles/d_test.dir/build.make TESTING/CMakeFiles/d_test.dir/build
-.PHONY : d_test/fast
-
-# Convenience name for target.
-TESTING/CMakeFiles/s_test.dir/rule:
-	cd "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu" && $(MAKE) -f CMakeFiles/Makefile2 TESTING/CMakeFiles/s_test.dir/rule
-.PHONY : TESTING/CMakeFiles/s_test.dir/rule
-
-# Convenience name for target.
-s_test: TESTING/CMakeFiles/s_test.dir/rule
-
-.PHONY : s_test
-
-# fast build rule for target.
-s_test/fast:
-	cd "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu" && $(MAKE) -f TESTING/CMakeFiles/s_test.dir/build.make TESTING/CMakeFiles/s_test.dir/build
-.PHONY : s_test/fast
-
-# Convenience name for target.
 TESTING/CMakeFiles/c_test.dir/rule:
 	cd "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu" && $(MAKE) -f CMakeFiles/Makefile2 TESTING/CMakeFiles/c_test.dir/rule
 .PHONY : TESTING/CMakeFiles/c_test.dir/rule
@@ -226,6 +196,36 @@ z_test: TESTING/CMakeFiles/z_test.dir/rule
 z_test/fast:
 	cd "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu" && $(MAKE) -f TESTING/CMakeFiles/z_test.dir/build.make TESTING/CMakeFiles/z_test.dir/build
 .PHONY : z_test/fast
+
+# Convenience name for target.
+TESTING/CMakeFiles/d_test.dir/rule:
+	cd "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu" && $(MAKE) -f CMakeFiles/Makefile2 TESTING/CMakeFiles/d_test.dir/rule
+.PHONY : TESTING/CMakeFiles/d_test.dir/rule
+
+# Convenience name for target.
+d_test: TESTING/CMakeFiles/d_test.dir/rule
+
+.PHONY : d_test
+
+# fast build rule for target.
+d_test/fast:
+	cd "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu" && $(MAKE) -f TESTING/CMakeFiles/d_test.dir/build.make TESTING/CMakeFiles/d_test.dir/build
+.PHONY : d_test/fast
+
+# Convenience name for target.
+TESTING/CMakeFiles/s_test.dir/rule:
+	cd "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu" && $(MAKE) -f CMakeFiles/Makefile2 TESTING/CMakeFiles/s_test.dir/rule
+.PHONY : TESTING/CMakeFiles/s_test.dir/rule
+
+# Convenience name for target.
+s_test: TESTING/CMakeFiles/s_test.dir/rule
+
+.PHONY : s_test
+
+# fast build rule for target.
+s_test/fast:
+	cd "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu" && $(MAKE) -f TESTING/CMakeFiles/s_test.dir/build.make TESTING/CMakeFiles/s_test.dir/build
+.PHONY : s_test/fast
 
 cdrive.o: cdrive.c.o
 
@@ -692,10 +692,10 @@ sp_ienv.o: sp_ienv.c.o
 
 # target to build an object file
 sp_ienv.c.o:
-	cd "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu" && $(MAKE) -f TESTING/CMakeFiles/d_test.dir/build.make TESTING/CMakeFiles/d_test.dir/sp_ienv.c.o
-	cd "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu" && $(MAKE) -f TESTING/CMakeFiles/s_test.dir/build.make TESTING/CMakeFiles/s_test.dir/sp_ienv.c.o
 	cd "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu" && $(MAKE) -f TESTING/CMakeFiles/c_test.dir/build.make TESTING/CMakeFiles/c_test.dir/sp_ienv.c.o
 	cd "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu" && $(MAKE) -f TESTING/CMakeFiles/z_test.dir/build.make TESTING/CMakeFiles/z_test.dir/sp_ienv.c.o
+	cd "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu" && $(MAKE) -f TESTING/CMakeFiles/d_test.dir/build.make TESTING/CMakeFiles/d_test.dir/sp_ienv.c.o
+	cd "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu" && $(MAKE) -f TESTING/CMakeFiles/s_test.dir/build.make TESTING/CMakeFiles/s_test.dir/sp_ienv.c.o
 .PHONY : sp_ienv.c.o
 
 sp_ienv.i: sp_ienv.c.i
@@ -704,10 +704,10 @@ sp_ienv.i: sp_ienv.c.i
 
 # target to preprocess a source file
 sp_ienv.c.i:
-	cd "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu" && $(MAKE) -f TESTING/CMakeFiles/d_test.dir/build.make TESTING/CMakeFiles/d_test.dir/sp_ienv.c.i
-	cd "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu" && $(MAKE) -f TESTING/CMakeFiles/s_test.dir/build.make TESTING/CMakeFiles/s_test.dir/sp_ienv.c.i
 	cd "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu" && $(MAKE) -f TESTING/CMakeFiles/c_test.dir/build.make TESTING/CMakeFiles/c_test.dir/sp_ienv.c.i
 	cd "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu" && $(MAKE) -f TESTING/CMakeFiles/z_test.dir/build.make TESTING/CMakeFiles/z_test.dir/sp_ienv.c.i
+	cd "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu" && $(MAKE) -f TESTING/CMakeFiles/d_test.dir/build.make TESTING/CMakeFiles/d_test.dir/sp_ienv.c.i
+	cd "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu" && $(MAKE) -f TESTING/CMakeFiles/s_test.dir/build.make TESTING/CMakeFiles/s_test.dir/sp_ienv.c.i
 .PHONY : sp_ienv.c.i
 
 sp_ienv.s: sp_ienv.c.s
@@ -716,10 +716,10 @@ sp_ienv.s: sp_ienv.c.s
 
 # target to generate assembly for a file
 sp_ienv.c.s:
-	cd "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu" && $(MAKE) -f TESTING/CMakeFiles/d_test.dir/build.make TESTING/CMakeFiles/d_test.dir/sp_ienv.c.s
-	cd "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu" && $(MAKE) -f TESTING/CMakeFiles/s_test.dir/build.make TESTING/CMakeFiles/s_test.dir/sp_ienv.c.s
 	cd "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu" && $(MAKE) -f TESTING/CMakeFiles/c_test.dir/build.make TESTING/CMakeFiles/c_test.dir/sp_ienv.c.s
 	cd "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu" && $(MAKE) -f TESTING/CMakeFiles/z_test.dir/build.make TESTING/CMakeFiles/z_test.dir/sp_ienv.c.s
+	cd "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu" && $(MAKE) -f TESTING/CMakeFiles/d_test.dir/build.make TESTING/CMakeFiles/d_test.dir/sp_ienv.c.s
+	cd "/home/knoppix/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu" && $(MAKE) -f TESTING/CMakeFiles/s_test.dir/build.make TESTING/CMakeFiles/s_test.dir/sp_ienv.c.s
 .PHONY : sp_ienv.c.s
 
 sp_sconvert.o: sp_sconvert.c.o
@@ -917,17 +917,17 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... install/local"
-	@echo "... install"
-	@echo "... list_install_components"
-	@echo "... rebuild_cache"
 	@echo "... install/strip"
+	@echo "... list_install_components"
+	@echo "... install/local"
+	@echo "... rebuild_cache"
 	@echo "... edit_cache"
+	@echo "... install"
 	@echo "... test"
-	@echo "... d_test"
-	@echo "... s_test"
 	@echo "... c_test"
 	@echo "... z_test"
+	@echo "... d_test"
+	@echo "... s_test"
 	@echo "... cdrive.o"
 	@echo "... cdrive.i"
 	@echo "... cdrive.s"
