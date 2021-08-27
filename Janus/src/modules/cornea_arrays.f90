@@ -7,8 +7,9 @@ MODULE cornea_arrays
  REAL(wp), PARAMETER :: PI=3.1415926535897932384626433832795_wp
  REAL(wp), PARAMETER :: RFCT=33750.0_wp
  REAL(wp), PARAMETER :: EPS=0.0000001_wp  ! used in pspli and SplineCenter
- INTEGER, PARAMETER :: MM=180, N=22 
-! INTEGER, PARAMETER :: MM=360, N=16
+ INTEGER, PARAMETER :: NP=141         ! PentaCam
+ INTEGER, PARAMETER :: MM=180, N=22   ! Atlas
+! INTEGER, PARAMETER :: MM=360, N=16  ! EyeSys
  integer, PARAMETER :: M=5 ! augmented multiplier for number of rings
  integer, PARAMETER :: M2=3 ! lsq fourier cosine series terms
 
@@ -27,6 +28,10 @@ MODULE cornea_arrays
  TYPE wpAtlasMatrix
    REAL (wp), ALLOCATABLE :: AR(:,:),AD(:,:),AP(:,:),AY(:,:),DEG(:),AR2(:,:)
  END TYPE wpAtlasMatrix
+ 
+ TYPE wpPentaMatrix
+   REAL (wp), ALLOCATABLE :: PA(:,:),CA(:,:)
+ END TYPE wpPentaMatrix
  
  TYPE wpDiaSlopeMatrix
    REAL (wp), ALLOCATABLE :: rd(:,:), Zpd(:,:), Zpd2(:,:)
@@ -71,6 +76,7 @@ END INTERFACE
 INTERFACE ASSIGNMENT (=)
  ! Type(oneofthesebelow) = INTEGER(0) deallocates the matrix
  MODULE PROCEDURE destroy_EyeSys
+ MODULE PROCEDURE destroy_Penta
  MODULE PROCEDURE destroy_Atlas
  MODULE PROCEDURE destroy_RadSlope
  MODULE PROCEDURE destroy_DiaSlope
@@ -96,18 +102,20 @@ END INTERFACE
  TYPE(wpEyeSysMatrix) :: EyeSys
  TYPE(wpRadSlopeMatrix) :: RadSlope
  TYPE(wpAtlasMatrix) :: Atlas
+ TYPE(wpPentaMatrix) :: Penta
  TYPE(wpDiaSlopeMatrix) :: DiaSlope
  TYPE(wpRadSlopeMatrix) :: ARadSlope
  TYPE(wpDiaSlopeMatrix) :: ADiaSlope
 
  CONTAINS
  
-subroutine init_mat(MM,N,EyeSys,Atlas,RadSlope,DiaSlope) ! allocate arrays
-  INTEGER, INTENT(IN) :: MM,N
+subroutine init_mat(MM,N,NP,EyeSys,Atlas,RadSlope,DiaSlope,CPenta,PPenta) ! allocate arrays
+  INTEGER, INTENT(IN) :: MM,N,NP
   TYPE(wpEyeSysMatrix) :: EyeSys
   TYPE(wpRadSlopeMatrix) :: RadSlope  
   TYPE(wpAtlasMatrix) :: Atlas
-  TYPE(wpDiaSlopeMatrix) :: DiaSlope  
+  TYPE(wpDiaSlopeMatrix) :: DiaSlope
+  TYPE(wpPentaMatrix) :: Penta   
   allocate (EyeSys%RA(MM,N),EyeSys%XX(MM,N),EyeSys%DEG(MM))
   allocate (RadSlope%r(MM,N),RadSlope%Zp(MM,N),RadSlope%Zp2(MM,N),&
             Radslope%Zt2(MM,N),RadSlope%thta(MM),RadSlope%MV(MM))  
@@ -117,6 +125,7 @@ subroutine init_mat(MM,N,EyeSys,Atlas,RadSlope,DiaSlope) ! allocate arrays
             DiaSlope%rOutMin(MM/2),DiaSlope%rInMin(MM/2))
   allocate (Atlas%AR(MM,N),Atlas%AD(MM,N),Atlas%AP(MM,N),&
             Atlas%AY(MM,N),Atlas%DEG(MM),Atlas%AR2(MM,N))
+  allocate (Penta%CA(NP,NP),Penta%PA(NP,NP))           
 end subroutine init_mat
 
 subroutine init_augmented_mat(MM,N,M,ARadSlope,ADiaSlope) !allocate augmented arrays
@@ -168,6 +177,15 @@ subroutine destroy_DiaSlope(DiaSlope,iflag)
   deallocate (DiaSlope%rOutMax,DiaSlope%rInMax,DiaSlope%rOutMin,DiaSlope%rInMin)
   ENDIF
 end subroutine destroy_DiaSlope
+
+!Type(wpPentaMatrix)=INTEGER(0) deallocates matrix 
+subroutine destroy_Penta(Penta,iflag)
+  TYPE(wpPentaMatrix), INTENT(INOUT) :: Penta
+  INTEGER, INTENT (IN) :: iflag 
+  IF (iflag==0) THEN
+  deallocate (Penta%CA,Penta%PA)
+  ENDIF
+end subroutine destroy_Penta
 
 !!array conversion routines
 
