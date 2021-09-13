@@ -24,7 +24,7 @@ end program test_exec
 
 ! work around for pgfortran
 program test
-    use iso_fortran_env !intrinsic module for iostat, real kinds, atomic opeartions, compiler options
+    use iso_fortran_env !intrinsic module for iostat, real kinds, atomic operations, compiler options
     implicit none
     integer(kind=int32)   :: st
     character(len=20)  :: msg

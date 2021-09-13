@@ -30,7 +30,7 @@ MODULE cornea_arrays
  END TYPE wpAtlasMatrix
  
  TYPE wpPentaMatrix
-   REAL (wp), ALLOCATABLE :: PA(:,:),CA(:,:)
+   REAL (wp), ALLOCATABLE :: EA(:,:),CA(:,:)
  END TYPE wpPentaMatrix
  
  TYPE wpDiaSlopeMatrix
@@ -109,7 +109,7 @@ END INTERFACE
 
  CONTAINS
  
-subroutine init_mat(MM,N,NP,EyeSys,Atlas,RadSlope,DiaSlope,CPenta,PPenta) ! allocate arrays
+subroutine init_mat(MM,N,NP,EyeSys,Atlas,RadSlope,DiaSlope,Penta) ! allocate arrays
   INTEGER, INTENT(IN) :: MM,N,NP
   TYPE(wpEyeSysMatrix) :: EyeSys
   TYPE(wpRadSlopeMatrix) :: RadSlope  
@@ -125,7 +125,7 @@ subroutine init_mat(MM,N,NP,EyeSys,Atlas,RadSlope,DiaSlope,CPenta,PPenta) ! allo
             DiaSlope%rOutMin(MM/2),DiaSlope%rInMin(MM/2))
   allocate (Atlas%AR(MM,N),Atlas%AD(MM,N),Atlas%AP(MM,N),&
             Atlas%AY(MM,N),Atlas%DEG(MM),Atlas%AR2(MM,N))
-  allocate (Penta%CA(NP,NP),Penta%PA(NP,NP))           
+  allocate (Penta%CA(NP,NP),Penta%EA(NP,NP))           
 end subroutine init_mat
 
 subroutine init_augmented_mat(MM,N,M,ARadSlope,ADiaSlope) !allocate augmented arrays
@@ -183,7 +183,7 @@ subroutine destroy_Penta(Penta,iflag)
   TYPE(wpPentaMatrix), INTENT(INOUT) :: Penta
   INTEGER, INTENT (IN) :: iflag 
   IF (iflag==0) THEN
-  deallocate (Penta%CA,Penta%PA)
+  deallocate (Penta%CA,Penta%EA)
   ENDIF
 end subroutine destroy_Penta
 

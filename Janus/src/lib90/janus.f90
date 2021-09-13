@@ -77,7 +77,7 @@
   BigPlot='BIG.CAR'
   LinesOfCurv='LIOC.CAR'
                
-  call init_mat(MM,N,EyeSys,Atlas,RadSlope,DiaSlope)  ! initialize the arrays
+  call init_mat(MM,N,NP,EyeSys,Atlas,RadSlope,DiaSlope,Penta)  ! initialize the arrays
        
 ! READ THE EYESYS DATA
 ! XX????? ARE THE AXIAL DIST. RX???? ARE THE MIRE RADII
@@ -95,8 +95,14 @@
 ! READ THE ATLAS DATA
 ! R OR DIST ARE THE MIRE RADII, USING DIST
   call CPU_TIME(time_start)
-  CALL RCNVRTA(InputDataFile)
 
+  CALL RCNVRTA(InputDataFile)
+  write (*,*) 'io test 1'
+  write (*,*) Atlas%AR
+  CALL RCNVRTA2(InputDataFile)
+  write (*,*) 'io test 2'
+  write (*,*) Atlas%AR
+  
 ! READ/GENERATE TEST DATA (ATLAS STYLE)
 !!  CALL RCNVRTT
   RadSlope=Atlas
