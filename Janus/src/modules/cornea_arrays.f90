@@ -8,8 +8,8 @@ MODULE cornea_arrays
  REAL(wp), PARAMETER :: RFCT=33750.0_wp
  REAL(wp), PARAMETER :: EPS=0.0000001_wp  ! used in pspli and SplineCenter
  INTEGER, PARAMETER :: NP=141         ! PentaCam
- INTEGER, PARAMETER :: MM=180, N=22   ! Atlas
-! INTEGER, PARAMETER :: MM=360, N=16  ! EyeSys
+! INTEGER, PARAMETER :: MM=180, N=22   ! Atlas
+ INTEGER, PARAMETER :: MM=360, N=16  ! EyeSys
  integer, PARAMETER :: M=5 ! augmented multiplier for number of rings
  integer, PARAMETER :: M2=3 ! lsq fourier cosine series terms
 

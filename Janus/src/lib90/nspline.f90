@@ -1,12 +1,12 @@
  subroutine nspline(r,z,n,z2)
  use set_precision, only : wp
- use LapackInterface, ONLY : dgbsv
+ use LapackInterface, ONLY : dgtsv
   real(wp), INTENT(IN) ::  r(n),z(n)
   integer, INTENT(IN) :: n
   real(wp), INTENT(OUT) :: z2(n)
   real(wp) ::  a(n-2),b(n-2),c(n-2),d(n-2),zz2(n-2),a_short(n-3)
   integer :: info     
-  INFO=0 ;  a=0  ;  b=0  ;   c=0  ;  d=0 
+  INFO=0 ; a=0  ;  b=0  ;   c=0  ;  d=0 
 ! boundary conditions for natural spline   
   z2(1)=0.      
   z2(n)=0.      

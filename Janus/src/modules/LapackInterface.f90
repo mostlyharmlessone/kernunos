@@ -60,6 +60,17 @@
           DOUBLE PRECISION   AB( ldab, * ), B( ldb, * )
           
           END SUBROUTINE DGBSV
+          
+          SUBROUTINE DGTSV( N, NRHS, DL, D, DU, B, LDB, INFO )
+
+!      .. Scalar Arguments ..
+          INTEGER            INFO, LDB, N, NRHS
+!      ..
+!      .. Array Arguments ..
+          DOUBLE PRECISION   B( LDB, * ), D( * ), DL( * ), DU( * )
+
+          END SUBROUTINE DGTSV
+                  
 
           SUBROUTINE DGETRI( N, A, LDA, IPIV, WORK, LWORK, INFO )
 !      .. Scalar Arguments ..
@@ -103,6 +114,5 @@
           END FUNCTION DNRM2
 
         END INTERFACE    
-
 
       END MODULE LapackInterface

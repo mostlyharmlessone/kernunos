@@ -2,6 +2,9 @@
 ! DRIVER PROGRAM FOR SPLINE ROUTINES
   USE set_precision, ONLY : wp
   USE cornea_arrays
+  use io_functions
+  use special_fct
+    
   TYPE(wpRadSlopeMatrix) :: atmp
   integer IMV(MM), IZ, i
 ! character(len=*), intent(in) :: InputDataFile
@@ -13,64 +16,7 @@
   integer ::  IuseG, IuseF, MV(MM)
   real :: time_start, time_end, t(10)
   real(wp) :: POWMIN,POWMAX,POWMIN2,POWMAX2
-  
-  INTERFACE
-    SUBROUTINE fillarray(IuseG,KX1,POWMIN,POWMAX)
-!     COMPUTES ATLAS DATA 
-!     IuseG to select what to place in RadSlope%Zp AND/OR compute LIOC
-      USE cornea_arrays, ONLY : MM,N,RadSlope,AxialP,sagc2,instantp,meanp,mongea,lioc
-      USE set_precision, ONLY : wp
-      USE spline_interfaces, ONLY : SplineEval1Dx1D
-      use,intrinsic :: ieee_arithmetic
-      integer, intent(in) :: IuseG 
-      character(len=*), intent(in) :: KX1     
-      real(wp), intent(out) :: POWMIN, POWMAX
-    END SUBROUTINE
-
-    SUBROUTINE WriteOFF(b,KXNAME)
-      USE cornea_arrays
-      USE set_precision, ONLY : wp
-      TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
-      character(len=*), intent(in) :: KXNAME 
-    END SUBROUTINE  
     
-    subroutine WriteCenter(b,KXNAME)
-      USE cornea_arrays
-      USE set_precision, ONLY : wp
-      TYPE(wpRadSlopeMatrix),INTENT(IN) :: b 
-      character(len=*), intent(in) :: KXNAME   
-    end subroutine      
-
-    SUBROUTINE WRITEARRAY(b,KXNAME)
-      USE cornea_arrays
-      USE set_precision, ONLY : wp
-      TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
-      character(len=*), intent(in) :: KXNAME 
-    END SUBROUTINE
-
-    SUBROUTINE RCNVRTE(RANAME,XXNAME)
-!    EYESYS VERSION
-     USE set_precision, ONLY : wp
-     USE cornea_arrays, ONLY : EyeSys,N,MM
-     character(len=*), intent(in) :: RANAME,XXNAME
-    END SUBROUTINE
-
-    subroutine RCNVRTA(KXNAME)
-!    ATLAS VERSION
-     USE set_precision, ONLY : wp
-     USE cornea_arrays, ONLY : Atlas
-     CHARACTER*80 KH1,KH2,KH3
-     character(len=*), intent(in) :: KXNAME
-    end subroutine
-
-    SUBROUTINE PRINTGRAPH(POWMIN,POWMAX,FILENAME)
-     use set_precision, only : wp
-     REAL(wp), INTENT(IN) :: POWMIN, POWMAX
-     character(len=*), intent(in) :: FILENAME
-    END SUBROUTINE
-    
-  END INTERFACE
-  
   InputDataFile='TEST.CSV'
   AxialPowerDataKnots='RCNVRTA.ORIG.CAR'
   BigGrainyPlot='BIGG.CAR'
@@ -82,29 +28,15 @@
 ! READ THE EYESYS DATA
 ! XX????? ARE THE AXIAL DIST. RX???? ARE THE MIRE RADII
   call CPU_TIME(time_start)
-!!  call RCNVRTE('RA.DAT','XX.DAT')
+!  call RCNVRTE('RA.DAT','XX.DAT')
 ! Generate the slope matrix using ZFCT and "Atlas" data from it with AXIALP       
-!!  RadSlope=EyeSys
-!!  Atlas=RadSlope    
-  call CPU_TIME(time_end)
-  t(1)=time_end-time_start
-  write(*,*) 'Time to read files: ',t(1)*1000
-! Done with EyeSys data
-  EyeSys=0
-     
-! READ THE ATLAS DATA
+  RadSlope=EyeSys 
+  Atlas=RadSlope       
+! OR READ THE ATLAS DATA
 ! R OR DIST ARE THE MIRE RADII, USING DIST
-  call CPU_TIME(time_start)
-
-  CALL RCNVRTA(InputDataFile)
-  write (*,*) 'io test 1'
-  write (*,*) Atlas%AR
-  CALL RCNVRTA2(InputDataFile)
-  write (*,*) 'io test 2'
-  write (*,*) Atlas%AR
-  
-! READ/GENERATE TEST DATA (ATLAS STYLE)
-!!  CALL RCNVRTT
+!!  CALL RCNVRTA(InputDataFile)
+! OR READ/GENERATE TEST DATA (ATLAS STYLE)
+  CALL RCNVRTT
   RadSlope=Atlas
   call CPU_TIME(time_end)
   t(1)=time_end-time_start
@@ -171,8 +103,6 @@
     write(*,*) 'Time to run radslope: ',t(4)*1000
    endif 
   endif
-! done with Atlas
-!  Atlas=0  
       
 ! GENERATE RADIAL SPLINES ACROSS CENTER
   call CPU_TIME(time_start)
@@ -190,13 +120,18 @@
 ! get a global value for those four to generate R's no ORIGIN to avoid singularity
 
  RadSlope%r=make_rings(DiaSlope,.FALSE.)
-
+ 
 !  RadSlope%r=make_bad_rings(DiaSlope,.FALSE.)
 !  use fillarray to fill DiaSlope Zp with calculated value based on IuseG, optionally generate LIOC
 !  using SplineEval1Dx1D to refill a new matrix RadSlope using f0, derivatives to get calculated powers
 
+   write(*,*) 'FillArray,8'
+
 !  plot 'LIOC.CAR' using 1:2:3:4 with vectors
    call FILLARRAY(8,LinesOfCurv,POWMIN2,POWMAX2)    ! don't redo bounds consider optional 
+   
+   write(*,*) 'RCNVRTT error with 180/16'
+   
 !  WriteCenter shows where the spline of slopes is zero, it should be close to zero   
 !  use with polar plot, has to come after SplineEval1Dx1D is called, ie. 'set polar' then plot 'Center.dat'
    call WriteCenter(RadSlope,'Center.dat')   ! biggest deviation with nSplineCenter zero slope forced at origin, 
@@ -239,8 +174,8 @@
    RadSlope=Atlas
    call refineborders(Atlas,RadSlope)  
    DiaSlope=RadSlope            
-!   DiaSlope%Zpd2 = .n. DiaSlope
-   DiaSlope%Zpd2 = DiaSplineCenter(DiaSlope)   ! generate the splines diagonally with center node added (slopes only)
+   DiaSlope%Zpd2 = .n. DiaSlope
+!   DiaSlope%Zpd2 = DiaSplineCenter(DiaSlope)   ! generate the splines diagonally with center node added (slopes only)
    RadSlope%r=make_rings(DiaSlope,.FALSE.)            
    call FILLARRAY(7,LinesOfCurv,POWMIN2,POWMAX2)  ! generate elevation
    DiaSlope=RadSlope             
@@ -305,7 +240,10 @@
    WRITE(17,*) 'unset multiplot'
   CLOSE (17)
 
-! deallocate 
+  call execute_command_line ("gnuplot -p plot2.gnu", exitstat=i)
+
+! deallocate
+  EyeSys=0 
   Atlas=0     
   RadSlope=0
   DiaSlope=0
