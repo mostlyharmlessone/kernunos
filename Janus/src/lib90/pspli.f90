@@ -40,7 +40,7 @@
         c(j)=(t(j+1)-t(j))/6.0
         d(j)=(z(j+1)-z(j))/(t(j+1)-t(j))-(z(j)-z(j-1))/(t(j)-t(j-1))
        end do 
-        
+
 !      SOLVE THE TRIDIAGONAL PERIODIC CASE                     
        call DCTSV( m,1, a, b, c, d, m, INFO ) ! d is overwritten                    
        zt2=d             

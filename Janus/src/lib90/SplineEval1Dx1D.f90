@@ -14,7 +14,7 @@
       real(wp) :: r(2*N),z(2*N),zr2(2*N),sumzr2
       integer :: L2,j,L
       logical :: IsInf
-                            
+      r=0 ; z=0 ; zr2=0 ; thta=0 ; L2=0                     
       do j=1,MM/2 
         L2=DiaSlope%L2(j)
         thta(j)=RadSlope%thta(j)
@@ -23,12 +23,15 @@
         zr2=DiaSlope%Zpd2(j,:)   
         L=j+MM/2
         thta(L)=RadSlope%thta(L)
-        if (iflag == 0) then
-         call SplineEval(0,r,z,zr2,L2,u,g,gr,grr) !first parameter = 0 nonperiodic                            
+        if (iflag == 0) then      
+         call SplineEval(0,r,z,zr2,L2,u,g,gr,grr) !first parameter = 0 nonperiodic                                    
          fTmp(j)=g
-         call SplineCenter(r,z,zr2,L2,w)                                  
+         write(*,*) 'prior to spline eval',zr2
+         write(*,*) ' '          
+         call SplineCenter(r,z,zr2,L2,w)
+         write(*,*) 'post spline center spline eval'                                           
          RadSplineCenter(j)=w
-        else                         
+        else                               
          call SplineEval(0,r,z,zr2,L2,u,gr,grr) 
 !         call CubicSplineQuad(r,z,zr2,L2,0._wp,g0)    
 !         call CubicSplineQuad(r,z,zr2,L2,u,g) 
@@ -47,7 +50,7 @@
         frrTmp(L)=frrTmp(j)
 	 	
       end do
-      
+
 !       FIRST CALL FOR PERIODIC SPLINE OF f0, fttTmp is d2Y/dTHETA2 
         if (Present(ftt)) then
          call pspli(thta,fTmp,MM,fttTmp)

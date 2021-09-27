@@ -24,23 +24,33 @@
   LinesOfCurv='LIOC.CAR'
                
   call init_mat(MM,N,NP,EyeSys,Atlas,RadSlope,DiaSlope,Penta)  ! initialize the arrays
-       
-! READ THE EYESYS DATA
-! XX????? ARE THE AXIAL DIST. RX???? ARE THE MIRE RADII
+  
   call CPU_TIME(time_start)
-!  call RCNVRTE('RA.DAT','XX.DAT')
-! Generate the slope matrix using ZFCT and "Atlas" data from it with AXIALP       
-  RadSlope=EyeSys 
-  Atlas=RadSlope       
+  
+! READ THE EYESYS DATA
+! XX????? ARE THE AXIAL DIST. RX???? ARE THE MIRE RADII  
+  call RCNVRTE('RA.DAT','XX.DAT')
+              
 ! OR READ THE ATLAS DATA
 ! R OR DIST ARE THE MIRE RADII, USING DIST
 !!  CALL RCNVRTA(InputDataFile)
-! OR READ/GENERATE TEST DATA (ATLAS STYLE)
-  CALL RCNVRTT
-  RadSlope=Atlas
+
+! OR GENERATE TEST DATA (EYESYS OR ATLAS STYLE DEPENDING ON MM)
+!!  CALL RCNVRTT
+  
   call CPU_TIME(time_end)
   t(1)=time_end-time_start
   write(*,*) 'Time to read files: ',t(1)*1000
+  
+  if (MM == 360) then
+!  Generate the slope matrix using ZFCT
+!  Generate "Atlas" data with AXIALP  
+   RadSlope=EyeSys 
+   Atlas=RadSlope
+  else ! MM==180
+!  Generate the slope matrix using Atlas data     
+   RadSlope=Atlas
+  endif 
   
 ! Here IuseG changes the contents of RadSlope via FillArray
 ! IuseG == -1 import slopes, return SAGC (axialp), no splining necessary
@@ -125,23 +135,22 @@
 !  use fillarray to fill DiaSlope Zp with calculated value based on IuseG, optionally generate LIOC
 !  using SplineEval1Dx1D to refill a new matrix RadSlope using f0, derivatives to get calculated powers
 
-   write(*,*) 'FillArray,8'
-
 !  plot 'LIOC.CAR' using 1:2:3:4 with vectors
    call FILLARRAY(8,LinesOfCurv,POWMIN2,POWMAX2)    ! don't redo bounds consider optional 
-   
-   write(*,*) 'RCNVRTT error with 180/16'
-   
+
 !  WriteCenter shows where the spline of slopes is zero, it should be close to zero   
 !  use with polar plot, has to come after SplineEval1Dx1D is called, ie. 'set polar' then plot 'Center.dat'
    call WriteCenter(RadSlope,'Center.dat')   ! biggest deviation with nSplineCenter zero slope forced at origin, 
                                              ! then with zero slope forced at average (r(low)+r(high))/2.0
                                              ! smallest deviation without nSplineCenter; view with set polar; plot 'Center.dat'
 !  write an OFF file
+!  view with meshlab
   MV(:)=RadSlope%MV(:) ! store a copy
 !  RadSlope%MV(:)=N   !full diameters for elevation 
   call FILLARRAY(7,LinesOfCurv,POWMIN,POWMAX)
   call WriteOFF(RadSlope,'elevation.off')
+!  write(*,*) 'Exit meshlab to continue'
+!  call execute_command_line ("meshlab elevation.off", exitstat=i)
 
 ! eigenvalues show shape of RadSlope without make_rings but with FillArray 7 elevations
 
@@ -155,9 +164,17 @@
 ! make more than one plot  
   do i=1,2
   if (i==1) then
-   write(*,*) 'Plot: ',i  
-   call CPU_TIME(time_start)  
-   RadSlope=Atlas
+   write(*,*) 'Plot: ',i 
+   call CPU_TIME(time_start)    
+   if (MM == 360) then
+!   Generate the slope matrix using ZFCT
+!   Generate "Atlas" data with AXIALP  
+    RadSlope=EyeSys 
+    Atlas=RadSlope
+   else ! MM==180
+!   Generate the slope matrix using Atlas data     
+    RadSlope=Atlas
+   endif  
    call refineborders(Atlas,RadSlope)  
    DiaSlope=RadSlope            
    DiaSlope%Zpd2 = .n. DiaSlope
@@ -171,7 +188,15 @@
   if (i==2) then
    write(*,*) 'Next Plot: ',i
    call CPU_TIME(time_start)  
-   RadSlope=Atlas
+   if (MM == 360) then
+!   Generate the slope matrix using ZFCT
+!   Generate "Atlas" data with AXIALP  
+    RadSlope=EyeSys 
+    Atlas=RadSlope
+   else ! MM==180
+!   Generate the slope matrix using Atlas data     
+    RadSlope=Atlas
+   endif
    call refineborders(Atlas,RadSlope)  
    DiaSlope=RadSlope            
    DiaSlope%Zpd2 = .n. DiaSlope
@@ -209,7 +234,9 @@
 ! load bounds x expansion
   ARadSlope%MV=M*RadSlope%MV  
 ! use SplineEval1Dx1D and DiaSlope to refill matrix RadSlope with new Zp at all points including origin
-  ARadSlope%Zp=RadInterpolate(ARadSlope)  ! same as fillarray with IuseG=7 
+   write(*,*) 'RadInterpolate starts'
+  ARadSlope%Zp=RadInterpolate(ARadSlope)  ! same as fillarray with IuseG=7 except for augmented
+   write(*,*) 'RadInterpolate stops'
   call CPU_TIME(time_end)
   t(8)=time_end-time_start
   write(*,*) 'Time to make new ARadSlope with origin: ',t(8)*1000

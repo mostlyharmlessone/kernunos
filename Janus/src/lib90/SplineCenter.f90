@@ -24,8 +24,8 @@
   end do
 ! should take under 10 iterations  
   if (j > 99) then
-   write(*,*) 'Probable error on iterations in SplineCenter finding root',u,g,gr
    u=(r(high)+r(low))/2.0_wp      ! just make it in the center; no guarantee of a local root
+   write(*,*) 'Probable error on iterations in SplineCenter finding root',u,g,gr  
   endif 
   else 
    j=0
@@ -39,8 +39,8 @@
   end do  
 ! should take under 10 iterations  
   if (j > 99) then
-   write(*,*) 'Probable error on iterations in SplineCenter finding minmax',u,gr,grr
    u=(r(high)+r(low))/2.0_wp      ! just make it in the center; no guarantee of a local minmax
+   write(*,*) 'Probable error on iterations in SplineCenter finding minmax',u,gr,grr       
   endif 
         
   endif
