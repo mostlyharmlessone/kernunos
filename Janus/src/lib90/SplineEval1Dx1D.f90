@@ -23,13 +23,10 @@
         zr2=DiaSlope%Zpd2(j,:)   
         L=j+MM/2
         thta(L)=RadSlope%thta(L)
-        if (iflag == 0) then      
+        if (iflag == 0) then             
          call SplineEval(0,r,z,zr2,L2,u,g,gr,grr) !first parameter = 0 nonperiodic                                    
-         fTmp(j)=g
-         write(*,*) 'prior to spline eval',zr2
-         write(*,*) ' '          
-         call SplineCenter(r,z,zr2,L2,w)
-         write(*,*) 'post spline center spline eval'                                           
+         fTmp(j)=g          
+         call SplineCenter(r,z,zr2,L2,w)                                          
          RadSplineCenter(j)=w
         else                               
          call SplineEval(0,r,z,zr2,L2,u,gr,grr) 

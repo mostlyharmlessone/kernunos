@@ -229,14 +229,14 @@
 ! generate new Rs using rOMIN, rOMAX, but they have to be constant with theta
 ! get a global value for those two to generate R's INCLUDING ORIGIN and using ADiaSlope  
   ARadSlope%r=make_rings(ADiaSlope,.TRUE.)
+  
 ! load angles  
   ARadSlope%thta=RadSlope%thta
+  
 ! load bounds x expansion
   ARadSlope%MV=M*RadSlope%MV  
 ! use SplineEval1Dx1D and DiaSlope to refill matrix RadSlope with new Zp at all points including origin
-   write(*,*) 'RadInterpolate starts'
   ARadSlope%Zp=RadInterpolate(ARadSlope)  ! same as fillarray with IuseG=7 except for augmented
-   write(*,*) 'RadInterpolate stops'
   call CPU_TIME(time_end)
   t(8)=time_end-time_start
   write(*,*) 'Time to make new ARadSlope with origin: ',t(8)*1000
