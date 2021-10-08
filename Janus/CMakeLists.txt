@@ -12,6 +12,8 @@ set (CMAKE_Fortran_COMPILER_ID "gfortran")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_DEBUG_MODE 1) #second option shows dependencies
 
+set (CMAKE_PREFIX_PATH "/usr/local")
+
 # after wiping CMakeFiles folder run the following to reset
 
 set (FC "gfortran") 
@@ -35,42 +37,12 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "pgfortran")
 #    set(bounds "-C")
 endif()
 
-Set (CGAL_DO_NOT_WARN_ABOUT_CMAKE_BUILD_TYPE "TRUE")
-
 # libigl
  option (LIBIGL_WITH_OPENGL "Use OpenGL" ON)
  option (LIBIGL_WITH_OPENGL_GLFW "Use GLFW" ON)
- option (LIBIGL_WITH_OPENGL_GLFW_IMGUI "Use ImGui" ON)
-# option (LIBIGL_WITH_CGAL "use with CGAL" ON)
+ option (LIBIGL_WITH_OPENGL_GLFW_IMGUI "Use ImGui" ON) 
 
-find_package(CGAL QUIET)
-
-if ( CGAL_FOUND )
-
-  # use Eigen
-  find_package(Eigen3 3.1.0) #(requires 3.1.0 or greater)
-  if (EIGEN3_FOUND)
-    include( ${EIGEN3_USE_FILE} )
-    # Link with Boost.ProgramOptions (optional)
-    find_package(Boost QUIET COMPONENTS program_options)
-    if(Boost_PROGRAM_OPTIONS_FOUND)
-      if(TARGET Boost::program_options)
-        set(Boost_PROGRAM_OPTIONS_LIBRARY Boost::program_options)
-      endif()
-      if( CGAL_AUTO_LINK_ENABLED )
-        message( STATUS "Boost.ProgramOptions library: found" )
-      else()
-        message( STATUS "Boost.ProgramOptions library: ${Boost_PROGRAM_OPTIONS_LIBRARY}" )
-      endif()
-      add_definitions( "-DCGAL_USE_BOOST_PROGRAM_OPTIONS" )
-      list(APPEND CGAL_3RD_PARTY_LIBRARIES ${Boost_PROGRAM_OPTIONS_LIBRARY})
-   endif()
-
-    create_single_source_cgal_program( "Mesh_estimation.cpp" )
-    create_single_source_cgal_program( "Single_estimation.cpp" )
-#   use ./Mesh_estimation -f elevation.off -d2 -m2 -a2 -vtrue     
-#       ./Compute_Ridges_Umbilics -f elevation.off -d4 -m4 -a4 -t3 -v0     
-#    find_package(LIBIGL)
+   find_package(LIBIGL)
 
    if ( LIBIGL_FOUND )
     file(GLOB_RECURSE src/cxx *.cpp)
@@ -82,37 +54,34 @@ if ( CGAL_FOUND )
     target_link_libraries(view igl::core igl::opengl_glfw "glad")   
    endif()     
     
-  else()
-    message(STATUS "NOTICE: This program requires Eigen 3.1 (or greater) and will not be compiled.")
-  endif()
 
-else()
+#find_package(BLAS)
 
-  message(STATUS "NOTICE: This program requires the CGAL library, and will not be compiled.")
+   if ( BLAS_FOUND )
 
-endif()
+   else()
 
-find_package(BLAS)
-find_package(LAPACK)
+    set(BLAS_LIBRARIES "/usr/local/lib/libblas.so")
+ 
+# add_library(bar SHARED IMPORTED) # or STATIC instead of SHARED
+#set_target_properties(bar PROPERTIES
+#  IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/lib/libbar.so"
+#  INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/include/libbar"
+#) 
+   endif()
+
+#find_package(LAPACK)
+   if ( LAPACK_FOUND )
+
+   else()
+
+    set(LAPACK_LIBRARIES "/usr/lib/i386-linux-gnu/lapack/liblapack.so.3")
+  
+   endif()
+
 find_package(OpenCL)
 
-# to use LAPACK95 from GIT
-#include(FetchContent)
-#FetchContent_Declare(
-#    lapack95
-#    GIT_REPOSITORY https://github.com/scivision/LAPACK95.git
-#)
-
-#FetchContent_GetProperties(lapack95)
-#if(NOT lapack95_POPULATED)
-#    FetchContent_Populate(lapack95)
-#    add_subdirectory(${lapack95_SOURCE_DIR})
-#endif()
-
 #add_executable(myexe ${CMAKE_CURRENT_SOURCE_DIR}/myexe.f90)
-#target_link_libraries(myexe ${LAPACK_LIBRARIES} lapack95)
-
-
 
 # set(CMAKE_BUILD_TYPE RelWithDebInfo) #debugging with optimized code
 # set(CMAKE_BUILD_TYPE Release) # no debug or bounds check
@@ -137,7 +106,6 @@ add_executable(${PROJECT_NAME} src/lib90/janus.f90)
 if ( OpenCL_FOUND )
  target_link_libraries(${PROJECT_NAME} splia modules ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OpenCL_LIBRARIES} /usr/local/lib/libsuperlu.so )
 else()
-# target_link_libraries(${PROJECT_NAME} splia modules ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} lapack95)
  target_link_libraries(${PROJECT_NAME} splia modules ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} /usr/local/lib/libsuperlu.so )
 endif()
 

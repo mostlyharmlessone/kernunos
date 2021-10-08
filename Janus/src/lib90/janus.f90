@@ -268,6 +268,7 @@
   CLOSE (17)
 
   call execute_command_line ("gnuplot -p plot2.gnu", exitstat=i)
+  call execute_command_line ("./view", exitstat=i)
 
 ! deallocate
   EyeSys=0 
