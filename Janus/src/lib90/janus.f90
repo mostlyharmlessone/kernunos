@@ -17,7 +17,7 @@
   real :: time_start, time_end, t(10)
   real(wp) :: POWMIN,POWMAX,POWMIN2,POWMAX2
     
-  InputDataFile='TEST.CSV'
+  InputDataFile='TEST.CSV' ! for ATLAS
   AxialPowerDataKnots='RCNVRTA.ORIG.CAR'
   BigGrainyPlot='BIGG.CAR'
   BigPlot='BIG.CAR'
@@ -29,11 +29,17 @@
   
 ! READ THE EYESYS DATA
 ! XX????? ARE THE AXIAL DIST. RX???? ARE THE MIRE RADII  
-  call RCNVRTE('RA.DAT','XX.DAT')
+  call RCNVRTE('RA.DAT','XX.DAT')  !sensitive to MM,N
+
+! OR READ THE PENTACAM DATA 
+! EA are elevations CA are "sagittal"curvatures in a 141x141 -7 to 7 mm square -1 is no data 
+!! loops endlessly?
+!  call RCNVRTP('TEST.ELE','TEST.CUR')
               
 ! OR READ THE ATLAS DATA
-! R OR DIST ARE THE MIRE RADII, USING DIST
-!!  CALL RCNVRTA(InputDataFile)
+! R OR DIST ARE THE MIRE RADII, USING DIST, READS ELEVATION ALSO
+!!  CALL RCNVRTA(InputDataFile)  !sensitive to MM,N
+!!  CALL RCNVRTA('TEST.CSV')
 
 ! OR GENERATE TEST DATA (EYESYS OR ATLAS STYLE DEPENDING ON MM)
 !!  CALL RCNVRTT
@@ -138,7 +144,7 @@
 !  plot 'LIOC.CAR' using 1:2:3:4 with vectors
    call FILLARRAY(8,LinesOfCurv,POWMIN2,POWMAX2)    ! don't redo bounds consider optional 
 
-!  WriteCenter shows where the spline of slopes is zero, it should be close to zero   
+!  WriteCenter shows where the spline of slopes is zero, it should be close to zero for a concave center with a unique maximum  
 !  use with polar plot, has to come after SplineEval1Dx1D is called, ie. 'set polar' then plot 'Center.dat'
    call WriteCenter(RadSlope,'Center.dat')   ! biggest deviation with nSplineCenter zero slope forced at origin, 
                                              ! then with zero slope forced at average (r(low)+r(high))/2.0
@@ -264,7 +270,6 @@
    WRITE(17,*) 'set multiplot layout 1,2 rowsfirst'
    CALL PRINTGRAPH(POWMIN,POWMAX,BigPlot)
    CALL PRINTGRAPH(POWMIN2,POWMAX2,BigGrainyPlot)
-   WRITE(17,*) 'unset multiplot'
   CLOSE (17)
 
   call execute_command_line ("gnuplot -p plot2.gnu", exitstat=i)

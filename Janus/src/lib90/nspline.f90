@@ -1,15 +1,27 @@
  subroutine nspline(r,z,n,z2)
  use set_precision, only : wp
  use LapackInterface, ONLY : dgtsv
-  real(wp), INTENT(IN) ::  r(n),z(n)
+!  real(wp), INTENT(IN) ::  r(n),z(n)
+  real(wp), INTENT(IN) ::  r(*),z(*) 
   integer, INTENT(IN) :: n
-  real(wp), INTENT(OUT) :: z2(n)
-  real(wp) ::  a(n-2),b(n-2),c(n-2),d(n-2),zz2(n-2),a_short(n-3)
+!  real(wp), INTENT(OUT) :: z2(n)
+  real(wp), INTENT(OUT) :: z2(*)  
+  real(wp),allocatable ::  a(:),b(:),c(:),d(:),zz2(:),a_short(:)
   integer :: info     
-  INFO=0 ; a=0  ;  b=0  ;   c=0  ;  d=0 
+  INFO=0  
+  if ( n < 2 ) then  ! invalid parameter
+   INFO=-1
+   return
+  endif 
 ! boundary conditions for natural spline   
   z2(1)=0.      
-  z2(n)=0.      
+  z2(n)=0  
+  if ( n == 2 ) then 
+   return  ! degenerate case  
+  else 
+    allocate (a(n-2),b(n-2),c(n-2),d(n-2),zz2(n-2))
+  endif  
+  a=0  ;  b=0  ;   c=0  ;  d=0
 ! spline equation at internal knots
     do i=2,n-1
      a(i-1)=(r(i)-r(i-1))/6.0
@@ -17,15 +29,24 @@
      c(i-1)=(r(i+1)-r(i))/6.0
      d(i-1)=(z(i+1)-z(i))/(r(i+1)-r(i))-(z(i)-z(i-1))/(r(i)-r(i-1))
     end do
-    do i=1,n-3
-     a_short(i)=a(i+1)                                 ! truncated "a" for dgtsv, don't have to truncate "c"
-    end do
-     zz2(:)=d(:) ! for lapack
+    if (n > 3) then                                   ! n > 3 only if using LAPACK dgtsv
+    allocate (a_short(n-3))
+     do i=1,n-3
+      a_short(i)=a(i+1)                               ! truncated "a" for dgtsv, don't have to truncate "c"
+     end do
+    endif
    call thomas(a,b,c,d,zz2,n-2,1) ! can use to check against lapack, doesn't use a(1) or c(n); overwrites b and d
-!  call dgtsv( n-2, 1, a_short, b, c, zz2, n-2, INFO )     ! overwrites b and d into solution
+!  if (n > 3) then
+!   zz2(:)=d(:) ! for lapack
+!   call dgtsv( n-2, 1, a_short, b, c, zz2, n-2, INFO )     ! overwrites b and d into solution
+!   deallocate(a_short)
+!  else  ! have to use thomas for n=3
+!   call thomas(a,b,c,d,zz2,n-2,1) ! can use to check against lapack, doesn't use a(1) or c(n); overwrites b and d
+!  endif   
    do i=2,n-1
      z2(i)=zz2(i-1)
    end do  
+   deallocate (a,b,c,d,zz2)  
         
  end subroutine nspline
 

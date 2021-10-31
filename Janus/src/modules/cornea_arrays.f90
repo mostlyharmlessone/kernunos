@@ -10,7 +10,7 @@ MODULE cornea_arrays
  INTEGER, PARAMETER :: NP=141         ! PentaCam
 ! INTEGER, PARAMETER :: MM=180, N=22   ! Atlas
  INTEGER, PARAMETER :: MM=360, N=16  ! EyeSys
- integer, PARAMETER :: M=5 ! augmented multiplier for number of rings
+ integer, PARAMETER :: M=2 ! augmented multiplier for number of rings
  integer, PARAMETER :: M2=3 ! lsq fourier cosine series terms
 
 ! Defining common data arrays
@@ -26,7 +26,7 @@ MODULE cornea_arrays
  END TYPE wpRadSlopeMatrix
  
  TYPE wpAtlasMatrix
-   REAL (wp), ALLOCATABLE :: AR(:,:),AD(:,:),AP(:,:),AY(:,:),DEG(:),AR2(:,:)
+   REAL (wp), ALLOCATABLE :: AR(:,:),AD(:,:),AP(:,:),AY(:,:),DEG(:)
  END TYPE wpAtlasMatrix
  
  TYPE wpPentaMatrix
@@ -124,7 +124,7 @@ subroutine init_mat(MM,N,NP,EyeSys,Atlas,RadSlope,DiaSlope,Penta) ! allocate arr
   allocate (DiaSlope%rOutMax(MM/2),DiaSlope%rInMax(MM/2),&
             DiaSlope%rOutMin(MM/2),DiaSlope%rInMin(MM/2))
   allocate (Atlas%AR(MM,N),Atlas%AD(MM,N),Atlas%AP(MM,N),&
-            Atlas%AY(MM,N),Atlas%DEG(MM),Atlas%AR2(MM,N))
+            Atlas%AY(MM,N),Atlas%DEG(MM))
   allocate (Penta%CA(NP,NP),Penta%EA(NP,NP))           
 end subroutine init_mat
 
@@ -154,7 +154,7 @@ subroutine destroy_Atlas(Atlas,iflag)
   TYPE(wpAtlasMatrix), INTENT(INOUT) :: Atlas
   INTEGER, INTENT (IN) :: iflag 
   IF (iflag==0) THEN
-  deallocate (Atlas%AR,Atlas%AD,Atlas%AP,Atlas%AY,Atlas%DEG,Atlas%AR2)
+  deallocate (Atlas%AR,Atlas%AD,Atlas%AP,Atlas%AY,Atlas%DEG)
   ENDIF
 end subroutine destroy_Atlas
 
