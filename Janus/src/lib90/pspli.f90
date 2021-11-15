@@ -10,6 +10,7 @@
        REAL(wp), intent(out) ::zt2(n)
        REAL(wp) :: PERD,error
        REAL(wp) :: d(n),a(n),b(n),c(n),zt2c(n),thta(MM) 
+!       REAL(wp) :: AB(3,n)
        INTEGER :: m,j 
        logical :: IsInf 
 
@@ -40,9 +41,14 @@
         c(j)=(t(j+1)-t(j))/6.0
         d(j)=(z(j+1)-z(j))/(t(j+1)-t(j))-(z(j)-z(j-1))/(t(j)-t(j-1))
        end do 
-
+       
 !      SOLVE THE TRIDIAGONAL PERIODIC CASE                     
-       call DCTSV( m,1, a, b, c, d, m, INFO ) ! d is overwritten                    
+       call DCTSV( m,1, a, b, c, d, m, INFO ) ! d is overwritten 
+!       AB(1,:)=a(:)
+!       AB(2,:)=b(:)
+!       AB(3,:)=c(:)
+!       call DCBSV( m, 1, 1, AB, 3, d, m, INFO )
+                   
        zt2=d             
        if (m < n) then  !degenerate case where these points are identical
        zt2(n)=zt2(1)

@@ -22,6 +22,7 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "gfortran")
 #    set(dialect "-ffree-form -std=f2008 -fimplicit-none")
      set(dialect "-std=gnu")
      set(bounds "-fbounds-check")
+     set(omp "-fopenmp")
 #  profiling with gprof 
  #     set(-pg)    
 #  src profiling with gcov -a -b xxx.f90
@@ -55,7 +56,7 @@ endif()
    endif()     
     
 
-#find_package(BLAS)
+  find_package(BLAS)
 
    if ( BLAS_FOUND )
 
@@ -70,7 +71,8 @@ endif()
 #) 
    endif()
 
-#find_package(LAPACK)
+ find_package(LAPACK)
+
    if ( LAPACK_FOUND )
 
    else()
@@ -88,6 +90,7 @@ find_package(OpenCL)
 set(CMAKE_BUILD_TYPE Debug) #this include debugging with addition of bounds flags as specified below
 set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${bounds}")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${dialect}")
+set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${omp}")
 
 #
 # Compile.

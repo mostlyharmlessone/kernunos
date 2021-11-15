@@ -7,6 +7,7 @@
 
 #include "HelloWorldApp.h"
 
+
 IMPLEMENT_APP(HelloWorldApp)
 
 // This is executed upon startup, like 'main()' in non-wxWidgets programs.
