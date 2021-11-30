@@ -1,5 +1,5 @@
 
-cmake_minimum_required(VERSION 2.8...3.15)
+cmake_minimum_required(VERSION 2.8..3.15)
 project(Janus)
 enable_language(Fortran)
 enable_language(CXX)
@@ -38,6 +38,11 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "pgfortran")
 #    set(bounds "-C")
 endif()
 
+#wxWidgets
+set(wxWidgets_CONFIGURATION mswu)
+find_package(wxWidgets COMPONENTS core base REQUIRED)
+include(${wxWidgets_USE_FILE})
+
 # libigl
  option (LIBIGL_WITH_OPENGL "Use OpenGL" ON)
  option (LIBIGL_WITH_OPENGL_GLFW "Use GLFW" ON)
@@ -46,13 +51,18 @@ endif()
    find_package(LIBIGL)
 
    if ( LIBIGL_FOUND )
-    file(GLOB_RECURSE src/cxx *.cpp)
+    file(GLOB_RECURSE src/cxx *.cpp *.h)
     add_executable(view2 src/cxx/main.cpp)
     target_include_directories(view2 PRIVATE "${GLAD_DIR}/include")    
     target_link_libraries(view2 igl::core igl::opengl_glfw "glad")
+    add_executable(view1 src/cxx/view1.cpp)
+    target_include_directories(view2 PRIVATE "${GLAD_DIR}/include")    
+    target_link_libraries(view1 igl::core igl::opengl_glfw "glad")
     add_executable(view src/cxx/view.cpp)
     target_include_directories(view PRIVATE "${GLAD_DIR}/include")    
-    target_link_libraries(view igl::core igl::opengl_glfw "glad")   
+    target_link_libraries(view igl::core igl::opengl_glfw "glad" ${wxWidgets_LIBRARIES})   
+
+
    endif()     
     
 
@@ -64,11 +74,6 @@ endif()
 
     set(BLAS_LIBRARIES "/usr/local/lib/libblas.so")
  
-# add_library(bar SHARED IMPORTED) # or STATIC instead of SHARED
-#set_target_properties(bar PROPERTIES
-#  IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/lib/libbar.so"
-#  INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/include/libbar"
-#) 
    endif()
 
  find_package(LAPACK)
