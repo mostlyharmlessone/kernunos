@@ -1,5 +1,5 @@
 
-cmake_minimum_required(VERSION 2.8..3.15)
+cmake_minimum_required(VERSION 2.9..3.15)
 project(Janus)
 enable_language(Fortran)
 enable_language(CXX)
@@ -44,11 +44,12 @@ find_package(wxWidgets COMPONENTS core base REQUIRED)
 include(${wxWidgets_USE_FILE})
 
 # libigl
+
  option (LIBIGL_WITH_OPENGL "Use OpenGL" ON)
  option (LIBIGL_WITH_OPENGL_GLFW "Use GLFW" ON)
  option (LIBIGL_WITH_OPENGL_GLFW_IMGUI "Use ImGui" ON) 
 
-   find_package(LIBIGL)
+ #find_package(LIBIGL)
 
    if ( LIBIGL_FOUND )
     file(GLOB_RECURSE src/cxx *.cpp *.h)
