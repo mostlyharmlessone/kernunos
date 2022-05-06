@@ -149,14 +149,17 @@
    call WriteCenter(RadSlope,'Center.dat')   ! biggest deviation with nSplineCenter zero slope forced at origin, 
                                              ! then with zero slope forced at average (r(low)+r(high))/2.0
                                              ! smallest deviation without nSplineCenter; view with set polar; plot 'Center.dat'
-!  write an OFF file
-!  view with meshlab
+!  write OFF and STL files
+!  can view with meshlab e.g.
   MV(:)=RadSlope%MV(:) ! store a copy
 !  RadSlope%MV(:)=N   !full diameters for elevation 
   call FILLARRAY(7,LinesOfCurv,POWMIN,POWMAX)
   call WriteOFF(RadSlope,'elevation.off')
+  call ConvertOFFtoSTL('elevation.off','elevation.stl','elevation.bin.stl')
 !  write(*,*) 'Exit meshlab to continue'
 !  call execute_command_line ("meshlab elevation.off", exitstat=i)
+!  call execute_command_line ("meshlab elevation.stl", exitstat=i)
+!  call execute_command_line ("meshlab elevation..bin.stl", exitstat=i)
 
 ! eigenvalues show shape of RadSlope without make_rings but with FillArray 7 elevations
 

@@ -1,6 +1,7 @@
 module special_fct
 
-USE set_precision, ONLY : wp
+use set_precision, ONLY : wp
+use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
 
 INTERFACE OPERATOR (.p.) ! binary operator summation convention/tensors
 !   a .p. b returns scalar sum matrices; rank 0 of a(i,j)*b(i,j) a,b rank 2
@@ -43,6 +44,28 @@ function sum_of_matrix_by_vector(array1,v2) result(v1)
  REAL (wp) :: v1(SIZE(array1,2))
  v1=matmul(array1,v2)
 end function sum_of_matrix_by_vector
+
+!! REAL32 functions for STL facet calcs
+
+! vector vector (cross) product (REAL32  and dimension 3)
+function cross_product(v1, v2) result(v3)
+  real(REAL32), INTENT(IN) :: v1(3), v2(3)
+  real(REAL32) :: v3(3)
+  v3(1) = v1(2) * v2(3) - v1(3) * v2(2)
+  v3(2) = v1(3) * v2(1) - v1(1) * v2(3)
+  v3(3) = v1(1) * v2(2) - v1(2) * v2(1)
+end function cross_product
+
+! surface normal vector (REAL32 and dimension 3)
+function surface_normal(v1, v2, v3) result(v4)
+  real(REAL32), INTENT(IN) :: v1(3), v2(3), v3(3) ! vertices of triangle
+  real(REAL32) :: v4(3)
+  v4(1) = (v2(2)-v1(2)) * (v3(3)-v1(3)) - (v2(3)-v1(3)) * (v3(2)-v1(2))
+  v4(2) = (v2(3)-v1(3)) * (v3(1)-v1(1)) - (v2(1)-v1(1)) * (v3(3)-v1(3))
+  v4(3) = (v2(1)-v1(1)) * (v3(2)-v1(2)) - (v2(2)-v1(2)) * (v3(1)-v1(1))
+end function surface_normal
+
+
 
 ! epsilon & factorial functions
 

@@ -49,7 +49,7 @@ include(${wxWidgets_USE_FILE})
  option (LIBIGL_WITH_OPENGL_GLFW "Use GLFW" ON)
  option (LIBIGL_WITH_OPENGL_GLFW_IMGUI "Use ImGui" ON) 
 
- #find_package(LIBIGL)
+# find_package(LIBIGL)
 
    if ( LIBIGL_FOUND )
     file(GLOB_RECURSE src/cxx *.cpp *.h)

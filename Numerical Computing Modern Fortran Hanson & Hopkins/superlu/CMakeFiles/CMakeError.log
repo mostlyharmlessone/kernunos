@@ -1,0 +1,19 @@
+Determining if the Fortran sgemm exists failed with the following output:
+Change Dir: /home/debeus/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make -f Makefile cmTC_1bb79/fast && /usr/bin/make  -f CMakeFiles/cmTC_1bb79.dir/build.make CMakeFiles/cmTC_1bb79.dir/build
+make[1]: Entering directory '/home/debeus/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu/CMakeFiles/CMakeTmp'
+Building Fortran object CMakeFiles/cmTC_1bb79.dir/testFortranCompiler.f.o
+/usr/bin/gfortran    -c "/home/debeus/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu/CMakeFiles/CMakeTmp/testFortranCompiler.f" -o CMakeFiles/cmTC_1bb79.dir/testFortranCompiler.f.o
+Linking Fortran executable cmTC_1bb79
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_1bb79.dir/link.txt --verbose=1
+/usr/bin/gfortran CMakeFiles/cmTC_1bb79.dir/testFortranCompiler.f.o -o cmTC_1bb79 
+/usr/bin/ld: CMakeFiles/cmTC_1bb79.dir/testFortranCompiler.f.o: in function `MAIN__':
+testFortranCompiler.f:(.text+0xa): undefined reference to `sgemm_'
+collect2: error: ld returned 1 exit status
+make[1]: *** [CMakeFiles/cmTC_1bb79.dir/build.make:99: cmTC_1bb79] Error 1
+make[1]: Leaving directory '/home/debeus/Janus/Numerical Computing Modern Fortran Hanson & Hopkins/superlu/CMakeFiles/CMakeTmp'
+make: *** [Makefile:127: cmTC_1bb79/fast] Error 2
+
+
+
