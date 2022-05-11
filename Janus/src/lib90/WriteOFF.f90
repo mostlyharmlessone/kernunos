@@ -1,24 +1,34 @@
        subroutine WriteOFF(b,KXNAME)
-       USE cornea_arrays
-       USE set_precision, ONLY : wp
+       use io_functions, only : get_new_fileunit
+       use cornea_arrays
+       use set_precision, ONLY : wp
+       use special_fct, only : rgb2, rgb5
+       use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
        TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
        character(len=*), intent(in) :: KXNAME 
        real(wp):: X1,X2,X3,vert1,vert2,vert3,vert4
        integer :: i,j,M1,N1,vertices,faces,edges
-       integer :: ivert1,ivert2,ivert3,ivert4
+       integer :: ivert1,ivert2,ivert3,ivert4,unitno1
        logical :: donut,quad
+       integer(kind=2) :: rgbv(3)  !0-255 integer(kind=1) is centered around 0
+       integer(INT16) :: attr
 
 !       RGB colors can follow after list of faces       
 !       255 0 0 #red
 !       0 255 0 #green
 !       0 0 255 #blue
+ 
+       rgbv=rgb5(35.1_wp,60.2_wp,54.5_wp)
+!       rgbv=rgb2(35.1_wp,60.2_wp,54.5_wp)
+       attr=rgb2attr(rgbv)       
        
        N1=size(b%r,2)
-       M1=MM
+       M1=size(b%r,1)
 
-       open (UNIT = 12, FILE = KXNAME)
+       unitno1 = get_new_fileunit()
+       open(unitno1, file=trim(KXNAME), action="write", iostat=ierr)
        
-       write(12,*) 'OFF'
+       write(unitno1,*) 'OFF'
        
       donut = .TRUE.
       quad = .FALSE.
@@ -79,7 +89,7 @@
          endif
         end do 
 
-       write(12,*) vertices,faces,edges
+       write(unitno1,*) vertices,faces,edges
                                                                     
        do i=1,M1
         do j=1,N1
@@ -89,7 +99,7 @@
          vert1 = ABS(X2)*COS(X1) 
          vert2 = ABS(X2)*SIN(X1) 
          vert3 = X3            
-         write(12,*) vert1,vert2,vert3 
+         write(unitno1,*) vert1,vert2,vert3 
         end do
        end do
 
@@ -104,10 +114,10 @@
          if  ( (j < b%MV(i)) .AND. (j < b%MV(i+1)) ) then                      
           if (donut) then
            if (quad) then
-            write(12,*) '4',ivert1,ivert2,ivert3,ivert4              
+            write(unitno1,*) '4',ivert1,ivert2,ivert3,ivert4              
            else
-            write(12,*) '3',ivert1,ivert2,ivert3                     
-            write(12,*) '3',ivert3,ivert4,ivert1                                  
+            write(unitno1,*) '3',ivert1,ivert2,ivert3                   
+            write(unitno1,*) '3',ivert3,ivert4,ivert1                                  
           endif
          else
 !        nothing here yet                 
@@ -126,10 +136,10 @@
          if  ( (j < b%MV(M1)) .AND. (j < b%MV(1)) ) then           
           if (donut) then
            if (quad) then
-            write(12,*) '4',ivert1,ivert2,ivert3,ivert4    
+            write(unitno1,*) '4',ivert1,ivert2,ivert3,ivert4    
            else
-            write(12,*) '3',ivert1,ivert2,ivert3               
-            write(12,*) '3',ivert3,ivert4,ivert1
+            write(unitno1,*) '3',ivert1,ivert2,ivert3               
+            write(unitno1,*) '3',ivert3,ivert4,ivert1
            endif
          else
 !        nothing here yet
@@ -137,6 +147,6 @@
          endif
         end do          
        	                            
-       close (12)       
+       close (unitno1)       
     
        end subroutine WriteOFF

@@ -1,15 +1,15 @@
        subroutine pspli(t,z,n,zt2)
-       use cornea_arrays, only : PI, MM, EPS
+       use cornea_arrays, only : PI, EPS
        use set_precision, only :  wp
        USE special_fct, ONLY : OPERATOR(.p.) !tensor summation convention
        use,intrinsic :: ieee_arithmetic
 
 !      PERIODIC BOUNDARY CONDITION SPLINE
-       REAL(wp), intent(in) :: t(n),z(n)
+       REAL(wp), intent(in) :: t(*),z(*)
        INTEGER, intent(in) :: n
        REAL(wp), intent(out) ::zt2(n)
        REAL(wp) :: PERD,error
-       REAL(wp) :: d(n),a(n),b(n),c(n),zt2c(n),thta(MM) 
+       REAL(wp) :: d(n),a(n),b(n),c(n),zt2c(n),thta(n) 
 !       REAL(wp) :: AB(3,n)
        INTEGER :: m,j 
        logical :: IsInf 

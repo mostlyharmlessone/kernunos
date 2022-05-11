@@ -6,16 +6,21 @@
   use special_fct
     
   TYPE(wpRadSlopeMatrix) :: atmp
-  integer IMV(MM), IZ, i
+  integer IZ, i
 ! character(len=*), intent(in) :: InputDataFile
+ INTEGER, PARAMETER :: MM=180, N=22   ! Atlas
+!  INTEGER, PARAMETER :: MM=360, N=16  ! EyeSys 
+
   character(len=8)::  InputDataFile       
   character(len=16) :: AxialPowerDataKnots
   character(len=8) :: BigGrainyPlot
   character(len=7) :: BigPlot
   character(len=8) :: LinesOfCurv     
-  integer ::  IuseG, IuseF, MV(MM)
+  integer ::  IuseG, IuseF
+  integer,allocatable :: MV(:)
   real :: time_start, time_end, t(10)
   real(wp) :: POWMIN,POWMAX,POWMIN2,POWMAX2
+  allocate (MV(MM))
     
   InputDataFile='TEST.CSV' ! for ATLAS
   AxialPowerDataKnots='RCNVRTA.ORIG.CAR'
@@ -28,19 +33,21 @@
   call CPU_TIME(time_start)
   
 ! READ THE EYESYS DATA
-! XX????? ARE THE AXIAL DIST. RX???? ARE THE MIRE RADII  
-  call RCNVRTE('RA.DAT','XX.DAT')  !sensitive to MM,N
-
+! XX????? ARE THE AXIAL DIST. RX???? ARE THE MIRE RADII 
+  if (MM .eq. 360) then 
+   call RCNVRTE('RA.DAT','XX.DAT')  
+  endif
 ! OR READ THE PENTACAM DATA 
 ! EA are elevations CA are "sagittal"curvatures in a 141x141 -7 to 7 mm square -1 is no data 
 !! loops endlessly?
 !  call RCNVRTP('TEST.ELE','TEST.CUR')
               
 ! OR READ THE ATLAS DATA
-! R OR DIST ARE THE MIRE RADII, USING DIST, READS ELEVATION ALSO
-!!  CALL RCNVRTA(InputDataFile)  !sensitive to MM,N
-!!  CALL RCNVRTA('TEST.CSV')
-
+! R OR DIST ARE THE MIRE RADII, USING DIST, READS ELEVATION ALSO  
+  if (MM .eq. 180) then
+   CALL RCNVRTA('TEST.CSV')
+!  CALL RCNVRTA(InputDataFile)
+  endif
 ! OR GENERATE TEST DATA (EYESYS OR ATLAS STYLE DEPENDING ON MM)
 !!  CALL RCNVRTT
   
@@ -48,7 +55,7 @@
   t(1)=time_end-time_start
   write(*,*) 'Time to read files: ',t(1)*1000
   
-  if (MM == 360) then
+  if (MM .eq. 360) then
 !  Generate the slope matrix using ZFCT
 !  Generate "Atlas" data with AXIALP  
    RadSlope=EyeSys 
@@ -279,6 +286,7 @@
   call execute_command_line ("./view", exitstat=i)
 
 ! deallocate
+  deallocate (MV)
   EyeSys=0 
   Atlas=0     
   RadSlope=0

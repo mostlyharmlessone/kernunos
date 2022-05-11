@@ -9,7 +9,7 @@ MODULE cornea_arrays
  REAL(wp), PARAMETER :: EPS=0.0001_wp  ! used in pspli and SplineCenter
  INTEGER, PARAMETER :: NP=141         ! PentaCam
 ! INTEGER, PARAMETER :: MM=180, N=22   ! Atlas
- INTEGER, PARAMETER :: MM=360, N=16  ! EyeSys
+! INTEGER, PARAMETER :: MM=360, N=16  ! EyeSys
  integer, PARAMETER :: M=2 ! augmented multiplier for number of rings
  integer, PARAMETER :: M2=3 ! lsq fourier cosine series terms
 
@@ -21,19 +21,23 @@ MODULE cornea_arrays
  END TYPE wpEyeSysMatrix
  
  TYPE wpRadSlopeMatrix
-   REAL (wp), ALLOCATABLE :: thta(:), r(:,:), Zp(:,:), Zp2(:,:), Zt2(:,:)
+!  theta, r are polar coordinates, Zp,Zp2,Zt2 are slope, and second derivatives
+   REAL (wp), ALLOCATABLE :: thta(:), r(:,:), Zp(:,:), Zp2(:,:), Zt2(:,:) 
    INTEGER, ALLOCATABLE :: MV(:)
  END TYPE wpRadSlopeMatrix
  
  TYPE wpAtlasMatrix
+!  AR radius (polar coord), AD "distance?",AP is axial(sagittal) power in diopters ,AY elevation, DEG ploar coord
    REAL (wp), ALLOCATABLE :: AR(:,:),AD(:,:),AP(:,:),AY(:,:),DEG(:)
  END TYPE wpAtlasMatrix
  
  TYPE wpPentaMatrix
+!  EA is elevation in mm, CA is sagittal curvature in mm ,both on 141x141 grid of -7.00 mm to +7.00 mm
    REAL (wp), ALLOCATABLE :: EA(:,:),CA(:,:)
  END TYPE wpPentaMatrix
  
  TYPE wpDiaSlopeMatrix
+!  rd is the radius positive and negative along the 
    REAL (wp), ALLOCATABLE :: rd(:,:), Zpd(:,:), Zpd2(:,:)
    REAL (wp), ALLOCATABLE :: rOutMin(:),rInMin(:),rOutMax(:),rInMax(:)
    INTEGER, ALLOCATABLE :: L2(:)
@@ -98,7 +102,7 @@ END INTERFACE
 
 ! declaring common data arrays
 
- real(wp) :: RadSplineCenter(MM)
+ real(wp),allocatable :: RadSplineCenter(:)
  TYPE(wpEyeSysMatrix) :: EyeSys
  TYPE(wpRadSlopeMatrix) :: RadSlope
  TYPE(wpAtlasMatrix) :: Atlas
@@ -116,6 +120,7 @@ subroutine init_mat(MM,N,NP,EyeSys,Atlas,RadSlope,DiaSlope,Penta) ! allocate arr
   TYPE(wpAtlasMatrix) :: Atlas
   TYPE(wpDiaSlopeMatrix) :: DiaSlope
   TYPE(wpPentaMatrix) :: Penta   
+  allocate (RadSplineCenter(MM))
   allocate (EyeSys%RA(MM,N),EyeSys%XX(MM,N),EyeSys%DEG(MM))
   allocate (RadSlope%r(MM,N),RadSlope%Zp(MM,N),RadSlope%Zp2(MM,N),&
             Radslope%Zt2(MM,N),RadSlope%thta(MM),RadSlope%MV(MM))  
@@ -175,6 +180,7 @@ subroutine destroy_DiaSlope(DiaSlope,iflag)
   IF (iflag==0) THEN
   deallocate (DiaSlope%rd,DiaSlope%Zpd,DiaSlope%Zpd2,DiaSlope%L2)
   deallocate (DiaSlope%rOutMax,DiaSlope%rInMax,DiaSlope%rOutMin,DiaSlope%rInMin)
+  deallocate (RadSplineCenter)
   ENDIF
 end subroutine destroy_DiaSlope
 
@@ -193,9 +199,11 @@ end subroutine destroy_Penta
 subroutine RadSlope_eq_EyeSys(RadSlope,EyeSys)
   TYPE(wpEyeSysMatrix) :: EyeSys
   TYPE(wpRadSlopeMatrix) :: RadSlope
-  INTEGER :: i,j
-  INTEGER :: imv(MM)
+  INTEGER :: i,j,MM,N
+  integer :: imv(size(RadSlope%r,1))
   REAL(wp) :: ZIX,ZJX,YA1,YA2,YA3,X2A1
+  MM=size(RadSlope%r,1)
+  N=size(RadSlope%r,2)
   do i=1,MM
     imv(i)=0
     RadSlope%thta(i)=PI*EyeSys%DEG(i)/180.0_wp  ! RadSlope%thta(i)=PI*(i-1)/180.0_wp should always be true for EyeSys
@@ -220,11 +228,12 @@ end subroutine RadSlope_eq_EyeSys
 subroutine Atlas_eq_RadSlope(Atlas,RadSlope)
   TYPE(wpRadSlopeMatrix) :: RadSlope
   TYPE(wpAtlasMatrix) :: Atlas
-  INTEGER :: i,j
-  INTEGER :: imv(MM)
+  INTEGER :: i,j,MM
+  integer :: imv(size(RadSlope%r,1))
   REAL(wp) :: X1,X2,Y,YP,Y2X,POW
   imv=0
   Atlas%AP=0._wp
+  MM=size(RadSlope%r,1)
   do i=1,MM
     Atlas%DEG(i)=RadSlope%thta(i)
       do j=1,N
@@ -248,7 +257,9 @@ subroutine RadSlope_eq_Atlas(RadSlope,Atlas)
   TYPE(wpAtlasMatrix) :: Atlas
   REAL(wp) :: ZIX,ZJX,YA1,YA2,YA3,X2A1
   REAL(wp) :: DIST,R,POW
-  INTEGER :: i,j, imv(MM),M ,IMV2(MM)
+  INTEGER :: i,j,MM,N,imv(size(RadSlope%r,1))
+    MM=size(RadSlope%r,1)
+    N=size(RadSlope%r,2)
     imv=0
     do i=1,MM
      RadSlope%thta(i)=PI*Atlas%DEG(i)/180.0_wp  
@@ -364,7 +375,7 @@ end function DiaSplineCenter
 
 function DiaIntegrate(b) result(a)
  TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b
- integer :: i,j,M1
+ integer :: i,j,M1,N1
  real(wp) :: Q,Q0
  real(wp) :: a(size(b%rd,1),size(b%rd,2))
  N1=size(b%rd,2) !N1=2*N*M for augmented
@@ -380,7 +391,7 @@ end function DiaIntegrate
 
 function RadInterpolate(b) result(a) !interpolates values of radslope in new rings
  TYPE(wpRadSlopeMatrix),INTENT(IN) :: b  
- integer :: i,j,M1
+ integer :: i,j,M1,N1
  real(wp) :: f0
  real(wp) :: a(size(b%r,1),size(b%r,2))
  N1=size(b%r,2) !N1=N or N*M for ARadSlope
@@ -709,7 +720,7 @@ subroutine refineborders(Atlas,RadSlope)
  TYPE(wpAtlasMatrix) :: Atlas
  TYPE(wpRadSlopeMatrix) :: RadSlope
  INTEGER :: i,j,IZ
- INTEGER :: imv(MM)
+ integer :: imv(size(RadSlope%r,1))
  REAL(wp) :: R,POW        
 ! initialize
   IZ=1 
@@ -744,9 +755,10 @@ end subroutine refineborders
 !  finds initial MV based on Atlas%AR and Atlas%AP
 subroutine initborders(Atlas,imv)
  TYPE(wpAtlasMatrix) :: Atlas
- INTEGER :: i,j
- INTEGER, INTENT(OUT):: imv(MM)
+ INTEGER :: i,j,MM
+ INTEGER, INTENT(OUT):: imv(size(Atlas%AR,1))
  REAL(wp) :: R,POW
+ MM=size(Atlas%AR,1)
    do i=1,MM
     imv(i)=0
     do j=1,N       

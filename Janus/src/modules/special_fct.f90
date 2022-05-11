@@ -65,7 +65,85 @@ function surface_normal(v1, v2, v3) result(v4)
   v4(3) = (v2(1)-v1(1)) * (v3(2)-v1(2)) - (v2(2)-v1(2)) * (v3(1)-v1(1))
 end function surface_normal
 
+!! color functions
 
+! convert values to rgb 2 color (red to blue) heatmap
+! input 3 scalars, output integer(kind=2) vector
+! https://stackoverflow.com/questions/20792445/calculate-rgb-value-for-a-range-of-values-to-create-heat-map    
+function rgb2(minimum, maximum, x) result(rgbv)
+ REAL (wp), INTENT (IN) :: minimum,maximum,x
+ REAL (wp) :: ratio
+ INTEGER(kind=2) :: rgbv(3) ! rgbv={r,g,b}
+    ratio = 2 * (x-minimum) / (maximum - minimum)
+    rgbv(3) = max(0, int(255*(1 - ratio)))
+    rgbv(1) = max(0, int(255*(ratio - 1)))
+    rgbv(2) = 255 - rgbv(3) - rgbv(1)
+end function rgb2
+
+! convert values to rgb 5 color (red to blue) heatmap
+! input 3 scalars, output integer(kind=2) vector
+! http://www.andrewnoske.com/wiki/Code_-_heatmaps_and_color_gradients  
+! https://stackoverflow.com/questions/3708307/how-to-initialize-two-dimensional-arrays-in-fortran 
+function rgb5(minimum, maximum, x) result(rgbv)
+ REAL (wp), INTENT (IN) :: minimum,maximum,x
+ REAL (wp) :: ratio,fract
+ INTEGER(kind=2) :: nc,rgbv(3),idx1,idx2 ! rgbv={r,g,b}
+! color={{0,0,255},{0,255,255},{0,255,0},{255,255,0},{255,0,0}}
+ INTEGER(kind=2) :: color(3,5)=reshape( (/ 0, 0, 255, &      !blue
+                                                       0, 255, 255, &    !cyan 
+                                                       0, 255, 0, &      !green
+                                                       255, 255, 0, &    !yellow
+                                                       255, 0, 0 /), &   !red
+                                           (/3,5/)  )
+  nc=5
+! A static array of 5 colors:  (blue, cyan, green, yellow, red) using full rgb for each.
+! desired color will be between idx1,idx2 in "color".
+ 
+  ratio = 2 * (x-minimum) / (maximum - minimum);  
+  fract= 0 ! Fraction between "idx1" and "idx2" where our value is.
+  
+  if (ratio <= 0) then
+       idx1 = 0 ; idx2 = 0                   ! accounts for an input <=0
+  else
+   if (ratio >= 1) then
+    idx1 = nc-1 ; idx2 = nc-1                ! accounts for an input >=1
+   else
+    ratio = ratio * (nc-1)                   
+    idx1  = floor(ratio)                     ! Desired color will be after this index.
+    idx2  = idx1+1                           ! ... and before this index (inclusive).
+    fract = ratio - float(idx1)              ! Distance between the two indexes (0-1).
+   endif
+  endif
+    
+  rgbv(1) = (color(1,idx2) - color(1,idx1))*fract + color(1,idx1)
+  rgbv(2) = (color(2,idx2) - color(2,idx1))*fract + color(2,idx1)
+  rgbv(3) = (color(3,idx2) - color(3,idx1))*fract + color(3,idx1)
+
+end function rgb5
+
+! Converts full RGB (256x256x256) to SolidView 15 bit color attr
+function rgb2attr(rgbv) result(attr)
+  integer(kind=2), INTENT(IN) :: rgbv(3)
+  integer(INT16) :: attr
+  integer(INT8) :: red,green,blue 
+!    bits 0 to 4 are the intensity level for blue (0 to 31),
+!    bits 5 to 9 are the intensity level for green (0 to 31),
+!    bits 10 to 14 are the intensity level for red (0 to 31),
+!    bit 15 is 1 if the color is valid, or 0 if the color is not valid (as with normal STL files).
+!    attr= b'0000001100000001'   ! 00000 01100 00000 1 == blue 0, green 12, red 0, valid
+ ! attr=0 
+  red =  rgbv(1)/8 
+  green = rgbv(2)/8 
+  blue =  rgbv(3)/8 
+  attr=blue + 32*green + 1024*red ! packs the bits according to the scheme above
+  attr=ibset(attr,15) ! sets position 15 to 1
+!  write(*,*) rgbv
+!  write(*,*) red,green,blue
+!  write(*,'(b8.8)') red
+!  write(*,'(b8.8)') green
+!  write(*,'(b8.8)') blue
+!  write(*,'(b16.16)') attr
+end function rgb2attr
 
 ! epsilon & factorial functions
 

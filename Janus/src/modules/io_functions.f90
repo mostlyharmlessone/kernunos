@@ -5,7 +5,7 @@ module io_functions
     SUBROUTINE fillarray(IuseG,KX1,POWMIN,POWMAX)
 !     COMPUTES ATLAS DATA 
 !     IuseG to select what to place in RadSlope%Zp AND/OR compute LIOC
-      USE cornea_arrays, ONLY : MM,N,RadSlope,AxialP,sagc2,instantp,meanp,mongea,lioc
+      USE cornea_arrays, ONLY : RadSlope,AxialP,sagc2,instantp,meanp,mongea,lioc
       USE set_precision, ONLY : wp
       USE spline_interfaces, ONLY : SplineEval1Dx1D
       use,intrinsic :: ieee_arithmetic

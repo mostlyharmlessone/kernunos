@@ -1,5 +1,5 @@
       subroutine SplineEval1Dx1D(iflag,u,v,f,fr,ft,frt,frr,ftt) 
-      USE cornea_arrays, ONLY : DiaSlope, RadSlope, MM, N, RadSplineCenter
+      USE cornea_arrays, ONLY : DiaSlope, RadSlope, RadSplineCenter
       USE set_precision, ONLY : wp
       USE spline_interfaces, ONLY : pspli, SplineEval, trapez, CubicSplineQuad, SplineCenter
       USE special_fct, ONLY : OPERATOR(.p.) !tensor summation convention      
@@ -9,11 +9,15 @@
       real(wp), INTENT(IN) :: u, v
       real(wp), INTENT(OUT),OPTIONAL ::  f,fr,ft,frt,frr,ftt
       real(wp) :: g,g0,gr,grr,w,gr1
-      real(wp) :: fTmp(MM),frTmp(MM),frrTmp(MM)
-      real(wp) :: thta(MM),fttTmp(MM),frttTmp(MM),frrttTmp(MM)
-      real(wp) :: r(2*N),z(2*N),zr2(2*N),sumzr2
-      integer :: L2,j,L
+      real(wp) :: fTmp(size(RadSlope%r,1)),frTmp(size(RadSlope%r,1)),frrTmp(size(RadSlope%r,1))
+      real(wp) :: thta(size(RadSlope%r,1)),fttTmp(size(RadSlope%r,1)),frttTmp(size(RadSlope%r,1)),frrttTmp(size(RadSlope%r,1))
+      real(wp) :: r(2*size(RadSlope%r,2)),z(2*size(RadSlope%r,2)),zr2(2*size(RadSlope%r,2)),sumzr2
+      integer :: L2,j,L,MM,N
       logical :: IsInf
+
+      MM=size(RadSlope%r,1)
+      N=size(RadSlope%r,2)
+
       r=0 ; z=0 ; zr2=0 ; thta=0 ; L2=0                     
       do j=1,MM/2 
         L2=DiaSlope%L2(j)
