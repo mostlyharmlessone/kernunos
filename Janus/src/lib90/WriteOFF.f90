@@ -1,12 +1,14 @@
-       subroutine WriteOFF(b,KXNAME)
+       subroutine WriteOFF(b,powmin,powmax,KXNAME)
        use io_functions, only : get_new_fileunit
        use cornea_arrays
        use set_precision, ONLY : wp
        use special_fct, only : rgb2, rgb5
        use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
        TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
-       character(len=*), intent(in) :: KXNAME 
-       real(wp):: X1,X2,X3,vert1,vert2,vert3,vert4
+       character(len=*), intent(in) :: KXNAME
+       real(wp), intent(IN) :: powmin,powmax 
+       real(wp) :: X1,X2,X3,vert1,vert2,vert3,vert4
+       real(wp) :: pow_vert1,pow_vert2,pow_vert3,pow_vert4,pow_face4,pow_face3_1,pow_face3_2
        integer :: i,j,M1,N1,vertices,faces,edges
        integer :: ivert1,ivert2,ivert3,ivert4,unitno1
        logical :: donut,quad
@@ -17,7 +19,7 @@
 !       255 0 0 #red
 !       0 255 0 #green
 !       0 0 255 #blue
- 
+
        rgbv=rgb5(35.1_wp,60.2_wp,54.5_wp)
 !       rgbv=rgb2(35.1_wp,60.2_wp,54.5_wp)
        attr=rgb2attr(rgbv)       
@@ -111,13 +113,33 @@
          ivert2=(i-1)*N1+j
          ivert3=i*N1+j
          ivert4=i*N1+j-1
-         if  ( (j < b%MV(i)) .AND. (j < b%MV(i+1)) ) then                      
+
+         if  ( (j < b%MV(i)) .AND. (j < b%MV(i+1)) ) then   
+
+!        powers go by vertices, but colors need by face
+!        pow=b%Zp(I,J)
+!        rgbv=rgb5(pow,powmin,powmax)
+!        attr=rgb2attr(rgbv)
+         pow_vert1=b%Zp(I-1,J-1)
+         pow_vert2=b%Zp(I-1,J)
+         pow_vert3=b%Zp(I,J) 
+         pow_vert4=b%Zp(I,J-1)
+         pow_face4=(pow_vert1+pow_vert2+pow_vert3+pow_vert4)/4
+         pow_face3_1=(pow_vert1+pow_vert2+pow_vert3)/3
+         pow_face3_2=(pow_vert1+pow_vert3+pow_vert4)/3
+                   
           if (donut) then
            if (quad) then
-            write(unitno1,*) '4',ivert1,ivert2,ivert3,ivert4              
-           else
-            write(unitno1,*) '3',ivert1,ivert2,ivert3                   
-            write(unitno1,*) '3',ivert3,ivert4,ivert1                                  
+            rgbv=rgb5(pow_face4,powmin,powmax)
+            attr=rgb2attr(rgbv)
+            write(unitno1,*) '4',ivert1,ivert2,ivert3,ivert4,rgbv             
+           else)
+            rgbv=rgb5(pow_face3_1,powmin,powmax)
+            attr=rgb2attr(rgbv)
+            write(unitno1,*) '3',ivert1,ivert2,ivert3,rgbv
+            rgbv=rgb5(pow_face3_2,powmin,powmax)
+            attr=rgb2attr(rgbv)                  
+            write(unitno1,*) '3',ivert3,ivert4,ivert1,rgbv                                 
           endif
          else
 !        nothing here yet                 

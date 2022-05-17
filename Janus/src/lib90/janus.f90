@@ -8,8 +8,8 @@
   TYPE(wpRadSlopeMatrix) :: atmp
   integer IZ, i
 ! character(len=*), intent(in) :: InputDataFile
- INTEGER, PARAMETER :: MM=180, N=22   ! Atlas
-!  INTEGER, PARAMETER :: MM=360, N=16  ! EyeSys 
+! INTEGER, PARAMETER :: MM=180, N=22   ! Atlas
+  INTEGER, PARAMETER :: MM=360, N=16  ! EyeSys 
 
   character(len=8)::  InputDataFile       
   character(len=16) :: AxialPowerDataKnots
@@ -20,6 +20,10 @@
   integer,allocatable :: MV(:)
   real :: time_start, time_end, t(10)
   real(wp) :: POWMIN,POWMAX,POWMIN2,POWMAX2
+
+!        call get_command_argument(1, MM)
+ !       call get_command_argument(2, N)
+
   allocate (MV(MM))
     
   InputDataFile='TEST.CSV' ! for ATLAS
@@ -64,7 +68,7 @@
 !  Generate the slope matrix using Atlas data     
    RadSlope=Atlas
   endif 
-  
+
 ! Here IuseG changes the contents of RadSlope via FillArray
 ! IuseG == -1 import slopes, return SAGC (axialp), no splining necessary
 !  IuseG == 0  import SAGC, return SAGC (do nothing), no splining necessary
@@ -86,7 +90,9 @@
 ! (IuseG=0)  then IuseG=(3..7),  IuseF=1-> intdifZ    !DON'T DO THIS 
    
   IuseG=0  ! IuseG=-1 or 0 here only, presplining; 0 just finds POWMIN/MAX can skip entirely here
+
   CALL FILLARRAY(IuseG,LinesOfCurv,POWMIN,POWMAX) 
+
   IuseG=4  ! if above IuseG=-1, then change to 0, 1 or 2  ! IuseG=0 then change to 3 through 8
 
 ! get rid of holes/find RadSlope%MV based on Atlas array data
@@ -150,7 +156,6 @@
 
 !  plot 'LIOC.CAR' using 1:2:3:4 with vectors
    call FILLARRAY(8,LinesOfCurv,POWMIN2,POWMAX2)    ! don't redo bounds consider optional 
-
 !  WriteCenter shows where the spline of slopes is zero, it should be close to zero for a concave center with a unique maximum  
 !  use with polar plot, has to come after SplineEval1Dx1D is called, ie. 'set polar' then plot 'Center.dat'
    call WriteCenter(RadSlope,'Center.dat')   ! biggest deviation with nSplineCenter zero slope forced at origin, 
@@ -161,7 +166,7 @@
   MV(:)=RadSlope%MV(:) ! store a copy
 !  RadSlope%MV(:)=N   !full diameters for elevation 
   call FILLARRAY(7,LinesOfCurv,POWMIN,POWMAX)
-  call WriteOFF(RadSlope,'elevation.off')
+  call WriteOFF(RadSlope,powmin,powmax,'elevation.off')
   call ConvertOFFtoSTL('elevation.off','elevation.stl','elevation.bin.stl')
 !  write(*,*) 'Exit meshlab to continue'
 !  call execute_command_line ("meshlab elevation.off", exitstat=i)

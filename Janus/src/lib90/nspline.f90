@@ -1,14 +1,17 @@
  subroutine nspline(r,z,n,z2)
  use set_precision, only : wp
- use LapackInterface, ONLY : dgtsv
-!  real(wp), INTENT(IN) ::  r(n),z(n)
-  real(wp), INTENT(IN) ::  r(*),z(*) 
+ use LapackInterface, only : dgtsv
+ use,intrinsic :: ieee_arithmetic
+  real(wp), INTENT(IN) ::  r(n),z(n)
+!  real(wp), INTENT(IN) ::  r(*),z(*) 
   integer, INTENT(IN) :: n
-!  real(wp), INTENT(OUT) :: z2(n)
-  real(wp), INTENT(OUT) :: z2(*)  
+  real(wp), INTENT(OUT) :: z2(n)
+!  real(wp), INTENT(OUT) :: z2(*)  
   real(wp),allocatable ::  a(:),b(:),c(:),d(:),zz2(:),a_short(:)
-  integer :: info     
-  INFO=0  
+  integer :: info    ! for lapack use below
+  real(wp) :: f      ! error handling
+  logical :: IsInf    
+  INFO=0             
   if ( n < 2 ) then  ! invalid parameter
    INFO=-1
    return
@@ -45,7 +48,15 @@
 !  endif   
    do i=2,n-1
      z2(i)=zz2(i-1)
-   end do  
+   end do 
+
+   f= dot_product(z2,z2)
+   IsInf=ieee_is_finite(f)
+   If(.not.IsInf) then
+    write(*,*) 'Warning from nspline',d
+    stop
+   endif
+ 
    deallocate (a,b,c,d,zz2)  
         
  end subroutine nspline

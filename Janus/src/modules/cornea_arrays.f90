@@ -27,7 +27,7 @@ MODULE cornea_arrays
  END TYPE wpRadSlopeMatrix
  
  TYPE wpAtlasMatrix
-!  AR radius (polar coord), AD "distance?",AP is axial(sagittal) power in diopters ,AY elevation, DEG ploar coord
+!  AR radius (polar coord), AD "distance?",AP is axial(sagittal) power in diopters ,AY elevation, DEG polar coord
    REAL (wp), ALLOCATABLE :: AR(:,:),AD(:,:),AP(:,:),AY(:,:),DEG(:)
  END TYPE wpAtlasMatrix
  
@@ -37,7 +37,7 @@ MODULE cornea_arrays
  END TYPE wpPentaMatrix
  
  TYPE wpDiaSlopeMatrix
-!  rd is the radius positive and negative along the 
+!  rd is the radius positive and negative along the diagonal
    REAL (wp), ALLOCATABLE :: rd(:,:), Zpd(:,:), Zpd2(:,:)
    REAL (wp), ALLOCATABLE :: rOutMin(:),rInMin(:),rOutMax(:),rInMax(:)
    INTEGER, ALLOCATABLE :: L2(:)
@@ -212,7 +212,7 @@ subroutine RadSlope_eq_EyeSys(RadSlope,EyeSys)
        ZJX=EyeSys%RA(i,j)
        if (ZIX > 0 .AND. ZJX > 0) then
         imv(i)=imv(i)+1
-        call ZFCT(i,ZJX,ZIX,X2A1,YA3)
+        call ZFCT(MM,i,ZJX,ZIX,X2A1,YA3)
         RadSlope%Zp(i,imv(i))=YA3
         RadSlope%r(i,imv(i))=X2A1
         else
@@ -274,7 +274,7 @@ subroutine RadSlope_eq_Atlas(RadSlope,Atlas)
        ZIX=RFCT/POW
 !      could use DIST here
        ZJX=R*100
-       CALL ZFCT(i,ZJX,ZIX,X2A1,YA3)
+       CALL ZFCT(MM,i,ZJX,ZIX,X2A1,YA3)
         RadSlope%r(i,imv(i))=X2A1
         RadSlope%Zp(i,imv(i))=YA3
       endif 
@@ -353,7 +353,7 @@ end subroutine RadSlope_eq_DiaSlope
 
 function DiaSpline(b) result(a) 
  TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b
- integer :: M1
+ integer :: M1,N1
  real(wp) :: a(size(b%rd,1),size(b%rd,2))  
  N1=size(b%rd,2) !N1=2*N*M for augmented
  M1=size(b%rd,1) !M1=MM/2
@@ -364,7 +364,7 @@ end function DiaSpline
 
 function DiaSplineCenter(b) result(a) 
  TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b
- integer :: M1
+ integer :: M1,N1
  real(wp) :: a(size(b%rd,1),size(b%rd,2))  
  N1=size(b%rd,2) !N1=2*N*M for augmented
  M1=size(b%rd,1) !M1=MM/2
@@ -651,8 +651,8 @@ function pca(M3,b) result(a)
    do k=1,M1  
     Q=ABS(b%r(k,i)) > 0  
     if (Q) then ! means it is  =/ 0
-     X(1,k)=b%r(k,i)*cos(360*b%thta(k)/MM)
-     X(2,k)=b%r(k,i)*sin(360*b%thta(k)/MM) 
+     X(1,k)=b%r(k,i)*cos(360*b%thta(k)/M1)
+     X(2,k)=b%r(k,i)*sin(360*b%thta(k)/M1) 
     endif       
    end do   
 ! X transpose X
@@ -684,8 +684,8 @@ function pca(M3,b) result(a)
    do k=1,M1  
     Q=ABS(b%r(k,i)) > 0  
     if (Q) then ! means it is  =/ 0
-     X(1,k)=b%r(k,i)*cos(360*b%thta(k)/MM)
-     X(2,k)=b%r(k,i)*sin(360*b%thta(k)/MM) 
+     X(1,k)=b%r(k,i)*cos(360*b%thta(k)/M1)
+     X(2,k)=b%r(k,i)*sin(360*b%thta(k)/M1) 
      X(3,k)=b%Zp(k,i)
     endif       
    end do 
@@ -719,12 +719,18 @@ end function pca
 subroutine refineborders(Atlas,RadSlope)
  TYPE(wpAtlasMatrix) :: Atlas
  TYPE(wpRadSlopeMatrix) :: RadSlope
- INTEGER :: i,j,IZ
+ INTEGER :: i,j,IZ,MM
  integer :: imv(size(RadSlope%r,1))
  REAL(wp) :: R,POW        
 ! initialize
+
+write(*,*) 'MM in refineborders 1',MM
+MM=size(RadSlope%r,1)
+write(*,*) 'MM in refineborders 2',MM
+
   IZ=1 
   call initborders(Atlas,imv)
+
   do while (IZ == 1)
 !  SAVE MV(MM)
    do i=1,MM
@@ -746,6 +752,9 @@ subroutine refineborders(Atlas,RadSlope)
        IZ=0           
        do i=1,MM
         if ((RadSlope%MV(i)-imv(i)) /= 0) then
+
+write(*,*) 'refineborders',i,RadSlope%MV(i),imv(i)
+
          IZ=1
         endif
        end do
@@ -776,17 +785,17 @@ end subroutine initborders
 !! corneal calculation subroutines
 
 ! signed slope and radius from eyesys style data, or ZIX=RFCT/POW, POW is axial power from Atlas style data
-subroutine ZFCT(ITH,ZJX,ZIX,X2A1,YA3)
+subroutine ZFCT(MM,ITH,ZJX,ZIX,X2A1,YA3)
  REAL(wp), INTENT(IN) :: ZIX,ZJX
  REAL(wp), INTENT(OUT) :: YA3,X2A1
  REAL(wp) :: YA1,YA2
- INTEGER, INTENT(IN) :: ITH
+ INTEGER, INTENT(IN) :: ITH,MM
  !     INVERSE IS AXIALP	
   if (ZIX <= ZJX) WRITE (*,*) 'ERROR IN ARCTAN'
  !     CONVERTS ZIX TO DZ/DR
       YA1=ZJX/(ZIX-ZJX)
       YA2=ZJX/(ZIX+ZJX)
-      if (ITH > (MM/2)) then
+      if (ITH > (MM/2)) then  ! PI
  !       SIGN CHANGE HERE FOR R, OR DZ/DR  *ONLY* WHEN SPLINING ALONG R
         YA3=-SQRT(YA1*YA2)
         X2A1=-ZJX	   
