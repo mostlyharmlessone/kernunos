@@ -724,10 +724,7 @@ subroutine refineborders(Atlas,RadSlope)
  REAL(wp) :: R,POW        
 ! initialize
 
-write(*,*) 'MM in refineborders 1',MM
-MM=size(RadSlope%r,1)
-write(*,*) 'MM in refineborders 2',MM
-
+  MM=size(RadSlope%r,1)
   IZ=1 
   call initborders(Atlas,imv)
 
@@ -752,10 +749,8 @@ write(*,*) 'MM in refineborders 2',MM
        IZ=0           
        do i=1,MM
         if ((RadSlope%MV(i)-imv(i)) /= 0) then
-
-write(*,*) 'refineborders',i,RadSlope%MV(i),imv(i)
-
-         IZ=1
+          write(*,*) 'refineborders',i,RadSlope%MV(i),imv(i)
+          IZ=1
         endif
        end do
   end do
@@ -764,16 +759,17 @@ end subroutine refineborders
 !  finds initial MV based on Atlas%AR and Atlas%AP
 subroutine initborders(Atlas,imv)
  TYPE(wpAtlasMatrix) :: Atlas
- INTEGER :: i,j,MM
+ INTEGER :: i,j,MM,N
  INTEGER, INTENT(OUT):: imv(size(Atlas%AR,1))
  REAL(wp) :: R,POW
  MM=size(Atlas%AR,1)
+ N=size(Atlas%AR,2)
    do i=1,MM
     imv(i)=0
     do j=1,N       
 !    BOUNDS CHECKING 
      R=Atlas%AR(i,j)
-     POW=Atlas%AP(i,j)                     
+     POW=Atlas%AP(i,j)    
      if(POW > 0 .AND. R > 0) then                                       
        imv(i)=imv(i)+1        
      endif

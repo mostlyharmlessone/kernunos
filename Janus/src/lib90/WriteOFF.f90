@@ -2,7 +2,7 @@
        use io_functions, only : get_new_fileunit
        use cornea_arrays
        use set_precision, ONLY : wp
-       use special_fct, only : rgb2, rgb5
+       use special_fct, only : rgb2, rgb5, rgb2attr
        use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
        TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
        character(len=*), intent(in) :: KXNAME
@@ -120,25 +120,25 @@
 !        pow=b%Zp(I,J)
 !        rgbv=rgb5(pow,powmin,powmax)
 !        attr=rgb2attr(rgbv)
-         pow_vert1=b%Zp(I-1,J-1)
-         pow_vert2=b%Zp(I-1,J)
+         pow_vert1=b%Zp(I,J+1)
+         pow_vert2=b%Zp(I+1,J+1)
          pow_vert3=b%Zp(I,J) 
-         pow_vert4=b%Zp(I,J-1)
+         pow_vert4=b%Zp(I+1,J)
          pow_face4=(pow_vert1+pow_vert2+pow_vert3+pow_vert4)/4
          pow_face3_1=(pow_vert1+pow_vert2+pow_vert3)/3
          pow_face3_2=(pow_vert1+pow_vert3+pow_vert4)/3
                    
           if (donut) then
            if (quad) then
-            rgbv=rgb5(pow_face4,powmin,powmax)
-            attr=rgb2attr(rgbv)
+            rgbv=rgb2(pow_face4,powmin,powmax)
+!            attr=rgb2attr(rgbv)
             write(unitno1,*) '4',ivert1,ivert2,ivert3,ivert4,rgbv             
-           else)
-            rgbv=rgb5(pow_face3_1,powmin,powmax)
-            attr=rgb2attr(rgbv)
+           else
+            rgbv=rgb2(pow_face3_1,powmin,powmax)
+!            attr=rgb2attr(rgbv)
             write(unitno1,*) '3',ivert1,ivert2,ivert3,rgbv
-            rgbv=rgb5(pow_face3_2,powmin,powmax)
-            attr=rgb2attr(rgbv)                  
+            rgbv=rgb2(pow_face3_2,powmin,powmax)
+!            attr=rgb2attr(rgbv)                  
             write(unitno1,*) '3',ivert3,ivert4,ivert1,rgbv                                 
           endif
          else
@@ -155,13 +155,33 @@
          ivert2=(M1-1)*N1+j
          ivert3=j
          ivert4=j-1
-         if  ( (j < b%MV(M1)) .AND. (j < b%MV(1)) ) then           
+         if  ( (j < b%MV(M1)) .AND. (j < b%MV(1)) ) then  
+
+!        powers go by vertices, but colors need by face
+!        pow=b%Zp(I,J)
+!        rgbv=rgb5(pow,powmin,powmax)
+!        attr=rgb2attr(rgbv)
+         pow_vert1=b%Zp(M1,J+1)
+         pow_vert2=b%Zp(M1-1,J+1)
+         pow_vert3=b%Zp(M1,J) 
+         pow_vert4=b%Zp(M1-1,J)
+         pow_face4=(pow_vert1+pow_vert2+pow_vert3+pow_vert4)/4
+         pow_face3_1=(pow_vert1+pow_vert2+pow_vert3)/3
+         pow_face3_2=(pow_vert1+pow_vert3+pow_vert4)/3
+
+         
           if (donut) then
            if (quad) then
-            write(unitno1,*) '4',ivert1,ivert2,ivert3,ivert4    
+            rgbv=rgb2(pow_face4,powmin,powmax)
+!            attr=rgb2attr(rgbv)
+            write(unitno1,*) '4',ivert1,ivert2,ivert3,ivert4,rgbv   
            else
-            write(unitno1,*) '3',ivert1,ivert2,ivert3               
-            write(unitno1,*) '3',ivert3,ivert4,ivert1
+            rgbv=rgb2(pow_face3_1,powmin,powmax)
+!            attr=rgb2attr(rgbv)
+            write(unitno1,*) '3',ivert1,ivert2,ivert3,rgbv 
+            rgbv=rgb2(pow_face3_2,powmin,powmax)
+!            attr=rgb2attr(rgbv)              
+            write(unitno1,*) '3',ivert3,ivert4,ivert1,rgbv
            endif
          else
 !        nothing here yet

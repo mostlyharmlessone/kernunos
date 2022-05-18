@@ -14,11 +14,12 @@ module io_functions
       real(wp), intent(out) :: POWMIN, POWMAX
     END SUBROUTINE
 
-    SUBROUTINE WriteOFF(b,KXNAME)
+    SUBROUTINE WriteOFF(b,powmin,powmax,KXNAME)
       USE cornea_arrays
       USE set_precision, ONLY : wp
       TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
       character(len=*), intent(in) :: KXNAME 
+      real(wp), intent(IN) :: powmin,powmax 
     END SUBROUTINE  
     
     subroutine WriteCenter(b,KXNAME)

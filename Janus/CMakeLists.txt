@@ -112,6 +112,8 @@ add_library( splia ${lib_includes} ${lib_sources90})
 add_executable(${PROJECT_NAME} src/lib90/janus.f90)
 #add_executable(testme1 testme1.f90)
 
+#   need to compile superlu or can add link to /usr/lib/libsuperlu.so.X to /usr/local/lib/libsuperlu.so
+
 if ( OpenCL_FOUND )
  target_link_libraries(${PROJECT_NAME} splia modules ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OpenCL_LIBRARIES} /usr/local/lib/libsuperlu.so )
 else()

@@ -168,6 +168,7 @@
   call FILLARRAY(7,LinesOfCurv,POWMIN,POWMAX)
   call WriteOFF(RadSlope,powmin,powmax,'elevation.off')
   call ConvertOFFtoSTL('elevation.off','elevation.stl','elevation.bin.stl')
+  call ConvertOFFtoPLY('elevation.off','elevation.ply','elevation.bin.ply')
 !  write(*,*) 'Exit meshlab to continue'
 !  call execute_command_line ("meshlab elevation.off", exitstat=i)
 !  call execute_command_line ("meshlab elevation.stl", exitstat=i)

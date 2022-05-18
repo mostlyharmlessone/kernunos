@@ -103,10 +103,10 @@ function rgb5(minimum, maximum, x) result(rgbv)
   fract= 0 ! Fraction between "idx1" and "idx2" where our value is.
   
   if (ratio <= 0) then
-       idx1 = 0 ; idx2 = 0                   ! accounts for an input <=0
+       idx1 = 1 ; idx2 = 1                   ! accounts for an input <=0
   else
    if (ratio >= 1) then
-    idx1 = nc-1 ; idx2 = nc-1                ! accounts for an input >=1
+    idx1 = nc ; idx2 = nc                ! accounts for an input >=1
    else
     ratio = ratio * (nc-1)                   
     idx1  = floor(ratio)                     ! Desired color will be after this index.
