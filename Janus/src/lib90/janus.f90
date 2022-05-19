@@ -32,7 +32,7 @@
   BigPlot='BIG.CAR'
   LinesOfCurv='LIOC.CAR'
                
-  call init_mat(MM,N,NP,EyeSys,Atlas,RadSlope,DiaSlope,Penta)  ! initialize the arrays
+  call init_mat(MM,N,NP,EyeSys,Atlas,RadSlope,DiaSlope,Penta,RadSplineCenter)  ! initialize the arrays
   
   call CPU_TIME(time_start)
   
@@ -165,14 +165,22 @@
 !  can view with meshlab e.g.
   MV(:)=RadSlope%MV(:) ! store a copy
 !  RadSlope%MV(:)=N   !full diameters for elevation 
+
+       write(*,*) 'In Janus'
+       write(*,*) 'rgbv5',rgb5(35.1_wp,20.2_wp,74.5_wp)
+       write(*,*) 'rgbv2',rgb2(35.1_wp,20.2_wp,74.5_wp)  
+       stop 
+
+
+
+
   call FILLARRAY(7,LinesOfCurv,POWMIN,POWMAX)
-  call WriteOFF(RadSlope,powmin,powmax,'elevation.off')
+  call WriteGeom(RadSlope,powmin,powmax,'elevation.off','elevation.ply','elevation.bin.ply')
   call ConvertOFFtoSTL('elevation.off','elevation.stl','elevation.bin.stl')
-  call ConvertOFFtoPLY('elevation.off','elevation.ply','elevation.bin.ply')
 !  write(*,*) 'Exit meshlab to continue'
 !  call execute_command_line ("meshlab elevation.off", exitstat=i)
 !  call execute_command_line ("meshlab elevation.stl", exitstat=i)
-!  call execute_command_line ("meshlab elevation..bin.stl", exitstat=i)
+!  call execute_command_line ("meshlab elevation.bin.stl", exitstat=i)
 
 ! eigenvalues show shape of RadSlope without make_rings but with FillArray 7 elevations
 
@@ -289,9 +297,10 @@
   CLOSE (17)
 
   call execute_command_line ("gnuplot -p plot2.gnu", exitstat=i)
-  call execute_command_line ("./view", exitstat=i)
+!  call execute_command_line ("./view", exitstat=i)
 
 ! deallocate
+  call destroyRadSplineCenter(RadSplineCenter)
   deallocate (MV)
   EyeSys=0 
   Atlas=0     

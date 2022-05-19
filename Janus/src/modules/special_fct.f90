@@ -70,26 +70,26 @@ end function surface_normal
 ! convert values to rgb 2 color (red to blue) heatmap
 ! input 3 scalars, output integer(kind=2) vector
 ! https://stackoverflow.com/questions/20792445/calculate-rgb-value-for-a-range-of-values-to-create-heat-map    
-function rgb2(minimum, maximum, x) result(rgbv)
+function rgb2(x,minimum, maximum) result(rgbv)
  REAL (wp), INTENT (IN) :: minimum,maximum,x
  REAL (wp) :: ratio
- INTEGER(kind=2) :: rgbv(3) ! rgbv={r,g,b}
+ INTEGER(int16) :: rgbv(3) ! rgbv={r,g,b}
     ratio = 2 * (x-minimum) / (maximum - minimum)
-    rgbv(3) = max(0, int(255*(1 - ratio)))
-    rgbv(1) = max(0, int(255*(ratio - 1)))
-    rgbv(2) = 255 - rgbv(3) - rgbv(1)
+    rgbv(3) = max(0, int(255*(1 - ratio),2))
+    rgbv(1) = max(0, int(255*(ratio - 1),2))
+    rgbv(2) = int(255,2) - rgbv(3) - rgbv(1)
 end function rgb2
 
 ! convert values to rgb 5 color (red to blue) heatmap
 ! input 3 scalars, output integer(kind=2) vector
 ! http://www.andrewnoske.com/wiki/Code_-_heatmaps_and_color_gradients  
 ! https://stackoverflow.com/questions/3708307/how-to-initialize-two-dimensional-arrays-in-fortran 
-function rgb5(minimum, maximum, x) result(rgbv)
+function rgb5(x,minimum, maximum) result(rgbv)
  REAL (wp), INTENT (IN) :: minimum,maximum,x
  REAL (wp) :: ratio,fract
- INTEGER(kind=2) :: nc,rgbv(3),idx1,idx2 ! rgbv={r,g,b}
+ INTEGER(int16) :: nc,rgbv(3),idx1,idx2 ! rgbv={r,g,b}
 ! color={{0,0,255},{0,255,255},{0,255,0},{255,255,0},{255,0,0}}
- INTEGER(kind=2) :: color(3,5)=reshape( (/ 0, 0, 255, &      !blue
+ INTEGER(int16) :: color(3,5)=reshape( (/ 0, 0, 255, &      !blue
                                                        0, 255, 255, &    !cyan 
                                                        0, 255, 0, &      !green
                                                        255, 255, 0, &    !yellow
@@ -123,7 +123,7 @@ end function rgb5
 
 ! Converts full RGB (256x256x256) to SolidView 15 bit color attr
 function rgb2attr(rgbv) result(attr)
-  integer(kind=2), INTENT(IN) :: rgbv(3)
+  integer(kind=2), INTENT(IN) :: rgbv(3)  !=INT16
   integer(INT16) :: attr
   integer(INT8) :: red,green,blue 
 !    bits 0 to 4 are the intensity level for blue (0 to 31),

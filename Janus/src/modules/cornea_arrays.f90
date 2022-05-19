@@ -101,8 +101,7 @@ INTERFACE OPERATOR (.n.) ! unary operator
 END INTERFACE 
 
 ! declaring common data arrays
-
- real(wp),allocatable :: RadSplineCenter(:)
+ real(wp), allocatable :: RadSplineCenter(:)
  TYPE(wpEyeSysMatrix) :: EyeSys
  TYPE(wpRadSlopeMatrix) :: RadSlope
  TYPE(wpAtlasMatrix) :: Atlas
@@ -113,14 +112,14 @@ END INTERFACE
 
  CONTAINS
  
-subroutine init_mat(MM,N,NP,EyeSys,Atlas,RadSlope,DiaSlope,Penta) ! allocate arrays
+subroutine init_mat(MM,N,NP,EyeSys,Atlas,RadSlope,DiaSlope,Penta,RadSplineCenter) ! allocate arrays
   INTEGER, INTENT(IN) :: MM,N,NP
+  real(wp), allocatable :: RadSplineCenter(:)
   TYPE(wpEyeSysMatrix) :: EyeSys
   TYPE(wpRadSlopeMatrix) :: RadSlope  
   TYPE(wpAtlasMatrix) :: Atlas
   TYPE(wpDiaSlopeMatrix) :: DiaSlope
   TYPE(wpPentaMatrix) :: Penta   
-  allocate (RadSplineCenter(MM))
   allocate (EyeSys%RA(MM,N),EyeSys%XX(MM,N),EyeSys%DEG(MM))
   allocate (RadSlope%r(MM,N),RadSlope%Zp(MM,N),RadSlope%Zp2(MM,N),&
             Radslope%Zt2(MM,N),RadSlope%thta(MM),RadSlope%MV(MM))  
@@ -130,7 +129,8 @@ subroutine init_mat(MM,N,NP,EyeSys,Atlas,RadSlope,DiaSlope,Penta) ! allocate arr
             DiaSlope%rOutMin(MM/2),DiaSlope%rInMin(MM/2))
   allocate (Atlas%AR(MM,N),Atlas%AD(MM,N),Atlas%AP(MM,N),&
             Atlas%AY(MM,N),Atlas%DEG(MM))
-  allocate (Penta%CA(NP,NP),Penta%EA(NP,NP))           
+  allocate (Penta%CA(NP,NP),Penta%EA(NP,NP)) 
+  allocate (RadSplineCenter(MM))          
 end subroutine init_mat
 
 subroutine init_augmented_mat(MM,N,M,ARadSlope,ADiaSlope) !allocate augmented arrays
@@ -144,6 +144,11 @@ subroutine init_augmented_mat(MM,N,M,ARadSlope,ADiaSlope) !allocate augmented ar
   allocate (ADiaSlope%rOutMax(MM/2),ADiaSlope%rInMax(MM/2),&
             ADiaSlope%rOutMin(MM/2),ADiaSlope%rInMin(MM/2))
 end subroutine init_augmented_mat
+
+subroutine destroyRadSplineCenter(RadSplineCenter)
+  real(wp), allocatable :: RadSplineCenter(:)
+  deallocate (RadSplineCenter)
+end subroutine destroyRadSplineCenter
 
 !Type(wpEyeSysMatrix)=INTEGER(0) deallocates matrix 
 subroutine destroy_EyeSys(EyeSys,iflag)
@@ -180,7 +185,6 @@ subroutine destroy_DiaSlope(DiaSlope,iflag)
   IF (iflag==0) THEN
   deallocate (DiaSlope%rd,DiaSlope%Zpd,DiaSlope%Zpd2,DiaSlope%L2)
   deallocate (DiaSlope%rOutMax,DiaSlope%rInMax,DiaSlope%rOutMin,DiaSlope%rInMin)
-  deallocate (RadSplineCenter)
   ENDIF
 end subroutine destroy_DiaSlope
 
