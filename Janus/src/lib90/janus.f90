@@ -165,15 +165,6 @@
 !  can view with meshlab e.g.
   MV(:)=RadSlope%MV(:) ! store a copy
 !  RadSlope%MV(:)=N   !full diameters for elevation 
-
-       write(*,*) 'In Janus'
-       write(*,*) 'rgbv5',rgb5(35.1_wp,20.2_wp,74.5_wp)
-       write(*,*) 'rgbv2',rgb2(35.1_wp,20.2_wp,74.5_wp)  
-       stop 
-
-
-
-
   call FILLARRAY(7,LinesOfCurv,POWMIN,POWMAX)
   call WriteGeom(RadSlope,powmin,powmax,'elevation.off','elevation.ply','elevation.bin.ply')
   call ConvertOFFtoSTL('elevation.off','elevation.stl','elevation.bin.stl')
