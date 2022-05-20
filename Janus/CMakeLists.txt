@@ -67,11 +67,9 @@ include(${wxWidgets_USE_FILE})
    endif() 
 
 #   PLY conversion from  https://w3.impa.br/~diego/software/rply/
-    file(GLOB_RECURSE src/rply-1.1.4 *.c *.h) 
-#   simple hard coded version
-    add_executable(ConvertPLYtoBIN src/rply-1.1.4/ConvertPLYtoBIN.c src/rply-1.1.4/rply.c)
-#   provided by source "convert.c" renamed  
-    add_executable(ConvertPLYtoBIN2 src/rply-1.1.4/ConvertPLYtoBIN2.c src/rply-1.1.4/rply.c)    
+#   copied convert.c from src/rply-1.1.4/etc to src/rply-1.1.4/
+    file(GLOB_RECURSE src/rply-1.1.4 *.c .h)
+    add_executable(ConvertPLYtoBIN src/rply-1.1.4/convert.c src/rply-1.1.4/rply.c )
 
   find_package(BLAS)
 

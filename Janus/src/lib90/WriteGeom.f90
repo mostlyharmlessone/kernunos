@@ -109,9 +109,10 @@
        write(unitno3,'(g0)') 'OFF'
        write(unitno3,*) vertices,faces,edges
 
-!      Write vertices as REAL32                                                                   
+!      Write vertices as REAL32
+!      There are "unreferenced vertices" this way, but it is much easier with vertex numbering                                                                   
        do i=1,M1
-        do j=1,N1
+        do j=1,N1 
          X1=b%thta(i)
          X2=b%r(i,j)
          X3=b%Zp(i,j)   
@@ -161,7 +162,7 @@
             write(unitno3,*) vertnum,ivert1,ivert2,ivert3,rgbv
             rgbv=rgb2(pow_face3_2,powmin,powmax)
 !            attr=rgb2attr(rgbv)
-            write(unitno1,*) vertnum,ivert1,ivert2,ivert3,rgbv                 
+            write(unitno1,*) vertnum,ivert3,ivert4,ivert1,rgbv                 
             write(unitno3,*) vertnum,ivert3,ivert4,ivert1,rgbv                                 
           endif
          else
@@ -208,7 +209,7 @@
             write(unitno3,*) vertnum,ivert1,ivert2,ivert3,rgbv 
             rgbv=rgb2(pow_face3_2,powmin,powmax)
 !            attr=rgb2attr(rgbv) 
-            write(unitno1,*) vertnum,ivert1,ivert2,ivert3,rgbv             
+            write(unitno1,*) vertnum,ivert3,ivert4,ivert1,rgbv             
             write(unitno3,*) vertnum,ivert3,ivert4,ivert1,rgbv
            endif
          else
