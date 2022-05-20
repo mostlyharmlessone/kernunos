@@ -4,7 +4,7 @@
        use io_functions, only : get_new_fileunit
        use cornea_arrays
        use set_precision, ONLY : wp
-       use special_fct, only : rgb2, rgb5, rgb2attr
+       use special_fct, only : rgb2, rgb5
        use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
        TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
        character(len=*), intent(in) :: OFFNAME,PLYNAME
@@ -16,7 +16,6 @@
        integer(INT32) :: ivert1,ivert2,ivert3,ivert4,vertnum
        logical :: donut,quad
        integer(int16) :: rgbv(3)  
-       integer(int16) :: attr
 
 !       RGB colors can follow after list of faces       
 !       255 0 0 #red
@@ -138,7 +137,6 @@
 !        powers go by vertices, but colors need by face
 !        pow=b%Zp(I,J)
 !        rgbv=rgb5(pow,powmin,powmax)
-!        attr=rgb2attr(rgbv)
          pow_vert1=b%Zp(I,J+1)
          pow_vert2=b%Zp(I+1,J+1)
          pow_vert3=b%Zp(I,J) 
@@ -150,18 +148,15 @@
           if (donut) then
            if (quad) then
             vertnum=4
-            rgbv=rgb2(pow_face4,powmin,powmax)
-!            attr=rgb2attr(rgbv)
+            rgbv=rgb5(pow_face4,powmin,powmax)
             write(unitno1,*) vertnum,ivert1,ivert2,ivert3,ivert4,rgbv
             write(unitno3,*) vertnum,ivert1,ivert2,ivert3,ivert4,rgbv             
            else 
             vertnum=3
-            rgbv=rgb2(pow_face3_1,powmin,powmax)
-!            attr=rgb2attr(rgbv)
+            rgbv=rgb5(pow_face3_1,powmin,powmax)
             write(unitno1,*) vertnum,ivert1,ivert2,ivert3,rgbv
             write(unitno3,*) vertnum,ivert1,ivert2,ivert3,rgbv
-            rgbv=rgb2(pow_face3_2,powmin,powmax)
-!            attr=rgb2attr(rgbv)
+            rgbv=rgb5(pow_face3_2,powmin,powmax)
             write(unitno1,*) vertnum,ivert3,ivert4,ivert1,rgbv                 
             write(unitno3,*) vertnum,ivert3,ivert4,ivert1,rgbv                                 
           endif
@@ -184,7 +179,6 @@
 !        powers go by vertices, but colors need by face
 !        pow=b%Zp(I,J)
 !        rgbv=rgb5(pow,powmin,powmax)
-!        attr=rgb2attr(rgbv)
          pow_vert1=b%Zp(M1,J+1)
          pow_vert2=b%Zp(M1-1,J+1)
          pow_vert3=b%Zp(M1,J) 
@@ -197,18 +191,15 @@
           if (donut) then
            if (quad) then
             vertnum=4
-            rgbv=rgb2(pow_face4,powmin,powmax)
-!            attr=rgb2attr(rgbv)
+            rgbv=rgb5(pow_face4,powmin,powmax)
             write(unitno1,*) vertnum,ivert1,ivert2,ivert3,ivert4,rgbv
             write(unitno3,*) vertnum,ivert1,ivert2,ivert3,ivert4,rgbv   
            else
             vertnum=3
-            rgbv=rgb2(pow_face3_1,powmin,powmax)
-!            attr=rgb2attr(rgbv)
+            rgbv=rgb5(pow_face3_1,powmin,powmax)
             write(unitno1,*) vertnum,ivert1,ivert2,ivert3,rgbv
             write(unitno3,*) vertnum,ivert1,ivert2,ivert3,rgbv 
-            rgbv=rgb2(pow_face3_2,powmin,powmax)
-!            attr=rgb2attr(rgbv) 
+            rgbv=rgb5(pow_face3_2,powmin,powmax) 
             write(unitno1,*) vertnum,ivert3,ivert4,ivert1,rgbv             
             write(unitno3,*) vertnum,ivert3,ivert4,ivert1,rgbv
            endif

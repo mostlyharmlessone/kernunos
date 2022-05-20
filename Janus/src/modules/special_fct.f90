@@ -109,7 +109,7 @@ function rgb5(x,minimum, maximum) result(rgbv)
     idx1 = nc ; idx2 = nc                ! accounts for an input >=1
    else
     ratio = ratio * (nc-1)                   
-    idx1  = floor(ratio)                     ! Desired color will be after this index.
+    idx1  = floor(ratio)+1                   ! Desired color will be after this index.
     idx2  = idx1+1                           ! ... and before this index (inclusive).
     fract = ratio - float(idx1)              ! Distance between the two indexes (0-1).
    endif

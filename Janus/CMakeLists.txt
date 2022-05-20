@@ -1,20 +1,54 @@
-
-cmake_minimum_required(VERSION 2.9..3.15)
+cmake_minimum_required(VERSION 3.16)
 project(Janus)
+
 enable_language(Fortran)
 enable_language(CXX)
 enable_language(C)
 #enable_language(CUDA)
 enable_language(ASM)
 
+list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+# Libigl
+ option(LIBIGL_GLFW "Build target igl::glfw" ON)
+# option (LIBIGL_WITH_OPENGL "Use OpenGL" ON)
+# option (LIBIGL_WITH_OPENGL_GLFW "Use GLFW" ON)
+# option (LIBIGL_WITH_OPENGL_GLFW_IMGUI "Use ImGui" ON)
+ include(libigl)
+
+# Add your project files
+file(GLOB SRC_FILES_2 src/cxx/view2/*.cpp)
+add_executable(view2 ${SRC_FILES_2})
+target_link_libraries(view2 PUBLIC igl::glfw)
+
+file(GLOB SRC_FILES_1 src/cxx/view1/*.cpp)
+add_executable(view1 ${SRC_FILES_1})
+target_link_libraries(view1 PUBLIC igl::glfw)
+
+file(GLOB SRC_FILES src/cxx/view/*.cpp src/cxx/view/*.h)
+add_executable(view ${SRC_FILES})
+target_link_libraries(view PUBLIC igl::glfw)
+
+#    file(GLOB_RECURSE src/cxx *.cpp *.h)
+#    add_executable(view2 src/cxx/main.cpp)
+#    target_include_directories(view2 PRIVATE "${GLAD_DIR}/include")    
+ #   target_link_libraries(view2 igl::core igl::opengl_glfw "glad")
+ #   add_executable(view1 src/cxx/view1.cpp)
+#    target_include_directories(view2 PRIVATE "${GLAD_DIR}/include")    
+#    target_link_libraries(view1 igl::core igl::opengl_glfw "glad")
+#    add_executable(view src/cxx/view.cpp)
+ #   target_include_directories(view PRIVATE "${GLAD_DIR}/include")    
+#    target_link_libraries(view igl::core igl::opengl_glfw "glad" ${wxWidgets_LIBRARIES})   
+
 set (CMAKE_Fortran_COMPILER_ID "gfortran")
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
 set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_DEBUG_MODE 1) #second option shows dependencies
 
-set (CMAKE_PREFIX_PATH "/usr/local")
-
 # after wiping CMakeFiles folder run the following to reset
+
+set (CMAKE_PREFIX_PATH "/usr/local")
 
 set (FC "gfortran") 
 #cmake -DCMAKE_Fortran_COMPILER_ID=gfortran ./
@@ -42,29 +76,6 @@ endif()
 set(wxWidgets_CONFIGURATION mswu)
 find_package(wxWidgets COMPONENTS core base REQUIRED)
 include(${wxWidgets_USE_FILE})
-
-# libigl
-
- option (LIBIGL_WITH_OPENGL "Use OpenGL" ON)
- option (LIBIGL_WITH_OPENGL_GLFW "Use GLFW" ON)
- option (LIBIGL_WITH_OPENGL_GLFW_IMGUI "Use ImGui" ON) 
-
-# find_package(LIBIGL)
-
-   if ( LIBIGL_FOUND )
-    file(GLOB_RECURSE src/cxx *.cpp *.h)
-    add_executable(view2 src/cxx/main.cpp)
-    target_include_directories(view2 PRIVATE "${GLAD_DIR}/include")    
-    target_link_libraries(view2 igl::core igl::opengl_glfw "glad")
-    add_executable(view1 src/cxx/view1.cpp)
-    target_include_directories(view2 PRIVATE "${GLAD_DIR}/include")    
-    target_link_libraries(view1 igl::core igl::opengl_glfw "glad")
-    add_executable(view src/cxx/view.cpp)
-    target_include_directories(view PRIVATE "${GLAD_DIR}/include")    
-    target_link_libraries(view igl::core igl::opengl_glfw "glad" ${wxWidgets_LIBRARIES})   
-
-
-   endif() 
 
 #   PLY conversion from  https://w3.impa.br/~diego/software/rply/
 #   copied convert.c from src/rply-1.1.4/etc to src/rply-1.1.4/
