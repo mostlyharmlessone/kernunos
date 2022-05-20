@@ -166,7 +166,8 @@
   MV(:)=RadSlope%MV(:) ! store a copy
 !  RadSlope%MV(:)=N   !full diameters for elevation 
   call FILLARRAY(7,LinesOfCurv,POWMIN,POWMAX)
-  call WriteGeom(RadSlope,powmin,powmax,'elevation.off','elevation.ply','elevation.bin.ply')
+  call WriteGeom(RadSlope,powmin,powmax,'elevation.off','elevation.ply')
+  call execute_command_line ("./ConvertPLYtoBIN2 -l elevation.ply elevation.bin.ply",exitstat=i)
   call ConvertOFFtoSTL('elevation.off','elevation.stl','elevation.bin.stl')
 !  write(*,*) 'Exit meshlab to continue'
 !  call execute_command_line ("meshlab elevation.off", exitstat=i)

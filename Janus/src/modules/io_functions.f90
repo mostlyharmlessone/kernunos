@@ -14,11 +14,11 @@ module io_functions
       real(wp), intent(out) :: POWMIN, POWMAX
     END SUBROUTINE
 
-    SUBROUTINE WriteGeom(b,powmin,powmax,OFFNAME,PLYNAME,PLYBINNAME)
+    SUBROUTINE WriteGeom(b,powmin,powmax,OFFNAME,PLYNAME)
       USE cornea_arrays
       USE set_precision, ONLY : wp
       TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
-      character(len=*), intent(in) :: OFFNAME,PLYNAME,PLYBINNAME 
+      character(len=*), intent(in) :: OFFNAME,PLYNAME 
       real(wp), intent(IN) :: powmin,powmax 
     END SUBROUTINE  
     
