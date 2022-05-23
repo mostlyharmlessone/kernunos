@@ -25,9 +25,9 @@ file(GLOB SRC_FILES_1 src/cxx/view1/*.cpp)
 add_executable(view1 ${SRC_FILES_1})
 target_link_libraries(view1 PUBLIC igl::glfw)
 
-file(GLOB SRC_FILES src/cxx/view/*.cpp src/cxx/view/*.h)
-add_executable(view ${SRC_FILES})
-target_link_libraries(view PUBLIC igl::glfw)
+#file(GLOB SRC_FILES src/cxx/view/*.cpp src/cxx/view/*.h)
+#add_executable(view ${SRC_FILES})
+#target_link_libraries(view PUBLIC igl::glfw)
 
 #    file(GLOB_RECURSE src/cxx *.cpp *.h)
 #    add_executable(view2 src/cxx/main.cpp)
@@ -41,8 +41,6 @@ target_link_libraries(view PUBLIC igl::glfw)
 #    target_link_libraries(view igl::core igl::opengl_glfw "glad" ${wxWidgets_LIBRARIES})   
 
 set (CMAKE_Fortran_COMPILER_ID "gfortran")
-
-#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_DEBUG_MODE 1) #second option shows dependencies
 
@@ -78,7 +76,8 @@ find_package(wxWidgets COMPONENTS core base REQUIRED)
 include(${wxWidgets_USE_FILE})
 
 #   PLY conversion from  https://w3.impa.br/~diego/software/rply/
-#   copied convert.c from src/rply-1.1.4/etc to src/rply-1.1.4/
+#   copy convert.c from src/rply-1.1.4/etc to src/rply-1.1.4/
+    file(COPY src/rply-1.1.4/etc/convert.c DESTINATION src/rply-1.1.4/)
     file(GLOB_RECURSE src/rply-1.1.4 *.c .h)
     add_executable(ConvertPLYtoBIN src/rply-1.1.4/convert.c src/rply-1.1.4/rply.c )
 
@@ -99,6 +98,16 @@ include(${wxWidgets_USE_FILE})
    else()
 
     set(LAPACK_LIBRARIES "/usr/lib/i386-linux-gnu/lapack/liblapack.so.3")
+  
+   endif()
+
+ find_package(SuperLU)
+
+   if ( SUPERLU_FOUND )
+
+   else()
+
+    set(SUPERLU_LIBRARIES "/usr/local/lib/libsuperlu.so")
   
    endif()
 
@@ -130,9 +139,9 @@ add_executable(${PROJECT_NAME} src/lib90/janus.f90)
 #   need to compile superlu or can add link to /usr/lib/libsuperlu.so.X to /usr/local/lib/libsuperlu.so
 
 if ( OpenCL_FOUND )
- target_link_libraries(${PROJECT_NAME} splia modules ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OpenCL_LIBRARIES} /usr/local/lib/libsuperlu.so )
+ target_link_libraries(${PROJECT_NAME} splia modules ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OpenCL_LIBRARIES} ${SUPERLU_LIBRARIES} )
 else()
- target_link_libraries(${PROJECT_NAME} splia modules ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} /usr/local/lib/libsuperlu.so )
+ target_link_libraries(${PROJECT_NAME} splia modules ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${SUPERLU_LIBRARIES} )
 endif()
 
 
