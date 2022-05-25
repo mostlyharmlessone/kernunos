@@ -5,6 +5,7 @@ enable_language(Fortran)
 enable_language(CXX)
 enable_language(C)
 #enable_language(CUDA)
+# /opt/cuda/bin/nvcc is the compiler
 enable_language(ASM)
 
 list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -126,10 +127,11 @@ set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${omp}")
 # Compile.
 
 #   PLY conversion from  https://w3.impa.br/~diego/software/rply/
-#   copy convert.c from src/rply-1.1.4/etc to src/rply-1.1.4/
-    file(COPY src/rply-1.1.4/etc/convert.c DESTINATION src/rply-1.1.4/)
-    file(GLOB_RECURSE src/rply-1.1.4 *.c .h)
-    add_executable(ConvertPLYtoBIN src/rply-1.1.4/convert.c src/rply-1.1.4/rply.c )
+#                        https://github.com/diegonehab/rply
+#   copy convert.c from rply/etc to rply
+    file(COPY rply/etc/convert.c DESTINATION rply/)
+    file(GLOB_RECURSE rply *.c .h)
+    add_executable(ConvertPLYtoBIN rply/convert.c rply/rply.c )
 
 #   Fortran Source
     file(GLOB_RECURSE lib_includes  src/lib90 *.fi)
