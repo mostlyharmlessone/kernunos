@@ -1,13 +1,15 @@
-subroutine RCNVRTT
+subroutine RCNVRTT(MM,N,NP)
 
 USE set_precision, ONLY : wp
 USE cornea_arrays
 
  INTEGER :: ITH,i,j 
- REAL(wp) :: DIST,R,A,B,X,YP,POW
+ REAL(wp) :: DIST,R,A,B,X,YP,POW,XDIST,YDIST,XX,YY,DX,DY
 
-RadSlope%MV=0.0_wp
- do i=1,MM
+! EyeSys or Atlas Simulation data
+
+  RadSlope%MV=0.0_wp
+  do i=1,MM
     if (MM == 360) then
     EyeSys%DEG(i)=i-1
     RadSlope%thta(i)=PI*EyeSys%DEG(i)/180.0_wp
@@ -48,7 +50,7 @@ RadSlope%MV=0.0_wp
 !       NEED A CHECK ON ELEVATION
         YZ=R-R*SQRT(1-(X*COS(RadSlope%thta(i))/A)**2-(X*SIN(RadSlope%thta(i))/B)**2) 
         YZ=R-R*SQRT(1-(D*COS(RadSlope%thta(i))/A)**2-(D*SIN(RadSlope%thta(i))/B)**2) 
-       	POW=ABS(X/YP)*SQRT(1+YP**2)
+        POW=ABS(X/YP)*SQRT(1+YP**2)
         POW=ABS(D/YP)*SQRT(1+YP**2)
              
       if (POW > 0 .AND. DIST > 0) then   ! should always be true
@@ -65,6 +67,63 @@ RadSlope%MV=0.0_wp
       endif       	
 	    		        	  
      end do 
- end do
+  end do
+
+!    PentaCam Simulation data
+  do i=1,NP
+   do j=1,NP
+
+!     ROUND MIRES, SINGLE AXIAL POWER SPHERE         
+
+        XDIST=(-7.00+((i-1)*14.00)/(NP-1.0))/400.0
+        YDIST=(-7.00+((j-1)*14.00)/(NP-1.0))/400.0
+
+!       ELLIPSOID WITH ASTIGMATISM Z=R-R*SQRT(1-(X/A)^2-(Y/B)^2)
+        R=50.0_wp
+	A=40.0_wp
+	B=30.0_wp
+	XX=XDIST*A/5.0
+	YY=YDIST*B/5.0
+!	DX=XDIST  alternate version without scale for derivative magnitude check
+!	DY=YDIST  alternate version without scale for derivative magnitude check
+        DX=XX
+        DY=YY
+        D=sqrt(DX*DX+DY*DY)
+
+        YP=-(DX/A)**2 - (DY/B)**2
+        YP=YP*D/SQRT(1 - (DX/A)**2 - (DY/B)**2 )
+
+!       THE SIGN OF YP IS BY CONVENTION THIS WAY, NOT THE REVERSE BY THE USUAL CONVENTION
+!       SIGN OF SLOPE IS ANNIHILATED BY POWER CONVERSION
+!        IF(ITHETA.GE.180) THEN 
+!        YP1=YP
+!        YP=-YP1
+!        else
+!        YP1=YP
+!        YP=YP1            
+!        ENDIF 	
+!       NEED A CHECK ON MY THETA DERIVATIVES SINCE THESE MIRES HAVE CONSTANT RADII 
+
+        YT=(DY/B**2-DX/A**2)
+        YT=YT*R/SQRT(1-(DX/A)**2-(DY/B)**2)
+
+!       NEED A CHECK ON ELEVATION 
+        YZ=R-R*SQRT(1-(DX/A)**2-(DY/B)**2) 
+        POW=ABS(D/YP)*SQRT(1+YP**2) 
+  
+   if ( D < R/400.0 ) then
+    Penta%EA(i,j)=YZ
+    Penta%CA(i,j)=POW 
+
+   else
+    Penta%EA(i,j)=-1
+    Penta%CA(i,j)=-1
+   endif
+   end do
+  end do 
+
+write (*,*) Penta%EA
+   
+stop
 
  end subroutine RCNVRTT     

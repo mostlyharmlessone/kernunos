@@ -44,17 +44,6 @@ module spline_interfaces
   INTEGER, intent(in) :: n
   REAL(wp), intent(out) ::zt2(n)
  end subroutine
- 
-      SUBROUTINE TRIDIAG(A,B,C,R,U,N)
-      use set_precision, only :  wp
-      IMPLICIT REAL(wp) (A-H,P-Z)
-      end subroutine
-      
-      SUBROUTINE CYCLIC(X,Y,N,Y2)
-      use set_precision, only :  wp
-      IMPLICIT REAL(wp) (A-H,P-Z)
-      end subroutine
- 
       
  subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
   USE set_precision, ONLY : wp
@@ -75,13 +64,6 @@ module spline_interfaces
   integer, INTENT(IN) :: iflag     ! iflag=0 no integration
   real(wp), INTENT(IN) :: u, v
   real(wp), INTENT(OUT),OPTIONAL ::  f,fr,ft,frt,frr,ftt
- end subroutine
-      
- subroutine SplineEval2D(u,v,f0,fr,ft,frt,frr,ftt)
-  USE set_precision, ONLY : wp
-  USE special_fct, ONLY : OPERATOR(.p.) !tensor summation convention
-  REAL(wp),INTENT(IN) :: u, v ! coordinates at which the spline is to be evaluated
-  REAL(wp),INTENT(OUT),OPTIONAL:: f0,fr,ft,frt,frr,ftt ! function & derivs at (u,v)         
  end subroutine
                
  subroutine thomas(a,b,c,d,z,n) ! "Llewellyn Thomas" algorithm for tridiagonal banded matrices"

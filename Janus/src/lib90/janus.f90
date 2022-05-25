@@ -9,7 +9,9 @@
   integer IZ, i
 ! character(len=*), intent(in) :: InputDataFile
 ! INTEGER, PARAMETER :: MM=180, N=22   ! Atlas
-  INTEGER, PARAMETER :: MM=360, N=16  ! EyeSys 
+  INTEGER, PARAMETER :: MM=360, N=16   ! EyeSys 
+  INTEGER, PARAMETER :: NP=141         ! PentaCam
+  INTEGER, PARAMETER :: TestData=1     ! TestData=1 use RCNVRTT, default is to import real data 
 
   character(len=8)::  InputDataFile       
   character(len=16) :: AxialPowerDataKnots
@@ -21,8 +23,10 @@
   real :: time_start, time_end, t(10)
   real(wp) :: POWMIN,POWMAX,POWMIN2,POWMAX2
 
+! eventually pick type of file to determine these
 !        call get_command_argument(1, MM)
  !       call get_command_argument(2, N)
+! will also need mechanism to not select either with PentaCam choice and only do PentaCam calculations
 
   allocate (MV(MM))
     
@@ -35,25 +39,33 @@
   call init_mat(MM,N,NP,EyeSys,Atlas,RadSlope,DiaSlope,Penta,RadSplineCenter)  ! initialize the arrays
   
   call CPU_TIME(time_start)
-  
+
+  if (TestData .eq. 0) then  
 ! READ THE EYESYS DATA
 ! XX????? ARE THE AXIAL DIST. RX???? ARE THE MIRE RADII 
-  if (MM .eq. 360) then 
-   call RCNVRTE('RA.DAT','XX.DAT')  
-  endif
-! OR READ THE PENTACAM DATA 
+   if (MM .eq. 360) then 
+    call RCNVRTE('RA.DAT','XX.DAT') 
+!    call RCNVRTE(RAInputDataFile,XXInputDataFile) 
+   endif
+
+! READ THE PENTACAM DATA 
 ! EA are elevations CA are "sagittal"curvatures in a 141x141 -7 to 7 mm square -1 is no data 
 !! loops endlessly?
-!  call RCNVRTP('TEST.ELE','TEST.CUR')
+    call RCNVRTP('TEST.ELE','TEST.CUR')
+!    call RCNVRTP(ELEInputDataFile,CURInputDataFile) 
               
 ! OR READ THE ATLAS DATA
 ! R OR DIST ARE THE MIRE RADII, USING DIST, READS ELEVATION ALSO  
-  if (MM .eq. 180) then
-   CALL RCNVRTA('TEST.CSV')
-!  CALL RCNVRTA(InputDataFile)
-  endif
+   if (MM .eq. 180) then
+    call RCNVRTA('TEST.CSV')
+!    call RCNVRTA(CSVInputDataFile)
+
+   endif
+
+  else
 ! OR GENERATE TEST DATA (EYESYS OR ATLAS STYLE DEPENDING ON MM)
-!!  CALL RCNVRTT
+   call RCNVRTT(MM,N,NP)
+  endif
   
   call CPU_TIME(time_end)
   t(1)=time_end-time_start
