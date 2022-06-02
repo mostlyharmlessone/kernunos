@@ -4,6 +4,8 @@ MODULE cornea_arrays
  USE LapackInterface, ONLY : dgetrf, dgetrs, dgesv, dsyev
  USE spline_interfaces 
  USE special_fct
+!      USE spline_interfaces, ONLY : SplineEval, trapez, CubicSplineQuad, SplineCenter
+!      USE special_fct, ONLY : OPERATOR(.p.) ! tensor summation convention 
  REAL(wp), PARAMETER :: PI=3.1415926535897932384626433832795_wp
  REAL(wp), PARAMETER :: RFCT=33750.0_wp
  REAL(wp), PARAMETER :: EPS=0.0001_wp  ! used in pspli and SplineCenter
@@ -16,6 +18,7 @@ MODULE cornea_arrays
 ! Defining common data arrays
  
  TYPE wpEyeSysMatrix
+!  RA, XX are undocumented but assumed to compute to powers and radii using Zfct, there are 360 rows
    REAL (wp), ALLOCATABLE :: RA(:,:), XX(:,:)
    INTEGER, ALLOCATABLE :: DEG(:)
  END TYPE wpEyeSysMatrix
@@ -32,12 +35,19 @@ MODULE cornea_arrays
  END TYPE wpAtlasMatrix
  
  TYPE wpPentaMatrix
-!  EA is elevation in mm, CA is sagittal curvature in mm ,both on 141x141 grid of -7.00 mm to +7.00 mm
-   REAL (wp), ALLOCATABLE :: EA(:,:),CA(:,:)
+!  EA is elevation in mm, CA is sagittal/axial curvature in mm, both on 141x141 grid of -7.00 mm to +7.00 mm, no data=-1
+   REAL (wp), ALLOCATABLE :: ELE(:,:),CUR(:,:)
  END TYPE wpPentaMatrix
+
+ TYPE wpSkyline
+!  ELE is elevation in mm, CUR is sagittal/axial curvature in mm, both on 141x141 grid of -7.00 mm to +7.00 mm, no data=-1
+   REAL (wp), ALLOCATABLE :: ELE(:,:),CUR(:,:),x(:,:),y(:,:),z2ELE(:,:),z2CUR(:,:)
+   INTEGER, ALLOCATABLE :: L2x(:),L2y(:),index_col(:)
+   INTEGER :: rows,cols,first_row   ! skyline needed rows and columns
+ END TYPE wpSkyline
  
  TYPE wpDiaSlopeMatrix
-!  rd is the radius positive and negative along the diagonal
+!  rd is the radius positive and negative along the diagonal, rearranged from RadSlope above
    REAL (wp), ALLOCATABLE :: rd(:,:), Zpd(:,:), Zpd2(:,:)
    REAL (wp), ALLOCATABLE :: rOutMin(:),rInMin(:),rOutMax(:),rInMax(:)
    INTEGER, ALLOCATABLE :: L2(:)
@@ -52,38 +62,22 @@ MODULE cornea_arrays
 
 ! overloading of assignments for operations, defining operators
 
-INTERFACE ASSIGNMENT (=)
- !Type(wpAtlasMatrix) = Type(wpRadSlopeMatrix) converts to rhs to lhs
+INTERFACE ASSIGNMENT (=)  
+!Type(FirstArg) = Type(SecondArg) converts/populates to rhs to lhs
  MODULE PROCEDURE Atlas_eq_RadSlope
-END INTERFACE
- 
-INTERFACE ASSIGNMENT (=)
-  !Type(wpRadSlopeMatrix)=Type(wpEyeSysMatrix) converts to rhs to lhs
+ MODULE PROCEDURE Atlas_eq_Skyline
+ MODULE PROCEDURE Skyline_eq_Penta
  MODULE PROCEDURE RadSlope_eq_EyeSys
-END INTERFACE
-
-INTERFACE ASSIGNMENT (=)
- !Type(wpRadSlopeMatrix)=Type(wpAtlasMatrix) converts to rhs to lhs
  MODULE PROCEDURE RadSlope_eq_Atlas
-END INTERFACE 
-
-INTERFACE ASSIGNMENT (=)
- !Type(wpDiaSlopeMatrix)=Type(wpRadSlopeMatrix) converts to rhs to lhs
  MODULE PROCEDURE DiaSlope_eq_RadSlope
-END INTERFACE 
-
-INTERFACE ASSIGNMENT (=)
- !Type(wpRadSlopeMatrix)=Type(wpDiaSlopeMatrix) converts to rhs to lhs
  MODULE PROCEDURE RadSlope_eq_DiaSlope
-END INTERFACE 
-
-INTERFACE ASSIGNMENT (=)
  ! Type(oneofthesebelow) = INTEGER(0) deallocates the matrix
  MODULE PROCEDURE destroy_EyeSys
  MODULE PROCEDURE destroy_Penta
  MODULE PROCEDURE destroy_Atlas
  MODULE PROCEDURE destroy_RadSlope
  MODULE PROCEDURE destroy_DiaSlope
+ MODULE PROCEDURE destroy_Skyline
 END INTERFACE
    
 INTERFACE OPERATOR (.i.)
@@ -106,20 +100,22 @@ END INTERFACE
  TYPE(wpRadSlopeMatrix) :: RadSlope
  TYPE(wpAtlasMatrix) :: Atlas
  TYPE(wpPentaMatrix) :: Penta
+ TYPE(wpSkyline) :: Skyline
  TYPE(wpDiaSlopeMatrix) :: DiaSlope
  TYPE(wpRadSlopeMatrix) :: ARadSlope
  TYPE(wpDiaSlopeMatrix) :: ADiaSlope
 
  CONTAINS
  
-subroutine init_mat(MM,N,NP,EyeSys,Atlas,RadSlope,DiaSlope,Penta,RadSplineCenter) ! allocate arrays
+subroutine init_mat(MM,N,NP,EyeSys,Atlas,RadSlope,DiaSlope,Penta,Skyline,RadSplineCenter) ! allocate arrays
   INTEGER, INTENT(IN) :: MM,N,NP
   real(wp), allocatable :: RadSplineCenter(:)
   TYPE(wpEyeSysMatrix) :: EyeSys
   TYPE(wpRadSlopeMatrix) :: RadSlope  
   TYPE(wpAtlasMatrix) :: Atlas
   TYPE(wpDiaSlopeMatrix) :: DiaSlope
-  TYPE(wpPentaMatrix) :: Penta   
+  TYPE(wpPentaMatrix) :: Penta 
+  TYPE(wpSkyline) :: Skyline  
   allocate (EyeSys%RA(MM,N),EyeSys%XX(MM,N),EyeSys%DEG(MM))
   allocate (RadSlope%r(MM,N),RadSlope%Zp(MM,N),RadSlope%Zp2(MM,N),&
             Radslope%Zt2(MM,N),RadSlope%thta(MM),RadSlope%MV(MM))  
@@ -129,7 +125,10 @@ subroutine init_mat(MM,N,NP,EyeSys,Atlas,RadSlope,DiaSlope,Penta,RadSplineCenter
             DiaSlope%rOutMin(MM/2),DiaSlope%rInMin(MM/2))
   allocate (Atlas%AR(MM,N),Atlas%AD(MM,N),Atlas%AP(MM,N),&
             Atlas%AY(MM,N),Atlas%DEG(MM))
-  allocate (Penta%CA(NP,NP),Penta%EA(NP,NP)) 
+  allocate (Penta%CUR(NP,NP),Penta%ELE(NP,NP))
+  allocate (Skyline%CUR(NP,NP),Skyline%ELE(NP,NP),Skyline%x(NP,NP),&
+            Skyline%z2CUR(NP,NP),Skyline%z2ELE(NP,NP),Skyline%L2x(NP),Skyline%L2y(NP),&
+            Skyline%index_col(NP)) 
   allocate (RadSplineCenter(MM))          
 end subroutine init_mat
 
@@ -145,12 +144,13 @@ subroutine init_augmented_mat(MM,N,M,ARadSlope,ADiaSlope) !allocate augmented ar
             ADiaSlope%rOutMin(MM/2),ADiaSlope%rInMin(MM/2))
 end subroutine init_augmented_mat
 
+! Type()=0 deallocates storage
+
 subroutine destroyRadSplineCenter(RadSplineCenter)
   real(wp), allocatable :: RadSplineCenter(:)
   deallocate (RadSplineCenter)
 end subroutine destroyRadSplineCenter
 
-!Type(wpEyeSysMatrix)=INTEGER(0) deallocates matrix 
 subroutine destroy_EyeSys(EyeSys,iflag)
   TYPE(wpEyeSysMatrix), INTENT(INOUT) :: EyeSys
   INTEGER, INTENT (IN) :: iflag 
@@ -159,7 +159,6 @@ subroutine destroy_EyeSys(EyeSys,iflag)
   ENDIF
 end subroutine destroy_EyeSys
 
-!Type(wpAtlasMatrix)=INTEGER(0) deallocates matrix
 subroutine destroy_Atlas(Atlas,iflag)
   TYPE(wpAtlasMatrix), INTENT(INOUT) :: Atlas
   INTEGER, INTENT (IN) :: iflag 
@@ -168,39 +167,212 @@ subroutine destroy_Atlas(Atlas,iflag)
   ENDIF
 end subroutine destroy_Atlas
 
-!Type(wpRadSlopeMatrix)=INTEGER(0) deallocates matrix
 subroutine destroy_RadSlope(RadSlope,iflag)
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
   INTEGER, INTENT (IN) :: iflag 
   IF (iflag==0) THEN
-  deallocate (RadSlope%r,RadSlope%Zp,RadSlope%Zp2)
-  deallocate (RadSlope%thta,RadSlope%MV)
+  deallocate (RadSlope%r,RadSlope%Zp,RadSlope%Zp2,&
+              RadSlope%thta,RadSlope%MV)
   ENDIF
 end subroutine destroy_RadSlope
 
-!Type(wpDiaSlopeMatrix)=INTEGER(0) deallocates matrix
 subroutine destroy_DiaSlope(DiaSlope,iflag)
   TYPE(wpDiaSlopeMatrix), INTENT(INOUT) :: DiaSlope
   INTEGER, INTENT (IN) :: iflag 
   IF (iflag==0) THEN
-  deallocate (DiaSlope%rd,DiaSlope%Zpd,DiaSlope%Zpd2,DiaSlope%L2)
-  deallocate (DiaSlope%rOutMax,DiaSlope%rInMax,DiaSlope%rOutMin,DiaSlope%rInMin)
+  deallocate (DiaSlope%rd,DiaSlope%Zpd,DiaSlope%Zpd2,DiaSlope%L2,&
+              DiaSlope%rOutMax,DiaSlope%rInMax,DiaSlope%rOutMin,DiaSlope%rInMin)
   ENDIF
 end subroutine destroy_DiaSlope
 
-!Type(wpPentaMatrix)=INTEGER(0) deallocates matrix 
 subroutine destroy_Penta(Penta,iflag)
   TYPE(wpPentaMatrix), INTENT(INOUT) :: Penta
   INTEGER, INTENT (IN) :: iflag 
   IF (iflag==0) THEN
-  deallocate (Penta%CA,Penta%EA)
+  deallocate (Penta%CUR,Penta%ELE)
   ENDIF
 end subroutine destroy_Penta
 
+subroutine destroy_Skyline(Skyline,iflag)
+  TYPE(wpSkyline), INTENT(INOUT) :: Skyline
+  INTEGER, INTENT (IN) :: iflag 
+  IF (iflag==0) THEN
+  deallocate (Skyline%CUR,Skyline%ELE,Skyline%x,Skyline%z2CUR,&
+              Skyline%z2ELE,Skyline%L2x,Skyline%L2y,Skyline%index_col)
+  ENDIF
+end subroutine destroy_Skyline
 !!array conversion routines
 
+subroutine Skyline_eq_Penta(Skyline,Penta)                                            ! Arrange data Skyline, that will allow loading into SplineEval                                            
+  TYPE(wpSkyline) :: Skyline                                                          ! x,f(x) knots, number of knots(length) and u (test point) 
+  TYPE(wpPentaMatrix) :: Penta                                                        ! This is the equivalent of DiaSlope=RadSlope
+  Integer :: i,j,k,NP,ii,jj                                                           ! skyline x by rows, generate y using indices later
+  Integer :: first_row,last_row,col(size(Penta%CUR,1)),index_row(size(Penta%CUR,1))                                
+  Integer :: first_col,last_col,row(size(Penta%CUR,1)),index_col(size(Penta%CUR,1))
+  real (wp) :: x,y
+  NP=size(Penta%CUR,1)
+! Find edges of data, Penta "data" is contiguous
+  index_row=0 ; col=0 ; Skyline%cols=0 ; first_row=0 ; last_row=141  
+  index_col=0 ; row=0 ; Skyline%rows=0 ; first_col=0 ; last_col=141
+  Skyline%x=0 ; Skyline%CUR=0 ; Skyline%ELE=0
+  Skyline%L2x=0 ; Skyline%L2y=0
+  do i=1,NP
+   do j=1,NP
+    if (Penta%CUR(i,j) > 0) then 
+     col(i)=col(i)+1                 ! count number of nonnegative (columns) entries (data points) in row (i)
+     if ( index_row(i) < 1 ) then
+      index_row(i)=j                 ! remember starting point on col(i), assumes no holes in data
+     endif
+     if (first_row < 1) then         ! remember first_row
+       first_row=i
+     endif
+    endif
+!   For calculating L2y, transpose the matrix
+    if (Penta%CUR(j,i) > 0) then
+     row(i)=row(i)+1                 ! count number of nonnegative (rows) entries (data points) in column (j)
+     if ( index_col(i) < 1 ) then
+      index_col(i)=j                 ! remember starting point on row(j), assumes no holes in data
+     endif
+     if (first_col < 1) then         ! remember first_col
+       first_col=i
+     endif
+    endif
+   end do
+   if (last_row .eq. NP .and. first_row > 0 .and. col(i) .eq. 0) then  ! remember last row, this assumes contiguous data
+    last_row=i-1
+   endif
+  end do
+! Write Skyline
+  do i=1,last_row-first_row+1             ! number of rows
+   do j=1,col(first_row+i-1)              ! number of columns col(first_row+i-1) for that row
+!   skyline dat i,j Penta ii jj
+!   starting column jj = index_row(first_row+i-1)
+!   row ii = first_row+i-1
+    ii=first_row+i-1
+    jj=index_row(first_row+i-1)+j-1 
+    Skyline%x(i,j)=-7.00+((jj-1)*14.00)/(NP-1.0)   
+    Skyline%CUR(i,j)=Penta%CUR(ii,jj)
+    Skyline%ELE(i,j)=Penta%ELE(ii,jj)
+!   Count rows in each column
+    Skyline%L2y(j)=row(first_col+j-1)              ! number of rows == length of each splining vector
+    Skyline%index_col(j)=index_col(first_col+j-1)  ! Skyline these for border calculation
+    if (Skyline%L2y(j) > Skyline%rows) then        ! Skyline%rows is the maximum length of L2y
+     Skyline%rows=Skyline%L2y(j)
+    endif
+   end do
+!  Count columns in each row
+   Skyline%L2x(i)=col(first_row+i-1)         ! number of columns == length of each splining vector
+   if (Skyline%L2x(i) > Skyline%cols) then   ! Skyline%cols is the maximum length of L2x
+    Skyline%cols=Skyline%L2x(i)
+   endif
+  end do
+  Skyline%first_row=first_row                ! needed for offset
+  if  ( Skyline%rows .ne. last_row-first_row+1 ) then
+   write(*,*) 'Inconsistent row count in Skyline'   ! numbers of rows should be maximum length of columns
+   stop
+  endif
+end subroutine Skyline_eq_Penta
+
+subroutine Skyline_eq_Penta2(Skyline,Penta)                                           ! the no-Skyline Skyline for testing and simplicity                                         
+  TYPE(wpSkyline) :: Skyline                                                          ! just generate x 
+  TYPE(wpPentaMatrix) :: Penta                                                        
+  Integer :: i,j,NP                                                                 
+  NP=size(Penta%CUR,1)
+  do i=1,NP
+   do j=1,NP
+    Skyline%x(i,j)=-7.00+((j-1)*14.00)/(NP-1.0)   
+    Skyline%CUR(i,j)=Penta%CUR(i,j)
+    Skyline%ELE(i,j)=Penta%ELE(i,j)
+   end do
+  end do
+  Skyline%L2x=NP ; Skyline%L2y=NP
+  Skyline%cols=NP ; Skyline%rows=NP
+  Skyline%index_col=0
+end subroutine Skyline_eq_Penta2
+
+subroutine Atlas_eq_Skyline(Atlas,Skyline)      ! initially Atlas populates r, thta, POW, elevation with splining
+  TYPE(wpSkyline), INTENT(INOUT) :: Skyline                                             
+  TYPE(wpAtlasMatrix), INTENT(INOUT) :: Atlas
+  real(wp) :: a(size(Atlas%AR,1),size(Atlas%AR,2))    ! Atlas size rings and radii                                            
+  integer :: M1,N1,i,ii,j,k,kk,L2,offset,NP
+  integer :: imv(size(Atlas%AR,1))
+  real(wp) :: rBo,rBi,CUR,ELE,u,v,f,fTmp(Skyline%rows),f2Tmp(Skyline%rows)
+  real(wp) :: r(size(Atlas%AR,1)),z(Skyline%cols),z2(Skyline%cols)
+  real(wp) :: x(Skyline%cols),zx(Skyline%cols),zx2(Skyline%cols)           ! maximum size needed, don't need NP
+  real(wp) :: y(Skyline%rows),gTmp(Skyline%rows),g2Tmp(Skyline%rows)
+  M1=size(Atlas%AR,1)
+  N1=size(Atlas%AR,2)
+  NP=size(Skyline%CUR,1)                                                   
+  imv=0
+! Spline both CUR and ELE in x                               (this is the equivalent of DiaSpline)
+  do i=1,Skyline%rows                                         ! all the rows
+   do k=1,Skyline%L2x(i)                                      ! can't do x=Skyline%x(i,:) because of unequal lengths
+    x(k)=Skyline%x(i,k) 
+    zx(k)=Skyline%CUR(i,k)  
+   end do
+   call nspline(x,zx,Skyline%L2x(i),zx2)                      ! generate zxCUR 
+   do k=1,Skyline%L2x(i) 
+    Skyline%z2CUR(i,k)=zx2(k)        
+    zx(k)=Skyline%ELE(i,k)                                    ! store z2CUR and load ELE
+   end do
+   call nspline(x,zx,Skyline%L2x(i),zx2)                      ! generate zxELE
+   do k=1,Skyline%L2x(i)
+    Skyline%z2ELE(i,k)=zx2(k)                                 ! store zx2ELE
+   end do
+  end do
+! make rings
+  rBo=Skyline%cols*0.05                    ! scale in 14x 14 mm of Penta matrix 141x141 divided by 2
+  rBi=0.1*rBo		                   ! donut			
+  do i=1,M1
+   ITH=2*(i-1)
+   Atlas%DEG(i)=ITH                        ! Atlas style degrees every two
+   do j=1,N1
+    r(j)=0.9*((j-1)*(rBo-rBi)/(N1-1)+rBi)  ! make rings 90% of rBo
+    u=r(j)*COS(PI*Atlas%DEG(i)/180)        ! x,y coordinates of ring point
+    v=r(j)*SIN(PI*Atlas%DEG(i)/180)
+!   Populate Atlas with Splined PentaCam
+!   Spline both CUR and ELE in y (this is the equivalent of Spline1Dx1D)
+    do k=1,Skyline%rows
+     L2=Skyline%L2x(k)
+     do kk=1,L2
+      x(kk)=Skyline%x(k,kk)                                ! can't do x=Skyline%x(i,:) because of unequal lengths
+      z(kk)=Skyline%CUR(k,kk) 
+      z2(kk)=Skyline%z2CUR(k,kk)
+      zx(kk)=Skyline%ELE(k,kk) 
+      zx2(kk)=Skyline%z2ELE(k,kk)
+     end do
+     call SplineEval(0,x(1:L2),zx(1:L2),zx2(1:L2),L2,u,f)   ! first parameter = 0 nonperiodic                                    
+     gTmp(k)=f                                            ! f is value at u, fTmp is a new 1:(Skyline%rows) column of values at u        
+     call SplineEval(0,x(1:L2),z(1:L2),z2(1:L2),L2,u,f)   ! first parameter = 0 nonperiodic                                    
+     fTmp(k)=f                                            ! f is value at u, fTmp is a new 1:(Skyline%rows) column of values at u
+    end do 
+!   Have to recover/generate value of y from row number
+    do k=1,Skyline%cols
+     L2=Skyline%L2y(k)
+     do kk=1,L2           ! fTmp has to align with y; but ftmp starts at Skyline%first_row, y starts at for calculation                      
+      offset=Skyline%index_col(k)-1
+      y(kk)=-7.00+((kk+offset)*14.00)/(NP-1.0)
+      offset=Skyline%index_col(k)-Skyline%first_row
+      ftmp(kk)=ftmp(kk+offset)
+      gtmp(kk)=gtmp(kk+offset)
+     end do
+     call nspline(y(1:L2),fTmp(1:L2),L2,f2Tmp(1:L2))        ! spline in Y
+     call SplineEval(0,y(1:L2),fTmp(1:L2),f2Tmp(1:L2),L2,v,CUR)
+     call nspline(y(1:L2),gTmp(1:L2),L2,g2Tmp(1:L2))        ! spline in Y
+     call SplineEval(0,y(1:L2),gTmp(1:L2),g2Tmp(1:L2),L2,v,ELE)
+    end do     	 	
+    imv(i)=imv(i)+1
+    Atlas%AY(i,imv(i))=ABS(ELE)
+    Atlas%AR(i,imv(i))=ABS(r(j)/100.0_wp)      ! scale value
+    Atlas%AD(i,imv(i))=Atlas%AR(i,imv(i))
+    Atlas%AP(i,imv(i))=ABS(CUR)
+   end do !j to N1
+  end do !i to M1
+
+end subroutine Atlas_eq_Skyline
+
 ! uses ZFCT converts lhs to rhs
-subroutine RadSlope_eq_EyeSys(RadSlope,EyeSys)
+subroutine RadSlope_eq_EyeSys(RadSlope,EyeSys) ! initially populates r, thta, Zp, MV
   TYPE(wpEyeSysMatrix) :: EyeSys
   TYPE(wpRadSlopeMatrix) :: RadSlope
   INTEGER :: i,j,MM,N
@@ -222,7 +394,7 @@ subroutine RadSlope_eq_EyeSys(RadSlope,EyeSys)
         else
         RadSlope%Zp(i,j)=0._wp  ! sets border
        endif
-        RadSlope%Zp2(i,j)=1/803.0_wp ! fallback value before splining       
+        RadSlope%Zp2(i,j)=1/803.0_wp ! nonzero fallback value before splining for Atlas=RadSlope      
       end do
       RadSlope%MV(i)=imv(i)
    end do
@@ -256,7 +428,7 @@ subroutine Atlas_eq_RadSlope(Atlas,RadSlope)
 end subroutine Atlas_eq_RadSlope
 
 !aka power2slope using ZFCT converts lhs to rhs
-subroutine RadSlope_eq_Atlas(RadSlope,Atlas)
+subroutine RadSlope_eq_Atlas(RadSlope,Atlas) ! initially populates r, thta, Zp, MV
   TYPE(wpRadSlopeMatrix) :: RadSlope
   TYPE(wpAtlasMatrix) :: Atlas
   REAL(wp) :: ZIX,ZJX,YA1,YA2,YA3,X2A1

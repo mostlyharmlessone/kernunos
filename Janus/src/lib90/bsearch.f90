@@ -6,6 +6,10 @@ integer, intent(out) :: high, low
 integer m
  low=1
  high=n
+ if ( n < 1 ) then
+  write(*,*) 'Error in bsearch, n < 1',n
+  stop
+ endif
  if (r > rv(n)) then
   low=n-1
  else

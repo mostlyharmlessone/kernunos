@@ -128,10 +128,11 @@ set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${omp}")
 
 #   PLY conversion from  https://w3.impa.br/~diego/software/rply/
 #                        https://github.com/diegonehab/rply
-#   copy convert.c from rply/etc to rply
-    file(COPY rply/etc/convert.c DESTINATION rply/)
-    file(GLOB_RECURSE rply *.c .h)
-    add_executable(ConvertPLYtoBIN rply/convert.c rply/rply.c )
+#   copy convert.c from rply/etc to rply and both to src/cxx/rply
+    file(COPY rply/etc/convert.c DESTINATION src/cxx/rply)
+    file(COPY rply/rply.c rply/rply.h rply/rplyfile.h DESTINATION src/cxx/rply)
+    file(GLOB_RECURSE src/cxx/rply *.c .h)
+    add_executable(ConvertPLYtoBIN src/cxx/rply/convert.c src/cxx/rply/rply.c )
 
 #   Fortran Source
     file(GLOB_RECURSE lib_includes  src/lib90 *.fi)

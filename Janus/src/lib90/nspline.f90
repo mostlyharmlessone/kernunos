@@ -53,7 +53,7 @@
    f= dot_product(z2,z2)
    IsInf=ieee_is_finite(f)
    If(.not.IsInf) then
-    write(*,*) 'Warning from nspline',d
+    write(*,*) 'Warning from nspline'
     stop
    endif
  

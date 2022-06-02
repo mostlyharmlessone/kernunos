@@ -112,17 +112,17 @@ USE cornea_arrays
         POW=ABS(D/YP)*SQRT(1+YP**2) 
   
    if ( D < R/400.0 ) then
-    Penta%EA(i,j)=YZ
-    Penta%CA(i,j)=POW 
+    Penta%ELE(i,j)=YZ
+    Penta%CUR(i,j)=POW 
 
    else
-    Penta%EA(i,j)=-1
-    Penta%CA(i,j)=-1
+    Penta%ELE(i,j)=-1
+    Penta%CUR(i,j)=-1
    endif
    end do
   end do 
 
-write (*,*) Penta%EA
+write (*,*) Penta%ELE
    
 stop
 

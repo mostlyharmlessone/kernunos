@@ -1,4 +1,4 @@
-!      Writes OFF and ASCII PLY files
+!      Writes OFF and ASCII PLY files with color overlay
 
        subroutine WriteGeom(b,powmin,powmax,OFFNAME,PLYNAME)
        use io_functions, only : get_new_fileunit
@@ -65,7 +65,8 @@
            edges=edges+3
           endif
          else
-!        nothing here yet                 
+!        nothing here yet for .donut. .EQ. FALSE
+                 
          endif
          endif
         end do
@@ -84,7 +85,8 @@
            edges=edges+3
           endif
          else
-!        nothing here yet
+!        nothing here yet for .donut. .EQ. FALSE
+
          endif
          endif
         end do 
@@ -135,7 +137,7 @@
          if  ( (j < b%MV(i)) .AND. (j < b%MV(i+1)) ) then   
 
 !        powers go by vertices, but colors need by face
-!        pow=b%Zp(I,J)
+!        pow=b%Zp(I,J) as of now, this is actually elevation
 !        rgbv=rgb5(pow,powmin,powmax)
          pow_vert1=b%Zp(I,J+1)
          pow_vert2=b%Zp(I+1,J+1)
@@ -161,7 +163,8 @@
             write(unitno3,*) vertnum,ivert3,ivert4,ivert1,rgbv                                 
           endif
          else
-!        nothing here yet                 
+!        nothing here yet for .donut. .EQ. FALSE
+                
          endif
          endif
         end do
@@ -204,7 +207,8 @@
             write(unitno3,*) vertnum,ivert3,ivert4,ivert1,rgbv
            endif
          else
-!        nothing here yet
+!        nothing here yet for .donut. .EQ. FALSE
+
          endif
          endif
         end do  

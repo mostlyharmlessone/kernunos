@@ -9,18 +9,23 @@
   integer IZ, i
 ! character(len=*), intent(in) :: InputDataFile
 ! INTEGER, PARAMETER :: MM=180, N=22   ! Atlas
-  INTEGER, PARAMETER :: MM=360, N=16   ! EyeSys 
+!  INTEGER, PARAMETER :: MM=360, N=16   ! EyeSys 
+  INTEGER :: MM, N 
   INTEGER, PARAMETER :: NP=141         ! PentaCam
-  INTEGER, PARAMETER :: TestData=1     ! TestData=1 use RCNVRTT, default is to import real data 
+  INTEGER, PARAMETER :: TestData=2     ! TestData: 0=EyeSys, 1=Atlas, 2=Penta, 3=test 
 
-  character(len=8)::  InputDataFile       
+  character(len=11)::  CSVInputDataFile 
+  character(len=11)::  CURInputDataFile
+  character(len=11)::  ELEInputDataFile
+  character(len=10)::  RAInputDataFile
+  character(len=10)::  XXInputDataFile      
   character(len=16) :: AxialPowerDataKnots
   character(len=8) :: BigGrainyPlot
   character(len=7) :: BigPlot
   character(len=8) :: LinesOfCurv     
   integer ::  IuseG, IuseF
   integer,allocatable :: MV(:)
-  real :: time_start, time_end, t(10)
+  real :: time_start, time_end
   real(wp) :: POWMIN,POWMAX,POWMIN2,POWMAX2
 
 ! eventually pick type of file to determine these
@@ -28,61 +33,79 @@
  !       call get_command_argument(2, N)
 ! will also need mechanism to not select either with PentaCam choice and only do PentaCam calculations
 
+  if (TestData .eq. 0 ) then
+   MM=360; N=16   ! EyeSys
+   else
+   MM=180; N=22   ! Atlas and everyone else
+  endif
+   
   allocate (MV(MM))
     
-  InputDataFile='TEST.CSV' ! for ATLAS
+  CSVInputDataFile='TEST.CSV' ! for ATLAS
+  CURInputDataFile='TEST.CUR' ! for PentaCam
+  ELEInputDataFile='TEST.ELE' 
+  RAInputDataFile='RA.DAT'    ! for EyeSys
+  XXInputDataFile='XX.DAT' 
+ 
   AxialPowerDataKnots='RCNVRTA.ORIG.CAR'
   BigGrainyPlot='BIGG.CAR'
   BigPlot='BIG.CAR'
   LinesOfCurv='LIOC.CAR'
-               
-  call init_mat(MM,N,NP,EyeSys,Atlas,RadSlope,DiaSlope,Penta,RadSplineCenter)  ! initialize the arrays
-  
-  call CPU_TIME(time_start)
 
+  call CPU_TIME(time_start)             
+  call init_mat(MM,N,NP,EyeSys,Atlas,RadSlope,DiaSlope,Penta,Skyline,RadSplineCenter)  ! initialize the arrays
+  call CPU_TIME(time_end)
+  write(*,*) 'Time to allocate memory: ',(time_end-time_start)*1000 
+ 
   if (TestData .eq. 0) then  
 ! READ THE EYESYS DATA
 ! XX????? ARE THE AXIAL DIST. RX???? ARE THE MIRE RADII 
-   if (MM .eq. 360) then 
-    call RCNVRTE('RA.DAT','XX.DAT') 
-!    call RCNVRTE(RAInputDataFile,XXInputDataFile) 
-   endif
-
-! READ THE PENTACAM DATA 
-! EA are elevations CA are "sagittal"curvatures in a 141x141 -7 to 7 mm square -1 is no data 
-!! loops endlessly?
-    call RCNVRTP('TEST.ELE','TEST.CUR')
-!    call RCNVRTP(ELEInputDataFile,CURInputDataFile) 
+!    call RCNVRTE('RA.DAT','XX.DAT') 
+   call CPU_TIME(time_start)
+   call RCNVRTE(RAInputDataFile,XXInputDataFile) 
+   call CPU_TIME(time_end)
+   write(*,*) 'Time to read EyeSys files: ',(time_end-time_start)*1000
+!  Generate the slope matrix using ZFCT
+!  Populate "Atlas" data with AXIALP  
+   RadSlope=EyeSys 
+   Atlas=RadSlope
+  endif
               
 ! OR READ THE ATLAS DATA
 ! R OR DIST ARE THE MIRE RADII, USING DIST, READS ELEVATION ALSO  
-   if (MM .eq. 180) then
-    call RCNVRTA('TEST.CSV')
-!    call RCNVRTA(CSVInputDataFile)
+  if (TestData .eq. 1) then 
+!    call RCNVRTA('TEST.CSV')
+   call CPU_TIME(time_start)
+   call RCNVRTA(CSVInputDataFile)
+   call CPU_TIME(time_end)
+   write(*,*) 'Time to read Atlas CSV file: ',(time_end-time_start)*1000
+   Radslope=Atlas
+  endif
 
-   endif
-
-  else
+  if (TestData .eq. 3) then 
 ! OR GENERATE TEST DATA (EYESYS OR ATLAS STYLE DEPENDING ON MM)
    call RCNVRTT(MM,N,NP)
+   Radslope=Atlas
   endif
-  
-  call CPU_TIME(time_end)
-  t(1)=time_end-time_start
-  write(*,*) 'Time to read files: ',t(1)*1000
-  
-  if (MM .eq. 360) then
-!  Generate the slope matrix using ZFCT
-!  Generate "Atlas" data with AXIALP  
-   RadSlope=EyeSys 
-   Atlas=RadSlope
-  else ! MM==180
-!  Generate the slope matrix using Atlas data     
-   RadSlope=Atlas
-  endif 
+
+  if (TestData .eq. 2) then
+! READ THE PENTACAM DATA (which overwrites Atlas)
+! EA are elevations CA are "sagittal"curvatures in a 141x141 -7 to 7 mm square -1 is no data 
+!  call RCNVRTP('TEST.ELE','TEST.CUR')
+   call RCNVRTP(ELEInputDataFile,CURInputDataFile) 
+! arrange the data
+   call CPU_TIME(time_start)
+   Skyline=Penta
+!   call Skyline_eq_Penta2(Skyline,Penta)
+! convert to polar with splining
+   Atlas=Skyline
+   call CPU_TIME(time_end)
+   write(*,*) 'Time to convert Penta: ',(time_end-time_start)*1000
+   Radslope=Atlas
+  endif
 
 ! Here IuseG changes the contents of RadSlope via FillArray
-! IuseG == -1 import slopes, return SAGC (axialp), no splining necessary
+!  IuseG == -1 import slopes, return SAGC (axialp), no splining necessary
 !  IuseG == 0  import SAGC, return SAGC (do nothing), no splining necessary
 !  IuseG == 1  import SAGC, return TANC (instantp2)  
 !  IuseG == 2  import SAGC, return ZMM (meanp2)
@@ -111,8 +134,7 @@
   call CPU_TIME(time_start)
   call refineborders(Atlas,RadSlope) ! substitute operator .b. or something: only affects MV in RadSlope
   call CPU_TIME(time_end)
-  t(2)=time_end-time_start
-  write(*,*) 'Time to refine borders: ',t(2)*1000 
+  write(*,*) 'Time to refine borders: ',(time_end-time_start)*1000
     
   IuseF=0 ! only valid approach is IuseF=0 because    
 !  R is not constant; they're not circles, so splining along the curve gives curvatures that
@@ -124,8 +146,7 @@
 !    Atlas%AR = .n. Atlas ! fills in Atlas%AR  also need to modify commented line in fillin in cornea_arrays
     Atlas%AR = lsqfill(Atlas) ! uses lsq fit with cosine series instead of spline
     call CPU_TIME(time_end)
-    t(3)=time_end-time_start
-    write(*,*) 'Time to run fillin: ',t(3)*1000
+    write(*,*) 'Time to run fillin: ',(time_end-time_start)*1000
 !  filling in AR is better by LSQ fit in missing section; look at these intersecting rings using
 !  gnuplot plot 'datafile dumped with >' u 1:2  (don't set polar) first option, or splot second option
    do j=1,N
@@ -140,8 +161,7 @@
     call CPU_TIME(time_start)
     RadSlope=Atlas ! recalculate RadSlope based on filled-in Atlas, including MV
     call CPU_TIME(time_end)
-    t(4)=time_end-time_start
-    write(*,*) 'Time to run radslope: ',t(4)*1000
+    write(*,*) 'Time to run radslope: ',(time_end-time_start)*1000
    endif 
   endif
       
@@ -151,8 +171,7 @@
   DiaSlope%Zpd2 = .n. DiaSlope   ! generate the splines diagonally (generate zp2)
 !  DiaSlope%Zpd2 = DiaSplineCenter(DiaSlope)   ! generate the splines diagonally with center node added (slopes only)
   call CPU_TIME(time_end)
-  t(5)=time_end-time_start
-  write(*,*) 'Time to run splines: ',t(5)*1000
+  write(*,*) 'Time to run splines: ',(time_end-time_start)*1000
 
 ! Rewrite RadSlope with round rings and new values 
 
@@ -173,30 +192,37 @@
    call WriteCenter(RadSlope,'Center.dat')   ! biggest deviation with nSplineCenter zero slope forced at origin, 
                                              ! then with zero slope forced at average (r(low)+r(high))/2.0
                                              ! smallest deviation without nSplineCenter; view with set polar; plot 'Center.dat'
+
+
+! Here should consider generating everything back into PentaCam/cartesian for plotting and graphing to avoid the donut hole/origin problem
+! Yes, that would be a new WriteGeom, WriteArray and PrintGraph ; the new Cartesian format would include calculations of all the relevant
+! Polar based properties such as Axial Power, Tangential Power etc., ?could also include some invariants from cartesian space
+! OFF/STL/PLY would start quadrilateral and end up triangles just as now.
+
 !  write OFF and STL files
-!  can view with meshlab e.g.
   MV(:)=RadSlope%MV(:) ! store a copy
 !  RadSlope%MV(:)=N   !full diameters for elevation 
   call FILLARRAY(7,LinesOfCurv,POWMIN,POWMAX)
   call WriteGeom(RadSlope,powmin,powmax,'elevation.off','elevation.ply')
-! from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary ply MIT licence, included source in tree
+! from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY MIT licence, included source in tree
   call execute_command_line ("./ConvertPLYtoBIN -l elevation.ply elevation.bin.ply",exitstat=i)
   call ConvertOFFtoSTL('elevation.off','elevation.stl','elevation.bin.stl')
+!  can view with meshlab e.g.
 !  write(*,*) 'Exit meshlab to continue'
 !  call execute_command_line ("meshlab elevation.off", exitstat=i)
 !  call execute_command_line ("meshlab elevation.stl", exitstat=i)
 !  call execute_command_line ("meshlab elevation.bin.stl", exitstat=i)
 
 ! eigenvalues show shape of RadSlope without make_rings but with FillArray 7 elevations
-
 !  atmp=pca(2,RadSlope) 
 !  atmp=pca(3,RadSlope)
-
 !stop
   
+
   call init_augmented_mat(MM,N,M,ARadSlope,ADiaSlope) ! prepare more space
-    
-! make more than one plot  
+  
+! make more than one plot
+  
   do i=1,2
   if (i==1) then
    write(*,*) 'Plot: ',i 
@@ -217,9 +243,10 @@
    RadSlope%r=make_rings(DiaSlope,.FALSE.)              
    call FILLARRAY(4,LinesOfCurv,POWMIN,POWMAX)  
    call CPU_TIME(time_end)
-   t(6)=time_end-time_start
-   write(*,*) 'Time to rewrite RadSlope without origin: ',t(6)*1000    
+   write(*,*) 'Time to rewrite RadSlope without origin: ',(time_end-time_start)*1000   
   endif
+
+
   if (i==2) then
    write(*,*) 'Next Plot: ',i
    call CPU_TIME(time_start)  
@@ -243,8 +270,7 @@
    RadSlope%r=make_rings(DiaSlope,.FALSE.)
  !  call FILLARRAY(14,LinesOfCurv,POWMIN2,POWMAX2) ! get derivatives from elevation 14 is the same as 4 but might be grainy
    call CPU_TIME(time_end)
-   t(6)=time_end-time_start
-   write(*,*) 'Time to re-generate a new RadSlope/DiaSlope from Atlas: ',t(6)*1000   
+   write(*,*) 'Time to re-generate a new RadSlope/DiaSlope from Atlas: ',(time_end-time_start)*1000   
   endif   
 
 ! REGENERATE SPLINES ACROSS CENTER (repeating because new values in RadSlope and round rings)
@@ -252,8 +278,7 @@
   DiaSlope=RadSlope            ! move to diagonal; wipes out the original DiaSlope
   DiaSlope%Zpd2 = .n. DiaSlope ! generate the splines diagonally (generate zp2)     
   call CPU_TIME(time_end)
-  t(7)=time_end-time_start
-  write(*,*) 'Time to re-run splines: ',t(7)*1000
+  write(*,*) 'Time to re-run splines: ',(time_end-time_start)*1000
 
   call CPU_TIME(time_start)
 ! load bounds
@@ -265,16 +290,15 @@
 ! get a global value for those two to generate R's INCLUDING ORIGIN and using ADiaSlope  
   ARadSlope%r=make_rings(ADiaSlope,.TRUE.)
   
-! load angles  
+! load angles  (have to address this for standard comparison)
   ARadSlope%thta=RadSlope%thta
   
 ! load bounds x expansion
   ARadSlope%MV=M*RadSlope%MV  
 ! use SplineEval1Dx1D and DiaSlope to refill matrix RadSlope with new Zp at all points including origin
-  ARadSlope%Zp=RadInterpolate(ARadSlope)  ! same as fillarray with IuseG=7 except for augmented
+  ARadSlope%Zp=RadInterpolate(ARadSlope)  ! takes DiaSlope/RadSlope data -> nterpolates to new ARadslope, no integration
   call CPU_TIME(time_end)
-  t(8)=time_end-time_start
-  write(*,*) 'Time to make new ARadSlope with origin: ',t(8)*1000
+  write(*,*) 'Time to make new ARadSlope with origin: ',(time_end-time_start)*1000
   
 ! GENERATE PRINT FILES
  if (i==1) then

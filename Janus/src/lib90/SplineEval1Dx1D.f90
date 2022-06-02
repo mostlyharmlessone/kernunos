@@ -29,7 +29,8 @@
         thta(L)=RadSlope%thta(L)
         if (iflag == 0) then             
          call SplineEval(0,r,z,zr2,L2,u,g,gr,grr) !first parameter = 0 nonperiodic                                    
-         fTmp(j)=g          
+         fTmp(j)=g
+!        diagnostic to see where each splines center is, perhaps a measure of decentration          
          call SplineCenter(r,z,zr2,L2,w)                                          
          RadSplineCenter(j)=w
         else                               
@@ -39,6 +40,7 @@
          call trapez(r,z,zr2,L2,0._wp,g0)    
          call trapez(r,z,zr2,L2,u,g) 
          fTmp(j)=g-g0
+!        diagnostic to see where each splines center is, perhaps a measure of decentration 
          call SplineCenter(r,z,zr2,L2,w)
          RadSplineCenter(j)=w
         endif      
