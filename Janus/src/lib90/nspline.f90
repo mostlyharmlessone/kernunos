@@ -2,13 +2,13 @@
  use set_precision, only : wp
  use LapackInterface, only : dgtsv
  use,intrinsic :: ieee_arithmetic
+  integer, INTENT(IN) :: n
   real(wp), INTENT(IN) ::  r(n),z(n)
 !  real(wp), INTENT(IN) ::  r(*),z(*) 
-  integer, INTENT(IN) :: n
   real(wp), INTENT(OUT) :: z2(n)
 !  real(wp), INTENT(OUT) :: z2(*)  
   real(wp),allocatable ::  a(:),b(:),c(:),d(:),zz2(:),a_short(:)
-  integer :: info    ! for lapack use below
+  integer :: i,info    ! for lapack use below
   real(wp) :: f      ! error handling
   logical :: IsInf    
   INFO=0             
@@ -25,6 +25,7 @@
     allocate (a(n-2),b(n-2),c(n-2),d(n-2),zz2(n-2))
   endif  
   a=0  ;  b=0  ;   c=0  ;  d=0
+
 ! spline equation at internal knots
     do i=2,n-1
      a(i-1)=(r(i)-r(i-1))/6.0
@@ -53,11 +54,13 @@
    f= dot_product(z2,z2)
    IsInf=ieee_is_finite(f)
    If(.not.IsInf) then
-    write(*,*) 'Warning from nspline'
+    write(*,*) 'Warning from nspline',r(1),r(2),r(3)
     stop
    endif
  
    deallocate (a,b,c,d,zz2)  
+
+    write(*,*) 'Warning from nspline1',z(1),z(2),z(3)
         
  end subroutine nspline
 

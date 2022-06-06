@@ -67,23 +67,23 @@
            call pspli(thta,fTmp,MM,fttTmp)
            call SplineEval(1,thta,fTmp,fttTmp,MM,v,f)         
           endif
-         endif 	
-	endif
+         endif
+        endif
 !       SECOND CALL FOR PERIODIC SPLINE OF fr (df/dR), frrtTmp is d3Y/dRdTHETA2 	
-	if (Present(frt)) then
-	 call pspli(thta,frTmp,MM,frttTmp)
-	 call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr,frt)	  
-	else 
-	 if (Present(fr)) then
+        if (Present(frt)) then
+         call pspli(thta,frTmp,MM,frttTmp)
+         call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr,frt)
+        else 
+         if (Present(fr)) then
           call pspli(thta,frTmp,MM,frttTmp)
-	  call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr)	  	  
-	 endif 
-	endif
+          call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr) 
+         endif 
+        endif
 !       THIRD CALL FOR PERIODIC SPLINE OF frr (d2f/dR2), frrttTmp is d4Y/dR2dTHETA2	
-	if (Present(frr)) then
-	 call pspli(thta,frrTmp,MM,frrttTmp)
+        if (Present(frr)) then
+         call pspli(thta,frrTmp,MM,frrttTmp)
          call SplineEval(1,thta,frrTmp,frrttTmp,MM,v,frr) 
-	endif
+        endif
 
         RETURN
         END

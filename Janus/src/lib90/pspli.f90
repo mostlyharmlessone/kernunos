@@ -11,7 +11,7 @@
        REAL(wp) :: PERD,error
        REAL(wp) :: d(n),a(n),b(n),c(n),zt2c(n),thta(n) 
 !       REAL(wp) :: AB(3,n)
-       INTEGER :: m,j 
+       INTEGER :: m,j,info
        logical :: IsInf 
 
        PERD=2*PI
@@ -59,7 +59,7 @@
    error=zt2 .p. zt2
    IsInf=ieee_is_finite(error)
    If(.not.IsInf) then
-    write(*,*) 'Warning from pspli',m,n,t(1),t(n),ABS(t(1)-t(n)+PERD),PERD/MM+EPS
+    write(*,*) 'Warning from pspli',m,n,t(1),t(n),ABS(t(1)-t(n)+PERD)
     stop
    endif
        

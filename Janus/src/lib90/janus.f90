@@ -23,7 +23,7 @@
   character(len=8) :: BigGrainyPlot
   character(len=7) :: BigPlot
   character(len=8) :: LinesOfCurv     
-  integer ::  IuseG, IuseF
+  integer ::  IuseG, IuseF, j
   integer,allocatable :: MV(:)
   real :: time_start, time_end
   real(wp) :: POWMIN,POWMAX,POWMIN2,POWMAX2

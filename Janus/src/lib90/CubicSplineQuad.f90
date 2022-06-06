@@ -3,8 +3,8 @@ subroutine CubicSplineQuad(rv,zv,z2v,n,r,z)
 !  ONLY used for radial splines KP=0
  use set_precision, only : wp
  USE spline_interfaces, ONLY : bsearch, SplineEval
-  real(wp), INTENT(IN) ::  rv(n),zv(n),z2v(n),r
   integer, INTENT(IN) :: n
+  real(wp), INTENT(IN) ::  rv(n),zv(n),z2v(n),r
   real(wp), INTENT(OUT) :: z
   real(wp) :: QUAD,z1,z2
   integer :: i, high, low

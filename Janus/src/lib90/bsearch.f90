@@ -1,7 +1,7 @@
 subroutine bsearch(r,rv,n,high,low)
  use set_precision, only : wp
-real(wp), intent(in) :: r, rv(n)
 integer, intent(in) :: n
+real(wp), intent(in) :: r, rv(n)
 integer, intent(out) :: high, low
 integer m
  low=1

@@ -19,7 +19,8 @@ CONTAINS
 ! scalar matrix (inner) product
 function sum_of_sum_matrix_by_matrix(array1,array2) result(dL2)
  REAL (wp), INTENT (IN) :: array1(:,:),array2(:,:)
- real(wp) ::  v3(size(array1,1))
+ real(wp) ::  v3(size(array1,1)),dL2
+ integer :: i
  v3=[(1,i=1,size(array1,1))]
  dL2=dot_product(v3,matmul(v3,array1*array2))
 end function sum_of_sum_matrix_by_matrix
@@ -74,9 +75,10 @@ function rgb2(x,minimum, maximum) result(rgbv)
  REAL (wp), INTENT (IN) :: minimum,maximum,x
  REAL (wp) :: ratio
  INTEGER(int16) :: rgbv(3) ! rgbv={r,g,b}
+ INTEGER(int16), PARAMETER :: zero=0
     ratio = 2 * (x-minimum) / (maximum - minimum)
-    rgbv(3) = max(0, int(255*(1 - ratio),2))
-    rgbv(1) = max(0, int(255*(ratio - 1),2))
+    rgbv(3) = max(zero, int(255*(1 - ratio),2))
+    rgbv(1) = max(zero, int(255*(ratio - 1),2))
     rgbv(2) = int(255,2) - rgbv(3) - rgbv(1)
 end function rgb2
 
@@ -111,7 +113,7 @@ function rgb5(x,minimum, maximum) result(rgbv)
     ratio = ratio * (nc-1)                  
     idx1  = floor(ratio)+1                   ! Desired color will be after this index.
     idx2  = idx1+1                           ! ... and before this index (inclusive).
-    fract = ratio - float(idx1)+1           ! Distance between the two indexes (0-1).
+    fract = ratio - real(idx1)+1            ! Distance between the two indexes (0-1).
    endif
   endif
     

@@ -2,11 +2,11 @@
  use set_precision, only : wp
  use spline_interfaces, ONLY : bsearch
  use LapackInterface, ONLY : dgtsv
-  real(wp), INTENT(IN) ::  r(n),z(n)
   integer, INTENT(IN) :: n
+  real(wp), INTENT(IN) ::  r(n),z(n)
   real(wp), INTENT(OUT) :: z2(n)
   real(wp) ::  a(n-1),b(n-1),c(n-1),d(n-1),zz2(n-1),rr(n+1),zz(n+1),a_short(n-2)
-  integer :: info, high, low
+  integer :: info, high, low, i
 
 ! PURPOSE adds a central node to the radial spline either at the origin or at the mean distance between central points
 

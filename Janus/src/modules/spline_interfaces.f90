@@ -5,44 +5,44 @@ module spline_interfaces
       
  subroutine bsearch(r,rv,n,high,low)
   use set_precision, only : wp
-  real(wp), intent(in) :: r, rv(n)
   integer, intent(in) :: n
+  real(wp), intent(in) :: r, rv(n)
   integer, intent(out) :: high, low
  end subroutine
       
  subroutine CubicSplineQuad(rv,zv,z2v,n,r,z) !Forsythe p.90 cubic spline integration
   use set_precision, only : wp
-  real(wp), INTENT(IN) ::  rv(n),zv(n),z2v(n),r
   integer, INTENT(IN) :: n
+  real(wp), INTENT(IN) ::  rv(n),zv(n),z2v(n),r
   real(wp), INTENT(OUT) :: z
  end subroutine 
 
  subroutine nspline(r,z,n,z2)
   USE set_precision, ONLY : wp
-  real(wp), INTENT(IN) ::  r(n),z(n)
   integer, INTENT(IN) :: n
+  real(wp), INTENT(IN) ::  r(n),z(n)
   real(wp), INTENT(OUT) :: z2(n)
  end subroutine
 
  subroutine nsplineCenter(r,z,n,z2)
  use set_precision, only : wp
-  real(wp), INTENT(IN) ::  r(n),z(n)
   integer, INTENT(IN) :: n
+  real(wp), INTENT(IN) ::  r(n),z(n)
   real(wp), INTENT(OUT) :: z2(n)
  end subroutine
  
  subroutine SplineCenter(r,z,zr2,n,u)
  use set_precision, only : wp
-  real(wp), INTENT(IN) ::  r(n),z(n),zr2(n)
   integer, INTENT(IN) :: n
+  real(wp), INTENT(IN) ::  r(n),z(n),zr2(n)
   real(wp), INTENT(OUT) :: u
  end subroutine
 
  subroutine pspli(t,z,n,zt2)
   use set_precision, only :  wp
-  REAL(wp), intent(in) :: t(n),z(n)
-  INTEGER, intent(in) :: n
-  REAL(wp), intent(out) ::zt2(n)
+   REAL(wp), intent(in) :: t(*),z(*)
+   INTEGER, intent(in) :: n
+   REAL(wp), intent(out) ::zt2(n)
  end subroutine
       
  subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)

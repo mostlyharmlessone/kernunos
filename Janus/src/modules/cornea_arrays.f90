@@ -300,6 +300,10 @@ subroutine Atlas_eq_Skyline(Atlas,Skyline)      ! initially Atlas populates r, t
   real(wp) :: r(size(Atlas%AR,1)),z(Skyline%cols),z2(Skyline%cols)
   real(wp) :: x(Skyline%cols),zx(Skyline%cols),zx2(Skyline%cols)           ! maximum size needed, don't need NP
   real(wp) :: y(Skyline%rows),gTmp(Skyline%rows),g2Tmp(Skyline%rows)
+
+!!!DEBUG LINE
+real(wp) :: xx(111),yy(111),yy2(111),zz(111),zz2(111),xy(111),xz(111),aaa,bbb
+
   M1=size(Atlas%AR,1)
   N1=size(Atlas%AR,2)
   NP=size(Skyline%CUR,1)                                                   
@@ -320,16 +324,25 @@ subroutine Atlas_eq_Skyline(Atlas,Skyline)      ! initially Atlas populates r, t
     Skyline%z2ELE(i,k)=zx2(k)                                 ! store zx2ELE
    end do
   end do
+
 ! make rings
-  rBo=Skyline%cols*0.05                    ! scale in 14x 14 mm of Penta matrix 141x141 divided by 2
-  rBi=0.1*rBo		                   ! donut			
-  do i=1,M1
-   ITH=2*(i-1)
-   Atlas%DEG(i)=ITH                        ! Atlas style degrees every two
-   do j=1,N1
-    r(j)=0.9*((j-1)*(rBo-rBi)/(N1-1)+rBi)  ! make rings 90% of rBo
-    u=r(j)*COS(PI*Atlas%DEG(i)/180)        ! x,y coordinates of ring point
-    v=r(j)*SIN(PI*Atlas%DEG(i)/180)
+!  rBo=Skyline%cols*7.0/(NP-1.0)                   ! scale in 14x 14 mm of Penta matrix 141x141 divided by 2
+!  rBi=0.1*rBo		                   ! donut			
+!  do i=1,M1
+!   ITH=2*(i-1)
+!   Atlas%DEG(i)=ITH                        ! Atlas style degrees every two
+!   do j=1,N1
+!    r(j)=0.9*((j-1)*(rBo-rBi)/(N1-1)+rBi)  ! make rings 90% of rBo
+!    u=r(j)*COS(PI*Atlas%DEG(i)/180)        ! x,y coordinates of ring point
+!    v=r(j)*SIN(PI*Atlas%DEG(i)/180)
+
+! make grid at points
+  do i=1,NP
+   do j=1,NP
+    if (Penta%CUR(i,j) > 0) then
+     u=-7.00+((j-1)*14.00)/(NP-1.0)
+     v=7.00-((i-1)*14.00)/(NP-1.0)    
+
 !   Populate Atlas with Splined PentaCam
 !   Spline both CUR and ELE in y (this is the equivalent of Spline1Dx1D)
     do k=1,Skyline%rows
@@ -342,32 +355,101 @@ subroutine Atlas_eq_Skyline(Atlas,Skyline)      ! initially Atlas populates r, t
       zx2(kk)=Skyline%z2ELE(k,kk)
      end do
      call SplineEval(0,x(1:L2),zx(1:L2),zx2(1:L2),L2,u,f)   ! first parameter = 0 nonperiodic                                    
-     gTmp(k)=f                                            ! f is value at u, fTmp is a new 1:(Skyline%rows) column of values at u        
+     gTmp(k)=f                                            ! f is value at u, fTmp is a new 1:(Skyline%rows) column of values at u       
      call SplineEval(0,x(1:L2),z(1:L2),z2(1:L2),L2,u,f)   ! first parameter = 0 nonperiodic                                    
      fTmp(k)=f                                            ! f is value at u, fTmp is a new 1:(Skyline%rows) column of values at u
     end do 
+
 !   Have to recover/generate value of y from row number
     do k=1,Skyline%cols
      L2=Skyline%L2y(k)
-     do kk=1,L2           ! fTmp has to align with y; but ftmp starts at Skyline%first_row, y starts at for calculation                      
+     do kk=1,L2             ! fTmp has to align with y; but ftmp starts at Skyline%first_row, y starts at 1 for calculation                      
       offset=Skyline%index_col(k)-1
-      y(kk)=-7.00+((kk+offset)*14.00)/(NP-1.0)
-      offset=Skyline%index_col(k)-Skyline%first_row
-      ftmp(kk)=ftmp(kk+offset)
-      gtmp(kk)=gtmp(kk+offset)
+      y(kk)=7.00-((kk+offset-1)*14.00)/(NP-1.0)
+
+if(k.eq.58 .and. kk.eq.2) then
+!   58 is the col of the first row: index_row(first_row) kk=1 beginning of column
+    write(*,*) 'y(1:2),row number',y(1:2),offset+1
+    write(*,*) ' '
+endif
+
      end do
-     call nspline(y(1:L2),fTmp(1:L2),L2,f2Tmp(1:L2))        ! spline in Y
-     call SplineEval(0,y(1:L2),fTmp(1:L2),f2Tmp(1:L2),L2,v,CUR)
-     call nspline(y(1:L2),gTmp(1:L2),L2,g2Tmp(1:L2))        ! spline in Y
-     call SplineEval(0,y(1:L2),gTmp(1:L2),g2Tmp(1:L2),L2,v,ELE)
-    end do     	 	
+
+     offset=Skyline%index_col(k)-Skyline%first_row
+
+if(k.eq.58 ) then
+!write(*,*) L2
+!write(*,*) y(1:L2)
+!write(*,*) gTmp(1+offset:L2+offset)
+!pause
+
+     call nspline(y(1:L2),fTmp(1+offset:L2+offset),L2,f2Tmp(1+offset:L2+offset))        ! spline in Y
+     call SplineEval(0,y(1:L2),fTmp(1+offset:L2+offset),f2Tmp(1+offset:L2+offset),L2,v,CUR)
+
+xx=y(1:L2)
+yy=gTmp(1+offset:L2+offset)
+
+
+
+!!!DEBUG LINES
+
+do kk=1,L2
+yy(kk)=yy(kk)/100
+zz(kk)=xx(kk)*xx(kk)
+!write(*,*) xx(kk),yy(kk),zz(kk)
+end do
+
+     call nspline(xx,yy,L2,yy2)        ! spline in Y
+     call nspline(xx,zz,L2,zz2)        ! spline in Y
+
+
+     call SplineEval(0,xx,yy,yy2,L2,4.8_wp,aaa)
+     call SplineEval(0,xx,zz,zz2,L2,4.8_wp,bbb)
+      write(*,*) 4.8,aaa,bbb,L2
+
+     do kk=1,10
+      call SplineEval(0,xx,yy,yy2,L2,xx(kk),xz(kk))
+      call SplineEval(0,xx,zz,zz2,L2,xx(kk),xy(kk))
+      write(*,*) xx(kk),zz(kk),xz(kk),yy(kk),xy(kk)
+     end do
+
+stop
+
+else
+
+     call nspline(y(1:L2),fTmp(1+offset:L2+offset),L2,f2Tmp(1+offset:L2+offset))        ! spline in Y
+     call SplineEval(0,y(1:L2),fTmp(1+offset:L2+offset),f2Tmp(1+offset:L2+offset),L2,v,CUR)
+
+     call nspline(y(1:L2),gTmp(1+offset:L2+offset),L2,g2Tmp(1+offset:L2+offset))        ! spline in Y
+     call SplineEval(0,y(1:L2),gTmp(1+offset:L2+offset),g2Tmp(1+offset:L2+offset),L2,v,ELE)
+endif
+
+    end do
+   	 	
     imv(i)=imv(i)+1
-    Atlas%AY(i,imv(i))=ABS(ELE)
-    Atlas%AR(i,imv(i))=ABS(r(j)/100.0_wp)      ! scale value
-    Atlas%AD(i,imv(i))=Atlas%AR(i,imv(i))
-    Atlas%AP(i,imv(i))=ABS(CUR)
+!    Atlas%AY(i,imv(i))=ABS(ELE)
+!    Atlas%AR(i,imv(i))=ABS(r(j)/100.0_wp)      ! scale value
+!    Atlas%AD(i,imv(i))=Atlas%AR(i,imv(i))
+!    Atlas%AP(i,imv(i))=ABS(CUR)
+
+    write(*,*) i,j,u,v,Skyline%x(1,1)
+
+    write(*,*) i,j,Penta%CUR(i,j),CUR,Penta%ELE(i,j),ELE
+
+     if (Penta%CUR(i,j).ne.CUR .or. Penta%ELE(i,j).ne.ELE ) then
+!     write(*,*) 'misalignment',i,j
+     endif
+
+    else
+     CUR=-1
+     ELE=-1
+
+    endif ! only spline in positive territory
+
    end do !j to N1
   end do !i to M1
+
+stop
 
 end subroutine Atlas_eq_Skyline
 
@@ -404,12 +486,13 @@ end subroutine RadSlope_eq_EyeSys
 subroutine Atlas_eq_RadSlope(Atlas,RadSlope)
   TYPE(wpRadSlopeMatrix) :: RadSlope
   TYPE(wpAtlasMatrix) :: Atlas
-  INTEGER :: i,j,MM
+  INTEGER :: i,j,MM,N
   integer :: imv(size(RadSlope%r,1))
   REAL(wp) :: X1,X2,Y,YP,Y2X,POW
   imv=0
   Atlas%AP=0._wp
   MM=size(RadSlope%r,1)
+  N=size(RadSlope%r,2)
   do i=1,MM
     Atlas%DEG(i)=RadSlope%thta(i)
       do j=1,N
@@ -529,23 +612,23 @@ end subroutine RadSlope_eq_DiaSlope
 
 function DiaSpline(b) result(a) 
  TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b
- integer :: M1,N1
+ integer :: M1,N1,i
  real(wp) :: a(size(b%rd,1),size(b%rd,2))  
  N1=size(b%rd,2) !N1=2*N*M for augmented
  M1=size(b%rd,1) !M1=MM/2
   do i=1,M1 
-   call nspline(b%rd(i,:),b%Zpd(i,:),b%L2(i),a(i,:)) 	 
+   call nspline(b%rd(i,:),b%Zpd(i,:),b%L2(i),a(i,:)) 
   end do
 end function DiaSpline
 
 function DiaSplineCenter(b) result(a) 
  TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b
- integer :: M1,N1
+ integer :: M1,N1,i
  real(wp) :: a(size(b%rd,1),size(b%rd,2))  
  N1=size(b%rd,2) !N1=2*N*M for augmented
  M1=size(b%rd,1) !M1=MM/2
   do i=1,M1 
-   call nsplineCenter(b%rd(i,:),b%Zpd(i,:),b%L2(i),a(i,:)) 	 
+   call nsplineCenter(b%rd(i,:),b%Zpd(i,:),b%L2(i),a(i,:)) 
   end do
 end function DiaSplineCenter
 
@@ -649,7 +732,7 @@ end function make_bad_rings
 function AngSpline(b) result(a) 
  TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
  TYPE(wpsplinevect) :: spline
- integer :: M1,N1
+ integer :: M1,N1,i,j,k
  real(wp) :: a(size(b%r,1),size(b%r,2)),Q 
  N1=size(b%r,2) !N1=N 
  M1=size(b%r,1) !M1=MM
@@ -663,12 +746,12 @@ function AngSpline(b) result(a)
          mvjr(i)=mvjr(i)+1                  
          t(mvjr(i))=b%thta(j)         
           z(mvjr(i))=Q       
-        endif	
+        endif
       end do
       call pspli(t,z,mvjr(i),zt2)
       do k=1,M1                 
-       a(k,i)=zt2(mvjr(i))	
-      end do           	 
+       a(k,i)=zt2(mvjr(i))
+      end do
    end do   
    end associate
    deallocate (spline%r,spline%z,spline%zp2,spline%mvjr)
@@ -677,7 +760,7 @@ end function AngSpline
 function fillin(b) result(a) 
  TYPE(wpAtlasMatrix),INTENT(IN) :: b
  TYPE(wpsplinevect) :: spline
- integer :: M1,N1
+ integer :: M1,N1,i,j,k
  real(wp) :: a(size(b%AR,1),size(b%AR,2)),RTEMP,Q,degK
  N1=size(b%AR,2) !N1=N 
  M1=size(b%AR,1) !M1=MM
@@ -691,7 +774,7 @@ function fillin(b) result(a)
          mvjr(i)=mvjr(i)+1
          t(mvjr(i))=b%DEG(j)*PI/180.0_wp         
          z(mvjr(i))=Q 
-      	endif	
+      	endif
       end do
       call pspli(t,z,mvjr(i),zt2)
       do k=1,M1 
@@ -702,8 +785,8 @@ function fillin(b) result(a)
          write(*,*) 'spline error 3 in cornea_arrays fillin',K,I,b%AR(K,I),RTEMP
          endif
         endif 
-        a(k,i)=RTEMP                	
-      end do           	 
+        a(k,i)=RTEMP
+      end do
    end do   
    end associate
    deallocate (spline%r,spline%z,spline%zp2,spline%mvjr)
@@ -712,7 +795,7 @@ end function fillin
 function lsqfill(b) result(a) 
  use set_precision, ONLY : wp
  TYPE(wpAtlasMatrix),INTENT(IN) :: b
- integer :: M1,N1,i,j,k,info,ipvt(M2)
+ integer :: M1,N1,i,j,k,l,info,ipvt(M2)
  real(wp) :: a(size(b%AR,1),size(b%AR,2)),t(size(b%AR,1)),z(size(b%AR,1))
  real(wp) :: c(M2),X(M2,size(b%AR,1)),XpX(M2),zpX(M2),XTX(M2,M2)
  logical :: Q
@@ -815,7 +898,7 @@ function pca(M3,b) result(a)
  TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
  TYPE(wpRadSlopeMatrix) :: a
  integer, INTENT(IN) :: M3  ! pca terms, 2 or 3
- integer :: M1,N1,i,j,k,info,lwork,M
+ integer :: M1,N1,i,j,k,l,info,lwork,M
  real(wp) :: X(M3,size(b%r,1)),XTX(M3,M3),work(3*M3),w(M3) 
  logical :: Q
  lwork=size(work)
@@ -919,13 +1002,13 @@ subroutine refineborders(Atlas,RadSlope)
      if(POW > 0 .AND. R > 0) then                                       
        imv(I)=imv(I)+1        
      endif
-     end do 	 	 		    		       
+     end do 		    		       
    end do
 !   Are we done
        IZ=0           
        do i=1,MM
         if ((RadSlope%MV(i)-imv(i)) /= 0) then
-          write(*,*) 'refineborders',i,RadSlope%MV(i),imv(i)
+!          write(*,*) 'refineborders',i,RadSlope%MV(i),imv(i)
           IZ=1
         endif
        end do
@@ -949,7 +1032,7 @@ subroutine initborders(Atlas,imv)
      if(POW > 0 .AND. R > 0) then                                       
        imv(i)=imv(i)+1        
      endif
-     end do 	 	 		    		       
+     end do 		    		       
    end do
 end subroutine initborders
  
@@ -1009,7 +1092,7 @@ end subroutine instantp
 subroutine meanp(X1,X2,Y1XIN,Y1T,Y1XT,Y2T,Y2X,ZMM)
  real(wp), INTENT(IN) :: X1,X2,Y1XIN,Y1T,Y1XT,Y2T,Y2X
  real(wp), INTENT(OUT) :: ZMM 
- real(wp) :: ZMX 
+ real(wp) :: ZMX,Y,Y1X
 ! MONGE MEAN CURVATURE
 ! WHEN X2<0 X1>PI
   IF (X2 /= 0) THEN
@@ -1038,7 +1121,7 @@ end subroutine meanp
 subroutine mongea(X1,X2,Y1XIN,Y1T,Y1XT,Y2T,Y2X,ZA)
   real(wp), INTENT(IN) :: X1,X2,Y1XIN,Y1T,Y1XT,Y2T,Y2X
   real(wp), INTENT(OUT) :: ZA    
-  real(wp) :: ZA1,ZA2,Y
+  real(wp) :: ZA1,ZA2,Y,Y1X
 ! MONGE ASTIG 
 ! WATCH OUT FOR ZERO AT UMBILICAL POINTS!
 ! WHEN X2>0 X1<PI

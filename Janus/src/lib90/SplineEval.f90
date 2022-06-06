@@ -45,7 +45,7 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
 !    Interpolation across gap with KP=1 , periodic spline 
      i=N
      i1=1  
-     dr=x(i1)-x(i)+PERD	 
+     dr=x(i1)-x(i)+PERD
      if (A < 0) then
        B=(u-x(i))/dr   
        A=(x(i1)-u+PERD)/dr
@@ -89,3 +89,6 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
                            
   return
 end subroutine SplineEval 
+
+
+

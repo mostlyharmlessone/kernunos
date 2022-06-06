@@ -12,7 +12,7 @@
        real(wp) :: X1,X2,X3
        real(REAL32) :: vert1,vert2,vert3,vert4
        real(wp) :: pow_vert1,pow_vert2,pow_vert3,pow_vert4,pow_face4,pow_face3_1,pow_face3_2
-       integer :: i,j,M1,N1,vertices,faces,edges,unitno1,unitno3
+       integer :: i,j,M1,N1,vertices,faces,edges,unitno1,unitno3,ierr
        integer(INT32) :: ivert1,ivert2,ivert3,ivert4,vertnum
        logical :: donut,quad
        integer(int16) :: rgbv(3)  
@@ -213,7 +213,7 @@
          endif
         end do  
         
-       close (unitno1)       	                            
+       close (unitno1)
        close (unitno3)      
     
        end subroutine WriteGeom

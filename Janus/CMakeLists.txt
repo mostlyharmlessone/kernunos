@@ -42,8 +42,8 @@ set (CMAKE_PREFIX_PATH "/usr/local")
 set (FC "gfortran") 
 #cmake -DCMAKE_Fortran_COMPILER_ID=gfortran ./
 if(CMAKE_Fortran_COMPILER_ID MATCHES "gfortran")
-#    set(dialect "-ffree-form -std=f2008 -fimplicit-none")
-     set(dialect "-std=gnu")
+    set(dialect "-ffree-form -std=f2008 -fimplicit-none")
+#     set(dialect "-std=gnu")
      set(bounds "-fbounds-check")
      set(omp "-fopenmp")
 #  profiling with gprof 

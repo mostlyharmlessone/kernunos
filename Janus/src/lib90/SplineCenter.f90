@@ -3,8 +3,8 @@
  use cornea_arrays, only : eps
  use spline_interfaces, ONLY : bsearch, SplineEval
  use,intrinsic :: ieee_arithmetic 
-  real(wp), INTENT(IN) ::  r(n),z(n),zr2(n)
   integer, INTENT(IN) :: n
+  real(wp), INTENT(IN) ::  r(n),z(n),zr2(n)
   real(wp), INTENT(OUT) :: u
   real(wp) :: g,gr,grr,slopeh,slopel
   integer :: high, low, j
