@@ -58,9 +58,7 @@
     stop
    endif
  
-   deallocate (a,b,c,d,zz2)  
-
-    write(*,*) 'Warning from nspline1',z(1),z(2),z(3)
+   deallocate (a,b,c,d,zz2)
         
  end subroutine nspline
 

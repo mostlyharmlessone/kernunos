@@ -301,9 +301,6 @@ subroutine Atlas_eq_Skyline(Atlas,Skyline)      ! initially Atlas populates r, t
   real(wp) :: x(Skyline%cols),zx(Skyline%cols),zx2(Skyline%cols)           ! maximum size needed, don't need NP
   real(wp) :: y(Skyline%rows),gTmp(Skyline%rows),g2Tmp(Skyline%rows)
 
-!!!DEBUG LINE
-real(wp) :: xx(111),yy(111),yy2(111),zz(111),zz2(111),xy(111),xz(111),aaa,bbb
-
   M1=size(Atlas%AR,1)
   N1=size(Atlas%AR,2)
   NP=size(Skyline%CUR,1)                                                   
@@ -336,7 +333,7 @@ real(wp) :: xx(111),yy(111),yy2(111),zz(111),zz2(111),xy(111),xz(111),aaa,bbb
 !    u=r(j)*COS(PI*Atlas%DEG(i)/180)        ! x,y coordinates of ring point
 !    v=r(j)*SIN(PI*Atlas%DEG(i)/180)
 
-! make grid at points
+! make grid at points instead of rings
   do i=1,NP
    do j=1,NP
     if (Penta%CUR(i,j) > 0) then
@@ -354,87 +351,62 @@ real(wp) :: xx(111),yy(111),yy2(111),zz(111),zz2(111),xy(111),xz(111),aaa,bbb
       zx(kk)=Skyline%ELE(k,kk) 
       zx2(kk)=Skyline%z2ELE(k,kk)
      end do
+
      call SplineEval(0,x(1:L2),zx(1:L2),zx2(1:L2),L2,u,f)   ! first parameter = 0 nonperiodic                                    
-     gTmp(k)=f                                            ! f is value at u, fTmp is a new 1:(Skyline%rows) column of values at u       
+     gTmp(k)=f                                            ! f is value at u, fTmp is a new 1:(Skyline%rows) column of values at u     
      call SplineEval(0,x(1:L2),z(1:L2),z2(1:L2),L2,u,f)   ! first parameter = 0 nonperiodic                                    
      fTmp(k)=f                                            ! f is value at u, fTmp is a new 1:(Skyline%rows) column of values at u
     end do 
+! this appears to work as intended
+!write(*,*) Skyline%x(1,1),Skyline%x(1,2),Skyline%x(1,3),Skyline%x(1,4)
+!write(*,*) Skyline%ELE(1,1),Skyline%ELE(1,2),Skyline%ELE(1,3),Skyline%ELE(1,4)
+!write(*,*) gtmp(1),gtmp(2),gtmp(3),gtmp(4)
+!write(*,*) k,L2,u
+!write(*,*) gtmp(1:Skyline%rows)
+!write(*,*) ' ',Skyline%rows
 
 !   Have to recover/generate value of y from row number
     do k=1,Skyline%cols
      L2=Skyline%L2y(k)
-     do kk=1,L2             ! fTmp has to align with y; but ftmp starts at Skyline%first_row, y starts at 1 for calculation                      
       offset=Skyline%index_col(k)-1
+     do kk=1,L2             ! fTmp has to align with y; but ftmp starts at Skyline%first_row, y starts at 1 for calculation                      
       y(kk)=7.00-((kk+offset-1)*14.00)/(NP-1.0)
-
-if(k.eq.58 .and. kk.eq.2) then
-!   58 is the col of the first row: index_row(first_row) kk=1 beginning of column
-    write(*,*) 'y(1:2),row number',y(1:2),offset+1
-    write(*,*) ' '
-endif
-
      end do
 
-     offset=Skyline%index_col(k)-Skyline%first_row
-
-if(k.eq.58 ) then
-!write(*,*) L2
-!write(*,*) y(1:L2)
-!write(*,*) gTmp(1+offset:L2+offset)
-!pause
-
-     call nspline(y(1:L2),fTmp(1+offset:L2+offset),L2,f2Tmp(1+offset:L2+offset))        ! spline in Y
-     call SplineEval(0,y(1:L2),fTmp(1+offset:L2+offset),f2Tmp(1+offset:L2+offset),L2,v,CUR)
-
-xx=y(1:L2)
-yy=gTmp(1+offset:L2+offset)
-
-
-
-!!!DEBUG LINES
-
-do kk=1,L2
-yy(kk)=yy(kk)/100
-zz(kk)=xx(kk)*xx(kk)
-!write(*,*) xx(kk),yy(kk),zz(kk)
-end do
-
-     call nspline(xx,yy,L2,yy2)        ! spline in Y
-     call nspline(xx,zz,L2,zz2)        ! spline in Y
-
-
-     call SplineEval(0,xx,yy,yy2,L2,4.8_wp,aaa)
-     call SplineEval(0,xx,zz,zz2,L2,4.8_wp,bbb)
-      write(*,*) 4.8,aaa,bbb,L2
-
-     do kk=1,10
-      call SplineEval(0,xx,yy,yy2,L2,xx(kk),xz(kk))
-      call SplineEval(0,xx,zz,zz2,L2,xx(kk),xy(kk))
-      write(*,*) xx(kk),zz(kk),xz(kk),yy(kk),xy(kk)
-     end do
-
-stop
-
-else
+     offset=Skyline%index_col(k)-Skyline%first_row  !this is correct
 
      call nspline(y(1:L2),fTmp(1+offset:L2+offset),L2,f2Tmp(1+offset:L2+offset))        ! spline in Y
      call SplineEval(0,y(1:L2),fTmp(1+offset:L2+offset),f2Tmp(1+offset:L2+offset),L2,v,CUR)
 
      call nspline(y(1:L2),gTmp(1+offset:L2+offset),L2,g2Tmp(1+offset:L2+offset))        ! spline in Y
      call SplineEval(0,y(1:L2),gTmp(1+offset:L2+offset),g2Tmp(1+offset:L2+offset),L2,v,ELE)
+
+if  (k .le. 1 ) then
+     write(*,*) k,i,j,Penta%CUR(i,j),CUR,Penta%ELE(i,j),ELE
+write(*,*) 'gtmp,y,checking terms for nspline, offsets look good'
+!     write(*,*) gTmp(1+offset:L2+offset)  !this line is correct
+!     write(*,*) y(1:L2)                    ! correct
+      write(*,*) ELE
+write(*,*) ' '
+!     write(*,*) Skyline%index_col(k)-1,offset
+if (k.eq.5) then 
+!stop
+endif
 endif
 
     end do
-   	 	
-    imv(i)=imv(i)+1
+
+!    This is for rings only  	 	
+!    imv(i)=imv(i)+1
 !    Atlas%AY(i,imv(i))=ABS(ELE)
 !    Atlas%AR(i,imv(i))=ABS(r(j)/100.0_wp)      ! scale value
 !    Atlas%AD(i,imv(i))=Atlas%AR(i,imv(i))
 !    Atlas%AP(i,imv(i))=ABS(CUR)
 
-    write(*,*) i,j,u,v,Skyline%x(1,1)
-
+if (i.eq. 13 .and. j .eq. 58) then 
     write(*,*) i,j,Penta%CUR(i,j),CUR,Penta%ELE(i,j),ELE
+stop
+endif
 
      if (Penta%CUR(i,j).ne.CUR .or. Penta%ELE(i,j).ne.ELE ) then
 !     write(*,*) 'misalignment',i,j
@@ -774,7 +746,7 @@ function fillin(b) result(a)
          mvjr(i)=mvjr(i)+1
          t(mvjr(i))=b%DEG(j)*PI/180.0_wp         
          z(mvjr(i))=Q 
-      	endif
+        endif
       end do
       call pspli(t,z,mvjr(i),zt2)
       do k=1,M1 
@@ -1002,7 +974,7 @@ subroutine refineborders(Atlas,RadSlope)
      if(POW > 0 .AND. R > 0) then                                       
        imv(I)=imv(I)+1        
      endif
-     end do 		    		       
+    end do
    end do
 !   Are we done
        IZ=0           
@@ -1032,7 +1004,7 @@ subroutine initborders(Atlas,imv)
      if(POW > 0 .AND. R > 0) then                                       
        imv(i)=imv(i)+1        
      endif
-     end do 		    		       
+    end do
    end do
 end subroutine initborders
  
@@ -1053,9 +1025,9 @@ subroutine ZFCT(MM,ITH,ZJX,ZIX,X2A1,YA3)
       if (ITH > (MM/2)) then  ! PI
  !       SIGN CHANGE HERE FOR R, OR DZ/DR  *ONLY* WHEN SPLINING ALONG R
         YA3=-SQRT(YA1*YA2)
-        X2A1=-ZJX	   
+        X2A1=-ZJX   
       else
-	YA3=SQRT(YA1*YA2)
+        YA3=SQRT(YA1*YA2)
         X2A1=ZJX 
       endif
 end subroutine ZFCT
@@ -1067,7 +1039,7 @@ subroutine AXIALP(X2,Y1X,Y2X,SAGC)
  if (ABS(X2) < 20) then 
 ! UNDEFINED AT ORIGIN X2=0, LIMIT IS RFCT*Y2X             
   SAGC=RFCT*Y2X
- else      	
+ else
   SAGC=RFCT*Y1X/(X2*SQRT(1+Y1X**2))
  endif     
 end subroutine AXIALP

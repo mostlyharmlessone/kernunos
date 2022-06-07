@@ -35,7 +35,7 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
    call bsearch(u,x,n,i1,i) ! binary search
 
   dr=x(i1)-x(i)
- 
+
   A=(x(i1)-u)/dr ; dA=-1/dr
   B=(u-x(i))/dr ; dB=1/dr
   
@@ -72,8 +72,15 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
      z2=0._wp
     end if
    end if
+
+   if (A < 0 .and. B < 0) then 
+    if (KP == 0) then  !  natural spline extrapolation z2=0 outside spline 
+     write (*,*) 'Unexpected input in SplineEval',x(i1),u,x(i)
+     stop
+    end if
+   end if
        
-   if (Present(f))  f = (AB.p.z) + (CD.p.z2) !f=A*y(i)+B*y(i1)+((A**3-A)*y2(i)+(B**3-B)*y2(i1))*(dr**2)/6.0_wp
+   if (Present(f)) f = (AB.p.z) + (CD.p.z2) !f=A*y(i)+B*y(i1)+((A**3-A)*y2(i)+(B**3-B)*y2(i1))*(dr**2)/6.0_wp                    
 !  1st deriv       
    if (Present(fp)) fp = (dAB.p.z) + (dCD.p.z2) !fp=(y(i1)-y(i))/dr-(3*A*A-1)*dr*y2(i)/6.0+(3*B*B-1)*dr*y2(i1)/6.0_wp 
 !  2nd deriv N.B ddAB=0 ddCD=AB
@@ -83,7 +90,7 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
 
    IsInf=ieee_is_finite(f)
    If(.not.IsInf) then
-    write(*,*) 'Warning from SplineEval',KP,u,n,i1,i,z,z2
+    write(*,*) 'Error in SplineEval',KP,u,n,i1,i,z,z2
     stop
    endif
                            
