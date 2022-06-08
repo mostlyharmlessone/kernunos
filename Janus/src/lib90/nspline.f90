@@ -54,7 +54,7 @@
    f= dot_product(z2,z2)
    IsInf=ieee_is_finite(f)
    If(.not.IsInf) then
-    write(*,*) 'Warning from nspline',r(1),r(2),r(3)
+    write(*,*) 'Warning from nspline: infinite terms probable duplicate r; ',r(1:4)
     stop
    endif
  

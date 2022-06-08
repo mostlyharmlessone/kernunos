@@ -17,7 +17,7 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
 
 !  for extrapolation:  if u<x(1), i=1 is used;if u>x(n), i=n is used 
 
-  INTEGER, INTENT(IN) :: KP ! periodic KP=1 vs natural spline flag KP=0
+  INTEGER, INTENT(IN) :: KP ! periodic KP=1 vs natural spline flag KP=0, KP=2 for debugging
   INTEGER, INTENT(IN) :: n ! vector input length
   REAL(wp),INTENT(IN) :: u ! abscissa at which the spline is to be evaluated
   REAL(wp),INTENT(IN) :: x(n) ! abscissas of knots
@@ -68,13 +68,13 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
   z2(2)=y2(i1)
    
    if ((A*B) < 0) then 
-    if (KP == 0) then  !  natural spline extrapolation z2=0 outside spline 
+    if (KP /= 1) then  !  natural spline extrapolation z2=0 outside spline 
      z2=0._wp
     end if
    end if
 
    if (A < 0 .and. B < 0) then 
-    if (KP == 0) then  !  natural spline extrapolation z2=0 outside spline 
+    if (KP /= 1) then  !  natural spline extrapolation z2=0 outside spline 
      write (*,*) 'Unexpected input in SplineEval',x(i1),u,x(i)
      stop
     end if

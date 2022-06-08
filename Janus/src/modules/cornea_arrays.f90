@@ -294,7 +294,7 @@ subroutine Atlas_eq_Skyline(Atlas,Skyline)      ! initially Atlas populates r, t
   TYPE(wpSkyline), INTENT(INOUT) :: Skyline                                             
   TYPE(wpAtlasMatrix), INTENT(INOUT) :: Atlas
   real(wp) :: a(size(Atlas%AR,1),size(Atlas%AR,2))    ! Atlas size rings and radii                                            
-  integer :: M1,N1,i,ii,j,k,kk,L2,offset,NP
+  integer :: M1,N1,i,ii,j,k,kk,L2,offset,NP,ITH
   integer :: imv(size(Atlas%AR,1))
   real(wp) :: rBo,rBi,CUR,ELE,u,v,f,fTmp(Skyline%rows),f2Tmp(Skyline%rows)
   real(wp) :: r(size(Atlas%AR,1)),z(Skyline%cols),z2(Skyline%cols)
@@ -323,22 +323,15 @@ subroutine Atlas_eq_Skyline(Atlas,Skyline)      ! initially Atlas populates r, t
   end do
 
 ! make rings
-!  rBo=Skyline%cols*7.0/(NP-1.0)                   ! scale in 14x 14 mm of Penta matrix 141x141 divided by 2
-!  rBi=0.1*rBo		                   ! donut			
-!  do i=1,M1
-!   ITH=2*(i-1)
-!   Atlas%DEG(i)=ITH                        ! Atlas style degrees every two
-!   do j=1,N1
-!    r(j)=0.9*((j-1)*(rBo-rBi)/(N1-1)+rBi)  ! make rings 90% of rBo
-!    u=r(j)*COS(PI*Atlas%DEG(i)/180)        ! x,y coordinates of ring point
-!    v=r(j)*SIN(PI*Atlas%DEG(i)/180)
-
-! make grid at points instead of rings
-  do i=1,NP
-   do j=1,NP
-    if (Penta%CUR(i,j) > 0) then
-     u=-7.00+((j-1)*14.00)/(NP-1.0)
-     v=7.00-((i-1)*14.00)/(NP-1.0)    
+  rBo=Skyline%cols*7.0/(NP-1.0)                   ! scale in 14x 14 mm of Penta matrix 141x141 divided by 2
+  rBi=0.1*rBo                              ! donut			
+  do i=1,M1
+   ITH=2*(i-1)
+   Atlas%DEG(i)=ITH                        ! Atlas style degrees every two
+   do j=1,N1
+    r(j)=0.9*((j-1)*(rBo-rBi)/(N1-1)+rBi)  ! make rings 90% of rBo
+    u=r(j)*COS(PI*Atlas%DEG(i)/180)        ! x,y coordinates of ring point
+    v=r(j)*SIN(PI*Atlas%DEG(i)/180)
 
 !   Populate Atlas with Splined PentaCam
 !   Spline both CUR and ELE in y (this is the equivalent of Spline1Dx1D)
@@ -357,71 +350,29 @@ subroutine Atlas_eq_Skyline(Atlas,Skyline)      ! initially Atlas populates r, t
      call SplineEval(0,x(1:L2),z(1:L2),z2(1:L2),L2,u,f)   ! first parameter = 0 nonperiodic                                    
      fTmp(k)=f                                            ! f is value at u, fTmp is a new 1:(Skyline%rows) column of values at u
     end do 
-! this appears to work as intended
-!write(*,*) Skyline%x(1,1),Skyline%x(1,2),Skyline%x(1,3),Skyline%x(1,4)
-!write(*,*) Skyline%ELE(1,1),Skyline%ELE(1,2),Skyline%ELE(1,3),Skyline%ELE(1,4)
-!write(*,*) gtmp(1),gtmp(2),gtmp(3),gtmp(4)
-!write(*,*) k,L2,u
-!write(*,*) gtmp(1:Skyline%rows)
-!write(*,*) ' ',Skyline%rows
 
-!   Have to recover/generate value of y from row number
-    do k=1,Skyline%cols
-     L2=Skyline%L2y(k)
-      offset=Skyline%index_col(k)-1
-     do kk=1,L2             ! fTmp has to align with y; but ftmp starts at Skyline%first_row, y starts at 1 for calculation                      
-      y(kk)=7.00-((kk+offset-1)*14.00)/(NP-1.0)
-     end do
-
-     offset=Skyline%index_col(k)-Skyline%first_row  !this is correct
-
-     call nspline(y(1:L2),fTmp(1+offset:L2+offset),L2,f2Tmp(1+offset:L2+offset))        ! spline in Y
-     call SplineEval(0,y(1:L2),fTmp(1+offset:L2+offset),f2Tmp(1+offset:L2+offset),L2,v,CUR)
-
-     call nspline(y(1:L2),gTmp(1+offset:L2+offset),L2,g2Tmp(1+offset:L2+offset))        ! spline in Y
-     call SplineEval(0,y(1:L2),gTmp(1+offset:L2+offset),g2Tmp(1+offset:L2+offset),L2,v,ELE)
-
-if  (k .le. 1 ) then
-     write(*,*) k,i,j,Penta%CUR(i,j),CUR,Penta%ELE(i,j),ELE
-write(*,*) 'gtmp,y,checking terms for nspline, offsets look good'
-!     write(*,*) gTmp(1+offset:L2+offset)  !this line is correct
-!     write(*,*) y(1:L2)                    ! correct
-      write(*,*) ELE
-write(*,*) ' '
-!     write(*,*) Skyline%index_col(k)-1,offset
-if (k.eq.5) then 
-!stop
-endif
-endif
-
+    offset=Skyline%first_row-1
+    L2=Skyline%rows
+    do kk=1,L2            ! fTmp has to align with y; but ftmp starts at Skyline%first_row, y starts at 1 for calculation                      
+     y(kk)=7.00-((kk-1+offset)*14.00)/(NP-1.0)
     end do
 
-!    This is for rings only  	 	
-!    imv(i)=imv(i)+1
-!    Atlas%AY(i,imv(i))=ABS(ELE)
-!    Atlas%AR(i,imv(i))=ABS(r(j)/100.0_wp)      ! scale value
-!    Atlas%AD(i,imv(i))=Atlas%AR(i,imv(i))
-!    Atlas%AP(i,imv(i))=ABS(CUR)
+    offset=0
 
-if (i.eq. 13 .and. j .eq. 58) then 
-    write(*,*) i,j,Penta%CUR(i,j),CUR,Penta%ELE(i,j),ELE
-stop
-endif
+    call nspline(y(1:L2),fTmp(1+offset:L2+offset),L2,f2Tmp(1+offset:L2+offset))        ! spline in Y
+    call SplineEval(0,y(1:L2),fTmp(1+offset:L2+offset),f2Tmp(1+offset:L2+offset),L2,v,CUR)
 
-     if (Penta%CUR(i,j).ne.CUR .or. Penta%ELE(i,j).ne.ELE ) then
-!     write(*,*) 'misalignment',i,j
-     endif
+    call nspline(y(1:L2),gTmp(1+offset:L2+offset),L2,g2Tmp(1+offset:L2+offset))        ! spline in Y
+    call SplineEval(0,y(1:L2),gTmp(1+offset:L2+offset),g2Tmp(1+offset:L2+offset),L2,v,ELE)
 
-    else
-     CUR=-1
-     ELE=-1
-
-    endif ! only spline in positive territory
+    imv(i)=imv(i)+1
+    Atlas%AY(i,imv(i))=ABS(ELE)
+    Atlas%AR(i,imv(i))=ABS(r(j)*5.0_wp)      ! scale value: shouldbe calculated between power and elevation
+    Atlas%AD(i,imv(i))=Atlas%AR(i,imv(i))
+    Atlas%AP(i,imv(i))=ABS(CUR)
 
    end do !j to N1
   end do !i to M1
-
-stop
 
 end subroutine Atlas_eq_Skyline
 
