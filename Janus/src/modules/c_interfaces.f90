@@ -13,11 +13,11 @@ SUBROUTINE c_dgemm(transa,transb,m,n,k,alpha,a,lda,b,ldb,beta,c,ldc) bind(c,name
 END SUBROUTINE c_dgemm
 
 !allows calling C code for conversion from fortran
-SUBROUTINE ConvertPLYtoBIN() BIND(C,name='convertplytobin_')
+SUBROUTINE ConvertPLYtoBIN(infile,outfile) BIND(C,name='convertplytobin_') !note the trailing underscore
  USE, INTRINSIC :: iso_c_binding, ONLY : c_char
  IMPLICIT NONE
- !CHARACTER (c_char), INTENT (IN) :: infile
- !CHARACTER (c_char), INTENT (IN) :: outfile
+  CHARACTER (kind=c_char), intent (in) :: infile
+  CHARACTER (kind=c_char), intent (in) :: outfile
 END SUBROUTINE ConvertPLYtoBIN
 
  END INTERFACE

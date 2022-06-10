@@ -4,6 +4,7 @@
   USE cornea_arrays
   use io_functions
   use special_fct
+  use, intrinsic :: iso_c_binding, ONLY : c_char
     
   TYPE(wpRadSlopeMatrix) :: atmp
   integer IZ, i
@@ -22,7 +23,10 @@
   character(len=16) :: AxialPowerDataKnots
   character(len=8) :: BigGrainyPlot
   character(len=7) :: BigPlot
-  character(len=8) :: LinesOfCurv     
+  character(len=8) :: LinesOfCurv
+  CHARACTER (len=13,kind=c_char) :: infile
+  CHARACTER (len=17,kind=c_char) :: outfile
+  
   integer ::  IuseG, IuseF, j
   integer,allocatable :: MV(:)
   real :: time_start, time_end
@@ -206,10 +210,12 @@
   call WriteGeom(RadSlope,powmin,powmax,'elevation.off','elevation.ply')
 ! from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY MIT licence, included source in tree
 !  call execute_command_line ("./ConvertPLYtoBIN -l elevation.ply elevation.bin.ply",exitstat=i)
-!  call ConvertPLYtoBIN("elevation.ply","elevation.bin.ply")  !eventually want to call C routine directly without standalone
+  infile='elevation.ply'
+  outfile='elevation.bin.ply'
 
-  call ConvertPLYtoBIN  ! file names hardcoded in until I can figure out how to pass two character names fortran to C, or call it from C
+  write(*,*) infile,outfile
 
+  call ConvertPLYtoBIN(infile,outfile)  ! call C (modified) routine directly
   call ConvertOFFtoSTL('elevation.off','elevation.stl','elevation.bin.stl')
 !  can view with meshlab e.g.
 !  write(*,*) 'Exit meshlab to continue'
