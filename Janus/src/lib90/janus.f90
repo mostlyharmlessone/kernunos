@@ -205,7 +205,11 @@
   call FILLARRAY(7,LinesOfCurv,POWMIN,POWMAX)
   call WriteGeom(RadSlope,powmin,powmax,'elevation.off','elevation.ply')
 ! from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY MIT licence, included source in tree
-  call execute_command_line ("./ConvertPLYtoBIN -l elevation.ply elevation.bin.ply",exitstat=i)
+!  call execute_command_line ("./ConvertPLYtoBIN -l elevation.ply elevation.bin.ply",exitstat=i)
+!  call ConvertPLYtoBIN("elevation.ply","elevation.bin.ply")  !eventually want to call C routine directly without standalone
+
+  call ConvertPLYtoBIN  ! file names hardcoded in until I can figure out how to pass two character names fortran to C, or call it from C
+
   call ConvertOFFtoSTL('elevation.off','elevation.stl','elevation.bin.stl')
 !  can view with meshlab e.g.
 !  write(*,*) 'Exit meshlab to continue'

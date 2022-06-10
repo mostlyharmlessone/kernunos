@@ -74,7 +74,7 @@
       do k=1,N
        if (ipiv(k) > 1) then
         info=ipiv(k)
-        write(*,*) 'Singular matrix in GaussJordan'       
+        write(*,*) 'Determinant is zero in GaussJordan'       
         RETURN
        endif
        if(ipiv(k) == 1) then 

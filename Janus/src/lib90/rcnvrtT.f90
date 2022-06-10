@@ -24,9 +24,9 @@ USE cornea_arrays
         DIST=0.2_wp+(j-1)*0.15_wp
 !       ELLIPSOID WITH ASTIGMATISM Z=R-R*SQRT(1-(rCOSt/A)^2-(rSINt)/B)^2)
         R=50.0_wp
-	A=40.0_wp
-	B=30.0_wp
-	X=DIST*A/5.0
+        A=40.0_wp
+        B=30.0_wp
+        X=DIST*A/5.0
 !	D=DIST  alternate version without scale for derivative magnitude check
         D=X
         YP=(-(R/A**2)*COS(RadSlope%thta(i))**2-(R/B**2)*SIN(RadSlope%thta(i))**2)
@@ -56,7 +56,7 @@ USE cornea_arrays
       if (POW > 0 .AND. DIST > 0) then   ! should always be true
         RadSlope%MV(i)=RadSlope%MV(i)+1             
         EyeSys%XX(i,j)=RFCT/POW
-        EyeSys%RA(i,j)=DIST*100	
+        EyeSys%RA(i,j)=DIST*100
 
         Atlas%AR(I,J)=DIST
         Atlas%AD(I,J)=DIST
@@ -64,7 +64,7 @@ USE cornea_arrays
         Atlas%AY(I,J)=0.0_wp
       else
         write(*,*) 'error in RCNVRTT'  
-      endif       	
+      endif
 	    		        	  
      end do 
   end do
@@ -80,10 +80,10 @@ USE cornea_arrays
 
 !       ELLIPSOID WITH ASTIGMATISM Z=R-R*SQRT(1-(X/A)^2-(Y/B)^2)
         R=50.0_wp
-	A=40.0_wp
-	B=30.0_wp
-	XX=XDIST*A/5.0
-	YY=YDIST*B/5.0
+        A=40.0_wp
+        B=30.0_wp
+        XX=XDIST*A/5.0
+        YY=YDIST*B/5.0
 !	DX=XDIST  alternate version without scale for derivative magnitude check
 !	DY=YDIST  alternate version without scale for derivative magnitude check
         DX=XX

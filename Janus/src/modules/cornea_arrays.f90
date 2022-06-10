@@ -273,23 +273,6 @@ subroutine Skyline_eq_Penta(Skyline,Penta)                                      
   endif
 end subroutine Skyline_eq_Penta
 
-subroutine Skyline_eq_Penta2(Skyline,Penta)                                           ! the no-Skyline Skyline for testing and simplicity                                         
-  TYPE(wpSkyline) :: Skyline                                                          ! just generate x 
-  TYPE(wpPentaMatrix) :: Penta                                                        
-  Integer :: i,j,NP                                                                 
-  NP=size(Penta%CUR,1)
-  do i=1,NP
-   do j=1,NP
-    Skyline%x(i,j)=-7.00+((j-1)*14.00)/(NP-1.0)   
-    Skyline%CUR(i,j)=Penta%CUR(i,j)
-    Skyline%ELE(i,j)=Penta%ELE(i,j)
-   end do
-  end do
-  Skyline%L2x=NP ; Skyline%L2y=NP
-  Skyline%cols=NP ; Skyline%rows=NP
-  Skyline%index_col=0
-end subroutine Skyline_eq_Penta2
-
 subroutine Atlas_eq_Skyline(Atlas,Skyline)      ! initially Atlas populates r, thta, POW, elevation with splining
   TYPE(wpSkyline), INTENT(INOUT) :: Skyline                                             
   TYPE(wpAtlasMatrix), INTENT(INOUT) :: Atlas
@@ -306,71 +289,57 @@ subroutine Atlas_eq_Skyline(Atlas,Skyline)      ! initially Atlas populates r, t
   NP=size(Skyline%CUR,1)                                                   
   imv=0
 ! Spline both CUR and ELE in x                               (this is the equivalent of DiaSpline)
-  do i=1,Skyline%rows                                         ! all the rows
-   do k=1,Skyline%L2x(i)                                      ! can't do x=Skyline%x(i,:) because of unequal lengths
-    x(k)=Skyline%x(i,k) 
-    zx(k)=Skyline%CUR(i,k)  
-   end do
-   call nspline(x,zx,Skyline%L2x(i),zx2)                      ! generate zxCUR 
-   do k=1,Skyline%L2x(i) 
-    Skyline%z2CUR(i,k)=zx2(k)        
-    zx(k)=Skyline%ELE(i,k)                                    ! store z2CUR and load ELE
-   end do
-   call nspline(x,zx,Skyline%L2x(i),zx2)                      ! generate zxELE
-   do k=1,Skyline%L2x(i)
-    Skyline%z2ELE(i,k)=zx2(k)                                 ! store zx2ELE
-   end do
+  do i=1,Skyline%rows
+   L2=Skyline%L2x(i)                                       
+   x(1:L2)=Skyline%x(i,1:L2)
+   zx(1:L2)=Skyline%CUR(i,1:L2)
+   call nspline(x,zx,L2,zx2)                                ! generate zxCUR 
+   Skyline%z2CUR(i,1:L2)=zx2(1:L2)
+   zx(1:L2)=Skyline%ELE(i,1:L2)
+   call nspline(x,zx,L2,zx2)                                ! generate zxELE
+   Skyline%z2ELE(i,1:L2)=zx2(1:L2)
   end do
 
 ! make rings
-  rBo=Skyline%cols*7.0/(NP-1.0)                   ! scale in 14x 14 mm of Penta matrix 141x141 divided by 2
-  rBi=0.1*rBo                              ! donut			
+  rBo=0.7*min(Skyline%cols,Skyline%rows)*7.0/(NP-1.0)  ! scale in 14x 14 mm of Penta matrix 141x141 divided by 2
+  rBi=0.10*rBo                              ! donut       also make rings 70% of rBo                                                			
   do i=1,M1
    ITH=2*(i-1)
    Atlas%DEG(i)=ITH                        ! Atlas style degrees every two
    do j=1,N1
-    r(j)=0.9*((j-1)*(rBo-rBi)/(N1-1)+rBi)  ! make rings 90% of rBo
+    r(j)=(j-1)*(rBo-rBi)/(N1-1)+rBi  
     u=r(j)*COS(PI*Atlas%DEG(i)/180)        ! x,y coordinates of ring point
     v=r(j)*SIN(PI*Atlas%DEG(i)/180)
-
 !   Populate Atlas with Splined PentaCam
-!   Spline both CUR and ELE in y (this is the equivalent of Spline1Dx1D)
+!   Spline both CUR and ELE in y      (this is the equivalent of Spline1Dx1D)
     do k=1,Skyline%rows
      L2=Skyline%L2x(k)
-     do kk=1,L2
-      x(kk)=Skyline%x(k,kk)                                ! can't do x=Skyline%x(i,:) because of unequal lengths
-      z(kk)=Skyline%CUR(k,kk) 
-      z2(kk)=Skyline%z2CUR(k,kk)
-      zx(kk)=Skyline%ELE(k,kk) 
-      zx2(kk)=Skyline%z2ELE(k,kk)
-     end do
-
-     call SplineEval(0,x(1:L2),zx(1:L2),zx2(1:L2),L2,u,f)   ! first parameter = 0 nonperiodic                                    
+     x(1:L2)=Skyline%x(k,1:L2)                                
+     z(1:L2)=Skyline%CUR(k,1:L2) 
+     z2(1:L2)=Skyline%z2CUR(k,1:L2)
+     zx(1:L2)=Skyline%ELE(k,1:L2) 
+     zx2(1:L2)=Skyline%z2ELE(k,1:L2)
+     call SplineEval(0,x(1:L2),zx(1:L2),zx2(1:L2),L2,u,f) ! first parameter = 0 nonperiodic                                  
      gTmp(k)=f                                            ! f is value at u, fTmp is a new 1:(Skyline%rows) column of values at u     
      call SplineEval(0,x(1:L2),z(1:L2),z2(1:L2),L2,u,f)   ! first parameter = 0 nonperiodic                                    
-     fTmp(k)=f                                            ! f is value at u, fTmp is a new 1:(Skyline%rows) column of values at u
-    end do 
+     fTmp(k)=f                                          
+    end do
 
     offset=Skyline%first_row-1
     L2=Skyline%rows
     do kk=1,L2            ! fTmp has to align with y; but ftmp starts at Skyline%first_row, y starts at 1 for calculation                      
      y(kk)=7.00-((kk-1+offset)*14.00)/(NP-1.0)
     end do
-
-    offset=0
-
-    call nspline(y(1:L2),fTmp(1+offset:L2+offset),L2,f2Tmp(1+offset:L2+offset))        ! spline in Y
-    call SplineEval(0,y(1:L2),fTmp(1+offset:L2+offset),f2Tmp(1+offset:L2+offset),L2,v,CUR)
-
-    call nspline(y(1:L2),gTmp(1+offset:L2+offset),L2,g2Tmp(1+offset:L2+offset))        ! spline in Y
-    call SplineEval(0,y(1:L2),gTmp(1+offset:L2+offset),g2Tmp(1+offset:L2+offset),L2,v,ELE)
+    call nspline(y(1:L2),fTmp(1:L2),L2,f2Tmp(1:L2))             ! spline in Y
+    call SplineEval(0,y(1:L2),fTmp(1:L2),f2Tmp(1:L2),L2,v,CUR)  ! first parameter = 0 nonperiodic 
+    call nspline(y(1:L2),gTmp(1:L2),L2,g2Tmp(1:L2))             ! spline in Y
+    call SplineEval(0,y(1:L2),gTmp(1:L2),g2Tmp(1:L2),L2,v,ELE)  ! first parameter = 0 nonperiodic 
 
     imv(i)=imv(i)+1
     Atlas%AY(i,imv(i))=ABS(ELE)
-    Atlas%AR(i,imv(i))=ABS(r(j)*5.0_wp)      ! scale value: shouldbe calculated between power and elevation
-    Atlas%AD(i,imv(i))=Atlas%AR(i,imv(i))
-    Atlas%AP(i,imv(i))=ABS(CUR)
-
+    Atlas%AR(i,imv(i))=ABS(r(j))                              
+    Atlas%AD(i,imv(i))=Atlas%AR(i,imv(i))                    
+    Atlas%AP(i,imv(i))=RFCT/(100.0*ABS(CUR))     ! convert "curvatures" in mm to diopters                                                       
    end do !j to N1
   end do !i to M1
 
@@ -425,7 +394,7 @@ subroutine Atlas_eq_RadSlope(Atlas,RadSlope)
       if (ABS(YP) > 0._wp) then
        imv(i)=imv(i)+1
        CALL AXIALP(X2,YP,Y2X,POW)
-       Atlas%AR(i,imv(i))=ABS(RadSlope%r(i,imv(i)))/100.0_wp ! scale value
+       Atlas%AR(i,imv(i))=ABS(RadSlope%r(i,imv(i)))/100.0_wp ! scale value 
        Atlas%AD(i,imv(i))=Atlas%AR(i,imv(i))
        Atlas%AP(i,imv(i))=POW
       endif
@@ -455,7 +424,7 @@ subroutine RadSlope_eq_Atlas(RadSlope,Atlas) ! initially populates r, thta, Zp, 
        POW=Atlas%AP(i,imv(i))
        ZIX=RFCT/POW
 !      could use DIST here
-       ZJX=R*100
+       ZJX=R*100                                              
        CALL ZFCT(MM,i,ZJX,ZIX,X2A1,YA3)
         RadSlope%r(i,imv(i))=X2A1
         RadSlope%Zp(i,imv(i))=YA3

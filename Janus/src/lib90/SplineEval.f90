@@ -17,7 +17,7 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
 
 !  for extrapolation:  if u<x(1), i=1 is used;if u>x(n), i=n is used 
 
-  INTEGER, INTENT(IN) :: KP ! periodic KP=1 vs natural spline flag KP=0, KP=2 for debugging
+  INTEGER, INTENT(IN) :: KP ! periodic KP=1 vs natural spline flag KP=0, KP=2 natural spline with no extrapolation allowed
   INTEGER, INTENT(IN) :: n ! vector input length
   REAL(wp),INTENT(IN) :: u ! abscissa at which the spline is to be evaluated
   REAL(wp),INTENT(IN) :: x(n) ! abscissas of knots
@@ -70,6 +70,10 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
    if ((A*B) < 0) then 
     if (KP /= 1) then  !  natural spline extrapolation z2=0 outside spline 
      z2=0._wp
+     if (KP == 2) then
+      f = 0            ! no provision for anything but only f with KP == 2
+      return
+     endif
     end if
    end if
 

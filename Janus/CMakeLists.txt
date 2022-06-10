@@ -67,43 +67,27 @@ find_package(wxWidgets COMPONENTS core base REQUIRED)
 include(${wxWidgets_USE_FILE})
     
   find_package(BLAS)
-
    if ( BLAS_FOUND )
-
    else()
-
     set(BLAS_LIBRARIES "/usr/local/lib/libblas.so")
- 
    endif()
 
  find_package(LAPACK)
-
    if ( LAPACK_FOUND )
-
    else()
-
     set(LAPACK_LIBRARIES "/usr/lib/i386-linux-gnu/lapack/liblapack.so.3")
-  
    endif()
 
  find_package(SuperLU)
-
    if ( SUPERLU_FOUND )
-
    else()
-
     set(SUPERLU_LIBRARIES "/usr/local/lib/libsuperlu.so")
-  
    endif()
 
 find_package(OpenCL)
-
    if ( OPENCL_FOUND )
-
    else()
-
     set(OPENCL_LIBRARIES "/usr/lib/libOpenCL.so")
-  
    endif()
 
 #viennaCL
@@ -134,21 +118,25 @@ set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${omp}")
     file(GLOB_RECURSE src/cxx/rply *.c .h)
     add_executable(ConvertPLYtoBIN src/cxx/rply/convert.c src/cxx/rply/rply.c )
 
+#   C source included in Janus
+#   rply conversion 
+    file(GLOB c_sources  src/cxx/rply/convertplytobin.c src/cxx/rply/rply.c src/cxx/rply *.h )
 #   Fortran Source
     file(GLOB_RECURSE lib_includes  src/lib90 *.fi)
     file(GLOB_RECURSE lib_sources90  src/lib90 *.f90 *.for)
     file(GLOB_RECURSE mod_sources90  src/modules *.f90)
 #    file(GLOB_RECURSE handh_sources src/Chapter2 *.f *.f90)
-    file( GLOB app_sources src/lib90/*.for )
+#    file( GLOB app_sources src/lib90/*.for )
+    add_library( c_includes ${c_sources})
     add_library( modules ${mod_sources90})
     add_library( splia ${lib_includes} ${lib_sources90})
-    add_executable(${PROJECT_NAME} src/lib90/janus.f90)
+    add_executable(${PROJECT_NAME} src/lib90/janus.f90 )
 #    add_executable(testme1 testme1.f90)
 
 if ( OPENCL_FOUND )
- target_link_libraries(${PROJECT_NAME} splia modules ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENCL_LIBRARIES} ${SUPERLU_LIBRARIES} )
+ target_link_libraries(${PROJECT_NAME} splia modules c_includes ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENCL_LIBRARIES} ${SUPERLU_LIBRARIES} )
 else()
- target_link_libraries(${PROJECT_NAME} splia modules ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${SUPERLU_LIBRARIES} )
+ target_link_libraries(${PROJECT_NAME} splia modules c_includes ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${SUPERLU_LIBRARIES} )
 endif()
 
 
