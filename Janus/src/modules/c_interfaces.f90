@@ -16,8 +16,8 @@ END SUBROUTINE c_dgemm
 SUBROUTINE ConvertPLYtoBIN(infile,outfile) BIND(C,name='convertplytobin_') !note the trailing underscore
  USE, INTRINSIC :: iso_c_binding, ONLY : c_char
  IMPLICIT NONE
-  CHARACTER (kind=c_char), intent (in) :: infile
-  CHARACTER (kind=c_char), intent (in) :: outfile
+ CHARACTER(kind=c_char), INTENT(IN) :: infile
+ CHARACTER(kind=c_char), INTENT(IN) :: outfile
 END SUBROUTINE ConvertPLYtoBIN
 
  END INTERFACE

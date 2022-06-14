@@ -24,9 +24,8 @@
   character(len=8) :: BigGrainyPlot
   character(len=7) :: BigPlot
   character(len=8) :: LinesOfCurv
-  CHARACTER (len=13,kind=c_char) :: infile
-  CHARACTER (len=17,kind=c_char) :: outfile
-  
+  CHARACTER(:), ALLOCATABLE :: infile
+  CHARACTER(:), ALLOCATABLE :: outfile 
   integer ::  IuseG, IuseF, j
   integer,allocatable :: MV(:)
   real :: time_start, time_end
@@ -212,9 +211,6 @@
 !  call execute_command_line ("./ConvertPLYtoBIN -l elevation.ply elevation.bin.ply",exitstat=i)
   infile='elevation.ply'
   outfile='elevation.bin.ply'
-
-  write(*,*) infile,outfile
-
   call ConvertPLYtoBIN(infile,outfile)  ! call C (modified) routine directly
   call ConvertOFFtoSTL('elevation.off','elevation.stl','elevation.bin.stl')
 !  can view with meshlab e.g.
@@ -228,7 +224,6 @@
 !  atmp=pca(3,RadSlope)
 !stop
   
-
   call init_augmented_mat(MM,N,M,ARadSlope,ADiaSlope) ! prepare more space
   
 ! make more than one plot
