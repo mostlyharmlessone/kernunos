@@ -19,3 +19,6 @@
 [submodule "Janus/src/cxx/Janus/src/cxx/LearnOpenGL"]
 	path = Janus/src/cxx/Janus/src/cxx/LearnOpenGL
 	url = https://github.com/JoeyDeVries/LearnOpenGL
+[submodule "/home/debeus/Janus/Janus/src/cxx/LearnOpenGL"]
+	path = /home/debeus/Janus/Janus/src/cxx/LearnOpenGL
+	url = https://github.com/JoeyDeVries/LearnOpenGL
