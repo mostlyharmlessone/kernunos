@@ -16,3 +16,6 @@
 [submodule "Janus/libigl-example-project"]
 	path = Janus/libigl-example-project
 	url = https://github.com/libigl/libigl-example-project
+[submodule "Janus/src/cxx/Janus/src/cxx/LearnOpenGL"]
+	path = Janus/src/cxx/Janus/src/cxx/LearnOpenGL
+	url = https://github.com/JoeyDeVries/LearnOpenGL
