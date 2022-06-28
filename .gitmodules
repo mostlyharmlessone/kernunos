@@ -22,3 +22,6 @@
 [submodule "/home/debeus/Janus/Janus/src/cxx/LearnOpenGL"]
 	path = /home/debeus/Janus/Janus/src/cxx/LearnOpenGL
 	url = https://github.com/JoeyDeVries/LearnOpenGL
+[submodule "Janus/rplycpp"]
+	path = Janus/rplycpp
+	url = https://github.com/manlito/rplycpp
