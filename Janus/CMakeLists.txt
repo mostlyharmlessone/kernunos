@@ -3,17 +3,43 @@ cmake_policy(VERSION 3.16)
 
 project(Janus)
 
-set(CMAKE_CXX_STANDARD 17) # doesn't apply to win32
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS ON)
-
-
 enable_language(Fortran)
 enable_language(CXX)
 enable_language(C)
 #enable_language(CUDA)
 # /opt/cuda/bin/nvcc is the compiler
 enable_language(ASM)
+
+set (CMAKE_Fortran_COMPILER_ID "gfortran")
+set (FC "gfortran") 
+
+set(CMAKE_CXX_STANDARD 17) # doesn't apply to win32
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS ON)
+
+if(CMAKE_Fortran_COMPILER_ID MATCHES "gfortran")
+    set(dialect "-ffree-form -std=f2008 -fimplicit-none")
+#     set(dialect "-std=gnu")
+     set(bounds "-fbounds-check")
+     set(omp "-fopenmp")
+#  profiling with gprof 
+ #     set(-pg)    
+#  src profiling with gcov -a -b xxx.f90
+#     set(-g -coverage)     
+endif()
+if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
+    set(dialect "-stand f08 -free -implicitnone")
+    set(bounds "-check bounds")
+endif()
+#  nvfortran==pgi
+if(CMAKE_Fortran_COMPILER_ID MATCHES "pgfortran")
+#    set(dialect "-Mfreeform -Mdclchk -Mstandard -Mallocatable=03")
+#    set(bounds "-C")
+endif()
+
+set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_DEBUG_MODE 0) #set to 1 to show dependencies
+
+set (CMAKE_PREFIX_PATH "/usr/local")
 
 list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
@@ -34,10 +60,53 @@ find_package(GLFW3 REQUIRED)
 message(STATUS "Found GLFW3 in ${GLFW3_INCLUDE_DIR}")
 find_package(ASSIMP REQUIRED)
 message(STATUS "Found ASSIMP in ${ASSIMP_INCLUDE_DIR}")
-# find_package(SOIL REQUIRED)
-# message(STATUS "Found SOIL in ${SOIL_INCLUDE_DIR}")
  find_package(GLEW REQUIRED)
  message(STATUS "Found GLEW in ${GLEW_INCLUDE_DIR}")
+ 
+# Libigl
+ option(LIBIGL_GLFW "Build target igl::glfw" ON)
+# option (LIBIGL_WITH_OPENGL "Use OpenGL" ON)
+# option (LIBIGL_WITH_OPENGL_GLFW "Use GLFW" ON)
+# option (LIBIGL_WITH_OPENGL_GLFW_IMGUI "Use ImGui" ON)
+ include(libigl)
+  
+#wxWidgets This only works with wxgtk3-dev, which is incompatible with veracrypt on arch
+set(wxWidgets_CONFIGURATION mswu)
+find_package(wxWidgets COMPONENTS gl core base REQUIRED)
+if(wxWidgets_FOUND)
+  include(${wxWidgets_USE_FILE})
+else()
+    message("Failed to find WxWidgets library")
+endif()
+    
+find_package(BLAS)
+ if ( BLAS_FOUND )
+  message(STATUS "BLAS found at ${BLAS_LIBRARIES}")
+ else()
+  set(BLAS_LIBRARIES "/usr/local/lib/libblas.so")
+ endif()
+
+find_package(LAPACK)
+ if ( LAPACK_FOUND )
+  message(STATUS "LAPACK found at ${LAPACK_LIBRARIES}")
+ else()
+  set(LAPACK_LIBRARIES "/usr/lib/i386-linux-gnu/lapack/liblapack.so.3")
+ endif()
+
+find_package(SuperLU)
+ if ( SUPERLU_FOUND )
+  message(STATUS "SUPERLU found at ${SUPERLU_LIBRARIES}")   
+ else()
+  set(SUPERLU_LIBRARIES "/usr/local/lib/libsuperlu.so")
+ endif()
+
+find_package(OpenCL)
+ if ( OPENCL_FOUND )
+  message(STATUS "OPENCL found at ${OPENCL_LIBRARIES}")   
+ else()
+  set(OPENCL_LIBRARIES "/usr/lib/libOpenCL.so")
+ endif()
+ 
 if(APPLE)
   find_package(Freetype REQUIRED)
   message(STATUS "Found Freetype in ${FREETYPE_INCLUDE_DIRS}")
@@ -83,93 +152,7 @@ endif(WIN32)
 
 configure_file(configuration/root_directory.h configuration/root_directory.h)
 include_directories(${CMAKE_BINARY_DIR}/configuration)
-
-
-# Libigl
- option(LIBIGL_GLFW "Build target igl::glfw" ON)
-# option (LIBIGL_WITH_OPENGL "Use OpenGL" ON)
-# option (LIBIGL_WITH_OPENGL_GLFW "Use GLFW" ON)
-# option (LIBIGL_WITH_OPENGL_GLFW_IMGUI "Use ImGui" ON)
- include(libigl)
-
-# Add your project files
-#file(GLOB SRC_FILES_2 src/cxx/view2/*.cpp)
-#add_executable(view2 ${SRC_FILES_2})
-#target_link_libraries(view2 PUBLIC igl::glfw)
-
-#file(GLOB SRC_FILES_1 src/cxx/view1/*.cpp)
-#add_executable(view1 ${SRC_FILES_1})
-#target_link_libraries(view1 PUBLIC igl::glfw)
-
-#file(GLOB SRC_FILES src/cxx/view/*.cpp src/cxx/view/*.h)
-#add_executable(view ${SRC_FILES})
-#target_link_libraries(view PUBLIC igl::glfw)
-  
-
-set (CMAKE_Fortran_COMPILER_ID "gfortran")
-
-set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_DEBUG_MODE 1) #second option shows dependencies
-
-# after wiping CMakeFiles folder run the following to reset
-
-set (CMAKE_PREFIX_PATH "/usr/local")
-
-set (FC "gfortran") 
-#cmake -DCMAKE_Fortran_COMPILER_ID=gfortran ./
-if(CMAKE_Fortran_COMPILER_ID MATCHES "gfortran")
-    set(dialect "-ffree-form -std=f2008 -fimplicit-none")
-#     set(dialect "-std=gnu")
-     set(bounds "-fbounds-check")
-     set(omp "-fopenmp")
-#  profiling with gprof 
- #     set(-pg)    
-#  src profiling with gcov -a -b xxx.f90
-#     set(-g -coverage)     
-endif()
-if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
-    set(dialect "-stand f08 -free -implicitnone")
-    set(bounds "-check bounds")
-endif()
-#  nvfortran==pgi
-if(CMAKE_Fortran_COMPILER_ID MATCHES "pgfortran")
-#    set(dialect "-Mfreeform -Mdclchk -Mstandard -Mallocatable=03")
-#    set(bounds "-C")
-endif()
-
-
-
-
-
-#wxWidgets
-set(wxWidgets_CONFIGURATION mswu)
-find_package(wxWidgets COMPONENTS core base REQUIRED)
-include(${wxWidgets_USE_FILE})
     
-  find_package(BLAS)
-   if ( BLAS_FOUND )
-   else()
-    set(BLAS_LIBRARIES "/usr/local/lib/libblas.so")
-   endif()
-
- find_package(LAPACK)
-   if ( LAPACK_FOUND )
-   else()
-    set(LAPACK_LIBRARIES "/usr/lib/i386-linux-gnu/lapack/liblapack.so.3")
-   endif()
-
- find_package(SuperLU)
-   if ( SUPERLU_FOUND )
-   else()
-    set(SUPERLU_LIBRARIES "/usr/local/lib/libsuperlu.so")
-   endif()
-
-find_package(OpenCL)
-   if ( OPENCL_FOUND )
-   else()
-    set(OPENCL_LIBRARIES "/usr/lib/libOpenCL.so")
-   endif()
-   
-   
 macro(makeLink src dest target)
   add_custom_command(TARGET ${target} POST_BUILD COMMAND ${CMAKE_COMMAND} -E create_symlink ${src} ${dest}  DEPENDS  ${dest} COMMENT "mklink ${src} -> ${dest}")
 endmacro()
@@ -229,8 +212,23 @@ function(create_project_from_sources chapter demo)
         configure_file(${CMAKE_SOURCE_DIR}/configuration/visualstudio.vcxproj.user.in ${CMAKE_CURRENT_BINARY_DIR}/${NAME}.vcxproj.user @ONLY)
     endif(MSVC)
 endfunction()   
-   
+ 
+#igl
 
+# Add your project files
+#file(GLOB SRC_FILES_2 src/cxx/view2/*.cpp)
+#add_executable(view2 ${SRC_FILES_2})
+#target_link_libraries(view2 PUBLIC igl::glfw)
+
+#file(GLOB SRC_FILES_1 src/cxx/view1/*.cpp)
+#add_executable(view1 ${SRC_FILES_1})
+#target_link_libraries(view1 PUBLIC igl::glfw)
+
+#file(GLOB SRC_FILES src/cxx/view/*.cpp src/cxx/view/*.h)
+#add_executable(view ${SRC_FILES})
+#target_link_libraries(view PUBLIC igl::glfw)
+ 
+ 
 #viennaCL
 
 # ViennaCL example

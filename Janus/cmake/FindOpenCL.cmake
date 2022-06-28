@@ -1,4 +1,4 @@
-# - Find the OpenCL headers and library
+# - Find the OpenCL headers and library  modified OPENCL->OpenCl on line 71
 #
 # Defines the following if found:
 #  OPENCL_FOUND        : TRUE if found, FALSE otherwise
@@ -68,7 +68,7 @@ endif(ENV_OPENCLROOT)
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(
-  OPENCL
+  OpenCL
   DEFAULT_MSG
   OPENCL_LIBRARY OPENCL_INCLUDE_DIR
   )
