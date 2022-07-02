@@ -222,7 +222,10 @@
 ! eigenvalues show shape of RadSlope without make_rings but with FillArray 7 elevations
 !  atmp=pca(2,RadSlope) 
 !  atmp=pca(3,RadSlope)
-!stop
+
+  call Geom(RadSlope,powmin,powmax) 
+
+  stop
   
   call init_augmented_mat(MM,N,M,ARadSlope,ADiaSlope) ! prepare more space
   

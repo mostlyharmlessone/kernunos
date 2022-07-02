@@ -12,7 +12,6 @@ enable_language(ASM)
 
 set (CMAKE_Fortran_COMPILER_ID "gfortran")
 set (FC "gfortran") 
-
 set(CMAKE_CXX_STANDARD 17) # doesn't apply to win32
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
@@ -55,13 +54,11 @@ link_directories(${CMAKE_SOURCE_DIR}/lib)
 
 # find the required packages
 find_package(GLM REQUIRED)
-message(STATUS "GLM included at ${GLM_INCLUDE_DIR}")
+message(STATUS "Found GLM ")
 find_package(GLFW3 REQUIRED)
-message(STATUS "Found GLFW3 in ${GLFW3_INCLUDE_DIR}")
-find_package(ASSIMP REQUIRED)
-message(STATUS "Found ASSIMP in ${ASSIMP_INCLUDE_DIR}")
+message(STATUS "Found GLFW3 ")
  find_package(GLEW REQUIRED)
- message(STATUS "Found GLEW in ${GLEW_INCLUDE_DIR}")
+ message(STATUS "Found GLEW in ${GLEW_LIBRARIES}")
  
 # Libigl
  option(LIBIGL_GLFW "Build target igl::glfw" ON)
@@ -107,6 +104,14 @@ find_package(OpenCL)
   set(OPENCL_LIBRARIES "/usr/lib/libOpenCL.so")
  endif()
  
+ find_package(OpenGL REQUIRED)
+  if ( OPENGL_FOUND )
+  message(STATUS "OPENGL found at ${OPENGL_LIBRARIES}")   
+ endif()
+ 
+ add_definitions(${OPENGL_DEFINITIONS})
+ find_package(X11 REQUIRED)
+ 
 if(APPLE)
   find_package(Freetype REQUIRED)
   message(STATUS "Found Freetype in ${FREETYPE_INCLUDE_DIRS}")
@@ -149,9 +154,6 @@ endif(WIN32)
 #    1.2.hello_window_clear
 #    2.1.hello_triangle
 # )
-
-configure_file(configuration/root_directory.h configuration/root_directory.h)
-include_directories(${CMAKE_BINARY_DIR}/configuration)
     
 macro(makeLink src dest target)
   add_custom_command(TARGET ${target} POST_BUILD COMMAND ${CMAKE_COMMAND} -E create_symlink ${src} ${dest}  DEPENDS  ${dest} COMMENT "mklink ${src} -> ${dest}")
@@ -256,27 +258,27 @@ set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${omp}")
     file(COPY rply/rply.c rply/rply.h rply/rplyfile.h DESTINATION src/cxx/rply)
     file(GLOB_RECURSE src/cxx/rply *.c .h)
     add_executable(ConvertPLYtoBIN src/cxx/rply/convert.c src/cxx/rply/rply.c )
-
+#   OpenGLquad 
+#    file(GLOB_RECURSE src/cxx *.c .h *.vs *.fs)
+#    add_executable(quad src/cxx/openglquad6_glfw.cpp )
+#    target_link_libraries(quad ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} igl::glfw )
+   
 #   C source included in Janus
 #   rply conversion 
     file(GLOB c_sources  src/cxx/rply/convertplytobin.c src/cxx/rply/rply.c src/cxx/rply *.h )
+#   OpenGLquad 
+    file(GLOB opengl_src src/cxx/openglquad6_glfw.cpp *.h)    
 #   Fortran Source
-    file(GLOB_RECURSE lib_includes  src/lib90 *.fi)
     file(GLOB_RECURSE lib_sources90  src/lib90 *.f90 *.for)
     file(GLOB_RECURSE mod_sources90  src/modules *.f90)
-#    file(GLOB_RECURSE handh_sources src/Chapter2 *.f *.f90)
-#    file( GLOB app_sources src/lib90/*.for )
     add_library( c_includes ${c_sources})
+    add_library( cpp_includes ${opengl_src})  # cpp seems incompatible with openmp linking
     add_library( modules ${mod_sources90})
-    add_library( splia ${lib_includes} ${lib_sources90})
+    add_library( splia ${lib_sources90})
     add_executable(${PROJECT_NAME} src/lib90/janus.f90 )
 #    add_executable(testme1 testme1.f90)
 
-if ( OPENCL_FOUND )
- target_link_libraries(${PROJECT_NAME} splia modules c_includes ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENCL_LIBRARIES} ${SUPERLU_LIBRARIES} )
-else()
- target_link_libraries(${PROJECT_NAME} splia modules c_includes ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${SUPERLU_LIBRARIES} )
-endif()
+ target_link_libraries(${PROJECT_NAME} splia modules c_includes cpp_includes ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} igl::glfw )     
 
 ## then create a project file per tutorial
 # foreach(CHAPTER ${CHAPTERS})
@@ -285,5 +287,4 @@ endif()
 #    endforeach(DEMO)
 # endforeach(CHAPTER)
 
-include_directories(${CMAKE_SOURCE_DIR}/includes)
 
