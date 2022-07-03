@@ -20,11 +20,13 @@ SUBROUTINE ConvertPLYtoBIN(infile,outfile) BIND(C,name='convertplytobin_') !note
  CHARACTER(kind=c_char), INTENT(IN) :: outfile
 END SUBROUTINE ConvertPLYtoBIN
 
-SUBROUTINE OpenGL_Show(vertices, elements) BIND(C,name='opengl_show')
+SUBROUTINE OpenGL_Show(vertices, elements, nV, nE) BIND(C,name='opengl_show')
  USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int
  IMPLICIT NONE                
  real(c_float), INTENT(IN) :: vertices(*)
  integer(c_int), INTENT(IN) :: elements(*) 
+ integer(c_int), INTENT(IN) :: nV 
+ integer(c_int), INTENT(IN) :: nE
 END SUBROUTINE OpenGL_Show
  
  END INTERFACE

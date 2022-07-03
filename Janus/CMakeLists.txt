@@ -267,7 +267,7 @@ set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${omp}")
 #   rply conversion 
     file(GLOB c_sources  src/cxx/rply/convertplytobin.c src/cxx/rply/rply.c src/cxx/rply *.h )
 #   OpenGLquad 
-    file(GLOB opengl_src src/cxx/openglquad6_glfw.cpp *.h)    
+    file(GLOB opengl_src src/cxx/openglquad2_glfw.cpp *.h)    
 #   Fortran Source
     file(GLOB_RECURSE lib_sources90  src/lib90 *.f90 *.for)
     file(GLOB_RECURSE mod_sources90  src/modules *.f90)

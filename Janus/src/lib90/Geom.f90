@@ -5,12 +5,12 @@
        use set_precision, ONLY : wp
        use c_interfaces, ONLY : OpenGL_Show
        use special_fct, only : rgb2, rgb5
-       use, intrinsic :: iso_c_binding
-       use ISO_FORTRAN_ENV, only: INT16,REAL32,stdin=>input_unit     
+       use, intrinsic :: iso_c_binding, ONLY : c_float,c_int
+       use ISO_FORTRAN_ENV, only: stdin=>input_unit     
        TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
        real(wp), intent(IN) :: powmin,powmax 
        real(wp) :: X1,X2,X3
-       real(REAL32) :: vert1,vert2,vert3       
+       real(wp) :: vert1,vert2,vert3       
        real(c_float) :: c_vert(3),c_rgbv(3)
        real(wp) :: pow
        integer :: i,j,k,M1,N1,verts,faces,edges
@@ -19,7 +19,8 @@
 !      Can't use allocatable matrices to transfer to C, but use donut settings here
        integer(c_int) :: elements(0:6*(size(b%r,2)-1)*size(b%r,1)) ! faces x 3   index 0
        real(c_float) :: vertices(0:6*size(b%r,2)*size(b%r,1))      ! vertices x 6
-       
+       integer(c_int) :: nE, nV
+              
        N1=size(b%r,2)
        M1=size(b%r,1)
        
@@ -72,27 +73,10 @@
 !       0 0 255 #blue
 !      Write vertices as c_float
 !      Unreferenced vertices, but much easier numbering this way
-       k=-6 
+!      vertices        
+       k=0 
        do i=1,M1
-        do j=1,N1
-!        faces
-        if (i .LT. M1 .AND. j .LT. N1 ) then     
-          ivert1=(i-1)*N1+j-1
-          ivert2=(i-1)*N1+j
-          ivert3=i*N1+j
-          ivert4=i*N1+j-1
-             
-          if  ( (j < b%MV(i)) .AND. (j < b%MV(i+1)) ) then                    
-           if (donut) then 
-            k=k+6     ! matrix index
-            elements(k:k+5)=(/ivert1,ivert2,ivert3,ivert3,ivert4,ivert1/)                                  
-           else
-!          nothing here yet for .donut. .EQ. FALSE                
-           endif
-          endif  
-         endif !faces
-         
-!        vertices         
+        do j=1,N1                
          X1=b%thta(i)
          X2=b%r(i,j)
          X3=b%Zp(i,j)   
@@ -101,12 +85,32 @@
          vert3 = X3
          c_vert=(/vert1,vert2,vert3/)
          pow=b%Zp(I,J) 
-         c_rgbv=rgb5(pow,powmin,powmax)        
-         vertices(k:k+5)=(/c_vert,c_rgbv/) 
-                                
+         c_rgbv=rgb5(pow,powmin,powmax)/255.0  !openGL wants scale of 1.0 not 255        
+         vertices(k:k+5)=(/c_vert,c_rgbv/)
+         k=k+6      ! matrix index  
+        end do
+       end do 
+       nV=k 
+       
+!      faces               
+       k=0 
+       do i=1,M1-1
+        do j=1,N1-1    
+          ivert1=(i-1)*N1+j-1
+          ivert2=(i-1)*N1+j
+          ivert3=i*N1+j
+          ivert4=i*N1+j-1
+          if  ( (j < b%MV(i)) .AND. (j < b%MV(i+1)) ) then                    
+           if (donut) then 
+            elements(k:k+5)=(/ivert1,ivert2,ivert3,ivert3,ivert4,ivert1/) 
+            k=k+6                                    
+           else
+!          nothing here yet for .donut. .EQ. FALSE                
+           endif
+          endif                                  
         end do
        end do  
-        write(*,*) k       
+     
 !       Last set of faces is different
 !       i=M1 because "i+1"=M1, but second terms have 0 because "i" is (i-1)  
         do j=1,N1-1
@@ -116,22 +120,15 @@
          ivert4=j-1
          if  ( (j < b%MV(M1)) .AND. (j < b%MV(1)) ) then           
           if (donut) then
-           k=k+6     ! matrix index
            elements(k:k+5)=(/ivert1,ivert2,ivert3,ivert3,ivert4,ivert1/)             
+           k=k+6     ! matrix index
           else
 !         nothing here yet for .donut. .EQ. FALSE
           endif
          endif
         end do  
-        
-        write(*,*) k
-        write(*,*) 6*M1*N1
-        read(stdin,*)   ! the new pause
-        do k=1,6*M1*N1
-         write(*,*) vertices(k)
-        end do
-        read(stdin,*)
-             
-       call OpenGL_Show(vertices, elements)
+        nE=k
+!       write(*,*) " From Geom.f90, vertices, elements: ",nV,nE                     
+       call OpenGL_Show(vertices, elements, nV, nE)
     
        end subroutine Geom
