@@ -17,8 +17,8 @@
        integer(c_int) :: ivert1,ivert2,ivert3,ivert4
        logical :: donut
 !      Can't use allocatable matrices to transfer to C, but use donut settings here
-       integer(c_int) :: elements(0:6*(size(b%r,2)-1)*size(b%r,1)) ! faces x 3   index 0
-       real(c_float) :: vertices(0:6*size(b%r,2)*size(b%r,1))      ! vertices x 6
+       integer(c_int) :: elements(0:6*(size(b%r,2)-1)*size(b%r,1)-1) ! faces x 3   index 0
+       real(c_float) :: vertices(0:6*size(b%r,2)*size(b%r,1)-1)      ! vertices x 6
        integer(c_int) :: nE, nV
               
        N1=size(b%r,2)
@@ -76,7 +76,7 @@
 !      vertices        
        k=0 
        do i=1,M1
-        do j=1,N1                
+        do j=1,N1                        
          X1=b%thta(i)
          X2=b%r(i,j)
          X3=b%Zp(i,j)   
@@ -91,11 +91,12 @@
         end do
        end do 
        nV=k 
-       
+!!!!!!!!!!!!!!!debugging reduce number of faces       
 !      faces               
        k=0 
        do i=1,M1-1
-        do j=1,N1-1    
+        do j=1,N1-1 
+!        do j=1,1 
           ivert1=(i-1)*N1+j-1
           ivert2=(i-1)*N1+j
           ivert3=i*N1+j
@@ -114,6 +115,7 @@
 !       Last set of faces is different
 !       i=M1 because "i+1"=M1, but second terms have 0 because "i" is (i-1)  
         do j=1,N1-1
+!        do j=1,1
          ivert1=(M1-1)*N1+j-1
          ivert2=(M1-1)*N1+j
          ivert3=j
@@ -128,7 +130,15 @@
          endif
         end do  
         nE=k
-!       write(*,*) " From Geom.f90, vertices, elements: ",nV,nE                     
+        
+!      shuffle the elements 
+       !write(*,*) 'Size of Elements',size(elements),nE  ! are not equal unless full size
+       !write(*,*) 'Size of Vertices',size(vertices),nV  ! are not equal unless full size       
+       !elements=cshift(elements,nE/4)        ! rotater fills the matrix with garbage unless full size        
+       !write(*,*) " From Geom.f90, vertices, elements: ",nV,nE
+       !write(*,*) "Enter/Return to Continue.."  
+       !read(stdin,*)  ! the new pause    
+                     
        call OpenGL_Show(vertices, elements, nV, nE)
     
        end subroutine Geom

@@ -25,8 +25,8 @@ SUBROUTINE OpenGL_Show(vertices, elements, nV, nE) BIND(C,name='opengl_show')
  IMPLICIT NONE                
  real(c_float), INTENT(IN) :: vertices(*)
  integer(c_int), INTENT(IN) :: elements(*) 
- integer(c_int), INTENT(IN) :: nV 
- integer(c_int), INTENT(IN) :: nE
+ integer(c_int), value, INTENT(IN) :: nV 
+ integer(c_int), value, INTENT(IN) :: nE
 END SUBROUTINE OpenGL_Show
  
  END INTERFACE
