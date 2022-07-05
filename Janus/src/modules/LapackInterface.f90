@@ -83,7 +83,7 @@
 
           SUBROUTINE XERBLA( SRNAME, INFO )
 !         .. Scalar Arguments ..
-          CHARACTER*6        SRNAME
+          CHARACTER(6)        SRNAME
           INTEGER            INFO
           END SUBROUTINE XERBLA  
 

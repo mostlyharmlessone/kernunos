@@ -59,13 +59,6 @@ find_package(GLFW3 REQUIRED)
 message(STATUS "Found GLFW3 ")
  find_package(GLEW REQUIRED)
  message(STATUS "Found GLEW in ${GLEW_LIBRARIES}")
- 
-# Libigl
-# option(LIBIGL_GLFW "Build target igl::glfw" ON)
-# option (LIBIGL_WITH_OPENGL "Use OpenGL" ON)
-# option (LIBIGL_WITH_OPENGL_GLFW "Use GLFW" ON)
-# option (LIBIGL_WITH_OPENGL_GLFW_IMGUI "Use ImGui" ON)
-# include(libigl)
   
 #wxWidgets This only works with wxgtk3-dev, which is incompatible with veracrypt on arch
 set(wxWidgets_CONFIGURATION mswu)
@@ -103,6 +96,8 @@ find_package(OpenCL)
  else()
   set(OPENCL_LIBRARIES "/usr/lib/libOpenCL.so")
  endif()
+
+find_package(OpenMP)
  
  find_package(OpenGL REQUIRED)
   if ( OPENGL_FOUND )
@@ -213,23 +208,7 @@ function(create_project_from_sources chapter demo)
     if(MSVC)
         configure_file(${CMAKE_SOURCE_DIR}/configuration/visualstudio.vcxproj.user.in ${CMAKE_CURRENT_BINARY_DIR}/${NAME}.vcxproj.user @ONLY)
     endif(MSVC)
-endfunction()   
- 
-#igl
-
-# Add your project files
-#file(GLOB SRC_FILES_2 src/cxx/view2/*.cpp)
-#add_executable(view2 ${SRC_FILES_2})
-#target_link_libraries(view2 PUBLIC igl::glfw)
-
-#file(GLOB SRC_FILES_1 src/cxx/view1/*.cpp)
-#add_executable(view1 ${SRC_FILES_1})
-#target_link_libraries(view1 PUBLIC igl::glfw)
-
-#file(GLOB SRC_FILES src/cxx/view/*.cpp src/cxx/view/*.h)
-#add_executable(view ${SRC_FILES})
-#target_link_libraries(view PUBLIC igl::glfw)
- 
+endfunction()    
  
 #viennaCL
 
@@ -257,12 +236,7 @@ set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${omp}")
     file(COPY rply/etc/convert.c DESTINATION src/cxx/rply)
     file(COPY rply/rply.c rply/rply.h rply/rplyfile.h DESTINATION src/cxx/rply)
     file(GLOB_RECURSE src/cxx/rply *.c .h)
-    add_executable(ConvertPLYtoBIN src/cxx/rply/convert.c src/cxx/rply/rply.c )
-#   OpenGLquad 
-#    file(GLOB_RECURSE src/cxx *.c .h *.vs *.fs)
-#    add_executable(quad src/cxx/openglquad6_glfw.cpp )
-#    target_link_libraries(quad ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} igl::glfw )
-   
+    add_executable(ConvertPLYtoBIN src/cxx/rply/convert.c src/cxx/rply/rply.c )  
 #   C source included in Janus
 #   rply conversion 
     file(GLOB rply_sources  src/cxx/rply/convertplytobin.c src/cxx/rply/rply.c src/cxx/rply *.h )
@@ -280,7 +254,7 @@ set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${omp}")
     add_executable(${PROJECT_NAME} src/lib90/janus.f90 )
 #    add_executable(testme1 testme1.f90)
 
- target_link_libraries(${PROJECT_NAME} splia modules cpp_includes c_includes ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw )     
+ target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules cpp_includes c_includes ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw)     
 
 ## then create a project file per tutorial
 # foreach(CHAPTER ${CHAPTERS})
