@@ -61,11 +61,11 @@ message(STATUS "Found GLFW3 ")
  message(STATUS "Found GLEW in ${GLEW_LIBRARIES}")
  
 # Libigl
- option(LIBIGL_GLFW "Build target igl::glfw" ON)
+# option(LIBIGL_GLFW "Build target igl::glfw" ON)
 # option (LIBIGL_WITH_OPENGL "Use OpenGL" ON)
 # option (LIBIGL_WITH_OPENGL_GLFW "Use GLFW" ON)
 # option (LIBIGL_WITH_OPENGL_GLFW_IMGUI "Use ImGui" ON)
- include(libigl)
+# include(libigl)
   
 #wxWidgets This only works with wxgtk3-dev, which is incompatible with veracrypt on arch
 set(wxWidgets_CONFIGURATION mswu)
@@ -265,20 +265,22 @@ set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${omp}")
    
 #   C source included in Janus
 #   rply conversion 
-    file(GLOB c_sources  src/cxx/rply/convertplytobin.c src/cxx/rply/rply.c src/cxx/rply *.h )
+    file(GLOB rply_sources  src/cxx/rply/convertplytobin.c src/cxx/rply/rply.c src/cxx/rply *.h )
 #   OpenGLquad 
-    file(GLOB opengl_src src/cxx/openglquad2_glfw.cpp *.h)    
+    file(GLOB opengl_src src/cxx/openglquad2_glfw.cpp *.h)   
+#   trackball
+    file(GLOB c_sources  src/cxx/trackball.c src/cxx/trackball.h)
 #   Fortran Source
     file(GLOB_RECURSE lib_sources90  src/lib90 *.f90 *.for)
     file(GLOB_RECURSE mod_sources90  src/modules *.f90)
-    add_library( c_includes ${c_sources})
+    add_library( c_includes ${rply_sources} ${c_sources})
     add_library( cpp_includes ${opengl_src})  # cpp seems incompatible with openmp linking
     add_library( modules ${mod_sources90})
     add_library( splia ${lib_sources90})
     add_executable(${PROJECT_NAME} src/lib90/janus.f90 )
 #    add_executable(testme1 testme1.f90)
 
- target_link_libraries(${PROJECT_NAME} splia modules c_includes cpp_includes ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} igl::glfw )     
+ target_link_libraries(${PROJECT_NAME} splia modules cpp_includes c_includes ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw )     
 
 ## then create a project file per tutorial
 # foreach(CHAPTER ${CHAPTERS})

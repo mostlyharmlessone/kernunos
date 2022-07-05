@@ -1,6 +1,6 @@
       MODULE LapackInterface
       IMPLICIT NONE
-      
+!  -- interfaces for FORTRAN77 LAPACK to fortran 90+      
 !  -- suggested from http://www.siam.org/books/ot134 Numerical Computing with Modern Fortran Richard J.Hanson and Tim Hopkins SIAM 
 !  -- LAPACK driver routine (version 3.7.0) --
 !  -- LAPACK is a software package provided by Univ. of Tennessee,    --

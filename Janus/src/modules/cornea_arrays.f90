@@ -25,7 +25,7 @@ MODULE cornea_arrays
  
  TYPE wpRadSlopeMatrix
 !  theta, r are polar coordinates, Zp,Zp2,Zt2 are slope, and second derivatives
-   REAL (wp), ALLOCATABLE :: thta(:), r(:,:), Zp(:,:), Zp2(:,:), Zt2(:,:) 
+   REAL (wp), ALLOCATABLE :: thta(:), r(:,:), Zp(:,:), Zp2(:,:), Zt2(:,:)
    INTEGER, ALLOCATABLE :: MV(:)
  END TYPE wpRadSlopeMatrix
  

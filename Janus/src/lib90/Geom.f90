@@ -76,7 +76,8 @@
 !      vertices        
        k=0 
        do i=1,M1
-        do j=1,N1                        
+        do j=1,N1
+        if (donut) then                        
          X1=b%thta(i)
          X2=b%r(i,j)
          X3=b%Zp(i,j)   
@@ -87,11 +88,14 @@
          pow=b%Zp(I,J) 
          c_rgbv=rgb5(pow,powmin,powmax)/255.0  !openGL wants scale of 1.0 not 255        
          vertices(k:k+5)=(/c_vert,c_rgbv/)
-         k=k+6      ! matrix index  
+         k=k+6      ! matrix index
+         else
+!        nothing here yet for .donut. .EQ. FALSE
+         endif 
         end do
        end do 
        nV=k 
-!!!!!!!!!!!!!!!debugging reduce number of faces       
+       
 !      faces               
        k=0 
        do i=1,M1-1

@@ -35,6 +35,7 @@
 !        call get_command_argument(1, MM)
  !       call get_command_argument(2, N)
 ! will also need mechanism to not select either with PentaCam choice and only do PentaCam calculations
+! or have c++ gui for this
 
   if (TestData .eq. 0 ) then
    MM=360; N=16   ! EyeSys
@@ -196,12 +197,6 @@
                                              ! then with zero slope forced at average (r(low)+r(high))/2.0
                                              ! smallest deviation without nSplineCenter; view with set polar; plot 'Center.dat'
 
-
-! Here should consider generating everything back into PentaCam/cartesian for plotting and graphing to avoid the donut hole/origin problem
-! Yes, that would be a new WriteGeom, WriteArray and PrintGraph ; the new Cartesian format would include calculations of all the relevant
-! Polar based properties such as Axial Power, Tangential Power etc., ?could also include some invariants from cartesian space
-! OFF/STL/PLY would start quadrilateral and end up triangles just as now.
-
 !  write OFF and STL files
   MV(:)=RadSlope%MV(:) ! store a copy
 !  RadSlope%MV(:)=N   !full diameters for elevation 
@@ -222,7 +217,7 @@
 ! eigenvalues show shape of RadSlope without make_rings but with FillArray 7 elevations
 !  atmp=pca(2,RadSlope) 
 !  atmp=pca(3,RadSlope)
-
+! writes values in openGL friendly format to matrices for passing to C/C++
   call Geom(RadSlope,powmin,powmax) 
 
   stop
