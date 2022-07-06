@@ -1,4 +1,4 @@
-  PROGRAM janus
+  subroutine janus
 ! DRIVER PROGRAM FOR SPLINE ROUTINES
   USE set_precision, ONLY : wp
   USE cornea_arrays
@@ -219,8 +219,6 @@
 !  atmp=pca(3,RadSlope)
 ! writes values in openGL friendly format to matrices for passing to C/C++
   call Geom(RadSlope,powmin,powmax) 
-
-  stop
   
   call init_augmented_mat(MM,N,M,ARadSlope,ADiaSlope) ! prepare more space
   
@@ -340,6 +338,5 @@
   DiaSlope=0
   ARadSlope=0
   ADiaSlope=0
-      
-  STOP
-  END
+
+  END subroutine janus

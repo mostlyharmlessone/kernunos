@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 cmake_policy(VERSION 3.16)
 
-project(Janus)
+project(Jupiter)
 
 enable_language(Fortran)
 enable_language(CXX)
@@ -251,7 +251,7 @@ set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${omp}")
     add_library( cpp_includes ${opengl_src})  # cpp seems incompatible with openmp linking
     add_library( modules ${mod_sources90})
     add_library( splia ${lib_sources90})
-    add_executable(${PROJECT_NAME} src/lib90/janus.f90 )
+    add_executable(${PROJECT_NAME} src/cxx/Jupiter.cpp src/lib90/janus.f90 )
 #    add_executable(testme1 testme1.f90)
 
  target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules cpp_includes c_includes ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw)     
