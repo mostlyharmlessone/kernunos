@@ -143,6 +143,6 @@
        !write(*,*) "Enter/Return to Continue.."  
        !read(stdin,*)  ! the new pause    
                      
-!       call OpenGL_Show(vertices, elements, nV, nE)
+       call OpenGL_Show(vertices, elements, nV, nE)
     
        end subroutine Geom
