@@ -61,6 +61,8 @@ message(STATUS "Found GLFW3 ")
  message(STATUS "Found GLEW in ${GLEW_LIBRARIES}")
   
 #wxWidgets This only works with wxgtk3-dev, which is incompatible with veracrypt on arch
+#find_package(wxWidgets)
+
 set(wxWidgets_CONFIGURATION mswu)
 find_package(wxWidgets COMPONENTS gl core base REQUIRED)
 if(wxWidgets_FOUND)
@@ -68,7 +70,7 @@ if(wxWidgets_FOUND)
 else()
     message("Failed to find WxWidgets library")
 endif()
-    
+     
 find_package(BLAS)
  if ( BLAS_FOUND )
   message(STATUS "BLAS found at ${BLAS_LIBRARIES}")
