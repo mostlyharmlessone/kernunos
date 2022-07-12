@@ -242,13 +242,11 @@ set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${omp}")
     file(GLOB rply_sources  src/cxx/rply/convertplytobin.c src/cxx/rply/rply.c src/cxx/rply *.h )
 #   OpenGLquad 
     file(GLOB opengl_src src/cxx/openglquad2_glfw.cpp *.h)   
-#   trackball
-    file(GLOB c_sources  src/cxx/trackball.c src/cxx/trackball.h)
 #   Fortran Source
     file(GLOB_RECURSE lib_sources90  src/lib90 *.f90 *.for)
     file(GLOB_RECURSE mod_sources90  src/modules *.f90)
-    add_library( c_includes ${rply_sources} ${c_sources})
-    add_library( cpp_includes ${opengl_src})  # cpp seems incompatible with openmp linking
+    add_library( c_includes ${rply_sources})
+    add_library( cpp_includes ${opengl_src})  
     add_library( modules ${mod_sources90})
     add_library( splia ${lib_sources90})
     add_executable(${PROJECT_NAME} src/cxx/Jupiter.cpp src/lib90/janus.f90 )
