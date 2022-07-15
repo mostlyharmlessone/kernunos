@@ -243,18 +243,18 @@ set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${omp}")
 #   rply conversion 
     file(GLOB rply_sources  src/cxx/rply/convertplytobin.c src/cxx/rply/rply.c src/cxx/rply *.h )
 #   OpenGLquad 
-    file(GLOB opengl_src src/cxx/openglquad2_glfw.cpp *.h)   
+#    file(GLOB opengl_src src/cxx/openglquad_glfw.cpp *.h)   
 #   Fortran Source
     file(GLOB_RECURSE lib_sources90  src/lib90 *.f90 *.for)
     file(GLOB_RECURSE mod_sources90  src/modules *.f90)
     add_library( c_includes ${rply_sources})
-    add_library( cpp_includes ${opengl_src})  
+#    add_library( cpp_includes ${opengl_src})  
     add_library( modules ${mod_sources90})
     add_library( splia ${lib_sources90})
     add_executable(${PROJECT_NAME} src/cxx/Jupiter.cpp src/lib90/janus.f90 )
 #    add_executable(testme1 testme1.f90)
 
- target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules cpp_includes c_includes ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw)     
+ target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules c_includes ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw)     
 
 ## then create a project file per tutorial
 # foreach(CHAPTER ${CHAPTERS})
