@@ -1,55 +1,43 @@
   subroutine Janus(mainfile, elements, vertices, nV, nE) 
 
 ! DRIVER PROGRAM FOR SPLINE ROUTINES
-  USE set_precision, ONLY : wp
-  USE cornea_arrays
+  use set_precision, ONLY : wp
+  use cornea_arrays
   use io_functions
   use special_fct
-  USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
+  use, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
 
   IMPLICIT NONE     
   TYPE(wpRadSlopeMatrix) :: atmp
   integer IZ, i
-! character(len=*), intent(in) :: InputDataFile
-! INTEGER, PARAMETER :: MM=180, N=22   ! Atlas
-!  INTEGER, PARAMETER :: MM=360, N=16   ! EyeSys 
-  INTEGER :: MM, N 
-  INTEGER, PARAMETER :: NP=141         ! PentaCam
-  INTEGER, PARAMETER :: TestData=2     ! TestData: 0=EyeSys, 1=Atlas, 2=Penta, 3=test 
+  integer :: MM, N 
+  integer, PARAMETER :: NP=141         ! PentaCam
+  integer :: TestData                  ! TestData: 0=EyeSys, 1=Atlas, 2=Penta, 3=test 
 
-  CHARACTER(c_char), INTENT(IN), DIMENSION(4096) :: mainfile               
+  character(c_char), INTENT(IN), DIMENSION(4096) :: mainfile               
   real(c_float), INTENT(OUT) :: vertices(*)
   integer(c_int), INTENT(OUT) :: elements(*) 
   integer(c_int), INTENT(OUT) :: nV 
   integer(c_int), INTENT(OUT) :: nE
 
-  character(len=11)::  CSVInputDataFile 
-  character(len=11)::  CURInputDataFile
-  character(len=11)::  ELEInputDataFile
-  character(len=10)::  RAInputDataFile
-  character(len=10)::  XXInputDataFile      
   character(len=16) :: AxialPowerDataKnots
   character(len=8) :: BigGrainyPlot
   character(len=7) :: BigPlot
   character(len=8) :: LinesOfCurv
   character(len=4096) :: new_path
-  CHARACTER(:), ALLOCATABLE :: infile
-  CHARACTER(:), ALLOCATABLE :: outfile 
-  integer ::  IuseG, IuseF, j
+  character(:), ALLOCATABLE :: inputfile1,inputfile2
+  character(:), ALLOCATABLE :: infile
+  character(:), ALLOCATABLE :: outfile 
+  integer ::  IuseG, IuseF, j, nblines, file_idx, file_pfx
   integer,allocatable :: MV(:)
   real :: time_start, time_end
   real(wp) :: POWMIN,POWMAX,POWMIN2,POWMAX2
 
-! eventually pick type of file to determine these
-!        call get_command_argument(1, MM)
- !       call get_command_argument(2, N)
-! will also need mechanism to not select either with PentaCam choice and only do PentaCam calculations
-! or have c++ gui for this
 
-!write(*,*) 'file from Jupiter (0): ',mainfile  ! this will have a lot of extra stuff after the file name
-
+!write(*,*) 'file from Jupiter: ',mainfile  ! this will have a lot of extra random non ASCII stuff after the file name
 !! need this because GCC11 isn't F2018 compliant with deferred length character with Bind C
-!   Converting C char array to Fortran CHARACTER.
+!! ie. can't do CHARACTER(*,c_char), INTENT(IN) :: mainfile with BIND(C) with GCC11
+!   Converting C char array to Fortran character.
     new_path = " "
     loop_string: do i=1, 4096
         if ( mainfile (i) == c_null_char ) then
@@ -58,23 +46,61 @@
             new_path (i:i) = mainfile (i)
         end if
     end do loop_string
-write(*,*) 'file from Jupiter (2): ',trim(new_path)
-
-stop
-
-  if (TestData .eq. 0 ) then
-   MM=360; N=16   ! EyeSys
+write(*,*) 'file from Jupiter: ',trim(new_path)
+nblines=len(trim(new_path)) 
+allocate(character(nblines) :: inputfile1)
+allocate(character(nblines) :: inputfile2)
+inputfile1=trim(new_path)
+! From either RA?.DAT or XX?.DAT, set inputfile1 to the XX version, inputfile1 to the RA version.
+! From either CUR or ELE set inputfile1 to ELE, inputfile2 to CUR
+! For CSV set inputfile1 to Atlas file
+file_idx=index(inputfile1, ".DAT")
+   if( file_idx == 0)then
+      print *, 'Not an EyeSys file'
+      file_idx=index(inputfile1, ".CSV")
+      if( file_idx == 0) then
+       print *, 'Not an Atlas file'
+       file_idx=index(inputfile1, ".CUR")
+       if( file_idx == 0) then
+        file_idx=index(inputfile1, ".ELE")
+        if( file_idx == 0) then
+         print *, 'Not a PentaCam file' 
+         print *, 'Unknown file type'
+         stop       
+        else
+        inputfile2=replacestr(string=inputfile1,search="ELE",substitute="CUR")        
+        TestData=2; MM=180; N=22 ! PentaCam
+       endif
+      else
+       inputfile2=inputfile1
+       inputfile1=replacestr(string=inputfile2,search="CUR",substitute="ELE")
+       TestData=2; MM=180; N=22 ! PentaCam
+      endif
+      else
+       TestData=1; MM=180; N=22   ! Atlas 
+       write(*,*) "Atlas file: ",inputfile1
+      endif
    else
-   MM=180; N=22   ! Atlas and everyone else
-  endif
-   
+      print *, 'suffix is found at index: ',file_idx,"length: ",len(inputfile1)
+      print *, 'prefix:',inputfile1(file_idx-2:file_idx-1)
+       file_pfx=index(inputfile1(file_idx-2:file_idx-1),"XX")
+      if (file_pfx /= 0) then
+       inputfile2=replacestr(string=inputfile1,search="XX",substitute="RA")
+      else
+       file_pfx=index(inputfile1(file_idx-2:file_idx-1),"RA")
+       if (file_pfx /= 0) then
+        inputfile2=inputfile1
+        inputfile1=replacestr(string=inputfile2,search="RA",substitute="XX")
+       else
+        write(*,*) 'Error parsing EyeSys file name'
+        stop
+       endif
+      endif
+    TestData=0 ; MM=360; N=16   ! EyeSys
+    write(*,*) "EyeSys files: ",inputfile1," ",inputfile2
+   endif
+
   allocate (MV(MM))
-    
-  CSVInputDataFile='TEST.CSV' ! for ATLAS
-  CURInputDataFile='TEST.CUR' ! for PentaCam
-  ELEInputDataFile='TEST.ELE' 
-  RAInputDataFile='RA.DAT'    ! for EyeSys
-  XXInputDataFile='XX.DAT' 
  
   AxialPowerDataKnots='RCNVRTA.ORIG.CAR'
   BigGrainyPlot='BIGG.CAR'
@@ -91,7 +117,7 @@ stop
 ! XX????? ARE THE AXIAL DIST. RX???? ARE THE MIRE RADII 
 !    call RCNVRTE('RA.DAT','XX.DAT') 
    call CPU_TIME(time_start)
-   call RCNVRTE(RAInputDataFile,XXInputDataFile) 
+   call RCNVRTE(inputfile2,inputfile1) 
    call CPU_TIME(time_end)
    write(*,*) 'Time to read EyeSys files: ',(time_end-time_start)*1000
 !  Generate the slope matrix using ZFCT
@@ -105,7 +131,7 @@ stop
   if (TestData .eq. 1) then 
 !    call RCNVRTA('TEST.CSV')
    call CPU_TIME(time_start)
-   call RCNVRTA(CSVInputDataFile)
+   call RCNVRTA(inputfile1)
    call CPU_TIME(time_end)
    write(*,*) 'Time to read Atlas CSV file: ',(time_end-time_start)*1000
    Radslope=Atlas
@@ -121,7 +147,7 @@ stop
 ! READ THE PENTACAM DATA (which overwrites Atlas)
 ! EA are elevations CA are "sagittal"curvatures in a 141x141 -7 to 7 mm square -1 is no data 
 !  call RCNVRTP('TEST.ELE','TEST.CUR')
-   call RCNVRTP(ELEInputDataFile,CURInputDataFile) 
+   call RCNVRTP(inputfile1,inputfile2) 
 ! arrange the data
    call CPU_TIME(time_start)
    Skyline=Penta
@@ -335,6 +361,8 @@ stop
  endif  
   
  end do
+
+
 
 ! put in module with printgraph and put loop in; might be able to read the max/min off each file
 ! or embed in the file with a comment/header
