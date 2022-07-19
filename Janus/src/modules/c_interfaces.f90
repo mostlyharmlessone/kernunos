@@ -20,7 +20,18 @@ SUBROUTINE ConvertPLYtoBIN(infile,outfile) BIND(C,name='convertplytobin_') !note
  CHARACTER(kind=c_char), INTENT(IN) :: outfile
 END SUBROUTINE ConvertPLYtoBIN
 
-! call from fortran to c++ as extern "C" fro openGL display
+! call from fortran to c++ as extern "C" for openGL display
+SUBROUTINE Janus(mainfile, elements, vertices, nV, nE) BIND(C,name='janus_')
+ USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char
+ IMPLICIT NONE 
+ CHARACTER(c_char), INTENT(IN), DIMENSION(4096) :: mainfile               
+ real(c_float), INTENT(OUT) :: vertices(*)
+ integer(c_int), INTENT(OUT) :: elements(*) 
+ integer(c_int), INTENT(OUT) :: nV 
+ integer(c_int), INTENT(OUT) :: nE
+END SUBROUTINE Janus
+ 
+! call from fortran to c++ as extern "C" for openGL display
 SUBROUTINE OpenGL_Show(vertices, elements, nV, nE) BIND(C,name='opengl_show')
  USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int
  IMPLICIT NONE                
@@ -29,7 +40,7 @@ SUBROUTINE OpenGL_Show(vertices, elements, nV, nE) BIND(C,name='opengl_show')
  integer(c_int), value, INTENT(IN) :: nV 
  integer(c_int), value, INTENT(IN) :: nE
 END SUBROUTINE OpenGL_Show
- 
+
  END INTERFACE
     
  contains

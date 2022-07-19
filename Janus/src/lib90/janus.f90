@@ -1,11 +1,13 @@
-  subroutine janus
+  subroutine Janus(mainfile, elements, vertices, nV, nE) 
+
 ! DRIVER PROGRAM FOR SPLINE ROUTINES
   USE set_precision, ONLY : wp
   USE cornea_arrays
   use io_functions
   use special_fct
-  use, intrinsic :: iso_c_binding, ONLY : c_char
-    
+  USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
+
+  IMPLICIT NONE     
   TYPE(wpRadSlopeMatrix) :: atmp
   integer IZ, i
 ! character(len=*), intent(in) :: InputDataFile
@@ -14,6 +16,12 @@
   INTEGER :: MM, N 
   INTEGER, PARAMETER :: NP=141         ! PentaCam
   INTEGER, PARAMETER :: TestData=2     ! TestData: 0=EyeSys, 1=Atlas, 2=Penta, 3=test 
+
+  CHARACTER(c_char), INTENT(IN), DIMENSION(4096) :: mainfile               
+  real(c_float), INTENT(OUT) :: vertices(*)
+  integer(c_int), INTENT(OUT) :: elements(*) 
+  integer(c_int), INTENT(OUT) :: nV 
+  integer(c_int), INTENT(OUT) :: nE
 
   character(len=11)::  CSVInputDataFile 
   character(len=11)::  CURInputDataFile
@@ -24,6 +32,7 @@
   character(len=8) :: BigGrainyPlot
   character(len=7) :: BigPlot
   character(len=8) :: LinesOfCurv
+  character(len=4096) :: new_path
   CHARACTER(:), ALLOCATABLE :: infile
   CHARACTER(:), ALLOCATABLE :: outfile 
   integer ::  IuseG, IuseF, j
@@ -36,6 +45,22 @@
  !       call get_command_argument(2, N)
 ! will also need mechanism to not select either with PentaCam choice and only do PentaCam calculations
 ! or have c++ gui for this
+
+!write(*,*) 'file from Jupiter (0): ',mainfile  ! this will have a lot of extra stuff after the file name
+
+!! need this because GCC11 isn't F2018 compliant with deferred length character with Bind C
+!   Converting C char array to Fortran CHARACTER.
+    new_path = " "
+    loop_string: do i=1, 4096
+        if ( mainfile (i) == c_null_char ) then
+            exit loop_string
+        else
+            new_path (i:i) = mainfile (i)
+        end if
+    end do loop_string
+write(*,*) 'file from Jupiter (2): ',trim(new_path)
+
+stop
 
   if (TestData .eq. 0 ) then
    MM=360; N=16   ! EyeSys
@@ -326,7 +351,7 @@
    CALL PRINTGRAPH(POWMIN2,POWMAX2,BigGrainyPlot)
   CLOSE (17)
 
-  call execute_command_line ("gnuplot -p plot2.gnu", exitstat=i)
+  call execute_command_line ("gnuplot -p plot2.gnu &", exitstat=i)
 !  call execute_command_line ("./view", exitstat=i)
 
 ! deallocate
