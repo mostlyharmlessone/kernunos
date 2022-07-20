@@ -1,12 +1,12 @@
 !      Generates matrices for openGL
 
-       subroutine Geom(b,powmin,powmax)
-       use cornea_arrays
+       subroutine Geom(b, powmin, powmax)
+       use cornea_arrays, ONLY : wpRadSlopeMatrix
        use set_precision, ONLY : wp
        use c_interfaces, ONLY : OpenGL_Show
        use special_fct, only : rgb2, rgb5
        use, intrinsic :: iso_c_binding, ONLY : c_float,c_int
-       use ISO_FORTRAN_ENV, only: stdin=>input_unit     
+       use ISO_FORTRAN_ENV, only: stdin=>input_unit     ! for the pause read(stdin,*)
        TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
        real(wp), intent(IN) :: powmin,powmax 
        real(wp) :: X1,X2,X3
@@ -143,7 +143,7 @@
        !write(*,*) " From Geom.f90, vertices, elements: ",nV,nE
        !write(*,*) "Enter/Return to Continue.."  
        !read(stdin,*)  ! the new pause    
-                     
-       call OpenGL_Show(vertices, elements, nV, nE)
+        write(*,*) 'Display in separate OpenGL window'                    
+        call OpenGL_Show(vertices, elements, nV, nE)
     
        end subroutine Geom

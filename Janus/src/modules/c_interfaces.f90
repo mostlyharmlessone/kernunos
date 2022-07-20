@@ -3,7 +3,7 @@ module c_interfaces
  ! gathering all the interfaces for c/fortran interaction
  INTERFACE
 
-! allows call from c to dgemm in LAPACK using c_dgemm.f90
+! allows call from c to fortran77 dgemm in LAPACK using c_dgemm.f90
 SUBROUTINE c_dgemm(transa,transb,m,n,k,alpha,a,lda,b,ldb,beta,c,ldc) bind(c,name='C_dgemm')
  USE, INTRINSIC :: iso_c_binding, ONLY : c_char, c_int, c_double
  CHARACTER (c_char), INTENT (IN) :: transa, transb
@@ -20,15 +20,15 @@ SUBROUTINE ConvertPLYtoBIN(infile,outfile) BIND(C,name='convertplytobin_') !note
  CHARACTER(kind=c_char), INTENT(IN) :: outfile
 END SUBROUTINE ConvertPLYtoBIN
 
-! call from fortran to c++ as extern "C" for openGL display
+! call from c++ to fortran as extern "C" for data exchange
 SUBROUTINE Janus(mainfile, elements, vertices, nV, nE) BIND(C,name='janus_')
- USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char
+ USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
  IMPLICIT NONE 
- CHARACTER(c_char), INTENT(IN), DIMENSION(4096) :: mainfile               
+ CHARACTER(c_char), INTENT(IN), DIMENSION(4096) :: mainfile
+ integer(c_int) :: nV 
+ integer(c_int) :: nE               
  real(c_float), INTENT(OUT) :: vertices(*)
  integer(c_int), INTENT(OUT) :: elements(*) 
- integer(c_int), INTENT(OUT) :: nV 
- integer(c_int), INTENT(OUT) :: nE
 END SUBROUTINE Janus
  
 ! call from fortran to c++ as extern "C" for openGL display

@@ -14,6 +14,17 @@ module io_functions
       real(wp), intent(out) :: POWMIN, POWMAX
     END SUBROUTINE
 
+    SUBROUTINE Geom(b, powmin, powmax)
+       use cornea_arrays
+       use set_precision, ONLY : wp
+       use c_interfaces, ONLY : OpenGL_Show
+       use special_fct, only : rgb2, rgb5
+       use, intrinsic :: iso_c_binding, ONLY : c_float,c_int
+       use ISO_FORTRAN_ENV, only: stdin=>input_unit     
+       TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
+       real(wp), intent(IN) :: powmin,powmax 
+    END SUBROUTINE
+
     SUBROUTINE WriteGeom(b,powmin,powmax,OFFNAME,PLYNAME)
       USE cornea_arrays
       USE set_precision, ONLY : wp

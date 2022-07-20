@@ -158,13 +158,13 @@ endif(WIN32)
     file(GLOB rply_sources  src/cxx/rply/convertplytobin.c src/cxx/rply/rply.c src/cxx/rply *.h )
 #   C++ source included in Janus
 #   OpenGLquad 
-    file(GLOB opengl_src src/cxx/openglquad_glfw.cpp *.h)   
+    file(GLOB cpp_src src/cxx/openglquad_glfw.cpp *.h src/cxx/mathstuff.cpp)   
 #   Fortran Source
     file(GLOB_RECURSE lib_sources90  src/lib90 *.f90 *.for)
     file(GLOB_RECURSE mod_sources90  src/modules *.f90)
 #   
     add_library( c_includes ${rply_sources})
-    add_library( cpp_includes ${opengl_src})  
+    add_library( cpp_includes ${cpp_src})  
     add_library( modules ${mod_sources90})
     add_library( splia ${lib_sources90})
 
