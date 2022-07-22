@@ -136,6 +136,7 @@ file_idx=index(inputfile1, ".DAT")
    call RCNVRTA(inputfile1)
    call CPU_TIME(time_end)
    write(*,*) 'Time to read Atlas CSV file: ',(time_end-time_start)*1000
+   call refineborders(Atlas,RadSlope)
    Radslope=Atlas
   endif
 

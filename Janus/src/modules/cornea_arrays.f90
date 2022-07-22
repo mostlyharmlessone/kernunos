@@ -430,6 +430,9 @@ subroutine RadSlope_eq_Atlas(RadSlope,Atlas) ! initially populates r, thta, Zp, 
        DIST=Atlas%AD(i,imv(i))
        R=Atlas%AR(i,imv(i))
        POW=Atlas%AP(i,imv(i))
+       if (POW == 0) then
+        write(*,*) 'RadSlope=Atlas error: i,j,imv(i) ',i,j,imv(i)
+       endif
        ZIX=RFCT/POW
 !      could use DIST here
        ZJX=R*100                                              
