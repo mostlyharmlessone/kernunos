@@ -2,6 +2,7 @@ module special_fct
 
 use set_precision, ONLY : wp
 use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
+use, intrinsic ::  ieee_arithmetic
 
 INTERFACE OPERATOR (.p.) ! binary operator summation convention/tensors
 !   a .p. b returns scalar sum matrices; rank 0 of a(i,j)*b(i,j) a,b rank 2
@@ -116,7 +117,11 @@ function rgb5(x,minimum, maximum) result(rgbv)
     fract = ratio - real(idx1)+1            ! Distance between the two indexes (0-1).
    endif
   endif
-    
+
+  if (idx1 == 0 .OR.  idx2 == 0) then
+   write(*,*) 'x,min,max,ratio: ',x,minimum,maximum,ratio
+  endif
+ 
   rgbv(1) = (color(1,idx2) - color(1,idx1))*fract + color(1,idx1)
   rgbv(2) = (color(2,idx2) - color(2,idx1))*fract + color(2,idx1)
   rgbv(3) = (color(3,idx2) - color(3,idx1))*fract + color(3,idx1)

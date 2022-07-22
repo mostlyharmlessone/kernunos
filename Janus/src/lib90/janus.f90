@@ -1,4 +1,4 @@
-  subroutine Janus(mainfile, elements, vertices, nV, nE) bind(C,name='janus_') 
+  subroutine Janus(mainfile, elements, vertices, nV, nE)  
 
 ! DRIVER PROGRAM FOR SPLINE ROUTINES
   use set_precision, ONLY : wp
@@ -34,6 +34,7 @@
 !write(*,*) 'file from Jupiter: ',mainfile  ! this will have a lot of extra random non ASCII stuff after the file name
 !! need this because GCC11 isn't F2018 compliant with deferred length character with Bind C
 !! ie. can't do CHARACTER(*,c_char), INTENT(IN) :: mainfile with BIND(C) with GCC11
+!! Juno's mainfile declaration   character(len=12), dimension(:), allocatable :: args with args(1) works too
 !   Converting C char array to Fortran character.
     new_path = " "
     loop_string: do i=1, 4096
@@ -43,7 +44,7 @@
             new_path (i:i) = mainfile (i)
         end if
     end do loop_string
-write(*,*) 'file from Jupiter: ',trim(new_path)
+write(*,*) 'file from Jupiter/Juno: ',trim(new_path)
 nblines=len(trim(new_path)) 
 allocate(character(nblines) :: inputfile1)
 allocate(character(nblines) :: inputfile2)
@@ -98,7 +99,7 @@ file_idx=index(inputfile1, ".DAT")
    endif
 
 !   Temporary until I recover the real values from Geom and resolve memory issues
-goto 99999
+!goto 99999
 
   allocate (MV(MM))
  
@@ -108,7 +109,7 @@ goto 99999
   LinesOfCurv='LIOC.CAR'
 
   call CPU_TIME(time_start)             
-  call init_mat(MM,N,NP,EyeSys,Atlas,RadSlope,DiaSlope,Penta,Skyline,RadSplineCenter)  ! initialize the arrays
+  call init_mat(MM,N,Atlas,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
   call CPU_TIME(time_end)
   write(*,*) 'Time to allocate memory: ',(time_end-time_start)*1000 
  
@@ -117,11 +118,12 @@ goto 99999
 ! XX????? ARE THE AXIAL DIST. RX???? ARE THE MIRE RADII 
 !    call RCNVRTE('RA.DAT','XX.DAT') 
    call CPU_TIME(time_start)
+   call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
    call RCNVRTE(inputfile2,inputfile1) 
    call CPU_TIME(time_end)
    write(*,*) 'Time to read EyeSys files: ',(time_end-time_start)*1000
 !  Generate the slope matrix using ZFCT
-!  Populate "Atlas" data with AXIALP  
+!  Populate "Atlas" data with AXIALP 
    RadSlope=EyeSys 
    Atlas=RadSlope
   endif
@@ -147,6 +149,7 @@ goto 99999
 ! READ THE PENTACAM DATA (which overwrites Atlas)
 ! EA are elevations CA are "sagittal"curvatures in a 141x141 -7 to 7 mm square -1 is no data 
 !  call RCNVRTP('TEST.ELE','TEST.CUR')
+   call init_mat_Penta(NP,Penta,Skyline)   !allocate the PentaCam matices
    call RCNVRTP(inputfile1,inputfile2) 
 ! arrange the data
    call CPU_TIME(time_start)
@@ -157,7 +160,10 @@ goto 99999
    call CPU_TIME(time_end)
    write(*,*) 'Time to convert Penta: ',(time_end-time_start)*1000
    Radslope=Atlas
+   Penta = 0              ! deallocate
+   Skyline = 0
   endif
+
 
 ! Here IuseG changes the contents of RadSlope via FillArray
 !  IuseG == -1 import slopes, return SAGC (axialp), no splining necessary
@@ -279,11 +285,10 @@ goto 99999
   if (i==1) then
    write(*,*) 'Plot: ',i 
    call CPU_TIME(time_start)    
-   if (MM == 360) then
+   if (MM == 360) then      ! implies TestData == 0
 !   Generate the slope matrix using ZFCT
 !   Generate "Atlas" data with AXIALP  
     RadSlope=EyeSys 
-    Atlas=RadSlope
    else ! MM==180
 !   Generate the slope matrix using Atlas data     
     RadSlope=Atlas
@@ -302,11 +307,10 @@ goto 99999
   if (i==2) then
    write(*,*) 'Next Plot: ',i
    call CPU_TIME(time_start)  
-   if (MM == 360) then
+   if (MM == 360) then       ! implies TestData == 0
 !   Generate the slope matrix using ZFCT
 !   Generate "Atlas" data with AXIALP  
     RadSlope=EyeSys 
-    Atlas=RadSlope
    else ! MM==180
 !   Generate the slope matrix using Atlas data     
     RadSlope=Atlas
@@ -385,7 +389,9 @@ goto 99999
 ! deallocate
   call destroyRadSplineCenter(RadSplineCenter)
   deallocate (MV)
-  EyeSys=0 
+  if (TestData == 0) then
+   EyeSys=0 
+  endif
   Atlas=0     
   RadSlope=0
   DiaSlope=0

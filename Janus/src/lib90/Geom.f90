@@ -6,6 +6,7 @@
        use c_interfaces, ONLY : OpenGL_Show
        use special_fct, only : rgb2, rgb5
        use, intrinsic :: iso_c_binding, ONLY : c_float,c_int
+       use, intrinsic ::  ieee_arithmetic
        use ISO_FORTRAN_ENV, only: stdin=>input_unit     ! for the pause read(stdin,*)
        TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
        real(wp), intent(IN) :: powmin,powmax 
@@ -84,9 +85,17 @@
          X3=b%Zp(i,j)   
          vert1 = ABS(X2)*COS(X1) 
          vert2 = ABS(X2)*SIN(X1) 
-         vert3 = X3
+         if (ieee_is_NaN(X3)) then
+          vert3 = 0  ! for out of bound values
+         else
+          vert3 = X3 
+	 endif 
          c_vert=(/vert1,vert2,vert3/)
-         pow=b%Zp(I,J) 
+         if (ieee_is_NaN(X3)) then
+          pow = 0  ! for out of bound values
+         else
+          pow=b%Zp(i,j)   !not just X3 for future painting
+	 endif
          c_rgbv=rgb5(pow,powmin,powmax)/255.0  !openGL wants scale of 1.0 not 255        
          vertices(k:k+5)=(/c_vert,c_rgbv/)
          k=k+6      ! matrix index

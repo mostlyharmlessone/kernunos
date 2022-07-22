@@ -15,16 +15,18 @@ set (FC "gfortran")
 set(CMAKE_CXX_STANDARD 17) # doesn't apply to win32
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
-
+# should read again how to manage compiler flags with Cmake
 if(CMAKE_Fortran_COMPILER_ID MATCHES "gfortran")
-    set(dialect "-ffree-form -std=f2008 -fimplicit-none")
+    set(dialect "-ffree-form -std=f2008")
 #     set(dialect "-std=gnu")
      set(bounds "-fbounds-check")
      set(omp "-fopenmp")
+     set(NaN "-Wall -Wextra -Wimplicit-interface -g -fcheck=all -fbacktrace -ffpe-trap=invalid,zero,overflow -finit-real=snan -finit-integer=-99999999")
 #  profiling with gprof 
  #     set(-pg)    
 #  src profiling with gcov -a -b xxx.f90
-#     set(-g -coverage)     
+#     set(-g -coverage) 
+    set(optimize "-O3 -march=native -ffast-math -funroll-loops")    
 endif()
 if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
     set(dialect "-stand f08 -free -implicitnone")
@@ -40,7 +42,9 @@ endif()
 set(CMAKE_BUILD_TYPE Debug) #this include debugging with addition of bounds flags as specified below
 set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${bounds}")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${dialect}")
+#set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${optimize}")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${omp}")
+set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${NaN}")
 
 set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_DEBUG_MODE 0) #set to 1 to show dependencies
 
@@ -173,10 +177,10 @@ endif(WIN32)
     set(LIBS ${PROJECT_LIBS} ${OUTSIDE_LIBS})
 
     add_executable(${PROJECT_NAME} src/cxx/Jupiter.cpp src/lib90/janus.f90 )
-#    add_executable(testme1 testme1.f90)
+    add_executable(juno src/lib90/juno.f90 src/lib90/janus.f90)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules c_includes cpp_includes ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw)     
-
+target_link_libraries(juno PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules c_includes cpp_includes ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw)
 #target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC ${LIBS})     
 
 

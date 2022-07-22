@@ -107,16 +107,28 @@ END INTERFACE
 
  CONTAINS
  
-subroutine init_mat(MM,N,NP,EyeSys,Atlas,RadSlope,DiaSlope,Penta,Skyline,RadSplineCenter) ! allocate arrays
-  INTEGER, INTENT(IN) :: MM,N,NP
-  real(wp), allocatable :: RadSplineCenter(:)
+subroutine init_mat_Penta(NP,Penta,Skyline) ! allocate PentaCam arrays
+  INTEGER, INTENT(IN) :: NP
+  TYPE(wpPentaMatrix) :: Penta 
+  TYPE(wpSkyline) :: Skyline  
+  allocate (Penta%CUR(NP,NP),Penta%ELE(NP,NP))
+  allocate (Skyline%CUR(NP,NP),Skyline%ELE(NP,NP),Skyline%x(NP,NP),&
+            Skyline%z2CUR(NP,NP),Skyline%z2ELE(NP,NP),Skyline%L2x(NP),Skyline%L2y(NP),&
+            Skyline%index_col(NP)) 
+end subroutine init_mat_Penta
+
+subroutine init_mat_EyeSys(MM,N,EyeSys) ! allocate EyeSys arrays
+  INTEGER, INTENT(IN) :: MM,N
   TYPE(wpEyeSysMatrix) :: EyeSys
+  allocate (EyeSys%RA(MM,N),EyeSys%XX(MM,N),EyeSys%DEG(MM))
+end subroutine init_mat_EyeSys
+
+subroutine init_mat(MM,N,Atlas,RadSlope,DiaSlope,RadSplineCenter) ! allocate common arrays
+  INTEGER, INTENT(IN) :: MM,N
+  real(wp), allocatable :: RadSplineCenter(:)
   TYPE(wpRadSlopeMatrix) :: RadSlope  
   TYPE(wpAtlasMatrix) :: Atlas
   TYPE(wpDiaSlopeMatrix) :: DiaSlope
-  TYPE(wpPentaMatrix) :: Penta 
-  TYPE(wpSkyline) :: Skyline  
-  allocate (EyeSys%RA(MM,N),EyeSys%XX(MM,N),EyeSys%DEG(MM))
   allocate (RadSlope%r(MM,N),RadSlope%Zp(MM,N),RadSlope%Zp2(MM,N),&
             Radslope%Zt2(MM,N),RadSlope%thta(MM),RadSlope%MV(MM))  
   allocate (DiaSlope%rd(MM/2,2*N),DiaSlope%Zpd(MM/2,2*N),&
@@ -125,10 +137,6 @@ subroutine init_mat(MM,N,NP,EyeSys,Atlas,RadSlope,DiaSlope,Penta,Skyline,RadSpli
             DiaSlope%rOutMin(MM/2),DiaSlope%rInMin(MM/2))
   allocate (Atlas%AR(MM,N),Atlas%AD(MM,N),Atlas%AP(MM,N),&
             Atlas%AY(MM,N),Atlas%DEG(MM))
-  allocate (Penta%CUR(NP,NP),Penta%ELE(NP,NP))
-  allocate (Skyline%CUR(NP,NP),Skyline%ELE(NP,NP),Skyline%x(NP,NP),&
-            Skyline%z2CUR(NP,NP),Skyline%z2ELE(NP,NP),Skyline%L2x(NP),Skyline%L2y(NP),&
-            Skyline%index_col(NP)) 
   allocate (RadSplineCenter(MM))          
 end subroutine init_mat
 

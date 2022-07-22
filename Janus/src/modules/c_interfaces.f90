@@ -6,6 +6,7 @@ module c_interfaces
 ! allows call from c to fortran77 dgemm in LAPACK using c_dgemm.f90
 SUBROUTINE c_dgemm(transa,transb,m,n,k,alpha,a,lda,b,ldb,beta,c,ldc) bind(c,name='C_dgemm')
  USE, INTRINSIC :: iso_c_binding, ONLY : c_char, c_int, c_double
+ USE LapackInterface, ONLY : dgemm
  CHARACTER (c_char), INTENT (IN) :: transa, transb
  INTEGER (c_int), INTENT (IN) :: m, n, k, lda, ldb, ldc
  REAL (c_double), INTENT (IN) :: alpha, beta, a(lda,*), b(ldb,*)
@@ -21,7 +22,7 @@ SUBROUTINE ConvertPLYtoBIN(infile,outfile) BIND(C,name='convertplytobin_') !note
 END SUBROUTINE ConvertPLYtoBIN
 
 ! call from c++ to fortran as extern "C" for data exchange
-SUBROUTINE Janus(mainfile, elements, vertices, nV, nE) BIND(C,name='janus_')
+SUBROUTINE Janus(mainfile, elements, vertices, nV, nE)                      !do not use BIND(C, name=) that's only for fortran calling C/C++ not vice versa bind(C,name='janus_')
  USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
  IMPLICIT NONE 
  CHARACTER(c_char), INTENT(IN), DIMENSION(4096) :: mainfile

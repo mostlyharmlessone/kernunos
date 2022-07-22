@@ -6,6 +6,7 @@
        use set_precision, ONLY : wp
        use special_fct, only : rgb2, rgb5
        use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
+       use, intrinsic ::  ieee_arithmetic
        TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
        character(len=*), intent(in) :: OFFNAME,PLYNAME
        real(wp), intent(IN) :: powmin,powmax 
@@ -114,14 +115,20 @@
 !      There are "unreferenced vertices" this way, but it is much easier with vertex numbering                                                                   
        do i=1,M1
         do j=1,N1 
-         X1=b%thta(i)
-         X2=b%r(i,j)
-         X3=b%Zp(i,j)   
-         vert1 = ABS(X2)*COS(X1) 
-         vert2 = ABS(X2)*SIN(X1) 
-         vert3 = X3            
+
+          X1=b%thta(i)
+          X2=b%r(i,j)
+          X3=b%Zp(i,j)   
+          vert1 = ABS(X2)*COS(X1) 
+          vert2 = ABS(X2)*SIN(X1) 
+         if (ieee_is_NaN(X3)) then
+          vert3 = 0  ! for out of bound values
+         else
+          vert3 = X3 
+	 endif           
          write(unitno1,*) vert1,vert2,vert3
          write(unitno3,*) vert1,vert2,vert3 
+
         end do
        end do
 
