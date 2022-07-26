@@ -8,7 +8,7 @@ MODULE cornea_arrays
 !      USE special_fct, ONLY : OPERATOR(.p.) ! tensor summation convention 
  REAL(wp), PARAMETER :: PI=3.1415926535897932384626433832795_wp
  REAL(wp), PARAMETER :: RFCT=33750.0_wp
- REAL(wp), PARAMETER :: EPS=0.0001_wp  ! used in pspli and SplineCenter
+ REAL(wp), PARAMETER :: EPS=0.0001_wp  ! used in pspli,SplineCenter,corneal calc fcts
 ! INTEGER, PARAMETER :: NP=141         ! PentaCam
 ! INTEGER, PARAMETER :: MM=180, N=22   ! Atlas
 ! INTEGER, PARAMETER :: MM=360, N=16  ! EyeSys
@@ -65,7 +65,6 @@ MODULE cornea_arrays
 INTERFACE ASSIGNMENT (=)  
 !Type(FirstArg) = Type(SecondArg) converts/populates to rhs to lhs
  MODULE PROCEDURE Atlas_eq_RadSlope
- MODULE PROCEDURE Atlas_eq_Skyline
  MODULE PROCEDURE Skyline_eq_Penta
  MODULE PROCEDURE RadSlope_eq_EyeSys
  MODULE PROCEDURE RadSlope_eq_Atlas
@@ -131,8 +130,8 @@ subroutine init_mat(MM,N,Atlas,RadSlope,DiaSlope,RadSplineCenter) ! allocate com
   TYPE(wpDiaSlopeMatrix) :: DiaSlope
   allocate (RadSlope%r(MM,N),RadSlope%Zp(MM,N),RadSlope%Zp2(MM,N),&
             Radslope%Zt2(MM,N),RadSlope%thta(MM),RadSlope%MV(MM))  
-  allocate (DiaSlope%rd(MM/2,2*N),DiaSlope%Zpd(MM/2,2*N),&
-            DiaSlope%Zpd2(MM/2,2*N),DiaSlope%L2(MM/2))
+  allocate (DiaSlope%rd(2*N,MM/2),DiaSlope%Zpd(2*N,MM/2),&
+            DiaSlope%Zpd2(2*N,MM/2),DiaSlope%L2(MM/2))
   allocate (DiaSlope%rOutMax(MM/2),DiaSlope%rInMax(MM/2),&
             DiaSlope%rOutMin(MM/2),DiaSlope%rInMin(MM/2))
   allocate (Atlas%AR(MM,N),Atlas%AD(MM,N),Atlas%AP(MM,N),&
@@ -146,8 +145,8 @@ subroutine init_augmented_mat(MM,N,M,ARadSlope,ADiaSlope) !allocate augmented ar
   TYPE(wpDiaSlopeMatrix) :: ADiaSlope  
   allocate (ARadSlope%r(MM,N*M),ARadSlope%Zp(MM,N*M),ARadSlope%Zp2(MM,N*M),&
             ARadSlope%Zt2(MM,N*M),ARadSlope%thta(MM),ARadSlope%MV(MM))  
-  allocate (ADiaSlope%rd(MM/2,2*N*M),ADiaSlope%Zpd(MM/2,2*N*M),&
-            ADiaSlope%Zpd2(MM/2,2*N*M),ADiaSlope%L2(MM/2))
+  allocate (ADiaSlope%rd(2*N*M,MM/2),ADiaSlope%Zpd(2*N*M,MM/2),&
+            ADiaSlope%Zpd2(2*N*M,MM/2),ADiaSlope%L2(MM/2))
   allocate (ADiaSlope%rOutMax(MM/2),ADiaSlope%rInMax(MM/2),&
             ADiaSlope%rOutMin(MM/2),ADiaSlope%rInMin(MM/2))
 end subroutine init_augmented_mat
@@ -214,10 +213,9 @@ end subroutine destroy_Skyline
 subroutine Skyline_eq_Penta(Skyline,Penta)                                            ! Arrange data Skyline, that will allow loading into SplineEval                                            
   TYPE(wpSkyline) :: Skyline                                                          ! x,f(x) knots, number of knots(length) and u (test point) 
   TYPE(wpPentaMatrix) :: Penta                                                        ! This is the equivalent of DiaSlope=RadSlope
-  Integer :: i,j,k,NP,ii,jj                                                           ! skyline x by rows, generate y using indices later
+  Integer :: i,j,NP,ii,jj                                                             ! skyline x by rows, generate y using indices later
   Integer :: first_row,last_row,col(size(Penta%CUR,1)),index_row(size(Penta%CUR,1))                                
   Integer :: first_col,last_col,row(size(Penta%CUR,1)),index_col(size(Penta%CUR,1))
-  real (wp) :: x,y
   NP=size(Penta%CUR,1)
 ! Find edges of data, Penta "data" is contiguous
   index_row=0 ; col=0 ; Skyline%cols=0 ; first_row=0 ; last_row=141  
@@ -274,20 +272,20 @@ subroutine Skyline_eq_Penta(Skyline,Penta)                                      
     Skyline%cols=Skyline%L2x(i)
    endif
   end do
-  Skyline%first_row=first_row                ! needed for offset
+  Skyline%first_row=first_row                         ! needed for offset
   if  ( Skyline%rows .ne. last_row-first_row+1 ) then
-   write(*,*) 'Inconsistent row count in Skyline'   ! numbers of rows should be maximum length of columns
+   write(*,*) 'Inconsistent row count in Skyline'     ! numbers of rows should be maximum length of columns
    stop
   endif
 end subroutine Skyline_eq_Penta
 
-subroutine Atlas_eq_Skyline(Atlas,Skyline)      ! initially Atlas populates r, thta, POW, elevation with splining
+subroutine Atlas_eq_Skyline(Atlas,Skyline,Penta)      ! initially Atlas populates r, thta, POW, elevation with splining
   TYPE(wpSkyline), INTENT(INOUT) :: Skyline                                             
   TYPE(wpAtlasMatrix), INTENT(INOUT) :: Atlas
-  real(wp) :: a(size(Atlas%AR,1),size(Atlas%AR,2))    ! Atlas size rings and radii                                            
-  integer :: M1,N1,i,ii,j,k,kk,L2,offset,NP,ITH
+  TYPE(wpPentaMatrix), INTENT(IN) :: Penta
+  integer :: M1,N1,i,j,k,kk,L2,offset,NP,ITH
   integer :: imv(size(Atlas%AR,1))
-  real(wp) :: rBo,rBi,CUR,ELE,u,v,f,fTmp(Skyline%rows),f2Tmp(Skyline%rows)
+  real(wp) :: rBo,rBi,CUR,ELE,u,v,xx,yy,f,fTmp(Skyline%rows),f2Tmp(Skyline%rows)
   real(wp) :: r(size(Atlas%AR,1)),z(Skyline%cols),z2(Skyline%cols)
   real(wp) :: x(Skyline%cols),zx(Skyline%cols),zx2(Skyline%cols)           ! maximum size needed, don't need NP
   real(wp) :: y(Skyline%rows),gTmp(Skyline%rows),g2Tmp(Skyline%rows)
@@ -309,8 +307,9 @@ subroutine Atlas_eq_Skyline(Atlas,Skyline)      ! initially Atlas populates r, t
   end do
 
 ! make rings
-  rBo=0.7*min(Skyline%cols,Skyline%rows)*7.0/(NP-1.0)  ! scale in 14x 14 mm of Penta matrix 141x141 divided by 2
-  rBi=0.10*rBo                              ! donut       also make rings 70% of rBo                                                			
+! scale in 14x 14 mm of Penta matrix 141x141 divided by 2
+  rBo=7.0
+  rBi=0.10*rBo                              ! donut                                                      			
   do i=1,M1
    ITH=2*(i-1)
    Atlas%DEG(i)=ITH                        ! Atlas style degrees every two
@@ -318,6 +317,11 @@ subroutine Atlas_eq_Skyline(Atlas,Skyline)      ! initially Atlas populates r, t
     r(j)=(j-1)*(rBo-rBi)/(N1-1)+rBi  
     u=r(j)*COS(PI*Atlas%DEG(i)/180)        ! x,y coordinates of ring point
     v=r(j)*SIN(PI*Atlas%DEG(i)/180)
+!   boundary check here 
+    xx=u*(NP-1)/14.0 ; yy=v*(NP-1)/14.0
+    if (Penta%CUR(1+(NP-1)/2+sign(floor(ABS(xx)),floor(xx)),1+(NP-1)/2+sign(floor(ABS(yy)),floor(yy))) < 0) then  ! test for -1 why is Penta available here
+     cycle ! skip this one
+    endif
 !   Populate Atlas with Splined PentaCam
 !   Spline both CUR and ELE in y      (this is the equivalent of Spline1Dx1D)
     do k=1,Skyline%rows
@@ -342,7 +346,6 @@ subroutine Atlas_eq_Skyline(Atlas,Skyline)      ! initially Atlas populates r, t
     call SplineEval(0,y(1:L2),fTmp(1:L2),f2Tmp(1:L2),L2,v,CUR)  ! first parameter = 0 nonperiodic 
     call nspline(y(1:L2),gTmp(1:L2),L2,g2Tmp(1:L2))             ! spline in Y
     call SplineEval(0,y(1:L2),gTmp(1:L2),g2Tmp(1:L2),L2,v,ELE)  ! first parameter = 0 nonperiodic 
-
     imv(i)=imv(i)+1
     Atlas%AY(i,imv(i))=ABS(ELE)
     Atlas%AR(i,imv(i))=ABS(r(j))                              
@@ -359,7 +362,7 @@ subroutine RadSlope_eq_EyeSys(RadSlope,EyeSys) ! initially populates r, thta, Zp
   TYPE(wpRadSlopeMatrix) :: RadSlope
   INTEGER :: i,j,MM,N
   integer :: imv(size(RadSlope%r,1))
-  REAL(wp) :: ZIX,ZJX,YA1,YA2,YA3,X2A1
+  REAL(wp) :: ZIX,ZJX,YA3,X2A1
   MM=size(RadSlope%r,1)
   N=size(RadSlope%r,2)
   do i=1,MM
@@ -388,7 +391,7 @@ subroutine Atlas_eq_RadSlope(Atlas,RadSlope)
   TYPE(wpAtlasMatrix) :: Atlas
   INTEGER :: i,j,MM,N
   integer :: imv(size(RadSlope%r,1))
-  REAL(wp) :: X1,X2,Y,YP,Y2X,POW
+  REAL(wp) :: X2,YP,Y2X,POW
   imv=0
   Atlas%AP=0._wp
   MM=size(RadSlope%r,1)
@@ -414,7 +417,7 @@ end subroutine Atlas_eq_RadSlope
 subroutine RadSlope_eq_Atlas(RadSlope,Atlas) ! initially populates r, thta, Zp, MV
   TYPE(wpRadSlopeMatrix) :: RadSlope
   TYPE(wpAtlasMatrix) :: Atlas
-  REAL(wp) :: ZIX,ZJX,YA1,YA2,YA3,X2A1
+  REAL(wp) :: ZIX,ZJX,YA3,X2A1
   REAL(wp) :: DIST,R,POW
   INTEGER :: i,j,MM,N,imv(size(RadSlope%r,1))
     MM=size(RadSlope%r,1)
@@ -427,12 +430,9 @@ subroutine RadSlope_eq_Atlas(RadSlope,Atlas) ! initially populates r, thta, Zp, 
      do j=1,N
       if ((Atlas%AP(i,j) > 0) .AND. (Atlas%AR(i,j) > 0)) then    ! Only for Atlas with POW /= 0 
        imv(i)=imv(i)+1      
-       DIST=Atlas%AD(i,imv(i))
-       R=Atlas%AR(i,imv(i))
-       POW=Atlas%AP(i,imv(i))
-       if (POW == 0) then
-        write(*,*) 'RadSlope=Atlas error: i,j,imv(i) ',i,j,imv(i)
-       endif
+       DIST=Atlas%AD(i,j)
+       R=Atlas%AR(i,j)
+       POW=Atlas%AP(i,j)
        ZIX=RFCT/POW
 !      could use DIST here
        ZJX=R*100                                              
@@ -440,10 +440,10 @@ subroutine RadSlope_eq_Atlas(RadSlope,Atlas) ! initially populates r, thta, Zp, 
         RadSlope%r(i,imv(i))=X2A1
         RadSlope%Zp(i,imv(i))=YA3
       endif 
-        RadSlope%Zp2(i,j)=1/803.0_wp ! fallback value before splining  
+        RadSlope%Zp2(i,imv(i))=1/803.0_wp ! fallback value before splining  
      end do
-     RadSlope%MV(i)=imv(i)
-    end do   
+    end do
+    RadSlope%MV(:)=imv(:)
 end subroutine RadSlope_eq_Atlas
 
 subroutine DiaSlope_eq_RadSlope(DiaSlope,RadSlope)
@@ -454,8 +454,8 @@ subroutine DiaSlope_eq_RadSlope(DiaSlope,RadSlope)
  real(wp) :: rB
  ASSOCIATE(MV=>RadSlope%MV,rOMIN=>DiaSlope%rOutMin,rIMIN=>DiaSlope%rInMin,&
                            rOMAX=>DiaSlope%rOutMax,rIMAX=>DiaSlope%rInMax)
-   M1=size(DiaSlope%rd,1) !M1=MM/2
-   N1=size(DiaSlope%rd,2) !N1=2*N for "regular" DiaSlope, N1=2*N*M for augmented 
+   M1=size(DiaSlope%rd,2) !M1=MM/2
+   N1=size(DiaSlope%rd,1) !N1=2*N for "regular" DiaSlope, N1=2*N*M for augmented 
    do i=1,M1
     DiaSlope%L2(i)=MV(i)+MV(i+M1)
 !   initialize bounds    
@@ -466,20 +466,20 @@ subroutine DiaSlope_eq_RadSlope(DiaSlope,RadSlope)
     do j=1,N1
       if (j <= MV(i+M1)) then
 !      NO SIGN CHANGE HERE FOR RADIUS, ALREADY DONE IN RCNVRT 
-       DiaSlope%rd(i,j)=RadSlope%r(i+M1,MV(i+M1)-j+1)
-       DiaSlope%Zpd(i,j)=RadSlope%Zp(i+M1,MV(i+M1)-j+1)
-       DiaSlope%Zpd2(i,j)=RadSlope%Zp2(i+M1,MV(i+M1)-j+1)
+       DiaSlope%rd(j,i)=RadSlope%r(i+M1,MV(i+M1)-j+1)
+       DiaSlope%Zpd(j,i)=RadSlope%Zp(i+M1,MV(i+M1)-j+1)
+       DiaSlope%Zpd2(j,i)=RadSlope%Zp2(i+M1,MV(i+M1)-j+1)
 !      FIND BOUNDS          
-       rB=DiaSlope%rd(i,j) 
+       rB=DiaSlope%rd(j,i) 
        if (rB <= rOMIN(i)) rOMIN(i)=rB
        if (rB >= rIMIN(i)) rIMIN(i)=rB                    
       endif
       if (j <= MV(i)) then
-       DiaSlope%rd(i,j+MV(i+M1))=RadSlope%r(i,j)
-       DiaSlope%Zpd(i,j+MV(i+M1))=RadSlope%Zp(i,j)
-       DiaSlope%Zpd2(i,j+MV(i+M1))=RadSlope%Zp2(i,j)      
+       DiaSlope%rd(j+MV(i+M1),i)=RadSlope%r(i,j)
+       DiaSlope%Zpd(j+MV(i+M1),i)=RadSlope%Zp(i,j)
+       DiaSlope%Zpd2(j+MV(i+M1),i)=RadSlope%Zp2(i,j)      
 !      FIND BOUNDS          
-       rB=DiaSlope%rd(i,j+MV(i+M1))
+       rB=DiaSlope%rd(j+MV(i+M1),i)
        if (rB <= rIMAX(i)) rIMAX(i)=rB
        if (rB >= rOMAX(i)) rOMAX(i)=rB                        
       endif
@@ -494,19 +494,19 @@ subroutine RadSlope_eq_DiaSlope(RadSlope,DiaSlope)
  TYPE(wpRadSlopeMatrix) :: RadSlope
  TYPE(wpDiaSlopeMatrix) :: DiaSlope
  ASSOCIATE(MV => RadSlope%MV) 
-   M1=size(DiaSlope%rd,1) !M1=MM/2
-   N1=size(DiaSlope%rd,2) !N1=2*N for "regular" DiaSlope, N1=2*N*M for augmented
+   M1=size(DiaSlope%rd,2) !M1=MM/2
+   N1=size(DiaSlope%rd,1) !N1=2*N for "regular" DiaSlope, N1=2*N*M for augmented
    do i=1,M1
     do j=1,N1
       if (j <= MV(i+M1)) then
-       RadSlope%r(i+M1,MV(i+M1)-j+1)=DiaSlope%rd(i,j)
-       RadSlope%Zp(i+M1,MV(i+M1)-j+1)=DiaSlope%Zpd(i,j)
-       RadSlope%Zp2(i+M1,MV(i+M1)-j+1)=DiaSlope%Zpd2(i,j)
+       RadSlope%r(i+M1,MV(i+M1)-j+1)=DiaSlope%rd(j,i)
+       RadSlope%Zp(i+M1,MV(i+M1)-j+1)=DiaSlope%Zpd(j,i)
+       RadSlope%Zp2(i+M1,MV(i+M1)-j+1)=DiaSlope%Zpd2(j,i)
       endif
       if (j <= MV(i)) then
-       RadSlope%r(i,j)=DiaSlope%rd(i,j+MV(i+M1))
-       RadSlope%Zp(i,j)=DiaSlope%Zpd(i,j+MV(i+M1))
-       RadSlope%Zp2(i,j)=DiaSlope%Zpd2(i,j+MV(i+M1))
+       RadSlope%r(i,j)=DiaSlope%rd(j+MV(i+M1),i)
+       RadSlope%Zp(i,j)=DiaSlope%Zpd(j+MV(i+M1),i)
+       RadSlope%Zp2(i,j)=DiaSlope%Zpd2(j+MV(i+M1),i)
       endif
     end do
    end do
@@ -517,10 +517,10 @@ function DiaSpline(b) result(a)
  TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b
  integer :: M1,N1,i
  real(wp) :: a(size(b%rd,1),size(b%rd,2))  
- N1=size(b%rd,2) !N1=2*N*M for augmented
- M1=size(b%rd,1) !M1=MM/2
+ N1=size(b%rd,1) !N1=2*N*M for augmented
+ M1=size(b%rd,2) !M1=MM/2
   do i=1,M1 
-   call nspline(b%rd(i,:),b%Zpd(i,:),b%L2(i),a(i,:)) 
+   call nspline(b%rd(:,i),b%Zpd(:,i),b%L2(i),a(:,i)) 
   end do
 end function DiaSpline
 
@@ -528,10 +528,10 @@ function DiaSplineCenter(b) result(a)
  TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b
  integer :: M1,N1,i
  real(wp) :: a(size(b%rd,1),size(b%rd,2))  
- N1=size(b%rd,2) !N1=2*N*M for augmented
- M1=size(b%rd,1) !M1=MM/2
+ N1=size(b%rd,1) !N1=2*N*M for augmented
+ M1=size(b%rd,2) !M1=MM/2
   do i=1,M1 
-   call nsplineCenter(b%rd(i,:),b%Zpd(i,:),b%L2(i),a(i,:)) 
+   call nsplineCenter(b%rd(:,i),b%Zpd(:,i),b%L2(i),a(:,i)) 
   end do
 end function DiaSplineCenter
 
@@ -540,12 +540,12 @@ function DiaIntegrate(b) result(a)
  integer :: i,j,M1,N1
  real(wp) :: Q,Q0
  real(wp) :: a(size(b%rd,1),size(b%rd,2))
- N1=size(b%rd,2) !N1=2*N*M for augmented
- M1=size(b%rd,1) !M1=MM/2)
+ N1=size(b%rd,1) !N1=2*N*M for augmented
+ M1=size(b%rd,2) !M1=MM/2)
   do i=1,M1
-   call CubicSplineQuad(b%rd(i,:),b%Zpd(i,:),b%Zpd2(i,:),b%L2(i),0._wp,Q0)
+   call CubicSplineQuad(b%rd(:,i),b%Zpd(:,i),b%Zpd2(:,i),b%L2(i),0._wp,Q0)
    do j=1,b%L2(i)    
-    call CubicSplineQuad(b%rd(i,:),b%Zpd(i,:),b%Zpd2(i,:),b%L2(i),b%rd(i,j),Q)
+    call CubicSplineQuad(b%rd(:,i),b%Zpd(:,i),b%Zpd2(:,i),b%L2(i),b%rd(j,i),Q)
     a(i,j)=Q-Q0
    end do
   end do
@@ -573,11 +573,11 @@ end function RadInterpolate
 function make_rings(b,Origin) result(a)   ! works on DiaSlope (needs bounds), generates round rings
  TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b
  logical, intent(IN) :: Origin
- real(wp) :: a(2*size(b%rd,1),size(b%rd,2)/2) ! RadSlope size rings and radii
+ real(wp) :: a(2*size(b%rd,2),size(b%rd,1)/2) ! RadSlope size rings and radii
  real(wp) :: rBi,rBo
  integer :: M1,N1,i,j 
- M1=2*size(b%rd,1) !M1=MM convert DiaSlope dimensions to RadSlope
- N1=size(b%rd,2)/2 !N1=N convert "regular" Diaslope to RadSlope, N1=N*M for augmented
+ M1=2*size(b%rd,2) !M1=MM convert DiaSlope dimensions to RadSlope
+ N1=size(b%rd,1)/2 !N1=N convert "regular" Diaslope to RadSlope, N1=N*M for augmented
  rBi=1E30
  rBo=-1E30
  ASSOCIATE(rOMIN=>b%rOutMin,rIMIN=>b%rInMin,&
@@ -608,13 +608,13 @@ end function make_rings
 function make_bad_rings(b,Origin) result(a)   ! works on DiaSlope (needs bounds)
  TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b       ! generates rings based on original reduced boundaries like genfilA
  logical, intent(IN) :: Origin
- real(wp) :: a(2*size(b%rd,1),size(b%rd,2)/2) ! RadSlope size rings
- real(wp) :: rBi(size(b%rd,1)),rBo(size(b%rd,1))
+ real(wp) :: a(2*size(b%rd,2),size(b%rd,1)/2) ! RadSlope size rings
+ real(wp) :: rBi(size(b%rd,2)),rBo(size(b%rd,1))
  integer :: M1,N1,i,j 
  ASSOCIATE(rOMIN=>b%rOutMin,rIMIN=>b%rInMin,&
            rOMAX=>b%rOutMax,rIMax=>b%rInMax)
-   M1=size(b%rd,1)   !M1=MM/2
-   N1=size(b%rd,2)/2 !N1=N convert "regular" Diaslope to RadSlope, N1=N*M for augmented
+   M1=size(b%rd,2)   !M1=MM/2
+   N1=size(b%rd,1)/2 !N1=N convert "regular" Diaslope to RadSlope, N1=N*M for augmented
    if (Origin) then 
     rBi=0
     rBo=0
@@ -683,8 +683,8 @@ function fillin(b) result(a)
       do k=1,M1 
       degK=b%DEG(k)*PI/180.0_wp  
        call SplineEval(1,t,z,zt2,mvjr(i),degK,RTEMP)
-        IF(ABS(b%AR(K,I)-RTEMP).GT.1E-5)then
-         IF(b%AR(K,I).NE.0)THEN
+        IF(ABS(b%AR(K,I)-RTEMP) > EPS)then
+         IF(ABS(b%AR(K,I)) > EPS)THEN
          write(*,*) 'spline error 3 in cornea_arrays fillin',K,I,b%AR(K,I),RTEMP
          endif
         endif 
@@ -877,69 +877,6 @@ function pca(M3,b) result(a)
           	 	
 end function pca
 
-!  finds MV based on Atlas%AR and Atlas%AP
-subroutine refineborders(Atlas,RadSlope)
- TYPE(wpAtlasMatrix) :: Atlas
- TYPE(wpRadSlopeMatrix) :: RadSlope
- INTEGER :: i,j,IZ,MM
- integer :: imv(size(RadSlope%r,1))
- REAL(wp) :: R,POW        
-! initialize
-
-  MM=size(RadSlope%r,1)
-  IZ=1 
-  call initborders(Atlas,imv)
-
-  do while (IZ == 1)
-!  SAVE MV(MM)
-   do i=1,MM
-    RadSlope%MV(i)=imv(i)
-   end do
-!  REFINE BOUNDARY same as init borders with RadSlope%MV(i) instead of N
-   do i=1,MM
-    imv(i)=0
-    do j=1,RadSlope%MV(i)       
-!    BOUNDS CHECKING 
-     R=Atlas%AR(i,j)
-     POW=Atlas%AP(i,j)                     
-     if(POW > 0 .AND. R > 0) then                                       
-       imv(I)=imv(I)+1        
-     endif
-    end do
-   end do
-!   Are we done
-       IZ=0           
-       do i=1,MM
-        if ((RadSlope%MV(i)-imv(i)) /= 0) then
-!          write(*,*) 'refineborders',i,RadSlope%MV(i),imv(i)
-          IZ=1
-        endif
-       end do
-  end do
-end subroutine refineborders
-
-!  finds initial MV based on Atlas%AR and Atlas%AP
-subroutine initborders(Atlas,imv)
- TYPE(wpAtlasMatrix) :: Atlas
- INTEGER :: i,j,MM,N
- INTEGER, INTENT(OUT):: imv(size(Atlas%AR,1))
- REAL(wp) :: R,POW
- MM=size(Atlas%AR,1)
- N=size(Atlas%AR,2)
-   do i=1,MM
-    imv(i)=0
-    do j=1,N       
-!    BOUNDS CHECKING 
-     R=Atlas%AR(i,j)
-     POW=Atlas%AP(i,j)    
-     if(POW > 0 .AND. R > 0) then                                       
-       imv(i)=imv(i)+1        
-     endif
-    end do
-   end do
-end subroutine initborders
- 
-
 !! corneal calculation subroutines
 
 ! signed slope and radius from eyesys style data, or ZIX=RFCT/POW, POW is axial power from Atlas style data
@@ -981,7 +918,7 @@ subroutine instantp(X2,Y1X,Y1T,Y2X,TANC,ZNMEX)
  real(wp), INTENT(OUT) :: TANC,ZNMEX
  TANC=RFCT*Y2X/(SQRT(1+(Y1X)**2)**3)
 ! UNDEFINED AT ORIGIN X2=0, LIMIT IS RFCT*Y2X ALSO TANC BECAUSE Y1X = 0 at ORIGIN X2=0 
- if (X2 == 0) then
+ if (ABS(X2) < EPS) then
    ZNMEX=TANC    
  else
    ZNMEX=RFCT*Y2X/((1+Y1X**2)*SQRT(1+(Y1T/X2)**2+Y1X**2))
@@ -998,7 +935,7 @@ subroutine meanp(X1,X2,Y1XIN,Y1T,Y1XT,Y2T,Y2X,ZMM)
  real(wp) :: ZMX,Y,Y1X
 ! MONGE MEAN CURVATURE
 ! WHEN X2<0 X1>PI
-  IF (X2 /= 0) THEN
+  if (ABS(X2) > EPS) then
    IF (X2 < 0 .AND. X1 >= PI) THEN
       Y=X2
       Y1X=Y1XIN      
@@ -1028,7 +965,7 @@ subroutine mongea(X1,X2,Y1XIN,Y1T,Y1XT,Y2T,Y2X,ZA)
 ! MONGE ASTIG 
 ! WATCH OUT FOR ZERO AT UMBILICAL POINTS!
 ! WHEN X2>0 X1<PI
-    if (X2 /= 0) then
+   if (ABS(X2) > EPS) then
      if (X2 > 0 .AND. X1 <= PI) then
        Y=X2
        Y1X=Y1XIN
@@ -1061,7 +998,7 @@ subroutine LIOC(X1,X2,Y1X,Y1T,UPOS,VPOS,UTPOS,VTPOS)
    real(wp), intent(in) :: X1,X2,Y1X,Y1T
    real(wp), intent(out) :: UPOS,VPOS,UTPOS,VTPOS      
 !  CARTESIAN TANGENT VECTOR COMPONENTS (-UTPOS,-VTPOS,1)  
-   if (X2 /= 0) then
+   if (ABS(X2) > EPS) then
      if (X2 > 0) then     
         UPOS=X2*COS(X1)
         VPOS=X2*SIN(X1)

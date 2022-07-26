@@ -2,6 +2,13 @@ module io_functions
 ! module for opening files sanely
 
    INTERFACE
+
+    subroutine ConvertOFFtoSTL(OFFNAME,STLNAME,STLBINNAME) 
+     use special_fct, only : surface_normal,rgb2attr
+      use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
+     character(len=*), intent(in) :: OFFNAME,STLNAME,STLBINNAME
+    end subroutine
+
     SUBROUTINE fillarray(IuseG,KX1,POWMIN,POWMAX)
 !     COMPUTES ATLAS DATA 
 !     IuseG to select what to place in RadSlope%Zp AND/OR compute LIOC
@@ -24,6 +31,29 @@ module io_functions
        TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
        real(wp), intent(IN) :: powmin,powmax 
     END SUBROUTINE
+
+    subroutine rcnvrta(KXNAME)
+     USE set_precision, ONLY : wp
+     USE cornea_arrays, ONLY : Atlas, PI
+     character(len=*), intent(in) :: KXNAME
+    end subroutine
+
+    subroutine rcnvrte(RANAME,XXNAME)
+     USE set_precision, ONLY : wp
+     USE cornea_arrays, ONLY : EyeSys,Atlas
+     character(len=*), intent(in) :: RANAME,XXNAME 
+    end subroutine
+
+    subroutine rcnvrtp(filenameE,filenameC)
+     USE cornea_arrays, ONLY : Penta
+     character(len=*), intent(in) :: filenameE,filenameC
+    end subroutine
+
+    subroutine RCNVRTT(MM,N,NP)
+     USE set_precision, ONLY : wp
+     USE cornea_arrays
+     INTEGER, INTENT(IN) :: MM,N,NP
+    end subroutine
 
     SUBROUTINE WriteGeom(b,powmin,powmax,OFFNAME,PLYNAME)
       USE cornea_arrays

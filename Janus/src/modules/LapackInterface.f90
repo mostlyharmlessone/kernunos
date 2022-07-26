@@ -9,6 +9,34 @@
 
         INTERFACE
 
+         SUBROUTINE DCTSV( N, NRHS, DL, D, DU, B, LDB, INFO )     !This one is not a LAPACK function, but has a similar interface/function
+          USE OMP_LIB     
+!         PURPOSE solves the cyclic/periodic tridiagonal system, see LAPACK routine DGTSV for comparison
+!         Copyright (c) 2021   Anthony M de Beus
+          INTEGER, PARAMETER :: wp = KIND(0.0D0) ! working precision
+!         .. Scalar Arguments ..
+          INTEGER, INTENT(IN) :: LDB, N, NRHS
+          INTEGER, INTENT(OUT) :: INFO 
+!         ..
+!         .. Array Arguments ..
+          REAL(wp), INTENT(IN) :: D( N ), DL( N ), DU( N )  ! no output no LU factors
+          REAL(wp), INTENT(INOUT) :: B( LDB, NRHS )         ! on entry RHS, on exit, solution
+        END SUBROUTINE DCTSV
+
+        SUBROUTINE DCBSV( N, KU, NRHS, AB, LDAB, B, LDB, INFO ) !This one is not a LAPACK function, but has a similar interface/function and uses DGESV/XERBLA
+         USE OMP_LIB      
+!        Copyright (c) 2021   Anthony M de Beus
+!        PURPOSE solves the cyclic/periodic general banded system, see LAPACK routine DGBSV by contrast
+!        using an O(N/KU+KU)xKUxKU algorithm
+         INTEGER, PARAMETER :: wp = KIND(0.0D0) ! working precision
+!        .. Scalar Arguments ..
+         Integer, Intent(IN) ::  KU, LDAB, LDB, N, NRHS
+         INTEGER, INTENT(OUT) :: INFO
+!        .. Array Arguments ..
+         Real(wp), Intent(IN) :: AB( ldab, * )
+         Real(wp), Intent(INOUT) ::  B( ldb, * )
+        END SUBROUTINE DCBSV
+
          SUBROUTINE DSYEV( JOBZ, UPLO, N, A, LDA, W, WORK, LWORK, INFO )
 
 !     .. Scalar Arguments ..

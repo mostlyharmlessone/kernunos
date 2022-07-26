@@ -4,7 +4,7 @@
        TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
        character(len=*), intent(in) :: KXNAME
        integer :: MM,i
-       MM=size(RadSlope%r,1)             
+       MM=size(b%r,1)             
        open (UNIT = 12, FILE = KXNAME)
        
        do i=1,MM

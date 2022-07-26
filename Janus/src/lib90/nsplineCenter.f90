@@ -1,6 +1,6 @@
  subroutine nsplineCenter(r,z,n,z2)
  use set_precision, only : wp
- use spline_interfaces, ONLY : bsearch
+ use spline_interfaces, ONLY : bsearch, thomas
  use LapackInterface, ONLY : dgtsv
   integer, INTENT(IN) :: n
   real(wp), INTENT(IN) ::  r(n),z(n)

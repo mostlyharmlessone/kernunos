@@ -8,7 +8,6 @@
   real(wp), INTENT(OUT) :: u
   real(wp) :: g,gr,grr,slopeh,slopel
   integer :: high, low, j
-  logical :: IsInf
   
 ! find center
   call bsearch(0.0_wp,r,n,high,low)
@@ -22,7 +21,7 @@
   do while ((j < 10) .AND. (ABS(g/gr) > eps)) 
    j=j+1   
    call SplineEval(0,r,z,zr2,n,u,g,gr) 
-   if (gr ==0) then
+   if (ABS(gr) < EPS) then
     u=(r(high)+r(low))/2.0_wp     ! just make it in the center; no guarantee of a local root
     exit
    endif
@@ -46,7 +45,7 @@
     do while ((j < 10) .AND. (ABS(gr/grr) > eps)) 
      j=j+1   
      call SplineEval(0,r,z,zr2,n,u,g,gr,grr) 
-     if (grr ==0) then
+     if (ABS(grr) < EPS) then
       u=(r(high)+r(low))/2.0_wp     ! just make it in the center; no guarantee of a local minmax
       exit
      endif     

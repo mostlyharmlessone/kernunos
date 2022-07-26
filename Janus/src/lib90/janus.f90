@@ -6,10 +6,10 @@
   use io_functions
   use special_fct
   use, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
-  use c_interfaces, ONLY : OpenGL_Show
+  use c_interfaces, ONLY : OpenGL_Show, ConvertPLYtoBIN
+  use omp_lib
   IMPLICIT NONE     
-  TYPE(wpRadSlopeMatrix) :: atmp
-  integer IZ, i
+  integer :: i, thread
   integer :: MM, N 
   integer :: TestData                  ! TestData: 0=EyeSys, 1=Atlas, 2=Penta, 3=test 
   integer :: NP                        ! PentaCam=141
@@ -136,7 +136,6 @@ file_idx=index(inputfile1, ".DAT")
    call RCNVRTA(inputfile1)
    call CPU_TIME(time_end)
    write(*,*) 'Time to read Atlas CSV file: ',(time_end-time_start)*1000
-   call refineborders(Atlas,RadSlope)
    Radslope=Atlas
   endif
 
@@ -157,7 +156,7 @@ file_idx=index(inputfile1, ".DAT")
    Skyline=Penta
 !   call Skyline_eq_Penta2(Skyline,Penta)
 ! convert to polar with splining
-   Atlas=Skyline
+   call Atlas_eq_Skyline(Atlas,Skyline,Penta)  !needs Penta for border check
    call CPU_TIME(time_end)
    write(*,*) 'Time to convert Penta: ',(time_end-time_start)*1000
    Radslope=Atlas
@@ -192,12 +191,6 @@ file_idx=index(inputfile1, ".DAT")
 
   IuseG=4  ! if above IuseG=-1, then change to 0, 1 or 2  ! IuseG=0 then change to 3 through 8
 
-! get rid of holes/find RadSlope%MV based on Atlas array data
-  call CPU_TIME(time_start)
-  call refineborders(Atlas,RadSlope) ! substitute operator .b. or something: only affects MV in RadSlope
-  call CPU_TIME(time_end)
-  write(*,*) 'Time to refine borders: ',(time_end-time_start)*1000
-    
   IuseF=0 ! only valid approach is IuseF=0 because    
 !  R is not constant; they're not circles, so splining along the curve gives curvatures that
 !  are not orthogonal to R, nor z2(deriv of theta)  probably best not to do this
@@ -259,6 +252,15 @@ file_idx=index(inputfile1, ".DAT")
   MV(:)=RadSlope%MV(:) ! store a copy
 !  RadSlope%MV(:)=N   !full diameters for elevation 
   call FILLARRAY(7,LinesOfCurv,POWMIN,POWMAX)
+
+!!!$OMP PARALLEL num_threads(2) private(thread)
+!      separate iterative parts into subroutines so each thread can work in parallel
+!!       thread = omp_get_thread_num()
+!!!$OMP threadprivate(RadSlope)
+!!       if (thread==0) then
+
+!!!$OMP PARALLEL COPYIN(RadSlope)
+
   call WriteGeom(RadSlope,powmin,powmax,'elevation.off','elevation.ply')
 ! from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY MIT licence, included source in tree
 !  call execute_command_line ("./ConvertPLYtoBIN -l elevation.ply elevation.bin.ply",exitstat=i)
@@ -277,7 +279,10 @@ file_idx=index(inputfile1, ".DAT")
 !  atmp=pca(3,RadSlope)
 ! writes values in openGL friendly format to matrices for passing to C/C++
   call Geom(RadSlope, powmin, powmax) 
-  
+
+!!!$OMP END PARALLEL  
+!!else  !OMP thread else
+ 
   call init_augmented_mat(MM,N,M,ARadSlope,ADiaSlope) ! prepare more space
   
 ! make more than one plot
@@ -294,7 +299,6 @@ file_idx=index(inputfile1, ".DAT")
 !   Generate the slope matrix using Atlas data     
     RadSlope=Atlas
    endif  
-   call refineborders(Atlas,RadSlope)  
    DiaSlope=RadSlope            
    DiaSlope%Zpd2 = .n. DiaSlope
 !   DiaSlope%Zpd2 = DiaSplineCenter(DiaSlope)   ! generate the splines diagonally with center node added (slopes only)
@@ -316,7 +320,6 @@ file_idx=index(inputfile1, ".DAT")
 !   Generate the slope matrix using Atlas data     
     RadSlope=Atlas
    endif
-   call refineborders(Atlas,RadSlope)  
    DiaSlope=RadSlope            
    DiaSlope%Zpd2 = .n. DiaSlope
 !   DiaSlope%Zpd2 = DiaSplineCenter(DiaSlope)   ! generate the splines diagonally with center node added (slopes only)
@@ -386,6 +389,9 @@ file_idx=index(inputfile1, ".DAT")
 
   call execute_command_line ("gnuplot -p plot2.gnu &", exitstat=i)
 !  call execute_command_line ("./view", exitstat=i)
+
+!!endif  ! end OMP
+!!!$OMP END PARALLEL
 
 ! deallocate
   call destroyRadSplineCenter(RadSplineCenter)

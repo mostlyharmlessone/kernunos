@@ -3,7 +3,8 @@ subroutine RCNVRTT(MM,N,NP)
 USE set_precision, ONLY : wp
 USE cornea_arrays
 
- INTEGER :: ITH,i,j,MM,N,NP
+ INTEGER :: i,j
+ INTEGER, INTENT(IN) :: MM,N,NP
  REAL(wp) :: DIST,R,A,B,X,YP,POW,XDIST,YDIST,XX,YY,DX,DY,D,YT,YZ
 
 ! EyeSys or Atlas Simulation data

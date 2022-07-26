@@ -66,11 +66,11 @@ module spline_interfaces
   real(wp), INTENT(OUT),OPTIONAL ::  f,fr,ft,frt,frr,ftt
  end subroutine
                
- subroutine thomas(a,b,c,d,z,n) ! "Llewellyn Thomas" algorithm for tridiagonal banded matrices"
+ subroutine thomas(a,b,c,d,z,n,k) ! "Llewellyn Thomas" algorithm for tridiagonal banded matrices"
   use set_precision, only : wp
-  integer, INTENT(IN) :: n
-  real(wp), INTENT(INOUT) :: a(n),b(n),c(n),d(n)
-  real (wp), INTENT(OUT) :: z(n)
+  integer, INTENT(IN) :: n,k
+  real(wp), INTENT(INOUT) :: a(n),b(n),c(n),d(n,k)
+  real (wp), INTENT(OUT) :: z(n,k)
  end subroutine
 
  subroutine trapez(rv,zv,z2v,n,r,z) !trapezoidal rule for spline integration

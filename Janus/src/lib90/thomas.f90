@@ -1,6 +1,6 @@
 subroutine thomas(a,b,c,d,z,n,k) ! "Llewellyn Thomas" algorithm for tridiagonal banded matrices"
 ! Adapted from https://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm
-INTEGER, PARAMETER :: wp = KIND(0.0D0) ! working precision
+use set_precision, only : wp
 integer, INTENT(IN) :: n,k
 real(wp), INTENT(INOUT) :: a(n),b(n),c(n),d(n,k)
 real (wp), INTENT(OUT) :: z(n,k)

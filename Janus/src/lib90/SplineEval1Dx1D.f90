@@ -8,12 +8,12 @@
       integer, INTENT(IN) :: iflag     ! iflag=0 no integration
       real(wp), INTENT(IN) :: u, v
       real(wp), INTENT(OUT),OPTIONAL ::  f,fr,ft,frt,frr,ftt
-      real(wp) :: g,g0,gr,grr,w,gr1
+      real(wp) :: g,g0,gr,grr,w
       real(wp) :: fTmp(size(RadSlope%r,1)),frTmp(size(RadSlope%r,1)),frrTmp(size(RadSlope%r,1))
       real(wp) :: thta(size(RadSlope%r,1)),fttTmp(size(RadSlope%r,1)),frttTmp(size(RadSlope%r,1)),frrttTmp(size(RadSlope%r,1))
-      real(wp) :: r(2*size(RadSlope%r,2)),z(2*size(RadSlope%r,2)),zr2(2*size(RadSlope%r,2)),sumzr2
+      real(wp) :: r(2*size(RadSlope%r,2)),z(2*size(RadSlope%r,2)),zr2(2*size(RadSlope%r,2))
       integer :: L2,j,L,MM,N
-      logical :: IsInf
+!      logical :: IsInf
 
       MM=size(RadSlope%r,1)
       N=size(RadSlope%r,2)
@@ -22,9 +22,9 @@
       do j=1,MM/2 
         L2=DiaSlope%L2(j)
         thta(j)=RadSlope%thta(j)
-        r=DiaSlope%rd(j,:)
-        z=DiaSlope%Zpd(j,:)
-        zr2=DiaSlope%Zpd2(j,:)   
+        r=DiaSlope%rd(:,j)
+        z=DiaSlope%Zpd(:,j)
+        zr2=DiaSlope%Zpd2(:,j)   
         L=j+MM/2
         thta(L)=RadSlope%thta(L)
         if (iflag == 0) then             

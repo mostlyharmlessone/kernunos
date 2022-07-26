@@ -119,13 +119,13 @@
           X1=b%thta(i)
           X2=b%r(i,j)
           X3=b%Zp(i,j)   
-          vert1 = ABS(X2)*COS(X1) 
-          vert2 = ABS(X2)*SIN(X1) 
+          vert1 = real(ABS(X2)*COS(X1),kind=REAL32)
+          vert2 = real(ABS(X2)*SIN(X1),kind=REAL32)
          if (ieee_is_NaN(X3)) then
-          vert3 = 0  ! for out of bound values
+          vert3 = 0_REAL32  ! for out of bound values
          else
-          vert3 = X3 
-	 endif           
+          vert3 = real(X3,kind=REAL32) 
+         endif           
          write(unitno1,*) vert1,vert2,vert3
          write(unitno3,*) vert1,vert2,vert3 
 

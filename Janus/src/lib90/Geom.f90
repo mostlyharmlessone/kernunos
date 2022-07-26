@@ -83,19 +83,19 @@
          X1=b%thta(i)
          X2=b%r(i,j)
          X3=b%Zp(i,j)   
-         vert1 = ABS(X2)*COS(X1) 
-         vert2 = ABS(X2)*SIN(X1) 
+         vert1 = ABS(X2)*COS(X1)   !explicitly make these c/w c_float
+         vert2 = ABS(X2)*SIN(X1)
          if (ieee_is_NaN(X3)) then
-          vert3 = 0  ! for out of bound values
+          vert3 = 0 ! for out of bound values
          else
-          vert3 = X3 
-	 endif 
-         c_vert=(/vert1,vert2,vert3/)
+          vert3 = X3
+         endif
+         c_vert=real((/vert1,vert2,vert3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float
          if (ieee_is_NaN(X3)) then
           pow = 0  ! for out of bound values
          else
           pow=b%Zp(i,j)   !not just X3 for future painting
-	 endif
+         endif
          c_rgbv=rgb5(pow,powmin,powmax)/255.0  !openGL wants scale of 1.0 not 255        
          vertices(k:k+5)=(/c_vert,c_rgbv/)
          k=k+6      ! matrix index

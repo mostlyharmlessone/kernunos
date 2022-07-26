@@ -1,16 +1,15 @@
  subroutine nspline(r,z,n,z2)
  use set_precision, only : wp
  use LapackInterface, only : dgtsv
+ use spline_interfaces, only : thomas
  use,intrinsic :: ieee_arithmetic
   integer, INTENT(IN) :: n
-  real(wp), INTENT(IN) ::  r(n),z(n)
-!  real(wp), INTENT(IN) ::  r(*),z(*) 
-  real(wp), INTENT(OUT) :: z2(n)
-!  real(wp), INTENT(OUT) :: z2(*)  
+  real(wp), INTENT(IN) ::  r(n),z(n) 
+  real(wp), INTENT(OUT) :: z2(n) 
   real(wp),allocatable ::  a(:),b(:),c(:),d(:),zz2(:),a_short(:)
   integer :: i,info    ! for lapack use below
   real(wp) :: f      ! error handling
-  logical :: IsInf    
+  logical :: IsNaN    
   INFO=0             
   if ( n < 2 ) then  ! invalid parameter
    INFO=-1
@@ -52,9 +51,9 @@
    end do 
 
    f= dot_product(z2,z2)
-   IsInf=ieee_is_finite(f)
-   If(.not.IsInf) then
-    write(*,*) 'Warning from nspline: infinite terms probable duplicate r; ',r(1:4)
+   IsNaN=ieee_is_NaN(f)
+   If(IsNaN) then
+    write(*,*) 'Warning from nspline: NaN terms probable duplicate r; ',r(1:n)
     stop
    endif
  
