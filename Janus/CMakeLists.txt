@@ -157,12 +157,11 @@ endif(WIN32)
     file(COPY rply/rply.c rply/rply.h rply/rplyfile.h DESTINATION src/cxx/rply)
     file(GLOB_RECURSE src/cxx/rply *.c .h)
     add_executable(ConvertPLYtoBIN src/cxx/rply/convert.c src/cxx/rply/rply.c )  
-#   C source included in Janus
+#   C source 
 #   rply conversion 
     file(GLOB rply_sources  src/cxx/rply/convertplytobin.c src/cxx/rply/rply.c src/cxx/rply *.h )
-#   C++ source included in Janus
-#   OpenGLquad 
-    file(GLOB cpp_src src/cxx/openglquad_glfw.cpp *.h src/cxx/mathstuff.cpp)   
+#   C++ source
+    file(GLOB cpp_src src/cxx/opengl_show.cpp *.h src/cxx/mathstuff.cpp)   
 #   Fortran Source
     file(GLOB_RECURSE lib_sources90  src/lib90 *.f90 *.for)
     file(GLOB_RECURSE mod_sources90  src/modules *.f90)

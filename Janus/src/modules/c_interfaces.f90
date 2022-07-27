@@ -26,10 +26,10 @@ SUBROUTINE Janus(mainfile, elements, vertices, nV, nE)                      !do 
  USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
  IMPLICIT NONE 
  CHARACTER(c_char), INTENT(IN), DIMENSION(4096) :: mainfile
- integer(c_int) :: nV 
- integer(c_int) :: nE               
- real(c_float), INTENT(OUT) :: vertices(*)
- integer(c_int), INTENT(OUT) :: elements(*) 
+ integer(c_int), INTENT(INOUT) :: nV 
+ integer(c_int), INTENT(INOUT) :: nE               
+ real(c_float), INTENT(INOUT) :: vertices(*)
+ integer(c_int), INTENT(INOUT) :: elements(*) 
 END SUBROUTINE Janus
  
 ! call from fortran to c++ as extern "C" for openGL display

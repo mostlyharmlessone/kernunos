@@ -14,10 +14,10 @@
   integer :: TestData                  ! TestData: 0=EyeSys, 1=Atlas, 2=Penta, 3=test 
   integer :: NP                        ! PentaCam=141
   character(c_char), INTENT(IN), DIMENSION(4096) :: mainfile
-  integer(c_int) :: nV 
-  integer(c_int) :: nE               
-  real(c_float), INTENT(OUT) :: vertices(*)
-  integer(c_int), INTENT(OUT) :: elements(*) 
+  integer(c_int), INTENT(INOUT) :: nV 
+  integer(c_int), INTENT(INOUT) :: nE               
+  real(c_float), INTENT(INOUT) :: vertices(*)
+  integer(c_int), INTENT(INOUT) :: elements(*) 
   character(len=16) :: AxialPowerDataKnots
   character(len=8) :: BigGrainyPlot
   character(len=7) :: BigPlot
@@ -97,9 +97,6 @@ file_idx=index(inputfile1, ".DAT")
     TestData=0 ; MM=360; N=16   ! EyeSys
     write(*,*) "EyeSys files: ",inputfile1," ",inputfile2
    endif
-
-!   Temporary until I recover the real values from Geom and resolve memory issues
-!goto 99999
 
   allocate (MV(MM))
  
@@ -278,7 +275,34 @@ file_idx=index(inputfile1, ".DAT")
 !  atmp=pca(2,RadSlope) 
 !  atmp=pca(3,RadSlope)
 ! writes values in openGL friendly format to matrices for passing to C/C++
-  call Geom(RadSlope, powmin, powmax) 
+  call Geom(RadSlope, powmin, powmax, elements, vertices, nV, nE)
+
+!  the cube example
+!   nV = 48
+
+!    vertices(1:nV) = (/  -50.0,  50.0, -50.0, 1.0, 0.0, 0.0, 50.0,  50.0, -50.0, 0.0, 1.0, 0.0,  &
+!        50.0, -50.0, -50.0, 0.0, 0.0, 1.0, -50.0, -50.0, -50.0, 1.0, 1.0, 1.0,   &
+!        -50.0,  50.0, 50.0, 1.0, 1.0, 0.0, 50.0,  50.0, 50.0, 0.0, 1.0, 1.0,  &
+!        50.0, -50.0, 50.0, 1.0, 0.0, 1.0, -50.0, -50.0, 50.0, 0.0, 0.0, 0.0 /)
+
+!   nE = 36
+!    elements(1:nE) = (/  &
+!       0, 1, 2,&
+!       2, 3, 0,&
+!       4, 5, 6,&
+!       6, 7, 4,&
+!       0, 4, 5,&
+!       5, 1, 0,&
+!       3, 7, 6,&
+!       6, 2, 3,&
+!       0, 4, 7,&
+!       7, 3, 0,&
+!       1, 5, 6,&
+!      & 6, 2, 1      /) 
+
+return 
+
+
 
 !!!$OMP END PARALLEL  
 !!else  !OMP thread else
@@ -405,30 +429,6 @@ file_idx=index(inputfile1, ".DAT")
   ARadSlope=0
   ADiaSlope=0
 
-!   Temporary until I recover the real values from Geom
-99999 continue
-
-    nV = 48
-
-    vertices(1:nV) = (/  -50.0,  50.0, -50.0, 1.0, 0.0, 0.0, 50.0,  50.0, -50.0, 0.0, 1.0, 0.0,  &
-        50.0, -50.0, -50.0, 0.0, 0.0, 1.0, -50.0, -50.0, -50.0, 1.0, 1.0, 1.0,   &
-        -50.0,  50.0, 50.0, 1.0, 1.0, 0.0, 50.0,  50.0, 50.0, 0.0, 1.0, 1.0,  &
-        50.0, -50.0, 50.0, 1.0, 0.0, 1.0, -50.0, -50.0, 50.0, 0.0, 0.0, 0.0 /)
-
-    nE = 36
-    elements(1:nE) = (/  &
-        0, 1, 2,&
-        2, 3, 0,&
-        4, 5, 6,&
-        6, 7, 4,&
-        0, 4, 5,&
-        5, 1, 0,&
-        3, 7, 6,&
-        6, 2, 3,&
-        0, 4, 7,&
-        7, 3, 0,&
-        1, 5, 6,&
-       & 6, 2, 1      /)
-            
+  return        
 
   END subroutine janus

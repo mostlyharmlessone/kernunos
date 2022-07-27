@@ -21,7 +21,7 @@ module io_functions
       real(wp), intent(out) :: POWMIN, POWMAX
     END SUBROUTINE
 
-    SUBROUTINE Geom(b, powmin, powmax)
+    SUBROUTINE Geom(b, powmin, powmax, elements, vertices, nV, nE)
        use cornea_arrays
        use set_precision, ONLY : wp
        use c_interfaces, ONLY : OpenGL_Show
@@ -30,6 +30,9 @@ module io_functions
        use ISO_FORTRAN_ENV, only: stdin=>input_unit     
        TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
        real(wp), intent(IN) :: powmin,powmax 
+       integer(c_int), INTENT(INOUT) :: elements(*)                          ! faces x 3   index 0
+       real(c_float), INTENT(INOUT) :: vertices(*)                           ! vertices x 6
+       integer(c_int), INTENT(INOUT) :: nE, nV
     END SUBROUTINE
 
     subroutine rcnvrta(KXNAME)

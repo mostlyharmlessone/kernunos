@@ -1,6 +1,6 @@
 !      Generates matrices for openGL
 
-       subroutine Geom(b, powmin, powmax)
+       subroutine Geom(b, powmin, powmax, elements, vertices, nV, nE)
        use cornea_arrays, ONLY : wpRadSlopeMatrix
        use set_precision, ONLY : wp
        use c_interfaces, ONLY : OpenGL_Show
@@ -17,10 +17,9 @@
        integer :: i,j,k,M1,N1,verts,faces,edges
        integer(c_int) :: ivert1,ivert2,ivert3,ivert4
        logical :: donut
-!      Can't use allocatable matrices to transfer to C, but use donut settings here
-       integer(c_int) :: elements(0:6*(size(b%r,2)-1)*size(b%r,1)-1) ! faces x 3   index 0
-       real(c_float) :: vertices(0:6*size(b%r,2)*size(b%r,1)-1)      ! vertices x 6
-       integer(c_int) :: nE, nV
+       integer(c_int), INTENT(INOUT) :: elements(*)                          ! faces x 3   index 0
+       real(c_float), INTENT(INOUT) :: vertices(*)                           ! vertices x 6
+       integer(c_int), INTENT(INOUT) :: nE, nV
               
        N1=size(b%r,2)
        M1=size(b%r,1)
@@ -76,7 +75,7 @@
 !      Write vertices as c_float
 !      Unreferenced vertices, but much easier numbering this way
 !      vertices        
-       k=0 
+       k=1 
        do i=1,M1
         do j=1,N1
         if (donut) then                        
@@ -104,10 +103,10 @@
          endif 
         end do
        end do 
-       nV=k 
+       nV=k-1
        
 !      faces               
-       k=0 
+       k=1 
        do i=1,M1-1
         do j=1,N1-1 
 !        do j=1,1 
@@ -143,7 +142,7 @@
           endif
          endif
         end do  
-        nE=k
+        nE=k-1
         
 !      shuffle the elements 
        !write(*,*) 'Size of Elements',size(elements),nE  ! are not equal unless full size
@@ -153,6 +152,6 @@
        !write(*,*) "Enter/Return to Continue.."  
        !read(stdin,*)  ! the new pause    
         write(*,*) 'Display in separate OpenGL window'                    
-        call OpenGL_Show(vertices, elements, nV, nE)
+ !       call OpenGL_Show(vertices, elements, nV, nE)
     
        end subroutine Geom
