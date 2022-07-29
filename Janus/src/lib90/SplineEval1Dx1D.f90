@@ -25,8 +25,8 @@
         r=DiaSlope%rd(:,j)
         z=DiaSlope%Zpd(:,j)
         zr2=DiaSlope%Zpd2(:,j)   
-        L=j+MM/2
-        thta(L)=RadSlope%thta(L)
+ !       L=j+MM/2
+!        thta(L)=RadSlope%thta(L)
         if (iflag == 0) then             
          call SplineEval(0,r,z,zr2,L2,u,g,gr,grr) !first parameter = 0 nonperiodic                                    
          fTmp(j)=g
@@ -47,6 +47,8 @@
         frTmp(j)=gr
         frrTmp(j)=grr 
 !       odd as it seems, each angle j is also angle L since we're on a diagonal 
+        L=j+MM/2
+        thta(L)=RadSlope%thta(L)
         RadSplineCenter(L)=RadSplineCenter(j)
         fTmp(L)=fTmp(j)   
         frTmp(L)=frTmp(j)
@@ -65,7 +67,9 @@
          else          
           if (Present(f)) then
            call pspli(thta,fTmp,MM,fttTmp)
-           call SplineEval(1,thta,fTmp,fttTmp,MM,v,f)         
+           call SplineEval(1,thta,fTmp,fttTmp,MM,v,f)          !!!!do we really need MM or just MM/2 since we're working the diagonal?
+ !          call pspli(thta,fTmp,MM/2,fttTmp)
+ !          call SplineEval(1,thta,fTmp,fttTmp,MM/2,v,f)        
           endif
          endif
         endif

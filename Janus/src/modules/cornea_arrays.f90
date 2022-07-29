@@ -93,7 +93,7 @@ INTERFACE OPERATOR (.n.) ! unary operator
  MODULE PROCEDURE AngSpline ! uses pspli.f90
 END INTERFACE 
 
-! declaring common data arrays
+! declaring common global data arrays
  real(wp), allocatable :: RadSplineCenter(:)
  TYPE(wpEyeSysMatrix) :: EyeSys
  TYPE(wpRadSlopeMatrix) :: RadSlope
@@ -289,7 +289,6 @@ subroutine Atlas_eq_Skyline(Atlas,Skyline,Penta)      ! initially Atlas populate
   real(wp) :: r(size(Atlas%AR,1)),z(Skyline%cols),z2(Skyline%cols)
   real(wp) :: x(Skyline%cols),zx(Skyline%cols),zx2(Skyline%cols)           ! maximum size needed, don't need NP
   real(wp) :: y(Skyline%rows),gTmp(Skyline%rows),g2Tmp(Skyline%rows)
-
   M1=size(Atlas%AR,1)
   N1=size(Atlas%AR,2)
   NP=size(Skyline%CUR,1)                                                   
@@ -305,7 +304,6 @@ subroutine Atlas_eq_Skyline(Atlas,Skyline,Penta)      ! initially Atlas populate
    call nspline(x,zx,L2,zx2)                                ! generate zxELE
    Skyline%z2ELE(i,1:L2)=zx2(1:L2)
   end do
-
 ! make rings
 ! scale in 14x 14 mm of Penta matrix 141x141 divided by 2
   rBo=7.0
@@ -336,7 +334,6 @@ subroutine Atlas_eq_Skyline(Atlas,Skyline,Penta)      ! initially Atlas populate
      call SplineEval(0,x(1:L2),z(1:L2),z2(1:L2),L2,u,f)   ! first parameter = 0 nonperiodic                                    
      fTmp(k)=f                                          
     end do
-
     offset=Skyline%first_row-1
     L2=Skyline%rows
     do kk=1,L2            ! fTmp has to align with y; but ftmp starts at Skyline%first_row, y starts at 1 for calculation                      
@@ -551,13 +548,13 @@ function DiaIntegrate(b) result(a)
   end do
 end function DiaIntegrate
 
-function RadInterpolate(b) result(a) !interpolates values of radslope in new rings
- TYPE(wpRadSlopeMatrix),INTENT(IN) :: b  
+function RadInterpolate(b) result(a) !interpolates values of radslope%Zp in new rings
+ TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
  integer :: i,j,M1,N1
  real(wp) :: f0
- real(wp) :: a(size(b%r,1),size(b%r,2))
- N1=size(b%r,2) !N1=N or N*M for ARadSlope
- M1=size(b%r,1) !M1=MM
+ real(wp) :: a(size(b%Zp,1),size(b%Zp,2))  
+ N1=size(b%Zp,2) !N1=N or N*M for ARadSlope
+ M1=size(b%Zp,1) !M1=MM
   do i=1,M1
    do j=1,N1
     if (j .LE. b%MV(i)) then   !bounds

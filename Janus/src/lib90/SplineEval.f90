@@ -30,7 +30,7 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
   REAL(wp), DIMENSION(2) :: AB,CD,dAB,dCD,z,z2
   logical :: IsInf
     
-  PERD=2*PI ! period of natural spline if applicable
+  PERD=2*PI ! period of spline if applicable
 
    call bsearch(u,x,n,i1,i) ! binary search
 

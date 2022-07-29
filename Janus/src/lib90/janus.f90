@@ -300,7 +300,7 @@ file_idx=index(inputfile1, ".DAT")
 !       1, 5, 6,&
 !      & 6, 2, 1      /) 
 
-return 
+!return 
 
 
 
