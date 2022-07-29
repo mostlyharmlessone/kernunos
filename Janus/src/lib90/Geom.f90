@@ -151,7 +151,7 @@
        !write(*,*) " From Geom.f90, vertices, elements: ",nV,nE
        !write(*,*) "Enter/Return to Continue.."  
        !read(stdin,*)  ! the new pause    
-        write(*,*) 'Display in separate OpenGL window'                    
-!        call OpenGL_Show(vertices, elements, nV, nE)  !incompatible with Jupiter
+       write(*,*) 'Display in separate OpenGL window'                    
+!       call OpenGL_Show(vertices, elements, nV, nE)  !incompatible with Jupiter
     
        end subroutine Geom
