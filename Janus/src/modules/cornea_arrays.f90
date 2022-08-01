@@ -279,10 +279,11 @@ subroutine Skyline_eq_Penta(Skyline,Penta)                                      
   endif
 end subroutine Skyline_eq_Penta
 
-subroutine Atlas_eq_Skyline(Atlas,Skyline,Penta)      ! initially Atlas populates r, thta, POW, elevation with splining
+subroutine Atlas_eq_Skyline(Atlas, RadSlope, Skyline, Penta)      ! initially populates Atlas r, thta, POW, elevation with splining
   TYPE(wpSkyline), INTENT(INOUT) :: Skyline                                             
   TYPE(wpAtlasMatrix), INTENT(INOUT) :: Atlas
   TYPE(wpPentaMatrix), INTENT(IN) :: Penta
+  TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
   integer :: M1,N1,i,j,k,kk,L2,offset,NP,ITH
   integer :: imv(size(Atlas%AR,1))
   real(wp) :: rBo,rBi,CUR,ELE,u,v,xx,yy,f,fTmp(Skyline%rows),f2Tmp(Skyline%rows)
@@ -317,9 +318,11 @@ subroutine Atlas_eq_Skyline(Atlas,Skyline,Penta)      ! initially Atlas populate
     v=r(j)*SIN(PI*Atlas%DEG(i)/180)
 !   boundary check here 
     xx=u*(NP-1)/14.0 ; yy=v*(NP-1)/14.0
-    if (Penta%CUR(1+(NP-1)/2+sign(floor(ABS(xx)),floor(xx)),1+(NP-1)/2+sign(floor(ABS(yy)),floor(yy))) < 0) then  ! test for -1 why is Penta available here
-     cycle ! skip this one
-    endif
+    if (Penta%CUR(1+(NP-1)/2+sign(floor(ABS(xx)),floor(xx)),1+(NP-1)/2+sign(floor(ABS(yy)),floor(yy))) > 0) then  ! test for -1 why is Penta available here
+     imv(i)=imv(i)+1   ! could cycle here and not compute/extrapolate out of bounds
+    else
+!     cycle
+    endif 
 !   Populate Atlas with Splined PentaCam
 !   Spline both CUR and ELE in y      (this is the equivalent of Spline1Dx1D)
     do k=1,Skyline%rows
@@ -343,14 +346,19 @@ subroutine Atlas_eq_Skyline(Atlas,Skyline,Penta)      ! initially Atlas populate
     call SplineEval(0,y(1:L2),fTmp(1:L2),f2Tmp(1:L2),L2,v,CUR)  ! first parameter = 0 nonperiodic 
     call nspline(y(1:L2),gTmp(1:L2),L2,g2Tmp(1:L2))             ! spline in Y
     call SplineEval(0,y(1:L2),gTmp(1:L2),g2Tmp(1:L2),L2,v,ELE)  ! first parameter = 0 nonperiodic 
-    imv(i)=imv(i)+1
-    Atlas%AY(i,imv(i))=ABS(ELE)
-    Atlas%AR(i,imv(i))=ABS(r(j))                              
-    Atlas%AD(i,imv(i))=Atlas%AR(i,imv(i))                    
-    Atlas%AP(i,imv(i))=RFCT/(100.0*ABS(CUR))     ! convert "curvatures" in mm to diopters                                                       
+!    The following only computes within boundaries
+!    Atlas%AY(i,imv(i))=ABS(ELE)
+!    Atlas%AR(i,imv(i))=ABS(r(j))                              
+!    Atlas%AD(i,imv(i))=Atlas%AR(i,imv(i))                    
+!    Atlas%AP(i,imv(i))=RFCT/(100.0*ABS(CUR))     ! convert "curvatures" in mm to diopters  
+    Atlas%AY(i,j)=ABS(ELE)
+    Atlas%AR(i,j)=ABS(r(j))                              
+    Atlas%AD(i,j)=Atlas%AR(i,j)                    
+    Atlas%AP(i,j)=RFCT/(100.0*ABS(CUR))     ! convert "curvatures" in mm to diopters                                                   
    end do !j to N1
   end do !i to M1
-
+  RadSlope%MV(:)=imv(:)  ! save boundary
+!write(*,*) 'Atlas.eq.Skyline: ',RadSlope%MV(1:M1)
 end subroutine Atlas_eq_Skyline
 
 ! uses ZFCT converts lhs to rhs
@@ -441,6 +449,7 @@ subroutine RadSlope_eq_Atlas(RadSlope,Atlas) ! initially populates r, thta, Zp, 
      end do
     end do
     RadSlope%MV(:)=imv(:)
+!write(*,*) 'RadSlope.eq.Atlas: ',RadSlope%MV(1:MM)
 end subroutine RadSlope_eq_Atlas
 
 subroutine DiaSlope_eq_RadSlope(DiaSlope,RadSlope)

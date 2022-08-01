@@ -144,14 +144,9 @@
         end do  
         nE=k-1
         
-!      shuffle the elements 
-       !write(*,*) 'Size of Elements',size(elements),nE  ! are not equal unless full size
-       !write(*,*) 'Size of Vertices',size(vertices),nV  ! are not equal unless full size       
-       !elements=cshift(elements,nE/4)        ! rotater fills the matrix with garbage unless full size        
-       !write(*,*) " From Geom.f90, vertices, elements: ",nV,nE
        !write(*,*) "Enter/Return to Continue.."  
-       !read(stdin,*)  ! the new pause    
+       !read(stdin,*)  ! the new pause needs use ISO_FORTRAN_ENV, only: stdin=>input_unit  
        write(*,*) 'Display in separate OpenGL window'                    
-!       call OpenGL_Show(vertices, elements, nV, nE)  !incompatible with Jupiter
+!       call OpenGL_Show(vertices, elements, nV, nE)  ! glfw program incompatible with Jupiter/wxWidgets
     
        end subroutine Geom

@@ -153,10 +153,12 @@ file_idx=index(inputfile1, ".DAT")
    Skyline=Penta
 !   call Skyline_eq_Penta2(Skyline,Penta)
 ! convert to polar with splining
-   call Atlas_eq_Skyline(Atlas,Skyline,Penta)  !needs Penta for border check
+   call Atlas_eq_Skyline(Atlas, RadSlope, Skyline, Penta)  !needs Penta & RadSlope for border check
+   MV(:)=RadSlope%MV(:) ! store a copy
    call CPU_TIME(time_end)
    write(*,*) 'Time to convert Penta: ',(time_end-time_start)*1000
    Radslope=Atlas
+   RadSlope%MV(:)=MV(:) ! restore the copy
    Penta = 0              ! deallocate
    Skyline = 0
   endif
