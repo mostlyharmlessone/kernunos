@@ -1,6 +1,6 @@
 !      Writes OFF and ASCII PLY files with color overlay
 
-       subroutine WriteGeom(b,powmin,powmax,OFFNAME,PLYNAME)
+       subroutine WriteGeom(b,donut,powmin,powmax,OFFNAME,PLYNAME)
        use io_functions, only : get_new_fileunit
        use cornea_arrays
        use set_precision, ONLY : wp
@@ -9,7 +9,8 @@
        use, intrinsic ::  ieee_arithmetic
        TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
        character(len=*), intent(in) :: OFFNAME,PLYNAME
-       real(wp), intent(IN) :: powmin,powmax 
+       real(wp), intent(IN) :: powmin,powmax
+       logical, intent(IN) :: donut
        real(wp) :: X1,X2,X3
        real(REAL32) :: vert1,vert2,vert3,vert4
        real(wp) :: pow_vert1,pow_vert2,pow_vert3,pow_vert4,pow_face4,pow_face3_1,pow_face3_2
@@ -31,7 +32,6 @@
        unitno3 = get_new_fileunit()
        open(unitno3, file=trim(OFFNAME), action="write", iostat=ierr)
        
-      donut = .TRUE.
       quad = .FALSE.
 !     if no missing faces
       if (donut) then
@@ -66,8 +66,7 @@
            edges=edges+3
           endif
          else
-!        nothing here yet for .donut. .EQ. FALSE
-                 
+!        nothing here yet for .donut. .EQ. FALSE                
          endif
          endif
         end do
@@ -87,7 +86,6 @@
           endif
          else
 !        nothing here yet for .donut. .EQ. FALSE
-
          endif
          endif
         end do 
@@ -112,37 +110,44 @@
        write(unitno3,*) vertices,faces,edges
 
 !      Write vertices as REAL32
-!      There are "unreferenced vertices" this way, but it is much easier with vertex numbering                                                                   
+!      There are "unreferenced vertices" this way, but it is much easier with vertex numbering  
        do i=1,M1
         do j=1,N1 
-
           X1=b%thta(i)
           X2=b%r(i,j)
-          X3=b%Zp(i,j)   
+          X3=b%Zp(i,j)
           vert1 = real(ABS(X2)*COS(X1),kind=REAL32)
           vert2 = real(ABS(X2)*SIN(X1),kind=REAL32)
          if (ieee_is_NaN(X3)) then
           vert3 = 0_REAL32  ! for out of bound values
          else
-          vert3 = real(X3,kind=REAL32) 
+          vert3 = real(X3,kind=REAL32)
          endif           
          write(unitno1,*) vert1,vert2,vert3
-         write(unitno3,*) vert1,vert2,vert3 
-
+         write(unitno3,*) vert1,vert2,vert3
         end do
        end do
+       if (donut) then ! add one last vertex at origin
+         vert1 = 0_REAL32       
+         vert2 = 0_REAL32
+         X3=b%ZpOrigin         
+         if (ieee_is_NaN(X3)) then
+          vert3 = 0 ! for out of bound values           
+         else
+          vert3 = X3        
+         endif                     
+         write(unitno1,*) vert1,vert2,vert3
+         write(unitno3,*) vert1,vert2,vert3   
+       endif
 
-!      these HAVE to be written/formatted as integers(INT32)
-        
+!      Faces HAVE to be written/formatted as integers(INT32)        
        do i=1,M1-1
         do j=1,N1-1
          ivert1=(i-1)*N1+j-1
          ivert2=(i-1)*N1+j
          ivert3=i*N1+j
          ivert4=i*N1+j-1
-
          if  ( (j < b%MV(i)) .AND. (j < b%MV(i+1)) ) then   
-
 !        powers go by vertices, but colors need by face
 !        pow=b%Zp(I,J) as of now, this is actually elevation
 !        rgbv=rgb5(pow,powmin,powmax)
@@ -153,8 +158,6 @@
          pow_face4=(pow_vert1+pow_vert2+pow_vert3+pow_vert4)/4
          pow_face3_1=(pow_vert1+pow_vert2+pow_vert3)/3
          pow_face3_2=(pow_vert1+pow_vert3+pow_vert4)/3
-                   
-          if (donut) then
            if (quad) then
             vertnum=4
             rgbv=rgb5(pow_face4,powmin,powmax)
@@ -168,11 +171,7 @@
             rgbv=rgb5(pow_face3_2,powmin,powmax)
             write(unitno1,*) vertnum,ivert3,ivert4,ivert1,rgbv                 
             write(unitno3,*) vertnum,ivert3,ivert4,ivert1,rgbv                                 
-          endif
-         else
-!        nothing here yet for .donut. .EQ. FALSE
-                
-         endif
+           endif
          endif
         end do
        end do  
@@ -185,7 +184,6 @@
          ivert3=j
          ivert4=j-1
          if  ( (j < b%MV(M1)) .AND. (j < b%MV(1)) ) then  
-
 !        powers go by vertices, but colors need by face
 !        pow=b%Zp(I,J)
 !        rgbv=rgb5(pow,powmin,powmax)
@@ -196,9 +194,6 @@
          pow_face4=(pow_vert1+pow_vert2+pow_vert3+pow_vert4)/4
          pow_face3_1=(pow_vert1+pow_vert2+pow_vert3)/3
          pow_face3_2=(pow_vert1+pow_vert3+pow_vert4)/3
-
-         
-          if (donut) then
            if (quad) then
             vertnum=4
             rgbv=rgb5(pow_face4,powmin,powmax)
@@ -213,10 +208,6 @@
             write(unitno1,*) vertnum,ivert3,ivert4,ivert1,rgbv             
             write(unitno3,*) vertnum,ivert3,ivert4,ivert1,rgbv
            endif
-         else
-!        nothing here yet for .donut. .EQ. FALSE
-
-         endif
          endif
         end do  
         

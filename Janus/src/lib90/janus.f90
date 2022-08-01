@@ -30,6 +30,7 @@
   integer,allocatable :: MV(:)
   real :: time_start, time_end
   real(wp) :: POWMIN,POWMAX,POWMIN2,POWMAX2
+  logical :: donut
 
 !write(*,*) 'file from Jupiter: ',mainfile  ! this will have a lot of extra random non ASCII stuff after the file name
 !! need this because GCC11 isn't F2018 compliant with deferred length character with Bind C
@@ -259,8 +260,8 @@ file_idx=index(inputfile1, ".DAT")
 !!       if (thread==0) then
 
 !!!$OMP PARALLEL COPYIN(RadSlope)
-
-  call WriteGeom(RadSlope,powmin,powmax,'elevation.off','elevation.ply')
+  donut = .TRUE.
+  call WriteGeom(RadSlope,donut,powmin,powmax,'elevation.off','elevation.ply')
 ! from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY MIT licence, included source in tree
 !  call execute_command_line ("./ConvertPLYtoBIN -l elevation.ply elevation.bin.ply",exitstat=i)
   infile='elevation.ply'
@@ -277,7 +278,7 @@ file_idx=index(inputfile1, ".DAT")
 !  atmp=pca(2,RadSlope) 
 !  atmp=pca(3,RadSlope)
 ! writes values in openGL friendly format to matrices for passing to C/C++
-  call Geom(RadSlope, powmin, powmax, elements, vertices, nV, nE)
+  call Geom(RadSlope, donut, powmin, powmax, elements, vertices, nV, nE)
 
 !  the cube example
 !   nV = 48

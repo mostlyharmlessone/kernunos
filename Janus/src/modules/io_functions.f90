@@ -21,7 +21,7 @@ module io_functions
       real(wp), intent(out) :: POWMIN, POWMAX
     END SUBROUTINE
 
-    SUBROUTINE Geom(b, powmin, powmax, elements, vertices, nV, nE)
+    SUBROUTINE Geom(b, donut, powmin, powmax, elements, vertices, nV, nE)
        use cornea_arrays
        use set_precision, ONLY : wp
        use c_interfaces, ONLY : OpenGL_Show
@@ -29,6 +29,7 @@ module io_functions
        use, intrinsic :: iso_c_binding, ONLY : c_float,c_int
        use ISO_FORTRAN_ENV, only: stdin=>input_unit     
        TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
+       logical, intent(IN) :: donut       
        real(wp), intent(IN) :: powmin,powmax 
        integer(c_int), INTENT(INOUT) :: elements(*)                          ! faces x 3   index 0
        real(c_float), INTENT(INOUT) :: vertices(*)                           ! vertices x 6
@@ -58,12 +59,13 @@ module io_functions
      INTEGER, INTENT(IN) :: MM,N,NP
     end subroutine
 
-    SUBROUTINE WriteGeom(b,powmin,powmax,OFFNAME,PLYNAME)
+    SUBROUTINE WriteGeom(b,donut,powmin,powmax,OFFNAME,PLYNAME)
       USE cornea_arrays
       USE set_precision, ONLY : wp
       TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
-      character(len=*), intent(in) :: OFFNAME,PLYNAME 
-      real(wp), intent(IN) :: powmin,powmax 
+      character(len=*), intent(in) :: OFFNAME,PLYNAME
+      real(wp), intent(IN) :: powmin,powmax
+      logical, intent(IN) :: donut   
     END SUBROUTINE  
     
     subroutine WriteCenter(b,KXNAME)

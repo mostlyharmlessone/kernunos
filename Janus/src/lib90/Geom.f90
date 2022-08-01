@@ -1,6 +1,6 @@
 !      Generates matrices for openGL
 
-       subroutine Geom(b, powmin, powmax, elements, vertices, nV, nE)
+       subroutine Geom(b, donut, powmin, powmax, elements, vertices, nV, nE)
        use cornea_arrays, ONLY : wpRadSlopeMatrix
        use set_precision, ONLY : wp
        use c_interfaces, ONLY : OpenGL_Show
@@ -17,14 +17,13 @@
        integer :: i,j,k,M1,N1,verts,faces,edges
        integer(c_int) :: ivert1,ivert2,ivert3,ivert4
        logical :: donut
-       integer(c_int), INTENT(INOUT) :: elements(*)                          ! faces x 3   index 0
-       real(c_float), INTENT(INOUT) :: vertices(*)                           ! vertices x 6
+       integer(c_int), INTENT(INOUT) :: elements(*)                          ! faces x 3   
+       real(c_float), INTENT(INOUT) :: vertices(*)                           ! vertices x 6 
        integer(c_int), INTENT(INOUT) :: nE, nV
-              
+       logical, intent(IN) :: donut              
        N1=size(b%r,2)
        M1=size(b%r,1)
        
-      donut = .TRUE.
 !     if no missing faces
       if (donut) then
         verts=M1*N1
@@ -85,16 +84,13 @@
          vert1 = ABS(X2)*COS(X1)   !explicitly make these c/w c_float
          vert2 = ABS(X2)*SIN(X1)
          if (ieee_is_NaN(X3)) then
-          vert3 = 0 ! for out of bound values
+          vert3 = 0_REAL32  ! for out of bound values
+          pow = 0           ! for out of bound values           
          else
-          vert3 = X3
+          vert3 = real(X3,kind=REAL32)
+          pow=b%Zp(i,j)     ! not just X3 for future painting         
          endif
          c_vert=real((/vert1,vert2,vert3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float
-         if (ieee_is_NaN(X3)) then
-          pow = 0  ! for out of bound values
-         else
-          pow=b%Zp(i,j)   !not just X3 for future painting
-         endif
          c_rgbv=rgb5(pow,powmin,powmax)/255.0  !openGL wants scale of 1.0 not 255        
          vertices(k:k+5)=(/c_vert,c_rgbv/)
          k=k+6      ! matrix index
@@ -102,7 +98,23 @@
 !        nothing here yet for .donut. .EQ. FALSE
          endif 
         end do
-       end do 
+       end do
+       if (donut) then ! add one last vertex at origin
+         vert1 = 0_REAL32       
+         vert2 = 0_REAL32
+         X3=b%ZpOrigin         
+         if (ieee_is_NaN(X3)) then
+          vert3 = 0_REAL32  ! for out of bound values
+          pow = 0           ! for out of bound values          
+         else
+          vert3 = real(X3,kind=REAL32)
+          pow=b%ZpOrigin     ! not just X3 for future painting          
+         endif                    
+         c_vert=real((/vert1,vert2,vert3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float
+         c_rgbv=rgb5(pow,powmin,powmax)/255.0  !openGL wants scale of 1.0 not 255        
+         vertices(k:k+5)=(/c_vert,c_rgbv/)
+         k=k+6      ! matrix index          
+       endif        
        nV=k-1
        
 !      faces               
@@ -115,12 +127,8 @@
           ivert3=i*N1+j
           ivert4=i*N1+j-1
           if  ( (j < b%MV(i)) .AND. (j < b%MV(i+1)) ) then                    
-           if (donut) then 
             elements(k:k+5)=(/ivert1,ivert2,ivert3,ivert3,ivert4,ivert1/) 
-            k=k+6                                    
-           else
-!          nothing here yet for .donut. .EQ. FALSE                
-           endif
+            k=k+6                                                   
           endif                                  
         end do
        end do  
@@ -141,12 +149,15 @@
 !         nothing here yet for .donut. .EQ. FALSE
           endif
          endif
-        end do  
+        end do 
+        if (donut) then  ! inner set of faces
+        
+        endif       
         nE=k-1
         
        !write(*,*) "Enter/Return to Continue.."  
        !read(stdin,*)  ! the new pause needs use ISO_FORTRAN_ENV, only: stdin=>input_unit  
-       write(*,*) 'Display in separate OpenGL window'                    
+       write(*,*) 'Display in separate OpenGL window'                           
 !       call OpenGL_Show(vertices, elements, nV, nE)  ! glfw program incompatible with Jupiter/wxWidgets
     
        end subroutine Geom
