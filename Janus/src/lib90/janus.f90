@@ -260,13 +260,14 @@ file_idx=index(inputfile1, ".DAT")
 !!       if (thread==0) then
 
 !!!$OMP PARALLEL COPYIN(RadSlope)
-  donut = .TRUE.
+  donut = .FALSE.
   call WriteGeom(RadSlope,donut,powmin,powmax,'elevation.off','elevation.ply')
 ! from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY MIT licence, included source in tree
 !  call execute_command_line ("./ConvertPLYtoBIN -l elevation.ply elevation.bin.ply",exitstat=i)
   infile='elevation.ply'
   outfile='elevation.bin.ply'
   call ConvertPLYtoBIN(infile,outfile)  ! call C (modified) routine directly
+! only call if quad .eqv. .FALSE.
   call ConvertOFFtoSTL('elevation.off','elevation.stl','elevation.bin.stl')
 !  can view with meshlab e.g.
 !  write(*,*) 'Exit meshlab to continue'
@@ -330,7 +331,7 @@ file_idx=index(inputfile1, ".DAT")
    DiaSlope%Zpd2 = .n. DiaSlope
 !   DiaSlope%Zpd2 = DiaSplineCenter(DiaSlope)   ! generate the splines diagonally with center node added (slopes only)
    RadSlope%r=make_rings(DiaSlope,.FALSE.)              
-   call FILLARRAY(4,LinesOfCurv,POWMIN,POWMAX)  
+   call FILLARRAY(4,LinesOfCurv,POWMIN,POWMAX)
    call CPU_TIME(time_end)
    write(*,*) 'Time to rewrite RadSlope without origin: ',(time_end-time_start)*1000   
   endif
@@ -383,7 +384,7 @@ file_idx=index(inputfile1, ".DAT")
 ! load bounds x expansion
   ARadSlope%MV=M*RadSlope%MV  
 ! use SplineEval1Dx1D and DiaSlope to refill matrix RadSlope with new Zp at all points including origin
-  ARadSlope%Zp=RadInterpolate(ARadSlope)  ! takes DiaSlope/RadSlope data -> nterpolates to new ARadslope, no integration
+  ARadSlope%Zp=RadInterpolate(ARadSlope)  ! takes DiaSlope/RadSlope data -> interpolates to new ARadslope, no integration
   call CPU_TIME(time_end)
   write(*,*) 'Time to make new ARadSlope with origin: ',(time_end-time_start)*1000
   

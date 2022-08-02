@@ -16,26 +16,36 @@
        real(wp) :: pow
        integer :: i,j,k,M1,N1,verts,faces,edges
        integer(c_int) :: ivert1,ivert2,ivert3,ivert4
-       logical :: donut
        integer(c_int), INTENT(INOUT) :: elements(*)                          ! faces x 3   
        real(c_float), INTENT(INOUT) :: vertices(*)                           ! vertices x 6 
        integer(c_int), INTENT(INOUT) :: nE, nV
-       logical, intent(IN) :: donut              
+       logical, intent(IN) :: donut
+       logical :: quad           
        N1=size(b%r,2)
        M1=size(b%r,1)
-       
+
+       quad = .FALSE.
+       if (donut .AND. quad) then
+        write(*,*) 'Geom: Cannot have closed disk with quadrilaterals'
+        stop
+       endif       
 !     if no missing faces
       if (donut) then
-        verts=M1*N1
+       verts=M1*N1
+       if (quad) then
+        faces=(N1-1)*M1    !quadrilaterals
+        edges=(2*N1-1)*(M1-1)  ! don't do the last set of edges
+       else
         faces=2*(N1-1)*M1  !triangles
         edges=(3*N1-2)*(M1-1)  
+       endif
       else 
-!     closed 
+!      closed 
        verts=M1*N1+1
        faces=(2*N1-1)*M1  !triangles
        edges=(3*N1-1)*(M1-1)  
       endif
-!     write(12,*) verts,faces,edges 
+!     write(12,*) verts,faces,edges
   
 !      count the faces & edges, don't change the vertices or their numbering
        faces=0
@@ -43,28 +53,34 @@
        do i=1,M1-1
         do j=1,N1-1
         if  ( (j < b%MV(i)) .AND. (j < b%MV(i+1)) ) then           
-         if (donut) then
+          if (quad) then
+           faces=faces+1
+           edges=edges+2
+          else
            faces=faces+2
            edges=edges+3
-         else
-!        nothing here yet for .donut. .EQ. FALSE                 
+          endif                
          endif
-        endif
         end do
-       end do  
-       
-!       Last one is different
-!       for i=M1
+       end do       
+!      Last one is different
+!      for i=M1
         do j=1,N1-1
-        if  ( (j < b%MV(M1)) .AND. (j < b%MV(1)) ) then                     
-         if (donut) then
+         if  ( (j < b%MV(M1)) .AND. (j < b%MV(1)) ) then                     
+          if (quad) then
+           faces=faces+1
+           edges=edges+2
+          else
            faces=faces+2
            edges=edges+3
-         else
-!        nothing here yet for .donut. .EQ. FALSE
+          endif
          endif
-        endif
         end do 
+!      add inner bunch if no donut, no boundary check necessary
+       if (donut .eqv. .FALSE.) then
+        faces=faces+M1
+        edges=edges+M1-1
+       endif 
  
        write(*,*) 'Writing Geom for OpenGL'
 !       RGB colors can follow after vertices       
@@ -84,10 +100,10 @@
          vert1 = ABS(X2)*COS(X1)   !explicitly make these c/w c_float
          vert2 = ABS(X2)*SIN(X1)
          if (ieee_is_NaN(X3)) then
-          vert3 = 0_REAL32  ! for out of bound values
+          vert3 = 0  ! for out of bound values
           pow = 0           ! for out of bound values           
          else
-          vert3 = real(X3,kind=REAL32)
+          vert3 = X3
           pow=b%Zp(i,j)     ! not just X3 for future painting         
          endif
          c_vert=real((/vert1,vert2,vert3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float
@@ -99,16 +115,16 @@
          endif 
         end do
        end do
-       if (donut) then ! add one last vertex at origin
-         vert1 = 0_REAL32       
-         vert2 = 0_REAL32
-         X3=b%ZpOrigin         
+       if (donut .eqv. .FALSE.) then ! add one last vertex at origin
+         vert1 = 0      
+         vert2 = 0
+!         X3=b%ZpOrigin         
          if (ieee_is_NaN(X3)) then
-          vert3 = 0_REAL32  ! for out of bound values
+          vert3 = 0  ! for out of bound values
           pow = 0           ! for out of bound values          
          else
-          vert3 = real(X3,kind=REAL32)
-          pow=b%ZpOrigin     ! not just X3 for future painting          
+          vert3 = X3
+ !         pow=b%ZpOrigin     ! not just X3 for future painting          
          endif                    
          c_vert=real((/vert1,vert2,vert3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float
          c_rgbv=rgb5(pow,powmin,powmax)/255.0  !openGL wants scale of 1.0 not 255        
@@ -142,16 +158,26 @@
          ivert3=j
          ivert4=j-1
          if  ( (j < b%MV(M1)) .AND. (j < b%MV(1)) ) then           
-          if (donut) then
            elements(k:k+5)=(/ivert1,ivert2,ivert3,ivert3,ivert4,ivert1/)             
            k=k+6     ! matrix index
-          else
-!         nothing here yet for .donut. .EQ. FALSE
-          endif
          endif
         end do 
-        if (donut) then  ! inner set of faces
-        
+        if (donut .eqv. .FALSE.) then  ! inner set of faces
+         do i=1,M1-1 ! j=1 and the origin
+          ivert1=i-1
+          ivert2=i
+          ivert3=M1*N1  ! verts from above zero indexing, origin given last vertex number
+!         no boundary check on inner
+          elements(k:k+2)=(/ivert1,ivert2,ivert3/)             
+          k=k+3     ! matrix index
+         end do
+!        Last face is different
+         ivert1=M1-1
+         ivert2=0
+         ivert3=M1*N1  ! verts from above zero indexing, origin given last vertex number
+!        no boundary check on inner
+         elements(k:k+2)=(/ivert1,ivert2,ivert3/)             
+         k=k+3     ! matrix index     
         endif       
         nE=k-1
         
