@@ -49,9 +49,9 @@
 !      closed 
        verts=M1*N1+1
        faces=(2*N1-1)*M1  !triangles
-       edges=(3*N1-1)*(M1-1)  
+       edges=(3*N1-1)*(M1-1)
       endif
-!     write(12,*) verts,faces,edges 
+!     write(12,*) verts,faces,edges
   
 !      count the faces & edges, don't change the vertices or their numbering
        faces=0
@@ -108,7 +108,20 @@
        write(unitno3,*) verts,faces,edges
 
 !      Write vertices as REAL32
-!      There are "unreferenced vertices" this way, but it is much easier with vertex numbering  
+!      There are "unreferenced vertices" this way, but it is much easier with vertex numbering
+       if (donut .eqv. .FALSE.) then ! add one last vertex at origin
+         vert1 = 0_REAL32       
+         vert2 = 0_REAL32
+!         X3=b%ZpOrigin
+         X3=0.0     
+         if (ieee_is_NaN(X3)) then
+          vert3 = 0 ! for out of bound values           
+         else
+          vert3 = real(X3,kind=REAL32)        
+         endif                     
+         write(unitno1,*) vert1,vert2,vert3
+         write(unitno3,*) vert1,vert2,vert3   
+       endif
        do i=1,M1
         do j=1,N1 
           X1=b%thta(i)
@@ -125,26 +138,51 @@
          write(unitno3,*) vert1,vert2,vert3
         end do
        end do
-       if (donut .eqv. .FALSE.) then ! add one last vertex at origin
-         vert1 = 0_REAL32       
-         vert2 = 0_REAL32
-!         X3=b%ZpOrigin         
-         if (ieee_is_NaN(X3)) then
-          vert3 = 0 ! for out of bound values           
-         else
-          vert3 = real(X3,kind=REAL32)        
-         endif                     
-         write(unitno1,*) vert1,vert2,vert3
-         write(unitno3,*) vert1,vert2,vert3   
-       endif
 
-!      Faces HAVE to be written/formatted as integers(INT32)        
+
+!      Faces HAVE to be written/formatted as integers(INT32) 
+        if (donut .eqv. .FALSE.) then  ! inner set of faces
+         do i=1,M1-1 ! j=1 and the origin j=0
+          ivert2=(i-1)*N1+1
+          ivert3=i*N1+1
+          ivert1=0  ! verts from above zero indexing, origin given last vertex number
+          pow_vert1=b%Zp(I,1)
+          pow_vert2=b%Zp(I+1,1)
+!          pow_vert3=b%Zporigin
+          pow_vert3=40
+          pow_face3_1=(pow_vert1+pow_vert2+pow_vert3)/3
+          vertnum=3
+          rgbv=rgb5(pow_face3_1,powmin,powmax)
+          write(unitno1,*) vertnum,ivert1,ivert2,ivert3,rgbv
+          write(unitno3,*) vertnum,ivert1,ivert2,ivert3,rgbv
+         end do
+!        Last face is different
+         ivert2=(M1-1)*N1+1
+         ivert3=1
+         ivert1=0   ! verts from above zero indexing, origin given last vertex number
+         pow_vert1=b%Zp(M1,1)
+         pow_vert2=b%Zp(1,1)
+!         pow_vert3=b%Zporigin
+         pow_face3_1=(pow_vert1+pow_vert2+pow_vert3)/3
+         vertnum=3
+         rgbv=rgb5(pow_face3_1,powmin,powmax)
+         write(unitno1,*) vertnum,ivert1,ivert2,ivert3,rgbv
+         write(unitno3,*) vertnum,ivert1,ivert2,ivert3,rgbv
+        endif 
+       
        do i=1,M1-1
         do j=1,N1-1
-         ivert1=(i-1)*N1+j-1
-         ivert2=(i-1)*N1+j
-         ivert3=i*N1+j
-         ivert4=i*N1+j-1
+         if (donut) then
+          ivert1=(i-1)*N1+j-1
+          ivert2=(i-1)*N1+j
+          ivert3=i*N1+j
+          ivert4=i*N1+j-1
+         else
+          ivert1=(i-1)*N1+j
+          ivert2=(i-1)*N1+j+1
+          ivert3=i*N1+j+1
+          ivert4=i*N1+j
+         endif
          if  ( (j < b%MV(i)) .AND. (j < b%MV(i+1)) ) then   
 !        powers go by vertices, but colors need by face
 !        pow=b%Zp(I,J) as of now, this is actually elevation
@@ -177,10 +215,17 @@
 !       Last one is different
 !       i=M1 because "i+1"=M1, but second terms have 0 because "i" is (i-1)  
         do j=1,N1-1
-         ivert1=(M1-1)*N1+j-1
-         ivert2=(M1-1)*N1+j
-         ivert3=j
-         ivert4=j-1
+         if (donut) then
+          ivert1=(M1-1)*N1+j-1
+          ivert2=(M1-1)*N1+j
+          ivert3=j
+          ivert4=j-1
+         else
+          ivert1=(M1-1)*N1+j
+          ivert2=(M1-1)*N1+j+1
+          ivert3=j+1
+          ivert4=j
+         endif
          if  ( (j < b%MV(M1)) .AND. (j < b%MV(1)) ) then  
 !        powers go by vertices, but colors need by face
 !        pow=b%Zp(I,J)
@@ -208,34 +253,6 @@
            endif
          endif
         end do
-
-        if (donut .eqv. .FALSE.) then  ! inner set of faces
-         do i=1,M1-1 ! j=1 and the origin
-          ivert2=i-1
-          ivert3=i
-          ivert1=M1*N1  ! verts from above zero indexing, origin given last vertex number
-          pow_vert1=b%Zp(I,1)
-          pow_vert2=b%Zp(I+1,1)
-!          pow_vert3=b%Zporigin
-          pow_face3_1=(pow_vert1+pow_vert2+pow_vert3)/3
-          vertnum=3
-          rgbv=rgb5(pow_face3_1,powmin,powmax)
-          write(unitno1,*) vertnum,ivert1,ivert2,ivert3,rgbv
-          write(unitno3,*) vertnum,ivert1,ivert2,ivert3,rgbv
-         end do
-!        Last face is different
-         ivert2=M1-1
-         ivert3=0
-         ivert1=M1*N1   ! verts from above zero indexing, origin given last vertex number
-         pow_vert1=b%Zp(M1,1)
-         pow_vert2=b%Zp(1,1)
-!         pow_vert3=b%Zporigin
-         pow_face3_1=(pow_vert1+pow_vert2+pow_vert3)/3
-         vertnum=3
-         rgbv=rgb5(pow_face3_1,powmin,powmax)
-         write(unitno1,*) vertnum,ivert1,ivert2,ivert3,rgbv
-         write(unitno3,*) vertnum,ivert1,ivert2,ivert3,rgbv 
-        endif 
         
        close (unitno1)
        close (unitno3)      

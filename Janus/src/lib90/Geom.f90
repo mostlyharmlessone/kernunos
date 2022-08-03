@@ -90,10 +90,29 @@
 !      Write vertices as c_float
 !      Unreferenced vertices, but much easier numbering this way
 !      vertices        
-       k=1 
+       k=1
+
+       if (donut .eqv. .FALSE.) then ! add one last vertex at origin
+         vert1 = 0      
+         vert2 = 0
+!         X3=b%ZpOrigin 
+         X3=0.0        
+         if (ieee_is_NaN(X3)) then
+          vert3 = 0  ! for out of bound values
+          pow = 0           ! for out of bound values          
+         else
+          vert3 = X3
+ !         pow=b%ZpOrigin     ! not just X3 for future painting
+          pow=40          
+         endif                    
+         c_vert=real((/vert1,vert2,vert3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float
+         c_rgbv=rgb5(pow,powmin,powmax)/255.0  !openGL wants scale of 1.0 not 255        
+         vertices(k:k+5)=(/c_vert,c_rgbv/)
+         k=k+6      ! matrix index          
+       endif
+
        do i=1,M1
         do j=1,N1
-        if (donut) then                        
          X1=b%thta(i)
          X2=b%r(i,j)
          X3=b%Zp(i,j)   
@@ -110,75 +129,70 @@
          c_rgbv=rgb5(pow,powmin,powmax)/255.0  !openGL wants scale of 1.0 not 255        
          vertices(k:k+5)=(/c_vert,c_rgbv/)
          k=k+6      ! matrix index
-         else
-!        nothing here yet for .donut. .EQ. FALSE
-         endif 
         end do
        end do
-       if (donut .eqv. .FALSE.) then ! add one last vertex at origin
-         vert1 = 0      
-         vert2 = 0
-!         X3=b%ZpOrigin         
-         if (ieee_is_NaN(X3)) then
-          vert3 = 0  ! for out of bound values
-          pow = 0           ! for out of bound values          
-         else
-          vert3 = X3
- !         pow=b%ZpOrigin     ! not just X3 for future painting          
-         endif                    
-         c_vert=real((/vert1,vert2,vert3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float
-         c_rgbv=rgb5(pow,powmin,powmax)/255.0  !openGL wants scale of 1.0 not 255        
-         vertices(k:k+5)=(/c_vert,c_rgbv/)
-         k=k+6      ! matrix index          
-       endif        
+        
        nV=k-1
        
-!      faces               
+!      faces  
        k=1 
-       do i=1,M1-1
-        do j=1,N1-1 
-!        do j=1,1 
-          ivert1=(i-1)*N1+j-1
-          ivert2=(i-1)*N1+j
-          ivert3=i*N1+j
-          ivert4=i*N1+j-1
-          if  ( (j < b%MV(i)) .AND. (j < b%MV(i+1)) ) then                    
-            elements(k:k+5)=(/ivert1,ivert2,ivert3,ivert3,ivert4,ivert1/) 
-            k=k+6                                                   
-          endif                                  
-        end do
-       end do  
-     
-!       Last set of faces is different
-!       i=M1 because "i+1"=M1, but second terms have 0 because "i" is (i-1)  
-        do j=1,N1-1
-!        do j=1,1
-         ivert1=(M1-1)*N1+j-1
-         ivert2=(M1-1)*N1+j
-         ivert3=j
-         ivert4=j-1
-         if  ( (j < b%MV(M1)) .AND. (j < b%MV(1)) ) then           
-           elements(k:k+5)=(/ivert1,ivert2,ivert3,ivert3,ivert4,ivert1/)             
-           k=k+6     ! matrix index
-         endif
-        end do 
         if (donut .eqv. .FALSE.) then  ! inner set of faces
          do i=1,M1-1 ! j=1 and the origin
-          ivert1=i-1
-          ivert2=i
-          ivert3=M1*N1  ! verts from above zero indexing, origin given last vertex number
+          ivert2=(i-1)*N1+1
+          ivert3=i*N1+1
+          ivert1=0  ! verts from above zero indexing, origin given last vertex number
 !         no boundary check on inner
           elements(k:k+2)=(/ivert1,ivert2,ivert3/)             
           k=k+3     ! matrix index
          end do
 !        Last face is different
-         ivert1=M1-1
-         ivert2=0
-         ivert3=M1*N1  ! verts from above zero indexing, origin given last vertex number
+         ivert2=(M1-1)*N1+1
+         ivert3=1
+         ivert1=0   ! verts from above zero indexing, origin given last vertex number
 !        no boundary check on inner
          elements(k:k+2)=(/ivert1,ivert2,ivert3/)             
          k=k+3     ! matrix index     
-        endif       
+        endif
+             
+       do i=1,M1-1
+        do j=1,N1-1 
+         if (donut) then
+          ivert1=(i-1)*N1+j-1
+          ivert2=(i-1)*N1+j
+          ivert3=i*N1+j
+          ivert4=i*N1+j-1
+         else
+          ivert1=(i-1)*N1+j
+          ivert2=(i-1)*N1+j+1
+          ivert3=i*N1+j+1
+          ivert4=i*N1+j
+         endif
+          if  ( (j < b%MV(i)) .AND. (j < b%MV(i+1)) ) then                    
+            elements(k:k+5)=(/ivert1,ivert2,ivert3,ivert3,ivert4,ivert1/) 
+            k=k+6                                                   
+          endif                                  
+        end do
+       end do       
+!       Last set of faces is different
+!       i=M1 because "i+1"=M1, but second terms have 0 because "i" is (i-1)  
+        do j=1,N1-1
+         if (donut) then
+          ivert1=(M1-1)*N1+j-1
+          ivert2=(M1-1)*N1+j
+          ivert3=j
+          ivert4=j-1
+         else
+          ivert1=(M1-1)*N1+j
+          ivert2=(M1-1)*N1+j+1
+          ivert3=j+1
+          ivert4=j
+         endif
+         if  ( (j < b%MV(M1)) .AND. (j < b%MV(1)) ) then           
+           elements(k:k+5)=(/ivert1,ivert2,ivert3,ivert3,ivert4,ivert1/)             
+           k=k+6     ! matrix index
+         endif
+        end do 
+       
         nE=k-1
         
        !write(*,*) "Enter/Return to Continue.."  
