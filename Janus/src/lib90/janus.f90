@@ -1,4 +1,4 @@
-  subroutine Janus(mainfile, elements, vertices, nV, nE)  
+  subroutine Janus(flag,mainfile, elements, vertices, nV, nE)  
 
 ! DRIVER PROGRAM FOR SPLINE ROUTINES
   use set_precision, ONLY : wp
@@ -14,6 +14,7 @@
   integer :: TestData                  ! TestData: 0=EyeSys, 1=Atlas, 2=Penta, 3=test 
   integer :: NP                        ! PentaCam=141
   character(c_char), INTENT(IN), DIMENSION(4096) :: mainfile
+  integer(c_int), INTENT(INOUT) :: flag ! 0 = called from Jupiter 1=called from juno  
   integer(c_int), INTENT(INOUT) :: nV 
   integer(c_int), INTENT(INOUT) :: nE               
   real(c_float), INTENT(INOUT) :: vertices(*)
@@ -240,14 +241,13 @@ file_idx=index(inputfile1, ".DAT")
 !  use fillarray to fill DiaSlope Zp with calculated value based on IuseG, optionally generate LIOC
 !  using SplineEval1Dx1D to refill a new matrix RadSlope using f0, derivatives to get calculated powers
 
-!  plot 'LIOC.CAR' using 1:2:3:4 with vectors
-   call FILLARRAY(8,LinesOfCurv,POWMIN2,POWMAX2)    ! don't redo bounds consider optional 
+!  Generate LIOC with vector format
+   call FILLARRAY(8,LinesOfCurv,POWMIN2,POWMAX2)    ! don't redo bounds consider optional !  plot 'LIOC.CAR' using 1:2:3:4 with vectors
 !  WriteCenter shows where the spline of slopes is zero, it should be close to zero for a concave center with a unique maximum  
-!  use with polar plot, has to come after SplineEval1Dx1D is called, ie. 'set polar' then plot 'Center.dat'
    call WriteCenter(RadSlope,'Center.dat')   ! biggest deviation with nSplineCenter zero slope forced at origin, 
                                              ! then with zero slope forced at average (r(low)+r(high))/2.0
-                                             ! smallest deviation without nSplineCenter; view with set polar; plot 'Center.dat'
-
+                                             ! smallest deviation without nSplineCenter; view with set polar; plot 'Center.dat' with lines
+  call execute_command_line ("gnuplot -p plotlioc.gnu &", exitstat=i)
 !  write OFF and STL files
   MV(:)=RadSlope%MV(:) ! store a copy
 !  RadSlope%MV(:)=N   !full diameters for elevation 
@@ -278,8 +278,8 @@ file_idx=index(inputfile1, ".DAT")
 ! eigenvalues show shape of RadSlope without make_rings but with FillArray 7 elevations
 !  atmp=pca(2,RadSlope) 
 !  atmp=pca(3,RadSlope)
-! writes values in openGL friendly format to matrices for passing to C/C++
-  call Geom(RadSlope, donut, powmin, powmax, elements, vertices, nV, nE)
+! writes values in openGL friendly format to matrices for passing to C/C++; flag to display with glfw using juno
+  call Geom(flag,RadSlope, donut, powmin, powmax, elements, vertices, nV, nE)
 
 !  the cube example
 !   nV = 48

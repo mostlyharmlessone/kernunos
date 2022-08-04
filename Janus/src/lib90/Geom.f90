@@ -1,6 +1,6 @@
 !      Generates matrices for openGL
 
-       subroutine Geom(b, donut, powmin, powmax, elements, vertices, nV, nE)
+       subroutine Geom(flag, b, donut, powmin, powmax, elements, vertices, nV, nE)
        use cornea_arrays, ONLY : wpRadSlopeMatrix
        use set_precision, ONLY : wp
        use c_interfaces, ONLY : OpenGL_Show
@@ -18,7 +18,7 @@
        integer(c_int) :: ivert1,ivert2,ivert3,ivert4
        integer(c_int), INTENT(INOUT) :: elements(*)                          ! faces x 3   
        real(c_float), INTENT(INOUT) :: vertices(*)                           ! vertices x 6 
-       integer(c_int), INTENT(INOUT) :: nE, nV
+       integer(c_int), INTENT(INOUT) :: flag, nE, nV                         ! call openGL or not
        logical, intent(IN) :: donut
        logical :: quad           
        N1=size(b%r,2)
@@ -196,8 +196,10 @@
         nE=k-1
         
        !write(*,*) "Enter/Return to Continue.."  
-       !read(stdin,*)  ! the new pause needs use ISO_FORTRAN_ENV, only: stdin=>input_unit  
-       write(*,*) 'Display in separate OpenGL window'                           
-!       call OpenGL_Show(vertices, elements, nV, nE)  ! glfw program incompatible with Jupiter/wxWidgets
-    
+       !read(stdin,*)  ! the new pause needs use ISO_FORTRAN_ENV, only: stdin=>input_unit
+       if (flag > 0) then
+        write(*,*) 'Display in separate OpenGL window'                           
+        call OpenGL_Show(vertices, elements, nV, nE)  ! glfw program incompatible with Jupiter/wxWidgets
+       endif
+
        end subroutine Geom

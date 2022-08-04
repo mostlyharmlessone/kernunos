@@ -21,7 +21,7 @@ module io_functions
       real(wp), intent(out) :: POWMIN, POWMAX
     END SUBROUTINE
 
-    SUBROUTINE Geom(b, donut, powmin, powmax, elements, vertices, nV, nE)
+    SUBROUTINE Geom(flag, b, donut, powmin, powmax, elements, vertices, nV, nE)
        use cornea_arrays
        use set_precision, ONLY : wp
        use c_interfaces, ONLY : OpenGL_Show
@@ -33,7 +33,7 @@ module io_functions
        real(wp), intent(IN) :: powmin,powmax 
        integer(c_int), INTENT(INOUT) :: elements(*)                          ! faces x 3   index 0
        real(c_float), INTENT(INOUT) :: vertices(*)                           ! vertices x 6
-       integer(c_int), INTENT(INOUT) :: nE, nV
+       integer(c_int), INTENT(INOUT) :: flag, nE, nV                         ! passed from janus to call OpenGL
     END SUBROUTINE
 
     subroutine rcnvrta(KXNAME)
