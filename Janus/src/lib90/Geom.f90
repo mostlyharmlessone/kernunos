@@ -1,15 +1,15 @@
 !      Generates matrices for openGL
 
        subroutine Geom(flag, b, donut, powmin, powmax, elements, vertices, nV, nE)
-       use cornea_arrays, ONLY : wpRadSlopeMatrix
+       use cornea_arrays, ONLY : wpRadSlopeMatrix, JMatrix
        use set_precision, ONLY : wp
        use c_interfaces, ONLY : OpenGL_Show
        use special_fct, only : rgb2, rgb5
        use, intrinsic :: iso_c_binding, ONLY : c_float,c_int
        use, intrinsic ::  ieee_arithmetic
        use ISO_FORTRAN_ENV, only: stdin=>input_unit     ! for the pause read(stdin,*)
-       TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
-       real(wp), intent(IN) :: powmin,powmax 
+       TYPE(wpRadSlopeMatrix),INTENT(IN) :: b      
+       real(wp), intent(INOUT) :: powmin,powmax 
        real(wp) :: X1,X2,X3
        real(wp) :: vert1,vert2,vert3       
        real(c_float) :: c_vert(3),c_rgbv(3)
@@ -23,7 +23,7 @@
        logical :: quad           
        N1=size(b%r,2)
        M1=size(b%r,1)
-
+       
        quad = .FALSE.
        if (donut .AND. quad) then
         write(*,*) 'Geom: Cannot have closed disk with quadrilaterals'
@@ -95,15 +95,13 @@
        if (donut .eqv. .FALSE.) then ! add one last vertex at origin
          vert1 = 0      
          vert2 = 0
-!         X3=b%ZpOrigin 
-         X3=0.0        
+         X3=JMatrix%Z0(1)         
          if (ieee_is_NaN(X3)) then
           vert3 = 0  ! for out of bound values
           pow = 0           ! for out of bound values          
          else
           vert3 = X3
- !         pow=b%ZpOrigin     ! not just X3 for future painting
-          pow=40          
+          pow=JMatrix%SAGC0(1)     ! not just X3 for future painting                              
          endif                    
          c_vert=real((/vert1,vert2,vert3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float
          c_rgbv=rgb5(pow,powmin,powmax)/255.0  !openGL wants scale of 1.0 not 255        
@@ -123,7 +121,7 @@
           pow = 0           ! for out of bound values           
          else
           vert3 = X3
-          pow=b%Zp(i,j)     ! not just X3 for future painting         
+          pow=JMatrix%SAGC(i,j)     ! not just X3 for future painting         
          endif
          c_vert=real((/vert1,vert2,vert3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float
          c_rgbv=rgb5(pow,powmin,powmax)/255.0  !openGL wants scale of 1.0 not 255        

@@ -65,8 +65,9 @@ file_idx=index(inputfile1, ".DAT")
         file_idx=index(inputfile1, ".ELE")
         if( file_idx == 0) then
          print *, 'Not a PentaCam file' 
-         print *, 'Unknown file type'
-         stop       
+         print *, 'Unknown file type: make some test data'
+         TestData=3; MM=180; N=22 ; NP=141  ! make some test data 
+!         TestData=3; MM=360; N=16 ; NP=141  ! make some test data rcnvrt not working 360        
         else
         inputfile2=replacestr(string=inputfile1,search="ELE",substitute="CUR")        
         TestData=2; MM=180; N=22; NP=141 ! PentaCam
@@ -109,28 +110,25 @@ file_idx=index(inputfile1, ".DAT")
 
   call CPU_TIME(time_start)             
   call init_mat(MM,N,Atlas,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
+  call init_mat_JMatrix(MM,N,JMatrix)
   call CPU_TIME(time_end)
   write(*,*) 'Time to allocate memory: ',(time_end-time_start)*1000 
  
   if (TestData .eq. 0) then  
 ! READ THE EYESYS DATA
-! XX????? ARE THE AXIAL DIST. RX???? ARE THE MIRE RADII 
-!    call RCNVRTE('RA.DAT','XX.DAT') 
+! XX????? ARE THE AXIAL DIST. RX???? ARE THE MIRE RADII  
    call CPU_TIME(time_start)
    call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
    call RCNVRTE(inputfile2,inputfile1) 
    call CPU_TIME(time_end)
    write(*,*) 'Time to read EyeSys files: ',(time_end-time_start)*1000
-!  Generate the slope matrix using ZFCT
-!  Populate "Atlas" data with AXIALP 
+!  Generate the slope matrix using ZFCT 
    RadSlope=EyeSys 
-   Atlas=RadSlope
   endif
               
 ! OR READ THE ATLAS DATA
 ! R OR DIST ARE THE MIRE RADII, USING DIST, READS ELEVATION ALSO  
   if (TestData .eq. 1) then 
-!    call RCNVRTA('TEST.CSV')
    call CPU_TIME(time_start)
    call RCNVRTA(inputfile1)
    call CPU_TIME(time_end)
@@ -138,16 +136,9 @@ file_idx=index(inputfile1, ".DAT")
    Radslope=Atlas
   endif
 
-  if (TestData .eq. 3) then 
-! OR GENERATE TEST DATA (EYESYS OR ATLAS STYLE DEPENDING ON MM)
-   call RCNVRTT(MM,N,NP)
-   Radslope=Atlas
-  endif
-
   if (TestData .eq. 2) then
 ! READ THE PENTACAM DATA (which overwrites Atlas)
-! EA are elevations CA are "sagittal"curvatures in a 141x141 -7 to 7 mm square -1 is no data 
-!  call RCNVRTP('TEST.ELE','TEST.CUR')
+! ELE are elevations CUR are "sagittal" curvatures in a 141x141 -7 to 7 mm square -1 is no data 
    call init_mat_Penta(NP,Penta,Skyline)   !allocate the PentaCam matices
    call RCNVRTP(inputfile1,inputfile2) 
 ! arrange the data
@@ -155,17 +146,33 @@ file_idx=index(inputfile1, ".DAT")
    Skyline=Penta
 !   call Skyline_eq_Penta2(Skyline,Penta)
 ! convert to polar with splining
-   call Atlas_eq_Skyline(Atlas, RadSlope, Skyline, Penta)  !needs Penta & RadSlope for border check
+   call RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)  !needs Penta for border check
    MV(:)=RadSlope%MV(:) ! store a copy
    call CPU_TIME(time_end)
    write(*,*) 'Time to convert Penta: ',(time_end-time_start)*1000
-   Radslope=Atlas
-   RadSlope%MV(:)=MV(:) ! restore the copy
+   RadSlope%MV(:)=MV(:)   ! restore the copy
    Penta = 0              ! deallocate
    Skyline = 0
+   Atlas=RadSlope     ! this is just for the final plots 
   endif
 
-
+  if (TestData .eq. 3) then 
+! OR GENERATE TEST DATA (EYESYS,ATLAS OR PENTA STYLE)
+   call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
+   call init_mat_Penta(NP,Penta,Skyline)   ! allocate the PentaCam matices   
+   call RCNVRTT(MM,N,NP)
+!   uncomment next two lines to test fake Penta data
+!   Skyline=Penta
+!   call RadSlope_eq_Skyline(RadSlope, Skyline, Penta)  !needs Penta & RadSlope for border check
+   if (MM == 360) then
+    RadSlope=EyeSys 
+    Atlas=RadSlope   
+   endif    
+    Radslope=Atlas
+    Penta = 0
+    EyeSys = 0
+  endif
+  
 ! Here IuseG changes the contents of RadSlope via FillArray
 !  IuseG == -1 import slopes, return SAGC (axialp), no splining necessary
 !  IuseG == 0  import SAGC, return SAGC (do nothing), no splining necessary
@@ -224,8 +231,11 @@ file_idx=index(inputfile1, ".DAT")
 ! GENERATE RADIAL SPLINES ACROSS CENTER
   call CPU_TIME(time_start)
   DiaSlope=RadSlope              ! move to diagonal format
-  DiaSlope%Zpd2 = .n. DiaSlope   ! generate the splines diagonally (generate zp2)
-!  DiaSlope%Zpd2 = DiaSplineCenter(DiaSlope)   ! generate the splines diagonally with center node added (slopes only)
+  if (TestData.ne.2) then
+   DiaSlope%Zpd2 = .n. DiaSlope   ! generate the splines diagonally (generate zp2)
+  else
+   DiaSlope%Zpd2 = DiaSplineCenter(DiaSlope)   ! generate the splines diagonally with center node added (slopes only)
+  endif                                        ! should I do this and force the center to be at the origin
   call CPU_TIME(time_end)
   write(*,*) 'Time to run splines: ',(time_end-time_start)*1000
 
@@ -234,9 +244,9 @@ file_idx=index(inputfile1, ".DAT")
 ! roadmap: now generate round rings, not at previous knots
 ! generate new Rs using rOMIN, rOMAX, riMIN, riMAX but they have to be constant with theta
 ! get a global value for those four to generate R's no ORIGIN to avoid singularity
-
- RadSlope%r=make_rings(DiaSlope,.FALSE.)
- 
+ if (TestData.ne.2) then
+  RadSlope%r=make_rings(DiaSlope,.FALSE.)
+ endif 
 !  RadSlope%r=make_bad_rings(DiaSlope,.FALSE.)
 !  use fillarray to fill DiaSlope Zp with calculated value based on IuseG, optionally generate LIOC
 !  using SplineEval1Dx1D to refill a new matrix RadSlope using f0, derivatives to get calculated powers
@@ -252,6 +262,7 @@ file_idx=index(inputfile1, ".DAT")
   MV(:)=RadSlope%MV(:) ! store a copy
 !  RadSlope%MV(:)=N   !full diameters for elevation 
   call FILLARRAY(7,LinesOfCurv,POWMIN,POWMAX)
+! These are elevation bounds I need to call FILLARRAY(4,LinesOfCurv,POWMIN,POWMAX)    
 
 !!!$OMP PARALLEL num_threads(2) private(thread)
 !      separate iterative parts into subroutines so each thread can work in parallel
@@ -261,6 +272,12 @@ file_idx=index(inputfile1, ".DAT")
 
 !!!$OMP PARALLEL COPYIN(RadSlope)
   donut = .FALSE.
+  
+  if (TestData.eq.2) then
+   powmin=JMatrix%Z0(2)
+   powmax=JMatrix%Z0(3)
+  endif  
+  
   call WriteGeom(RadSlope,donut,powmin,powmax,'elevation.off','elevation.ply')
 ! from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY MIT licence, included source in tree
 !  call execute_command_line ("./ConvertPLYtoBIN -l elevation.ply elevation.bin.ply",exitstat=i)
@@ -279,6 +296,12 @@ file_idx=index(inputfile1, ".DAT")
 !  atmp=pca(2,RadSlope) 
 !  atmp=pca(3,RadSlope)
 ! writes values in openGL friendly format to matrices for passing to C/C++; flag to display with glfw using juno
+
+  if (TestData.eq.2) then
+   powmin=JMatrix%SAGC0(2)
+   powmax=JMatrix%SAGC0(3)
+  endif
+  
   call Geom(flag,RadSlope, donut, powmin, powmax, elements, vertices, nV, nE)
 
 !  the cube example
@@ -305,7 +328,6 @@ file_idx=index(inputfile1, ".DAT")
 !      & 6, 2, 1      /) 
 
 !return 
-
 
 
 !!!$OMP END PARALLEL  

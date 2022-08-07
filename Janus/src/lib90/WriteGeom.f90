@@ -148,8 +148,7 @@
           ivert1=0  ! verts from above zero indexing, origin given last vertex number
           pow_vert1=b%Zp(I,1)
           pow_vert2=b%Zp(I+1,1)
-!          pow_vert3=b%Zporigin
-          pow_vert3=40
+          pow_vert3=JMatrix%SAGC0(1)
           pow_face3_1=(pow_vert1+pow_vert2+pow_vert3)/3
           vertnum=3
           rgbv=rgb5(pow_face3_1,powmin,powmax)
@@ -162,7 +161,7 @@
          ivert1=0   ! verts from above zero indexing, origin given last vertex number
          pow_vert1=b%Zp(M1,1)
          pow_vert2=b%Zp(1,1)
-!         pow_vert3=b%Zporigin
+         pow_vert3=JMatrix%SAGC0(1)
          pow_face3_1=(pow_vert1+pow_vert2+pow_vert3)/3
          vertnum=3
          rgbv=rgb5(pow_face3_1,powmin,powmax)

@@ -30,7 +30,7 @@ module io_functions
        use ISO_FORTRAN_ENV, only: stdin=>input_unit     
        TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
        logical, intent(IN) :: donut       
-       real(wp), intent(IN) :: powmin,powmax 
+       real(wp), intent(INOUT) :: powmin,powmax 
        integer(c_int), INTENT(INOUT) :: elements(*)                          ! faces x 3   index 0
        real(c_float), INTENT(INOUT) :: vertices(*)                           ! vertices x 6
        integer(c_int), INTENT(INOUT) :: flag, nE, nV                         ! passed from janus to call OpenGL
@@ -229,7 +229,7 @@ subroutine rcnvrte(RANAME,XXNAME)
   implicit none
   logical :: exists
   character(len=*), intent(in) :: RANAME,XXNAME  
-  REAL(wp) :: ZX(360),YX(16)
+  REAL(wp) :: ZX(16),YX(16)
   INTEGER :: I,J,ITH,unitno1,unitno2,MM,N,ierr
   MM=360
   N=16

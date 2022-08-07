@@ -18,11 +18,16 @@ USE cornea_arrays
     Atlas%DEG(i)=2*i-1
     RadSlope%thta(i)=PI*Atlas%DEG(i)/180.0_wp
     endif
-    do j=1,N       
+    do j=1,N+1     
 
-!     ROUND MIRES, SINGLE AXIAL POWER SPHERE         
-
-        DIST=0.2_wp+(j-1)*0.15_wp
+!     ROUND MIRES, SINGLE AXIAL POWER SPHERE    
+       if (j > N) then
+        R=50.0_wp
+        A=40.0_wp
+        B=30.0_wp
+        D=0.0_wp ; X=0.0_wp
+       else 
+        DIST=0.4_wp+(j-1)*0.15_wp
 !       ELLIPSOID WITH ASTIGMATISM Z=R-R*SQRT(1-(rCOSt/A)^2-(rSINt)/B)^2)
         R=50.0_wp
         A=40.0_wp
@@ -30,6 +35,7 @@ USE cornea_arrays
         X=DIST*A/5.0
 !	D=DIST  alternate version without scale for derivative magnitude check
         D=X
+       endif 
         YP=(-(R/A**2)*COS(RadSlope%thta(i))**2-(R/B**2)*SIN(RadSlope%thta(i))**2)
         YP=YP*X/SQRT(1-(X*COS(RadSlope%thta(i))/A)**2-(X*SIN(RadSlope%thta(i))/B)**2)
         YP=(-(R/A**2)*COS(RadSlope%thta(i))**2-(R/B**2)*SIN(RadSlope%thta(i))**2)
@@ -50,11 +56,17 @@ USE cornea_arrays
         YT=YT*R/SQRT(1-(D*COS(RadSlope%thta(i))/A)**2-(D*SIN(RadSlope%thta(i))/B)**2)
 !       NEED A CHECK ON ELEVATION
         YZ=R-R*SQRT(1-(X*COS(RadSlope%thta(i))/A)**2-(X*SIN(RadSlope%thta(i))/B)**2) 
-        YZ=R-R*SQRT(1-(D*COS(RadSlope%thta(i))/A)**2-(D*SIN(RadSlope%thta(i))/B)**2) 
+        YZ=R-R*SQRT(1-(D*COS(RadSlope%thta(i))/A)**2-(D*SIN(RadSlope%thta(i))/B)**2)
+      if (j > N) then
+        POW=42  ! SAGC undefined when YP=0
+      else    
         POW=ABS(X/YP)*SQRT(1+YP**2)
         POW=ABS(D/YP)*SQRT(1+YP**2)
-             
-      if (POW > 0 .AND. DIST > 0) then   ! should always be true
+      endif
+      if (j > N) then
+       JMatrix%R0=0 ; JMatrix%Z0(1)=YZ; JMatrix%THT0=0; JMatrix%SAGC0(1)=POW     
+      else            
+       if (POW > 0 .AND. DIST > 0) then   ! should always be true
         RadSlope%MV(i)=RadSlope%MV(i)+1             
         EyeSys%XX(i,j)=RFCT/POW
         EyeSys%RA(i,j)=DIST*100
@@ -62,11 +74,11 @@ USE cornea_arrays
         Atlas%AR(I,J)=DIST
         Atlas%AD(I,J)=DIST
         Atlas%AP(I,J)=POW  
-        Atlas%AY(I,J)=0.0_wp
-      else
+        Atlas%AY(I,J)=YZ
+       else
         write(*,*) 'error in RCNVRTT'  
-      endif
-	    		        	  
+       endif
+      endif    		        	  
      end do 
   end do
 
@@ -109,9 +121,14 @@ USE cornea_arrays
         YT=YT*R/SQRT(1-(DX/A)**2-(DY/B)**2)
 
 !       NEED A CHECK ON ELEVATION 
-        YZ=R-R*SQRT(1-(DX/A)**2-(DY/B)**2) 
-        POW=ABS(D/YP)*SQRT(1+YP**2) 
-  
+        YZ=R-R*SQRT(1-(DX/A)**2-(DY/B)**2)
+        
+        if ( i == 1 .AND. j == 1) then
+         POW=ABS(D/YP)*SQRT(1+YP**2) 
+        else
+         POW =42 ! undefined at origin
+        endif 
+        
    if ( D < R/400.0 ) then
     Penta%ELE(i,j)=YZ
     Penta%CUR(i,j)=POW 
@@ -123,8 +140,8 @@ USE cornea_arrays
    end do
   end do 
 
-write (*,*) Penta%ELE
+!write (*,*) Penta%ELE
    
-stop
+!stop
 
  end subroutine RCNVRTT     
