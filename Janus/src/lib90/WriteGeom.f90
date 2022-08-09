@@ -28,8 +28,8 @@
 !      255 0 0 #red
 !      0 255 0 #green
 !      0 0 255 #blue
-       N1=size(b%r,2)
-       M1=size(b%r,1)
+       N1=size(b%r,1)
+       M1=size(b%r,2)
        unitno1 = get_new_fileunit()
        open(unitno1, file=trim(PLYNAME), action="write", iostat=ierr)
        unitno3 = get_new_fileunit()
@@ -125,8 +125,8 @@
        do i=1,M1
         do j=1,N1 
           X1=b%thta(i)
-          X2=b%r(i,j)
-          X3=b%Zp(i,j)
+          X2=b%r(j,i)
+          X3=b%Zp(j,i)
           vert1 = real(ABS(X2)*COS(X1),kind=REAL32)
           vert2 = real(ABS(X2)*SIN(X1),kind=REAL32)
          if (ieee_is_NaN(X3)) then
@@ -146,8 +146,8 @@
           ivert2=(i-1)*N1+1
           ivert3=i*N1+1
           ivert1=0  ! verts from above zero indexing, origin given last vertex number
-          pow_vert1=b%Zp(I,1)
-          pow_vert2=b%Zp(I+1,1)
+          pow_vert1=b%Zp(1,i)
+          pow_vert2=b%Zp(1,I+1)
           pow_vert3=JMatrix%SAGC0(1)
           pow_face3_1=(pow_vert1+pow_vert2+pow_vert3)/3
           vertnum=3
@@ -159,7 +159,7 @@
          ivert2=(M1-1)*N1+1
          ivert3=1
          ivert1=0   ! verts from above zero indexing, origin given last vertex number
-         pow_vert1=b%Zp(M1,1)
+         pow_vert1=b%Zp(1,M1)
          pow_vert2=b%Zp(1,1)
          pow_vert3=JMatrix%SAGC0(1)
          pow_face3_1=(pow_vert1+pow_vert2+pow_vert3)/3
@@ -186,10 +186,10 @@
 !        powers go by vertices, but colors need by face
 !        pow=b%Zp(I,J) as of now, this is actually elevation
 !        rgbv=rgb5(pow,powmin,powmax)
-         pow_vert1=b%Zp(I,J+1)
-         pow_vert2=b%Zp(I+1,J+1)
-         pow_vert3=b%Zp(I,J) 
-         pow_vert4=b%Zp(I+1,J)
+         pow_vert1=b%Zp(J+1,I)
+         pow_vert2=b%Zp(J+1,I+1)
+         pow_vert3=b%Zp(J,I) 
+         pow_vert4=b%Zp(J,I+1)
          pow_face4=(pow_vert1+pow_vert2+pow_vert3+pow_vert4)/4
          pow_face3_1=(pow_vert1+pow_vert2+pow_vert3)/3
          pow_face3_2=(pow_vert1+pow_vert3+pow_vert4)/3
@@ -229,10 +229,10 @@
 !        powers go by vertices, but colors need by face
 !        pow=b%Zp(I,J)
 !        rgbv=rgb5(pow,powmin,powmax)
-         pow_vert1=b%Zp(M1,J+1)
-         pow_vert2=b%Zp(M1-1,J+1)
-         pow_vert3=b%Zp(M1,J) 
-         pow_vert4=b%Zp(M1-1,J)
+         pow_vert1=b%Zp(J+1,M1)
+         pow_vert2=b%Zp(J+1,M1-1)
+         pow_vert3=b%Zp(J,M1) 
+         pow_vert4=b%Zp(J,M1-1)
          pow_face4=(pow_vert1+pow_vert2+pow_vert3+pow_vert4)/4
          pow_face3_1=(pow_vert1+pow_vert2+pow_vert3)/3
          pow_face3_2=(pow_vert1+pow_vert3+pow_vert4)/3

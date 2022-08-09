@@ -1,22 +1,22 @@
       subroutine SplineEval1Dx1D(iflag,u,v,f,fr,ft,frt,frr,ftt) 
-      USE cornea_arrays, ONLY : DiaSlope, RadSlope, RadSplineCenter
+      USE cornea_arrays, ONLY : DiaSlope, RadSlope, RadSplineCenter,PI
       USE set_precision, ONLY : wp
       USE spline_interfaces, ONLY : pspli, SplineEval, trapez, CubicSplineQuad, SplineCenter
       USE special_fct, ONLY : OPERATOR(.p.) !tensor summation convention      
       use,intrinsic :: ieee_arithmetic
       implicit none
       integer, INTENT(IN) :: iflag     ! iflag=0 no integration
-      real(wp), INTENT(IN) :: u, v
+      real(wp), INTENT(INOUT) :: u, v
       real(wp), INTENT(OUT),OPTIONAL ::  f,fr,ft,frt,frr,ftt
       real(wp) :: g,g0,gr,grr,w
-      real(wp) :: fTmp(size(RadSlope%r,1)),frTmp(size(RadSlope%r,1)),frrTmp(size(RadSlope%r,1))
-      real(wp) :: thta(size(RadSlope%r,1)),fttTmp(size(RadSlope%r,1)),frttTmp(size(RadSlope%r,1)),frrttTmp(size(RadSlope%r,1))
-      real(wp) :: r(2*size(RadSlope%r,2)),z(2*size(RadSlope%r,2)),zr2(2*size(RadSlope%r,2))
+      real(wp) :: fTmp(size(RadSlope%r,2)),frTmp(size(RadSlope%r,2)),frrTmp(size(RadSlope%r,2))
+      real(wp) :: thta(size(RadSlope%r,2)),fttTmp(size(RadSlope%r,2)),frttTmp(size(RadSlope%r,2)),frrttTmp(size(RadSlope%r,2))
+      real(wp) :: r(2*size(RadSlope%r,1)),z(2*size(RadSlope%r,1)),zr2(2*size(RadSlope%r,1))
       integer :: L2,j,L,MM,N
 !      logical :: IsInf
 
-      MM=size(RadSlope%r,1)
-      N=size(RadSlope%r,2)
+      MM=size(RadSlope%r,2)
+      N=size(RadSlope%r,1)
 
       r=0 ; z=0 ; zr2=0 ; thta=0 ; L2=0                     
       do j=1,MM/2 
@@ -25,15 +25,13 @@
         r=DiaSlope%rd(:,j)
         z=DiaSlope%Zpd(:,j)
         zr2=DiaSlope%Zpd2(:,j)   
- !       L=j+MM/2
-!        thta(L)=RadSlope%thta(L)
         if (iflag == 0) then             
          call SplineEval(0,r,z,zr2,L2,u,g,gr,grr) !first parameter = 0 nonperiodic                                    
          fTmp(j)=g
 !        diagnostic to see where each splines center is, perhaps a measure of decentration          
          call SplineCenter(r,z,zr2,L2,w)                                          
          RadSplineCenter(j)=w
-        else                               
+        else                                                    ! iflag = 1                            
          call SplineEval(0,r,z,zr2,L2,u,gr,grr) 
 !         call CubicSplineQuad(r,z,zr2,L2,0._wp,g0)    
 !         call CubicSplineQuad(r,z,zr2,L2,u,g) 
@@ -53,7 +51,6 @@
         fTmp(L)=fTmp(j)   
         frTmp(L)=frTmp(j)
         frrTmp(L)=frrTmp(j)
-	 	
       end do
 
 !       FIRST CALL FOR PERIODIC SPLINE OF f0, fttTmp is d2Y/dTHETA2 
@@ -67,9 +64,7 @@
          else          
           if (Present(f)) then
            call pspli(thta,fTmp,MM,fttTmp)
-           call SplineEval(1,thta,fTmp,fttTmp,MM,v,f)          !!!!do we really need MM or just MM/2 since we're working the diagonal?
- !          call pspli(thta,fTmp,MM/2,fttTmp)
- !          call SplineEval(1,thta,fTmp,fttTmp,MM/2,v,f)        
+           call SplineEval(1,thta,fTmp,fttTmp,MM,v,f)
           endif
          endif
         endif

@@ -78,7 +78,7 @@ USE cornea_arrays
        else
         write(*,*) 'error in RCNVRTT'  
        endif
-      endif    		        	  
+      endif
      end do 
   end do
 

@@ -21,8 +21,8 @@
        integer(c_int), INTENT(INOUT) :: flag, nE, nV                         ! call openGL or not
        logical, intent(IN) :: donut
        logical :: quad           
-       N1=size(b%r,2)
-       M1=size(b%r,1)
+       N1=size(b%r,1)
+       M1=size(b%r,2)
        
        quad = .FALSE.
        if (donut .AND. quad) then
@@ -112,8 +112,8 @@
        do i=1,M1
         do j=1,N1
          X1=b%thta(i)
-         X2=b%r(i,j)
-         X3=b%Zp(i,j)   
+         X2=b%r(j,i)
+         X3=b%Zp(j,i)   
          vert1 = ABS(X2)*COS(X1)   !explicitly make these c/w c_float
          vert2 = ABS(X2)*SIN(X1)
          if (ieee_is_NaN(X3)) then
@@ -121,7 +121,7 @@
           pow = 0           ! for out of bound values           
          else
           vert3 = X3
-          pow=JMatrix%SAGC(i,j)     ! not just X3 for future painting         
+          pow=JMatrix%SAGC(j,i)     ! not just X3 for future painting         
          endif
          c_vert=real((/vert1,vert2,vert3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float
          c_rgbv=rgb5(pow,powmin,powmax)/255.0  !openGL wants scale of 1.0 not 255        

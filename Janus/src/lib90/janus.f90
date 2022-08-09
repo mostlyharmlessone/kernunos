@@ -10,7 +10,7 @@
   use omp_lib
   IMPLICIT NONE     
   integer :: i, thread
-  integer :: MM, N 
+  integer :: MM, N ,M1, N1, ITH
   integer :: TestData                  ! TestData: 0=EyeSys, 1=Atlas, 2=Penta, 3=test 
   integer :: NP                        ! PentaCam=141
   character(c_char), INTENT(IN), DIMENSION(4096) :: mainfile
@@ -32,6 +32,7 @@
   real :: time_start, time_end
   real(wp) :: POWMIN,POWMAX,POWMIN2,POWMAX2
   logical :: donut
+  real(wp) ::   X1,X2,Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,TANC,rBi,rBo
 
 !write(*,*) 'file from Jupiter: ',mainfile  ! this will have a lot of extra random non ASCII stuff after the file name
 !! need this because GCC11 isn't F2018 compliant with deferred length character with Bind C
@@ -109,8 +110,7 @@ file_idx=index(inputfile1, ".DAT")
   LinesOfCurv='LIOC.CAR'
 
   call CPU_TIME(time_start)             
-  call init_mat(MM,N,Atlas,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
-  call init_mat_JMatrix(MM,N,JMatrix)
+  call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
   call CPU_TIME(time_end)
   write(*,*) 'Time to allocate memory: ',(time_end-time_start)*1000 
  
@@ -123,23 +123,64 @@ file_idx=index(inputfile1, ".DAT")
    call CPU_TIME(time_end)
    write(*,*) 'Time to read EyeSys files: ',(time_end-time_start)*1000
 !  Generate the slope matrix using ZFCT 
-   RadSlope=EyeSys 
-  endif
-              
+   RadSlope=EyeSys
+   EyeSys=0
+   DiaSlope=RadSlope              ! move to diagonal format
+   DiaSlope%Zpd2 = .n. DiaSlope
+!  make round rings and convert 360x16 to 180x22 
+   M1=180
+   N1=22
+   call init_mat_JMatrix(M1,N1,JMatrix)
+   rBo=7.0
+   rBi=0.05*rBo                              ! donut 
+   JMatrix%SAGC0(2)=1E30                     ! bound setting
+   JMatrix%SAGC0(3)=-1E30
+   JMatrix%Z0(2)=1E30
+   JMatrix%Z0(3)=-1E30  
+   do i=1,M1
+    ITH=2*(i-1)                             ! every 2 degrees
+    JMatrix%THT(i)=PI*ITH/180.0_wp 
+    do j=1,N1                               ! does not include center point
+     JMatrix%R(j,i)=(j-1)*(rBo-rBi)/(N1-1)+rBi
+     call SplineEval1Dx1D(1,JMatrix%THT(i),JMatrix%R(j,i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
+     call AXIALP(JMatrix%R(j,i),YPR,YP2R2,JMatrix%SAGC(j,i))
+     call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,TANC,JMatrix%INSTC(j,i))
+     if ( TANC > EPS ) THEN
+      if ( ABS(JMatrix%INSTC(j,i)/TANC - 1) > 0.75_wp ) THEN
+       write(*,*) 'Difference in ZNMEX and TANC: ',JMatrix%INSTC(j,i),TANC
+      endif
+     endif
+     call MEANP(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
+     call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
+    end do
+   end do
+   RadSlope=0
+   DiaSlope=0
+   deallocate(RadSplineCenter)
+   call init_mat(M1,N1,RadSlope,DiaSlope,RadSplineCenter)
+   endif
+
+!  here we'll need routine for loading RadSlope with each JMatrix entity for center calcs and plot
+!  Can't call fillarray anymore
+           
 ! OR READ THE ATLAS DATA
 ! R OR DIST ARE THE MIRE RADII, USING DIST, READS ELEVATION ALSO  
   if (TestData .eq. 1) then 
    call CPU_TIME(time_start)
+   call init_mat_Atlas(MM,N,Atlas)
+   call init_mat_JMatrix(MM,N,JMatrix)
    call RCNVRTA(inputfile1)
    call CPU_TIME(time_end)
    write(*,*) 'Time to read Atlas CSV file: ',(time_end-time_start)*1000
-   Radslope=Atlas
+   call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)
   endif
 
   if (TestData .eq. 2) then
 ! READ THE PENTACAM DATA (which overwrites Atlas)
 ! ELE are elevations CUR are "sagittal" curvatures in a 141x141 -7 to 7 mm square -1 is no data 
    call init_mat_Penta(NP,Penta,Skyline)   !allocate the PentaCam matices
+   call init_mat_JMatrix(MM,N,JMatrix)
+   call init_mat_Atlas(MM,N,Atlas)        !need to excise Atlas
    call RCNVRTP(inputfile1,inputfile2) 
 ! arrange the data
    call CPU_TIME(time_start)
@@ -158,17 +199,19 @@ file_idx=index(inputfile1, ".DAT")
 
   if (TestData .eq. 3) then 
 ! OR GENERATE TEST DATA (EYESYS,ATLAS OR PENTA STYLE)
+   call init_mat_JMatrix(MM,N,JMatrix)
    call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
+   call init_mat_Atlas(MM,N,Atlas)
    call init_mat_Penta(NP,Penta,Skyline)   ! allocate the PentaCam matices   
    call RCNVRTT(MM,N,NP)
 !   uncomment next two lines to test fake Penta data
 !   Skyline=Penta
 !   call RadSlope_eq_Skyline(RadSlope, Skyline, Penta)  !needs Penta & RadSlope for border check
    if (MM == 360) then
-    RadSlope=EyeSys 
-    Atlas=RadSlope   
+    call RadSlope_eq_EyeSys(RadSlope,EyeSys) 
+    Atlas=RadSlope   ! total caca
    endif    
-    Radslope=Atlas
+   call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)
     Penta = 0
     EyeSys = 0
   endif
@@ -222,7 +265,7 @@ file_idx=index(inputfile1, ".DAT")
 !  stop
    if (IuseG > 2) then  ! don't do if axial powers not slopes    
     call CPU_TIME(time_start)
-    RadSlope=Atlas ! recalculate RadSlope based on filled-in Atlas, including MV
+    call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas) ! recalculate RadSlope based on filled-in Atlas, including MV
     call CPU_TIME(time_end)
     write(*,*) 'Time to run radslope: ',(time_end-time_start)*1000
    endif 
@@ -245,7 +288,7 @@ file_idx=index(inputfile1, ".DAT")
 ! generate new Rs using rOMIN, rOMAX, riMIN, riMAX but they have to be constant with theta
 ! get a global value for those four to generate R's no ORIGIN to avoid singularity
  if (TestData.ne.2) then
-  RadSlope%r=make_rings(DiaSlope,.FALSE.)
+!  RadSlope%r=make_rings(DiaSlope,.FALSE.)
  endif 
 !  RadSlope%r=make_bad_rings(DiaSlope,.FALSE.)
 !  use fillarray to fill DiaSlope Zp with calculated value based on IuseG, optionally generate LIOC
@@ -333,8 +376,6 @@ file_idx=index(inputfile1, ".DAT")
 !!!$OMP END PARALLEL  
 !!else  !OMP thread else
  
-  call init_augmented_mat(MM,N,M,ARadSlope,ADiaSlope) ! prepare more space
-  
 ! make more than one plot
   
   do i=1,2
@@ -344,15 +385,15 @@ file_idx=index(inputfile1, ".DAT")
    if (MM == 360) then      ! implies TestData == 0
 !   Generate the slope matrix using ZFCT
 !   Generate "Atlas" data with AXIALP  
-    RadSlope=EyeSys 
+   call RadSlope_eq_EyeSys(RadSlope,EyeSys) 
    else ! MM==180
 !   Generate the slope matrix using Atlas data     
-    RadSlope=Atlas
+   call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)
    endif  
    DiaSlope=RadSlope            
    DiaSlope%Zpd2 = .n. DiaSlope
 !   DiaSlope%Zpd2 = DiaSplineCenter(DiaSlope)   ! generate the splines diagonally with center node added (slopes only)
-   RadSlope%r=make_rings(DiaSlope,.FALSE.)              
+!   RadSlope%r=make_rings(DiaSlope,.FALSE.)              
    call FILLARRAY(4,LinesOfCurv,POWMIN,POWMAX)
    call CPU_TIME(time_end)
    write(*,*) 'Time to rewrite RadSlope without origin: ',(time_end-time_start)*1000   
@@ -365,19 +406,19 @@ file_idx=index(inputfile1, ".DAT")
    if (MM == 360) then       ! implies TestData == 0
 !   Generate the slope matrix using ZFCT
 !   Generate "Atlas" data with AXIALP  
-    RadSlope=EyeSys 
+   call RadSlope_eq_EyeSys(RadSlope,EyeSys) 
    else ! MM==180
 !   Generate the slope matrix using Atlas data     
-    RadSlope=Atlas
+   call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)
    endif
    DiaSlope=RadSlope            
    DiaSlope%Zpd2 = .n. DiaSlope
 !   DiaSlope%Zpd2 = DiaSplineCenter(DiaSlope)   ! generate the splines diagonally with center node added (slopes only)
-   RadSlope%r=make_rings(DiaSlope,.FALSE.)            
+!   RadSlope%r=make_rings(DiaSlope,.FALSE.)            
    call FILLARRAY(7,LinesOfCurv,POWMIN2,POWMAX2)  ! generate elevation
    DiaSlope=RadSlope             
    DiaSlope%Zpd2 = .n. DiaSlope 
-   RadSlope%r=make_rings(DiaSlope,.FALSE.)
+!   RadSlope%r=make_rings(DiaSlope,.FALSE.)
  !  call FILLARRAY(14,LinesOfCurv,POWMIN2,POWMAX2) ! get derivatives from elevation 14 is the same as 4 but might be grainy
    call CPU_TIME(time_end)
    write(*,*) 'Time to re-generate a new RadSlope/DiaSlope from Atlas: ',(time_end-time_start)*1000   
@@ -391,31 +432,23 @@ file_idx=index(inputfile1, ".DAT")
   write(*,*) 'Time to re-run splines: ',(time_end-time_start)*1000
 
   call CPU_TIME(time_start)
-! load bounds
-  ADiaSlope%rOutMin=DiaSlope%rOutMin
-  ADiaSlope%rInMin=DiaSlope%rInMin
-  ADiaSlope%rOutMax=DiaSlope%rOutMax
-  ADiaSlope%rInMax=DiaSlope%rInMax
+
 ! generate new Rs using rOMIN, rOMAX, but they have to be constant with theta
 ! get a global value for those two to generate R's INCLUDING ORIGIN and using ADiaSlope  
-  ARadSlope%r=make_rings(ADiaSlope,.TRUE.)
+ ! RadSlope%r=make_rings(ADiaSlope,.TRUE.)
   
-! load angles  (have to address this for standard comparison)
-  ARadSlope%thta=RadSlope%thta
-  
-! load bounds x expansion
-  ARadSlope%MV=M*RadSlope%MV  
+ 
 ! use SplineEval1Dx1D and DiaSlope to refill matrix RadSlope with new Zp at all points including origin
-  ARadSlope%Zp=RadInterpolate(ARadSlope)  ! takes DiaSlope/RadSlope data -> interpolates to new ARadslope, no integration
+  RadSlope%Zp=RadInterpolate(RadSlope)  ! takes DiaSlope/RadSlope data -> interpolates to new ARadslope, no integration
   call CPU_TIME(time_end)
   write(*,*) 'Time to make new ARadSlope with origin: ',(time_end-time_start)*1000
   
 ! GENERATE PRINT FILES
  if (i==1) then
-  call WRITEARRAY(ARadSlope,BigPlot)
+  call WRITEARRAY(RadSlope,BigPlot)
  endif 
  if (i==2) then
-  call WRITEARRAY(ARadSlope,BigGrainyPlot)
+  call WRITEARRAY(RadSlope,BigGrainyPlot)
  endif  
   
  end do
@@ -444,7 +477,7 @@ file_idx=index(inputfile1, ".DAT")
 !!!$OMP END PARALLEL
 
 ! deallocate
-  call destroyRadSplineCenter(RadSplineCenter)
+  deallocate(RadSplineCenter)
   deallocate (MV)
   if (TestData == 0) then
    EyeSys=0 
@@ -452,8 +485,6 @@ file_idx=index(inputfile1, ".DAT")
   Atlas=0     
   RadSlope=0
   DiaSlope=0
-  ARadSlope=0
-  ADiaSlope=0
 
   return        
 

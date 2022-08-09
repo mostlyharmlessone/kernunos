@@ -12,7 +12,6 @@ MODULE cornea_arrays
 ! INTEGER, PARAMETER :: NP=141         ! PentaCam
 ! INTEGER, PARAMETER :: MM=180, N=22   ! Atlas
 ! INTEGER, PARAMETER :: MM=360, N=16  ! EyeSys
- integer, PARAMETER :: M=2 ! augmented multiplier for number of rings
  integer, PARAMETER :: M2=3 ! lsq fourier cosine series terms
 
 ! Defining common data arrays
@@ -74,7 +73,7 @@ INTERFACE ASSIGNMENT (=)
  MODULE PROCEDURE Atlas_eq_RadSlope
  MODULE PROCEDURE Skyline_eq_Penta
  MODULE PROCEDURE RadSlope_eq_EyeSys
- MODULE PROCEDURE RadSlope_eq_Atlas
+! MODULE PROCEDURE RadSlope_eq_Atlas
  MODULE PROCEDURE DiaSlope_eq_RadSlope
  MODULE PROCEDURE RadSlope_eq_DiaSlope
  ! Type(oneofthesebelow) = INTEGER(0) deallocates the matrix
@@ -110,8 +109,6 @@ END INTERFACE
  TYPE(wpPentaMatrix) :: Penta
  TYPE(wpSkyline) :: Skyline
  TYPE(wpDiaSlopeMatrix) :: DiaSlope
- TYPE(wpRadSlopeMatrix) :: ARadSlope
- TYPE(wpDiaSlopeMatrix) :: ADiaSlope
 
  CONTAINS
  
@@ -128,8 +125,8 @@ end subroutine init_mat_Penta
 subroutine init_mat_JMatrix(MM,N,JMatrix) ! allocate EyeSys arrays
   INTEGER, INTENT(IN) :: MM,N
   TYPE(wpJMatrix) :: JMatrix
-  allocate (JMatrix%R(MM,N),JMatrix%Z(MM,N),JMatrix%THT(MM),JMatrix%SAGC(MM,N),&
-            JMatrix%INSTC(MM,N),JMatrix%MEANC(MM,N),JMatrix%MONGEA(MM,N))
+  allocate (JMatrix%R(N,MM),JMatrix%Z(N,MM),JMatrix%THT(MM),JMatrix%SAGC(N,MM),&
+            JMatrix%INSTC(N,MM),JMatrix%MEANC(N,MM),JMatrix%MONGEA(N,MM))
   allocate (JMatrix%MV(MM),JMatrix%RC(MM),JMatrix%LIOC(MM*N,4))
 end subroutine init_mat_JMatrix
 
@@ -139,41 +136,28 @@ subroutine init_mat_EyeSys(MM,N,EyeSys) ! allocate EyeSys arrays
   allocate (EyeSys%RA(MM,N),EyeSys%XX(MM,N),EyeSys%DEG(MM))
 end subroutine init_mat_EyeSys
 
-subroutine init_mat(MM,N,Atlas,RadSlope,DiaSlope,RadSplineCenter) ! allocate common arrays
+subroutine init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter) ! allocate common arrays
   INTEGER, INTENT(IN) :: MM,N
   real(wp), allocatable :: RadSplineCenter(:)
   TYPE(wpRadSlopeMatrix) :: RadSlope  
-  TYPE(wpAtlasMatrix) :: Atlas
   TYPE(wpDiaSlopeMatrix) :: DiaSlope
-  allocate (RadSlope%r(MM,N),RadSlope%Z(MM,N),RadSlope%Zp(MM,N),RadSlope%Zp2(MM,N),&
-            Radslope%Zt2(MM,N),RadSlope%thta(MM),RadSlope%MV(MM))  
+  allocate (RadSlope%r(N,MM),RadSlope%Z(N,MM),RadSlope%Zp(N,MM),RadSlope%Zp2(N,MM),&
+            Radslope%Zt2(N,MM),RadSlope%thta(MM),RadSlope%MV(MM))  
   allocate (DiaSlope%rd(2*N,MM/2),DiaSlope%Zd(2*N,MM/2),DiaSlope%Zpd(2*N,MM/2),&
             DiaSlope%Zpd2(2*N,MM/2),DiaSlope%L2(MM/2))
   allocate (DiaSlope%rOutMax(MM/2),DiaSlope%rInMax(MM/2),&
             DiaSlope%rOutMin(MM/2),DiaSlope%rInMin(MM/2))
-  allocate (Atlas%AR(MM,N),Atlas%AD(MM,N),Atlas%AP(MM,N),&
-            Atlas%AY(MM,N),Atlas%DEG(MM))
   allocate (RadSplineCenter(MM))        
 end subroutine init_mat
 
-subroutine init_augmented_mat(MM,N,M,ARadSlope,ADiaSlope) !allocate augmented arrays
-  INTEGER, INTENT(IN) :: MM,N,M
-  TYPE(wpRadSlopeMatrix) :: ARadSlope  
-  TYPE(wpDiaSlopeMatrix) :: ADiaSlope  
-  allocate (ARadSlope%r(MM,N*M),ARadSlope%Zp(MM,N*M),ARadSlope%Zp2(MM,N*M),&
-            ARadSlope%Zt2(MM,N*M),ARadSlope%thta(MM),ARadSlope%MV(MM))  
-  allocate (ADiaSlope%rd(2*N*M,MM/2),ADiaSlope%Zpd(2*N*M,MM/2),&
-            ADiaSlope%Zpd2(2*N*M,MM/2),ADiaSlope%L2(MM/2))
-  allocate (ADiaSlope%rOutMax(MM/2),ADiaSlope%rInMax(MM/2),&
-            ADiaSlope%rOutMin(MM/2),ADiaSlope%rInMin(MM/2))
-end subroutine init_augmented_mat
+subroutine init_mat_Atlas(MM,N,Atlas) ! allocate common arrays
+  INTEGER, INTENT(IN) :: MM,N
+  TYPE(wpAtlasMatrix) :: Atlas
+  allocate (Atlas%AR(MM,N),Atlas%AD(MM,N),Atlas%AP(MM,N),&
+            Atlas%AY(MM,N),Atlas%DEG(MM))
+end subroutine init_mat_Atlas
 
 ! Type()=0 deallocates storage
-
-subroutine destroyRadSplineCenter(RadSplineCenter)
-  real(wp), allocatable :: RadSplineCenter(:)
-  deallocate (RadSplineCenter)
-end subroutine destroyRadSplineCenter
 
 subroutine destroy_EyeSys(EyeSys,iflag)
   TYPE(wpEyeSysMatrix), INTENT(INOUT) :: EyeSys
@@ -204,8 +188,8 @@ subroutine destroy_RadSlope(RadSlope,iflag)
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
   INTEGER, INTENT (IN) :: iflag 
   IF (iflag==0) THEN
-  deallocate (RadSlope%r,RadSlope%Zp,RadSlope%Zp2,&
-              RadSlope%thta,RadSlope%MV)
+  deallocate (RadSlope%r,RadSlope%Z,RadSlope%Zp,RadSlope%Zp2,&
+            Radslope%Zt2,RadSlope%thta,RadSlope%MV)
   ENDIF
 end subroutine destroy_RadSlope
 
@@ -213,7 +197,7 @@ subroutine destroy_DiaSlope(DiaSlope,iflag)
   TYPE(wpDiaSlopeMatrix), INTENT(INOUT) :: DiaSlope
   INTEGER, INTENT (IN) :: iflag 
   IF (iflag==0) THEN
-  deallocate (DiaSlope%rd,DiaSlope%Zpd,DiaSlope%Zpd2,DiaSlope%L2,&
+  deallocate (DiaSlope%rd,DiaSlope%Zd,DiaSlope%Zpd,DiaSlope%Zpd2,DiaSlope%L2,&
               DiaSlope%rOutMax,DiaSlope%rInMax,DiaSlope%rOutMin,DiaSlope%rInMin)
   ENDIF
 end subroutine destroy_DiaSlope
@@ -319,11 +303,11 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
   integer :: M1,N1,i,j,k,kk,L2,offset,NP,ITH
   integer :: imv(size(Atlas%AR,1))
   real(wp) :: rBo,rBi,CUR,ELE,u,v,xx,yy,f,fTmp(Skyline%rows),f2Tmp(Skyline%rows)
-  real(wp) :: r(size(RadSlope%r,1)),z(Skyline%cols),z2(Skyline%cols)
+  real(wp) :: r(size(RadSlope%r,2)),z(Skyline%cols),z2(Skyline%cols)
   real(wp) :: x(Skyline%cols),zx(Skyline%cols),zx2(Skyline%cols)           ! maximum size needed, don't need NP
   real(wp) :: y(Skyline%rows),gTmp(Skyline%rows),g2Tmp(Skyline%rows)
-  M1=size(RadSlope%r,1)
-  N1=size(RadSlope%r,2)
+  M1=size(RadSlope%r,2)
+  N1=size(RadSlope%r,1)
   NP=size(Skyline%CUR,1)                                                   
   imv=0
 ! Spline both CUR and ELE in x                               (this is the equivalent of DiaSpline)
@@ -390,9 +374,9 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
      JMatrix%R0=0 ; JMatrix%Z0(1)=ABS(ELE); JMatrix%THT0=0; JMatrix%SAGC0(1)=RFCT/(100.0*ABS(CUR))
     else
 !    Use i,imv(i) to only compute within boundaries together with commented cycle statement above  
-     CALL ZFCT(M1,i,100*ABS(r(j)),100.0*ABS(CUR),RadSlope%r(i,j),RadSlope%Zp(i,j))
-     RadSlope%Z(i,j)=ABS(ELE)
-     JMatrix%SAGC(i,j)=RFCT/(100.0*ABS(CUR))     
+     CALL ZFCT(M1,i,100*ABS(r(j)),100.0*ABS(CUR),RadSlope%r(j,i),RadSlope%Zp(j,i))
+     RadSlope%Z(j,i)=ABS(ELE)
+     JMatrix%SAGC(j,i)=RFCT/(100.0*ABS(CUR))     
     endif
 !   find vertical bounds
     if (ABS(ELE) <= JMatrix%Z0(2)) JMatrix%Z0(2)=ABS(ELE)
@@ -416,10 +400,10 @@ subroutine RadSlope_eq_EyeSys(RadSlope,EyeSys) ! initially populates r, thta, Zp
   TYPE(wpEyeSysMatrix) :: EyeSys
   TYPE(wpRadSlopeMatrix) :: RadSlope
   INTEGER :: i,j,MM,N
-  integer :: imv(size(RadSlope%r,1))
+  integer :: imv(size(RadSlope%r,2))
   REAL(wp) :: ZIX,ZJX,YA3,X2A1
-  MM=size(RadSlope%r,1)
-  N=size(RadSlope%r,2)
+  MM=size(RadSlope%r,2)
+  N=size(RadSlope%r,1)
   do i=1,MM
     imv(i)=0
     RadSlope%thta(i)=PI*EyeSys%DEG(i)/180.0_wp  ! RadSlope%thta(i)=PI*(i-1)/180.0_wp should always be true for EyeSys
@@ -429,12 +413,12 @@ subroutine RadSlope_eq_EyeSys(RadSlope,EyeSys) ! initially populates r, thta, Zp
        if (ZIX > 0 .AND. ZJX > 0) then
         imv(i)=imv(i)+1
         call ZFCT(MM,i,ZJX,ZIX,X2A1,YA3)
-        RadSlope%Zp(i,imv(i))=YA3
-        RadSlope%r(i,imv(i))=X2A1
+        RadSlope%Zp(imv(i),i)=YA3
+        RadSlope%r(imv(i),i)=X2A1
         else
-        RadSlope%Zp(i,j)=0._wp  ! sets border
+        RadSlope%Zp(j,i)=0._wp  ! sets border
        endif
-        RadSlope%Zp2(i,j)=1/803.0_wp ! nonzero fallback value before splining for Atlas=RadSlope      
+        RadSlope%Zp2(j,i)=1/803.0_wp ! nonzero fallback value before splining for Atlas=RadSlope      
       end do
       RadSlope%MV(i)=imv(i)
    end do
@@ -448,34 +432,35 @@ subroutine Atlas_eq_RadSlope(Atlas,RadSlope)
   REAL(wp) :: X2,YP,Y2X,POW
   imv=0
   Atlas%AP=0._wp
-  MM=size(RadSlope%r,1)
-  N=size(RadSlope%r,2)
+  MM=size(RadSlope%r,2)
+  N=size(RadSlope%r,1)
   do i=1,MM
      Atlas%DEG(i)=180.0_wp*RadSlope%thta(i)/PI
       do j=1,N
-      X2=RadSlope%r(i,j)
-      YP=RadSlope%Zp(i,j)
-      Y2X=RadSlope%Zp2(i,j)
+      X2=RadSlope%r(j,i)
+      YP=RadSlope%Zp(j,i)
+      Y2X=RadSlope%Zp2(j,i)
       if (ABS(YP) > 0._wp) then
        CALL AXIALP(X2,YP,Y2X,POW)
-       Atlas%AR(i,j)=ABS(RadSlope%r(i,j))/100.0_wp ! scale value 
+       Atlas%AR(i,j)=ABS(RadSlope%r(j,i))/100.0_wp ! scale value 
        Atlas%AD(i,j)=Atlas%AR(i,j)
        Atlas%AP(i,j)=POW
-       Atlas%AY(i,j)=RadSlope%Z(i,j)
+       Atlas%AY(i,j)=RadSlope%Z(j,i)
       endif
       end do
   end do
 end subroutine Atlas_eq_RadSlope
 
 !aka power2slope using ZFCT converts lhs to rhs
-subroutine RadSlope_eq_Atlas(RadSlope,Atlas) ! initially populates r, thta, Zp, MV
+subroutine RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas) ! initially populates r, thta, Zp, MV
   TYPE(wpRadSlopeMatrix) :: RadSlope
   TYPE(wpAtlasMatrix) :: Atlas
+  TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
   REAL(wp) :: ZIX,ZJX,YA3,X2A1
   REAL(wp) :: DIST,R,POW
-  INTEGER :: i,j,MM,N,imv(size(RadSlope%r,1))
-    MM=size(RadSlope%r,1)
-    N=size(RadSlope%r,2)
+  INTEGER :: i,j,MM,N,imv(size(RadSlope%r,2))
+    MM=size(RadSlope%r,2)
+    N=size(RadSlope%r,1)
     imv=0
     do i=1,MM
      RadSlope%thta(i)=PI*Atlas%DEG(i)/180.0_wp  
@@ -487,15 +472,16 @@ subroutine RadSlope_eq_Atlas(RadSlope,Atlas) ! initially populates r, thta, Zp, 
        DIST=Atlas%AD(i,j)
        R=Atlas%AR(i,j)
        POW=Atlas%AP(i,j)
+       JMatrix%SAGC(j,i)=POW  
        ZIX=RFCT/POW
 !      could use DIST here
        ZJX=R*100                                              
        CALL ZFCT(MM,i,ZJX,ZIX,X2A1,YA3)
-        RadSlope%r(i,imv(i))=X2A1
-        RadSlope%Zp(i,imv(i))=YA3
-        RadSlope%Z(i,imv(i))=Atlas%AY(i,j)
+        RadSlope%r(imv(i),i)=X2A1
+        RadSlope%Zp(imv(i),i)=YA3
+        RadSlope%Z(imv(i),i)=Atlas%AY(i,j)
       endif 
-        RadSlope%Zp2(i,imv(i))=1/803.0_wp ! fallback value before splining  
+        RadSlope%Zp2(imv(i),i)=1/803.0_wp ! fallback value before splining  
      end do
     end do
     RadSlope%MV(:)=imv(:)
@@ -522,20 +508,20 @@ subroutine DiaSlope_eq_RadSlope(DiaSlope,RadSlope)
     do j=1,N1
       if (j <= MV(i+M1)) then
 !      NO SIGN CHANGE HERE FOR RADIUS, ALREADY DONE IN RCNVRT 
-       DiaSlope%rd(j,i)=RadSlope%r(i+M1,MV(i+M1)-j+1)
-       DiaSlope%Zd(j,i)=RadSlope%Z(i+M1,MV(i+M1)-j+1)
-       DiaSlope%Zpd(j,i)=RadSlope%Zp(i+M1,MV(i+M1)-j+1)
-       DiaSlope%Zpd2(j,i)=RadSlope%Zp2(i+M1,MV(i+M1)-j+1)
+       DiaSlope%rd(j,i)=RadSlope%r(MV(i+M1)-j+1,i+M1)
+       DiaSlope%Zd(j,i)=RadSlope%Z(MV(i+M1)-j+1,i+M1)
+       DiaSlope%Zpd(j,i)=RadSlope%Zp(MV(i+M1)-j+1,i+M1)
+       DiaSlope%Zpd2(j,i)=RadSlope%Zp2(MV(i+M1)-j+1,i+M1)
 !      FIND BOUNDS          
        rB=DiaSlope%rd(j,i) 
        if (rB <= rOMIN(i)) rOMIN(i)=rB
        if (rB >= rIMIN(i)) rIMIN(i)=rB                    
       endif
       if (j <= MV(i)) then
-       DiaSlope%rd(j+MV(i+M1),i)=RadSlope%r(i,j)
-       DiaSlope%Zd(j+MV(i+M1),i)=RadSlope%Z(i,j)
-       DiaSlope%Zpd(j+MV(i+M1),i)=RadSlope%Zp(i,j)
-       DiaSlope%Zpd2(j+MV(i+M1),i)=RadSlope%Zp2(i,j)      
+       DiaSlope%rd(j+MV(i+M1),i)=RadSlope%r(j,i)
+       DiaSlope%Zd(j+MV(i+M1),i)=RadSlope%Z(j,i)
+       DiaSlope%Zpd(j+MV(i+M1),i)=RadSlope%Zp(j,i)
+       DiaSlope%Zpd2(j+MV(i+M1),i)=RadSlope%Zp2(j,i)    
 !      FIND BOUNDS          
        rB=DiaSlope%rd(j+MV(i+M1),i)
        if (rB <= rIMAX(i)) rIMAX(i)=rB
@@ -557,16 +543,16 @@ subroutine RadSlope_eq_DiaSlope(RadSlope,DiaSlope)
    do i=1,M1
     do j=1,N1
       if (j <= MV(i+M1)) then
-       RadSlope%r(i+M1,MV(i+M1)-j+1)=DiaSlope%rd(j,i)
-       RadSlope%Z(i+M1,MV(i+M1)-j+1)=DiaSlope%Zd(j,i)
-       RadSlope%Zp(i+M1,MV(i+M1)-j+1)=DiaSlope%Zpd(j,i)
-       RadSlope%Zp2(i+M1,MV(i+M1)-j+1)=DiaSlope%Zpd2(j,i)
+       RadSlope%r(MV(i+M1)-j+1,i+M1)=DiaSlope%rd(j,i)
+       RadSlope%Z(MV(i+M1)-j+1,i+M1)=DiaSlope%Zd(j,i)
+       RadSlope%Zp(MV(i+M1)-j+1,i+M1)=DiaSlope%Zpd(j,i)
+       RadSlope%Zp2(MV(i+M1)-j+1,i+M1)=DiaSlope%Zpd2(j,i)
       endif
       if (j <= MV(i)) then
-       RadSlope%r(i,j)=DiaSlope%rd(j+MV(i+M1),i)
-       RadSlope%Z(i,j)=DiaSlope%Zd(j+MV(i+M1),i)
-       RadSlope%Zp(i,j)=DiaSlope%Zpd(j+MV(i+M1),i)
-       RadSlope%Zp2(i,j)=DiaSlope%Zpd2(j+MV(i+M1),i)
+       RadSlope%r(j,i)=DiaSlope%rd(j+MV(i+M1),i)
+       RadSlope%Z(j,i)=DiaSlope%Zd(j+MV(i+M1),i)
+       RadSlope%Zp(j,i)=DiaSlope%Zpd(j+MV(i+M1),i)
+       RadSlope%Zp2(j,i)=DiaSlope%Zpd2(j+MV(i+M1),i)
       endif
     end do
    end do
@@ -616,89 +602,27 @@ function RadInterpolate(b) result(a) !interpolates values of radslope%Zp in new 
  integer :: i,j,M1,N1
  real(wp) :: f0
  real(wp) :: a(size(b%Zp,1),size(b%Zp,2))  
- N1=size(b%Zp,2) !N1=N or N*M for ARadSlope
- M1=size(b%Zp,1) !M1=MM
+ N1=size(b%Zp,1) !N1=N or N*M for ARadSlope
+ M1=size(b%Zp,2) !M1=MM
   do i=1,M1
    do j=1,N1
     if (j .LE. b%MV(i)) then   !bounds
-    call SplineEval1Dx1D(0,b%r(i,j),b%thta(i),f0)  ! no integration here
-     a(i,j)=f0
+    call SplineEval1Dx1D(0,b%r(j,i),b%thta(i),f0)  ! no integration here
+     a(j,i)=f0
     else
-     a(i,j)=0  ! zero if out of bounds
+     a(j,i)=0  ! zero if out of bounds
     endif
    end do
   end do
 end function RadInterpolate
 
-function make_rings(b,Origin) result(a)   ! works on DiaSlope (needs bounds), generates round rings
- TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b
- logical, intent(IN) :: Origin
- real(wp) :: a(2*size(b%rd,2),size(b%rd,1)/2) ! RadSlope size rings and radii
- real(wp) :: rBi,rBo
- integer :: M1,N1,i,j 
- M1=2*size(b%rd,2) !M1=MM convert DiaSlope dimensions to RadSlope
- N1=size(b%rd,1)/2 !N1=N convert "regular" Diaslope to RadSlope, N1=N*M for augmented
- rBi=1E30
- rBo=-1E30
- ASSOCIATE(rOMIN=>b%rOutMin,rIMIN=>b%rInMin,&
-           rOMAX=>b%rOutMax,rIMax=>b%rInMax) 
-   do i=1,M1/2 !DiaSlope dimension
-    if (ABS(rOMIN(i)) >= rBo) rBo=ABS(rOMIN(i))
-    if (ABS(rIMIN(i)) <= rBi) rBi=ABS(rIMIN(i))                    
-    if (ABS(rIMAX(i)) <= rBi) rBi=ABS(rIMAX(i))
-    if (ABS(rOMAX(i)) >= rBo) rBo=ABS(rOMAX(i))                                   
-   end do
-   if (Origin) then 
-    rBi=0
-   endif
-   do i=1,M1 !RadSlope dimension
-    if (i > M1/2) then  ! recreate negative radii convention as in ZFCT       
-     do j=1,N1        
-      a(i,j)=0.9*((1-j)*(rBo-rBi)/(N1-1)-rBi)
-     end do
-    else
-     do j=1,N1    
-      a(i,j)=0.9*((j-1)*(rBo-rBi)/(N1-1)+rBi)
-     end do
-    endif
-   end do 
- end ASSOCIATE
-end function make_rings
-
-function make_bad_rings(b,Origin) result(a)   ! works on DiaSlope (needs bounds)
- TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b       ! generates rings based on original reduced boundaries like genfilA
- logical, intent(IN) :: Origin
- real(wp) :: a(2*size(b%rd,2),size(b%rd,1)/2) ! RadSlope size rings
- real(wp) :: rBi(size(b%rd,2)),rBo(size(b%rd,1))
- integer :: M1,N1,i,j 
- ASSOCIATE(rOMIN=>b%rOutMin,rIMIN=>b%rInMin,&
-           rOMAX=>b%rOutMax,rIMax=>b%rInMax)
-   M1=size(b%rd,2)   !M1=MM/2
-   N1=size(b%rd,1)/2 !N1=N convert "regular" Diaslope to RadSlope, N1=N*M for augmented
-   if (Origin) then 
-    rBi=0
-    rBo=0
-    else
-    rBi=rIMIN
-    rBo=rIMAX   
-   endif   
-   do i=1,M1 !DiaSlope dimension
-     ! recreate negative radii convention as in ZFCT       
-     do j=1,N1          
-      a(i+M1,j)=((j-1)*(rOMIN(i)-rBi(i))/(N1-1)+rBi(i))   
-      a(i,j)=((j-1)*(rOMAX(i)-rBo(i))/(N1-1)+rBo(i))
-     end do
-   end do 
- end ASSOCIATE
-end function make_bad_rings
-
 function AngSpline(b) result(a) 
  TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
  TYPE(wpsplinevect) :: spline
  integer :: M1,N1,i,j,k
- real(wp) :: a(size(b%r,1),size(b%r,2)),Q 
- N1=size(b%r,2) !N1=N 
- M1=size(b%r,1) !M1=MM
+ real(wp) :: a(size(b%r,2),size(b%r,1)),Q 
+ N1=size(b%r,1) !N1=N 
+ M1=size(b%r,2) !M1=MM
  allocate (spline%r(M1),spline%z(M1),spline%zp2(M1),spline%mvjr(N1))
  associate (t=>spline%r,z=>spline%z,zt2=>spline%zp2,mvjr=>spline%mvjr)
   mvjr=0
@@ -708,7 +632,7 @@ function AngSpline(b) result(a)
         if (ABS(Q) > 0.) then ! Q can be positive or negative if it's Zp, exactly 0 means no data point
          mvjr(i)=mvjr(i)+1                  
          t(mvjr(i))=b%thta(j)         
-          z(mvjr(i))=Q       
+         z(mvjr(i))=Q       
         endif
       end do
       call pspli(t,z,mvjr(i),zt2)
@@ -865,8 +789,8 @@ function pca(M3,b) result(a)
  real(wp) :: X(M3,size(b%r,1)),XTX(M3,M3),work(3*M3),w(M3) 
  logical :: Q
  lwork=size(work)
- N1=size(b%r,2) !N1=N 
- M1=size(b%r,1) !M1=MM
+ N1=size(b%r,1) !N1=N 
+ M1=size(b%r,2) !M1=MM
 
  if (M3==2) then ! each ring
   do i=1,N1 
