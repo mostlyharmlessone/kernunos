@@ -131,12 +131,17 @@ file_idx=index(inputfile1, ".DAT")
    M1=180
    N1=22
    call init_mat_JMatrix(M1,N1,JMatrix)
+   ! donut
    rBo=7.0
-   rBi=0.05*rBo                              ! donut 
-   JMatrix%SAGC0(2)=1E30                     ! bound setting
-   JMatrix%SAGC0(3)=-1E30
-   JMatrix%Z0(2)=1E30
-   JMatrix%Z0(3)=-1E30  
+   rBi=0.05*rBo 
+   ! min and max bounds                             
+   JMatrix%SAGC0(2)=1E30   ;  JMatrix%SAGC0(3)=-1E30
+   JMatrix%Z0(2)=1E30      ;  JMatrix%Z0(3)=-1E30
+   JMatrix%INSTC0(2)=1E30  ;  JMatrix%INSTC0(3)=-1E30
+   JMatrix%INSTC20(2)=1E30 ;  JMatrix%INSTC20(3)=-1E30
+   JMatrix%MEANC0(2)=1E30  ;  JMatrix%MEANC0(3)=-1E30
+   JMatrix%MONGEA0(2)=1E30 ;  JMatrix%MONGEA0(3)=-1E30
+   JMatrix%R0=0 ; JMatrix%THT0=0
    do i=1,M1
     ITH=2*(i-1)                             ! every 2 degrees
     JMatrix%THT(i)=PI*ITH/180.0_wp 
@@ -144,14 +149,22 @@ file_idx=index(inputfile1, ".DAT")
      JMatrix%R(j,i)=(j-1)*(rBo-rBi)/(N1-1)+rBi
      call SplineEval1Dx1D(1,JMatrix%THT(i),JMatrix%R(j,i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
      call AXIALP(JMatrix%R(j,i),YPR,YP2R2,JMatrix%SAGC(j,i))
-     call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,TANC,JMatrix%INSTC(j,i))
-     if ( TANC > EPS ) THEN
-      if ( ABS(JMatrix%INSTC(j,i)/TANC - 1) > 0.75_wp ) THEN
-       write(*,*) 'Difference in ZNMEX and TANC: ',JMatrix%INSTC(j,i),TANC
-      endif
-     endif
+     call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i),JMatrix%INSTC2(j,i))
      call MEANP(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
      call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
+!    find min and max
+     if (JMatrix%Z(j,i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z(j,i)
+     if (JMatrix%Z(j,i) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z(j,i)
+     if (JMatrix%SAGC(j,i) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC(j,i)
+     if (JMatrix%SAGC(j,i) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC(j,i)
+     if (JMatrix%INSTC(j,i) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC(j,i)
+     if (JMatrix%INSTC(j,i) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC(j,i)
+     if (JMatrix%INSTC2(j,i) <= JMatrix%INSTC20(2)) JMatrix%INSTC20(2)=JMatrix%INSTC2(j,i)
+     if (JMatrix%INSTC2(j,i) >= JMatrix%INSTC20(3)) JMatrix%INSTC20(3)=JMatrix%INSTC2(j,i)
+     if (JMatrix%MEANC(j,i) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC(j,i)
+     if (JMatrix%MEANC(j,i) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC(j,i)
+     if (JMatrix%MONGEA(j,i) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA(j,i)
+     if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
     end do
    end do
    RadSlope=0
@@ -191,7 +204,6 @@ file_idx=index(inputfile1, ".DAT")
    MV(:)=RadSlope%MV(:) ! store a copy
    call CPU_TIME(time_end)
    write(*,*) 'Time to convert Penta: ',(time_end-time_start)*1000
-   RadSlope%MV(:)=MV(:)   ! restore the copy
    Penta = 0              ! deallocate
    Skyline = 0
    Atlas=RadSlope     ! this is just for the final plots 
@@ -317,11 +329,11 @@ file_idx=index(inputfile1, ".DAT")
   donut = .FALSE.
   
   if (TestData.eq.2) then
-   powmin=JMatrix%Z0(2)
-   powmax=JMatrix%Z0(3)
+   powmin=JMatrix%SAGC0(2)
+   powmax=JMatrix%SAGC0(3)
   endif  
   
-  call WriteGeom(RadSlope,donut,powmin,powmax,'elevation.off','elevation.ply')
+  call WriteGeom(JMatrix,donut,powmin,powmax,'elevation.off','elevation.ply')
 ! from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY MIT licence, included source in tree
 !  call execute_command_line ("./ConvertPLYtoBIN -l elevation.ply elevation.bin.ply",exitstat=i)
   infile='elevation.ply'
@@ -340,11 +352,6 @@ file_idx=index(inputfile1, ".DAT")
 !  atmp=pca(3,RadSlope)
 ! writes values in openGL friendly format to matrices for passing to C/C++; flag to display with glfw using juno
 
-  if (TestData.eq.2) then
-   powmin=JMatrix%SAGC0(2)
-   powmax=JMatrix%SAGC0(3)
-  endif
-  
   call Geom(flag,RadSlope, donut, powmin, powmax, elements, vertices, nV, nE)
 
 !  the cube example
@@ -377,6 +384,7 @@ file_idx=index(inputfile1, ".DAT")
 !!else  !OMP thread else
  
 ! make more than one plot
+stop
   
   do i=1,2
   if (i==1) then

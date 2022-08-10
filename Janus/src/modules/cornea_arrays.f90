@@ -34,10 +34,12 @@ MODULE cornea_arrays
  END TYPE wpAtlasMatrix
 
  TYPE wpJMatrix
-!  Computed results: R is from make rings or Penta version; need to decalre one of each of these for each data set for comparison
-   REAL (wp), ALLOCATABLE :: R(:,:),Z(:,:),THT(:),SAGC(:,:),INSTC(:,:),MEANC(:,:),MONGEA(:,:)
+!  Computed results: R is from make rings or Penta version; need to declare one of each of these for each data set for comparison
+!  each array except for R,THT, is (N+1,MM) to include values at each ring and also at RC==RadSplineCenter pseudo ring
+!  each matching name has the value at origin, min value and max value
+   REAL (wp), ALLOCATABLE :: R(:,:),Z(:,:),THT(:),SAGC(:,:),INSTC(:,:),INSTC2(:,:),MEANC(:,:),MONGEA(:,:)
    REAL (wp), ALLOCATABLE :: MV(:),RC(:),LIOC(:,:) !last one is MM*N,4  RC is RadSplineCenter, compare to R0
-   REAL (wp) :: R0, Z0(3), THT0, SAGC0(3), INSTC0(3), MEANC0(3), MONGEA0(3)  ! central values and powmin & powmax
+   REAL (wp) :: R0,THT0,Z0(3),SAGC0(3),INSTC0(3),INSTC20(3),MEANC0(3),MONGEA0(3)
  END TYPE wpJMatrix
 
  TYPE wpPentaMatrix
@@ -125,8 +127,8 @@ end subroutine init_mat_Penta
 subroutine init_mat_JMatrix(MM,N,JMatrix) ! allocate EyeSys arrays
   INTEGER, INTENT(IN) :: MM,N
   TYPE(wpJMatrix) :: JMatrix
-  allocate (JMatrix%R(N,MM),JMatrix%Z(N,MM),JMatrix%THT(MM),JMatrix%SAGC(N,MM),&
-            JMatrix%INSTC(N,MM),JMatrix%MEANC(N,MM),JMatrix%MONGEA(N,MM))
+  allocate (JMatrix%R(N,MM),JMatrix%Z(N+1,MM),JMatrix%THT(MM),JMatrix%SAGC(N+1,MM),&
+            JMatrix%INSTC(N+1,MM),JMatrix%INSTC2(N+1,MM),JMatrix%MEANC(N+1,MM),JMatrix%MONGEA(N+1,MM))
   allocate (JMatrix%MV(MM),JMatrix%RC(MM),JMatrix%LIOC(MM*N,4))
 end subroutine init_mat_JMatrix
 
@@ -179,7 +181,7 @@ subroutine destroy_JMatrix(JMatrix,iflag)
   TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
   INTEGER, INTENT (IN) :: iflag 
   IF (iflag==0) THEN
-  deallocate (JMatrix%R,JMatrix%Z,JMatrix%THT,JMatrix%SAGC,JMatrix%INSTC,&
+  deallocate (JMatrix%R,JMatrix%Z,JMatrix%THT,JMatrix%SAGC,JMatrix%INSTC,JMatrix%INSTC2,&
               JMatrix%MEANC,JMatrix%MONGEA,JMatrix%MV,JMatrix%RC,JMatrix%LIOC)
   ENDIF
 end subroutine destroy_JMatrix
@@ -373,22 +375,25 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
     if (j > N1) then
      JMatrix%R0=0 ; JMatrix%Z0(1)=ABS(ELE); JMatrix%THT0=0; JMatrix%SAGC0(1)=RFCT/(100.0*ABS(CUR))
     else
-!    Use i,imv(i) to only compute within boundaries together with commented cycle statement above  
+!    Use imv(i),i to only compute within boundaries together with commented cycle statement above  
      CALL ZFCT(M1,i,100*ABS(r(j)),100.0*ABS(CUR),RadSlope%r(j,i),RadSlope%Zp(j,i))
-     RadSlope%Z(j,i)=ABS(ELE)
-     JMatrix%SAGC(j,i)=RFCT/(100.0*ABS(CUR))     
+     RadSlope%Z(j,i)=ABS(ELE)/10
+     JMatrix%SAGC(j,i)=RFCT/(100.0*ABS(CUR))
+!     CALL ZFCT(M1,i,100*ABS(r(imv(i))),100.0*ABS(CUR),RadSlope%r(imv(i),i),RadSlope%Zp(imv(i),i))
+!     RadSlope%Z(imv(i),i)=ABS(ELE)/10
+!     JMatrix%SAGC(imv(i),i)=RFCT/(100.0*ABS(CUR))
+    JMatrix%R(j,i)=RadSlope%r(j,i)
+    JMatrix%Z(j,i)=RadSlope%Z(j,i)
+!   finds min and max
+    if (RadSlope%Z(j,i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=RadSlope%Z(j,i)
+    if (RadSlope%Z(j,i) >= JMatrix%Z0(3)) JMatrix%Z0(3)=RadSlope%Z(j,i)
+    if (JMatrix%SAGC(j,i) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC(j,i)
+    if (JMatrix%SAGC(j,i) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC(j,i)  
     endif
-!   find vertical bounds
-    if (ABS(ELE) <= JMatrix%Z0(2)) JMatrix%Z0(2)=ABS(ELE)
-    if (ABS(ELE) >= JMatrix%Z0(3)) JMatrix%Z0(3)=ABS(ELE)
-    if (RFCT/(100.0*ABS(CUR)) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=RFCT/(100.0*ABS(CUR))
-    if (RFCT/(100.0*ABS(CUR)) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=RFCT/(100.0*ABS(CUR))    
    end do !j to N1
   end do !i to M1
   RadSlope%MV(:)=imv(:)  ! save boundary
   JMatrix%MV(:)=RadSlope%MV(:)  
-  JMatrix%R(:,:)=ABS(RadSlope%r(:,:))/100.0_wp
-  JMatrix%Z(:,:)=RadSlope%Z(:,:)
   JMatrix%THT(:)=RadSlope%thta(:)
 !write(*,*) 'RadSlope.eq.Skyline: ',RadSlope%MV(1:M1)
  write(*,*) 'Central Sagittal power, min, max: ',JMatrix%SAGC0(1),JMatrix%SAGC0(2),JMatrix%SAGC0(3)

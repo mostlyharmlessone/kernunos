@@ -7,7 +7,7 @@
        use special_fct, only : rgb2, rgb5
        use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
        use, intrinsic ::  ieee_arithmetic
-       TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
+       TYPE(wpJMatrix),INTENT(IN) :: b
        character(len=*), intent(in) :: OFFNAME,PLYNAME
        real(wp), intent(IN) :: powmin,powmax
        logical, intent(IN) :: donut
@@ -15,7 +15,7 @@
        real(REAL32) :: vert1,vert2,vert3
        real(wp) :: pow_vert1,pow_vert2,pow_vert3,pow_vert4,pow_face4,pow_face3_1,pow_face3_2
        integer :: i,j,M1,N1,verts,faces,edges,unitno1,unitno3,ierr
-       integer(INT32) :: ivert1,ivert2,ivert3,ivert4,vertnum
+       integer(INT32) :: ivert1,ivert2,ivert3,ivert4,vertnum,k
        logical :: quad
        integer(int16) :: rgbv(3)  
 
@@ -112,21 +112,31 @@
        if (donut .eqv. .FALSE.) then ! add one last vertex at origin
          vert1 = 0_REAL32       
          vert2 = 0_REAL32
-!         X3=b%ZpOrigin
-         X3=0.0     
+         X3=b%Z0(1)
          if (ieee_is_NaN(X3)) then
-          vert3 = 0 ! for out of bound values           
+          vert3 = 0 ! for out of bound values         
          else
-          vert3 = real(X3,kind=REAL32)        
+          vert3 = real(X3,kind=REAL32)       
          endif                     
          write(unitno1,*) vert1,vert2,vert3
          write(unitno3,*) vert1,vert2,vert3   
        endif
+
+k=0
        do i=1,M1
         do j=1,N1 
-          X1=b%thta(i)
-          X2=b%r(j,i)
-          X3=b%Zp(j,i)
+k=k+1
+          X1=b%THT(i)
+          X2=b%R(j,i)
+          X3=b%Z(j,i)
+          X3=RadSlope%Zp(j,i)
+          X3=b%Z(j,i)-RadSlope%Zp(j,i)
+!         the huge difference are exceeding MV with Zp, resulting in those left over slopes; no worries since not used in faces
+!         the others are causing the lip?
+          if (0.2 < ABS((RadSlope%Zp(j,i)-b%Z(j,i))/RadSlope%Zp(j,i)) .AND. ABS((RadSlope%Zp(j,i)-b%Z(j,i))/RadSlope%Zp(j,i)) < 1) then
+           write(*,*) 'WriteGeom Z diff: ',k,X1,X2,RadSlope%Z(j,i),RadSlope%Zp(j,i)
+          endif
+
           vert1 = real(ABS(X2)*COS(X1),kind=REAL32)
           vert2 = real(ABS(X2)*SIN(X1),kind=REAL32)
          if (ieee_is_NaN(X3)) then
@@ -139,16 +149,15 @@
         end do
        end do
 
-
 !      Faces HAVE to be written/formatted as integers(INT32) 
         if (donut .eqv. .FALSE.) then  ! inner set of faces
          do i=1,M1-1 ! j=1 and the origin j=0
           ivert2=(i-1)*N1+1
           ivert3=i*N1+1
           ivert1=0  ! verts from above zero indexing, origin given last vertex number
-          pow_vert1=b%Zp(1,i)
-          pow_vert2=b%Zp(1,I+1)
-          pow_vert3=JMatrix%SAGC0(1)
+          pow_vert1=b%SAGC(1,i)
+          pow_vert2=b%SAGC(1,I+1)
+          pow_vert3=b%SAGC0(1)
           pow_face3_1=(pow_vert1+pow_vert2+pow_vert3)/3
           vertnum=3
           rgbv=rgb5(pow_face3_1,powmin,powmax)
@@ -159,9 +168,9 @@
          ivert2=(M1-1)*N1+1
          ivert3=1
          ivert1=0   ! verts from above zero indexing, origin given last vertex number
-         pow_vert1=b%Zp(1,M1)
-         pow_vert2=b%Zp(1,1)
-         pow_vert3=JMatrix%SAGC0(1)
+         pow_vert1=b%SAGC(1,M1)
+         pow_vert2=b%SAGC(1,1)
+         pow_vert3=b%SAGC0(1)
          pow_face3_1=(pow_vert1+pow_vert2+pow_vert3)/3
          vertnum=3
          rgbv=rgb5(pow_face3_1,powmin,powmax)
@@ -184,12 +193,11 @@
          endif
          if  ( (j < b%MV(i)) .AND. (j < b%MV(i+1)) ) then   
 !        powers go by vertices, but colors need by face
-!        pow=b%Zp(I,J) as of now, this is actually elevation
 !        rgbv=rgb5(pow,powmin,powmax)
-         pow_vert1=b%Zp(J+1,I)
-         pow_vert2=b%Zp(J+1,I+1)
-         pow_vert3=b%Zp(J,I) 
-         pow_vert4=b%Zp(J,I+1)
+         pow_vert1=b%SAGC(J+1,I)
+         pow_vert2=b%SAGC(J+1,I+1)
+         pow_vert3=b%SAGC(J,I) 
+         pow_vert4=b%SAGC(J,I+1)
          pow_face4=(pow_vert1+pow_vert2+pow_vert3+pow_vert4)/4
          pow_face3_1=(pow_vert1+pow_vert2+pow_vert3)/3
          pow_face3_2=(pow_vert1+pow_vert3+pow_vert4)/3
@@ -229,10 +237,10 @@
 !        powers go by vertices, but colors need by face
 !        pow=b%Zp(I,J)
 !        rgbv=rgb5(pow,powmin,powmax)
-         pow_vert1=b%Zp(J+1,M1)
-         pow_vert2=b%Zp(J+1,M1-1)
-         pow_vert3=b%Zp(J,M1) 
-         pow_vert4=b%Zp(J,M1-1)
+         pow_vert1=b%SAGC(J+1,M1)
+         pow_vert2=b%SAGC(J+1,M1-1)
+         pow_vert3=b%SAGC(J,M1) 
+         pow_vert4=b%SAGC(J,M1-1)
          pow_face4=(pow_vert1+pow_vert2+pow_vert3+pow_vert4)/4
          pow_face3_1=(pow_vert1+pow_vert2+pow_vert3)/3
          pow_face3_2=(pow_vert1+pow_vert3+pow_vert4)/3

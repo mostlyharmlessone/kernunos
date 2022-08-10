@@ -62,7 +62,7 @@ module io_functions
     SUBROUTINE WriteGeom(b,donut,powmin,powmax,OFFNAME,PLYNAME)
       USE cornea_arrays
       USE set_precision, ONLY : wp
-      TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
+      TYPE(wpJMatrix),INTENT(IN) :: b
       character(len=*), intent(in) :: OFFNAME,PLYNAME
       real(wp), intent(IN) :: powmin,powmax
       logical, intent(IN) :: donut   
