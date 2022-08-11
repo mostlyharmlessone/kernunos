@@ -122,19 +122,22 @@
          write(unitno3,*) vert1,vert2,vert3   
        endif
 
-k=0
+       k=0
        do i=1,M1
         do j=1,N1 
-k=k+1
+          k=k+1
           X1=b%THT(i)
           X2=b%R(j,i)
+!          X3=RadSlope%Zp(j,i)
           X3=b%Z(j,i)
-          X3=RadSlope%Zp(j,i)
-          X3=b%Z(j,i)-RadSlope%Zp(j,i)
 !         the huge difference are exceeding MV with Zp, resulting in those left over slopes; no worries since not used in faces
-!         the others are causing the lip?
-          if (0.2 < ABS((RadSlope%Zp(j,i)-b%Z(j,i))/RadSlope%Zp(j,i)) .AND. ABS((RadSlope%Zp(j,i)-b%Z(j,i))/RadSlope%Zp(j,i)) < 1) then
-           write(*,*) 'WriteGeom Z diff: ',k,X1,X2,RadSlope%Z(j,i),RadSlope%Zp(j,i)
+!         the others are causing the lip
+          
+          if (RadSlope%Zp(j,i) > 0) then
+          if (0.2 < ABS((RadSlope%Zp(j,i)-b%Z(j,i))/RadSlope%Zp(j,i)) .AND. &
+               1  > ABS((RadSlope%Zp(j,i)-b%Z(j,i))/RadSlope%Zp(j,i)) ) then
+           write(*,*) 'WriteGeom Z diff: ',k,X1,X2,JMatrix%Z(j,i),RadSlope%Zp(j,i)
+          endif
           endif
 
           vert1 = real(ABS(X2)*COS(X1),kind=REAL32)

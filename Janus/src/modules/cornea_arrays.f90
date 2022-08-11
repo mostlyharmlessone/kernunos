@@ -38,7 +38,8 @@ MODULE cornea_arrays
 !  each array except for R,THT, is (N+1,MM) to include values at each ring and also at RC==RadSplineCenter pseudo ring
 !  each matching name has the value at origin, min value and max value
    REAL (wp), ALLOCATABLE :: R(:,:),Z(:,:),THT(:),SAGC(:,:),INSTC(:,:),INSTC2(:,:),MEANC(:,:),MONGEA(:,:)
-   REAL (wp), ALLOCATABLE :: MV(:),RC(:),LIOC(:,:) !last one is MM*N,4  RC is RadSplineCenter, compare to R0
+   REAL (wp), ALLOCATABLE :: RC(:),LIOC(:,:) !last one is MM*N,4  RC is RadSplineCenter, compare to R0
+   INTEGER, ALLOCATABLE :: MV(:)
    REAL (wp) :: R0,THT0,Z0(3),SAGC0(3),INSTC0(3),INSTC20(3),MEANC0(3),MONGEA0(3)
  END TYPE wpJMatrix
 
@@ -428,6 +429,26 @@ subroutine RadSlope_eq_EyeSys(RadSlope,EyeSys) ! initially populates r, thta, Zp
       RadSlope%MV(i)=imv(i)
    end do
 end subroutine RadSlope_eq_EyeSys
+
+subroutine RadSlope_eq_JMatrix(RadSlope,JMatrix) 
+  TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
+  TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
+  REAL(wp) :: ZIX,YA3,X2A1
+  INTEGER :: i,j,MM
+    MM=size(RadSlope%r,2)
+    RadSlope%thta(:)=JMatrix%THT(:)
+    RadSlope%MV(:)=JMatrix%MV(:)
+    do i=1,MM
+     do j=1,JMatrix%MV(i)
+       ZIX=RFCT/JMatrix%SAGC(j,i)
+       CALL ZFCT(MM,i,ABS(JMatrix%R(j,i)),ZIX,X2A1,YA3)
+       RadSlope%r(j,i)=X2A1
+       RadSlope%Zp(j,i)=YA3
+       RadSlope%Z(j,i)=JMatrix%Z(j,i)
+       RadSlope%Zp2(j,i)=1/803.0_wp ! fallback value before splining  
+     end do
+    end do
+end subroutine RadSlope_eq_JMatrix
 
 ! aka SLOPE2POWER using AXIALP converts lhs to rhs
 subroutine Atlas_eq_RadSlope(Atlas,RadSlope)

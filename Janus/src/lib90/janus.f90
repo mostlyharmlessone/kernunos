@@ -102,8 +102,6 @@ file_idx=index(inputfile1, ".DAT")
     write(*,*) "EyeSys files: ",inputfile1," ",inputfile2
    endif
 
-  allocate (MV(MM))
- 
   AxialPowerDataKnots='RCNVRTA.ORIG.CAR'
   BigGrainyPlot='BIGG.CAR'
   BigPlot='BIG.CAR'
@@ -144,14 +142,15 @@ file_idx=index(inputfile1, ".DAT")
    JMatrix%R0=0 ; JMatrix%THT0=0
    do i=1,M1
     ITH=2*(i-1)                             ! every 2 degrees
-    JMatrix%THT(i)=PI*ITH/180.0_wp 
-    do j=1,N1                               ! does not include center point
-     JMatrix%R(j,i)=(j-1)*(rBo-rBi)/(N1-1)+rBi
-     call SplineEval1Dx1D(1,JMatrix%THT(i),JMatrix%R(j,i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
+    JMatrix%THT(i)=PI*ITH/180.0_wp
+    JMatrix%MV(i)=MIN(RadSlope%MV(2*i),RadSlope%MV(2*i-1))  ! close to real boundary
+    do j=1,N1                             ! does not include center point
+     JMatrix%R(j,i)=100*((j-1)*(rBo-rBi)/(N1-1)+rBi)
+     call SplineEval1Dx1D(1,JMatrix%THT(i),JMatrix%R(j,i)/100,JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
      call AXIALP(JMatrix%R(j,i),YPR,YP2R2,JMatrix%SAGC(j,i))
-     call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i),JMatrix%INSTC2(j,i))
-     call MEANP(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
-     call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
+     call INSTANTP(JMatrix%R(j,i)/100,YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i),JMatrix%INSTC2(j,i))
+     call MEANP(JMatrix%THT(i),JMatrix%R(j,i)/100,YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
+     call MONGEA(JMatrix%THT(i),JMatrix%R(j,i)/100,YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
 !    find min and max
      if (JMatrix%Z(j,i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z(j,i)
      if (JMatrix%Z(j,i) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z(j,i)
@@ -171,10 +170,12 @@ file_idx=index(inputfile1, ".DAT")
    DiaSlope=0
    deallocate(RadSplineCenter)
    call init_mat(M1,N1,RadSlope,DiaSlope,RadSplineCenter)
+   call RadSlope_eq_JMatrix(RadSlope,JMatrix)
+   MM=180
+   N=22
    endif
 
-!  here we'll need routine for loading RadSlope with each JMatrix entity for center calcs and plot
-!  Can't call fillarray anymore
+   allocate (MV(MM))
            
 ! OR READ THE ATLAS DATA
 ! R OR DIST ARE THE MIRE RADII, USING DIST, READS ELEVATION ALSO  
@@ -206,7 +207,7 @@ file_idx=index(inputfile1, ".DAT")
    write(*,*) 'Time to convert Penta: ',(time_end-time_start)*1000
    Penta = 0              ! deallocate
    Skyline = 0
-   Atlas=RadSlope     ! this is just for the final plots 
+!   Atlas=RadSlope     ! this is just for the final plots 
   endif
 
   if (TestData .eq. 3) then 
