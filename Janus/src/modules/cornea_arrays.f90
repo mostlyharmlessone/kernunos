@@ -377,8 +377,8 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
      JMatrix%R0=0 ; JMatrix%Z0(1)=ABS(ELE); JMatrix%THT0=0; JMatrix%SAGC0(1)=RFCT/(100.0*ABS(CUR))
     else
 !    Use imv(i),i to only compute within boundaries together with commented cycle statement above  
-     CALL ZFCT(M1,i,100*ABS(r(j)),100.0*ABS(CUR),RadSlope%r(j,i),RadSlope%Zp(j,i))
-     RadSlope%Z(j,i)=ABS(ELE)/10
+     CALL ZFCT(M1,i,100.0*ABS(r(j)),100.0*ABS(CUR),RadSlope%r(j,i),RadSlope%Zp(j,i))
+     RadSlope%Z(j,i)=ABS(ELE)/10.0
      JMatrix%SAGC(j,i)=RFCT/(100.0*ABS(CUR))
 !     CALL ZFCT(M1,i,100*ABS(r(imv(i))),100.0*ABS(CUR),RadSlope%r(imv(i),i),RadSlope%Zp(imv(i),i))
 !     RadSlope%Z(imv(i),i)=ABS(ELE)/10
@@ -934,6 +934,7 @@ subroutine instantp(X2,Y1X,Y1T,Y2X,TANC,ZNMEX)
    ZNMEX=RFCT*Y2X/((1+Y1X**2)*SQRT(1+(Y1T/X2)**2+Y1X**2))
    If (ABS(ZNMEX) < 1) then
     write(*,*) 'Warning ABS(ZNMEX)<1 instantp:X2,Y1X,Y1T,Y2X,TANC,ZNMEX',X2,Y1X,Y1T,Y2X,TANC,ZNMEX
+    stop
    endif 
  endif
 end subroutine instantp 

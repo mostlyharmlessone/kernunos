@@ -17,22 +17,31 @@
 
       MM=size(RadSlope%r,2)
       N=size(RadSlope%r,1)
-
-      r=0 ; z=0 ; zr2=0 ; thta=0 ; L2=0                     
+write(*,*) 'spline: ',MM
+!      r=0 ; z=0 ; zr2=0 ; thta=0 ; L2=0                     
       do j=1,MM/2 
         L2=DiaSlope%L2(j)
         thta(j)=RadSlope%thta(j)
         r=DiaSlope%rd(:,j)
         z=DiaSlope%Zpd(:,j)
-        zr2=DiaSlope%Zpd2(:,j)   
+        zr2=DiaSlope%Zpd2(:,j)  
+
+write(*,*) 'spline1dx1d: ',zr2(1:2*N)
+ 
         if (iflag == 0) then             
-         call SplineEval(0,r,z,zr2,L2,u,g,gr,grr) !first parameter = 0 nonperiodic                                    
+         call SplineEval(0,r,z,zr2,L2,u,g,gr,grr) !first parameter = 0 nonperiodic  
          fTmp(j)=g
 !        diagnostic to see where each splines center is, perhaps a measure of decentration          
          call SplineCenter(r,z,zr2,L2,w)                                          
          RadSplineCenter(j)=w
         else                                                    ! iflag = 1                            
-         call SplineEval(0,r,z,zr2,L2,u,gr,grr) 
+         call SplineEval(0,r,z,zr2,L2,u,gr,grr)
+
+write(*,*) 'spline1dx1d: ',u,L2
+write(*,*) 'spline1dx1d: ',r
+write(*,*) 'spline1dx1d: ',z
+write(*,*) 'spline1dx1d: ',zr2
+
 !         call CubicSplineQuad(r,z,zr2,L2,0._wp,g0)    
 !         call CubicSplineQuad(r,z,zr2,L2,u,g) 
          call trapez(r,z,zr2,L2,0._wp,g0)    

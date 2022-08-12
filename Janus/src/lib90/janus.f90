@@ -123,6 +123,7 @@ file_idx=index(inputfile1, ".DAT")
 !  Generate the slope matrix using ZFCT 
    RadSlope=EyeSys
    EyeSys=0
+
    DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope
 !  make round rings and convert 360x16 to 180x22 
@@ -145,12 +146,17 @@ file_idx=index(inputfile1, ".DAT")
     JMatrix%THT(i)=PI*ITH/180.0_wp
     JMatrix%MV(i)=MIN(RadSlope%MV(2*i),RadSlope%MV(2*i-1))  ! close to real boundary
     do j=1,N1                             ! does not include center point
-     JMatrix%R(j,i)=100*((j-1)*(rBo-rBi)/(N1-1)+rBi)
-     call SplineEval1Dx1D(1,JMatrix%THT(i),JMatrix%R(j,i)/100,JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
+     if (i > (M1/2) ) then
+      JMatrix%R(j,i)=100*((1-j)*(rBo-rBi)/(N1-1)-rBi)
+     else
+      JMatrix%R(j,i)=100*((j-1)*(rBo-rBi)/(N1-1)+rBi)
+     endif
+     call SplineEval1Dx1D(1,JMatrix%THT(i),JMatrix%R(j,i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
+     write(*,*) 'janus: ',YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA
      call AXIALP(JMatrix%R(j,i),YPR,YP2R2,JMatrix%SAGC(j,i))
-     call INSTANTP(JMatrix%R(j,i)/100,YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i),JMatrix%INSTC2(j,i))
-     call MEANP(JMatrix%THT(i),JMatrix%R(j,i)/100,YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
-     call MONGEA(JMatrix%THT(i),JMatrix%R(j,i)/100,YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
+     call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i),JMatrix%INSTC2(j,i))
+     call MEANP(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
+     call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
 !    find min and max
      if (JMatrix%Z(j,i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z(j,i)
      if (JMatrix%Z(j,i) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z(j,i)
@@ -166,6 +172,7 @@ file_idx=index(inputfile1, ".DAT")
      if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
     end do
    end do
+
    RadSlope=0
    DiaSlope=0
    deallocate(RadSplineCenter)
