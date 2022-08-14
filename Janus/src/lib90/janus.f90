@@ -151,11 +151,7 @@ file_idx=index(inputfile1, ".DAT")
      else
       JMatrix%R(j,i)=100*((j-1)*(rBo-rBi)/(N1-1)+rBi)
      endif
-     write(*,*) 'janus call 1Dx1D',j,i
-     call SplineEval1Dx1D(1,JMatrix%THT(i),JMatrix%R(j,i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
-     write(*,*) 'exited 1Dx1D'
-     write(*,*) 'janus: ',i,j,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA
-stop     
+     call SplineEval1Dx1D(1,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)  
      call AXIALP(JMatrix%R(j,i),YPR,YP2R2,JMatrix%SAGC(j,i))
      call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i),JMatrix%INSTC2(j,i))
      call MEANP(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
@@ -328,7 +324,7 @@ stop
   MV(:)=RadSlope%MV(:) ! store a copy
 !  RadSlope%MV(:)=N   !full diameters for elevation 
   call FILLARRAY(7,LinesOfCurv,POWMIN,POWMAX)
-! These are elevation bounds I need to call FILLARRAY(4,LinesOfCurv,POWMIN,POWMAX)    
+! These are elevation bounds     
 
 !!!$OMP PARALLEL num_threads(2) private(thread)
 !      separate iterative parts into subroutines so each thread can work in parallel
@@ -339,10 +335,10 @@ stop
 !!!$OMP PARALLEL COPYIN(RadSlope)
   donut = .FALSE.
   
-  if (TestData.eq.2) then
-   powmin=JMatrix%SAGC0(2)
-   powmax=JMatrix%SAGC0(3)
-  endif  
+!  if (TestData.eq.2) then
+   powmin=JMatrix%SAGC0(2)  
+   powmax=JMatrix%SAGC0(3)    
+!  endif  
   
   call WriteGeom(JMatrix,donut,powmin,powmax,'elevation.off','elevation.ply')
 ! from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY MIT licence, included source in tree

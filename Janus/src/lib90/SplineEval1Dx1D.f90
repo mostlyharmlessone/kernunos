@@ -30,7 +30,7 @@
          call SplineCenter(r,z,zr2,L2,w)                                          
          RadSplineCenter(j)=w
         else
-        write(*,*) 'nonperiodic: ',j                                                  ! iflag = 1 
+!        write(*,*) 'nonperiodic: ',j                                                  ! iflag = 1 
          call SplineEval(0,r,z,zr2,L2,u,gr,grr)
 !         call CubicSplineQuad(r,z,zr2,L2,0._wp,g0)    
 !         call CubicSplineQuad(r,z,zr2,L2,u,g) 
@@ -69,15 +69,8 @@
         endif
 !       SECOND CALL FOR PERIODIC SPLINE OF fr (df/dR), frrtTmp is d3Y/dRdTHETA2 	
         if (Present(frt)) then
-         call pspli(thta,frTmp,MM,frttTmp)
-         
-!write(*,*) 'frttTmp(j): ',frttTmp(:)         
-write (*,*) 'call splineeval periodic'         
-         call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr,frt)
-!write(*,*) 'frTmp(j): ',frTmp(:) 
-write(*,*) MM,v
-write(*,*) 'fr,frt ',fr,frt                  
-         
+         call pspli(thta,frTmp,MM,frttTmp)        
+         call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr,frt)         
         else 
          if (Present(fr)) then
           call pspli(thta,frTmp,MM,frttTmp)
@@ -86,8 +79,7 @@ write(*,*) 'fr,frt ',fr,frt
         endif
 !       THIRD CALL FOR PERIODIC SPLINE OF frr (d2f/dR2), frrttTmp is d4Y/dR2dTHETA2	
         if (Present(frr)) then
-         call pspli(thta,frrTmp,MM,frrttTmp)
-write(*,*) 'really?'         
+         call pspli(thta,frrTmp,MM,frrttTmp)        
          call SplineEval(1,thta,frrTmp,frrttTmp,MM,v,frr) 
         endif
 

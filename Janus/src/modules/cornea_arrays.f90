@@ -386,8 +386,8 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
     JMatrix%R(j,i)=RadSlope%r(j,i)
     JMatrix%Z(j,i)=RadSlope%Z(j,i)
 !   finds min and max
-    if (RadSlope%Z(j,i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=RadSlope%Z(j,i)
-    if (RadSlope%Z(j,i) >= JMatrix%Z0(3)) JMatrix%Z0(3)=RadSlope%Z(j,i)
+    if (JMatrix%Z(j,i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z(j,i)
+    if (JMatrix%Z(j,i) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z(j,i)
     if (JMatrix%SAGC(j,i) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC(j,i)
     if (JMatrix%SAGC(j,i) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC(j,i)  
     endif
