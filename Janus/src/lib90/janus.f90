@@ -151,8 +151,11 @@ file_idx=index(inputfile1, ".DAT")
      else
       JMatrix%R(j,i)=100*((j-1)*(rBo-rBi)/(N1-1)+rBi)
      endif
+     write(*,*) 'janus call 1Dx1D',j,i
      call SplineEval1Dx1D(1,JMatrix%THT(i),JMatrix%R(j,i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
-     write(*,*) 'janus: ',YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA
+     write(*,*) 'exited 1Dx1D'
+     write(*,*) 'janus: ',i,j,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA
+stop     
      call AXIALP(JMatrix%R(j,i),YPR,YP2R2,JMatrix%SAGC(j,i))
      call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i),JMatrix%INSTC2(j,i))
      call MEANP(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
@@ -290,7 +293,7 @@ file_idx=index(inputfile1, ".DAT")
     write(*,*) 'Time to run radslope: ',(time_end-time_start)*1000
    endif 
   endif
-      
+       
 ! GENERATE RADIAL SPLINES ACROSS CENTER
   call CPU_TIME(time_start)
   DiaSlope=RadSlope              ! move to diagonal format
@@ -313,7 +316,7 @@ file_idx=index(inputfile1, ".DAT")
 !  RadSlope%r=make_bad_rings(DiaSlope,.FALSE.)
 !  use fillarray to fill DiaSlope Zp with calculated value based on IuseG, optionally generate LIOC
 !  using SplineEval1Dx1D to refill a new matrix RadSlope using f0, derivatives to get calculated powers
-
+  
 !  Generate LIOC with vector format
    call FILLARRAY(8,LinesOfCurv,POWMIN2,POWMAX2)    ! don't redo bounds consider optional !  plot 'LIOC.CAR' using 1:2:3:4 with vectors
 !  WriteCenter shows where the spline of slopes is zero, it should be close to zero for a concave center with a unique maximum  

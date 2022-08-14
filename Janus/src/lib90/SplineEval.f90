@@ -97,6 +97,13 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
     write(*,*) 'Error in SplineEval',KP,u,n,i1,i,z,z2
     stop
    endif
+
+   if (Present(f)) write(*,*) 'f here'
+   if (Present(fp)) then
+write(*,*) 'fp here'   
+write(*,*) 'f,fp: ',f,fp
+   endif
+   
                            
   return
 end subroutine SplineEval 

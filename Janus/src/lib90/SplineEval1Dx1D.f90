@@ -17,31 +17,21 @@
 
       MM=size(RadSlope%r,2)
       N=size(RadSlope%r,1)
-write(*,*) 'spline: ',MM
-!      r=0 ; z=0 ; zr2=0 ; thta=0 ; L2=0                     
       do j=1,MM/2 
         L2=DiaSlope%L2(j)
         thta(j)=RadSlope%thta(j)
-        r=DiaSlope%rd(:,j)
-        z=DiaSlope%Zpd(:,j)
-        zr2=DiaSlope%Zpd2(:,j)  
-
-write(*,*) 'spline1dx1d: ',zr2(1:2*N)
- 
+        r=DiaSlope%rd(1:2*N,j)
+        z=DiaSlope%Zpd(1:2*N,j)
+        zr2=DiaSlope%Zpd2(1:2*N,j)        
         if (iflag == 0) then             
          call SplineEval(0,r,z,zr2,L2,u,g,gr,grr) !first parameter = 0 nonperiodic  
          fTmp(j)=g
 !        diagnostic to see where each splines center is, perhaps a measure of decentration          
          call SplineCenter(r,z,zr2,L2,w)                                          
          RadSplineCenter(j)=w
-        else                                                    ! iflag = 1                            
+        else
+        write(*,*) 'nonperiodic: ',j                                                  ! iflag = 1 
          call SplineEval(0,r,z,zr2,L2,u,gr,grr)
-
-write(*,*) 'spline1dx1d: ',u,L2
-write(*,*) 'spline1dx1d: ',r
-write(*,*) 'spline1dx1d: ',z
-write(*,*) 'spline1dx1d: ',zr2
-
 !         call CubicSplineQuad(r,z,zr2,L2,0._wp,g0)    
 !         call CubicSplineQuad(r,z,zr2,L2,u,g) 
          call trapez(r,z,zr2,L2,0._wp,g0)    
@@ -80,7 +70,14 @@ write(*,*) 'spline1dx1d: ',zr2
 !       SECOND CALL FOR PERIODIC SPLINE OF fr (df/dR), frrtTmp is d3Y/dRdTHETA2 	
         if (Present(frt)) then
          call pspli(thta,frTmp,MM,frttTmp)
+         
+!write(*,*) 'frttTmp(j): ',frttTmp(:)         
+write (*,*) 'call splineeval periodic'         
          call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr,frt)
+!write(*,*) 'frTmp(j): ',frTmp(:) 
+write(*,*) MM,v
+write(*,*) 'fr,frt ',fr,frt                  
+         
         else 
          if (Present(fr)) then
           call pspli(thta,frTmp,MM,frttTmp)
@@ -90,6 +87,7 @@ write(*,*) 'spline1dx1d: ',zr2
 !       THIRD CALL FOR PERIODIC SPLINE OF frr (d2f/dR2), frrttTmp is d4Y/dR2dTHETA2	
         if (Present(frr)) then
          call pspli(thta,frrTmp,MM,frrttTmp)
+write(*,*) 'really?'         
          call SplineEval(1,thta,frrTmp,frrttTmp,MM,v,frr) 
         endif
 
