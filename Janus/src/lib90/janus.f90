@@ -123,7 +123,7 @@ file_idx=index(inputfile1, ".DAT")
 !  Generate the slope matrix using ZFCT 
    RadSlope=EyeSys
    EyeSys=0
-
+!  CALL FILLARRAY(0,LinesOfCurv,POWMIN,POWMAX)
    DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope
 !  make round rings and convert 360x16 to 180x22 
@@ -171,7 +171,6 @@ file_idx=index(inputfile1, ".DAT")
      if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
     end do
    end do
-
    RadSlope=0
    DiaSlope=0
    deallocate(RadSplineCenter)
@@ -202,18 +201,16 @@ file_idx=index(inputfile1, ".DAT")
    call init_mat_JMatrix(MM,N,JMatrix)
    call init_mat_Atlas(MM,N,Atlas)        !need to excise Atlas
    call RCNVRTP(inputfile1,inputfile2) 
-! arrange the data
+!  arrange the data
    call CPU_TIME(time_start)
    Skyline=Penta
-!   call Skyline_eq_Penta2(Skyline,Penta)
-! convert to polar with splining
+!  convert to polar with splining
    call RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)  !needs Penta for border check
    MV(:)=RadSlope%MV(:) ! store a copy
    call CPU_TIME(time_end)
    write(*,*) 'Time to convert Penta: ',(time_end-time_start)*1000
    Penta = 0              ! deallocate
    Skyline = 0
-!   Atlas=RadSlope     ! this is just for the final plots 
   endif
 
   if (TestData .eq. 3) then 
