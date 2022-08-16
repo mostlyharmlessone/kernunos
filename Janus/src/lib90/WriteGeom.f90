@@ -15,7 +15,7 @@
        real(REAL32) :: vert1,vert2,vert3
        real(wp) :: pow_vert1,pow_vert2,pow_vert3,pow_vert4,pow_face4,pow_face3_1,pow_face3_2
        integer :: i,j,M1,N1,verts,faces,edges,unitno1,unitno3,ierr
-       integer(INT32) :: ivert1,ivert2,ivert3,ivert4,vertnum,k
+       integer(INT32) :: ivert1,ivert2,ivert3,ivert4,vertnum
        logical :: quad
        integer(int16) :: rgbv(3)  
 
@@ -113,39 +113,30 @@
          vert1 = 0_REAL32       
          vert2 = 0_REAL32
          X3=b%Z0(1)
-         if (ieee_is_NaN(X3)) then
-          vert3 = 0 ! for out of bound values         
+         vert3 = real(X3,kind=REAL32)
+         if (ieee_is_finite(vert3)) then
+          ! ok
          else
-          vert3 = real(X3,kind=REAL32)       
+          vert3 = 0 ! for out of bound values       
          endif                     
          write(unitno1,*) vert1,vert2,vert3
          write(unitno3,*) vert1,vert2,vert3   
        endif
 
-       k=0
        do i=1,M1
         do j=1,N1 
-          k=k+1
           X1=b%THT(i)
           X2=b%R(j,i)
-!          X3=RadSlope%Zp(j,i)
           X3=b%Z(j,i)
-!         the huge difference are exceeding MV with Zp, resulting in those left over slopes; no worries since not used in faces
-!         the others are causing the lip
-          
-          if (RadSlope%Zp(j,i) > 0) then
-          if (0.2 < ABS((RadSlope%Zp(j,i)-b%Z(j,i))/RadSlope%Zp(j,i)) .AND. &
-               1  > ABS((RadSlope%Zp(j,i)-b%Z(j,i))/RadSlope%Zp(j,i)) ) then
-           write(*,*) 'WriteGeom Z diff: ',k,X1,X2,JMatrix%Z(j,i),RadSlope%Zp(j,i)
-          endif
-          endif
-
           vert1 = real(ABS(X2)*COS(X1),kind=REAL32)
           vert2 = real(ABS(X2)*SIN(X1),kind=REAL32)
-         if (ieee_is_NaN(X3)) then
-          vert3 = 0_REAL32  ! for out of bound values
-         else
           vert3 = real(X3,kind=REAL32)
+         if (ieee_is_finite(vert1) .AND. ieee_is_finite(vert2) .AND. ieee_is_finite(vert3)) then
+          ! ok
+         else
+          vert1 = 0_REAL32  ! for out of bound values
+          vert2 = 0_REAL32  ! for out of bound values
+          vert3 = 0_REAL32  ! for out of bound values
          endif           
          write(unitno1,*) vert1,vert2,vert3
          write(unitno3,*) vert1,vert2,vert3

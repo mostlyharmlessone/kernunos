@@ -29,8 +29,7 @@
 !        diagnostic to see where each splines center is, perhaps a measure of decentration          
          call SplineCenter(r,z,zr2,L2,w)                                          
          RadSplineCenter(j)=w
-        else
-!        write(*,*) 'nonperiodic: ',j                                                  ! iflag = 1 
+        else  !iflag=1
          call SplineEval(0,r,z,zr2,L2,u,gr,grr)
 !         call CubicSplineQuad(r,z,zr2,L2,0._wp,g0)    
 !         call CubicSplineQuad(r,z,zr2,L2,u,g) 

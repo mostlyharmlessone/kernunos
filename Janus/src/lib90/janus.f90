@@ -32,7 +32,7 @@
   real :: time_start, time_end
   real(wp) :: POWMIN,POWMAX,POWMIN2,POWMAX2
   logical :: donut
-  real(wp) ::   X1,X2,Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,TANC,rBi,rBo
+  real(wp) :: YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo
 
 !write(*,*) 'file from Jupiter: ',mainfile  ! this will have a lot of extra random non ASCII stuff after the file name
 !! need this because GCC11 isn't F2018 compliant with deferred length character with Bind C
@@ -123,7 +123,6 @@ file_idx=index(inputfile1, ".DAT")
 !  Generate the slope matrix using ZFCT 
    RadSlope=EyeSys
    EyeSys=0
-!  CALL FILLARRAY(0,LinesOfCurv,POWMIN,POWMAX)
    DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope
 !  make round rings and convert 360x16 to 180x22 
@@ -192,7 +191,10 @@ file_idx=index(inputfile1, ".DAT")
    call CPU_TIME(time_end)
    write(*,*) 'Time to read Atlas CSV file: ',(time_end-time_start)*1000
    call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)
+   call FILLARRAY(0,LinesOfCurv,JMatrix%SAGC0(2),JMatrix%SAGC0(3))
+   Atlas=0
   endif
+  MV(:)=RadSlope%MV(:) ! store a copy
 
   if (TestData .eq. 2) then
 ! READ THE PENTACAM DATA (which overwrites Atlas)
@@ -278,15 +280,8 @@ file_idx=index(inputfile1, ".DAT")
     end do
 !    write(*,*) ' '
    end do 
-!  stop
-   if (IuseG > 2) then  ! don't do if axial powers not slopes    
-    call CPU_TIME(time_start)
-    call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas) ! recalculate RadSlope based on filled-in Atlas, including MV
-    call CPU_TIME(time_end)
-    write(*,*) 'Time to run radslope: ',(time_end-time_start)*1000
-   endif 
   endif
-       
+
 ! GENERATE RADIAL SPLINES ACROSS CENTER
   call CPU_TIME(time_start)
   DiaSlope=RadSlope              ! move to diagonal format
@@ -298,15 +293,6 @@ file_idx=index(inputfile1, ".DAT")
   call CPU_TIME(time_end)
   write(*,*) 'Time to run splines: ',(time_end-time_start)*1000
 
-! Rewrite RadSlope with round rings and new values 
-
-! roadmap: now generate round rings, not at previous knots
-! generate new Rs using rOMIN, rOMAX, riMIN, riMAX but they have to be constant with theta
-! get a global value for those four to generate R's no ORIGIN to avoid singularity
- if (TestData.ne.2) then
-!  RadSlope%r=make_rings(DiaSlope,.FALSE.)
- endif 
-!  RadSlope%r=make_bad_rings(DiaSlope,.FALSE.)
 !  use fillarray to fill DiaSlope Zp with calculated value based on IuseG, optionally generate LIOC
 !  using SplineEval1Dx1D to refill a new matrix RadSlope using f0, derivatives to get calculated powers
   
@@ -332,10 +318,8 @@ file_idx=index(inputfile1, ".DAT")
 !!!$OMP PARALLEL COPYIN(RadSlope)
   donut = .FALSE.
   
-!  if (TestData.eq.2) then
    powmin=JMatrix%SAGC0(2)  
    powmax=JMatrix%SAGC0(3)    
-!  endif  
   
   call WriteGeom(JMatrix,donut,powmin,powmax,'elevation.off','elevation.ply')
 ! from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY MIT licence, included source in tree
@@ -356,7 +340,7 @@ file_idx=index(inputfile1, ".DAT")
 !  atmp=pca(3,RadSlope)
 ! writes values in openGL friendly format to matrices for passing to C/C++; flag to display with glfw using juno
 
-  call Geom(flag,RadSlope, donut, powmin, powmax, elements, vertices, nV, nE)
+  call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
 
 !  the cube example
 !   nV = 48
@@ -388,7 +372,7 @@ file_idx=index(inputfile1, ".DAT")
 !!else  !OMP thread else
  
 ! make more than one plot
-stop
+return
   
   do i=1,2
   if (i==1) then

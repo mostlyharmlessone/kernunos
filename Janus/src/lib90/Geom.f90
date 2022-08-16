@@ -1,14 +1,14 @@
 !      Generates matrices for openGL
 
        subroutine Geom(flag, b, donut, powmin, powmax, elements, vertices, nV, nE)
-       use cornea_arrays, ONLY : wpRadSlopeMatrix, JMatrix
+       use cornea_arrays, ONLY : wpJMatrix
        use set_precision, ONLY : wp
        use c_interfaces, ONLY : OpenGL_Show
        use special_fct, only : rgb2, rgb5
        use, intrinsic :: iso_c_binding, ONLY : c_float,c_int
        use, intrinsic ::  ieee_arithmetic
        use ISO_FORTRAN_ENV, only: stdin=>input_unit     ! for the pause read(stdin,*)
-       TYPE(wpRadSlopeMatrix),INTENT(IN) :: b      
+       TYPE(wpJMatrix),INTENT(IN) :: b      
        real(wp), intent(INOUT) :: powmin,powmax 
        real(wp) :: X1,X2,X3
        real(wp) :: vert1,vert2,vert3       
@@ -91,17 +91,18 @@
 !      Unreferenced vertices, but much easier numbering this way
 !      vertices        
        k=1
-
+       kk=1
        if (donut .eqv. .FALSE.) then ! add one last vertex at origin
          vert1 = 0      
          vert2 = 0
-         X3=JMatrix%Z0(1)         
-         if (ieee_is_NaN(X3)) then
-          vert3 = 0  ! for out of bound values
-          pow = 0           ! for out of bound values          
+         X3=b%Z0(1)
+         pow=b%SAGC0(1)    
+         vert3 = real(X3,kind=4)
+         if (ieee_is_finite(vert3) .and. ieee_is_finite(pow)) then         
+          !ok          
          else
-          vert3 = X3
-          pow=JMatrix%SAGC0(1)     ! not just X3 for future painting                              
+          vert3 = 0         ! for out of bound values
+          pow = 0           ! for out of bound values                              
          endif                    
          c_vert=real((/vert1,vert2,vert3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float
          c_rgbv=rgb5(pow,powmin,powmax)/255.0  !openGL wants scale of 1.0 not 255        
@@ -111,17 +112,21 @@
 
        do i=1,M1
         do j=1,N1
-         X1=b%thta(i)
-         X2=b%r(j,i)
-         X3=b%Zp(j,i)   
-         vert1 = ABS(X2)*COS(X1)   !explicitly make these c/w c_float
-         vert2 = ABS(X2)*SIN(X1)
-         if (ieee_is_NaN(X3)) then
-          vert3 = 0  ! for out of bound values
-          pow = 0           ! for out of bound values           
+         X1=b%THT(i)
+         X2=b%R(j,i)
+         X3=b%Z(j,i)
+         pow=b%SAGC(j,i)     ! not just X3 for future painting
+         vert1 = real(ABS(X2)*COS(X1),kind=4)   !explicitly make these c/w c_float
+         vert2 = real(ABS(X2)*SIN(X1),kind=4)
+         vert3 = real(X3,kind=4)  
+         if (ieee_is_finite(vert3) .AND. ieee_is_finite(vert2) .AND. &
+             ieee_is_finite(vert1) .and. ieee_is_finite(pow)) then
+          !ok
          else
-          vert3 = X3
-          pow=JMatrix%SAGC(j,i)     ! not just X3 for future painting         
+          vert1 = 0  ! for out of bound values
+          vert2 = 0  ! for out of bound values
+          vert3 = 0  ! for out of bound values
+          pow = 0           ! for out of bound values       
          endif
          c_vert=real((/vert1,vert2,vert3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float
          c_rgbv=rgb5(pow,powmin,powmax)/255.0  !openGL wants scale of 1.0 not 255        

@@ -28,7 +28,7 @@ module io_functions
        use special_fct, only : rgb2, rgb5
        use, intrinsic :: iso_c_binding, ONLY : c_float,c_int
        use ISO_FORTRAN_ENV, only: stdin=>input_unit     
-       TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
+       TYPE(wpJMatrix),INTENT(IN) :: b
        logical, intent(IN) :: donut       
        real(wp), intent(INOUT) :: powmin,powmax 
        integer(c_int), INTENT(INOUT) :: elements(*)                          ! faces x 3   index 0
