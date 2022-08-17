@@ -101,8 +101,7 @@ function rgb5(x,minimum, maximum) result(rgbv)
   nc=5
 ! A static array of 5 colors:  (blue, cyan, green, yellow, red) using full rgb for each.
 ! desired color will be between idx1,idx2 in "color".
- 
-  ratio =  (x-minimum) / (maximum - minimum);  
+  ratio =  (x-minimum) / (maximum - minimum) 
   fract= 0 ! Fraction between "idx1" and "idx2" where our value is.
   
   if (ratio <= 0) then

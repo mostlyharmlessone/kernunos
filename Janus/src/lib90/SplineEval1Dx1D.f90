@@ -1,14 +1,14 @@
       subroutine SplineEval1Dx1D(iflag,u,v,f,fr,ft,frt,frr,ftt) 
-      USE cornea_arrays, ONLY : DiaSlope, RadSlope, RadSplineCenter,PI
+      USE cornea_arrays, ONLY : DiaSlope, RadSlope
       USE set_precision, ONLY : wp
-      USE spline_interfaces, ONLY : pspli, SplineEval, trapez, CubicSplineQuad, SplineCenter
+      USE spline_interfaces, ONLY : pspli, SplineEval, trapez, CubicSplineQuad
       USE special_fct, ONLY : OPERATOR(.p.) !tensor summation convention      
       use,intrinsic :: ieee_arithmetic
       implicit none
       integer, INTENT(IN) :: iflag     ! iflag=0 no integration
       real(wp), INTENT(INOUT) :: u, v
       real(wp), INTENT(OUT),OPTIONAL ::  f,fr,ft,frt,frr,ftt
-      real(wp) :: g,g0,gr,grr,w
+      real(wp) :: g,g0,gr,grr
       real(wp) :: fTmp(size(RadSlope%r,2)),frTmp(size(RadSlope%r,2)),frrTmp(size(RadSlope%r,2))
       real(wp) :: thta(size(RadSlope%r,2)),fttTmp(size(RadSlope%r,2)),frttTmp(size(RadSlope%r,2)),frrttTmp(size(RadSlope%r,2))
       real(wp) :: r(2*size(RadSlope%r,1)),z(2*size(RadSlope%r,1)),zr2(2*size(RadSlope%r,1))
@@ -26,9 +26,6 @@
         if (iflag == 0) then             
          call SplineEval(0,r,z,zr2,L2,u,g,gr,grr) !first parameter = 0 nonperiodic  
          fTmp(j)=g
-!        diagnostic to see where each splines center is, perhaps a measure of decentration          
-         call SplineCenter(r,z,zr2,L2,w)                                          
-         RadSplineCenter(j)=w
         else  !iflag=1
          call SplineEval(0,r,z,zr2,L2,u,gr,grr)
 !         call CubicSplineQuad(r,z,zr2,L2,0._wp,g0)    
@@ -36,16 +33,12 @@
          call trapez(r,z,zr2,L2,0._wp,g0)    
          call trapez(r,z,zr2,L2,u,g) 
          fTmp(j)=g-g0
-!        diagnostic to see where each splines center is, perhaps a measure of decentration 
-         call SplineCenter(r,z,zr2,L2,w)
-         RadSplineCenter(j)=w
         endif      
         frTmp(j)=gr
         frrTmp(j)=grr 
 !       odd as it seems, each angle j is also angle L since we're on a diagonal 
         L=j+MM/2
         thta(L)=RadSlope%thta(L)
-        RadSplineCenter(L)=RadSplineCenter(j)
         fTmp(L)=fTmp(j)   
         frTmp(L)=frTmp(j)
         frrTmp(L)=frrTmp(j)

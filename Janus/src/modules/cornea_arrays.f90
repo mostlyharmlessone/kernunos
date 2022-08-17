@@ -397,7 +397,6 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
   RadSlope%MV(:)=imv(:)  ! save boundary
   JMatrix%MV(:)=RadSlope%MV(:)  
   JMatrix%THT(:)=RadSlope%thta(:)
-!write(*,*) 'RadSlope.eq.Skyline: ',RadSlope%MV(1:M1)
  write(*,*) 'Central Sagittal power, min, max: ',JMatrix%SAGC0(1),JMatrix%SAGC0(2),JMatrix%SAGC0(3)
  write(*,*) 'Central Elevation, min, max: ',JMatrix%Z0(1),JMatrix%Z0(2),JMatrix%Z0(3)
 end subroutine RadSlope_eq_Skyline
@@ -489,6 +488,9 @@ subroutine RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas) ! initially populates r, th
     MM=size(RadSlope%r,2)
     N=size(RadSlope%r,1)
     imv=0
+    JMatrix%SAGC0(2)=1E30   ;  JMatrix%SAGC0(3)=-1E30
+    JMatrix%Z0(2)=1E30      ;  JMatrix%Z0(3)=-1E30
+    JMatrix%R0=0 ; JMatrix%THT0=0
     do i=1,MM
      RadSlope%thta(i)=PI*Atlas%DEG(i)/180.0_wp
      JMatrix%THT(i)=PI*Atlas%DEG(i)/180.0_wp
@@ -503,17 +505,18 @@ subroutine RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas) ! initially populates r, th
        ZJX=R*100                                              
        CALL ZFCT(MM,i,ZJX,ZIX,X2A1,YA3)
         RadSlope%r(imv(i),i)=X2A1
-         if (ieee_is_NaN(X2A1)) then
-          write(*,*) 'RadSl.eq.Atlas',i,j,imv(i),X2A1
-         endif
         RadSlope%Zp(imv(i),i)=YA3
         RadSlope%Z(imv(i),i)=Atlas%AY(i,j)
         JMatrix%SAGC(imv(i),i)=POW
         JMatrix%Z(imv(i),i)=Atlas%AY(i,j)
       endif 
-        RadSlope%Zp2(imv(i),i)=1/803.0_wp ! fallback value before splining  
+      RadSlope%Zp2(imv(i),i)=1/803.0_wp ! fallback value before splining
+      if (JMatrix%Z(j,i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z(j,i)
+      if (JMatrix%Z(j,i) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z(j,i)  
+      if (JMatrix%SAGC(j,i) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC(j,i)
+      if (JMatrix%SAGC(j,i) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC(j,i)
      end do
-        JMatrix%R(:,i)=RadSlope%r(:,i)
+     JMatrix%R(:,i)=RadSlope%r(:,i)
     end do
     RadSlope%MV(:)=imv(:)
     JMatrix%MV(:)=imv(:)

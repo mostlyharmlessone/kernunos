@@ -177,6 +177,31 @@ file_idx=index(inputfile1, ".DAT")
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)
    MM=180
    N=22
+   DiaSlope=RadSlope              ! move to diagonal format
+   DiaSlope%Zpd2 = .n. DiaSlope
+!  These are the spline centers of the elevations
+!   call MakeRadSplineCenter
+!   call WriteCenter(RadSlope,'Center.dat')
+!   call execute_command_line ("gnuplot -p plotcenter.gnu &", exitstat=i)
+   call SplineEval1Dx1D(1,JMatrix%R0,JMatrix%THT0,JMatrix%Z0(1))  !center value of elevation; needs integration from slopes
+   !could also do all the deviations' elevations or powers eg
+!   do j=1,MM
+!    call SplineEval1Dx1D(1,RadSplineCenter(j),JMatrix%THT(j),JMatrix%RC(j))
+!   end do
+!  Reload RadSlope & respline
+   do i=1,MM
+    do j=1,RadSlope%MV(i)
+     RadSlope%Zp(j,i)=JMatrix%SAGC(j,i)
+    end do
+   end do
+   DiaSlope=RadSlope              ! move to diagonal format
+   DiaSlope%Zpd2 = .n. DiaSlope
+!  These are the spline centers of the powers
+!   call MakeRadSplineCenter
+!   call WriteCenter(RadSlope,'Center.dat')
+!   call execute_command_line ("gnuplot -p plotcenter.gnu &", exitstat=i)
+   call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT0,JMatrix%SAGC0(1))  ! center value
+   call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
    endif
 
    allocate (MV(MM))
@@ -191,8 +216,31 @@ file_idx=index(inputfile1, ".DAT")
    call CPU_TIME(time_end)
    write(*,*) 'Time to read Atlas CSV file: ',(time_end-time_start)*1000
    call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)
-   call FILLARRAY(0,LinesOfCurv,JMatrix%SAGC0(2),JMatrix%SAGC0(3))
    Atlas=0
+   DiaSlope=RadSlope              ! move to diagonal format
+   DiaSlope%Zpd2 = .n. DiaSlope
+   call MakeRadSplineCenter
+   JMatrix%INSTC0(2)=1E30  ;  JMatrix%INSTC0(3)=-1E30
+   JMatrix%INSTC20(2)=1E30 ;  JMatrix%INSTC20(3)=-1E30
+   JMatrix%MEANC0(2)=1E30  ;  JMatrix%MEANC0(3)=-1E30
+   JMatrix%MONGEA0(2)=1E30 ;  JMatrix%MONGEA0(3)=-1E30
+   do i=1,MM
+    do j=1,RadSlope%MV(i)                           
+     call SplineEval1Dx1D(1,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)  
+     call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i),JMatrix%INSTC2(j,i))
+     call MEANP(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
+     call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
+!    find min and max
+     if (JMatrix%INSTC(j,i) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC(j,i)
+     if (JMatrix%INSTC(j,i) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC(j,i)
+     if (JMatrix%INSTC2(j,i) <= JMatrix%INSTC20(2)) JMatrix%INSTC20(2)=JMatrix%INSTC2(j,i)
+     if (JMatrix%INSTC2(j,i) >= JMatrix%INSTC20(3)) JMatrix%INSTC20(3)=JMatrix%INSTC2(j,i)
+     if (JMatrix%MEANC(j,i) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC(j,i)
+     if (JMatrix%MEANC(j,i) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC(j,i)
+     if (JMatrix%MONGEA(j,i) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA(j,i)
+     if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
+    end do
+   end do
   endif
   MV(:)=RadSlope%MV(:) ! store a copy
 
@@ -213,6 +261,31 @@ file_idx=index(inputfile1, ".DAT")
    write(*,*) 'Time to convert Penta: ',(time_end-time_start)*1000
    Penta = 0              ! deallocate
    Skyline = 0
+   Atlas=0
+   DiaSlope=RadSlope              ! move to diagonal format
+   DiaSlope%Zpd2 = .n. DiaSlope
+   call MakeRadSplineCenter
+   JMatrix%INSTC0(2)=1E30  ;  JMatrix%INSTC0(3)=-1E30
+   JMatrix%INSTC20(2)=1E30 ;  JMatrix%INSTC20(3)=-1E30
+   JMatrix%MEANC0(2)=1E30  ;  JMatrix%MEANC0(3)=-1E30
+   JMatrix%MONGEA0(2)=1E30 ;  JMatrix%MONGEA0(3)=-1E30
+   do i=1,MM
+    do j=1,RadSlope%MV(i)                           
+     call SplineEval1Dx1D(1,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)  
+     call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i),JMatrix%INSTC2(j,i))
+     call MEANP(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
+     call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
+!    find min and max
+     if (JMatrix%INSTC(j,i) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC(j,i)
+     if (JMatrix%INSTC(j,i) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC(j,i)
+     if (JMatrix%INSTC2(j,i) <= JMatrix%INSTC20(2)) JMatrix%INSTC20(2)=JMatrix%INSTC2(j,i)
+     if (JMatrix%INSTC2(j,i) >= JMatrix%INSTC20(3)) JMatrix%INSTC20(3)=JMatrix%INSTC2(j,i)
+     if (JMatrix%MEANC(j,i) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC(j,i)
+     if (JMatrix%MEANC(j,i) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC(j,i)
+     if (JMatrix%MONGEA(j,i) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA(j,i)
+     if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
+    end do
+   end do
   endif
 
   if (TestData .eq. 3) then 
@@ -260,6 +333,7 @@ file_idx=index(inputfile1, ".DAT")
 
   IuseG=4  ! if above IuseG=-1, then change to 0, 1 or 2  ! IuseG=0 then change to 3 through 8
 
+
   IuseF=0 ! only valid approach is IuseF=0 because    
 !  R is not constant; they're not circles, so splining along the curve gives curvatures that
 !  are not orthogonal to R, nor z2(deriv of theta)  probably best not to do this
@@ -302,6 +376,7 @@ file_idx=index(inputfile1, ".DAT")
    call WriteCenter(RadSlope,'Center.dat')   ! biggest deviation with nSplineCenter zero slope forced at origin, 
                                              ! then with zero slope forced at average (r(low)+r(high))/2.0
                                              ! smallest deviation without nSplineCenter; view with set polar; plot 'Center.dat' with lines
+  call execute_command_line ("gnuplot -p plotcenter.gnu &", exitstat=i)
   call execute_command_line ("gnuplot -p plotlioc.gnu &", exitstat=i)
 !  write OFF and STL files
   MV(:)=RadSlope%MV(:) ! store a copy
@@ -372,6 +447,11 @@ file_idx=index(inputfile1, ".DAT")
 !!else  !OMP thread else
  
 ! make more than one plot
+  deallocate(MV)
+  deallocate(RadSplineCenter)
+  RadSlope=0
+  DiaSlope=0
+  JMatrix=0
 return
   
   do i=1,2
@@ -471,16 +551,6 @@ return
 
 !!endif  ! end OMP
 !!!$OMP END PARALLEL
-
-! deallocate
-  deallocate(RadSplineCenter)
-  deallocate (MV)
-  if (TestData == 0) then
-   EyeSys=0 
-  endif
-  Atlas=0     
-  RadSlope=0
-  DiaSlope=0
 
   return        
 

@@ -17,6 +17,10 @@ module spline_interfaces
   real(wp), INTENT(OUT) :: z
  end subroutine 
 
+ subroutine MakeRadSplineCenter 
+ USE set_precision, ONLY : wp
+ end subroutine
+
  subroutine nspline(r,z,n,z2)
   USE set_precision, ONLY : wp
   integer, INTENT(IN) :: n

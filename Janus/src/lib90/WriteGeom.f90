@@ -153,8 +153,13 @@
           pow_vert2=b%SAGC(1,I+1)
           pow_vert3=b%SAGC0(1)
           pow_face3_1=(pow_vert1+pow_vert2+pow_vert3)/3
-          vertnum=3
-          rgbv=rgb5(pow_face3_1,powmin,powmax)
+          if (ieee_is_finite(pow_face3_1) .and. (powmax-powmin) > eps) then
+           vertnum=3
+           rgbv=rgb5(pow_face3_1,powmin,powmax)
+          else
+           write(*,*) 'WriteGeom: Error in central values'
+           stop
+          endif
           write(unitno1,*) vertnum,ivert1,ivert2,ivert3,rgbv
           write(unitno3,*) vertnum,ivert1,ivert2,ivert3,rgbv
          end do
