@@ -128,7 +128,16 @@ file_idx=index(inputfile1, ".DAT")
 !  make round rings and convert 360x16 to 180x22 
    M1=180
    N1=22
-   call init_mat_JMatrix(M1,N1,JMatrix)
+   if (allocated(JMatrix1%R)) then
+    write(*,*) 'JMatrix1 allocated'
+   else
+    if (allocated(JMatrix%R)) then
+     write(*,*) 'allocating JMatrix1'
+     call init_mat_JMatrix(M1,N1,JMatrix1)
+    else
+     call init_mat_JMatrix(M1,N1,JMatrix)
+    endif
+   endif
    ! donut
    rBo=7.0
    rBi=0.05*rBo 
@@ -373,6 +382,7 @@ file_idx=index(inputfile1, ".DAT")
 !  Generate LIOC with vector format
    call FILLARRAY(8,LinesOfCurv,POWMIN2,POWMAX2)    ! don't redo bounds consider optional !  plot 'LIOC.CAR' using 1:2:3:4 with vectors
 !  WriteCenter shows where the spline of slopes is zero, it should be close to zero for a concave center with a unique maximum  
+!  this works differently under Jupiter and juno
    call WriteCenter(RadSlope,'Center.dat')   ! biggest deviation with nSplineCenter zero slope forced at origin, 
                                              ! then with zero slope forced at average (r(low)+r(high))/2.0
                                              ! smallest deviation without nSplineCenter; view with set polar; plot 'Center.dat' with lines
@@ -451,7 +461,7 @@ file_idx=index(inputfile1, ".DAT")
   deallocate(RadSplineCenter)
   RadSlope=0
   DiaSlope=0
-  JMatrix=0
+!  JMatrix=0
 return
   
   do i=1,2
