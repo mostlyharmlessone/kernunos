@@ -367,28 +367,6 @@ subroutine rcnvrta(KXNAME)
         Atlas%DEG(i)=ITH
        end do
 
-!      Calculate average magnification
-!      ARRAYD is never 0
-       AVGR=0
-       AVGN=0
-       DO I=1,MM 
-        DO J=1,N
-        IF (Atlas%AR(I,J).GT.0)THEN
-         AVGN=AVGN+1                 
-         AVGR=AVGR+Atlas%AR(I,J)/Atlas%AD(I,J)
-        ENDIF
-        end do
-       end do 
-
-!      Multiply ArrayR by magnification
-       do I=1,MM 
-        do J=1,N
-        Atlas%AR(I,J)=Atlas%AR(I,J)*AVGN/AVGR
-        end do
-       end do 
-
-!       write(*,*) 'Magnification from ',trim(KXNAME),AVGN/AVGR 
-
 !      CODE for debugging
 !       unitno = get_new_fileunit()
 !       open(unitno, file='READR.ORIG.CAR', iostat=ierr)

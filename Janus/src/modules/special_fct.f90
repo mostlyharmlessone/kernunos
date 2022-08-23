@@ -92,38 +92,50 @@ function rgb5(x,minimum, maximum) result(rgbv)
  REAL (wp) :: ratio,fract
  INTEGER(int16) :: nc,rgbv(3),idx1,idx2 ! rgbv={r,g,b}
 ! color={{0,0,255},{0,255,255},{0,255,0},{255,255,0},{255,0,0}}
- INTEGER(int16) :: color(3,5)=reshape( (/ 0, 0, 255, &      !blue
-                                                       0, 255, 255, &    !cyan 
-                                                       0, 255, 0, &      !green
+!! INTEGER(int16) :: color(3,5)=reshape( (/ 0, 0, 255, &      !blue
+!!                                                       0, 255, 255, &    !cyan 
+!!                                                       0, 255, 0, &      !green
+!!                                                       255, 255, 0, &    !yellow
+!!                                                       255, 0, 0 /), &   !red
+!!                                           (/3,5/)  )
+! color={{255,0,0},{255,255,0},{0,255,0},{0,255,255},{0,0,255}}
+ INTEGER(int16) :: color(3,5)=reshape( (/              255, 0, 0, &      !red
                                                        255, 255, 0, &    !yellow
-                                                       255, 0, 0 /), &   !red
+                                                       0, 255, 0, &      !green
+                                                       0, 255, 255, &    !cyan 
+                                                       0, 0, 255/), &    !blue                                                         
                                            (/3,5/)  )
   nc=5
 ! A static array of 5 colors:  (blue, cyan, green, yellow, red) using full rgb for each.
 ! desired color will be between idx1,idx2 in "color".
   ratio =  (x-minimum) / (maximum - minimum) 
-  fract= 0 ! Fraction between "idx1" and "idx2" where our value is.
+  if (ratio < 1 .and. ratio > 0 ) then 
+   fract= 0 ! Fraction between "idx1" and "idx2" where our value is.
   
-  if (ratio <= 0) then
+   if (ratio <= 0) then
        idx1 = 1 ; idx2 = 1                   ! accounts for an input <=0
-  else
-   if (ratio >= 1) then
-    idx1 = nc ; idx2 = nc                ! accounts for an input >=1
    else
-    ratio = ratio * (nc-1)                  
-    idx1  = floor(ratio)+1                   ! Desired color will be after this index.
-    idx2  = idx1+1                           ! ... and before this index (inclusive).
-    fract = ratio - real(idx1)+1            ! Distance between the two indexes (0-1).
+    if (ratio >= 1) then
+     idx1 = nc ; idx2 = nc                ! accounts for an input >=1
+    else
+     ratio = ratio * (nc-1)                  
+     idx1  = floor(ratio)+1                   ! Desired color will be after this index.
+     idx2  = idx1+1                           ! ... and before this index (inclusive).
+     fract = ratio - real(idx1)+1            ! Distance between the two indexes (0-1).
+    endif
    endif
-  endif
 
-  if (idx1 == 0 .OR.  idx2 == 0) then
-   write(*,*) 'x,min,max,ratio: ',x,minimum,maximum,ratio
+   if (idx1 == 0 .OR.  idx2 == 0) then
+    write(*,*) 'x,min,max,ratio: ',x,minimum,maximum,ratio
+   endif
+  
+   rgbv(1) = (color(1,idx2) - color(1,idx1))*fract + color(1,idx1)
+   rgbv(2) = (color(2,idx2) - color(2,idx1))*fract + color(2,idx1)
+   rgbv(3) = (color(3,idx2) - color(3,idx1))*fract + color(3,idx1)
+  else
+   rgbv=(/255,255,255/)  ! out of range = white
   endif
- 
-  rgbv(1) = (color(1,idx2) - color(1,idx1))*fract + color(1,idx1)
-  rgbv(2) = (color(2,idx2) - color(2,idx1))*fract + color(2,idx1)
-  rgbv(3) = (color(3,idx2) - color(3,idx1))*fract + color(3,idx1)
+   
 
 end function rgb5
 

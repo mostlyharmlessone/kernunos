@@ -495,20 +495,20 @@ subroutine RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas) ! initially populates r, th
      RadSlope%thta(i)=PI*Atlas%DEG(i)/180.0_wp
      JMatrix%THT(i)=PI*Atlas%DEG(i)/180.0_wp
      do j=1,N
-      if ((Atlas%AP(i,j) > 0) .AND. (Atlas%AR(i,j) > 0)) then    ! Only for Atlas with POW /= 0 
+      if ((Atlas%AP(i,j) > 0) .AND. (Atlas%AR(i,j) > 0) .AND. (Atlas%AD(i,j) > 0)) then    ! Only for Atlas with valid data /= 0 
        imv(i)=imv(i)+1      
        DIST=Atlas%AD(i,j)
        R=Atlas%AR(i,j)
        POW=Atlas%AP(i,j)
        ZIX=RFCT/POW
-!      could use DIST here
-       ZJX=R*100                                              
+!      could use DIST or R here
+       ZJX=DIST*100                                              
        CALL ZFCT(MM,i,ZJX,ZIX,X2A1,YA3)
         RadSlope%r(imv(i),i)=X2A1
         RadSlope%Zp(imv(i),i)=YA3
         RadSlope%Z(imv(i),i)=Atlas%AY(i,j)
-        JMatrix%SAGC(imv(i),i)=POW
-        JMatrix%Z(imv(i),i)=Atlas%AY(i,j)
+        JMatrix%SAGC(imv(i),i)=POW        
+        JMatrix%Z(imv(i),i)=Atlas%AY(i,j) 
       endif 
       RadSlope%Zp2(imv(i),i)=1/803.0_wp ! fallback value before splining
       if (JMatrix%Z(j,i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z(j,i)

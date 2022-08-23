@@ -30,9 +30,9 @@
   integer ::  IuseG, IuseF, j, nblines, file_idx, file_pfx
   integer,allocatable :: MV(:)
   real :: time_start, time_end
-  real(wp) :: POWMIN,POWMAX,POWMIN2,POWMAX2
+  real(wp) :: POWMIN,POWMAX,POWMIN2,POWMAX2,POWCTR,POW
   logical :: donut
-  real(wp) :: YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo
+  real(wp) :: Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo
 
 !write(*,*) 'file from Jupiter: ',mainfile  ! this will have a lot of extra random non ASCII stuff after the file name
 !! need this because GCC11 isn't F2018 compliant with deferred length character with Bind C
@@ -111,8 +111,22 @@ file_idx=index(inputfile1, ".DAT")
   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
   call CPU_TIME(time_end)
   write(*,*) 'Time to allocate memory: ',(time_end-time_start)*1000 
+
+   M1=180
+   N1=22
+   if (allocated(JMatrix1%R)) then
+    write(*,*) 'JMatrix1 allocated'
+   else
+    if (allocated(JMatrix%R)) then
+     write(*,*) 'allocating JMatrix1'
+     call init_mat_JMatrix(M1,N1,JMatrix1)
+    else
+     write(*,*) 'allocating JMatrix'
+     call init_mat_JMatrix(M1,N1,JMatrix)
+    endif
+   endif
  
-  if (TestData .eq. 0) then  
+ if (TestData .eq. 0) then  
 ! READ THE EYESYS DATA
 ! XX????? ARE THE AXIAL DIST. RX???? ARE THE MIRE RADII  
    call CPU_TIME(time_start)
@@ -125,19 +139,22 @@ file_idx=index(inputfile1, ".DAT")
    EyeSys=0
    DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope
-!  make round rings and convert 360x16 to 180x22 
-   M1=180
-   N1=22
-   if (allocated(JMatrix1%R)) then
-    write(*,*) 'JMatrix1 allocated'
-   else
-    if (allocated(JMatrix%R)) then
-     write(*,*) 'allocating JMatrix1'
-     call init_mat_JMatrix(M1,N1,JMatrix1)
-    else
-     call init_mat_JMatrix(M1,N1,JMatrix)
-    endif
-   endif
+  endif
+
+! READ THE ATLAS DATA
+  if (TestData .eq. 1) then 
+   call CPU_TIME(time_start)
+   call init_mat_Atlas(MM,N,Atlas)
+   call RCNVRTA(inputfile1)
+   call CPU_TIME(time_end)
+   write(*,*) 'Time to read Atlas CSV file: ',(time_end-time_start)*1000
+   call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)
+   DiaSlope=RadSlope              ! move to diagonal format
+   DiaSlope%Zpd2 = .n. DiaSlope
+  endif
+
+  if ((TestData .eq. 1) .or. (TestData .eq. 0)) then
+!  make round rings and if needed convert 360x16 to 180x22 
    ! donut
    rBo=7.0
    rBi=0.05*rBo 
@@ -152,14 +169,27 @@ file_idx=index(inputfile1, ".DAT")
    do i=1,M1
     ITH=2*(i-1)                             ! every 2 degrees
     JMatrix%THT(i)=PI*ITH/180.0_wp
-    JMatrix%MV(i)=MIN(RadSlope%MV(2*i),RadSlope%MV(2*i-1))  ! close to real boundary
+    if (TestData .eq. 0) then 
+     JMatrix%MV(i)=MIN(RadSlope%MV(2*i),RadSlope%MV(2*i-1))  ! close to real boundary
+    else  ! TestData == 1 and MM==180
+     JMatrix%MV(i)=RadSlope%MV(i)
+    endif
     do j=1,N1                             ! does not include center point
      if (i > (M1/2) ) then
       JMatrix%R(j,i)=100*((1-j)*(rBo-rBi)/(N1-1)-rBi)
      else
       JMatrix%R(j,i)=100*((j-1)*(rBo-rBi)/(N1-1)+rBi)
-     endif
-     call SplineEval1Dx1D(1,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)  
+     endif     
+
+     if (Testdata .eq. 1) then  ! check on AD,Z and POW consistency before overwriting JMatrix/Atlas values
+      call SplineEval1Dx1D(1,Atlas%AD(j,i),JMatrix%THT(i),Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
+      call AXIALP(Atlas%AD(j,i),YPR,YP2R2,POW)
+!      JMatrix%SAGC(j,i)-POW
+!      JMatrix%Z(j,i)-Y
+      Atlas=0
+     endif 
+
+     call SplineEval1Dx1D(1,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
      call AXIALP(JMatrix%R(j,i),YPR,YP2R2,JMatrix%SAGC(j,i))
      call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i),JMatrix%INSTC2(j,i))
      call MEANP(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
@@ -189,9 +219,9 @@ file_idx=index(inputfile1, ".DAT")
    DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope
 !  These are the spline centers of the elevations
-!   call MakeRadSplineCenter
-!   call WriteCenter(RadSlope,'Center.dat')
-!   call execute_command_line ("gnuplot -p plotcenter.gnu &", exitstat=i)
+   call MakeRadSplineCenter
+   call WriteCenter(RadSlope,'Center.dat')
+   call execute_command_line ("gnuplot -p plotcenter.gnu &", exitstat=i)
    call SplineEval1Dx1D(1,JMatrix%R0,JMatrix%THT0,JMatrix%Z0(1))  !center value of elevation; needs integration from slopes
    !could also do all the deviations' elevations or powers eg
 !   do j=1,MM
@@ -213,59 +243,17 @@ file_idx=index(inputfile1, ".DAT")
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
    endif
 
-   allocate (MV(MM))
-           
-! OR READ THE ATLAS DATA
-! R OR DIST ARE THE MIRE RADII, USING DIST, READS ELEVATION ALSO  
-  if (TestData .eq. 1) then 
-   call CPU_TIME(time_start)
-   call init_mat_Atlas(MM,N,Atlas)
-   call init_mat_JMatrix(MM,N,JMatrix)
-   call RCNVRTA(inputfile1)
-   call CPU_TIME(time_end)
-   write(*,*) 'Time to read Atlas CSV file: ',(time_end-time_start)*1000
-   call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)
-   Atlas=0
-   DiaSlope=RadSlope              ! move to diagonal format
-   DiaSlope%Zpd2 = .n. DiaSlope
-   call MakeRadSplineCenter
-   JMatrix%INSTC0(2)=1E30  ;  JMatrix%INSTC0(3)=-1E30
-   JMatrix%INSTC20(2)=1E30 ;  JMatrix%INSTC20(3)=-1E30
-   JMatrix%MEANC0(2)=1E30  ;  JMatrix%MEANC0(3)=-1E30
-   JMatrix%MONGEA0(2)=1E30 ;  JMatrix%MONGEA0(3)=-1E30
-   do i=1,MM
-    do j=1,RadSlope%MV(i)                           
-     call SplineEval1Dx1D(1,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)  
-     call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i),JMatrix%INSTC2(j,i))
-     call MEANP(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
-     call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
-!    find min and max
-     if (JMatrix%INSTC(j,i) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC(j,i)
-     if (JMatrix%INSTC(j,i) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC(j,i)
-     if (JMatrix%INSTC2(j,i) <= JMatrix%INSTC20(2)) JMatrix%INSTC20(2)=JMatrix%INSTC2(j,i)
-     if (JMatrix%INSTC2(j,i) >= JMatrix%INSTC20(3)) JMatrix%INSTC20(3)=JMatrix%INSTC2(j,i)
-     if (JMatrix%MEANC(j,i) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC(j,i)
-     if (JMatrix%MEANC(j,i) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC(j,i)
-     if (JMatrix%MONGEA(j,i) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA(j,i)
-     if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
-    end do
-   end do
-  endif
-  MV(:)=RadSlope%MV(:) ! store a copy
-
   if (TestData .eq. 2) then
 ! READ THE PENTACAM DATA (which overwrites Atlas)
 ! ELE are elevations CUR are "sagittal" curvatures in a 141x141 -7 to 7 mm square -1 is no data 
    call init_mat_Penta(NP,Penta,Skyline)   !allocate the PentaCam matices
-   call init_mat_JMatrix(MM,N,JMatrix)
    call init_mat_Atlas(MM,N,Atlas)        !need to excise Atlas
    call RCNVRTP(inputfile1,inputfile2) 
 !  arrange the data
    call CPU_TIME(time_start)
    Skyline=Penta
-!  convert to polar with splining
+!  convert to polar with splining; makes round rings as above with 180x22 - also already has center values Z0(1) and SAGC0(1)
    call RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)  !needs Penta for border check
-   MV(:)=RadSlope%MV(:) ! store a copy
    call CPU_TIME(time_end)
    write(*,*) 'Time to convert Penta: ',(time_end-time_start)*1000
    Penta = 0              ! deallocate
@@ -274,6 +262,8 @@ file_idx=index(inputfile1, ".DAT")
    DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope
    call MakeRadSplineCenter
+   call WriteCenter(RadSlope,'Center.dat')
+   call execute_command_line ("gnuplot -p plotcenter.gnu &", exitstat=i)
    JMatrix%INSTC0(2)=1E30  ;  JMatrix%INSTC0(3)=-1E30
    JMatrix%INSTC20(2)=1E30 ;  JMatrix%INSTC20(3)=-1E30
    JMatrix%MEANC0(2)=1E30  ;  JMatrix%MEANC0(3)=-1E30
@@ -316,6 +306,9 @@ file_idx=index(inputfile1, ".DAT")
     EyeSys = 0
   endif
   
+  allocate (MV(MM))
+  MV(:)=RadSlope%MV(:) ! store a copy
+
 ! Here IuseG changes the contents of RadSlope via FillArray
 !  IuseG == -1 import slopes, return SAGC (axialp), no splining necessary
 !  IuseG == 0  import SAGC, return SAGC (do nothing), no splining necessary
@@ -383,11 +376,11 @@ file_idx=index(inputfile1, ".DAT")
    call FILLARRAY(8,LinesOfCurv,POWMIN2,POWMAX2)    ! don't redo bounds consider optional !  plot 'LIOC.CAR' using 1:2:3:4 with vectors
 !  WriteCenter shows where the spline of slopes is zero, it should be close to zero for a concave center with a unique maximum  
 !  this works differently under Jupiter and juno
-   call WriteCenter(RadSlope,'Center.dat')   ! biggest deviation with nSplineCenter zero slope forced at origin, 
+!   call WriteCenter(RadSlope,'Center.dat')   ! biggest deviation with nSplineCenter zero slope forced at origin, 
                                              ! then with zero slope forced at average (r(low)+r(high))/2.0
                                              ! smallest deviation without nSplineCenter; view with set polar; plot 'Center.dat' with lines
-  call execute_command_line ("gnuplot -p plotcenter.gnu &", exitstat=i)
-  call execute_command_line ("gnuplot -p plotlioc.gnu &", exitstat=i)
+!  call execute_command_line ("gnuplot -p plotcenter.gnu &", exitstat=i)
+!  call execute_command_line ("gnuplot -p plotlioc.gnu &", exitstat=i)
 !  write OFF and STL files
   MV(:)=RadSlope%MV(:) ! store a copy
 !  RadSlope%MV(:)=N   !full diameters for elevation 
@@ -402,10 +395,13 @@ file_idx=index(inputfile1, ".DAT")
 
 !!!$OMP PARALLEL COPYIN(RadSlope)
   donut = .FALSE.
-  
+
+   powctr=JMatrix%SAGC0(1)  
    powmin=JMatrix%SAGC0(2)  
-   powmax=JMatrix%SAGC0(3)    
-  
+   powmax=JMatrix%SAGC0(3)
+
+    
+! Writes OFF and ASCII PLY files
   call WriteGeom(JMatrix,donut,powmin,powmax,'elevation.off','elevation.ply')
 ! from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY MIT licence, included source in tree
 !  call execute_command_line ("./ConvertPLYtoBIN -l elevation.ply elevation.bin.ply",exitstat=i)
@@ -413,6 +409,7 @@ file_idx=index(inputfile1, ".DAT")
   outfile='elevation.bin.ply'
   call ConvertPLYtoBIN(infile,outfile)  ! call C (modified) routine directly
 ! only call if quad .eqv. .FALSE.
+! Writes STL from OFF
   call ConvertOFFtoSTL('elevation.off','elevation.stl','elevation.bin.stl')
 !  can view with meshlab e.g.
 !  write(*,*) 'Exit meshlab to continue'
