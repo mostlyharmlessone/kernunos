@@ -1,6 +1,7 @@
-       SUBROUTINE PRINTGRAPH(POWMIN,POWMAX,FILENAME)
+       SUBROUTINE PRINTGRAPH(unitno1,POWMIN,POWMAX,FILENAME)
        use set_precision, only : wp
        REAL(wp), INTENT(IN) :: POWMIN, POWMAX
+       integer, intent(in) :: unitno1
        character(len=*), intent(in) :: FILENAME
        real :: col1,col2,col3,col4,col5,col6,col7,col8,col9,col10,col11,col12
 
@@ -22,17 +23,17 @@
        col10=0.81*(col12-col1)+col1
        col11=0.90*(col12-col1)+col1      
        
-       WRITE(17,*) 'set pm3d map impl'
-       WRITE(17,800) 'set zrange[',col1,':',col11,']'
-       WRITE(17,900) 'set palette defined (',col1,"'",'purple',&
+       WRITE(unitno1,*) 'set pm3d map impl'
+       WRITE(unitno1,800) 'set zrange[',col1,':',col11,']'
+       WRITE(unitno1,900) 'set palette defined (',col1,"'",'purple',&
      "',",col2,"'",'dark-blue',"',",col3,"'",'blue',&
      "',",col4,"'",'light-blue',"',",col5,"'",'light-green',&
      "',",col6,"'",'green',"',",col7,"'",'web-green',&
      "',",col8,"'",'yellow',"',",col9,"'",'goldenrod',&
      "',",col10,"'",'light-red',&  
      "',",col11,"'",'red',"',",col12,"'",'dark-red',"')"
-       WRITE(17,*) '@NOXTICS ; @NOYTICS'
-       WRITE(17,*) 'splot ',"'",FILENAME,"'"
+       WRITE(unitno1,*) '@NOXTICS ; @NOYTICS'
+       WRITE(unitno1,*) 'splot ',"'",FILENAME,"'"
 
        RETURN
        END

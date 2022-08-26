@@ -82,9 +82,10 @@ module io_functions
       character(len=*), intent(in) :: KXNAME 
     END SUBROUTINE
 
-    SUBROUTINE PRINTGRAPH(POWMIN,POWMAX,FILENAME)
+    SUBROUTINE PRINTGRAPH(unitno1,POWMIN,POWMAX,FILENAME)
      use set_precision, only : wp
      REAL(wp), INTENT(IN) :: POWMIN, POWMAX
+     integer, intent(in) :: unitno1
      character(len=*), intent(in) :: FILENAME
     END SUBROUTINE
     

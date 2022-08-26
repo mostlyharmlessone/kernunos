@@ -941,8 +941,7 @@ subroutine instantp(X2,Y1X,Y1T,Y2X,TANC,ZNMEX)
  else
    ZNMEX=RFCT*Y2X/((1+Y1X**2)*SQRT(1+(Y1T/X2)**2+Y1X**2))
    If (ABS(ZNMEX) < 1) then
-    write(*,*) 'Warning ABS(ZNMEX)<1 instantp:X2,Y1X,Y1T,Y2X,TANC,ZNMEX',X2,Y1X,Y1T,Y2X,TANC,ZNMEX
-    stop
+!    write(*,*) 'Warning ABS(ZNMEX)<1 instantp:X2,Y1X,Y1T,Y2X,TANC,ZNMEX',X2,Y1X,Y1T,Y2X,TANC,ZNMEX
    endif 
  endif
 end subroutine instantp 

@@ -92,19 +92,19 @@ function rgb5(x,minimum, maximum) result(rgbv)
  REAL (wp) :: ratio,fract
  INTEGER(int16) :: nc,rgbv(3),idx1,idx2 ! rgbv={r,g,b}
 ! color={{0,0,255},{0,255,255},{0,255,0},{255,255,0},{255,0,0}}
-!! INTEGER(int16) :: color(3,5)=reshape( (/ 0, 0, 255, &      !blue
-!!                                                       0, 255, 255, &    !cyan 
-!!                                                       0, 255, 0, &      !green
-!!                                                       255, 255, 0, &    !yellow
-!!                                                       255, 0, 0 /), &   !red
-!!                                           (/3,5/)  )
-! color={{255,0,0},{255,255,0},{0,255,0},{0,255,255},{0,0,255}}
- INTEGER(int16) :: color(3,5)=reshape( (/              255, 0, 0, &      !red
-                                                       255, 255, 0, &    !yellow
-                                                       0, 255, 0, &      !green
+ INTEGER(int16) :: color(3,5)=reshape( (/ 0, 0, 255, &      !blue
                                                        0, 255, 255, &    !cyan 
-                                                       0, 0, 255/), &    !blue                                                         
+                                                       0, 255, 0, &      !green
+                                                       255, 255, 0, &    !yellow
+                                                       255, 0, 0 /), &   !red
                                            (/3,5/)  )
+! color={{255,0,0},{255,255,0},{0,255,0},{0,255,255},{0,0,255}}
+! INTEGER(int16) :: color(3,5)=reshape( (/              255, 0, 0, &      !red
+!                                                       255, 255, 0, &    !yellow
+!                                                       0, 255, 0, &      !green
+!                                                       0, 255, 255, &    !cyan 
+!                                                       0, 0, 255/), &    !blue                                                         
+!                                           (/3,5/)  )
   nc=5
 ! A static array of 5 colors:  (blue, cyan, green, yellow, red) using full rgb for each.
 ! desired color will be between idx1,idx2 in "color".

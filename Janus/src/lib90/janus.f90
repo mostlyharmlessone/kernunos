@@ -3,13 +3,13 @@
 ! DRIVER PROGRAM FOR SPLINE ROUTINES
   use set_precision, ONLY : wp
   use cornea_arrays
-  use io_functions
   use special_fct
+  use io_functions
   use, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
   use c_interfaces, ONLY : OpenGL_Show, ConvertPLYtoBIN
   use omp_lib
   IMPLICIT NONE     
-  integer :: i, thread
+  integer :: i, thread, unitno1, ierr
   integer :: MM, N ,M1, N1, ITH
   integer :: TestData                  ! TestData: 0=EyeSys, 1=Atlas, 2=Penta, 3=test 
   integer :: NP                        ! PentaCam=141
@@ -19,7 +19,6 @@
   integer(c_int), INTENT(INOUT) :: nE               
   real(c_float), INTENT(INOUT) :: vertices(*)
   integer(c_int), INTENT(INOUT) :: elements(*) 
-  character(len=16) :: AxialPowerDataKnots
   character(len=8) :: BigGrainyPlot
   character(len=7) :: BigPlot
   character(len=8) :: LinesOfCurv
@@ -102,7 +101,6 @@ file_idx=index(inputfile1, ".DAT")
     write(*,*) "EyeSys files: ",inputfile1," ",inputfile2
    endif
 
-  AxialPowerDataKnots='RCNVRTA.ORIG.CAR'
   BigGrainyPlot='BIGG.CAR'
   BigPlot='BIG.CAR'
   LinesOfCurv='LIOC.CAR'
@@ -181,12 +179,11 @@ file_idx=index(inputfile1, ".DAT")
       JMatrix%R(j,i)=100*((j-1)*(rBo-rBi)/(N1-1)+rBi)
      endif     
 
-     if (Testdata .eq. 1) then  ! check on AD,Z and POW consistency before overwriting JMatrix/Atlas values
-      call SplineEval1Dx1D(1,Atlas%AD(j,i),JMatrix%THT(i),Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
-      call AXIALP(Atlas%AD(j,i),YPR,YP2R2,POW)
+     if ( Testdata .eq. 1 ) then  ! check on AD,Z and POW consistency before overwriting JMatrix/Atlas values
+      call SplineEval1Dx1D(1,Atlas%AD(i,j),JMatrix%THT(i),Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
+      call AXIALP(Atlas%AD(i,j),YPR,YP2R2,POW)
 !      JMatrix%SAGC(j,i)-POW
 !      JMatrix%Z(j,i)-Y
-      Atlas=0
      endif 
 
      call SplineEval1Dx1D(1,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
@@ -209,6 +206,9 @@ file_idx=index(inputfile1, ".DAT")
      if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
     end do
    end do
+   if (Testdata .eq. 1) then
+    Atlas=0
+   endif
    RadSlope=0
    DiaSlope=0
    deallocate(RadSplineCenter)
@@ -220,7 +220,10 @@ file_idx=index(inputfile1, ".DAT")
    DiaSlope%Zpd2 = .n. DiaSlope
 !  These are the spline centers of the elevations
    call MakeRadSplineCenter
-   call WriteCenter(RadSlope,'Center.dat')
+!  WriteCenter shows where the spline of slopes is zero, it should be close to zero for a concave center with a unique maximum
+   call WriteCenter(RadSlope,'Center.dat')! biggest deviation with nSplineCenter zero slope forced at origin, 
+                                             ! then with zero slope forced at average (r(low)+r(high))/2.0
+                                             ! smallest deviation without nSplineCenter; view with set polar; plot 'Center.dat' with lines
    call execute_command_line ("gnuplot -p plotcenter.gnu &", exitstat=i)
    call SplineEval1Dx1D(1,JMatrix%R0,JMatrix%THT0,JMatrix%Z0(1))  !center value of elevation; needs integration from slopes
    !could also do all the deviations' elevations or powers eg
@@ -235,10 +238,6 @@ file_idx=index(inputfile1, ".DAT")
    end do
    DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope
-!  These are the spline centers of the powers
-!   call MakeRadSplineCenter
-!   call WriteCenter(RadSlope,'Center.dat')
-!   call execute_command_line ("gnuplot -p plotcenter.gnu &", exitstat=i)
    call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT0,JMatrix%SAGC0(1))  ! center value
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
    endif
@@ -305,102 +304,69 @@ file_idx=index(inputfile1, ".DAT")
     Penta = 0
     EyeSys = 0
   endif
+
+!  Calculate center values for everything but Z0,SAGC0 (already done)
+!  Reload RadSlope & respline
+   do i=1,MM
+    do j=1,RadSlope%MV(i)
+     RadSlope%Zp(j,i)=JMatrix%INSTC(j,i)
+    end do
+   end do
+   DiaSlope=RadSlope              ! move to diagonal format
+   DiaSlope%Zpd2 = .n. DiaSlope   ! generate the splines diagonally (generate zp2)
+   call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT0,JMatrix%INSTC0(1))  ! center value
+   call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
+!  Reload RadSlope & respline
+   do i=1,MM
+    do j=1,RadSlope%MV(i)
+     RadSlope%Zp(j,i)=JMatrix%INSTC2(j,i)
+    end do
+   end do
+   DiaSlope=RadSlope              ! move to diagonal format
+   DiaSlope%Zpd2 = .n. DiaSlope   ! generate the splines diagonally (generate zp2)
+   call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT0,JMatrix%INSTC20(1))  ! center value
+   call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
+!  Reload RadSlope & respline
+   do i=1,MM
+    do j=1,RadSlope%MV(i)
+     RadSlope%Zp(j,i)=JMatrix%MEANC(j,i)
+    end do
+   end do
+   DiaSlope=RadSlope              ! move to diagonal format
+   DiaSlope%Zpd2 = .n. DiaSlope   ! generate the splines diagonally (generate zp2)
+   call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT0,JMatrix%MEANC0(1))  ! center value
+   call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
+!  Reload RadSlope & respline
+   do i=1,MM
+    do j=1,RadSlope%MV(i)
+     RadSlope%Zp(j,i)=JMatrix%MONGEA(j,i)
+    end do
+   end do
+   DiaSlope=RadSlope              ! move to diagonal format
+   DiaSlope%Zpd2 = .n. DiaSlope   ! generate the splines diagonally (generate zp2)
+   call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT0,JMatrix%MONGEA0(1))  ! center value
+   call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
   
   allocate (MV(MM))
   MV(:)=RadSlope%MV(:) ! store a copy
-
-! Here IuseG changes the contents of RadSlope via FillArray
-!  IuseG == -1 import slopes, return SAGC (axialp), no splining necessary
-!  IuseG == 0  import SAGC, return SAGC (do nothing), no splining necessary
-!  IuseG == 1  import SAGC, return TANC (instantp2)  
-!  IuseG == 2  import SAGC, return ZMM (meanp2)
-
-!  IuseG == 0  import slopes, return slopes (do nothing), no splining necessary
-!  IuseG == 3  import slopes, return TANC (instantp)
-!  IuseG == 4  import slopes, return ZNMEX (instantp)
-!  IuseG == 5  import slopes, return ZMM (meanp)
-!  IuseG == 6  import slopes, return ZA (mongea)
-!  IuseG == 7  import slopes, return Y (elevation)
-!  IuseG == 8  import slopes, compute LIOC
-!  IuseG == 9  import slopes, return slopes from splining
-!  IuseG == 14 has to follow 7, import elevation, return ZNMEX (instantp)  Should be grainy or have other issues
-
-! (IuseG=-1) then IuseG=0,1 or 2), IuseF=0-> intdifM
-! (IuseG=0)  then IuseG=(3..7) , IuseF=0-> intdifR
-! (IuseG=0)  then IuseG=(3..7),  IuseF=1-> intdifZ    !DON'T DO THIS 
-   
-  IuseG=0  ! IuseG=-1 or 0 here only, presplining; 0 just finds POWMIN/MAX can skip entirely here
-
-  CALL FILLARRAY(IuseG,LinesOfCurv,POWMIN,POWMAX) 
-
-  IuseG=4  ! if above IuseG=-1, then change to 0, 1 or 2  ! IuseG=0 then change to 3 through 8
-
-
-  IuseF=0 ! only valid approach is IuseF=0 because    
-!  R is not constant; they're not circles, so splining along the curve gives curvatures that
-!  are not orthogonal to R, nor z2(deriv of theta)  probably best not to do this
-  if (IuseF == 1) then ! partial Atlas or full Atlas via FILL IN MISSING RING DATA USING CIRCUMFERENTIAL SPLINES
-    call CPU_TIME(time_start)
-!    call fillin2 ! fills in AP and AR
-!    Atlas%AR2 = .n. Atlas ! fills in second derivatives of r=Atlas%AR, easy to modify to fill in AR like fillin2
-!    Atlas%AR = .n. Atlas ! fills in Atlas%AR  also need to modify commented line in fillin in cornea_arrays
-    Atlas%AR = lsqfill(Atlas) ! uses lsq fit with cosine series instead of spline
-    call CPU_TIME(time_end)
-    write(*,*) 'Time to run fillin: ',(time_end-time_start)*1000
-!  filling in AR is better by LSQ fit in missing section; look at these intersecting rings using
-!  gnuplot plot 'datafile dumped with >' u 1:2  (don't set polar) first option, or splot second option
-   do j=1,N
-    do i=1,MM
-!     write(*,*) Atlas%DEG(i),Atlas%AR(i,j)
-!     write(*,*) Atlas%AR(i,j)*COS(PI*Atlas%DEG(i)/180.0),Atlas%AR(i,j)*SIN(PI*Atlas%DEG(i)/180.0),0
-    end do
-!    write(*,*) ' '
-   end do 
-  endif
-
-! GENERATE RADIAL SPLINES ACROSS CENTER
-  call CPU_TIME(time_start)
-  DiaSlope=RadSlope              ! move to diagonal format
-  if (TestData.ne.2) then
-   DiaSlope%Zpd2 = .n. DiaSlope   ! generate the splines diagonally (generate zp2)
-  else
-   DiaSlope%Zpd2 = DiaSplineCenter(DiaSlope)   ! generate the splines diagonally with center node added (slopes only)
-  endif                                        ! should I do this and force the center to be at the origin
-  call CPU_TIME(time_end)
-  write(*,*) 'Time to run splines: ',(time_end-time_start)*1000
 
 !  use fillarray to fill DiaSlope Zp with calculated value based on IuseG, optionally generate LIOC
 !  using SplineEval1Dx1D to refill a new matrix RadSlope using f0, derivatives to get calculated powers
   
 !  Generate LIOC with vector format
    call FILLARRAY(8,LinesOfCurv,POWMIN2,POWMAX2)    ! don't redo bounds consider optional !  plot 'LIOC.CAR' using 1:2:3:4 with vectors
-!  WriteCenter shows where the spline of slopes is zero, it should be close to zero for a concave center with a unique maximum  
-!  this works differently under Jupiter and juno
-!   call WriteCenter(RadSlope,'Center.dat')   ! biggest deviation with nSplineCenter zero slope forced at origin, 
-                                             ! then with zero slope forced at average (r(low)+r(high))/2.0
-                                             ! smallest deviation without nSplineCenter; view with set polar; plot 'Center.dat' with lines
-!  call execute_command_line ("gnuplot -p plotcenter.gnu &", exitstat=i)
 !  call execute_command_line ("gnuplot -p plotlioc.gnu &", exitstat=i)
+
 !  write OFF and STL files
-  MV(:)=RadSlope%MV(:) ! store a copy
-!  RadSlope%MV(:)=N   !full diameters for elevation 
-  call FILLARRAY(7,LinesOfCurv,POWMIN,POWMAX)
-! These are elevation bounds     
 
-!!!$OMP PARALLEL num_threads(2) private(thread)
-!      separate iterative parts into subroutines so each thread can work in parallel
-!!       thread = omp_get_thread_num()
-!!!$OMP threadprivate(RadSlope)
-!!       if (thread==0) then
-
-!!!$OMP PARALLEL COPYIN(RadSlope)
-  donut = .FALSE.
+   donut = .FALSE.
 
    powctr=JMatrix%SAGC0(1)  
    powmin=JMatrix%SAGC0(2)  
    powmax=JMatrix%SAGC0(3)
-
-    
+   write(*,*) 'powctr,POWMIN,POWMAX',powctr,POWMIN,POWMAX
+   powmin=10.0 
+   
 ! Writes OFF and ASCII PLY files
   call WriteGeom(JMatrix,donut,powmin,powmax,'elevation.off','elevation.ply')
 ! from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY MIT licence, included source in tree
@@ -447,84 +413,42 @@ file_idx=index(inputfile1, ".DAT")
 !       1, 5, 6,&
 !      & 6, 2, 1      /) 
 
-!return 
 
-
-!!!$OMP END PARALLEL  
-!!else  !OMP thread else
- 
 ! make more than one plot
   deallocate(MV)
   deallocate(RadSplineCenter)
-  RadSlope=0
-  DiaSlope=0
-!  JMatrix=0
-return
-  
+
   do i=1,2
   if (i==1) then
    write(*,*) 'Plot: ',i 
-   call CPU_TIME(time_start)    
-   if (MM == 360) then      ! implies TestData == 0
-!   Generate the slope matrix using ZFCT
-!   Generate "Atlas" data with AXIALP  
-   call RadSlope_eq_EyeSys(RadSlope,EyeSys) 
-   else ! MM==180
-!   Generate the slope matrix using Atlas data     
-   call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)
-   endif  
+   call CPU_TIME(time_start)   
+   call RadSlope_eq_JMatrix(RadSlope,JMatrix)  
    DiaSlope=RadSlope            
    DiaSlope%Zpd2 = .n. DiaSlope
 !   DiaSlope%Zpd2 = DiaSplineCenter(DiaSlope)   ! generate the splines diagonally with center node added (slopes only)
 !   RadSlope%r=make_rings(DiaSlope,.FALSE.)              
    call FILLARRAY(4,LinesOfCurv,POWMIN,POWMAX)
+   write(*,*) 'POWMIN,POWMAX',POWMIN,POWMAX
    call CPU_TIME(time_end)
-   write(*,*) 'Time to rewrite RadSlope without origin: ',(time_end-time_start)*1000   
+   write(*,*) 'Time to make plot',i,(time_end-time_start)*1000   
   endif
-
 
   if (i==2) then
    write(*,*) 'Next Plot: ',i
    call CPU_TIME(time_start)  
-   if (MM == 360) then       ! implies TestData == 0
-!   Generate the slope matrix using ZFCT
-!   Generate "Atlas" data with AXIALP  
-   call RadSlope_eq_EyeSys(RadSlope,EyeSys) 
-   else ! MM==180
-!   Generate the slope matrix using Atlas data     
-   call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)
-   endif
+   call RadSlope_eq_JMatrix(RadSlope,JMatrix)
    DiaSlope=RadSlope            
    DiaSlope%Zpd2 = .n. DiaSlope
 !   DiaSlope%Zpd2 = DiaSplineCenter(DiaSlope)   ! generate the splines diagonally with center node added (slopes only)
-!   RadSlope%r=make_rings(DiaSlope,.FALSE.)            
    call FILLARRAY(7,LinesOfCurv,POWMIN2,POWMAX2)  ! generate elevation
    DiaSlope=RadSlope             
    DiaSlope%Zpd2 = .n. DiaSlope 
-!   RadSlope%r=make_rings(DiaSlope,.FALSE.)
- !  call FILLARRAY(14,LinesOfCurv,POWMIN2,POWMAX2) ! get derivatives from elevation 14 is the same as 4 but might be grainy
+   call FILLARRAY(14,LinesOfCurv,POWMIN2,POWMAX2) ! get derivatives from elevation 14 is the same as 4 but might be grainy
+   write(*,*) 'POWMIN,POWMAX',POWMIN2,POWMAX2
    call CPU_TIME(time_end)
-   write(*,*) 'Time to re-generate a new RadSlope/DiaSlope from Atlas: ',(time_end-time_start)*1000   
+   write(*,*) 'Time to make plot',i,(time_end-time_start)*1000   
   endif   
 
-! REGENERATE SPLINES ACROSS CENTER (repeating because new values in RadSlope and round rings)
-  call CPU_TIME(time_start)  
-  DiaSlope=RadSlope            ! move to diagonal; wipes out the original DiaSlope
-  DiaSlope%Zpd2 = .n. DiaSlope ! generate the splines diagonally (generate zp2)     
-  call CPU_TIME(time_end)
-  write(*,*) 'Time to re-run splines: ',(time_end-time_start)*1000
-
-  call CPU_TIME(time_start)
-
-! generate new Rs using rOMIN, rOMAX, but they have to be constant with theta
-! get a global value for those two to generate R's INCLUDING ORIGIN and using ADiaSlope  
- ! RadSlope%r=make_rings(ADiaSlope,.TRUE.)
-  
- 
-! use SplineEval1Dx1D and DiaSlope to refill matrix RadSlope with new Zp at all points including origin
-  RadSlope%Zp=RadInterpolate(RadSlope)  ! takes DiaSlope/RadSlope data -> interpolates to new ARadslope, no integration
-  call CPU_TIME(time_end)
-  write(*,*) 'Time to make new ARadSlope with origin: ',(time_end-time_start)*1000
   
 ! GENERATE PRINT FILES
  if (i==1) then
@@ -536,29 +460,26 @@ return
   
  end do
 
-
-
 ! put in module with printgraph and put loop in; might be able to read the max/min off each file
 ! or embed in the file with a comment/header
 ! can probably make the layout, number of files and file handle generic
-! can use iostat to avoid file error on opening
-  OPEN (UNIT = 17, FILE = 'plot2.gnu')
-   WRITE(17,*) 'reset'
-   WRITE(17,*) 'set size square'
-   WRITE(17,*) 'set macros'
-   WRITE(17,*) 'NOXTICS = "set format x ''''; unset xlabel"' 
-   WRITE(17,*) 'NOYTICS = "set format y ''''; unset ylabel"'     
-   WRITE(17,*) 'set multiplot layout 1,2 rowsfirst'
-   CALL PRINTGRAPH(POWMIN,POWMAX,BigPlot)
-   CALL PRINTGRAPH(POWMIN2,POWMAX2,BigGrainyPlot)
-  CLOSE (17)
+
+   unitno1 = get_new_fileunit()
+   open(unitno1, file = 'plot2.gnu', action="write", iostat=ierr)
+   WRITE(unitno1,*) 'reset'
+   WRITE(unitno1,*) 'set size square'
+   WRITE(unitno1,*) 'set macros'
+   WRITE(unitno1,*) 'NOXTICS = "set format x ''''; unset xlabel"' 
+   WRITE(unitno1,*) 'NOYTICS = "set format y ''''; unset ylabel"'     
+   WRITE(unitno1,*) 'set multiplot layout 1,2 rowsfirst'
+   CALL PRINTGRAPH(unitno1,POWMIN,POWMAX,BigPlot)
+   CALL PRINTGRAPH(unitno1,POWMIN2,POWMAX2,BigGrainyPlot)
+   CLOSE (unitno1)
 
   call execute_command_line ("gnuplot -p plot2.gnu &", exitstat=i)
-!  call execute_command_line ("./view", exitstat=i)
 
-!!endif  ! end OMP
-!!!$OMP END PARALLEL
-
+  RadSlope=0
+  DiaSlope=0
   return        
 
   END subroutine janus
