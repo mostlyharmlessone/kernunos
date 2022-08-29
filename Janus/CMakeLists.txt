@@ -70,7 +70,8 @@ message(STATUS "Found GLFW3 ")
 if(UNIX AND NOT APPLE)
  set(wxWidgets_CONFIG_OPTIONS_DEFAULT "--toolkit=gtk3")
 endif()
-find_package(wxWidgets 3 REQUIRED gl richtext aui adv html webview core xml net base)
+#find_package(wxWidgets 3 REQUIRED gl richtext aui adv html webview core xml net base)
+find_package(wxWidgets 3 REQUIRED gl core net base)
 if(wxWidgets_FOUND)
   include(${wxWidgets_USE_FILE})
       message("-- FOUND WxWidgets library")
@@ -178,9 +179,12 @@ endif(WIN32)
     add_executable(${PROJECT_NAME} src/cxx/Jupiter.cpp src/lib90/janus.f90 )
     add_executable(juno src/lib90/juno.f90 src/lib90/janus.f90)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules c_includes cpp_includes ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw)     
-target_link_libraries(juno PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules c_includes cpp_includes ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw)
-#target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC ${LIBS})     
+    add_executable(pyramid src/cxx/pyramid/pyramid.cpp src/cxx/pyramid/oglstuff.cpp src/cxx/pyramid/mathstuff.cpp)
+    target_link_libraries(pyramid ${wxWidgets_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
+
+    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules c_includes cpp_includes ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw)     
+    target_link_libraries(juno PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules c_includes cpp_includes ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw)
+    #target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC ${LIBS})     
 
 
 
