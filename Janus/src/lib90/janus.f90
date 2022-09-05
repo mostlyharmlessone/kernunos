@@ -6,7 +6,7 @@
   use special_fct
   use io_functions
   use, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
-  use c_interfaces, ONLY : OpenGL_Show, ConvertPLYtoBIN
+  use c_interfaces, ONLY : OpenGL_Show
   use omp_lib
   IMPLICIT NONE     
   integer :: i, thread, unitno1, ierr
@@ -370,10 +370,7 @@ file_idx=index(inputfile1, ".DAT")
 ! Writes OFF and ASCII PLY files
   call WriteGeom(JMatrix,donut,powmin,powmax,'elevation.off','elevation.ply')
 ! from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY MIT licence, included source in tree
-!  call execute_command_line ("./ConvertPLYtoBIN -l elevation.ply elevation.bin.ply",exitstat=i)
-  infile='elevation.ply'
-  outfile='elevation.bin.ply'
-  call ConvertPLYtoBIN(infile,outfile)  ! call C (modified) routine directly
+  call execute_command_line ("./ConvertPLYtoBIN -l elevation.ply elevation.bin.ply",exitstat=i)
 ! only call if quad .eqv. .FALSE.
 ! Writes STL from OFF
   call ConvertOFFtoSTL('elevation.off','elevation.stl','elevation.bin.stl')

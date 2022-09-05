@@ -13,14 +13,6 @@ SUBROUTINE c_dgemm(transa,transb,m,n,k,alpha,a,lda,b,ldb,beta,c,ldc) bind(c,name
  REAL (c_double), INTENT (INOUT) :: c(ldc,*)
 END SUBROUTINE c_dgemm
 
-!allows call from fortran to C code for conversion
-SUBROUTINE ConvertPLYtoBIN(infile,outfile) BIND(C,name='convertplytobin_') !note the trailing underscore?
- USE, INTRINSIC :: iso_c_binding, ONLY : c_char
- IMPLICIT NONE
- CHARACTER(kind=c_char), INTENT(IN) :: infile
- CHARACTER(kind=c_char), INTENT(IN) :: outfile
-END SUBROUTINE ConvertPLYtoBIN
-
 ! call from c++ to fortran as extern "C" for data exchange
 SUBROUTINE Janus(flag,mainfile, elements, vertices, nV, nE) !do not use BIND(C, name=) that's only for fortran calling C/C++ not vice versa bind(C,name='janus_')
  USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
