@@ -38,6 +38,14 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "pgfortran")
 #    set(bounds "-C")
 endif()
 
+# needed for qt
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+if(CMAKE_VERSION VERSION_LESS "3.7.0")
+    set(CMAKE_INCLUDE_CURRENT_DIR ON)
+endif()
+
 # set(CMAKE_BUILD_TYPE Release) # no debug or bounds check
 set(CMAKE_BUILD_TYPE Debug) #this include debugging with addition of bounds flags as specified below
 set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${bounds}")
@@ -78,6 +86,13 @@ if(wxWidgets_FOUND)
 else()
     message("Failed to find WxWidgets library")
 endif()
+# Qt
+find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets OpenGL)
+#GTK4
+find_package (PkgConfig REQUIRED)
+pkg_check_modules(GTK4 REQUIRED gtk4)
+INCLUDE_DIRECTORIES(${GTK4_INCLUDE_DIRS})
+LINK_DIRECTORIES (${GTK4_LIBRARY_DIRS})
 find_package(BLAS)
  if ( BLAS_FOUND )
   message(STATUS "BLAS found at ${BLAS_LIBRARIES}")
@@ -103,7 +118,6 @@ find_package(OpenCL)
   set(OPENCL_LIBRARIES "/usr/lib/libOpenCL.so")
  endif()
 find_package(OpenMP)
-
 # from learnopengl: attempt to make buildable apple/win32 too
 if(APPLE)
   find_package(Freetype REQUIRED)
@@ -120,8 +134,6 @@ elseif(UNIX AND NOT APPLE)
   add_definitions(${OPENGL_DEFINITIONS})
  endif()
   find_package(X11 REQUIRED)
-  # note that the order is important for setting the libs
-  # use pkg-config --libs $(pkg-config --print-requires --print-requires-private glfw3) in a terminal to confirm
   set(LIBS ${GLFW3_LIBRARY} X11 Xrandr Xinerama Xi Xxf86vm Xcursor GL dl pthread freetype )
   set (CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} -ldl")
 elseif(APPLE)
@@ -153,26 +165,36 @@ endif(WIN32)
 
 #   PLY conversion from  https://w3.impa.br/~diego/software/rply/
 #                        https://github.com/diegonehab/rply
-#   copy convert.c from rply/etc to rply and both to src/cxx/rply
-    file(COPY rply/etc/convert.c DESTINATION src/cxx/rply)
-    file(COPY rply/rply.c rply/rply.h rply/rplyfile.h DESTINATION src/cxx/rply)
-    file(GLOB_RECURSE src/cxx/rply *.c .h)
-    add_executable(ConvertPLYtoBIN src/cxx/rply/convert.c src/cxx/rply/rply.c )  
+#   copy convert.c from rply/etc to rply and both to src/c/rply
+    file(COPY rply/etc/convert.c DESTINATION src/c/rply)
+    file(COPY rply/rply.c rply/rply.h rply/rplyfile.h DESTINATION src/c/rply)
+    file(GLOB_RECURSE src/c/rply *.c .h)
+    add_executable(ConvertPLYtoBIN src/c/rply/convert.c src/c/rply/rply.c )  
 #   C source 
 #   rply conversion 
-    file(GLOB rply_sources  src/cxx/rply/convertplytobin.c src/cxx/rply/rply.c src/cxx/rply *.h )
+    file(GLOB rply_sources  src/c/rply/convertplytobin.c src/c/rply/rply.c src/c/rply *.h )
+#   gtk example with gtk4 & blas fortran
+    file(GLOB blas_f2c src/c/gtk/c_dgemm.f90)
+    add_library( blas_f2c ${blas_f2c})
+    add_executable(glarea src/c/gtk/glarea-app-window.c )
+    add_executable(example-2 src/c/gtk/gtkexample2.c)
+    target_link_libraries(glarea ${GTK4_LIBRARIES} epoxy)
+    target_link_libraries(example-2 ${GTK4_LIBRARIES} blas_f2c ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 #   C++ source
-    file(GLOB cpp_src src/cxx/opengl_show.cpp *.h src/cxx/mathstuff.cpp)   
+    file(GLOB cpp_src src/cxx/opengl_show.cpp *.h src/cxx/mathstuff.cpp)
+#   qt
+    add_executable(qt-example src/cxx/qt/MyOpenGL/main.cpp src/cxx/qt/MyOpenGL/window.cpp src/cxx/qt/MyOpenGL/myglwidget.cpp ${UI_HEADERS})
+    target_link_libraries(qt-example Qt5::Core Qt5::OpenGL Qt5::Gui ${OPENGL_LIBRARIES})
 #   Fortran Source
     file(GLOB_RECURSE lib_sources90  src/lib90 *.f90 *.for)
     file(GLOB_RECURSE mod_sources90  src/modules *.f90)
 #   
-    add_library( c_includes ${rply_sources})
+    add_library( rply_includes ${rply_sources})
     add_library( cpp_includes ${cpp_src})  
     add_library( modules ${mod_sources90})
     add_library( splia ${lib_sources90})
 
-    set(PROJECT_LIBS splia modules c_includes cpp_includes )
+    set(PROJECT_LIBS splia modules rply_includes cpp_includes )
     set(OUTSIDE_LIBS ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw )   
     set(LIBS ${PROJECT_LIBS} ${OUTSIDE_LIBS})
 
@@ -182,12 +204,12 @@ endif(WIN32)
     add_executable(pyramid src/cxx/pyramid/pyramid.cpp src/cxx/pyramid/oglstuff.cpp src/cxx/pyramid/mathstuff.cpp)
     target_link_libraries(pyramid ${wxWidgets_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
 
-    add_executable(pyramid2 src/cxx/pyramid/Pyramid2.cpp src/cxx/pyramid/mathstuff.cpp)
-    target_link_libraries(pyramid2 ${wxWidgets_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
+#    add_executable(pyramid2 src/cxx/pyramid/Pyramid2.cpp src/cxx/pyramid/mathstuff.cpp)
+#    target_link_libraries(pyramid2 ${wxWidgets_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
     
-    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules c_includes cpp_includes ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw)
+    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes cpp_includes ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw)
     
-    target_link_libraries(juno PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules c_includes cpp_includes ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw)
+    target_link_libraries(juno PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes cpp_includes ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw)
     
     #target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC ${LIBS})     
 

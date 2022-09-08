@@ -119,7 +119,7 @@
          vert1 = real(ABS(X2)*COS(X1),kind=4)   !explicitly make these c/w c_float
          vert2 = real(ABS(X2)*SIN(X1),kind=4)
          vert3 = real(X3,kind=4)  
-         if (ieee_is_finite(vert3) .AND. ieee_is_finite(vert2) .AND. &
+         if (ieee_is_finite(vert3) .and. ieee_is_finite(vert2) .and. &
              ieee_is_finite(vert1) .and. ieee_is_finite(pow)) then
           !ok
          else
