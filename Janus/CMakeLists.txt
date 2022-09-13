@@ -73,8 +73,10 @@ find_package(GLM REQUIRED)
 message(STATUS "Found GLM ")
 find_package(GLFW3 REQUIRED)
 message(STATUS "Found GLFW3 ")
- find_package(GLEW REQUIRED)
- message(STATUS "Found GLEW in ${GLEW_LIBRARIES}")
+set(EPOXY_ROOT_DIR ${LIBDIR}/libepoxy)
+find_package(LibEpoxy REQUIRED)
+include_directories(${LibEpoxy_INCLUDE_DIRS})
+ message(STATUS "Found LibEpoxy in ${LIBEPOXY_LIBRARIES}")
 if(UNIX AND NOT APPLE)
  set(wxWidgets_CONFIG_OPTIONS_DEFAULT "--toolkit=gtk3")
 endif()
@@ -190,8 +192,8 @@ endif(WIN32)
 #   C++ source
     file(GLOB cpp_src src/cxx/opengl_show.cpp *.h src/cxx/mathstuff.cpp)
 #   qt
-    add_executable(qt-example src/cxx/qt/MyOpenGL/main.cpp src/cxx/qt/MyOpenGL/window.cpp src/cxx/qt/MyOpenGL/myglwidget.cpp ${UI_HEADERS})
-    target_link_libraries(qt-example Qt5::Core Qt5::OpenGL Qt5::Gui ${OPENGL_LIBRARIES})
+##    add_executable(qt-example src/cxx/qt/MyOpenGL/main.cpp src/cxx/qt/MyOpenGL/window.cpp src/cxx/qt/MyOpenGL/myglwidget.cpp ${UI_HEADERS})
+##    target_link_libraries(qt-example Qt5::Core Qt5::OpenGL Qt5::Gui ${OPENGL_LIBRARIES})
 #   Fortran Source
     file(GLOB_RECURSE lib_sources90  src/lib90 *.f90 *.for)
     file(GLOB_RECURSE mod_sources90  src/modules *.f90)
@@ -202,22 +204,20 @@ endif(WIN32)
     add_library( splia ${lib_sources90})
 
     set(PROJECT_LIBS splia modules rply_includes cpp_includes )
-    set(OUTSIDE_LIBS ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw )   
+    set(OUTSIDE_LIBS ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} glfw )   
     set(LIBS ${PROJECT_LIBS} ${OUTSIDE_LIBS})
 
     add_executable(${PROJECT_NAME} src/cxx/Jupiter.cpp src/lib90/janus.f90 )
     add_executable(juno src/lib90/juno.f90 src/lib90/janus.f90)
 
     add_executable(pyramid src/cxx/pyramid/pyramid.cpp src/cxx/pyramid/oglstuff.cpp src/cxx/pyramid/mathstuff.cpp)
-    target_link_libraries(pyramid ${wxWidgets_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
+    target_link_libraries(pyramid ${wxWidgets_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES})
 
-#    add_executable(pyramid2 src/cxx/pyramid/Pyramid2.cpp src/cxx/pyramid/mathstuff.cpp)
-#    target_link_libraries(pyramid2 ${wxWidgets_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
     
-    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes cpp_includes ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw)
+    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes cpp_includes ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} glfw)
     
-    target_link_libraries(juno PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes cpp_includes ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw)
-    
+    target_link_libraries(juno PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes cpp_includes ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} glfw)
+        
     #target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC ${LIBS})     
 
 
