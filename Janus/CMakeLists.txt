@@ -50,7 +50,7 @@ endif()
 set(CMAKE_BUILD_TYPE Debug) #this include debugging with addition of bounds flags as specified below
 set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${bounds}")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${dialect}")
-#set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${optimize}")
+set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS_RELEASE} ${optimize}")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${omp}")
 set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${NaN}")
 
@@ -185,40 +185,39 @@ endif(WIN32)
 #   gtk example with gtk4 & blas fortran
     file(GLOB blas_f2c src/c/gtk/c_dgemm.f90)
     add_library( blas_f2c ${blas_f2c})
-#    add_executable(glarea src/c/gtk/glarea-app-window.c )
     add_executable(example-2 src/c/gtk/gtkexample2.c)
-#    target_link_libraries(glarea ${GTK3_LIBRARIES} epoxy)
     target_link_libraries(example-2 ${GTK4_LIBRARIES} blas_f2c ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+#   gtk GL example
+#    add_executable(glarea src/c/gtk/glarea-app-window.c )
+#    target_link_libraries(glarea ${GTK3_LIBRARIES} epoxy)
 #   C++ source
-    file(GLOB cpp_src src/cxx/opengl_show.cpp *.h src/cxx/mathstuff.cpp)
-#   qt
-##    add_executable(qt-example src/cxx/qt/MyOpenGL/main.cpp src/cxx/qt/MyOpenGL/window.cpp src/cxx/qt/MyOpenGL/myglwidget.cpp ${UI_HEADERS})
-##    target_link_libraries(qt-example Qt5::Core Qt5::OpenGL Qt5::Gui ${OPENGL_LIBRARIES})
+#   qt 
+#   needs glsl files in exec directory
+    add_executable(qt-example src/cxx/qt/main.cpp src/cxx/qt/badprogOpenGLWindow.cpp src/cxx/qt/badprogDisplay.cpp ${UI_HEADERS})
+    target_link_libraries(qt-example Qt5::Core Qt5::OpenGL Qt5::Gui ${OPENGL_LIBRARIES})
+
+    add_executable(qt-example2 src/cxx/qt/main2.cpp src/cxx/qt/BadprogMixQtOpenGL.cpp src/cxx/qt/BadprogWidget.cpp ${UI_HEADERS})
+    target_link_libraries(qt-example2 Qt5::Core Qt5::OpenGL Qt5::Gui ${OPENGL_LIBRARIES})
+
 #   Fortran Source
     file(GLOB_RECURSE lib_sources90  src/lib90 *.f90 *.for)
     file(GLOB_RECURSE mod_sources90  src/modules *.f90)
-#   
     add_library( rply_includes ${rply_sources})
-    add_library( cpp_includes ${cpp_src})  
     add_library( modules ${mod_sources90})
     add_library( splia ${lib_sources90})
 
-    set(PROJECT_LIBS splia modules rply_includes cpp_includes )
-    set(OUTSIDE_LIBS ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} glfw )   
-    set(LIBS ${PROJECT_LIBS} ${OUTSIDE_LIBS})
-
-    add_executable(${PROJECT_NAME} src/cxx/Jupiter.cpp src/lib90/janus.f90 )
-    add_executable(juno src/lib90/juno.f90 src/lib90/janus.f90)
+    set(LIBS ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} glfw)
+        
+    add_executable(${PROJECT_NAME} src/cxx/Jupiter.cpp src/lib90/janus.f90 src/cxx/opengl_show.cpp src/cxx/pyramid/mathstuff.cpp )
+    add_executable(juno src/lib90/juno.f90 src/lib90/janus.f90 src/cxx/opengl_show.cpp)
 
     add_executable(pyramid src/cxx/pyramid/pyramid.cpp src/cxx/pyramid/oglstuff.cpp src/cxx/pyramid/mathstuff.cpp)
     target_link_libraries(pyramid ${wxWidgets_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES})
 
-    
-    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes cpp_includes ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} glfw)
-    
-    target_link_libraries(juno PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes cpp_includes ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} glfw)
+    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${LIBS})
+    target_link_libraries(juno PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${LIBS})
         
-    #target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC ${LIBS})     
+    
 
 
 

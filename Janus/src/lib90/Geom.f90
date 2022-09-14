@@ -145,7 +145,7 @@
           ivert3=i*N1+1
           ivert1=0  ! verts from above zero indexing, origin given last vertex number
 !         no boundary check on inner
-          elements(k:k+2)=(/ivert1,ivert2,ivert3/)             
+          elements(k:k+2)=(/ivert1,ivert2,ivert3/)
           k=k+3     ! matrix index
          end do
 !        Last face is different
@@ -170,8 +170,8 @@
           ivert3=i*N1+j+1
           ivert4=i*N1+j
          endif
-          if  ( (j < b%MV(i)) .AND. (j < b%MV(i+1)) ) then                    
-            elements(k:k+5)=(/ivert1,ivert2,ivert3,ivert3,ivert4,ivert1/) 
+          if  ( (j < b%MV(i)) .AND. (j < b%MV(i+1)) ) then
+            elements(k:k+5)=(/ivert1,ivert2,ivert3,ivert3,ivert4,ivert1/)
             k=k+6                                                   
           endif                                  
         end do
