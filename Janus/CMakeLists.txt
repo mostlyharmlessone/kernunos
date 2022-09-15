@@ -192,12 +192,18 @@ endif(WIN32)
 #    target_link_libraries(glarea ${GTK3_LIBRARIES} epoxy)
 #   C++ source
 #   qt 
-#   needs glsl files in exec directory
+#   needs glsl files and png file in exec directory
     add_executable(qt-example src/cxx/qt/main.cpp src/cxx/qt/badprogOpenGLWindow.cpp src/cxx/qt/badprogDisplay.cpp ${UI_HEADERS})
     target_link_libraries(qt-example Qt5::Core Qt5::OpenGL Qt5::Gui ${OPENGL_LIBRARIES})
 
     add_executable(qt-example2 src/cxx/qt/main2.cpp src/cxx/qt/BadprogMixQtOpenGL.cpp src/cxx/qt/BadprogWidget.cpp ${UI_HEADERS})
     target_link_libraries(qt-example2 Qt5::Core Qt5::OpenGL Qt5::Gui ${OPENGL_LIBRARIES})
+
+    add_executable(qt-example3 src/cxx/qt/main3.cpp src/cxx/qt/window.cpp src/cxx/qt/camera3d.cpp src/cxx/qt/input.cpp src/cxx/qt/transform3d.cpp ${UI_HEADERS})
+    target_link_libraries(qt-example3 Qt5::Core Qt5::OpenGL Qt5::Gui ${OPENGL_LIBRARIES})
+
+    add_executable(qt-example4 src/cxx/qt/badprogMainWindow.cpp src/cxx/qt/badprogOpenGLWidget.cpp src/cxx/qt/camera3d.cpp src/cxx/qt/input2.cpp src/cxx/qt/main4.cpp src/cxx/qt/transform3d.cpp ${UI_HEADERS})
+    target_link_libraries(qt-example4 Qt5::Core Qt5::OpenGL Qt5::Gui ${OPENGL_LIBRARIES})
 
 #   Fortran Source
     file(GLOB_RECURSE lib_sources90  src/lib90 *.f90 *.for)
