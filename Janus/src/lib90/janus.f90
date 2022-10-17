@@ -1,5 +1,4 @@
   subroutine Janus(flag,mainfile, elements, vertices, nV, nE)  
-
 ! DRIVER PROGRAM FOR SPLINE ROUTINES
   use set_precision, ONLY : wp
   use cornea_arrays
@@ -164,6 +163,8 @@ file_idx=index(inputfile1, ".DAT")
    JMatrix%MEANC0(2)=1E30  ;  JMatrix%MEANC0(3)=-1E30
    JMatrix%MONGEA0(2)=1E30 ;  JMatrix%MONGEA0(3)=-1E30
    JMatrix%R0=0 ; JMatrix%THT0=0
+
+
    do i=1,M1
     ITH=2*(i-1)                             ! every 2 degrees
     JMatrix%THT(i)=PI*ITH/180.0_wp
@@ -178,7 +179,6 @@ file_idx=index(inputfile1, ".DAT")
      else
       JMatrix%R(j,i)=100*((j-1)*(rBo-rBi)/(N1-1)+rBi)
      endif     
-
      if ( Testdata .eq. 1 ) then  ! check on AD,Z and POW consistency before overwriting JMatrix/Atlas values
       call SplineEval1Dx1D(1,Atlas%AD(i,j),JMatrix%THT(i),Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
       call AXIALP(Atlas%AD(i,j),YPR,YP2R2,POW)
@@ -206,6 +206,8 @@ file_idx=index(inputfile1, ".DAT")
      if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
     end do
    end do
+
+
    if (Testdata .eq. 1) then
     Atlas=0
    endif
