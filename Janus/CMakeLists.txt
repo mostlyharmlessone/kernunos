@@ -90,6 +90,7 @@ else()
 endif()
 # Qt
 find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets OpenGL)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui OpenGLWidgets OpenGL)
 #GTK4
 find_package (PkgConfig REQUIRED)
 pkg_check_modules(GTK4 REQUIRED gtk4)
@@ -213,12 +214,14 @@ endif(WIN32)
     add_library( splia ${lib_sources90})
 
     set(LIBS ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} glfw)
-        
-    add_executable(${PROJECT_NAME} src/cxx/Jupiter.cpp src/lib90/janus.f90 src/cxx/opengl_show.cpp src/cxx/pyramid/mathstuff.cpp )
+    
+#   Qt6::Core Qt6::OpenGLWidgets Qt6::Gui Qt6::OpenGL
+    
+    add_executable(${PROJECT_NAME} src/cxx/Jupiter.cpp src/lib90/janus.f90 src/cxx/opengl_show.cpp src/cxx/mathstuff.cpp )
     add_executable(juno src/lib90/juno.f90 src/lib90/janus.f90 src/cxx/opengl_show.cpp)
 
-    add_executable(pyramid src/cxx/pyramid/pyramid.cpp src/cxx/pyramid/oglstuff.cpp src/cxx/pyramid/mathstuff.cpp)
-    target_link_libraries(pyramid ${wxWidgets_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES})
+#    add_executable(pyramid src/cxx/pyramid/pyramid.cpp src/cxx/pyramid/oglstuff.cpp src/cxx/pyramid/mathstuff.cpp)
+#    target_link_libraries(pyramid ${wxWidgets_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES})
 
     target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${LIBS})
     target_link_libraries(juno PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${LIBS})

@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/" lang="GLSL">
+        <file>uvtemplate.bmp</file>
+    </qresource>
+</RCC>
