@@ -1,9 +1,10 @@
 // adapted from https://github.com/QtOpenGL/qgl_tutorials
-#include "qgl_tutorial06.h"
+#include "kernunos.h"
 #include <cmath>
 #include <QtMath>
 
 // Include standard headers
+#include <QtWidgets>
 #include <QApplication>
 #include <stdio.h>
 #include <chrono>
@@ -127,7 +128,7 @@ static const GLfloat g_uv_buffer_data[] = {
 };
 
 
-Tutorial06::Tutorial06( QWidget *parent ) : QOpenGLWidget(parent)
+kernunos::kernunos( QWidget *parent ) : QOpenGLWidget(parent)
 {
   cameraPos = QVector3D(0, 0, 6);
   // https://www.modernescpp.com/index.php/asynchronous-callable-wrappers
@@ -136,10 +137,22 @@ Tutorial06::Tutorial06( QWidget *parent ) : QOpenGLWidget(parent)
       unsigned int hw = std::thread::hardware_concurrency();
       unsigned int hwConcurr= (hw != 0)? hw : hwGuess;
       std::cout << "Cores found by Jupiter: " << hwConcurr << std::endl;
-
 }
 
-Tutorial06::~Tutorial06()
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
+{
+  setWindowTitle("Kernunos: OpenGLWidget");
+  GLWidget = new kernunos(this);
+  GLWidget->setMinimumWidth(300);
+  GLWidget->setMinimumHeight(300);
+}
+
+MainWindow::~MainWindow()
+{
+}
+
+kernunos::~kernunos()
 {
   // Cleanup VBO and shader
   makeCurrent();
@@ -149,7 +162,7 @@ Tutorial06::~Tutorial06()
   delete mTexture;
 }
 
-void Tutorial06::initializeGL()
+void kernunos::initializeGL()
 {
   // initialize OpenGL
   initializeOpenGLFunctions();
@@ -216,7 +229,7 @@ void Tutorial06::initializeGL()
 
 }
 
-void Tutorial06::paintGL(void)
+void kernunos::paintGL(void)
 {
     // Clear the screen
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -264,18 +277,18 @@ void Tutorial06::paintGL(void)
 
 }
 
-void Tutorial06::timerEvent(QTimerEvent*)
+void kernunos::timerEvent(QTimerEvent*)
 {
 }
 
-void Tutorial06::resizeGL(int w, int h)
+void kernunos::resizeGL(int w, int h)
 {
   mWidth = w;
   mHeight = h;
   glViewport(0, 0, (GLsizei) w, (GLsizei) h);
 }
 
-void Tutorial06::keyPressEvent(QKeyEvent *e)
+void kernunos::keyPressEvent(QKeyEvent *e)
 {
   switch (e->key())
   {
@@ -283,11 +296,11 @@ void Tutorial06::keyPressEvent(QKeyEvent *e)
      exit(0);
       break;
     case Qt::Key_Q:  /*  Q Key */
-     mModelMatrix.scale(0.9);
+     mViewMatrix.translate(QVector3D(0,0,-0.1));
      update();
       break;
   case Qt::Key_S:  /*  S Key */
-     mModelMatrix.scale(1.1);
+     mViewMatrix.translate(QVector3D(0,0,0.1));
      update();
       break;
   case Qt::Key_W:  /*  W Key */
@@ -312,7 +325,7 @@ void Tutorial06::keyPressEvent(QKeyEvent *e)
   e->accept();  // Don't pass any key events to parent
 }
 
-void Tutorial06::wheelEvent(QWheelEvent * event)
+void kernunos::wheelEvent(QWheelEvent * event)
 {
 #if 0
   m_distExp += event->delta();
@@ -326,7 +339,7 @@ void Tutorial06::wheelEvent(QWheelEvent * event)
 }
 
 
-void Tutorial06::mousePressEvent(QMouseEvent *e)
+void kernunos::mousePressEvent(QMouseEvent *e)
 {
   rotate=false;
   if(e->button() == Qt::LeftButton)
@@ -342,7 +355,7 @@ void Tutorial06::mousePressEvent(QMouseEvent *e)
   }
 }
 
-void Tutorial06::mouseMoveEvent(QMouseEvent *e)
+void kernunos::mouseMoveEvent(QMouseEvent *e)
 {
   if(e->buttons() & Qt::LeftButton)
   {
@@ -358,13 +371,13 @@ void Tutorial06::mouseMoveEvent(QMouseEvent *e)
   }
 }
 
-void Tutorial06::mouseReleaseEvent(QMouseEvent *e)
+void kernunos::mouseReleaseEvent(QMouseEvent *e)
 {
   if(e->button() == Qt::LeftButton)
     useArcBall = false;
 }
 
-void Tutorial06::updateMouse()
+void kernunos::updateMouse()
 {
   QVector3D v = getArcBallVector(oldX,oldY); // from the mouse
   QVector3D u = getArcBallVector(newX, newY);
@@ -385,7 +398,7 @@ void Tutorial06::updateMouse()
 }
 
 
-QVector3D Tutorial06::getArcBallVector(int x, int y)
+QVector3D kernunos::getArcBallVector(int x, int y)
 {
    QVector3D pt = QVector3D(2.0 * x / mWidth - 1.0, 2.0 * y / mHeight  - 1.0 , 0);
    pt.setY(pt.y() * -1);
@@ -409,9 +422,10 @@ QVector3D Tutorial06::getArcBallVector(int x, int y)
 */
 int main( int argc, char **argv )
 {
-  QApplication a( argc, argv );
+  QApplication app( argc, argv );
 
-  Tutorial06 w;
-  w.show();
-  return a.exec();
+//MainWindow window;
+  kernunos window;
+  window.show();
+  return app.exec();
 }

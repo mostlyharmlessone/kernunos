@@ -6,17 +6,18 @@
 
 QT       += core gui openglwidgets
 
-TARGET = qgl_tutorial06
+TARGET = kernunos
 TEMPLATE = app
 
 mac {
     CONFIG -= app_bundle
 }
 
-SOURCES +=\
-        qgl_tutorial06.cpp
+SOURCES += \
+    kernunos.cpp
 
-HEADERS  += qgl_tutorial06.h
+HEADERS  += \
+    kernunos.h
 
 RESOURCES += GLShaders.qrc
 

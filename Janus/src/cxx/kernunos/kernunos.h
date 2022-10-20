@@ -1,6 +1,7 @@
-#ifndef QGL_TUTORIAL06_H
-#define QGL_TUTORIAL06_H
+#ifndef KERNUNOS_H
+#define KERNUNOS_H
 
+#include <QMainWindow>
 #include <QOpenGLWidget>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLFunctions>
@@ -11,11 +12,12 @@
 #include <QMatrix4x4>
 #include <QPointF>
 
-class Tutorial06 : public QOpenGLWidget, protected QOpenGLFunctions
+
+class kernunos : public QOpenGLWidget, protected QOpenGLFunctions
 {
   public:
-    Tutorial06( QWidget *parent=0 );
-    ~Tutorial06();
+    kernunos( QWidget *parent=0 );
+    ~kernunos();
 
     QVector3D getArcBallVector(int x, int y);
 
@@ -32,6 +34,7 @@ class Tutorial06 : public QOpenGLWidget, protected QOpenGLFunctions
     void updateMouse();
 
   private:
+
     QOpenGLShaderProgram shaderProgram;
     GLuint programID;
     QMatrix4x4 mModelMatrix;
@@ -57,6 +60,25 @@ class Tutorial06 : public QOpenGLWidget, protected QOpenGLFunctions
     bool rotate;
     bool useArcBall;
 };
+
+
+class MainWindow : public QMainWindow
+{
+
+public:
+    MainWindow(QWidget *parent=nullptr);
+    ~MainWindow();
+
+protected:
+
+private slots:
+
+private:
+
+    kernunos *GLWidget;
+
+};
+
 
 const GLchar* vertexSource = R"glsl(
 #version 400 core
@@ -128,4 +150,4 @@ void main(){
 )glsl";
 
 
-#endif // QGL_TUTORIAL06_H
+#endif // KERNUNOS_H
