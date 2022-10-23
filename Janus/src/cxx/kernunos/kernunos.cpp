@@ -1,5 +1,4 @@
 // adapted from https://github.com/QtOpenGL/qgl_tutorials
-#include "kernunos.h"
 #include <cmath>
 #include <QtMath>
 
@@ -13,10 +12,11 @@
 #include <thread>
 #include <memory>
 #include <cmath>
+#include "kernunos.h"
 
 // Our vertices. Tree consecutive floats give a 3D vertex; Three consecutive vertices give a triangle.
 // A cube has 6 faces with 2 triangles each, so this makes 6*2=12 triangles, and 12*3 vertices
-static const GLfloat g_vertex_buffer_data[] = {
+static const float g_vertex_buffer_data[] = {
   -1.0f,-1.0f,-1.0f,
   -1.0f,-1.0f, 1.0f,
   -1.0f, 1.0f, 1.0f,
@@ -88,7 +88,7 @@ static const GLfloat g_vertex_buffer_data[] = {
 
 
 // Two UV coordinatesfor each vertex. They were created withe Blender.
-static const GLfloat g_uv_buffer_data[] = {
+static const float g_uv_buffer_data[] = {
   0.000059f, 1.0f-0.000004f,
   0.000103f, 1.0f-0.336048f,
   0.335973f, 1.0f-0.335903f,
@@ -127,6 +127,75 @@ static const GLfloat g_uv_buffer_data[] = {
   0.667979f, 1.0f-0.335851f
 };
 
+const GLchar* vertexSource = R"glsl(
+#version 400 core
+layout (location = 0) in vec3 position;   // the position variable has attribute position 0
+layout (location = 1) in vec3 incolor; // the color variable has attribute position 1
+
+out vec3 outColor; // output a color to the fragment shader
+
+uniform mat4 mMVP;
+
+void main()
+{
+    gl_Position = mMVP * vec4(position, 1.0);
+    outColor = incolor; // set outColor to the input color we got from the vertex data
+}
+)glsl";
+
+const GLchar* fragmentSource = R"glsl(
+#version 400 core
+out vec4 fragColor;
+in vec3 outColor;
+
+void main()
+{
+    fragColor = vec4(outColor, 1.0);
+}
+)glsl";
+
+const GLchar* TransformFragmentShader = R"glsl(
+#version 120
+
+// Interpolated values from the vertex shaders
+varying vec2 UV;
+
+// Ouput data
+//out vec3 color;
+
+// Values that stay constant for the whole mesh.
+uniform sampler2D myTextureSampler;
+
+void main(){
+
+        // Output color = color of the texture at the specified UV
+        gl_FragColor = texture2D( myTextureSampler, UV );
+}
+)glsl";
+
+const GLchar* TransformVertexShader = R"glsl(
+#version 120
+
+// Input vertex data, different for all executions of this shader.
+attribute vec3 vertexPosition_modelspace;
+attribute vec2 vertexUV;
+
+// Output data ; will be interpolated for each fragment.
+varying vec2 UV;
+
+// Values that stay constant for the whole mesh.
+uniform mat4 MVP;
+
+void main(){
+
+    // Output position of the vertex, in clip space : MVP * position
+    gl_Position =  MVP * vec4(vertexPosition_modelspace,1);
+
+    // UV of the vertex. No special space for this one.
+    UV = vertexUV;
+}
+)glsl";
+
 
 kernunos::kernunos( QWidget *parent ) : QOpenGLWidget(parent)
 {
@@ -137,19 +206,6 @@ kernunos::kernunos( QWidget *parent ) : QOpenGLWidget(parent)
       unsigned int hw = std::thread::hardware_concurrency();
       unsigned int hwConcurr= (hw != 0)? hw : hwGuess;
       std::cout << "Cores found by Jupiter: " << hwConcurr << std::endl;
-}
-
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-{
-  setWindowTitle("Kernunos: OpenGLWidget");
-  GLWidget = new kernunos(this);
-  GLWidget->setMinimumWidth(300);
-  GLWidget->setMinimumHeight(300);
-}
-
-MainWindow::~MainWindow()
-{
 }
 
 kernunos::~kernunos()
@@ -416,16 +472,4 @@ QVector3D kernunos::getArcBallVector(int x, int y)
 }
 
 
-/*  Main Loop
-*  Open window with initial window size, title bar,
-*  and handle input events.
-*/
-int main( int argc, char **argv )
-{
-  QApplication app( argc, argv );
 
-//MainWindow window;
-  kernunos window;
-  window.show();
-  return app.exec();
-}

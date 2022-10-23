@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>600</height>
+    <height>853</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,26 +20,6 @@
       <x>10</x>
       <y>140</y>
       <width>241</width>
-      <height>200</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QOpenGLWidget" name="openGLWidget_2">
-    <property name="geometry">
-     <rect>
-      <x>290</x>
-      <y>140</y>
-      <width>231</width>
-      <height>200</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QOpenGLWidget" name="openGLWidget_3">
-    <property name="geometry">
-     <rect>
-      <x>560</x>
-      <y>140</y>
-      <width>231</width>
       <height>200</height>
      </rect>
     </property>
@@ -70,30 +50,24 @@
      <string>TextLabel</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_2">
+   <widget class="QOpenGLWidget" name="openGLWidget_2">
     <property name="geometry">
      <rect>
-      <x>290</x>
-      <y>110</y>
-      <width>51</width>
-      <height>17</height>
+      <x>10</x>
+      <y>350</y>
+      <width>241</width>
+      <height>200</height>
      </rect>
-    </property>
-    <property name="text">
-     <string>TextLabel</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_3">
+   <widget class="QOpenGLWidget" name="openGLWidget_3">
     <property name="geometry">
      <rect>
-      <x>560</x>
-      <y>110</y>
-      <width>51</width>
-      <height>17</height>
+      <x>10</x>
+      <y>560</y>
+      <width>241</width>
+      <height>200</height>
      </rect>
-    </property>
-    <property name="text">
-     <string>TextLabel</string>
     </property>
    </widget>
   </widget>
@@ -103,11 +77,47 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menu_File">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="action_Open"/>
+    <addaction name="action_SaveAs"/>
+   </widget>
+   <widget class="QMenu" name="menu_About">
+    <property name="title">
+     <string>&amp;About</string>
+    </property>
+    <addaction name="actionAbout_Kernunos"/>
+    <addaction name="actionAbout_Qt"/>
+   </widget>
+   <addaction name="menu_File"/>
+   <addaction name="menu_About"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="action_Open">
+   <property name="text">
+    <string>&amp;Open</string>
+   </property>
+  </action>
+  <action name="action_SaveAs">
+   <property name="text">
+    <string>&amp;SaveAs</string>
+   </property>
+  </action>
+  <action name="actionAbout_Kernunos">
+   <property name="text">
+    <string>About Kernunos</string>
+   </property>
+  </action>
+  <action name="actionAbout_Qt">
+   <property name="text">
+    <string>About Qt</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

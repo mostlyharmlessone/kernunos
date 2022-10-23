@@ -1,10 +1,4 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2013-10-02T22:05:16
-#
-#-------------------------------------------------
-
-QT       += core gui openglwidgets
+QT       += core gui widgets opengl openglwidgets
 
 TARGET = kernunos
 TEMPLATE = app
@@ -14,12 +8,29 @@ mac {
 }
 
 SOURCES += \
+    kernunos.cpp \
+    main.cpp \
+    mainwindow.cpp
+    main.cpp
+    mainwindow.cpp
     kernunos.cpp
 
 HEADERS  += \
-    kernunos.h
+    kernunos.h \
+    mainwindow.h
+    mainwindow.h
 
-RESOURCES += GLShaders.qrc
+RESOURCES += GLShaders.qrc \
+    GLShaders.qrc
 
-DISTFILES +=
+DISTFILES += \
+    CMakeLists.txt \
+    CMakeLists.txt.user \
+    kernunos.pro.user \
+    kernunos_en_US.ts \
+    uvtemplate.DDS \
+    uvtemplate.bmp
+
+FORMS += \
+    mainwindow.ui
 
