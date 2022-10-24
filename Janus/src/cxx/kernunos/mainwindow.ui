@@ -77,7 +77,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -86,6 +86,7 @@
     </property>
     <addaction name="action_Open"/>
     <addaction name="action_SaveAs"/>
+    <addaction name="action_Exit"/>
    </widget>
    <widget class="QMenu" name="menu_About">
     <property name="title">
@@ -116,6 +117,11 @@
   <action name="actionAbout_Qt">
    <property name="text">
     <string>About Qt</string>
+   </property>
+  </action>
+  <action name="action_Exit">
+   <property name="text">
+    <string>&amp;Exit</string>
    </property>
   </action>
  </widget>
