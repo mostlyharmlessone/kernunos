@@ -5,6 +5,10 @@
 // Include standard headers
 #include <QtWidgets>
 #include <QApplication>
+#include <QMouseEvent>
+#include <QOpenGLShaderProgram>
+#include <QCoreApplication>
+#include <math.h>
 #include <stdio.h>
 #include <chrono>
 #include <iostream>
@@ -13,6 +17,28 @@
 #include <memory>
 #include <cmath>
 #include "kernunos.h"
+
+kernunos::kernunos( QWidget *parent ) : QOpenGLWidget(parent)
+{
+  cameraPos = QVector3D(0, 0, 6);
+  // https://www.modernescpp.com/index.php/asynchronous-callable-wrappers
+  static const unsigned int hwGuess= 4;
+  //  these could come in handy later for available number of threads/cores for asynchronous tasks
+      unsigned int hw = std::thread::hardware_concurrency();
+      unsigned int hwConcurr= (hw != 0)? hw : hwGuess;
+      std::cout << "Cores found by Jupiter: " << hwConcurr << std::endl;
+}
+
+kernunos::~kernunos()
+{
+  // Cleanup VBO and shader
+  makeCurrent();
+  glDeleteBuffers(1, &vertexbuffer);
+  glDeleteBuffers(1, &uvbuffer);
+  glDeleteProgram(programID);
+  delete mTexture;
+}
+
 
 // Our vertices. Tree consecutive floats give a 3D vertex; Three consecutive vertices give a triangle.
 // A cube has 6 faces with 2 triangles each, so this makes 6*2=12 triangles, and 12*3 vertices
@@ -127,7 +153,7 @@ static const float g_uv_buffer_data[] = {
   0.667979f, 1.0f-0.335851f
 };
 
-const GLchar* vertexSource = R"glsl(
+static const GLchar* vertexSource = R"glsl(
 #version 400 core
 layout (location = 0) in vec3 position;   // the position variable has attribute position 0
 layout (location = 1) in vec3 incolor; // the color variable has attribute position 1
@@ -143,7 +169,7 @@ void main()
 }
 )glsl";
 
-const GLchar* fragmentSource = R"glsl(
+static const GLchar* fragmentSource = R"glsl(
 #version 400 core
 out vec4 fragColor;
 in vec3 outColor;
@@ -154,7 +180,7 @@ void main()
 }
 )glsl";
 
-const GLchar* TransformFragmentShader = R"glsl(
+static const GLchar* TransformFragmentShader = R"glsl(
 #version 120
 
 // Interpolated values from the vertex shaders
@@ -173,7 +199,7 @@ void main(){
 }
 )glsl";
 
-const GLchar* TransformVertexShader = R"glsl(
+static const GLchar* TransformVertexShader = R"glsl(
 #version 120
 
 // Input vertex data, different for all executions of this shader.
@@ -196,27 +222,6 @@ void main(){
 }
 )glsl";
 
-
-kernunos::kernunos( QWidget *parent ) : QOpenGLWidget(parent)
-{
-  cameraPos = QVector3D(0, 0, 6);
-  // https://www.modernescpp.com/index.php/asynchronous-callable-wrappers
-  static const unsigned int hwGuess= 4;
-  //  these could come in handy later for available number of threads/cores for asynchronous tasks
-      unsigned int hw = std::thread::hardware_concurrency();
-      unsigned int hwConcurr= (hw != 0)? hw : hwGuess;
-      std::cout << "Cores found by Jupiter: " << hwConcurr << std::endl;
-}
-
-kernunos::~kernunos()
-{
-  // Cleanup VBO and shader
-  makeCurrent();
-  glDeleteBuffers(1, &vertexbuffer);
-  glDeleteBuffers(1, &uvbuffer);
-  glDeleteProgram(programID);
-  delete mTexture;
-}
 
 void kernunos::initializeGL()
 {
@@ -391,25 +396,22 @@ void kernunos::wheelEvent(QWheelEvent * event)
     m_distExp = 10 * 120;
   event->accept();
 #endif
-
 }
-
 
 void kernunos::mousePressEvent(QMouseEvent *e)
 {
   rotate=false;
   if(e->button() == Qt::LeftButton)
   {
-    oldX = e->x(); // Set this to the mouse position
-    oldY = e->y(); // Set this to the mouse position
-
-    newX = e->x();
-    newY = e->y();
-
+    oldX = e->position().toPoint().x();
+    oldY = e->position().toPoint().y();
+    newX = e->position().toPoint().x();
+    newY = e->position().toPoint().y();
     rotate = true;
     useArcBall = true;
   }
 }
+
 
 void kernunos::mouseMoveEvent(QMouseEvent *e)
 {
@@ -417,15 +419,15 @@ void kernunos::mouseMoveEvent(QMouseEvent *e)
   {
     if(rotate)
     {
-      newX = e->x();
-      newY = e->y();
+      newX = e->position().toPoint().x();
+      newY = e->position().toPoint().y();
       updateMouse();
-
     }
-    oldX = e->x();
-    oldY = e->y();
+      oldX = e->position().toPoint().x();
+      oldY = e->position().toPoint().y();
   }
 }
+
 
 void kernunos::mouseReleaseEvent(QMouseEvent *e)
 {
@@ -443,8 +445,6 @@ void kernunos::updateMouse()
   QVector3D rotAxis = QVector3D::crossProduct(v,u);
   QMatrix4x4 eye2ObjSpaceMat = mRotate.inverted();
   QVector3D objSpaceRotAxis = eye2ObjSpaceMat.map(rotAxis);
-
-        //oldRot = newRot;
 
   oldX = newX;
   oldY = newY;

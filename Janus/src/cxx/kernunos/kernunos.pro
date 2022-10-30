@@ -11,17 +11,13 @@ SOURCES += \
     kernunos.cpp \
     main.cpp \
     mainwindow.cpp
-    main.cpp
-    mainwindow.cpp
-    kernunos.cpp
+
 
 HEADERS  += \
     kernunos.h \
     mainwindow.h
-    mainwindow.h
 
-RESOURCES += GLShaders.qrc \
-    GLShaders.qrc
+RESOURCES += GLShaders.qrc
 
 DISTFILES += \
     CMakeLists.txt \

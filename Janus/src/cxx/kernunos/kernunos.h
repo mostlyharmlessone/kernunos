@@ -12,14 +12,24 @@
 #include <QMatrix4x4>
 #include <QPointF>
 
+#include <QOpenGLVertexArrayObject>
+#include <QOpenGLBuffer>
+
+QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)
 
 class kernunos : public QOpenGLWidget, protected QOpenGLFunctions
 {
+    Q_OBJECT
+
   public:
-    kernunos( QWidget *parent=0 );
+    kernunos( QWidget *parent=nullptr );
     ~kernunos();
 
     QVector3D getArcBallVector(int x, int y);
+
+  public slots:
+
+  signals:
 
   protected:
     void initializeGL(void);
