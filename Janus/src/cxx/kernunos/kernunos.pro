@@ -23,9 +23,7 @@ DISTFILES += \
     CMakeLists.txt \
     CMakeLists.txt.user \
     kernunos.pro.user \
-    kernunos_en_US.ts \
-    uvtemplate.DDS \
-    uvtemplate.bmp
+    kernunos_en_US.ts
 
 FORMS += \
     mainwindow.ui

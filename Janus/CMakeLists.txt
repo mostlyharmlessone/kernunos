@@ -194,17 +194,9 @@ endif(WIN32)
 #   C++ source
 #   qt 
 #   needs glsl files and png file in exec directory
-    add_executable(qt-example src/cxx/qt/main.cpp src/cxx/qt/qt1/badprogOpenGLWindow.cpp src/cxx/qt/qt1/badprogDisplay.cpp ${UI_HEADERS})
-    target_link_libraries(qt-example Qt5::Core Qt5::OpenGL Qt5::Gui ${OPENGL_LIBRARIES})
 
-    add_executable(qt-example2 src/cxx/qt/qt2/main.cpp src/cxx/qt/qt2/BadprogMixQtOpenGL.cpp src/cxx/qt/qt2/BadprogWidget.cpp ${UI_HEADERS})
-    target_link_libraries(qt-example2 Qt5::Core Qt5::OpenGL Qt5::Gui ${OPENGL_LIBRARIES})
-
-    add_executable(qt-example3 src/cxx/qt/qt3/main.cpp src/cxx/qt/qt3/window.cpp src/cxx/qt/qt3/camera3d.cpp src/cxx/qt/qt3/input.cpp src/cxx/qt/qt3/transform3d.cpp ${UI_HEADERS})
-    target_link_libraries(qt-example3 Qt5::Core Qt5::OpenGL Qt5::Gui ${OPENGL_LIBRARIES})
-
-    add_executable(qt-example4 src/cxx/qt/qt4/badprogMainWindow.cpp src/cxx/qt/qt4/badprogOpenGLWidget.cpp src/cxx/qt/qt4/camera3d.cpp src/cxx/qt/qt4/input.cpp src/cxx/qt/qt4/main.cpp src/cxx/qt/transform3d.cpp ${UI_HEADERS})
-    target_link_libraries(qt-example4 Qt5::Core Qt5::OpenGL Qt5::Gui ${OPENGL_LIBRARIES})
+#    add_executable(qt-example4 src/cxx/qt/qt4/badprogMainWindow.cpp src/cxx/qt/qt4/badprogOpenGLWidget.cpp src/cxx/qt/qt4/camera3d.cpp src/cxx/qt/qt4/input.cpp src/cxx/qt/qt4/main.cpp src/cxx/qt/transform3d.cpp ${UI_HEADERS})
+#    target_link_libraries(qt-example4 Qt5::Core Qt5::OpenGL Qt5::Gui ${OPENGL_LIBRARIES})
 
 #   Fortran Source
     file(GLOB_RECURSE lib_sources90  src/lib90 *.f90 *.for)
@@ -213,18 +205,16 @@ endif(WIN32)
     add_library( modules ${mod_sources90})
     add_library( splia ${lib_sources90})
 
-    set(LIBS ${wxWidgets_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} glfw)
-    
-#   Qt6::Core Qt6::OpenGLWidgets Qt6::Gui Qt6::OpenGL
+    set(LIBS  ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES})
+
+    add_executable(kernunos src/cxx/kernunos/kernunos.cpp src/cxx/kernunos/main.cpp src/cxx/kernunos/mainwindow.cpp src/lib90/janus.f90)  
+    target_link_libraries(kernunos PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${LIBS} Qt6::Core Qt6::OpenGLWidgets Qt6::Gui Qt6::OpenGL)
     
     add_executable(${PROJECT_NAME} src/cxx/Jupiter.cpp src/lib90/janus.f90 src/cxx/opengl_show.cpp src/cxx/mathstuff.cpp )
     add_executable(juno src/lib90/juno.f90 src/lib90/janus.f90 src/cxx/opengl_show.cpp)
 
-#    add_executable(pyramid src/cxx/pyramid/pyramid.cpp src/cxx/pyramid/oglstuff.cpp src/cxx/pyramid/mathstuff.cpp)
-#    target_link_libraries(pyramid ${wxWidgets_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES})
-
-    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${LIBS})
-    target_link_libraries(juno PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${LIBS})
+    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${wxWidgets_LIBRARIES} ${LIBS} glfw)
+    target_link_libraries(juno PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${LIBS} glfw)
         
     
 

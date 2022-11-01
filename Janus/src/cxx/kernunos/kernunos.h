@@ -1,6 +1,22 @@
 #ifndef KERNUNOS_H
 #define KERNUNOS_H
 
+#include <cmath>
+#include <QtMath>
+
+// Include standard headers
+#include <QtWidgets>
+#include <QApplication>
+#include <QMouseEvent>
+#include <QOpenGLShaderProgram>
+#include <QCoreApplication>
+#include <math.h>
+#include <stdio.h>
+#include <chrono>
+#include <iostream>
+#include <future>
+#include <thread>
+#include <memory>
 #include <QMainWindow>
 #include <QOpenGLWidget>
 #include <QOpenGLShaderProgram>
@@ -14,6 +30,7 @@
 
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
+
 
 QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)
 
@@ -57,9 +74,11 @@ class kernunos : public QOpenGLWidget, protected QOpenGLFunctions
     QOpenGLTexture* mTexture;
     GLuint MatrixID;
     GLuint vertexPosition_modelspaceID;
-    GLuint vertexUVID;
+ //   GLuint vertexUVID;
+    GLuint arraybuffer;
+    GLuint elementbuffer;
     GLuint vertexbuffer;
-    GLuint uvbuffer;
+//    GLuint uvbuffer;
 
     int mWidth;
     int mHeight;
