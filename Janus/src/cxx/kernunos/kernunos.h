@@ -27,7 +27,6 @@
 #include <QVector3D>
 #include <QMatrix4x4>
 #include <QPointF>
-
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
 
@@ -40,9 +39,10 @@ class kernunos : public QOpenGLWidget, protected QOpenGLFunctions
 
   public:
     kernunos( QWidget *parent=nullptr );
-    ~kernunos();
 
+    ~kernunos();
     QVector3D getArcBallVector(int x, int y);
+    void LoadData(int nV, int nE, GLfloat* vertices, GLuint* elements);
 
   public slots:
 
@@ -71,14 +71,15 @@ class kernunos : public QOpenGLWidget, protected QOpenGLFunctions
 
     QVector3D cameraPos;
     QVector3D mPosition;
-    QOpenGLTexture* mTexture;
     GLuint MatrixID;
-    GLuint vertexPosition_modelspaceID;
- //   GLuint vertexUVID;
     GLuint arraybuffer;
     GLuint elementbuffer;
     GLuint vertexbuffer;
-//    GLuint uvbuffer;
+
+    int nV=34560;
+    int nE=26130;
+    GLfloat* vertices;
+    GLuint* elements;
 
     int mWidth;
     int mHeight;
@@ -89,7 +90,6 @@ class kernunos : public QOpenGLWidget, protected QOpenGLFunctions
     bool rotate;
     bool useArcBall;
 };
-
 
 
 #endif // KERNUNOS_H

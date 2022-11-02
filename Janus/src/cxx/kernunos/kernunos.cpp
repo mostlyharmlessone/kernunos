@@ -2,68 +2,6 @@
 
 #include "kernunos.h"
 
-// need to allocate real values here; can't wait for file read
-int flag=0;
-int nV=34560;
-int nE=26130;
-std::vector<GLuint> Elements(nE);
-std::vector<GLfloat> Vertices(nV);
-GLfloat* vertices = Vertices.data();
-GLuint* elements = Elements.data();
-
-kernunos::kernunos( QWidget *parent ) : QOpenGLWidget(parent)
-{
-  cameraPos = QVector3D(0, 0, 6);
-
-
-  // https://www.modernescpp.com/index.php/asynchronous-callable-wrappers
-  static const unsigned int hwGuess= 4;
-  //  these could come in handy later for available number of threads/cores for asynchronous tasks
-      unsigned int hw = std::thread::hardware_concurrency();
-      unsigned int hwConcurr= (hw != 0)? hw : hwGuess;
-      std::cout << "Cores found by Jupiter: " << hwConcurr << std::endl;
-}
-
-kernunos::~kernunos()
-{
-  // Cleanup VBO and shader
-  makeCurrent();
-  glDeleteBuffers(1, &vertexbuffer);
-  glDeleteBuffers(1, &arraybuffer);
-  glDeleteBuffers(1,&elementbuffer);
-  glDeleteProgram(programID);
-}
-
-/*
-    GLfloat vertices[] = {
-        -0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f,  // Top-left & Red (x,y,z,r,g,b)
-        0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f,  // Top-right & Green
-        0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 1.0f,  // Bottom-right & Blue
-       -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f,   // Bottom-left & White
-        -0.5f,  0.5f, 0.5f, 1.0f, 1.0f, 0.0f,  // Top-left & Orange? (x,y,z,r,g,b)
-        0.5f,  0.5f, 0.5f, 0.0f, 1.0f, 1.0f,  // Top-right & Yellow?
-        0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 1.0f,  // Bottom-right & Pink?
-       -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f   // Bottom-left & Black
-    };
-    int nV = 48;
-
-    GLuint elements[] = {  // 12 triangles = 6 faces with triangles per face
-        0, 1, 2,
-        2, 3, 0,
-        4, 5, 6,
-        6, 7, 4,
-        0, 4, 5,
-        5, 1, 0,
-        3, 7, 6,
-        6, 2, 3,
-        0, 4, 7,
-        7, 3, 0,
-        1, 5, 6,
-        6, 2, 1
-    };
-    int nE = 36;
-*/
-
 static const GLchar* vertexSource = R"glsl(
 #version 400 core
 layout (location = 0) in vec3 position;   // the position variable has attribute position 0
@@ -91,7 +29,29 @@ void main()
 }
 )glsl";
 
+kernunos::kernunos ( QWidget *parent ) : QOpenGLWidget(parent)
 
+{
+  setFocusPolicy(Qt::StrongFocus);
+  cameraPos = QVector3D(0, 0, 6);
+
+  // https://www.modernescpp.com/index.php/asynchronous-callable-wrappers
+  static const unsigned int hwGuess= 4;
+  //  these could come in handy later for available number of threads/cores for asynchronous tasks
+      unsigned int hw = std::thread::hardware_concurrency();
+      unsigned int hwConcurr= (hw != 0)? hw : hwGuess;
+      std::cout << "Cores found by Jupiter: " << hwConcurr << std::endl;
+}
+
+
+kernunos::~kernunos()
+{
+  // cleanup
+  makeCurrent();
+  glDeleteBuffers(1, &vertexbuffer);
+  glDeleteBuffers(1,&elementbuffer);
+  glDeleteProgram(programID);
+}
 
 void kernunos::initializeGL()
 {
@@ -138,61 +98,46 @@ void kernunos::initializeGL()
   MatrixID = glGetUniformLocation(programID, "mMVP");
   glBindAttribLocation(programID, 0, "fragColor");
 
-  glGenBuffers(1, &arraybuffer);
-  glBindBuffer(GL_ARRAY_BUFFER, arraybuffer);
-
-  // Create a Vertex Buffer Object and copy the vertex data to it
-  glGenBuffers(1, &vertexbuffer);  //generate 1 buffer
-
-  glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-  GLint data_size_in_bytes = sizeof(GLfloat)*nV;                              // 4-bytes per float x number of vertices
-  glBufferData(GL_ARRAY_BUFFER, data_size_in_bytes, vertices, GL_STATIC_DRAW);
-
-  GLint size = 0;
-  glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-   if(data_size_in_bytes != size)
-    {
-     glDeleteBuffers(1, &vertexbuffer);
-     std::cout << "Error in vertices buffer: " << data_size_in_bytes << ", " << size << std::endl;
-     return;
-    }
-
-  // Create an element array
-   glGenBuffers(1, &elementbuffer);
-   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-   data_size_in_bytes = sizeof(GLuint)*nE;                // 4-bytes per int x number of elements
-   glBufferData(GL_ELEMENT_ARRAY_BUFFER, data_size_in_bytes, elements, GL_STATIC_DRAW);
-
-   size = 0;
-   glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-    if(data_size_in_bytes != size)
-      {
-       glDeleteBuffers(1, &elementbuffer);
-       std::cout << "Error in element buffer: " << data_size_in_bytes << ", " << size << std::endl;
-       return;
-      }
-
-   // Unbind
-   glBindBuffer(GL_ARRAY_BUFFER, 0);
-   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
 }
 
-void kernunos::paintGL(void)
+void kernunos::LoadData(int nV, int nE, GLfloat* vertices, GLuint* elements)
+
 {
-    // Clear the screen
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      std::vector<GLuint> Elements(nE);
+      std::vector<GLfloat> Vertices(nV);
+      vertices = Vertices.data();
+      elements = Elements.data();
 
-    // Use our shader
-    glUseProgram(programID);
+      // Create a Vertex Buffer Object and copy the vertex data to it
+      glGenBuffers(1, &vertexbuffer);  //generate 1 buffer
 
-    // Send our transformation to the currently bound shader,
-    // in the "MVP" uniform
-    QMatrix4x4 MVP = mProjectionMatrix * mViewMatrix * mModelMatrix * mRotate;
-    glUniformMatrix4fv(MatrixID, 1, GL_FALSE, MVP.data());
+      glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+      GLint data_size_in_bytes = sizeof(GLfloat)*nV;                              // 4-bytes per float x number of vertices
+      glBufferData(GL_ARRAY_BUFFER, data_size_in_bytes, vertices, GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+      GLint size = 0;
+      glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+       if(data_size_in_bytes != size)
+        {
+         glDeleteBuffers(1, &vertexbuffer);
+         std::cout << "Error in vertices buffer: " << data_size_in_bytes << ", " << size << std::endl;
+         return;
+        }
+
+      // Create an element array
+       glGenBuffers(1, &elementbuffer);
+       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+       data_size_in_bytes = sizeof(GLuint)*nE;                // 4-bytes per int x number of elements
+       glBufferData(GL_ELEMENT_ARRAY_BUFFER, data_size_in_bytes, elements, GL_STATIC_DRAW);
+
+       size = 0;
+       glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+        if(data_size_in_bytes != size)
+          {
+           glDeleteBuffers(1, &elementbuffer);
+           std::cout << "Error in element buffer: " << data_size_in_bytes << ", " << size << std::endl;
+           return;
+          }
 
     GLint posAttrib = glGetAttribLocation(programID, "position");
     glEnableVertexAttribArray(posAttrib);
@@ -203,14 +148,33 @@ void kernunos::paintGL(void)
     glEnableVertexAttribArray(colAttrib);
     glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
                                                            // offset 3 because colors start after 3 positions
+}
+
+
+void kernunos::paintGL(void)
+{
+    // Clear the screen
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Use our shader
+    glUseProgram(programID);
+    std::cout<< nE << std::endl;
+    LoadData(nV, nE, vertices, elements);
+
+ // Bind
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+
+    // Send our transformation to the currently bound shader,
+    // in the "MVP" uniform
+    QMatrix4x4 MVP = mProjectionMatrix * mViewMatrix * mModelMatrix * mRotate;
+    glUniformMatrix4fv(MatrixID, 1, GL_FALSE, MVP.data());
 
     glDrawElements(GL_TRIANGLES, nE, GL_UNSIGNED_INT, 0);
 
-   // Unbind
-
     // Unbind
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindBuffer(vertexbuffer,0);
+    glBindBuffer(elementbuffer,0);
 
 }
 
@@ -264,17 +228,35 @@ void kernunos::keyPressEvent(QKeyEvent *e)
   e->accept();  // Don't pass any key events to parent
 }
 
-void kernunos::wheelEvent(QWheelEvent * event)
+void kernunos::wheelEvent(QWheelEvent *e)
 {
-#if 0
-  m_distExp += event->delta();
-  if (m_distExp < -8 * 120)
-    m_distExp = -8 * 120;
-  if (m_distExp > 10 * 120)
-    m_distExp = 10 * 120;
-  event->accept();
-#endif
+    QPoint numPixels = e->pixelDelta();
+    QPoint numDegrees = e->angleDelta() / 8;
+
+    if (!numPixels.isNull()) {
+        if(rotate)
+          {
+           newX = e->position().toPoint().x();
+           newY = numPixels.y();
+           updateMouse();
+          }
+           oldX = e->position().toPoint().x();
+           oldY = numPixels.y();
+
+    } else if (!numDegrees.isNull()) {
+        QPoint numSteps = numDegrees / 15;
+        if(rotate)
+          {
+           newX = e->position().toPoint().x();
+           newY = numSteps.y();
+           updateMouse();
+          }
+           oldX = e->position().toPoint().x();
+           oldY = numSteps.y();
+    }
+    e->accept();
 }
+
 
 void kernunos::mousePressEvent(QMouseEvent *e)
 {

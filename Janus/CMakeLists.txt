@@ -205,16 +205,16 @@ endif(WIN32)
     add_library( modules ${mod_sources90})
     add_library( splia ${lib_sources90})
 
-    set(LIBS  ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES})
+    set(LIBS ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} glfw)
 
-    add_executable(kernunos src/cxx/kernunos/kernunos.cpp src/cxx/kernunos/main.cpp src/cxx/kernunos/mainwindow.cpp src/lib90/janus.f90)  
-    target_link_libraries(kernunos PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${LIBS} Qt6::Core Qt6::OpenGLWidgets Qt6::Gui Qt6::OpenGL)
+    add_executable(kernunos src/cxx/kernunos/kernunos.cpp src/cxx/kernunos/main.cpp src/cxx/kernunos/mainwindow.cpp src/lib90/janus.f90 src/cxx/opengl_show.cpp)  
+    target_link_libraries(kernunos PRIVATE OpenMP::OpenMP_CXX PUBLIC Qt6::Core Qt6::OpenGLWidgets Qt6::Gui Qt6::OpenGL splia modules rply_includes ${LIBS})
     
     add_executable(${PROJECT_NAME} src/cxx/Jupiter.cpp src/lib90/janus.f90 src/cxx/opengl_show.cpp src/cxx/mathstuff.cpp )
     add_executable(juno src/lib90/juno.f90 src/lib90/janus.f90 src/cxx/opengl_show.cpp)
 
-    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${wxWidgets_LIBRARIES} ${LIBS} glfw)
-    target_link_libraries(juno PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${LIBS} glfw)
+    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${wxWidgets_LIBRARIES} ${LIBS})
+    target_link_libraries(juno PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${LIBS})
         
     
 
