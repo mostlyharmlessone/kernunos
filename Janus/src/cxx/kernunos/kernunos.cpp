@@ -103,12 +103,8 @@ void kernunos::initializeGL()
 void kernunos::LoadData(int nV, int nE, GLfloat* vertices, GLuint* elements)
 
 {
-      std::vector<GLuint> Elements(nE);
-      std::vector<GLfloat> Vertices(nV);
-      vertices = Vertices.data();
-      elements = Elements.data();
 
-      // Create a Vertex Buffer Object and copy the vertex data to it
+    // Create a Vertex Buffer Object and copy the vertex data to it
       glGenBuffers(1, &vertexbuffer);  //generate 1 buffer
 
       glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
@@ -159,7 +155,37 @@ void kernunos::paintGL(void)
     // Use our shader
     glUseProgram(programID);
     std::cout<< nE << std::endl;
-    LoadData(nV, nE, vertices, elements);
+
+
+    GLfloat vertices[] = {
+                  -0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f,  // Top-left & Red (x,y,z,r,g,b)
+                  0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f,  // Top-right & Green
+                  0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 1.0f,  // Bottom-right & Blue
+                 -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f,   // Bottom-left & White
+                  -0.5f,  0.5f, 0.5f, 1.0f, 1.0f, 0.0f,  // Top-left & Orange? (x,y,z,r,g,b)
+                  0.5f,  0.5f, 0.5f, 0.0f, 1.0f, 1.0f,  // Top-right & Yellow?
+                  0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 1.0f,  // Bottom-right & Pink?
+                 -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f   // Bottom-left & Black
+              };
+        nV = 48;
+
+        GLuint elements[] = {  // 12 triangles = 6 faces with triangles per face
+                  0, 1, 2,
+                  2, 3, 0,
+                  4, 5, 6,
+                  6, 7, 4,
+                  0, 4, 5,
+                  5, 1, 0,
+                  3, 7, 6,
+                  6, 2, 3,
+                  0, 4, 7,
+                  7, 3, 0,
+                  1, 5, 6,
+                  6, 2, 1
+              };
+        nE = 36;
+
+   LoadData(nV, nE, vertices, elements);
 
  // Bind
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
@@ -231,32 +257,17 @@ void kernunos::keyPressEvent(QKeyEvent *e)
 void kernunos::wheelEvent(QWheelEvent *e)
 {
     QPoint numPixels = e->pixelDelta();
-    QPoint numDegrees = e->angleDelta() / 8;
 
-    if (!numPixels.isNull()) {
-        if(rotate)
-          {
-           newX = e->position().toPoint().x();
-           newY = numPixels.y();
-           updateMouse();
-          }
-           oldX = e->position().toPoint().x();
-           oldY = numPixels.y();
-
-    } else if (!numDegrees.isNull()) {
-        QPoint numSteps = numDegrees / 15;
-        if(rotate)
-          {
-           newX = e->position().toPoint().x();
-           newY = numSteps.y();
-           updateMouse();
-          }
-           oldX = e->position().toPoint().x();
-           oldY = numSteps.y();
-    }
+         if (numPixels.y() > 0) {
+         mViewMatrix.translate(QVector3D(0,0,-0.1));
+         update();
+         }
+         else {
+         mViewMatrix.translate(QVector3D(0,0,0.1));
+         update();
+         }
     e->accept();
 }
-
 
 void kernunos::mousePressEvent(QMouseEvent *e)
 {
