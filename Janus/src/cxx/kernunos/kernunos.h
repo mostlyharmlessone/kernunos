@@ -30,7 +30,6 @@
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
 
-
 QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)
 
 class kernunos : public QOpenGLWidget, protected QOpenGLFunctions
@@ -63,7 +62,7 @@ class kernunos : public QOpenGLWidget, protected QOpenGLFunctions
 
 
   private:
-
+ //   MainWindow*  m_parent;
     QOpenGLShaderProgram shaderProgram;
     GLuint programID;
     QMatrix4x4 mModelMatrix;

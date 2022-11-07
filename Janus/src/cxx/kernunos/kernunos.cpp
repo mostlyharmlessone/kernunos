@@ -62,6 +62,18 @@ void kernunos::initializeGL()
   // initialize OpenGL
   initializeOpenGLFunctions();
 
+  // Get the GL version
+  QString sglVer = "\nUsing OpenGL version: ";
+  const GLubyte* GLversion = glGetString(GL_VERSION);
+  const GLubyte* GLvendor =glGetString(GL_VENDOR);
+  const GLubyte* GLrenderer =glGetString(GL_RENDERER);
+  sglVer += reinterpret_cast<const char *>(GLversion);
+  sglVer += "\nVendor: ";
+  sglVer += reinterpret_cast<const char *>(GLvendor);
+  sglVer += "\nRenderer: ";
+  sglVer += reinterpret_cast<const char *>(GLrenderer);
+  //m_parent->SetGLString(sglVer);
+
   glClearColor(0.2f, 0.3f, 0.3f, 0.0f);
 
   // Enable depth test
@@ -99,6 +111,7 @@ void kernunos::initializeGL()
 
   MatrixID = glGetUniformLocation(programID, "mMVP");
   glBindAttribLocation(programID, 0, "fragColor");
+
 
 }
 
@@ -148,8 +161,8 @@ bool kernunos::DataLoad(QString fileName)
         nE = 36;
 
     LoadSurfaceToBuffer(nV, nE, vertices, elements);
-
     return true;
+
 }
 
 void kernunos::LoadSurfaceToBuffer(int nV, int nE, GLfloat* vertices, GLuint* elements)
