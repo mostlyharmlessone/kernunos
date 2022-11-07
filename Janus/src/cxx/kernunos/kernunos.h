@@ -42,7 +42,8 @@ class kernunos : public QOpenGLWidget, protected QOpenGLFunctions
 
     ~kernunos();
     QVector3D getArcBallVector(int x, int y);
-    void LoadData(int nV, int nE, GLfloat* vertices, GLuint* elements);
+    bool DataLoad(QString fileName);
+    void LoadSurfaceToBuffer(int nV, int nE, GLfloat* vertices, GLuint* elements);
 
   public slots:
 
@@ -59,6 +60,7 @@ class kernunos : public QOpenGLWidget, protected QOpenGLFunctions
     void wheelEvent(QWheelEvent *e);
     void timerEvent(QTimerEvent*);
     void updateMouse();
+
 
   private:
 
@@ -87,6 +89,7 @@ class kernunos : public QOpenGLWidget, protected QOpenGLFunctions
     int oldX, oldY;
     int newX, newY;
 
+    bool success;
     bool rotate;
     bool useArcBall;
 };

@@ -29,6 +29,10 @@ void main()
 }
 )glsl";
 
+extern "C" {
+void janus_(int *flag, const char *filename, GLuint *elements, GLfloat *vertices, int *nV, int *nE); // still needs an underscore despite c_interface.f90 bind C declaration
+};
+
 kernunos::kernunos ( QWidget *parent ) : QOpenGLWidget(parent)
 
 {
@@ -66,8 +70,6 @@ void kernunos::initializeGL()
   // Accept fragment if it closer to the camera than the former one
   glDepthFunc(GL_LESS);
 
-  bool success;
-
   // load and compile vertex shader
   success = shaderProgram.addShaderFromSourceCode(QOpenGLShader::Vertex,vertexSource);
   if (success) std::cout << "compiled vertex" << std::endl;
@@ -100,10 +102,58 @@ void kernunos::initializeGL()
 
 }
 
-void kernunos::LoadData(int nV, int nE, GLfloat* vertices, GLuint* elements)
-
+bool kernunos::DataLoad(QString fileName)
 {
 
+        //    auto future1 = std::async([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);});
+        //      future1.get();
+/*        int flag=0;
+        nV=34560;
+        nE=26130;
+        std::vector<GLuint> Elements(nE);
+        std::vector<GLfloat> Vertices(nV);
+        GLfloat* vertices = Vertices.data();
+        GLuint* elements = Elements.data();
+        QByteArray ba = fileName.toLocal8Bit();
+        const char *filename = ba.data();
+
+    janus_(&flag, filename, elements, vertices, &nV, &nE);
+ */
+    GLfloat vertices[] = {
+                  -0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f,  // Top-left & Red (x,y,z,r,g,b)
+                  0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f,  // Top-right & Green
+                  0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 1.0f,  // Bottom-right & Blue
+                 -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f,   // Bottom-left & White
+                  -0.5f,  0.5f, 0.5f, 1.0f, 1.0f, 0.0f,  // Top-left & Orange? (x,y,z,r,g,b)
+                  0.5f,  0.5f, 0.5f, 0.0f, 1.0f, 1.0f,  // Top-right & Yellow?
+                  0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 1.0f,  // Bottom-right & Pink?
+                 -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f   // Bottom-left & Black
+              };
+        nV = 48;
+
+        GLuint elements[] = {  // 12 triangles = 6 faces with triangles per face
+                  0, 1, 2,
+                  2, 3, 0,
+                  4, 5, 6,
+                  6, 7, 4,
+                  0, 4, 5,
+                  5, 1, 0,
+                  3, 7, 6,
+                  6, 2, 3,
+                  0, 4, 7,
+                  7, 3, 0,
+                  1, 5, 6,
+                  6, 2, 1
+              };
+        nE = 36;
+
+    LoadSurfaceToBuffer(nV, nE, vertices, elements);
+
+    return true;
+}
+
+void kernunos::LoadSurfaceToBuffer(int nV, int nE, GLfloat* vertices, GLuint* elements)
+{
     // Create a Vertex Buffer Object and copy the vertex data to it
       glGenBuffers(1, &vertexbuffer);  //generate 1 buffer
 
@@ -149,43 +199,20 @@ void kernunos::LoadData(int nV, int nE, GLfloat* vertices, GLuint* elements)
 
 void kernunos::paintGL(void)
 {
+    if ( !success )
+        return;
+
     // Clear the screen
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Use our shader
     glUseProgram(programID);
-    std::cout<< nE << std::endl;
 
-
-    GLfloat vertices[] = {
-                  -0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f,  // Top-left & Red (x,y,z,r,g,b)
-                  0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f,  // Top-right & Green
-                  0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 1.0f,  // Bottom-right & Blue
-                 -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f,   // Bottom-left & White
-                  -0.5f,  0.5f, 0.5f, 1.0f, 1.0f, 0.0f,  // Top-left & Orange? (x,y,z,r,g,b)
-                  0.5f,  0.5f, 0.5f, 0.0f, 1.0f, 1.0f,  // Top-right & Yellow?
-                  0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 1.0f,  // Bottom-right & Pink?
-                 -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f   // Bottom-left & Black
-              };
-        nV = 48;
-
-        GLuint elements[] = {  // 12 triangles = 6 faces with triangles per face
-                  0, 1, 2,
-                  2, 3, 0,
-                  4, 5, 6,
-                  6, 7, 4,
-                  0, 4, 5,
-                  5, 1, 0,
-                  3, 7, 6,
-                  6, 2, 3,
-                  0, 4, 7,
-                  7, 3, 0,
-                  1, 5, 6,
-                  6, 2, 1
-              };
-        nE = 36;
-
-   LoadData(nV, nE, vertices, elements);
+    QString fileName;
+//    if (!DataLoad(fileName))
+//    {
+        DataLoad(fileName);
+//    }
 
  // Bind
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);

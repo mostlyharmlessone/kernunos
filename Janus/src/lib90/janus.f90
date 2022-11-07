@@ -226,7 +226,7 @@ file_idx=index(inputfile1, ".DAT")
    call WriteCenter(RadSlope,'Center.dat')! biggest deviation with nSplineCenter zero slope forced at origin, 
                                              ! then with zero slope forced at average (r(low)+r(high))/2.0
                                              ! smallest deviation without nSplineCenter; view with set polar; plot 'Center.dat' with lines
-   call execute_command_line ("gnuplot -p plotcenter.gnu &", exitstat=i)
+!   call execute_command_line ("gnuplot -p plotcenter.gnu &", exitstat=i)
    call SplineEval1Dx1D(1,JMatrix%R0,JMatrix%THT0,JMatrix%Z0(1))  !center value of elevation; needs integration from slopes
    !could also do all the deviations' elevations or powers eg
 !   do j=1,MM
@@ -264,7 +264,7 @@ file_idx=index(inputfile1, ".DAT")
    DiaSlope%Zpd2 = .n. DiaSlope
    call MakeRadSplineCenter
    call WriteCenter(RadSlope,'Center.dat')
-   call execute_command_line ("gnuplot -p plotcenter.gnu &", exitstat=i)
+!   call execute_command_line ("gnuplot -p plotcenter.gnu &", exitstat=i)
    JMatrix%INSTC0(2)=1E30  ;  JMatrix%INSTC0(3)=-1E30
    JMatrix%INSTC20(2)=1E30 ;  JMatrix%INSTC20(3)=-1E30
    JMatrix%MEANC0(2)=1E30  ;  JMatrix%MEANC0(3)=-1E30
@@ -372,7 +372,7 @@ file_idx=index(inputfile1, ".DAT")
 ! Writes OFF and ASCII PLY files
   call WriteGeom(JMatrix,donut,powmin,powmax,'elevation.off','elevation.ply')
 ! from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY MIT licence, included source in tree
-  call execute_command_line ("./ConvertPLYtoBIN -l elevation.ply elevation.bin.ply",exitstat=i)
+! call execute_command_line ("./ConvertPLYtoBIN -l elevation.ply elevation.bin.ply",exitstat=i)
 ! only call if quad .eqv. .FALSE.
 ! Writes STL from OFF
   call ConvertOFFtoSTL('elevation.off','elevation.stl','elevation.bin.stl')
@@ -475,7 +475,7 @@ file_idx=index(inputfile1, ".DAT")
    CALL PRINTGRAPH(unitno1,POWMIN2,POWMAX2,BigGrainyPlot)
    CLOSE (unitno1)
 
-  call execute_command_line ("gnuplot -p plot2.gnu &", exitstat=i)
+!  call execute_command_line ("gnuplot -p plot2.gnu &", exitstat=i)
 
   RadSlope=0
   DiaSlope=0
