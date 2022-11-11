@@ -72,7 +72,7 @@ void kernunos::initializeGL()
   sglVer += reinterpret_cast<const char *>(GLvendor);
   sglVer += "\nRenderer: ";
   sglVer += reinterpret_cast<const char *>(GLrenderer);
-  //m_parent->SetGLString(sglVer);
+  m_parent->SetGLString(sglVer);
 
   glClearColor(0.2f, 0.3f, 0.3f, 0.0f);
 
