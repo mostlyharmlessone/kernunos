@@ -2,6 +2,10 @@
 
 #include "kernunos.h"
 
+// settings
+const unsigned int SCR_WIDTH = 800;
+const unsigned int SCR_HEIGHT = 600;
+
 static const GLchar* vertexSource = R"glsl(
 #version 400 core
 layout (location = 0) in vec3 position;   // the position variable has attribute position 0
@@ -32,6 +36,8 @@ void main()
 extern "C" {
 void janus_(int *flag, const char *filename, GLuint *elements, GLfloat *vertices, int *nV, int *nE); // still needs an underscore despite c_interface.f90 bind C declaration
 };
+
+
 
 kernunos::kernunos ( QWidget *parent ) : QOpenGLWidget(parent)
 
@@ -209,7 +215,6 @@ void kernunos::LoadSurfaceToBuffer(int nV, int nE, GLfloat* vertices, GLuint* el
                                                            // offset 3 because colors start after 3 positions
 }
 
-
 void kernunos::paintGL(void)
 {
     if ( !success )
@@ -364,7 +369,6 @@ void kernunos::updateMouse()
   update();
 }
 
-
 QVector3D kernunos::getArcBallVector(int x, int y)
 {
    QVector3D pt = QVector3D(2.0 * x / mWidth - 1.0, 2.0 * y / mHeight  - 1.0 , 0);
@@ -377,10 +381,209 @@ QVector3D kernunos::getArcBallVector(int x, int y)
        pt.setZ(std::sqrt(1.0 - xySquared));
    else
        pt.normalize();
-
    return pt;
+}
+
+MainWindow::MainWindow()
+{
+    QWidget *widget = new QWidget;
+    setCentralWidget(widget);
+
+    QOpenGLWidget *topFiller = new kernunos(this);
+    topFiller->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    infoLabel = new QLabel(tr("<i>Welcome! Please Open a file.</i>"));
+    infoLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
+    infoLabel->setAlignment(Qt::AlignCenter);
+
+//    QWidget *bottomFiller = new QWidget;
+//    bottomFiller->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    QVBoxLayout *layout = new QVBoxLayout;
+ //   layout->setContentsMargins(5, 5, 5, 5);
+    layout->addWidget((topFiller));
+    layout->addWidget(infoLabel);
+//    layout->addWidget(bottomFiller);
+    widget->setLayout(layout);
+
+    createActions();
+    createMenus();
+
+    setWindowTitle(tr("Kernunos"));
+    setMinimumSize(400, 400);
+    resize(SCR_WIDTH, SCR_HEIGHT);
+}
+
+void MainWindow::open()
+{
+    infoLabel->setText(tr("Invoked <b>File|Open</b>"));
+    QString fileName
+        = QFileDialog::getOpenFileName(this, tr("Load a file"));
+    if (fileName.isEmpty())
+        return;
+    QByteArray ba = fileName.toLocal8Bit();
+    const char *filename = ba.data();
+    std::cout << "filename in C++ " << filename << std::endl;
+    if (!fileName.isEmpty())
+    {
+/*    auto future1 = std::async([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);});
+      future1.get();
+      int nV=34560;
+      int nE=26130;
+      std::vector<GLuint> Elements(nE);
+      std::vector<GLfloat> Vertices(nV);
+      GLfloat* vertices = Vertices.data();
+      GLuint* elements = Elements.data();
+      janus_(&flag, filename, elements, vertices, &nV, &nE);
+*/
+      m_kernunos->DataLoad(fileName);
+     }
+
+    else {
+/*        GLfloat vertices[] = {
+                      -0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f,  // Top-left & Red (x,y,z,r,g,b)
+                      0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f,  // Top-right & Green
+                      0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 1.0f,  // Bottom-right & Blue
+                     -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f,   // Bottom-left & White
+                      -0.5f,  0.5f, 0.5f, 1.0f, 1.0f, 0.0f,  // Top-left & Orange? (x,y,z,r,g,b)
+                      0.5f,  0.5f, 0.5f, 0.0f, 1.0f, 1.0f,  // Top-right & Yellow?
+                      0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 1.0f,  // Bottom-right & Pink?
+                     -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f   // Bottom-left & Black
+                  };
+            int nV = 48;
+
+            GLuint elements[] = {  // 12 triangles = 6 faces with triangles per face
+                      0, 1, 2,
+                      2, 3, 0,
+                      4, 5, 6,
+                      6, 7, 4,
+                      0, 4, 5,
+                      5, 1, 0,
+                      3, 7, 6,
+                      6, 2, 3,
+                      0, 4, 7,
+                      7, 3, 0,
+                      1, 5, 6,
+                      6, 2, 1
+                  };
+            int nE = 36; */
+        }
+}
+
+
+void MainWindow::save()
+{
+    infoLabel->setText(tr("Invoked <b>File|Save</b>"));
+}
+
+void MainWindow::print()
+{
+    infoLabel->setText(tr("Invoked <b>File|Print</b>"));
+}
+
+void MainWindow::about()
+{
+    infoLabel->setText(tr("Invoked <b>Help|About</b>"));
+    QByteArray gla = m_GLString.toLocal8Bit();
+    const char *glstring = gla.data();
+    std::cout << glstring << std::endl;
+    QMessageBox::about(this, tr("About Menu"),
+            tr("The <b>Menu</b> example shows how to create "
+               "menu-bar menus and context menus.\n",glstring));
+
+}
+
+void MainWindow::aboutQt()
+{
+    infoLabel->setText(tr("Invoked <b>Help|About Qt</b>"));
+}
+
+
+void MainWindow::createActions()
+{
+
+    openAct = new QAction(tr("&Open..."), this);
+    openAct->setShortcuts(QKeySequence::Open);
+    openAct->setStatusTip(tr("Open an existing file"));
+    connect(openAct, &QAction::triggered, this, &MainWindow::open);
+
+    saveAct = new QAction(tr("&Save"), this);
+    saveAct->setShortcuts(QKeySequence::Save);
+    saveAct->setStatusTip(tr("Save the document to disk"));
+    connect(saveAct, &QAction::triggered, this, &MainWindow::save);
+
+    printAct = new QAction(tr("&Print..."), this);
+    printAct->setShortcuts(QKeySequence::Print);
+    printAct->setStatusTip(tr("Print the document"));
+    connect(printAct, &QAction::triggered, this, &MainWindow::print);
+
+    exitAct = new QAction(tr("E&xit"), this);
+    exitAct->setShortcuts(QKeySequence::Quit);
+    exitAct->setStatusTip(tr("Exit the application"));
+    connect(exitAct, &QAction::triggered, this, &QWidget::close);
+
+    aboutAct = new QAction(tr("&About"), this);
+    aboutAct->setStatusTip(tr("Show the application's About box"));
+    connect(aboutAct, &QAction::triggered, this, &MainWindow::about);
+
+    aboutQtAct = new QAction(tr("About &Qt"), this);
+    aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
+    connect(aboutQtAct, &QAction::triggered, qApp, &QApplication::aboutQt);
+    connect(aboutQtAct, &QAction::triggered, this, &MainWindow::aboutQt);
+
+}
+
+void MainWindow::createMenus()
+{
+    fileMenu = menuBar()->addMenu(tr("&File"));
+    fileMenu->addAction(openAct);
+    fileMenu->addAction(saveAct);
+    fileMenu->addAction(printAct);
+    fileMenu->addSeparator();
+    fileMenu->addAction(exitAct);
+    helpMenu = menuBar()->addMenu(tr("&Help"));
+    helpMenu->addAction(aboutAct);
+    helpMenu->addAction(aboutQtAct);
+
 
 }
 
 
+int main(int argc, char *argv[])
+{
+  //  Q_INIT_RESOURCE(kernunos);
+
+    QApplication app(argc, argv);
+    QCoreApplication::setOrganizationName("QtProject");
+    QCoreApplication::setApplicationName("Application Example");
+    QCoreApplication::setApplicationVersion(QT_VERSION_STR);
+    QCommandLineParser parser;
+    parser.setApplicationDescription(QCoreApplication::applicationName());
+    parser.addHelpOption();
+    parser.addVersionOption();
+    parser.addPositionalArgument("file", "The file to open.");
+    parser.process(app);
+
+    QTranslator translator;
+    const QStringList uiLanguages = QLocale::system().uiLanguages();
+    for (const QString &locale : uiLanguages) {
+        const QString baseName = "untitled_" + QLocale(locale).name();
+        if (translator.load(":/i18n/" + baseName)) {
+            app.installTranslator(&translator);
+            break;
+        }
+    }
+
+   MainWindow window;
+//    kernunos window;
+    window.show();
+    return app.exec();
+/*
+    MainWindow mainWin;
+    if (!parser.positionalArguments().isEmpty())
+        mainWin.loadFile(parser.positionalArguments().first());
+    mainWin.show();
+*/
+    return app.exec();
+}
 

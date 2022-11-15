@@ -8,14 +8,11 @@ mac {
 }
 
 SOURCES += \
-    kernunos.cpp \
-    main.cpp \
-    mainwindow.cpp
+    kernunos.cpp
 
 
 HEADERS  += \
-    kernunos.h \
-    mainwindow.h
+    kernunos.h 
 
 RESOURCES += GLShaders.qrc
 

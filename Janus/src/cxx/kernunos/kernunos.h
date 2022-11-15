@@ -30,7 +30,58 @@
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
 
-#include "mainwindow.h"
+#include <QCommandLineParser>
+#include <QCommandLineOption>
+#include <QLocale>
+#include <QTranslator>
+
+#include <qt6/QtCore/qtmetamacros.h>
+
+QT_BEGIN_NAMESPACE
+class QAction;
+class QActionGroup;
+class QLabel;
+class QMenu;
+QT_END_NAMESPACE
+
+
+class kernunos;
+
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    MainWindow();
+    void SetGLString(QString& gls)
+        {QString m_GLString =  gls; }
+
+protected:
+
+private slots:
+    void open();
+    void save();
+    void print();
+    void about();
+    void aboutQt();
+
+private:
+    void createActions();
+    void createMenus();
+
+    QString m_GLString;
+
+    kernunos* m_kernunos;
+    QMenu *fileMenu;
+    QMenu *helpMenu;
+    QAction *openAct;
+    QAction *saveAct;
+    QAction *printAct;
+    QAction *exitAct;
+    QAction *aboutAct;
+    QAction *aboutQtAct;
+    QLabel *infoLabel;
+};
 
 QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)
 

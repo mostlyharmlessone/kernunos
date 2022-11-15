@@ -47,7 +47,7 @@ if(CMAKE_VERSION VERSION_LESS "3.7.0")
 endif()
 
 # set(CMAKE_BUILD_TYPE Release) # no debug or bounds check
-set(CMAKE_BUILD_TYPE Debug) #this include debugging with addition of bounds flags as specified below
+set(CMAKE_BUILD_TYPE DEBUG) #this include debugging with addition of bounds flags as specified below
 set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${bounds}")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${dialect}")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS_RELEASE} ${optimize}")
@@ -207,7 +207,7 @@ endif(WIN32)
 
     set(LIBS ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} glfw)
 
-    add_executable(kernunos src/cxx/kernunos/kernunos.cpp src/cxx/kernunos/main.cpp src/cxx/kernunos/mainwindow.cpp src/lib90/janus.f90 src/cxx/opengl_show.cpp)  
+    add_executable(kernunos src/cxx/kernunos/kernunos.cpp src/lib90/janus.f90 src/cxx/opengl_show.cpp)  
     target_link_libraries(kernunos PRIVATE OpenMP::OpenMP_CXX PUBLIC Qt6::Core Qt6::OpenGLWidgets Qt6::Gui Qt6::OpenGL splia modules rply_includes ${LIBS})
     
     add_executable(${PROJECT_NAME} src/cxx/Jupiter.cpp src/lib90/janus.f90 src/cxx/opengl_show.cpp src/cxx/mathstuff.cpp )
