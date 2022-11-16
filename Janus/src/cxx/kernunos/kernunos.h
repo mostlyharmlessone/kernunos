@@ -1,5 +1,5 @@
-#ifndef KERNUNOS_H
-#define KERNUNOS_H
+#ifndef GLwidget_H
+#define GLwidget_H
 
 #include <cmath>
 #include <QtMath>
@@ -44,8 +44,62 @@ class QLabel;
 class QMenu;
 QT_END_NAMESPACE
 
+class GLShaders: public QOpenGLWidget, protected QOpenGLFunctions
+{
+public:
+    GLShaders();
+    ~GLShaders();
 
-class kernunos;
+    void Init();
+    bool Use();
+    void StopUse();
+    void CleanUp();
+
+    GLuint GetAttribLoc(const std::string& name);
+    GLuint GetUnifLoc(const std::string& name);
+
+private:
+    GLuint programID;
+};
+
+class GLTriangles: public QOpenGLWidget, protected QOpenGLFunctions
+{
+public:
+    GLTriangles();
+    ~GLTriangles();
+
+    void Clear();
+    void SetBuffers(GLShaders* theShader, int nV, int nE,
+                    GLfloat* vertices, GLuint* elements);
+    void Draw();
+
+private:
+    GLuint vertexbuffer;
+    GLuint elementbuffer;
+    GLShaders* m_triangShaders;
+};
+
+class GLManager: public QOpenGLWidget, protected QOpenGLFunctions
+{
+public:
+     GLManager();
+    ~GLManager();
+
+    const GLubyte* GetGLVersion();
+    const GLubyte* GetGLVendor();
+    const GLubyte* GetGLRenderer();
+
+    void SetShadersAndTriangles();
+    void SetViewport(int x, int y, int width, int height);
+    void Render();
+
+private:
+    GLShaders   m_TriangShaders;
+    GLTriangles m_Triangles;
+
+};
+
+class GLwidget;
 
 class MainWindow : public QMainWindow
 {
@@ -54,7 +108,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow();
     void SetGLString(QString& gls)
-        {QString m_GLString =  gls; }
+        {m_GLString =  gls; }
 
 protected:
 
@@ -71,7 +125,7 @@ private:
 
     QString m_GLString;
 
-    kernunos* m_kernunos;
+    GLwidget* m_GLwidget;
     QMenu *fileMenu;
     QMenu *helpMenu;
     QAction *openAct;
@@ -85,17 +139,15 @@ private:
 
 QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)
 
-class kernunos : public QOpenGLWidget, protected QOpenGLFunctions
+class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
     Q_OBJECT
 
   public:
-    kernunos( QWidget *parent=nullptr );
+    GLwidget( QWidget *parent=nullptr );
 
-    ~kernunos();
+    ~GLwidget();
     QVector3D getArcBallVector(int x, int y);
-    bool DataLoad(QString fileName);
-    void LoadSurfaceToBuffer(int nV, int nE, GLfloat* vertices, GLuint* elements);
 
   public slots:
 
@@ -116,6 +168,7 @@ class kernunos : public QOpenGLWidget, protected QOpenGLFunctions
 
   private:
     MainWindow*  m_parent;
+    GLManager* m_oglManager;
     QOpenGLShaderProgram shaderProgram;
     GLuint programID;
     QMatrix4x4 mModelMatrix;
@@ -147,4 +200,4 @@ class kernunos : public QOpenGLWidget, protected QOpenGLFunctions
 };
 
 
-#endif // KERNUNOS_H
+#endif // GLwidget_H
