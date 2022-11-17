@@ -108,14 +108,14 @@ void GLTriangles::Clear()
 {
 
     // Clear graphics card memory
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+ //   glBindBuffer(GL_ARRAY_BUFFER, 0);
+ //   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     if ( elementbuffer )
         glDeleteBuffers(1, &elementbuffer);
     if ( vertexbuffer )
         glDeleteBuffers(1, &vertexbuffer);
 
-    glFlush(); //Tell GL to execute those commands now, but we don't wait for them
+ //   glFlush(); //Tell GL to execute those commands now, but we don't wait for them
 
     m_triangShaders = NULL;
     vertexbuffer = elementbuffer = 0;

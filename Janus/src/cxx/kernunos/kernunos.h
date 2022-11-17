@@ -108,7 +108,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow();
     void SetGLString(QString& gls)
-        {m_GLString =  gls; }
+        {QString GLString =  gls; }
 
 protected:
 
