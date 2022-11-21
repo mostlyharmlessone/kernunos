@@ -209,10 +209,7 @@ endif(WIN32)
 
     add_executable(kernunos src/cxx/kernunos/kernunos.cpp src/lib90/janus.f90 src/cxx/opengl_show.cpp)  
     target_link_libraries(kernunos PRIVATE OpenMP::OpenMP_CXX PUBLIC Qt6::Core Qt6::OpenGLWidgets Qt6::Gui Qt6::OpenGL splia modules rply_includes ${LIBS})
-    
-    add_executable(Kernunos src/cxx/Kernunos.from.wx/Kernunos.cpp src/lib90/janus.f90 src/cxx/opengl_show.cpp)  
-    target_link_libraries(Kernunos PRIVATE OpenMP::OpenMP_CXX PUBLIC Qt6::Core Qt6::OpenGLWidgets Qt6::Gui Qt6::OpenGL splia modules rply_includes ${LIBS})    
-    
+       
     add_executable(${PROJECT_NAME} src/cxx/Jupiter.cpp src/lib90/janus.f90 src/cxx/opengl_show.cpp src/cxx/mathstuff.cpp )
     add_executable(juno src/lib90/juno.f90 src/lib90/janus.f90 src/cxx/opengl_show.cpp)
 

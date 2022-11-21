@@ -1,5 +1,5 @@
-#ifndef GLwidget_H
-#define GLwidget_H
+#ifndef KERNUNOS_H
+#define KERNUNOS_H
 
 #include <cmath>
 #include <QtMath>
@@ -44,60 +44,6 @@ class QLabel;
 class QMenu;
 QT_END_NAMESPACE
 
-class GLShaders: public QOpenGLWidget, protected QOpenGLFunctions
-{
-public:
-    GLShaders();
-    ~GLShaders();
-
-    void Init();
-    bool Use();
-    void StopUse();
-    void CleanUp();
-
-    GLuint GetAttribLoc(const std::string& name);
-    GLuint GetUnifLoc(const std::string& name);
-
-private:
-    GLuint programID;
-};
-
-class GLTriangles: public QOpenGLWidget, protected QOpenGLFunctions
-{
-public:
-    GLTriangles();
-    ~GLTriangles();
-
-    void Clear();
-    void SetBuffers(GLShaders* theShader, int nV, int nE,
-                    GLfloat* vertices, GLuint* elements);
-    void Draw();
-
-private:
-    GLuint vertexbuffer;
-    GLuint elementbuffer;
-    GLShaders* m_triangShaders;
-};
-
-class GLManager: public QOpenGLWidget, protected QOpenGLFunctions
-{
-public:
-     GLManager();
-    ~GLManager();
-
-    const GLubyte* GetGLVersion();
-    const GLubyte* GetGLVendor();
-    const GLubyte* GetGLRenderer();
-
-    void SetShadersAndTriangles();
-    void SetViewport(int x, int y, int width, int height);
-    void Render();
-
-private:
-    GLShaders   m_TriangShaders;
-    GLTriangles m_Triangles;
-
-};
 
 class GLwidget;
 
@@ -107,8 +53,7 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow();
-    void SetGLString(QString& gls)
-        {QString GLString =  gls; }
+    void SetGLString(QString& gls);
 
 protected:
 
@@ -123,15 +68,13 @@ private:
     void createActions();
     void createMenus();
 
-    QString m_GLString;
-
     GLwidget* m_GLwidget;
     QMenu *fileMenu;
     QMenu *helpMenu;
     QAction *openAct;
     QAction *saveAct;
-    QAction *printAct;
     QAction *exitAct;
+    QAction *printAct;
     QAction *aboutAct;
     QAction *aboutQtAct;
     QLabel *infoLabel;
@@ -145,30 +88,29 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
 
   public:
     GLwidget( QWidget *parent=nullptr );
-
     ~GLwidget();
-    QVector3D getArcBallVector(int x, int y);
 
-  public slots:
+    bool DataLoad(QString fileName);
 
-  signals:
+//  public slots:
 
-  protected:
+//  signals:
+
+//  protected:
+
     void initializeGL(void);
     void resizeGL( int w, int h );
     void paintGL();
     void keyPressEvent( QKeyEvent *e);
-    void mouseMoveEvent(QMouseEvent* e);
-    void mousePressEvent(QMouseEvent* e);
+    void mouseMoveEvent(QMouseEvent *e);
+    void mousePressEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
     void wheelEvent(QWheelEvent *e);
     void timerEvent(QTimerEvent*);
     void updateMouse();
 
-
   private:
-    MainWindow*  m_parent;
-    GLManager* m_oglManager;
+    MainWindow *m_parent;
     QOpenGLShaderProgram shaderProgram;
     GLuint programID;
     QMatrix4x4 mModelMatrix;
@@ -176,17 +118,15 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     QMatrix4x4 mViewMatrix;
     QMatrix4x4 mProjectionMatrix;
 
+    bool LoadSurfaceToBuffer(int nV, int nE, GLfloat *vertices, GLuint *elements);
+    QVector3D getArcBallVector(int x, int y);
+
     QVector3D cameraPos;
     QVector3D mPosition;
     GLuint MatrixID;
-    GLuint arraybuffer;
+
     GLuint elementbuffer;
     GLuint vertexbuffer;
-
-    int nV=34560;
-    int nE=26130;
-    GLfloat* vertices;
-    GLuint* elements;
 
     int mWidth;
     int mHeight;
@@ -194,10 +134,9 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     int oldX, oldY;
     int newX, newY;
 
-    bool success;
     bool rotate;
     bool useArcBall;
 };
 
 
-#endif // GLwidget_H
+#endif // KERNUNOS_H

@@ -1,18 +1,52 @@
-// adapted from https://github.com/QtOpenGL/qgl_tutorials
-
 #include "kernunos.h"
 
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 600;
+const unsigned int SCR_HEIGHT = 800;
 
 int flag=0;
+
 int nV=34560;
 int nE=26130;
+
 std::vector<GLuint> Elements(nE);
 std::vector<GLfloat> Vertices(nV);
 GLfloat* vertices = Vertices.data();
 GLuint* elements = Elements.data();
+
+bool success=false;
+
+/*
+int nV = 48;
+int nE = 36;
+GLfloat* vertices = {
+              -0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f,  // Top-left & Red (x,y,z,r,g,b)
+              0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f,  // Top-right & Green
+              0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 1.0f,  // Bottom-right & Blue
+             -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f,   // Bottom-left & White
+              -0.5f,  0.5f, 0.5f, 1.0f, 1.0f, 0.0f,  // Top-left & Orange? (x,y,z,r,g,b)
+              0.5f,  0.5f, 0.5f, 0.0f, 1.0f, 1.0f,  // Top-right & Yellow?
+              0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 1.0f,  // Bottom-right & Pink?
+             -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f   // Bottom-left & Black
+          };
+
+
+// 12 triangles = 6 faces with triangles per face
+GLuint* elements = {
+              0, 1, 2,
+              2, 3, 0,
+              4, 5, 6,
+              6, 7, 4,
+              0, 4, 5,
+              5, 1, 0,
+              3, 7, 6,
+              6, 2, 3,
+              0, 4, 7,
+              7, 3, 0,
+              1, 5, 6,
+              6, 2, 1
+          };
+*/
 
 static const GLchar* vertexSource = R"glsl(
 #version 400 core
@@ -42,204 +76,18 @@ void main()
 )glsl";
 
 extern "C" {
-void janus_(int *flag, const char *filename, GLuint *elements, GLfloat *vertices, int *nV, int *nE); // still needs an underscore despite c_interface.f90 bind C declaration
+void janus_(int *flag, const char *filename, GLuint *elements, GLfloat *vertices, int *nV, int *nE); // needs an underscore despite c_interface.f90 bind C declaration
 };
 
-GLShaders::GLShaders()
-{
-    programID = 0;
-}
-
-GLShaders::~GLShaders()
-{
-    if ( programID )
-        CleanUp();
-}
-
-void GLShaders::CleanUp()
-{
-    StopUse();
-
-    glDeleteProgram(programID);
-
-    glFlush();
-}
-
-GLuint GLShaders::GetAttribLoc(const std::string& name)
-{
-     return glGetAttribLocation(programID,name.c_str());
-}
+QString *m_GLString=nullptr;
+QString glstring_global;
 
 
-GLuint GLShaders::GetUnifLoc(const std::string& name)
-{
-    return glGetUniformLocation(programID, name.c_str());
-}
-
-void GLShaders::Init()
-{
-  initializeGL();
-}
-
-bool GLShaders::Use()
-{
-
-    glUseProgram(programID);
-    return true;
-}
-
-void GLShaders::StopUse()
-{
-    glUseProgram(0);
-}
-
-GLTriangles::GLTriangles()
-{
-    vertexbuffer = elementbuffer = 0;
-    m_triangShaders = NULL;
-}
-
-GLTriangles::~GLTriangles()
-{
-    Clear();
-}
-
-void GLTriangles::Clear()
-{
-
-    // Clear graphics card memory
- //   glBindBuffer(GL_ARRAY_BUFFER, 0);
- //   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    if ( elementbuffer )
-        glDeleteBuffers(1, &elementbuffer);
-    if ( vertexbuffer )
-        glDeleteBuffers(1, &vertexbuffer);
-
- //   glFlush(); //Tell GL to execute those commands now, but we don't wait for them
-
-    m_triangShaders = NULL;
-    vertexbuffer = elementbuffer = 0;
-}
-
-void GLTriangles::SetBuffers(GLShaders* theShader,
-                                int nV, int nE,
-                                GLfloat* vertices, GLuint* elements)
-{
-
-    m_triangShaders = theShader;
-
-    // Create a Vertex Buffer Object and copy the vertex data to it
-    glGenBuffers(1, &vertexbuffer);  //generate 1 buffer
-
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    GLint data_size_in_bytes = sizeof(GLfloat)*nV;                              // 4-bytes per float x number of vertices
-    glBufferData(GL_ARRAY_BUFFER, data_size_in_bytes, vertices, GL_STATIC_DRAW);
-
-    GLint size = 0;
-    glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-    if(data_size_in_bytes != size)
-     {
-      glDeleteBuffers(1, &vertexbuffer);
-      std::cout << "Error in vertices buffer: " << data_size_in_bytes << ", " << size << std::endl;
-      return;
-     }
-
-    // Create an element array
-    glGenBuffers(1, &elementbuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-    data_size_in_bytes = sizeof(GLuint)*nE;                // 4-bytes per int x number of elements
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, data_size_in_bytes, elements, GL_STATIC_DRAW);
-
-    size = 0;
-    glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-    if(data_size_in_bytes != size)
-     {
-      glDeleteBuffers(1, &elementbuffer);
-      std::cout << "Error in element buffer: " << data_size_in_bytes << ", " << size << std::endl;
-      return;
-     }
-    // position attribute
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-
-    GLuint posAttrib = m_triangShaders->GetAttribLoc("position");
-    glEnableVertexAttribArray(posAttrib);
-    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-                                                            // 6 floats = 3 positions + 3 colors per vertex
-
-    // color attribute
-    GLint colAttrib = m_triangShaders->GetAttribLoc("incolor");
-    glEnableVertexAttribArray(colAttrib);
-    glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-                                                            // offset 3 because colors start after 3 positions
-}
-
-void GLTriangles::Draw()
-{
-
-    if ( ! m_triangShaders->Use() )
-        return;
-
-    paintGL();
-
-}
-
-GLManager::GLManager() {
-   GLShaders m_TriangShaders;
-   GLTriangles m_Triangles;
-}
-
-GLManager::~GLManager()
-{
-    glFinish();
-}
-
-const GLubyte* GLManager::GetGLVersion()
-{
-    return glGetString(GL_VERSION);
-}
-
-const GLubyte* GLManager::GetGLVendor()
-{
-    return glGetString(GL_VENDOR);
-}
-
-const GLubyte* GLManager::GetGLRenderer()
-{
-    return glGetString(GL_RENDERER);
-}
-
-
-void GLManager::SetShadersAndTriangles()
-{
-    m_TriangShaders.Init();
-    m_Triangles.SetBuffers(&m_TriangShaders, nV, nE, vertices, elements);
-}
-
-
-void GLManager::Render()
-{
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
-    glEnable(GL_DEBUG_OUTPUT);
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
-    m_Triangles.Draw();
-
-}
-
-GLwidget::GLwidget (QWidget *parent ) : QOpenGLWidget(parent)
+GLwidget::GLwidget ( QWidget *parent ) : QOpenGLWidget(parent)
 
 {
   setFocusPolicy(Qt::StrongFocus);
   cameraPos = QVector3D(0, 0, 6);
-
-  // https://www.modernescpp.com/index.php/asynchronous-callable-wrappers
-  static const unsigned int hwGuess= 4;
-  //  these could come in handy later for available number of threads/cores for asynchronous tasks
-      unsigned int hw = std::thread::hardware_concurrency();
-      unsigned int hwConcurr= (hw != 0)? hw : hwGuess;
-      std::cout << "Cores found by Kernunos: " << hwConcurr << std::endl;
 }
 
 
@@ -257,7 +105,6 @@ void GLwidget::initializeGL()
   // initialize OpenGL
   initializeOpenGLFunctions();
 
-   m_oglManager = new GLManager();
   // Get the GL version
   QString sglVer = "\nUsing OpenGL version: ";
   const GLubyte* GLversion = glGetString(GL_VERSION);
@@ -280,13 +127,22 @@ void GLwidget::initializeGL()
 
   // load and compile vertex shader
   success = shaderProgram.addShaderFromSourceCode(QOpenGLShader::Vertex,vertexSource);
-  if (success) std::cout << "compiled vertex" << std::endl;
-  if (!success) std::cout << "DID NOT compile vertex" << std::endl;
+  if (success) std::cout << "Compiled vertex shader" << std::endl;
+  if (!success)
+  {
+    std::cout << "DID NOT compile vertex shader" << std::endl;
+    QWidget::close();  //just closes the OpenGL widget
+   }
 
   // load and compile fragment shader
   success = shaderProgram.addShaderFromSourceCode(QOpenGLShader::Fragment,fragmentSource);
-  if (success) std::cout << "compiled frag" << std::endl;
-  if (!success) std::cout << "DID NOT compile frag" << std::endl;
+  if (success) std::cout << "Compiled fragment shader" << std::endl;
+  if (!success)
+  {
+    std::cout << "DID NOT compile fragment shader" << std::endl;
+    QWidget::close();
+   }
+
   programID = shaderProgram.programId();
 
   // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
@@ -308,14 +164,77 @@ void GLwidget::initializeGL()
   MatrixID = glGetUniformLocation(programID, "mMVP");
   glBindAttribLocation(programID, 0, "fragColor");
 
+  // Create a Vertex Buffer Object
+    glGenBuffers(1, &vertexbuffer);
+  // Create an element array
+    glGenBuffers(1, &elementbuffer);
+}
+
+bool GLwidget::DataLoad(QString fileName)
+{
+    QByteArray ba = fileName.toLocal8Bit();
+    const char *filename = ba.data();
+    std::cout << "filename in C++ in DataLoad: " << filename << std::endl;
+
+//    auto future1 = std::async([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);});
+//      future1.get();
+      janus_(&flag, filename, elements, vertices, &nV, &nE);
+
+/*    vertices[3]=0.0;
+    vertices[10]=0.0;
+    vertices[17]=0.0;
+*/
+  return true;
 
 }
 
+
+bool GLwidget::LoadSurfaceToBuffer(int nV, int nE, GLfloat* vertices, GLuint* elements)
+{
+      glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+      GLint data_size_in_bytes = sizeof(GLfloat)*nV;                              // 4-bytes per float x number of vertices
+      glBufferData(GL_ARRAY_BUFFER, data_size_in_bytes, vertices, GL_STATIC_DRAW);
+
+      GLint size = 0;
+      glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+       if(data_size_in_bytes != size)
+        {
+         glDeleteBuffers(1, &vertexbuffer);
+         std::cout << "Error in vertices buffer: " << data_size_in_bytes << ", " << size << std::endl;
+         return false;
+        }
+
+       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+       data_size_in_bytes = sizeof(GLuint)*nE;                // 4-bytes per int x number of elements
+       glBufferData(GL_ELEMENT_ARRAY_BUFFER, data_size_in_bytes, elements, GL_STATIC_DRAW);
+
+       size = 0;
+       glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+        if(data_size_in_bytes != size)
+          {
+           glDeleteBuffers(1, &elementbuffer);
+           std::cout << "Error in element buffer: " << data_size_in_bytes << ", " << size << std::endl;
+           return false;
+          }
+
+    GLint posAttrib = glGetAttribLocation(programID, "position");
+    glEnableVertexAttribArray(posAttrib);
+    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+                                                            // 6 floats = 3 positions + 3 colors per vertex
+    // color attribute
+    GLint colAttrib = glGetAttribLocation(programID, "incolor");
+    glEnableVertexAttribArray(colAttrib);
+    glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+                                                           // offset 3 because colors start after 3 positions
+    return true;
+}
 
 void GLwidget::paintGL(void)
 {
     if ( !success )
         return;
+
+    LoadSurfaceToBuffer(nV, nE, vertices, elements);
 
     // Clear the screen
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -323,7 +242,7 @@ void GLwidget::paintGL(void)
     // Use our shader
     glUseProgram(programID);
 
-    // Bind
+ // Bind
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
 
@@ -358,30 +277,32 @@ void GLwidget::keyPressEvent(QKeyEvent *e)
   switch (e->key())
   {
     case Qt::Key_Escape:  /*  Escape Key */
-     exit(0);
+     mViewMatrix.scale(QVector3D(0.005,0.005,0.005));
+     update();
+//     exit(0);
       break;
     case Qt::Key_Q:  /*  Q Key */
-     mViewMatrix.translate(QVector3D(0,0,-0.1));
+     mViewMatrix.translate(50*QVector3D(0,0,-0.1));
      update();
       break;
   case Qt::Key_S:  /*  S Key */
-     mViewMatrix.translate(QVector3D(0,0,0.1));
+     mViewMatrix.translate(50*QVector3D(0,0,0.1));
      update();
       break;
   case Qt::Key_W:  /*  W Key */
-     mViewMatrix.translate(QVector3D(0,0.1,0));
+     mViewMatrix.translate(50*QVector3D(0,0.1,0));
      update();
       break;
   case Qt::Key_X:  /*  X Key */
-     mViewMatrix.translate(QVector3D(0,-0.1,0));
+     mViewMatrix.translate(50*QVector3D(0,-0.1,0));
      update();
       break;
   case Qt::Key_A:  /*  A Key */
-     mViewMatrix.translate(QVector3D(-0.1,0,0));
+     mViewMatrix.translate(50*QVector3D(-0.1,0,0));
      update();
       break;
   case Qt::Key_D:  /*  D Key */
-     mViewMatrix.translate(QVector3D(0.1,0,0));
+     mViewMatrix.translate(50*QVector3D(0.1,0,0));
      update();
       break;
     default:
@@ -480,29 +401,37 @@ MainWindow::MainWindow()
     QWidget *widget = new QWidget;
     setCentralWidget(widget);
 
-    QOpenGLWidget *topFiller = new GLwidget(this);
-    topFiller->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    QOpenGLWidget *window1 = new GLwidget(this);
+    window1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     infoLabel = new QLabel(tr("<i>Welcome! Please Open a file.</i>"));
     infoLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     infoLabel->setAlignment(Qt::AlignCenter);
 
-//    QWidget *bottomFiller = new QWidget;
-//    bottomFiller->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    QOpenGLWidget *window2 = new GLwidget(this);
+    window2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    QWidget *window3 = new QWidget(this);
+    window3->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     QVBoxLayout *layout = new QVBoxLayout;
- //   layout->setContentsMargins(5, 5, 5, 5);
-    layout->addWidget((topFiller));
+    layout->addWidget(window1);
+    layout->addWidget(window2);
+    layout->addWidget(window3);
+        widget->setLayout(layout);
     layout->addWidget(infoLabel);
-//    layout->addWidget(bottomFiller);
-    widget->setLayout(layout);
 
     createActions();
     createMenus();
 
-    setWindowTitle(tr("GLwidget"));
+    setWindowTitle(tr("Kernunos"));
     setMinimumSize(400, 400);
     resize(SCR_WIDTH, SCR_HEIGHT);
+}
+
+void MainWindow::SetGLString(QString& gls)
+{    m_GLString =  &gls;
+     glstring_global=*m_GLString;
 }
 
 void MainWindow::open()
@@ -516,39 +445,7 @@ void MainWindow::open()
     const char *filename = ba.data();
     std::cout << "filename in C++ " << filename << std::endl;
     if (!fileName.isEmpty())
-    {
-
-     }
-
-    else {
-/*        GLfloat vertices[] = {
-                      -0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f,  // Top-left & Red (x,y,z,r,g,b)
-                      0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f,  // Top-right & Green
-                      0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 1.0f,  // Bottom-right & Blue
-                     -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f,   // Bottom-left & White
-                      -0.5f,  0.5f, 0.5f, 1.0f, 1.0f, 0.0f,  // Top-left & Orange? (x,y,z,r,g,b)
-                      0.5f,  0.5f, 0.5f, 0.0f, 1.0f, 1.0f,  // Top-right & Yellow?
-                      0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 1.0f,  // Bottom-right & Pink?
-                     -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f   // Bottom-left & Black
-                  };
-            int nV = 48;
-
-            GLuint elements[] = {  // 12 triangles = 6 faces with triangles per face
-                      0, 1, 2,
-                      2, 3, 0,
-                      4, 5, 6,
-                      6, 7, 4,
-                      0, 4, 5,
-                      5, 1, 0,
-                      3, 7, 6,
-                      6, 2, 3,
-                      0, 4, 7,
-                      7, 3, 0,
-                      1, 5, 6,
-                      6, 2, 1
-                  };
-            int nE = 36; */
-        }
+        m_GLwidget->DataLoad(fileName);
 }
 
 
@@ -565,13 +462,12 @@ void MainWindow::print()
 void MainWindow::about()
 {
     infoLabel->setText(tr("Invoked <b>Help|About</b>"));
-    QByteArray gla = m_GLString.toLocal8Bit();
-    const char *glstring = gla.data();
-    std::cout << glstring << std::endl;
-    QMessageBox::about(this, tr("About Menu"),
-            tr("The <b>Menu</b> example shows how to create "
-               "menu-bar menus and context menus.\n",glstring));
-
+    const char *glstring;
+    QByteArray gl8 = glstring_global.toLocal8Bit();
+    glstring = gl8.data();
+    QString sglVer = "Kernunos runs on Qt and OpenGL.\nSee acknowledgements\n";
+    sglVer += glstring;
+    QMessageBox::about(this, tr("About Kernunos"),sglVer);
 }
 
 void MainWindow::aboutQt()
@@ -625,10 +521,7 @@ void MainWindow::createMenus()
     helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(aboutAct);
     helpMenu->addAction(aboutQtAct);
-
-
 }
-
 
 int main(int argc, char *argv[])
 {
@@ -654,6 +547,13 @@ int main(int argc, char *argv[])
             break;
         }
     }
+
+    // https://www.modernescpp.com/index.php/asynchronous-callable-wrappers
+    static const unsigned int hwGuess= 4;
+    //  these could come in handy later for available number of threads/cores for asynchronous tasks
+        unsigned int hw = std::thread::hardware_concurrency();
+        unsigned int hwConcurr= (hw != 0)? hw : hwGuess;
+        std::cout << "Cores found by Kernunos: " << hwConcurr << std::endl;
 
    MainWindow window;
 //    GLwidget window;
