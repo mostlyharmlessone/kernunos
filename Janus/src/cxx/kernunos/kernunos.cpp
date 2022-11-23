@@ -408,15 +408,15 @@ MainWindow::MainWindow()
     infoLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     infoLabel->setAlignment(Qt::AlignCenter);
 
-    QOpenGLWidget *window2 = new GLwidget(this);
-    window2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+//    QOpenGLWidget *window2 = new GLwidget(this);
+//    window2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     QWidget *window3 = new QWidget(this);
     window3->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(window1);
-    layout->addWidget(window2);
+//    layout->addWidget(window2);
     layout->addWidget(window3);
         widget->setLayout(layout);
     layout->addWidget(infoLabel);
