@@ -82,7 +82,6 @@ void janus_(int *flag, const char *filename, GLuint *elements, GLfloat *vertices
 QString *m_GLString=nullptr;
 QString glstring_global;
 
-
 GLwidget::GLwidget ( QWidget *parent ) : QOpenGLWidget(parent)
 
 {
@@ -127,7 +126,7 @@ void GLwidget::initializeGL()
 
   // load and compile vertex shader
   success = shaderProgram.addShaderFromSourceCode(QOpenGLShader::Vertex,vertexSource);
-  if (success) std::cout << "Compiled vertex shader" << std::endl;
+  // if (success) std::cout << "Compiled vertex shader" << std::endl;
   if (!success)
   {
     std::cout << "DID NOT compile vertex shader" << std::endl;
@@ -136,7 +135,7 @@ void GLwidget::initializeGL()
 
   // load and compile fragment shader
   success = shaderProgram.addShaderFromSourceCode(QOpenGLShader::Fragment,fragmentSource);
-  if (success) std::cout << "Compiled fragment shader" << std::endl;
+  //  if (success) std::cout << "Compiled fragment shader" << std::endl;
   if (!success)
   {
     std::cout << "DID NOT compile fragment shader" << std::endl;
@@ -176,16 +175,10 @@ bool GLwidget::DataLoad(QString fileName)
     const char *filename = ba.data();
     std::cout << "filename in C++ in DataLoad: " << filename << std::endl;
 
-//    auto future1 = std::async([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);});
-//      future1.get();
-      janus_(&flag, filename, elements, vertices, &nV, &nE);
-
-/*    vertices[3]=0.0;
-    vertices[10]=0.0;
-    vertices[17]=0.0;
-*/
+    auto future1 = std::async([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);});
+    future1.get();
+//      janus_(&flag, filename, elements, vertices, &nV, &nE);
   return true;
-
 }
 
 
@@ -437,10 +430,11 @@ void MainWindow::SetGLString(QString& gls)
 void MainWindow::open()
 {
     infoLabel->setText(tr("Invoked <b>File|Open</b>"));
-    QString fileName
-        = QFileDialog::getOpenFileName(this, tr("Load a file"));
+
+    QString filter = "PentaCam (*.CUR *.ELE);;EyeSys (*.DAT);;Atlas (*.CSV)";
+    QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
     if (fileName.isEmpty())
-        return;
+      return;
     QByteArray ba = fileName.toLocal8Bit();
     const char *filename = ba.data();
     std::cout << "filename in C++ " << filename << std::endl;

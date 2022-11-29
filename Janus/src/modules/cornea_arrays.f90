@@ -118,12 +118,22 @@ END INTERFACE
  
 subroutine init_mat_Penta(NP,Penta,Skyline) ! allocate PentaCam arrays
   INTEGER, INTENT(IN) :: NP
+  INTEGER :: ERROR
+  CHARACTER :: ERR_MSG
   TYPE(wpPentaMatrix) :: Penta 
   TYPE(wpSkyline) :: Skyline  
-  allocate (Penta%CUR(NP,NP),Penta%ELE(NP,NP))
+  allocate (Penta%CUR(NP,NP),Penta%ELE(NP,NP), STAT=ERROR, ERRMSG=ERR_MSG)
+  if (ERROR .NE. 0) then 
+   write(*,*) 'Allocation error: ',ERROR,ERR_MSG
+   stop
+  endif 
   allocate (Skyline%CUR(NP,NP),Skyline%ELE(NP,NP),Skyline%x(NP,NP),&
             Skyline%z2CUR(NP,NP),Skyline%z2ELE(NP,NP),Skyline%L2x(NP),Skyline%L2y(NP),&
-            Skyline%index_col(NP)) 
+            Skyline%index_col(NP), STAT=ERROR, ERRMSG=ERR_MSG)
+  if (ERROR .NE. 0) then 
+   write(*,*) 'Allocation error: ',ERROR,ERR_MSG
+   stop
+  endif
 end subroutine init_mat_Penta
 
 subroutine init_mat_JMatrix(MM,N,JMatrix) ! allocate EyeSys arrays
@@ -269,7 +279,7 @@ subroutine Skyline_eq_Penta(Skyline,Penta)  ! Arrange data Skyline, that will al
 !   starting column jj = index_row(first_row+i-1)
 !   row ii = first_row+i-1
     ii=first_row+i-1
-    jj=index_row(first_row+i-1)+j-1 
+    jj=index_row(first_row+i-1)+j-1
     Skyline%x(i,j)=-7.00+((jj-1)*14.00)/(NP-1.0)   
     Skyline%CUR(i,j)=Penta%CUR(ii,jj)
     Skyline%ELE(i,j)=Penta%ELE(ii,jj)
@@ -288,7 +298,7 @@ subroutine Skyline_eq_Penta(Skyline,Penta)  ! Arrange data Skyline, that will al
   end do
   Skyline%first_row=first_row                         ! needed for offset
   if  ( Skyline%rows .ne. last_row-first_row+1 ) then
-   write(*,*) 'Inconsistent row count in Skyline'     ! numbers of rows should be maximum length of columns
+   write(*,*) 'Inconsistent row count in Skyline',Skyline%rows,last_row-first_row+1 ! numbers of rows should be maximum length of columns
    stop
   endif
 !  ii = 0 ; jj= 0

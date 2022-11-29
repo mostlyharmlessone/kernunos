@@ -148,16 +148,15 @@ subroutine rcnvrtp(filenameE,filenameC)
             if ( k > 100 .AND. k <= NP ) then
                read(unitno2,'(A,A,A,A)',iostat=readerr) matrixchar,iter3,equal,somecharacter
             endif
-            if (k < NP ) then
+            if (k <= NP ) then
                if (readerr .eq. 0) then  ! reads till end of data matches
-                 read (somecharacter,*) (Penta%CUR(k,i),i=1,NP) 
+                 read (somecharacter,*,iostat=readerr) (Penta%CUR(k,i),i=1,NP) 
                endif  
              else
-                  write(*,*) 'Read ',k,' rows from ',trim(filenameC)
+!                  write(*,*) 'Read ',k-1,' rows from ',trim(filenameC)
 !                  do k=1,NP
 !                   write (*,*) 'Matrix ',k-1,'= ',Penta%CUR(:,k)
-!                  end do                                
-!                 stop 
+!                  end do
                exit  ! End of data         
              endif        
            end do 
@@ -193,7 +192,7 @@ subroutine rcnvrtp(filenameE,filenameC)
             if ( k > 100 .AND. k <= NP ) then
                read(unitno1,'(A,A,A,A)',iostat=readerr) matrixchar,iter3,equal,somecharacter
             endif
-            if (k < NP ) then
+            if (k <= NP ) then
                if (readerr .eq. 0) then  ! reads till end of data matches
                  read (somecharacter,*) (Penta%ELE(k,i),i=1,NP) 
                endif  
