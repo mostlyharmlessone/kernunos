@@ -53,6 +53,11 @@ module io_functions
      character(len=*), intent(in) :: filenameE,filenameC
     end subroutine
 
+    subroutine rcnvrtp2(filenameE,filenameC)
+     USE cornea_arrays, ONLY : Penta
+     character(len=*), intent(in) :: filenameE,filenameC
+    end subroutine
+
     subroutine RCNVRTT(MM,N,NP)
      USE set_precision, ONLY : wp
      USE cornea_arrays
@@ -106,6 +111,84 @@ module io_functions
  end function
   
 end module io_functions
+
+
+subroutine rcnvrtp2(filenameE,filenameC)
+! PENTACAM VERSION
+ use io_functions, only : get_new_fileunit
+ USE cornea_arrays, ONLY : Penta
+ implicit none
+ character(len=*), intent(in) :: filenameE,filenameC
+ integer :: unitno1, unitno2, ierr, readerr,i,k,NP, read_front
+ logical :: exists
+ character(len=1000) :: somecharacter
+ NP=141
+ inquire(file=trim(filenameE), exist=exists)
+ if (exists) then
+   unitno1 = get_new_fileunit()
+   open(unitno1, file=trim(filenameE), action="read", iostat=ierr)
+     if (ierr .eq. 0) then 
+    inquire(file=trim(filenameC), exist=exists)
+    if (exists) then
+     unitno2 = get_new_fileunit()
+     open(unitno2, file=trim(filenameC), action="read", iostat=ierr)
+     if (ierr .eq. 0) then
+     read_front=0
+     do
+      read(unitno2, '(A)', iostat=readerr) somecharacter
+         if (readerr .eq. 0) then
+           if (read_front .eq. 0) then
+            k=0 ; read_front=1  ! only read the front curvatures
+           do
+            k=k+1
+             read(unitno2,'(A)',iostat=readerr) somecharacter
+            if (k <= NP ) then
+               if (readerr .eq. 0) then  ! reads till end of data matches
+                 read (somecharacter,*,iostat=readerr) (Penta%CUR(k,i),i=1,NP) 
+               endif  
+             else
+
+                  write(*,*) 'Read ',k-1,' rows from ',trim(filenameC)
+                  do k=1,NP
+                   write (*,*) 'Matrix ',k-1,'= ',Penta%CUR(:,k)
+                  end do
+
+               exit  ! End of data         
+             endif        
+           end do 
+           endif
+         else                       
+           exit  !EOF
+         endif        
+      end do  
+      close(unitno2) 
+      else
+         print*, "Error ", ierr ," attempting to open file ", trim(filenameC)
+        stop
+    endif
+    else
+     print*, "Error -- cannot find file: ", trim(filenameC)
+     stop
+   endif
+
+   stop  ! working on this part
+
+   read_front=0
+   
+      close(unitno1) 
+      else
+         print*, "Error ", ierr ," attempting to open file ", trim(filenameE)
+        stop
+    endif
+    else
+     print*, "Error -- cannot find file: ", trim(filenameE)
+     stop
+   endif
+end subroutine rcnvrtp2
+
+
+
+
 
 subroutine rcnvrtp(filenameE,filenameC)
 ! PENTACAM VERSION

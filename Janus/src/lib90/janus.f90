@@ -29,7 +29,7 @@
   integer,allocatable :: MV(:)
   real :: time_start, time_end
   real(wp) :: POWMIN,POWMAX,POWMIN2,POWMAX2,POWCTR,POW
-  logical :: donut
+  logical :: donut, exists
   real(wp) :: Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo
 
 !write(*,*) 'file from Jupiter: ',mainfile  ! this will have a lot of extra random non ASCII stuff after the file name
@@ -69,16 +69,29 @@ file_idx=index(inputfile1, ".DAT")
 !         TestData=3; MM=360; N=16 ; NP=141  ! make some test data rcnvrt not working 360        
         else
         inputfile2=replacestr(string=inputfile1,search="ELE",substitute="CUR")        
-        TestData=2; MM=180; N=22; NP=141 ! PentaCam
+        TestData=2; MM=180; N=22; NP=141 ! PentaCam ELE
        endif
       else
        inputfile2=inputfile1
        inputfile1=replacestr(string=inputfile2,search="CUR",substitute="ELE")
-       TestData=2; MM=180; N=22; NP=141 ! PentaCam
+       TestData=2; MM=180; N=22; NP=141 ! PentaCam CSV
       endif
       else
-       TestData=1; MM=180; N=22   ! Atlas 
-       write(*,*) "Atlas file: ",inputfile1
+       file_idx=index(inputfile1, ".CUR")
+       if( file_idx == 0) then
+        file_idx=index(inputfile1, ".ELE")
+        if( file_idx == 0) then
+         TestData=1; MM=180; N=22   ! Atlas 
+         write(*,*) "Atlas file: ",inputfile1
+        else
+        inputfile2=replacestr(string=inputfile1,search="ELE",substitute="CUR")        
+        TestData=4; MM=180; N=22; NP=141 ! PentaCam ELE.CSV
+        endif
+        else
+       inputfile2=inputfile1
+       inputfile1=replacestr(string=inputfile2,search="CUR",substitute="ELE")
+       TestData=4; MM=180; N=22; NP=141 ! PentaCam CUR.CSV
+       endif
       endif
    else
       print *, 'suffix is found at index: ',file_idx,"length: ",len(inputfile1)
@@ -244,12 +257,20 @@ file_idx=index(inputfile1, ".DAT")
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
    endif
 
-  if (TestData .eq. 2) then
+  if (TestData .eq. 2 .OR. TestData .eq. 4) then
 ! READ THE PENTACAM DATA (which overwrites Atlas)
-! ELE are elevations CUR are "sagittal" curvatures in a 141x141 -7 to 7 mm square -1 is no data 
+! ELE are elevations CUR are "sagittal" curvatures in a 141x141 -7 to 7 mm square -1 is no data
+! .ELE.CSV or .CUR.CSV versions have less text but use semicolons (;) instead of -1
    call init_mat_Penta(NP,Penta,Skyline)   !allocate the PentaCam matices
    call init_mat_Atlas(MM,N,Atlas)        !need to excise Atlas
-   call RCNVRTP(inputfile1,inputfile2) 
+
+!  inquire(file=trim(inputfile1), exist=exists)  ! need to make 4 routines to solve ELE missing CSV issue? search for ELE.CSV or just go with partial data is better
+   if (TestData .eq. 2) then
+    call RCNVRTP(inputfile1,inputfile2)
+   else
+    call RCNVRTP2(inputfile1,inputfile2)
+   endif
+
 !  arrange the data
    call CPU_TIME(time_start)
    Skyline=Penta
