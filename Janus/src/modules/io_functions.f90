@@ -48,14 +48,10 @@ module io_functions
      character(len=*), intent(in) :: RANAME,XXNAME 
     end subroutine
 
-    subroutine rcnvrtp(filenameE,filenameC)
+    subroutine rcnvrtp(TestData,filename)
      USE cornea_arrays, ONLY : Penta
-     character(len=*), intent(in) :: filenameE,filenameC
-    end subroutine
-
-    subroutine rcnvrtp2(filenameE,filenameC)
-     USE cornea_arrays, ONLY : Penta
-     character(len=*), intent(in) :: filenameE,filenameC
+     character(len=*), intent(in) :: filename
+     integer :: TestData
     end subroutine
 
     subroutine RCNVRTT(MM,N,NP)
@@ -112,91 +108,13 @@ module io_functions
   
 end module io_functions
 
-
-subroutine rcnvrtp2(filenameE,filenameC)
-! PENTACAM VERSION
+subroutine rcnvrtp(TestData,filename)
+! PENTACAM VERSION FOR ALL
  use io_functions, only : get_new_fileunit
  USE cornea_arrays, ONLY : Penta
  implicit none
- character(len=*), intent(in) :: filenameE,filenameC
- integer :: unitno1, unitno2, ierr, readerr,i,k,NP, read_front
- logical :: exists
- character(len=1000) :: somecharacter
- NP=141
- inquire(file=trim(filenameE), exist=exists)
- if (exists) then
-   unitno1 = get_new_fileunit()
-   open(unitno1, file=trim(filenameE), action="read", iostat=ierr)
-     if (ierr .eq. 0) then 
-    inquire(file=trim(filenameC), exist=exists)
-    if (exists) then
-     unitno2 = get_new_fileunit()
-     open(unitno2, file=trim(filenameC), action="read", iostat=ierr)
-     if (ierr .eq. 0) then
-     read_front=0
-     do
-      read(unitno2, '(A)', iostat=readerr) somecharacter
-         if (readerr .eq. 0) then
-           if (read_front .eq. 0) then
-            k=0 ; read_front=1  ! only read the front curvatures
-           do
-            k=k+1
-             read(unitno2,'(A)',iostat=readerr) somecharacter
-            if (k <= NP ) then
-               if (readerr .eq. 0) then  ! reads till end of data matches
-                 read (somecharacter,*,iostat=readerr) (Penta%CUR(k,i),i=1,NP) 
-               endif  
-             else
-
-                  write(*,*) 'Read ',k-1,' rows from ',trim(filenameC)
-                  do k=1,NP
-                   write (*,*) 'Matrix ',k-1,'= ',Penta%CUR(:,k)
-                  end do
-
-               exit  ! End of data         
-             endif        
-           end do 
-           endif
-         else                       
-           exit  !EOF
-         endif        
-      end do  
-      close(unitno2) 
-      else
-         print*, "Error ", ierr ," attempting to open file ", trim(filenameC)
-        stop
-    endif
-    else
-     print*, "Error -- cannot find file: ", trim(filenameC)
-     stop
-   endif
-
-   stop  ! working on this part
-
-   read_front=0
-   
-      close(unitno1) 
-      else
-         print*, "Error ", ierr ," attempting to open file ", trim(filenameE)
-        stop
-    endif
-    else
-     print*, "Error -- cannot find file: ", trim(filenameE)
-     stop
-   endif
-end subroutine rcnvrtp2
-
-
-
-
-
-subroutine rcnvrtp(filenameE,filenameC)
-! PENTACAM VERSION
- use io_functions, only : get_new_fileunit
- USE cornea_arrays, ONLY : Penta
- implicit none
- character(len=*), intent(in) :: filenameE,filenameC
- integer :: unitno1, unitno2, ierr, readerr,i,k,NP, read_front
+ character(len=*), intent(in) :: filename
+ integer :: TestData, unitno1, ierr, readerr,i,k,NP, read_front
  logical :: exists
  character(len=7) :: matrixchar
  character(len=1) :: iter1,equal
@@ -204,68 +122,25 @@ subroutine rcnvrtp(filenameE,filenameC)
  character(len=3) :: iter3
  character(len=1000) :: somecharacter
  NP=141
- inquire(file=trim(filenameE), exist=exists)
- if (exists) then
-   unitno1 = get_new_fileunit()
-   open(unitno1, file=trim(filenameE), action="read", iostat=ierr)
-     if (ierr .eq. 0) then 
-    inquire(file=trim(filenameC), exist=exists)
+    inquire(file=trim(filename), exist=exists)
     if (exists) then
-     unitno2 = get_new_fileunit()
-     open(unitno2, file=trim(filenameC), action="read", iostat=ierr)
+     unitno1 = get_new_fileunit()
+     open(unitno1, file=trim(filename), action="read", iostat=ierr)
      if (ierr .eq. 0) then
      read_front=0
      do
-      read(unitno2, '(A)', iostat=readerr) somecharacter
+      read(unitno1, '(A)', iostat=readerr) somecharacter
          if (readerr .eq. 0) then
-           if (somecharacter .eq. "Matrixsize Y=141" .and. read_front .eq. 0) then
-            k=0 ; read_front=1  ! only read the front curvatures
+          if ((somecharacter.eq."Matrixsize Y=141" .and. read_front.eq.0 .and. TestData.le.3) &
+               .or. (read_front.eq.0 .and. TestData.ge.4) ) then
+!           print*, "Char in file ", trim(filename), " is ", somecharacter
+            k=0 ; read_front=1   ! only read the front elevations or curvatures
            do
             k=k+1
-            if (k <= 10 ) then
-             read(unitno2,'(A,A,A,A)',iostat=readerr) matrixchar,iter1,equal,somecharacter
-            endif
-            if (k <= 100 .AND. k > 10 ) then           
-               read(unitno2,'(A,A,A,A)',iostat=readerr) matrixchar,iter2,equal,somecharacter  
-            endif
-            if ( k > 100 .AND. k <= NP ) then
-               read(unitno2,'(A,A,A,A)',iostat=readerr) matrixchar,iter3,equal,somecharacter
-            endif
-            if (k <= NP ) then
-               if (readerr .eq. 0) then  ! reads till end of data matches
-                 read (somecharacter,*,iostat=readerr) (Penta%CUR(k,i),i=1,NP) 
-               endif  
-             else
-!                  write(*,*) 'Read ',k-1,' rows from ',trim(filenameC)
-!                  do k=1,NP
-!                   write (*,*) 'Matrix ',k-1,'= ',Penta%CUR(:,k)
-!                  end do
-               exit  ! End of data         
-             endif        
-           end do 
+           if (TestData.eq.4 .or. TestData.eq.5) then
+             read(unitno1,'(A)',iostat=readerr) somecharacter
            endif
-         else                       
-           exit  !EOF
-         endif        
-      end do  
-      close(unitno2) 
-      else
-         print*, "Error ", ierr ," attempting to open file ", trim(filenameC)
-        stop
-    endif
-    else
-     print*, "Error -- cannot find file: ", trim(filenameC)
-     stop
-   endif
-   read_front=0
-   do
-    read(unitno1, '(A)', iostat=readerr) somecharacter
-       if (readerr .eq. 0) then 
-         if (somecharacter .eq. "Matrixsize Y=141" .and. read_front .eq. 0) then
-!           print*, "Char in file ", trim(filenameE), " is ", somecharacter
-            k=0 ; read_front=1   ! only read the front elevations
-           do
-            k=k+1
+            if (TestData.eq.2 .or. TestData.eq.3) then       
             if (k <= 10 ) then
              read(unitno1,'(A,A,A,A)',iostat=readerr) matrixchar,iter1,equal,somecharacter
             endif
@@ -275,34 +150,37 @@ subroutine rcnvrtp(filenameE,filenameC)
             if ( k > 100 .AND. k <= NP ) then
                read(unitno1,'(A,A,A,A)',iostat=readerr) matrixchar,iter3,equal,somecharacter
             endif
+           endif
             if (k <= NP ) then
                if (readerr .eq. 0) then  ! reads till end of data matches
-                 read (somecharacter,*) (Penta%ELE(k,i),i=1,NP) 
+                 read (somecharacter,*,iostat=readerr) (Penta%DAT(k,i),i=1,NP) !why doesn't this need a unitno?
                endif  
              else
-                 write(*,*) 'Read ',k,' rows from ', trim(filenameE)
+!                  write(*,*) 'Read ',k-1,' rows from ',trim(filename)
 !                  do k=1,NP
-!                   write (*,*) 'Matrix ',k-1,'= ',Penta%ELE(:,k)
-!                  end do                                
-!                 stop
-               exit             
+!                  write (*,*) 'Matrix ',k-1,'= ',Penta%DAT(:,k)
+!                  end do
+               exit  ! End of data         
              endif        
-           end do
+           end do 
            endif
-         else            
-           exit   !EOF
+         else                       
+           exit  !EOF
          endif        
       end do  
       close(unitno1) 
+!     First column is invalid for .CSV files, does no harm for .ELE and .CUR
+      Penta%DAT(:,1)=0
       else
-         print*, "Error ", ierr ," attempting to open file ", trim(filenameE)
+         print*, "Error ", ierr ," attempting to open file ", trim(filename)
         stop
     endif
     else
-     print*, "Error -- cannot find file: ", trim(filenameE)
+     print*, "Error -- cannot find PentaCam file: ", trim(filename)
      stop
    endif
 end subroutine rcnvrtp
+
 
 subroutine rcnvrte(RANAME,XXNAME)
 ! EYESYS VERSION

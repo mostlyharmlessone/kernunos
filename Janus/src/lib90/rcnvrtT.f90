@@ -130,18 +130,12 @@ USE cornea_arrays
         endif 
         
    if ( D < R/400.0 ) then
-    Penta%ELE(i,j)=YZ
-    Penta%CUR(i,j)=POW 
+    Penta%DAT(i,j)=POW 
 
    else
-    Penta%ELE(i,j)=-1
-    Penta%CUR(i,j)=-1
+    Penta%DAT(i,j)=-1
    endif
    end do
   end do 
-
-!write (*,*) Penta%ELE
-   
-!stop
 
  end subroutine RCNVRTT     
