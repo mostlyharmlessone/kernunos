@@ -12,7 +12,7 @@
   integer :: MM, N ,M1, N1, ITH
   integer :: TestData                  ! TestData: -1=test, 0=EyeSys, 1=Atlas, (2-5)=Penta 
   integer :: NP                        ! PentaCam=141
-  integer :: unitno1, unitno2                  
+  integer :: unitno1                  
   character(c_char), INTENT(IN), DIMENSION(4096) :: mainfile
   integer(c_int), INTENT(INOUT) :: flag ! 0 = called from Jupiter 1=called from juno  
   integer(c_int), INTENT(INOUT) :: nV 
@@ -25,7 +25,7 @@
   character(len=4096) :: new_path
   character(:), ALLOCATABLE :: inputfile1,inputfile2
   character(:), ALLOCATABLE :: logfile
-  integer ::  IuseG, IuseF, j, nblines, file_idx, file_pfx
+  integer ::  j, nblines, file_idx, file_pfx
   integer,allocatable :: MV(:)
   real :: time_start, time_end
   real(wp) :: POWMIN,POWMAX,POWMIN2,POWMAX2,POWCTR,POW
@@ -46,28 +46,29 @@
         end if
     end do loop_string
 
-!write(*,*) 'file from Jupiter/Juno/kerberos: ',trim(new_path)
+write(*,*) 'file from Jupiter/Juno/kerberos: ',trim(new_path)
 nblines=len(trim(new_path)) 
 allocate(character(nblines) :: inputfile1)
 allocate(character(nblines) :: inputfile2)
 allocate(character(nblines) :: logfile)
 inputfile1=trim(new_path)
+
 ! From either RA?.DAT or XX?.DAT, set inputfile1 to the XX version, inputfile1 to the RA version.
 ! For either .CUR or .ELE or .CUR.CSV or .ELE.CSV set inputfile1 to Penta file of appropriate type with TestData
 ! For CSV but not .ELE.CSV or .CUR.CSV set inputfile1 to Atlas file
 file_idx=index(inputfile1, ".DAT")
    if( file_idx == 0)then
-      print *, 'Not an EyeSys file'
+      write(*,*) 'Not an EyeSys file'
       file_idx=index(inputfile1, ".CSV")
       if( file_idx == 0) then
-       print *, 'Not an Atlas file'
+       write(*,*) 'Not an Atlas file'
        file_idx=index(inputfile1, ".CUR")
        if( file_idx == 0) then
         file_idx=index(inputfile1, ".ELE")
         if( file_idx == 0) then
-         print *, 'Not a PentaCam file' 
-         print *, 'Unknown file type: make some test data'
-         TestData=-1; MM=180; N=22 ; NP=141  ! make some test data 
+         write(*,*) 'Not a PentaCam file' 
+         write(*,*) 'Unknown file type: make some test data'
+         TestData=-1; MM=180; N=22 ; NP=141  ! make some test data not working
 !         TestData=-1; MM=360; N=16 ; NP=141  ! make some test data rcnvrt not working 360        
         else
 !        inputfile2=replacestr(string=inputfile1,search="ELE",substitute="CUR")        
@@ -86,20 +87,20 @@ file_idx=index(inputfile1, ".DAT")
          TestData=1; MM=180; N=22   ! Atlas 
          write(*,*) "Atlas file: ",inputfile1
         else
-        print *, 'Not an Atlas file'
+        write(*,*) 'Not an Atlas file'
  !       inputfile2=replacestr(string=inputfile1,search="ELE",substitute="CUR")        
         TestData=4; MM=180; N=22; NP=141 ! PentaCam ELE.CSV
         endif
         else
-        print *, 'Not an Atlas file'
+        write(*,*) 'Not an Atlas file'
 !       inputfile2=inputfile1
 !       inputfile1=replacestr(string=inputfile2,search="CUR",substitute="ELE")
        TestData=5; MM=180; N=22; NP=141 ! PentaCam CUR.CSV
        endif
       endif
    else
-      print *, 'suffix is found at index: ',file_idx,"length: ",len(inputfile1)
-      print *, 'prefix:',inputfile1(file_idx-2:file_idx-1)
+      write(*,*) 'suffix is found at index: ',file_idx,"length: ",len(inputfile1)
+      write(*,*) 'prefix:',inputfile1(file_idx-2:file_idx-1)
        file_pfx=index(inputfile1(file_idx-2:file_idx-1),"XX")
       if (file_pfx /= 0) then
        inputfile2=replacestr(string=inputfile1,search="XX",substitute="RA")
@@ -120,24 +121,11 @@ file_idx=index(inputfile1, ".DAT")
         endif
        else
         write(*,*) 'Error parsing EyeSys file name'
-        stop
+        return
        endif
       endif
     TestData=0 ; MM=360; N=16   ! EyeSys
     write(*,*) "EyeSys files: ",inputfile1," ",inputfile2
-   endif
-
-!  open logfile
-   logfile=replacestr(string=inputfile1,search="DAT",substitute="LOG")
-   logfile=replacestr(string=inputfile1,search="CSV",substitute="LOG")
-   logfile=replacestr(string=inputfile1,search="ELE",substitute="LOG")
-   logfile=replacestr(string=inputfile1,search="CUR",substitute="LOG")
-   inquire(file=trim(logfile), exist=exists)
-   if (.NOT.exists) then
-    unitno2 = get_new_fileunit()
-    open(unitno2, file=trim(logfile), action="write", status='replace',iostat=ierr)
-   else
-    open(unitno2, file=trim(logfile), action="write", iostat=ierr)    
    endif
 
   BigGrainyPlot='BIGG.CAR'
@@ -203,8 +191,6 @@ file_idx=index(inputfile1, ".DAT")
    JMatrix%MEANC0(2)=1E30  ;  JMatrix%MEANC0(3)=-1E30
    JMatrix%MONGEA0(2)=1E30 ;  JMatrix%MONGEA0(3)=-1E30
    JMatrix%R0=0 ; JMatrix%THT0=0
-
-
    do i=1,M1
     ITH=2*(i-1)                             ! every 2 degrees
     JMatrix%THT(i)=PI*ITH/180.0_wp
@@ -225,7 +211,6 @@ file_idx=index(inputfile1, ".DAT")
 !      JMatrix%SAGC(j,i)-POW
 !      JMatrix%Z(j,i)-Y
      endif 
-
      call SplineEval1Dx1D(1,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
      call AXIALP(JMatrix%R(j,i),YPR,YP2R2,JMatrix%SAGC(j,i))
      call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i),JMatrix%INSTC2(j,i))
@@ -246,7 +231,6 @@ file_idx=index(inputfile1, ".DAT")
      if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
     end do
    end do
-
 
    if (Testdata .eq. 1) then
     Atlas=0
@@ -284,17 +268,13 @@ file_idx=index(inputfile1, ".DAT")
    write(*,*) 'Time to convert Penta: ',(time_end-time_start)*1000
    Penta = 0              ! deallocate
    Skyline = 0
-
-    do i=1,MM
+    do i=1,MM              
      do j=1,RadSlope%MV(i)
-      if (TestData.eq.2 .or. TestData.eq.4) then 
+      if (TestData.eq.2 .or. TestData.eq.4) then ! put elevation into Zp for splining
        RadSlope%Zp(j,i)=JMatrix%Z(j,i)
-      else
-  !     call ZFCT(MM,i,100.0*ABS(JMatrix%R(j,i)),RFCT/JMatrix%SAGC(j,i),RadSlope%r(j,i),RadSlope%Zp(j,i))  !only for curvatures
       endif
      end do
     end do
-
    DiaSlope=RadSlope              ! move to diagonal format   
    DiaSlope%Zpd2 = .n. DiaSlope                               
    call MakeRadSplineCenter                                   
@@ -322,6 +302,7 @@ file_idx=index(inputfile1, ".DAT")
 !    find min and max
      if (TestData.eq.2 .or. TestData.eq.4) then  ! no valid data from Skyline=Penta
       if (JMatrix%SAGC(j,i) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC(j,i)
+      if (JMatrix%SAGC(j,i) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC(j,i)
      endif
      if (JMatrix%INSTC(j,i) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC(j,i)
      if (JMatrix%INSTC(j,i) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC(j,i)
@@ -336,11 +317,9 @@ file_idx=index(inputfile1, ".DAT")
  endif
 
   if (TestData .ge. 0) then  ! all data files (not test) needs central values computed unless they already exist
-
    if (TestData.eq.3 .or. TestData.eq.5 .or. TestData.eq.0 .or. TestData.eq.1) then 
     call SplineEval1Dx1D(1,JMatrix%R0,JMatrix%THT0,JMatrix%Z0(1))  !center value of elevation; needs integration from slopes
    endif  !TestData.eq.2 .or. TestData.eq.4  already has valid Z0 from cornea_arrays & ELE file
-
    if (TestData.ne.3 .and. TestData.ne.5) then  !TestData.eq.3 .or. TestData.eq.5  already has valid SAGC0 from cornea_arrays & CUR file
 !  Reload RadSlope & re-spline
     do i=1,MM
@@ -356,7 +335,9 @@ file_idx=index(inputfile1, ".DAT")
 
   else  
 ! OR GENERATE TEST DATA (EYESYS,ATLAS OR PENTA STYLE)
-   call init_mat_JMatrix(MM,N,JMatrix)
+
+   call init_mat_JMatrix(MM,N,JMatrix)   !whoops can't do this here anymore
+
    call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
    call init_mat_Atlas(MM,N,Atlas)
    call init_mat_Penta(NP,Penta,Skyline)   ! allocate the PentaCam matices   
@@ -418,6 +399,11 @@ file_idx=index(inputfile1, ".DAT")
   allocate (MV(MM))
   MV(:)=RadSlope%MV(:) ! store a copy
 
+write(*,*) 'This shows pathology in BAD_OD but not BAD_OS'
+write(*,*) MV(1:MM)
+write(*,*) ' '
+write(*,*) Atlas%AP(1:MM,5)  !inner ring
+stop
 !  use fillarray to fill DiaSlope Zp with calculated value based on IuseG, optionally generate LIOC
 !  using SplineEval1Dx1D to refill a new matrix RadSlope using f0, derivatives to get calculated powers
   
@@ -545,7 +531,6 @@ file_idx=index(inputfile1, ".DAT")
 
   RadSlope=0
   DiaSlope=0
-  close (unitno2)  ! close logfile
   return        
 
   END subroutine janus

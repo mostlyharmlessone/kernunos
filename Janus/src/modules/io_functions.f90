@@ -169,7 +169,7 @@ subroutine rcnvrtp(TestData,filename)
          endif        
       end do  
       close(unitno1) 
-!     First column is invalid for .CSV files, does no harm for .ELE and .CUR
+!     First column is invalid for .CUR.CSV and .ELE.CSV files, does no harm for .ELE and .CUR
       Penta%DAT(:,1)=0
       else
          print*, "Error ", ierr ," attempting to open file ", trim(filename)

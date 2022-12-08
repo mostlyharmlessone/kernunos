@@ -241,7 +241,7 @@ subroutine Skyline_eq_Penta(Skyline,Penta)  ! Arrange data Skyline, that will al
   Integer :: first_row,last_row,col(size(Penta%DAT,1)),index_row(size(Penta%DAT,1))                                
   Integer :: first_col,last_col,row(size(Penta%DAT,1)),index_col(size(Penta%DAT,1))
   NP=size(Penta%DAT,1)
-! Find edges of data, Penta "data" is contiguous
+! Find edges of data, Penta "data" is assumed contiguous and simply connected
   index_row=0 ; col=0 ; Skyline%cols=0 ; first_row=0 ; last_row=141  
   index_col=0 ; row=0 ; Skyline%rows=0 ; first_col=0 ; last_col=141
   Skyline%x=0 ; Skyline%DAT=0 ; Skyline%L2x=0 ; Skyline%L2y=0
@@ -447,7 +447,16 @@ subroutine RadSlope_eq_JMatrix(RadSlope,JMatrix)
     do i=1,MM
      do j=1,JMatrix%MV(i)
        ZIX=RFCT/JMatrix%SAGC(j,i)
-       CALL ZFCT(MM,i,ABS(JMatrix%R(j,i)),ZIX,X2A1,YA3)
+       if (ZIX > ABS(JMatrix%R(j,i)) ) then
+        call ZFCT(MM,i,ABS(JMatrix%R(j,i)),ZIX,X2A1,YA3)
+       else
+        JMatrix%MV(i)=j
+        RadSlope%r(j,i)=JMatrix%Z(j,i)
+        RadSlope%Zp(j,i)=0._wp  ! sets border
+        RadSlope%Z(j,i)=JMatrix%Z(j,i)
+        RadSlope%Zp2(j,i)=1/803.0_wp ! fallback value before splining
+        cycle
+       endif
        RadSlope%r(j,i)=X2A1
        RadSlope%Zp(j,i)=YA3
        RadSlope%Z(j,i)=JMatrix%Z(j,i)
@@ -501,22 +510,26 @@ subroutine RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas) ! initially populates r, th
      RadSlope%thta(i)=PI*Atlas%DEG(i)/180.0_wp
      JMatrix%THT(i)=PI*Atlas%DEG(i)/180.0_wp
      do j=1,N
-      if ((Atlas%AP(i,j) > 0) .AND. (Atlas%AR(i,j) > 0) .AND. (Atlas%AD(i,j) > 0)) then    ! Only for Atlas with valid data /= 0 
-       imv(i)=imv(i)+1      
+      if ((Atlas%AP(i,j) > 0) .AND. (Atlas%AR(i,j) > 0) .AND. (Atlas%AD(i,j) > 0)) then    ! Only for Atlas with valid data /= 0
        DIST=Atlas%AD(i,j)
        R=Atlas%AR(i,j)
        POW=Atlas%AP(i,j)
        ZIX=RFCT/POW
 !      could use DIST or R here
-       ZJX=DIST*100                                              
-       CALL ZFCT(MM,i,ZJX,ZIX,X2A1,YA3)
-        RadSlope%r(imv(i),i)=X2A1
-        RadSlope%Zp(imv(i),i)=YA3
-        RadSlope%Z(imv(i),i)=Atlas%AY(i,j)
-        JMatrix%SAGC(imv(i),i)=POW        
-        JMatrix%Z(imv(i),i)=Atlas%AY(i,j) 
-      endif 
-      RadSlope%Zp2(imv(i),i)=1/803.0_wp ! fallback value before splining
+       ZJX=DIST*100
+       if (ZIX > ZJX) then
+        imv(i)=imv(i)+1                                            
+        CALL ZFCT(MM,i,ZJX,ZIX,X2A1,YA3)
+       else
+        cycle
+       endif
+       RadSlope%r(imv(i),i)=X2A1
+       RadSlope%Zp(imv(i),i)=YA3
+       RadSlope%Z(imv(i),i)=Atlas%AY(i,j)
+       JMatrix%SAGC(imv(i),i)=POW        
+       JMatrix%Z(imv(i),i)=Atlas%AY(i,j) 
+       RadSlope%Zp2(imv(i),i)=1/803.0_wp ! fallback value before splining
+      endif
       if (JMatrix%Z(j,i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z(j,i)
       if (JMatrix%Z(j,i) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z(j,i)  
       if (JMatrix%SAGC(j,i) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC(j,i)
