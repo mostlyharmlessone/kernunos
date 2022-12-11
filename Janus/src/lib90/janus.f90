@@ -177,6 +177,12 @@ file_idx=index(inputfile1, ".DAT")
    DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope
   endif
+  
+write(*,*) 'Janus: this shows pathology in BAD_OD but not BAD_OS, BAD_OS has higher curvature in general, but esp in center'
+write(*,*) RadSlope%MV(1:MM)
+write(*,*) ' '
+write(*,*) Atlas%AP(1:MM,17)  !ring might be same at 17 - good for a comparison
+
 
   if ((TestData .eq. 1) .or. (TestData .eq. 0)) then
 !  make round rings and if needed convert 360x16 to 180x22 
@@ -399,11 +405,6 @@ file_idx=index(inputfile1, ".DAT")
   allocate (MV(MM))
   MV(:)=RadSlope%MV(:) ! store a copy
 
-write(*,*) 'This shows pathology in BAD_OD but not BAD_OS'
-write(*,*) MV(1:MM)
-write(*,*) ' '
-write(*,*) Atlas%AP(1:MM,5)  !inner ring
-stop
 !  use fillarray to fill DiaSlope Zp with calculated value based on IuseG, optionally generate LIOC
 !  using SplineEval1Dx1D to refill a new matrix RadSlope using f0, derivatives to get calculated powers
   
