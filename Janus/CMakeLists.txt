@@ -89,6 +89,8 @@ else()
     message("Failed to find WxWidgets library")
 endif()
 # Qt
+SET(Qt5_DIR "/usr/lib/x86_64-linux-gnu/qt5")
+SET(Qt6_DIR "/usr/lib/x86_64-linux-gnu/qt6")
 find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets OpenGL)
 find_package(Qt6 REQUIRED COMPONENTS Core Gui OpenGLWidgets OpenGL)
 #GTK4
@@ -125,7 +127,8 @@ find_package(OpenCL)
  if ( OPENCL_FOUND )
   message(STATUS "OPENCL found at ${OPENCL_LIBRARIES}")   
  else()
-  set(OPENCL_LIBRARIES "/usr/lib/libOpenCL.so")
+#  set(OPENCL_LIBRARIES "/usr/lib/libOpenCL.so")
+  set(OPENCL_LIBRARIES "/usr/lib/x86_64-linux-gnu/libOpenCL.so.1") 
  endif()
 find_package(OpenMP)
 # from learnopengl: attempt to make buildable apple/win32 too
@@ -210,10 +213,10 @@ endif(WIN32)
     add_executable(kernunos src/cxx/kernunos/kernunos.cpp src/lib90/janus.f90 src/cxx/opengl_show.cpp)  
     target_link_libraries(kernunos PRIVATE OpenMP::OpenMP_CXX PUBLIC Qt6::Core Qt6::OpenGLWidgets Qt6::Gui Qt6::OpenGL splia modules rply_includes ${LIBS})
        
-    add_executable(${PROJECT_NAME} src/cxx/Jupiter.cpp src/lib90/janus.f90 src/cxx/opengl_show.cpp src/cxx/mathstuff.cpp )
+#    add_executable(${PROJECT_NAME} src/cxx/Jupiter.cpp src/lib90/janus.f90 src/cxx/opengl_show.cpp src/cxx/mathstuff.cpp )
     add_executable(juno src/lib90/juno.f90 src/lib90/janus.f90 src/cxx/opengl_show.cpp)
 
-    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${wxWidgets_LIBRARIES} ${LIBS})
+#    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${wxWidgets_LIBRARIES} ${LIBS})
     target_link_libraries(juno PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${LIBS})
         
     

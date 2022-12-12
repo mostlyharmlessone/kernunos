@@ -173,16 +173,23 @@ file_idx=index(inputfile1, ".DAT")
    call RCNVRTA(inputfile1)
    call CPU_TIME(time_end)
    write(*,*) 'Time to read Atlas CSV file: ',(time_end-time_start)*1000
+   
    call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)
+   
+   if (allocated(JMatrix1%R)) then  
+    call RadSlope_eq_Atlas(JMatrix1,RadSlope,Atlas)
+   endif   
+   
    DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope
-  endif
-  
-write(*,*) 'Janus: this shows pathology in BAD_OD but not BAD_OS, BAD_OS has higher curvature in general, but esp in center'
+   
+ write(*,*) 'Janus: this shows pathology in BAD_OD but not BAD_OS, BAD_OS has higher curvature in general, but esp in center'
 write(*,*) RadSlope%MV(1:MM)
 write(*,*) ' '
-write(*,*) Atlas%AP(1:MM,17)  !ring might be same at 17 - good for a comparison
-
+write(*,*) Atlas%AP(1:MM,17)  !ring might be same at 17 - good for a comparison  
+      
+  endif
+  
 
   if ((TestData .eq. 1) .or. (TestData .eq. 0)) then
 !  make round rings and if needed convert 360x16 to 180x22 
