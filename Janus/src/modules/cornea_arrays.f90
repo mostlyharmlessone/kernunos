@@ -136,12 +136,12 @@ subroutine init_mat_Penta(NP,Penta,Skyline) ! allocate PentaCam arrays
   endif
 end subroutine init_mat_Penta
 
-subroutine init_mat_JMatrix(MM,N,JMatrix) ! allocate EyeSys arrays
+subroutine init_mat_JMatrix(MM,N,b) ! allocate EyeSys arrays
   INTEGER, INTENT(IN) :: MM,N
-  TYPE(wpJMatrix) :: JMatrix
-  allocate (JMatrix%R(N,MM),JMatrix%Z(N+1,MM),JMatrix%THT(MM),JMatrix%SAGC(N+1,MM),&
-            JMatrix%INSTC(N+1,MM),JMatrix%INSTC2(N+1,MM),JMatrix%MEANC(N+1,MM),JMatrix%MONGEA(N+1,MM))
-  allocate (JMatrix%MV(MM),JMatrix%RC(MM),JMatrix%LIOC(MM*N,4))
+  TYPE(wpJMatrix) :: b
+  allocate (b%R(N,MM),b%Z(N+1,MM),b%THT(MM),b%SAGC(N+1,MM),&
+            b%INSTC(N+1,MM),b%INSTC2(N+1,MM),b%MEANC(N+1,MM),b%MONGEA(N+1,MM))
+  allocate (b%MV(MM),b%RC(MM),b%LIOC(MM*N,4))
 end subroutine init_mat_JMatrix
 
 subroutine init_mat_EyeSys(MM,N,EyeSys) ! allocate EyeSys arrays

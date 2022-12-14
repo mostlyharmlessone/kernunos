@@ -25,3 +25,6 @@
 [submodule "Janus/rplycpp"]
 	path = Janus/rplycpp
 	url = https://github.com/manlito/rplycpp
+[submodule "Janus/f90getopt"]
+	path = Janus/f90getopt
+	url = https://github.com/haniibrahim/f90getopt

@@ -145,6 +145,32 @@ file_idx=index(inputfile1, ".DAT")
     if (allocated(JMatrix%R)) then
      write(*,*) 'allocating JMatrix1'
      call init_mat_JMatrix(M1,N1,JMatrix1)
+     JMatrix1%R(:,:)=JMatrix%R(:,:)
+     JMatrix1%Z(:,:)=JMatrix%Z(:,:)
+     JMatrix1%THT(:)=JMatrix%THT(:)
+     JMatrix1%SAGC(:,:)=JMatrix%SAGC(:,:)
+     JMatrix1%INSTC(:,:)=JMatrix%INSTC(:,:)
+     JMatrix1%INSTC2(:,:)=JMatrix%INSTC2(:,:)
+     JMatrix1%MEANC(:,:)=JMatrix%MEANC(:,:)
+     JMatrix1%MONGEA(:,:)=JMatrix%MONGEA(:,:)
+     JMatrix1%RC(:)=JMatrix%RC(:)
+     JMatrix1%LIOC(:,:)=JMatrix%LIOC(:,:)
+     JMatrix1%MV(:)=JMatrix%MV(:)  
+     JMatrix1%R0=JMatrix%R0
+     JMatrix1%Z0(:)=JMatrix%Z0(:)
+     JMatrix1%THT0=JMatrix%THT0
+     JMatrix1%SAGC0(:)=JMatrix%SAGC0(:)
+     JMatrix1%INSTC0(:)=JMatrix%INSTC0(:)
+     JMatrix1%INSTC20(:)=JMatrix%INSTC20(:)
+     JMatrix1%MEANC0(:)=JMatrix%MEANC0(:)
+     JMatrix1%MONGEA0(:)=JMatrix%MONGEA0(:)
+
+     write(*,*) 'Assigning Z in janus: '
+     write(*,*)  JMatrix%Z(1,:)
+     write(*,*) ' '
+     write(*,*)  JMatrix1%Z(1,:)    !WTF this isn't the same as JMatrix1%Z(1,:) below
+     write(*,*) ' '
+
     else
      write(*,*) 'allocating JMatrix'
      call init_mat_JMatrix(M1,N1,JMatrix)
@@ -173,13 +199,7 @@ file_idx=index(inputfile1, ".DAT")
    call RCNVRTA(inputfile1)
    call CPU_TIME(time_end)
    write(*,*) 'Time to read Atlas CSV file: ',(time_end-time_start)*1000
-   
-   call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)
-   
-   if (allocated(JMatrix1%R)) then  
-    call RadSlope_eq_Atlas(JMatrix1,RadSlope,Atlas)
-   endif   
-   
+   call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)     
    DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope
    
@@ -412,6 +432,31 @@ write(*,*) Atlas%AP(1:MM,17)  !ring might be same at 17 - good for a comparison
   allocate (MV(MM))
   MV(:)=RadSlope%MV(:) ! store a copy
 
+  if (allocated(JMatrix1%R)) then
+
+     write(*,*) 'Subtracting Z in janus: '
+     write(*,*)  JMatrix%Z(1,:)
+     write(*,*) ' '
+     write(*,*)  JMatrix1%Z(1,:)    !WTF this didn't get assigned
+     write(*,*) ' '
+
+     JMatrix%Z(:,:)=JMatrix1%Z(:,:)-JMatrix%Z(:,:)
+
+     write(*,*)  JMatrix%Z(1,:)
+
+     JMatrix%SAGC(:,:)=JMatrix1%SAGC(:,:)-JMatrix%SAGC(:,:)
+     JMatrix%INSTC(:,:)=JMatrix1%INSTC(:,:)-JMatrix%INSTC(:,:)
+     JMatrix%INSTC2(:,:)=JMatrix1%INSTC2(:,:)-JMatrix%INSTC2(:,:)
+     JMatrix%MEANC(:,:)=JMatrix1%MEANC(:,:)-JMatrix%MEANC(:,:)
+     JMatrix%MONGEA(:,:)=JMatrix1%MONGEA(:,:)-JMatrix%MONGEA(:,:)
+     JMatrix%Z0(:)=JMatrix1%Z0(:)-JMatrix%Z0(:)
+     JMatrix%SAGC0(:)=JMatrix1%SAGC0(:)-JMatrix%SAGC0(:)
+     JMatrix%INSTC0(:)=JMatrix1%INSTC0(:)-JMatrix%INSTC0(:)
+     JMatrix%INSTC20(:)=JMatrix1%INSTC20(:)-JMatrix%INSTC20(:)
+     JMatrix%MEANC0(:)=JMatrix1%MEANC0(:)-JMatrix%MEANC0(:)
+     JMatrix%MONGEA0(:)=JMatrix1%MONGEA0(:)-JMatrix%MONGEA0(:)   
+  endif
+
 !  use fillarray to fill DiaSlope Zp with calculated value based on IuseG, optionally generate LIOC
 !  using SplineEval1Dx1D to refill a new matrix RadSlope using f0, derivatives to get calculated powers
   
@@ -447,8 +492,7 @@ write(*,*) Atlas%AP(1:MM,17)  !ring might be same at 17 - good for a comparison
 !  atmp=pca(3,RadSlope)
 ! writes values in openGL friendly format to matrices for passing to C/C++; flag to display with glfw using juno
 
-  call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
-
+   call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
 !  the cube example
 !   nV = 48
 
@@ -539,6 +583,9 @@ write(*,*) Atlas%AP(1:MM,17)  !ring might be same at 17 - good for a comparison
 
   RadSlope=0
   DiaSlope=0
+
+  write(*,*) 'Done: janus'
+
   return        
 
   END subroutine janus

@@ -153,7 +153,7 @@
           pow_vert2=b%SAGC(1,I+1)
           pow_vert3=b%SAGC0(1)
           pow_face3_1=(pow_vert1+pow_vert2+pow_vert3)/3
-          if (ieee_is_finite(pow_face3_1) .and. (powmax-powmin) > eps) then
+          if (ieee_is_finite(pow_face3_1) ) then  !.and. (powmax-powmin) > eps
            vertnum=3
            rgbv=rgb5(pow_face3_1,powmin,powmax)
           else

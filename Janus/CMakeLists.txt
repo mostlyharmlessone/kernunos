@@ -214,7 +214,7 @@ endif(WIN32)
     target_link_libraries(kernunos PRIVATE OpenMP::OpenMP_CXX PUBLIC Qt6::Core Qt6::OpenGLWidgets Qt6::Gui Qt6::OpenGL splia modules rply_includes ${LIBS})
        
 #    add_executable(${PROJECT_NAME} src/cxx/Jupiter.cpp src/lib90/janus.f90 src/cxx/opengl_show.cpp src/cxx/mathstuff.cpp )
-    add_executable(juno src/lib90/juno.f90 src/lib90/janus.f90 src/cxx/opengl_show.cpp)
+    add_executable(juno src/lib90/juno.f90 src/lib90/janus.f90 src/cxx/opengl_show.cpp f90getopt/f90getopt.F90)
 
 #    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${wxWidgets_LIBRARIES} ${LIBS})
     target_link_libraries(juno PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${LIBS})
