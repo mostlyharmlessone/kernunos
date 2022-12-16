@@ -16,23 +16,23 @@ GLuint* elements = Elements.data();
 
 bool success=false;
 
-/*
-int nV = 48;
-int nE = 36;
-GLfloat* vertices = {
-              -0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f,  // Top-left & Red (x,y,z,r,g,b)
-              0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f,  // Top-right & Green
-              0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 1.0f,  // Bottom-right & Blue
-             -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f,   // Bottom-left & White
-              -0.5f,  0.5f, 0.5f, 1.0f, 1.0f, 0.0f,  // Top-left & Orange? (x,y,z,r,g,b)
-              0.5f,  0.5f, 0.5f, 0.0f, 1.0f, 1.0f,  // Top-right & Yellow?
-              0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 1.0f,  // Bottom-right & Pink?
-             -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f   // Bottom-left & Black
+
+int nV_cube = 48;
+int nE_cube = 36;
+GLfloat cube_vertices[] = {
+              -50.0f,  50.0f, -50.0f, 1.0f, 0.0f, 0.0f,  // Top-left & Red (x,y,z,r,g,b)
+              50.0f,  50.0f, -50.0f, 0.0f, 1.0f, 0.0f,  // Top-right & Green
+              50.0f, -50.0f, -50.0f, 0.0f, 0.0f, 1.0f,  // Bottom-right & Blue
+             -50.0f, -50.0f, -50.0f, 1.0f, 1.0f, 1.0f,   // Bottom-left & White
+              -50.0f,  50.0f, 50.0f, 1.0f, 1.0f, 0.0f,  // Top-left & Orange? (x,y,z,r,g,b)
+              50.0f,  50.0f, 50.0f, 0.0f, 1.0f, 1.0f,  // Top-right & Yellow?
+              50.0f, -50.0f, 50.0f, 1.0f, 0.0f, 1.0f,  // Bottom-right & Pink?
+             -50.0f, -50.0f, 50.0f, 0.0f, 0.0f, 0.0f   // Bottom-left & Black
           };
 
 
 // 12 triangles = 6 faces with triangles per face
-GLuint* elements = {
+GLuint cube_elements[] = {
               0, 1, 2,
               2, 3, 0,
               4, 5, 6,
@@ -46,7 +46,7 @@ GLuint* elements = {
               1, 5, 6,
               6, 2, 1
           };
-*/
+
 
 static const GLchar* vertexSource = R"glsl(
 #version 400 core
@@ -88,7 +88,6 @@ GLwidget::GLwidget ( QWidget *parent ) : QOpenGLWidget(parent)
   setFocusPolicy(Qt::StrongFocus);
   cameraPos = QVector3D(0, 0, 6);
 }
-
 
 GLwidget::~GLwidget()
 {
@@ -401,15 +400,15 @@ MainWindow::MainWindow()
     infoLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     infoLabel->setAlignment(Qt::AlignCenter);
 
-//    QOpenGLWidget *window2 = new GLwidget(this);
-//    window2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    QOpenGLWidget *window2 = new GLwidget(this);
+    window2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     QWidget *window3 = new QWidget(this);
     window3->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(window1);
-//    layout->addWidget(window2);
+    layout->addWidget(window2);
     layout->addWidget(window3);
         widget->setLayout(layout);
     layout->addWidget(infoLabel);
@@ -420,6 +419,7 @@ MainWindow::MainWindow()
     setWindowTitle(tr("Kernunos"));
     setMinimumSize(400, 400);
     resize(SCR_WIDTH, SCR_HEIGHT);
+    update();
 }
 
 void MainWindow::SetGLString(QString& gls)
@@ -431,15 +431,16 @@ void MainWindow::open()
 {
     infoLabel->setText(tr("Invoked <b>File|Open</b>"));
 
-    QString filter = "PentaCam (*.CUR *.ELE);;EyeSys (*.DAT);;Atlas (*.CSV)";
+    QString filter = "All (*.*);;PentaCam (*.CUR *.ELE *.CUR.CSV *.ELE.CSV);;EyeSys (*.DAT);;Atlas (*.CSV)";
     QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
     if (fileName.isEmpty())
       return;
     QByteArray ba = fileName.toLocal8Bit();
     const char *filename = ba.data();
-    std::cout << "filename in C++ " << filename << std::endl;
+    infoLabel->setText(tr("filename:  ")+tr(filename));
     if (!fileName.isEmpty())
         m_GLwidget->DataLoad(fileName);
+    update();
 }
 
 
@@ -455,12 +456,23 @@ void MainWindow::print()
 
 void MainWindow::about()
 {
+    // https://www.modernescpp.com/index.php/asynchronous-callable-wrappers
+    static const unsigned int hwGuess= 4;
+    //  these could come in handy later for available number of threads/cores for asynchronous tasks
+        unsigned int hw = std::thread::hardware_concurrency();
+        unsigned int hwConcurr= (hw != 0)? hw : hwGuess;
+        std::string t = std::to_string(hwConcurr);
+        char const *n_char = t.c_str();
+    //    infoLabel->setText(tr("Cores found by Kernunos: ")+n_char);
+
     infoLabel->setText(tr("Invoked <b>Help|About</b>"));
     const char *glstring;
     QByteArray gl8 = glstring_global.toLocal8Bit();
     glstring = gl8.data();
     QString sglVer = "Kernunos runs on Qt and OpenGL.\nSee acknowledgements\n";
     sglVer += glstring;
+    sglVer += "\nCores found: ";
+    sglVer += n_char;
     QMessageBox::about(this, tr("About Kernunos"),sglVer);
 }
 
@@ -541,13 +553,6 @@ int main(int argc, char *argv[])
             break;
         }
     }
-
-    // https://www.modernescpp.com/index.php/asynchronous-callable-wrappers
-    static const unsigned int hwGuess= 4;
-    //  these could come in handy later for available number of threads/cores for asynchronous tasks
-        unsigned int hw = std::thread::hardware_concurrency();
-        unsigned int hwConcurr= (hw != 0)? hw : hwGuess;
-        std::cout << "Cores found by Kernunos: " << hwConcurr << std::endl;
 
    MainWindow window;
 //    GLwidget window;

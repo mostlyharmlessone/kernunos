@@ -472,11 +472,12 @@ write(*,*) Atlas%AP(1:MM,17)  !ring might be same at 17 - good for a comparison
    powmin=JMatrix%SAGC0(2)  
    powmax=JMatrix%SAGC0(3)
    write(*,*) 'powctr,POWMIN,POWMAX',powctr,POWMIN,POWMAX
-   powmin=10.0 
+   powmin=35.5
+   powmax=55.5
    
 ! Writes OFF and ASCII PLY files
   call WriteGeom(JMatrix,donut,powmin,powmax,'elevation.off','elevation.ply')
-! from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY MIT licence, included source in tree
+! from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY; MIT licence, included source in tree
 ! call execute_command_line ("./ConvertPLYtoBIN -l elevation.ply elevation.bin.ply",exitstat=i)
 ! only call if quad .eqv. .FALSE.
 ! Writes STL from OFF
