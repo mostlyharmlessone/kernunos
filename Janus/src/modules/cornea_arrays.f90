@@ -446,12 +446,13 @@ subroutine RadSlope_eq_JMatrix(RadSlope,JMatrix)
     RadSlope%MV(:)=JMatrix%MV(:)
     do i=1,MM
      do j=1,JMatrix%MV(i)
+      if (ABS(JMatrix%SAGC(j,i)) > 0) then
        ZIX=RFCT/JMatrix%SAGC(j,i)
        if (ZIX > ABS(JMatrix%R(j,i)) ) then
         call ZFCT(MM,i,ABS(JMatrix%R(j,i)),ZIX,X2A1,YA3)
-       else
+        else
         JMatrix%MV(i)=j
-        RadSlope%r(j,i)=JMatrix%Z(j,i)
+        RadSlope%r(j,i)=JMatrix%R(j,i)
         RadSlope%Zp(j,i)=0._wp  ! sets border
         RadSlope%Z(j,i)=JMatrix%Z(j,i)
         RadSlope%Zp2(j,i)=1/803.0_wp ! fallback value before splining
@@ -460,7 +461,15 @@ subroutine RadSlope_eq_JMatrix(RadSlope,JMatrix)
        RadSlope%r(j,i)=X2A1
        RadSlope%Zp(j,i)=YA3
        RadSlope%Z(j,i)=JMatrix%Z(j,i)
-       RadSlope%Zp2(j,i)=1/803.0_wp ! fallback value before splining  
+       RadSlope%Zp2(j,i)=1/803.0_wp ! fallback value before splining
+      else
+       JMatrix%MV(i)=j
+       RadSlope%r(j,i)=JMatrix%R(j,i)
+       RadSlope%Zp(j,i)=0._wp  ! sets border
+       RadSlope%Z(j,i)=JMatrix%Z(j,i)
+       RadSlope%Zp2(j,i)=1/803.0_wp ! fallback value before splining
+       cycle      
+      endif       
      end do
     end do
 end subroutine RadSlope_eq_JMatrix

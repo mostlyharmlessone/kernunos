@@ -59,6 +59,7 @@ protected:
 
 private slots:
     void open();
+    void compare();
     void save();
     void print();
     void about();
@@ -69,9 +70,11 @@ private:
     void createMenus();
 
     GLwidget* m_GLwidget;
+    GLwidget* m_GLwidget_secondwindow;
     QMenu *fileMenu;
     QMenu *helpMenu;
     QAction *openAct;
+    QAction *compareAct;
     QAction *saveAct;
     QAction *exitAct;
     QAction *printAct;

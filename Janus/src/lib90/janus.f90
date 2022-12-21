@@ -164,13 +164,6 @@ file_idx=index(inputfile1, ".DAT")
      JMatrix1%INSTC20(:)=JMatrix%INSTC20(:)
      JMatrix1%MEANC0(:)=JMatrix%MEANC0(:)
      JMatrix1%MONGEA0(:)=JMatrix%MONGEA0(:)
-
-     write(*,*) 'Assigning Z in janus: '
-     write(*,*)  JMatrix%Z(1,:)
-     write(*,*) ' '
-     write(*,*)  JMatrix1%Z(1,:)    !WTF this isn't the same as JMatrix1%Z(1,:) below
-     write(*,*) ' '
-
     else
      write(*,*) 'allocating JMatrix'
      call init_mat_JMatrix(M1,N1,JMatrix)
@@ -202,12 +195,6 @@ file_idx=index(inputfile1, ".DAT")
    call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)     
    DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope
-   
- write(*,*) 'Janus: this shows pathology in BAD_OD but not BAD_OS, BAD_OS has higher curvature in general, but esp in center'
-write(*,*) RadSlope%MV(1:MM)
-write(*,*) ' '
-write(*,*) Atlas%AP(1:MM,17)  !ring might be same at 17 - good for a comparison  
-      
   endif
   
 
@@ -433,17 +420,6 @@ write(*,*) Atlas%AP(1:MM,17)  !ring might be same at 17 - good for a comparison
   MV(:)=RadSlope%MV(:) ! store a copy
 
   if (allocated(JMatrix1%R)) then
-
-     write(*,*) 'Subtracting Z in janus: '
-     write(*,*)  JMatrix%Z(1,:)
-     write(*,*) ' '
-     write(*,*)  JMatrix1%Z(1,:)    !WTF this didn't get assigned
-     write(*,*) ' '
-
-     JMatrix%Z(:,:)=JMatrix1%Z(:,:)-JMatrix%Z(:,:)
-
-     write(*,*)  JMatrix%Z(1,:)
-
      JMatrix%SAGC(:,:)=JMatrix1%SAGC(:,:)-JMatrix%SAGC(:,:)
      JMatrix%INSTC(:,:)=JMatrix1%INSTC(:,:)-JMatrix%INSTC(:,:)
      JMatrix%INSTC2(:,:)=JMatrix1%INSTC2(:,:)-JMatrix%INSTC2(:,:)

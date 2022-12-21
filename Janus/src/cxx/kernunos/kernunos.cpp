@@ -410,7 +410,7 @@ MainWindow::MainWindow()
     layout->addWidget(window1);
     layout->addWidget(window2);
     layout->addWidget(window3);
-        widget->setLayout(layout);
+    widget->setLayout(layout);
     layout->addWidget(infoLabel);
 
     createActions();
@@ -443,6 +443,21 @@ void MainWindow::open()
     update();
 }
 
+void MainWindow::compare()
+{
+    infoLabel->setText(tr("Invoked <b>File|Open</b>"));
+
+    QString filter = "All (*.*);;PentaCam (*.CUR *.ELE *.CUR.CSV *.ELE.CSV);;EyeSys (*.DAT);;Atlas (*.CSV)";
+    QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
+    if (fileName.isEmpty())
+      return;
+    QByteArray ba = fileName.toLocal8Bit();
+    const char *filename = ba.data();
+    infoLabel->setText(tr("filename:  ")+tr(filename));
+    if (!fileName.isEmpty())
+        m_GLwidget_secondwindow->DataLoad(fileName);
+    update();
+}
 
 void MainWindow::save()
 {
@@ -459,20 +474,20 @@ void MainWindow::about()
     // https://www.modernescpp.com/index.php/asynchronous-callable-wrappers
     static const unsigned int hwGuess= 4;
     //  these could come in handy later for available number of threads/cores for asynchronous tasks
-        unsigned int hw = std::thread::hardware_concurrency();
-        unsigned int hwConcurr= (hw != 0)? hw : hwGuess;
-        std::string t = std::to_string(hwConcurr);
-        char const *n_char = t.c_str();
-    //    infoLabel->setText(tr("Cores found by Kernunos: ")+n_char);
+    unsigned int hw = std::thread::hardware_concurrency();
+    unsigned int hwConcurr= (hw != 0)? hw : hwGuess;
+    std::string t = std::to_string(hwConcurr);
+    char const *n_char = t.c_str();
+    // infoLabel->setText(tr("Cores found by Kernunos: ")+n_char);
 
     infoLabel->setText(tr("Invoked <b>Help|About</b>"));
     const char *glstring;
     QByteArray gl8 = glstring_global.toLocal8Bit();
     glstring = gl8.data();
     QString sglVer = "Kernunos runs on Qt and OpenGL.\nSee acknowledgements\n";
-    sglVer += glstring;
     sglVer += "\nCores found: ";
     sglVer += n_char;
+    sglVer += glstring;
     QMessageBox::about(this, tr("About Kernunos"),sglVer);
 }
 
@@ -489,6 +504,10 @@ void MainWindow::createActions()
     openAct->setShortcuts(QKeySequence::Open);
     openAct->setStatusTip(tr("Open an existing file"));
     connect(openAct, &QAction::triggered, this, &MainWindow::open);
+
+    compareAct = new QAction(tr("&Compare..."), this);
+    compareAct->setStatusTip(tr("Compare to previous file"));
+    connect(compareAct, &QAction::triggered, this, &MainWindow::compare);
 
     saveAct = new QAction(tr("&Save"), this);
     saveAct->setShortcuts(QKeySequence::Save);
@@ -520,6 +539,7 @@ void MainWindow::createMenus()
 {
     fileMenu = menuBar()->addMenu(tr("&File"));
     fileMenu->addAction(openAct);
+    fileMenu->addAction(compareAct);
     fileMenu->addAction(saveAct);
     fileMenu->addAction(printAct);
     fileMenu->addSeparator();
