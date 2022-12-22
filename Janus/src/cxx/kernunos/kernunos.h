@@ -90,16 +90,16 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     Q_OBJECT
 
   public:
-    GLwidget( QWidget *parent=nullptr );
+    GLwidget( QWidget *parent );
     ~GLwidget();
 
-    bool DataLoad(QString fileName);
+    bool DataLoad(QString fileName, bool first);
 
-//  public slots:
+  public slots:
 
-//  signals:
+  signals:
 
-//  protected:
+  protected:
 
     void initializeGL(void);
     void resizeGL( int w, int h );
@@ -113,6 +113,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     void updateMouse();
 
   private:
+
     MainWindow *m_parent;
     QOpenGLShaderProgram shaderProgram;
     GLuint programID;

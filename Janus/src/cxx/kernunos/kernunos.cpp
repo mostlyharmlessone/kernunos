@@ -15,7 +15,7 @@ GLfloat* vertices = Vertices.data();
 GLuint* elements = Elements.data();
 
 bool success=false;
-
+//bool first = false;
 
 int nV_cube = 48;
 int nE_cube = 36;
@@ -83,7 +83,6 @@ QString *m_GLString=nullptr;
 QString glstring_global;
 
 GLwidget::GLwidget ( QWidget *parent ) : QOpenGLWidget(parent)
-
 {
   setFocusPolicy(Qt::StrongFocus);
   cameraPos = QVector3D(0, 0, 6);
@@ -119,7 +118,6 @@ void GLwidget::initializeGL()
 
   // Enable depth test
   glEnable(GL_DEPTH_TEST);
-
   // Accept fragment if it closer to the camera than the former one
   glDepthFunc(GL_LESS);
 
@@ -158,7 +156,6 @@ void GLwidget::initializeGL()
   shaderProgram.link();
 
   // Get a handle
-
   MatrixID = glGetUniformLocation(programID, "mMVP");
   glBindAttribLocation(programID, 0, "fragColor");
 
@@ -168,46 +165,56 @@ void GLwidget::initializeGL()
     glGenBuffers(1, &elementbuffer);
 }
 
-bool GLwidget::DataLoad(QString fileName)
+bool GLwidget::DataLoad(QString fileName, bool first)
 {
     QByteArray ba = fileName.toLocal8Bit();
     const char *filename = ba.data();
-    std::cout << "filename in C++ in DataLoad: " << filename << std::endl;
+//    std::cout << "filename in C++ in DataLoad: " << filename << std::endl;
 
-    auto future1 = std::async([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);});
-    future1.get();
-//      janus_(&flag, filename, elements, vertices, &nV, &nE);
+    if (!first)
+     {
+      auto future1 = std::async([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);});
+      future1.get();
+      //      janus_(&flag, filename, elements, vertices, &nV, &nE);
+     }
+    else
+     {
+      elements=cube_elements;
+      vertices=cube_vertices;
+      nV=nV_cube;
+      nE=nE_cube;
+     }
   return true;
 }
 
 
 bool GLwidget::LoadSurfaceToBuffer(int nV, int nE, GLfloat* vertices, GLuint* elements)
 {
-      glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-      GLint data_size_in_bytes = sizeof(GLfloat)*nV;                              // 4-bytes per float x number of vertices
-      glBufferData(GL_ARRAY_BUFFER, data_size_in_bytes, vertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+    GLint data_size_in_bytes = sizeof(GLfloat)*nV;                              // 4-bytes per float x number of vertices
+    glBufferData(GL_ARRAY_BUFFER, data_size_in_bytes, vertices, GL_STATIC_DRAW);
 
-      GLint size = 0;
-      glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-       if(data_size_in_bytes != size)
-        {
-         glDeleteBuffers(1, &vertexbuffer);
-         std::cout << "Error in vertices buffer: " << data_size_in_bytes << ", " << size << std::endl;
-         return false;
-        }
+    GLint size = 0;
+    glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+     if(data_size_in_bytes != size)
+      {
+       glDeleteBuffers(1, &vertexbuffer);
+       std::cout << "Error in vertices buffer: " << data_size_in_bytes << ", " << size << std::endl;
+       return false;
+      }
 
-       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-       data_size_in_bytes = sizeof(GLuint)*nE;                // 4-bytes per int x number of elements
-       glBufferData(GL_ELEMENT_ARRAY_BUFFER, data_size_in_bytes, elements, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+    data_size_in_bytes = sizeof(GLuint)*nE;                // 4-bytes per int x number of elements
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, data_size_in_bytes, elements, GL_STATIC_DRAW);
 
-       size = 0;
-       glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-        if(data_size_in_bytes != size)
-          {
-           glDeleteBuffers(1, &elementbuffer);
-           std::cout << "Error in element buffer: " << data_size_in_bytes << ", " << size << std::endl;
-           return false;
-          }
+    size = 0;
+    glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+     if(data_size_in_bytes != size)
+       {
+        glDeleteBuffers(1, &elementbuffer);
+        std::cout << "Error in element buffer: " << data_size_in_bytes << ", " << size << std::endl;
+        return false;
+       }
 
     GLint posAttrib = glGetAttribLocation(programID, "position");
     glEnableVertexAttribArray(posAttrib);
@@ -223,14 +230,12 @@ bool GLwidget::LoadSurfaceToBuffer(int nV, int nE, GLfloat* vertices, GLuint* el
 
 void GLwidget::paintGL(void)
 {
-    if ( !success )
-        return;
+    if ( !success ) return;
 
     LoadSurfaceToBuffer(nV, nE, vertices, elements);
 
     // Clear the screen
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     // Use our shader
     glUseProgram(programID);
 
@@ -412,10 +417,8 @@ MainWindow::MainWindow()
     layout->addWidget(window3);
     widget->setLayout(layout);
     layout->addWidget(infoLabel);
-
     createActions();
     createMenus();
-
     setWindowTitle(tr("Kernunos"));
     setMinimumSize(400, 400);
     resize(SCR_WIDTH, SCR_HEIGHT);
@@ -439,13 +442,13 @@ void MainWindow::open()
     const char *filename = ba.data();
     infoLabel->setText(tr("filename:  ")+tr(filename));
     if (!fileName.isEmpty())
-        m_GLwidget->DataLoad(fileName);
+        m_GLwidget->DataLoad(fileName, false);
     update();
 }
 
 void MainWindow::compare()
 {
-    infoLabel->setText(tr("Invoked <b>File|Open</b>"));
+    infoLabel->setText(tr("Invoked <b>File|Compare</b>"));
 
     QString filter = "All (*.*);;PentaCam (*.CUR *.ELE *.CUR.CSV *.ELE.CSV);;EyeSys (*.DAT);;Atlas (*.CSV)";
     QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
@@ -455,7 +458,7 @@ void MainWindow::compare()
     const char *filename = ba.data();
     infoLabel->setText(tr("filename:  ")+tr(filename));
     if (!fileName.isEmpty())
-        m_GLwidget_secondwindow->DataLoad(fileName);
+        m_GLwidget_secondwindow->DataLoad(fileName,true);
     update();
 }
 
