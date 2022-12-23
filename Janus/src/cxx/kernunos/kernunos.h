@@ -91,7 +91,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
 
   public:
     GLwidget( QWidget *parent );
-    ~GLwidget();
+    ~GLwidget();  
 
     bool DataLoad(QString fileName, bool first);
 
@@ -129,6 +129,8 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     QVector3D mPosition;
     GLuint MatrixID;
 
+//    GLuint* elements;
+//    GLfloat* vertices;
     GLuint elementbuffer;
     GLuint vertexbuffer;
 

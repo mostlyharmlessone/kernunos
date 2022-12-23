@@ -6,17 +6,17 @@ const unsigned int SCR_HEIGHT = 800;
 
 int flag=0;
 
-int nV=34560;
-int nE=26130;
-
-std::vector<GLuint> Elements(nE);
-std::vector<GLfloat> Vertices(nV);
-GLfloat* vertices = Vertices.data();
-GLuint* elements = Elements.data();
-
 bool success=false;
-//bool first = false;
+bool paintme = false;
 
+int nV;
+int nE;
+std::vector<GLuint> Elements(26130);  //how very Fortran that these need to be static
+std::vector<GLfloat> Vertices(34560);
+GLfloat* vertices = Vertices.data();;
+GLuint* elements = Elements.data();;
+
+/*
 int nV_cube = 48;
 int nE_cube = 36;
 GLfloat cube_vertices[] = {
@@ -47,6 +47,7 @@ GLuint cube_elements[] = {
               6, 2, 1
           };
 
+*/
 
 static const GLchar* vertexSource = R"glsl(
 #version 400 core
@@ -167,23 +168,68 @@ void GLwidget::initializeGL()
 
 bool GLwidget::DataLoad(QString fileName, bool first)
 {
+
+    int nV_cube = 48;
+    int nE_cube = 36;
+    GLfloat cube_vertices[] = {
+                  -50.0f,  50.0f, -50.0f, 1.0f, 0.0f, 0.0f,  // Top-left & Red (x,y,z,r,g,b)
+                  50.0f,  50.0f, -50.0f, 0.0f, 1.0f, 0.0f,  // Top-right & Green
+                  50.0f, -50.0f, -50.0f, 0.0f, 0.0f, 1.0f,  // Bottom-right & Blue
+                 -50.0f, -50.0f, -50.0f, 1.0f, 1.0f, 1.0f,   // Bottom-left & White
+                  -50.0f,  50.0f, 50.0f, 1.0f, 1.0f, 0.0f,  // Top-left & Orange? (x,y,z,r,g,b)
+                  50.0f,  50.0f, 50.0f, 0.0f, 1.0f, 1.0f,  // Top-right & Yellow?
+                  50.0f, -50.0f, 50.0f, 1.0f, 0.0f, 1.0f,  // Bottom-right & Pink?
+                 -50.0f, -50.0f, 50.0f, 0.0f, 0.0f, 0.0f   // Bottom-left & Black
+              };
+
+
+    // 12 triangles = 6 faces with triangles per face
+    GLuint cube_elements[] = {
+                  0, 1, 2,
+                  2, 3, 0,
+                  4, 5, 6,
+                  6, 7, 4,
+                  0, 4, 5,
+                  5, 1, 0,
+                  3, 7, 6,
+                  6, 2, 3,
+                  0, 4, 7,
+                  7, 3, 0,
+                  1, 5, 6,
+                  6, 2, 1
+              };
+
+
     QByteArray ba = fileName.toLocal8Bit();
     const char *filename = ba.data();
 //    std::cout << "filename in C++ in DataLoad: " << filename << std::endl;
 
     if (!first)
      {
+      // reload values to avoid seg fault if previous nV and nE are too small
+      nV=34560;
+      nE=26130;
       auto future1 = std::async([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);});
       future1.get();
       //      janus_(&flag, filename, elements, vertices, &nV, &nE);
      }
     else
      {
-      elements=cube_elements;
-      vertices=cube_vertices;
       nV=nV_cube;
       nE=nE_cube;
+      //arrays have to be assigned this way vertices=cube_vertices only works in the same scope
+      for (int i=0; i<= nV; ++i){
+      vertices[i]=cube_vertices[i];
+      }
+      for (int i=0; i<= nE; ++i){
+      elements[i]=cube_elements[i];
+      }
      }
+
+
+    std::cout << "DataLoad vertices[6]: " << vertices[6] << std::endl;
+
+    paintme=true;
   return true;
 }
 
@@ -230,7 +276,11 @@ bool GLwidget::LoadSurfaceToBuffer(int nV, int nE, GLfloat* vertices, GLuint* el
 
 void GLwidget::paintGL(void)
 {
-    if ( !success ) return;
+    if ( !success ) return;  //not until shaders are built
+    if ( !paintme ) return;  //not until nV, nE, vertices, elements are loaded
+
+    std::cout << "paint: nV: " << nV << std::endl;
+    std::cout << "paint: vertices[6]: " << vertices[6] << std::endl;
 
     LoadSurfaceToBuffer(nV, nE, vertices, elements);
 
