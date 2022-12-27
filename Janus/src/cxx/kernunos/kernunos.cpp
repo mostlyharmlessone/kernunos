@@ -9,45 +9,13 @@ int flag=0;
 bool success=false;
 bool paintme = false;
 
+//how very Fortran that these need to be static & global
 int nV;
 int nE;
-std::vector<GLuint> Elements(26130);  //how very Fortran that these need to be static
+std::vector<GLuint> Elements(26130);
 std::vector<GLfloat> Vertices(34560);
-GLfloat* vertices = Vertices.data();;
-GLuint* elements = Elements.data();;
-
-/*
-int nV_cube = 48;
-int nE_cube = 36;
-GLfloat cube_vertices[] = {
-              -50.0f,  50.0f, -50.0f, 1.0f, 0.0f, 0.0f,  // Top-left & Red (x,y,z,r,g,b)
-              50.0f,  50.0f, -50.0f, 0.0f, 1.0f, 0.0f,  // Top-right & Green
-              50.0f, -50.0f, -50.0f, 0.0f, 0.0f, 1.0f,  // Bottom-right & Blue
-             -50.0f, -50.0f, -50.0f, 1.0f, 1.0f, 1.0f,   // Bottom-left & White
-              -50.0f,  50.0f, 50.0f, 1.0f, 1.0f, 0.0f,  // Top-left & Orange? (x,y,z,r,g,b)
-              50.0f,  50.0f, 50.0f, 0.0f, 1.0f, 1.0f,  // Top-right & Yellow?
-              50.0f, -50.0f, 50.0f, 1.0f, 0.0f, 1.0f,  // Bottom-right & Pink?
-             -50.0f, -50.0f, 50.0f, 0.0f, 0.0f, 0.0f   // Bottom-left & Black
-          };
-
-
-// 12 triangles = 6 faces with triangles per face
-GLuint cube_elements[] = {
-              0, 1, 2,
-              2, 3, 0,
-              4, 5, 6,
-              6, 7, 4,
-              0, 4, 5,
-              5, 1, 0,
-              3, 7, 6,
-              6, 2, 3,
-              0, 4, 7,
-              7, 3, 0,
-              1, 5, 6,
-              6, 2, 1
-          };
-
-*/
+GLfloat* vertices = Vertices.data();
+GLuint* elements = Elements.data();
 
 static const GLchar* vertexSource = R"glsl(
 #version 400 core
@@ -166,7 +134,7 @@ void GLwidget::initializeGL()
     glGenBuffers(1, &elementbuffer);
 }
 
-bool GLwidget::DataLoad(QString fileName, bool first)
+bool GLwidget::DataLoad(QString fileName, bool first_time)
 {
 
     int nV_cube = 48;
@@ -203,8 +171,9 @@ bool GLwidget::DataLoad(QString fileName, bool first)
     QByteArray ba = fileName.toLocal8Bit();
     const char *filename = ba.data();
 //    std::cout << "filename in C++ in DataLoad: " << filename << std::endl;
+//    std::cout << "first_time: " << first_time << std::endl;
 
-    if (!first)
+    if (!first_time)
      {
       // reload values to avoid seg fault if previous nV and nE are too small
       nV=34560;
@@ -226,10 +195,14 @@ bool GLwidget::DataLoad(QString fileName, bool first)
       }
      }
 
-
+    std::cout << "DataLoad: nV: " << nV << std::endl;
     std::cout << "DataLoad vertices[6]: " << vertices[6] << std::endl;
 
     paintme=true;
+
+// can't be here why not?
+//    loaded = LoadSurfaceToBuffer(nV, nE, vertices, elements);
+
   return true;
 }
 
@@ -278,11 +251,13 @@ void GLwidget::paintGL(void)
 {
     if ( !success ) return;  //not until shaders are built
     if ( !paintme ) return;  //not until nV, nE, vertices, elements are loaded
+//     if ( !loaded ) return;  //not until nV, nE, vertices, elements are loaded
+    if (!LoadSurfaceToBuffer(nV, nE, vertices, elements)) return;
 
     std::cout << "paint: nV: " << nV << std::endl;
     std::cout << "paint: vertices[6]: " << vertices[6] << std::endl;
 
-    LoadSurfaceToBuffer(nV, nE, vertices, elements);
+//    LoadSurfaceToBuffer(nV, nE, vertices, elements);
 
     // Clear the screen
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -324,10 +299,12 @@ void GLwidget::keyPressEvent(QKeyEvent *e)
   switch (e->key())
   {
     case Qt::Key_Escape:  /*  Escape Key */
-     mViewMatrix.scale(QVector3D(0.005,0.005,0.005));
+     exit(0);
+    break;
+    case Qt::Key_M:  /*  M Key */
+     mViewMatrix.scale(QVector3D(0.004,0.004,0.004));
      update();
-//     exit(0);
-      break;
+    break;
     case Qt::Key_Q:  /*  Q Key */
      mViewMatrix.translate(50*QVector3D(0,0,-0.1));
      update();
@@ -443,6 +420,7 @@ QVector3D GLwidget::getArcBallVector(int x, int y)
    return pt;
 }
 
+
 MainWindow::MainWindow()
 {
     QWidget *widget = new QWidget;
@@ -451,22 +429,57 @@ MainWindow::MainWindow()
     QOpenGLWidget *window1 = new GLwidget(this);
     window1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    infoLabel = new QLabel(tr("<i>Welcome! Please Open a file.</i>"));
-    infoLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
-    infoLabel->setAlignment(Qt::AlignCenter);
-
     QOpenGLWidget *window2 = new GLwidget(this);
     window2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     QWidget *window3 = new QWidget(this);
     window3->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    QVBoxLayout *layout = new QVBoxLayout;
-    layout->addWidget(window1);
-    layout->addWidget(window2);
-    layout->addWidget(window3);
-    widget->setLayout(layout);
-    layout->addWidget(infoLabel);
+    infoLabel = new QLabel(tr("<i>Welcome! Please Open a file.</i>"));
+    infoLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
+    infoLabel->setAlignment(Qt::AlignCenter);
+
+    QVBoxLayout *vlayout = new QVBoxLayout();
+
+    QGroupBox *colorGroupBox = new QGroupBox(QStringLiteral("First Window"));
+    QLinearGradient grBtoY(0, 0, 1, 400);
+ // from rgb5color {{0,0,255},{0,255,255},{0,255,0},{255,255,0},{255,0,0}}
+    QColor rgbcolor1= QColor::fromRgb(0, 0, 255, 255);
+    grBtoY.setColorAt(1.0, rgbcolor1);
+    QColor rgbcolor2= QColor::fromRgb(0, 255, 255, 255);
+    grBtoY.setColorAt(0.67, rgbcolor2);
+    QColor rgbcolor3= QColor::fromRgb(0, 255, 0, 255);
+    grBtoY.setColorAt(0.33, rgbcolor3);
+    QColor rgbcolor4= QColor::fromRgb(255, 255, 0, 255);
+    grBtoY.setColorAt(0.0, rgbcolor4);
+    QColor rgbcolor5= QColor::fromRgb(255, 0, 0, 255);
+    grBtoY.setColorAt(0.0, rgbcolor5);
+    QPixmap pm(24, 400);
+    QPainter pmp(&pm);
+    pmp.setBrush(QBrush(grBtoY));
+    pmp.setPen(Qt::NoPen);
+    pmp.setRenderHint(QPainter::Antialiasing, true);
+
+    QRect rect1(0, 0, 24, 400);  //there are three 400s here that need auto resize
+    pmp.drawRect(rect1);
+
+    QLabel *legendpix = new QLabel(widget);
+    legendpix->setPixmap(pm);
+    QLabel *legend = new QLabel(widget);
+    legend->setText("-1\n 0\n 1");
+
+    QHBoxLayout *colorHBox = new QHBoxLayout;
+    colorHBox->addWidget(window1);
+    colorHBox->addWidget(legendpix);
+    colorHBox->addWidget(legend);
+    colorGroupBox->setLayout(colorHBox);
+    vlayout->addWidget(colorGroupBox);
+
+    vlayout->addWidget(window2);
+    vlayout->addWidget(window3);
+    widget->setLayout(vlayout);
+    vlayout->addWidget(infoLabel);
+
     createActions();
     createMenus();
     setWindowTitle(tr("Kernunos"));
@@ -604,11 +617,10 @@ void MainWindow::createMenus()
 
 int main(int argc, char *argv[])
 {
-  //  Q_INIT_RESOURCE(GLwidget);
 
     QApplication app(argc, argv);
     QCoreApplication::setOrganizationName("QtProject");
-    QCoreApplication::setApplicationName("Application Example");
+    QCoreApplication::setApplicationName("kernunos front end");
     QCoreApplication::setApplicationVersion(QT_VERSION_STR);
     QCommandLineParser parser;
     parser.setApplicationDescription(QCoreApplication::applicationName());
@@ -627,8 +639,7 @@ int main(int argc, char *argv[])
         }
     }
 
-   MainWindow window;
-//    GLwidget window;
+    MainWindow window;
     window.show();
     return app.exec();
 /*

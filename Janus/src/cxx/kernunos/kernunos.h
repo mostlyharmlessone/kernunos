@@ -95,6 +95,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
 
     bool DataLoad(QString fileName, bool first);
 
+
   public slots:
 
   signals:
@@ -129,8 +130,6 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     QVector3D mPosition;
     GLuint MatrixID;
 
-//    GLuint* elements;
-//    GLfloat* vertices;
     GLuint elementbuffer;
     GLuint vertexbuffer;
 
@@ -140,6 +139,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     int oldX, oldY;
     int newX, newY;
 
+    bool loaded;
     bool rotate;
     bool useArcBall;
 };
