@@ -1,7 +1,7 @@
 #include "kernunos.h"
 
 // settings
-const unsigned int SCR_WIDTH = 600;
+const unsigned int SCR_WIDTH = 1000;
 const unsigned int SCR_HEIGHT = 800;
 
 int flag=0;
@@ -442,7 +442,7 @@ MainWindow::MainWindow()
     QVBoxLayout *vlayout = new QVBoxLayout();
 
     QGroupBox *colorGroupBox = new QGroupBox(QStringLiteral("First Window"));
-    QLinearGradient grBtoY(0, 0, 1, 400);
+    QLinearGradient grBtoY(0, 0, 1, 600);
  // from rgb5color {{0,0,255},{0,255,255},{0,255,0},{255,255,0},{255,0,0}}
     QColor rgbcolor1= QColor::fromRgb(0, 0, 255, 255);
     grBtoY.setColorAt(1.0, rgbcolor1);
@@ -454,13 +454,13 @@ MainWindow::MainWindow()
     grBtoY.setColorAt(0.0, rgbcolor4);
     QColor rgbcolor5= QColor::fromRgb(255, 0, 0, 255);
     grBtoY.setColorAt(0.0, rgbcolor5);
-    QPixmap pm(24, 400);
+    QPixmap pm(24, 600);
     QPainter pmp(&pm);
     pmp.setBrush(QBrush(grBtoY));
     pmp.setPen(Qt::NoPen);
     pmp.setRenderHint(QPainter::Antialiasing, true);
 
-    QRect rect1(0, 0, 24, 400);  //there are three 400s here that need auto resize
+    QRect rect1(0, 0, 24, 600);  //there are three 600s here that need auto resize
     pmp.drawRect(rect1);
 
     QLabel *legendpix = new QLabel(widget);
@@ -473,7 +473,73 @@ MainWindow::MainWindow()
     colorHBox->addWidget(legendpix);
     colorHBox->addWidget(legend);
     colorGroupBox->setLayout(colorHBox);
+
+
+
+
+    QBarSet *low = new QBarSet("Negative");
+    QBarSet *high = new QBarSet("Positive");
+
+    *low << -.42 << 0 << -.45 << -.37 << -.25 << -0.08
+         << -0.0 << -0 << 0 << 0 << -0 << -0.1;
+    *high << 0  << .128 << 0 << 0 << 0 << 0
+          << .38 << .34 << .29 << .204 << .15 << 0;
+
+    QHorizontalStackedBarSeries *series = new QHorizontalStackedBarSeries();
+
+    series->append(low);
+    low->setColor(QColorConstants::Red);
+    series->append(high);
+    high->setColor(QColorConstants::Blue);
+
+    QChart *chart = new QChart();
+    chart->addSeries(series);
+    chart->setTitle("Corneal Aberrometry");
+
+    QStringList categories = {
+        "Z(4,4) Horizontal Quatrefoil",
+        "Z(4,2) WTR/ATR 2nd Astig.",
+        "Z(4,0) Spherical Aberration",
+        "Z(4,-2) Oblique 2nd Astig.",
+        "Z(4,-4) Oblique Quatrefoil",
+        "Z(3,3) Horizontal Trefoil",
+        "Z(3,1) Horizontal Coma",
+        "Z(3,-1) Vertical Coma",
+        "Z(3,-3) Oblique Trefoil",
+        "Z(2,2) WTR/ATR Astig.",
+        "Z(2,0) Defocus",
+        "Z(2,-2) Oblique Astigmatism"
+    };
+
+    QValueAxis *axisX = new QValueAxis();
+    QBarCategoryAxis *axisY = new QBarCategoryAxis();
+    axisY->append(categories);
+    axisY->setTitleText("Zernicke");
+
+    axisX->setRange(-0.500, 0.500);
+    axisX->setTitleText("micrometers");
+
+    chart->addAxis(axisX, Qt::AlignBottom);
+    chart->addAxis(axisY, Qt::AlignLeft);
+    series->attachAxis(axisX);
+    series->attachAxis(axisY);
+
+    chart->legend()->setVisible(false);
+    chart->legend()->setAlignment(Qt::AlignBottom);
+
+    QChartView *chartView = new QChartView(chart);
+    chartView->setRenderHint(QPainter::Antialiasing);
+
+
+    colorHBox->addWidget(chartView);
+
+
+
     vlayout->addWidget(colorGroupBox);
+
+
+
+
 
     vlayout->addWidget(window2);
     vlayout->addWidget(window3);

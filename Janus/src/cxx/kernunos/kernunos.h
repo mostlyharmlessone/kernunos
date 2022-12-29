@@ -30,6 +30,15 @@
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
 
+#include <QtCharts/QChartView>
+#include <QtCharts/QBarSeries>
+#include <QtCharts/QBarSet>
+#include <QtCharts/QLegend>
+#include <QtCharts/QBarCategoryAxis>
+#include <QtCharts/QHorizontalStackedBarSeries>
+#include <QtCharts/QValueAxis>
+
+
 #include <QCommandLineParser>
 #include <QCommandLineOption>
 #include <QLocale>

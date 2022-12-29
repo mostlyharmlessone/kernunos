@@ -92,7 +92,7 @@ endif()
 SET(Qt5_DIR "/usr/lib/x86_64-linux-gnu/qt5")
 SET(Qt6_DIR "/usr/lib/x86_64-linux-gnu/qt6")
 find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets OpenGL)
-find_package(Qt6 REQUIRED COMPONENTS Core Gui OpenGLWidgets OpenGL)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Charts OpenGLWidgets OpenGL)
 #GTK4
 find_package (PkgConfig REQUIRED)
 pkg_check_modules(GTK4 REQUIRED gtk4)
@@ -210,16 +210,42 @@ endif(WIN32)
 
     set(LIBS ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} glfw)
 
-    add_executable(kernunos src/cxx/kernunos/kernunos.cpp src/lib90/janus.f90 src/cxx/opengl_show.cpp)  
-    target_link_libraries(kernunos PRIVATE OpenMP::OpenMP_CXX PUBLIC Qt6::Core Qt6::OpenGLWidgets Qt6::Gui Qt6::OpenGL splia modules rply_includes ${LIBS})
+    add_executable(kernunos 
+                   src/cxx/kernunos/kernunos.cpp 
+                   src/lib90/janus.f90 
+                   src/cxx/opengl_show.cpp
+                   )  
+                   
+    set_target_properties(kernunos PROPERTIES
+        WIN32_EXECUTABLE TRUE
+        MACOSX_BUNDLE TRUE
+        )                   
+                   
+    target_link_libraries(kernunos
+                   PRIVATE OpenMP::OpenMP_CXX 
+                   PUBLIC Qt6::Core Qt6::OpenGLWidgets Qt6::Gui Qt6::Charts Qt6::OpenGL 
+                   splia modules rply_includes ${LIBS}
+                   )
        
 #    add_executable(${PROJECT_NAME} src/cxx/Jupiter.cpp src/lib90/janus.f90 src/cxx/opengl_show.cpp src/cxx/mathstuff.cpp )
-    add_executable(juno src/lib90/juno.f90 src/lib90/janus.f90 src/cxx/opengl_show.cpp f90getopt/f90getopt.F90)
+    add_executable(juno 
+                   src/lib90/juno.f90 
+                   src/lib90/janus.f90 
+                   src/cxx/opengl_show.cpp 
+                   f90getopt/f90getopt.F90)
 
 #    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${wxWidgets_LIBRARIES} ${LIBS})
-    target_link_libraries(juno PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${LIBS})
-        
-    
+
+    target_link_libraries(juno 
+                   PRIVATE OpenMP::OpenMP_CXX 
+                   PUBLIC splia modules rply_includes ${LIBS})
+
+#if(NOT DEFINED INSTALL_EXAMPLESDIR)
+#    set(INSTALL_EXAMPLESDIR "examples")
+#endif()
+
+## set(INSTALL_EXAMPLEDIR "${INSTALL_EXAMPLESDIR}/charts/temperaturerecords")        
+ ## install(TARGETS kernunos RUNTIME DESTINATION "${INSTALL_EXAMPLEDIR}" BUNDLE DESTINATION "${INSTALL_EXAMPLEDIR}" LIBRARY DESTINATION "${INSTALL_EXAMPLEDIR}")   
 
 
 
