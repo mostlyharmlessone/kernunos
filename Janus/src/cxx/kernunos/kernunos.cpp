@@ -466,7 +466,16 @@ MainWindow::MainWindow()
     QLabel *legendpix = new QLabel(widget);
     legendpix->setPixmap(pm);
     QLabel *legend = new QLabel(widget);
-    legend->setText("-1\n 0\n 1");
+
+
+    unsigned int i = 50;
+    std::string t = std::to_string(i);
+    char const *n_char = t.c_str();
+    QString legendvalues = "";
+    legendvalues += n_char;
+    legendvalues += "\n";
+
+    legend->setText(legendvalues);
 
     QHBoxLayout *colorHBox = new QHBoxLayout;
     colorHBox->addWidget(window1);
@@ -477,20 +486,20 @@ MainWindow::MainWindow()
 
 
 
-    QBarSet *low = new QBarSet("Negative");
-    QBarSet *high = new QBarSet("Positive");
+    QBarSet *negative = new QBarSet("Negative");
+    QBarSet *positive = new QBarSet("Positive");
 
-    *low << -.42 << 0 << -.45 << -.37 << -.25 << -0.08
+    *negative << -.42 << 0 << -.45 << -.37 << -.25 << -0.08
          << -0.0 << -0 << 0 << 0 << -0 << -0.1;
-    *high << 0  << .128 << 0 << 0 << 0 << 0
+    *positive << 0  << .128 << 0 << 0 << 0 << 0
           << .38 << .34 << .29 << .204 << .15 << 0;
 
     QHorizontalStackedBarSeries *series = new QHorizontalStackedBarSeries();
 
-    series->append(low);
-    low->setColor(QColorConstants::Red);
-    series->append(high);
-    high->setColor(QColorConstants::Blue);
+    series->append(negative);
+    negative->setColor(QColorConstants::Red);
+    series->append(positive);
+    positive->setColor(QColorConstants::Blue);
 
     QChart *chart = new QChart();
     chart->addSeries(series);
@@ -514,7 +523,6 @@ MainWindow::MainWindow()
     QValueAxis *axisX = new QValueAxis();
     QBarCategoryAxis *axisY = new QBarCategoryAxis();
     axisY->append(categories);
-    axisY->setTitleText("Zernicke");
 
     axisX->setRange(-0.500, 0.500);
     axisX->setTitleText("micrometers");
