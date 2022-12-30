@@ -506,16 +506,16 @@ MainWindow::MainWindow()
     chart->setTitle("Corneal Aberrometry");
 
     QStringList categories = {
-        "Z(4,4) Horizontal Quatrefoil",
-        "Z(4,2) WTR/ATR 2nd Astig.",
+        "Z(4,4) Vertical Quatrafoil",
+        "Z(4,2) Vertical 2nd Astig.",
         "Z(4,0) Spherical Aberration",
         "Z(4,-2) Oblique 2nd Astig.",
-        "Z(4,-4) Oblique Quatrefoil",
-        "Z(3,3) Horizontal Trefoil",
+        "Z(4,-4) Oblique Quatrafoil",
+        "Z(3,3) Oblique Trefoil",
         "Z(3,1) Horizontal Coma",
         "Z(3,-1) Vertical Coma",
-        "Z(3,-3) Oblique Trefoil",
-        "Z(2,2) WTR/ATR Astig.",
+        "Z(3,-3) Vertical Trefoil",
+        "Z(2,2) Vertical Astig.",
         "Z(2,0) Defocus",
         "Z(2,-2) Oblique Astigmatism"
     };

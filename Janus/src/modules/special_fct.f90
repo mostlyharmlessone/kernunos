@@ -163,7 +163,39 @@ function rgb2attr(rgbv) result(attr)
 !  write(*,'(b16.16)') attr
 end function rgb2attr
 
-! epsilon & factorial functions
+!! string/character functions
+!!https://stackoverflow.com/questions/58938347/how-do-i-replace-a-character-in-the-string-with-another-charater-in-fortran
+
+pure recursive function replaceStr(string,search,substitute) result(modifiedString)
+        implicit none
+        character(len=*), intent(in)  :: string, search, substitute
+        character(len=:), allocatable :: modifiedString
+        integer                       :: i, stringLen, searchLen
+        stringLen = len(string)
+        searchLen = len(search)
+        if (stringLen==0 .or. searchLen==0) then
+            modifiedString = ""
+            return
+        elseif (stringLen<searchLen) then
+            modifiedString = string
+            return
+        end if
+        i = 1
+        do
+            if (string(i:i+searchLen-1)==search) then
+                modifiedString = string(1:i-1) // substitute // replaceStr(string(i+searchLen:stringLen),search,substitute)
+                exit
+            end if
+            if (i+searchLen>stringLen) then
+                modifiedString = string
+                exit
+            end if
+            i = i + 1
+            cycle
+        end do
+    end function replaceStr
+
+!! epsilon & factorial functions
 
 function eps2(m) result(e) !eps2(0)=2, eps2(m)=1 m /=0
  INTEGER :: e
@@ -229,37 +261,110 @@ function pfact(n,k)  result(f) ! partial factorial k+1 to n: pfact(n,1)=pfact(n,
  endif
 end function pfact
 
+!! zernike radial functions
 
-!!https://stackoverflow.com/questions/58938347/how-do-i-replace-a-character-in-the-string-with-another-charater-in-fortran
+function R00(rho) result (m)
+ m=1
+end function R00
 
-pure recursive function replaceStr(string,search,substitute) result(modifiedString)
-        implicit none
-        character(len=*), intent(in)  :: string, search, substitute
-        character(len=:), allocatable :: modifiedString
-        integer                       :: i, stringLen, searchLen
-        stringLen = len(string)
-        searchLen = len(search)
-        if (stringLen==0 .or. searchLen==0) then
-            modifiedString = ""
-            return
-        elseif (stringLen<searchLen) then
-            modifiedString = string
-            return
-        end if
-        i = 1
-        do
-            if (string(i:i+searchLen-1)==search) then
-                modifiedString = string(1:i-1) // substitute // replaceStr(string(i+searchLen:stringLen),search,substitute)
-                exit
-            end if
-            if (i+searchLen>stringLen) then
-                modifiedString = string
-                exit
-            end if
-            i = i + 1
-            cycle
-        end do
-    end function replaceStr
+function R11(rho) result (m)
+ m=rho
+end function R11
+
+function R20(rho) result (m)
+ m=2*rho*rho-1
+end function R20
+
+function R22(rho) result (m)
+ m=rho*rho
+end function R22
+
+function R31(rho) result (m)
+ m=3**rho*rho*rho-2*rho
+end function R31
+
+function R33(rho) result (m)
+ m=rho*rho*rho
+end function R33
+
+function R40(rho) result (m)
+ m=6*rho*rho*rho*rho-6*rho*rho+1
+end function R40
+
+function R42(rho) result (m)
+ m=4**rho*rho*rho*rho-3*rho*rho
+end function R42
+
+function R44(rho) result (m)
+ m=rho*rho*rho*rho
+end function R22
+
+function R51(rho) result (m)
+ m=10*rho*rho*rho*rho*rho-12*rho*rho*rho+3*rho
+end function R51
+
+function R53(rho) result (m)
+ m=5*rho*rho*rho*rho*rho-4*rho*rho*rho
+end function R53
+
+function R55(rho) result (m)
+ m=rho*rho*rho*rho*rho
+end function R55
+
+function R60(rho) result (m)
+ m=20*rho*rho*rho*rho*rho*rho-30*rho*rho*rho*rho+12*rho*rho-1
+end function R60
+
+function R62(rho) result (m)
+ m=15*rho*rho*rho*rho*rho*rho-20*rho*rho*rho*rho+6*rho*rho
+end function R62
+
+function R64(rho) result (m)
+ m=6*rho*rho*rho*rho*rho*rho-5*rho*rho*rho*rho
+end function R64
+
+function R66(rho) result (m)
+ m=rho*rho*rho*rho*rho*rho
+end function R66
+
+! if n >= m >= 0 n-m even ie mod(n-m)=0
+recursive function R(n,m,p)  result(f) ! radial zernike polynomial
+ INTEGER :: f
+ INTEGER, INTENT(IN) :: n,m
+ REAL(wp) :: p
+ if (n < m .OR. m < 0 .OR. mod(n-m) /= 0) then
+  write(*,*) 'Illegal indices in Zernike',n,m
+  stop
+ endif
+ if ( n == m) then
+  f=rho**n
+ else
+ if (n > 4) then
+   f = ( 2*(n-1)*(2*n*(n-2)*p*p-m*m-n*(n-2))*R(n-2,m,p)-n*(n+m-2)*(n-m-2)*R(n-4,m,p))/((n+m)*(n-m)*(n-2))
+ else
+  if (n == 2 .AND. m == 0) then
+   f = R20(p)
+  endif
+  if (n == 3 .AND. m == 1) then
+   f = R31(p)
+  endif  
+  if (n == 4 .AND. m == 0) then
+   f = R40(p)
+  endif
+  if (n == 4 .AND. m == 2) then
+   f = R42(p)
+  endif
+ endif
+end function R
+
+! if n >= 0 ABS(m) <= n
+function zern(n,m,p,phi) result(f)
+ if (m >= 0) then
+  f = R(n,m,p)*cos(m*phi)
+ else
+  f = R(n,-m,p)*sin(m*phi)
+ endif
+end function zern
 
 end module special_fct
 
