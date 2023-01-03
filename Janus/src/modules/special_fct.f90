@@ -264,75 +264,107 @@ end function pfact
 !! zernike radial functions
 
 function R00(rho) result (m)
+ REAL(wp) :: m
+ REAL(wp),INTENT(IN) :: rho
  m=1
 end function R00
 
 function R11(rho) result (m)
+ REAL(wp) :: m
+ REAL(wp),INTENT(IN) :: rho
  m=rho
 end function R11
 
 function R20(rho) result (m)
+ REAL(wp) :: m
+ REAL(wp),INTENT(IN) :: rho
  m=2*rho*rho-1
 end function R20
 
 function R22(rho) result (m)
+ REAL(wp) :: m
+ REAL(wp),INTENT(IN) :: rho
  m=rho*rho
 end function R22
 
 function R31(rho) result (m)
+ REAL(wp) :: m
+ REAL(wp),INTENT(IN) :: rho
  m=3**rho*rho*rho-2*rho
 end function R31
 
 function R33(rho) result (m)
+ REAL(wp) :: m
+ REAL(wp),INTENT(IN) :: rho
  m=rho*rho*rho
 end function R33
 
 function R40(rho) result (m)
+ REAL(wp) :: m
+ REAL(wp),INTENT(IN) :: rho
  m=6*rho*rho*rho*rho-6*rho*rho+1
 end function R40
 
 function R42(rho) result (m)
+ REAL(wp) :: m
+ REAL(wp),INTENT(IN) :: rho
  m=4**rho*rho*rho*rho-3*rho*rho
 end function R42
 
 function R44(rho) result (m)
+ REAL(wp) :: m
+ REAL(wp),INTENT(IN) :: rho
  m=rho*rho*rho*rho
-end function R22
+end function R44
 
 function R51(rho) result (m)
+ REAL(wp) :: m
+ REAL(wp),INTENT(IN) :: rho
  m=10*rho*rho*rho*rho*rho-12*rho*rho*rho+3*rho
 end function R51
 
 function R53(rho) result (m)
+ REAL(wp) :: m
+ REAL(wp),INTENT(IN) :: rho
  m=5*rho*rho*rho*rho*rho-4*rho*rho*rho
 end function R53
 
 function R55(rho) result (m)
+ REAL(wp) :: m
+ REAL(wp),INTENT(IN) :: rho
  m=rho*rho*rho*rho*rho
 end function R55
 
 function R60(rho) result (m)
+ REAL(wp) :: m
+ REAL(wp),INTENT(IN) :: rho
  m=20*rho*rho*rho*rho*rho*rho-30*rho*rho*rho*rho+12*rho*rho-1
 end function R60
 
 function R62(rho) result (m)
+ REAL(wp) :: m
+ REAL(wp),INTENT(IN) :: rho
  m=15*rho*rho*rho*rho*rho*rho-20*rho*rho*rho*rho+6*rho*rho
 end function R62
 
 function R64(rho) result (m)
+ REAL(wp) :: m
+ REAL(wp),INTENT(IN) :: rho
  m=6*rho*rho*rho*rho*rho*rho-5*rho*rho*rho*rho
 end function R64
 
 function R66(rho) result (m)
+ REAL(wp) :: m
+ REAL(wp),INTENT(IN) :: rho
  m=rho*rho*rho*rho*rho*rho
 end function R66
 
 ! if n >= m >= 0 n-m even ie mod(n-m)=0
-recursive function R(n,m,p)  result(f) ! radial zernike polynomial
- INTEGER :: f
+recursive function RZern(n,m,p)  result(f) ! radial zernike polynomial
+ REAL(wp) :: f
  INTEGER, INTENT(IN) :: n,m
- REAL(wp) :: p
- if (n < m .OR. m < 0 .OR. mod(n-m) /= 0) then
+ REAL(wp),INTENT(IN) :: p
+ if (n < m .OR. m < 0 .OR. mod(n-m,2) /= 0) then
   write(*,*) 'Illegal indices in Zernike',n,m
   stop
  endif
@@ -340,7 +372,7 @@ recursive function R(n,m,p)  result(f) ! radial zernike polynomial
   f=rho**n
  else
  if (n > 4) then
-   f = ( 2*(n-1)*(2*n*(n-2)*p*p-m*m-n*(n-2))*R(n-2,m,p)-n*(n+m-2)*(n-m-2)*R(n-4,m,p))/((n+m)*(n-m)*(n-2))
+   f = ( 2*(n-1)*(2*n*(n-2)*p*p-m*m-n*(n-2))*RZern(n-2,m,p)-n*(n+m-2)*(n-m-2)*RZern(n-4,m,p))/((n+m)*(n-m)*(n-2))
  else
   if (n == 2 .AND. m == 0) then
    f = R20(p)
@@ -355,14 +387,18 @@ recursive function R(n,m,p)  result(f) ! radial zernike polynomial
    f = R42(p)
   endif
  endif
-end function R
+ endif
+end function RZern
 
 ! if n >= 0 ABS(m) <= n
 function zern(n,m,p,phi) result(f)
+ INTEGER, INTENT(IN) :: n,m
+ REAL(wp) :: f
+ REAL(wp),INTENT(IN) :: p
  if (m >= 0) then
-  f = R(n,m,p)*cos(m*phi)
+  f = RZern(n,m,p)*cos(m*phi)
  else
-  f = R(n,-m,p)*sin(m*phi)
+  f = RZern(n,-m,p)*sin(m*phi)
  endif
 end function zern
 

@@ -467,15 +467,20 @@ MainWindow::MainWindow()
     legendpix->setPixmap(pm);
     QLabel *legend = new QLabel(widget);
 
-
-    unsigned int i = 50;
-    std::string t = std::to_string(i);
-    char const *n_char = t.c_str();
     QString legendvalues = "";
-    legendvalues += n_char;
-    legendvalues += "\n";
+    for (int i = 1; i <= 37; ++i) {
+     int j = 60;
+     j=j-i*1.0;
+     std::string t = std::to_string(j);
+     char const *n_char = t.c_str();
+     legendvalues += n_char;
+     legendvalues += "\n";
+    }
 
     legend->setText(legendvalues);
+    legend->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    legendpix->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
 
     QHBoxLayout *colorHBox = new QHBoxLayout;
     colorHBox->addWidget(window1);
@@ -505,7 +510,7 @@ MainWindow::MainWindow()
     chart->addSeries(series);
     chart->setTitle("Corneal Aberrometry");
 
-    QStringList categories = {
+    QStringList aberrations = {
         "Z(4,4) Vertical Quatrafoil",
         "Z(4,2) Vertical 2nd Astig.",
         "Z(4,0) Spherical Aberration",
@@ -522,13 +527,13 @@ MainWindow::MainWindow()
 
     QValueAxis *axisX = new QValueAxis();
     QBarCategoryAxis *axisY = new QBarCategoryAxis();
-    axisY->append(categories);
+    axisY->append(aberrations);
 
     axisX->setRange(-0.500, 0.500);
     axisX->setTitleText("micrometers");
 
     chart->addAxis(axisX, Qt::AlignBottom);
-    chart->addAxis(axisY, Qt::AlignLeft);
+    chart->addAxis(axisY, Qt::AlignRight);
     series->attachAxis(axisX);
     series->attachAxis(axisY);
 
