@@ -14,7 +14,7 @@
   integer :: NP                        ! PentaCam=141
   integer :: unitno1                  
   character(c_char), INTENT(IN), DIMENSION(4096) :: mainfile
-  integer(c_int), INTENT(INOUT) :: flag ! 0 = called from Jupiter 1=called from juno  
+  integer(c_int), INTENT(INOUT) :: flag ! 0 = called from kernunos or Jupiter 1=called from juno  
   integer(c_int), INTENT(INOUT) :: nV 
   integer(c_int), INTENT(INOUT) :: nE               
   real(c_float), INTENT(INOUT) :: vertices(*)
@@ -32,7 +32,7 @@
   logical :: donut, exists
   real(wp) :: Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo
 
-!write(*,*) 'file from Jupiter: ',mainfile  ! this will have a lot of extra random non ASCII stuff after the file name
+!write(*,*) 'file from kernunos: ',mainfile  ! this will have a lot of extra random non ASCII stuff after the file name
 !! need this because GCC11 isn't F2018 compliant with deferred length character with Bind C
 !! ie. can't do CHARACTER(*,c_char), INTENT(IN) :: mainfile with BIND(C) with GCC11
 !! Juno's mainfile declaration   character(len=12), dimension(:), allocatable :: args with args(1) works too
@@ -432,6 +432,24 @@ file_idx=index(inputfile1, ".DAT")
      JMatrix%MEANC0(:)=JMatrix1%MEANC0(:)-JMatrix%MEANC0(:)
      JMatrix%MONGEA0(:)=JMatrix1%MONGEA0(:)-JMatrix%MONGEA0(:)   
   endif
+
+! Try to generate Zernike coefficients based on central elevations & lsq to Zernike polynomials
+
+! collect all points in circle, make a vector length_data
+   do i=1,MM
+    do j=1,N
+     !access J(j,i)
+   
+    end do
+   end do 
+
+! generate the Zpolynomial degree_polynomial values for each point, makes a matrix degree_polynomials x length_data
+
+! solve the LSQ equations, solution is degree_polynomials number of coefficients
+
+! the above 
+! to plot "talus" instead of center, pick a point with circle around it; same thing as above, plot the vertical coma vs position; will be compute more intensive
+
 
 !  use fillarray to fill DiaSlope Zp with calculated value based on IuseG, optionally generate LIOC
 !  using SplineEval1Dx1D to refill a new matrix RadSlope using f0, derivatives to get calculated powers
