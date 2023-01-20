@@ -435,17 +435,60 @@ file_idx=index(inputfile1, ".DAT")
 
 ! Try to generate Zernike coefficients based on central elevations & lsq to Zernike polynomials
 
-! collect all points in circle, make a vector length_data
+! collect all points in circle, make a vector length_data; or generate points in a circle with spline?
+   ctr_circle_x=0.0
+   ctr_circle_y=0.0
    do i=1,MM
     do j=1,N
-     !access J(j,i)
+     JMatrix%Z0(j,i)  
    
     end do
    end do 
 
-! generate the Zpolynomial degree_polynomial values for each point, makes a matrix degree_polynomials x length_data
+!  Reload RadSlope & respline
+   do i=1,MM
+    do j=1,RadSlope%MV(i)
+     RadSlope%Zp(j,i)=JMatrix%Z0(j,i)
+    end do
+   end do
+   DiaSlope=RadSlope              ! move to diagonal format
+   DiaSlope%Zpd2 = .n. DiaSlope   ! generate the splines diagonally (generate zp2)
 
-! solve the LSQ equations, solution is degree_polynomials number of coefficients
+   kk=0
+   do i=1,10
+    do j=1,12
+    kk=kk+1
+!   local cylindrical coordinates
+    r(kk)=(i-1)/9.0  ! r goes from 0 to 1
+    tht(kk)=2*PI*j/11  ! tht from 0 to 2*Pi without overlap
+!   global cylindrical coordinates
+
+    R_talus=sqrt((ctr_circle_x-)*(ctr_circle_x-)+(ctr_circle_y-)*(ctr_circle_y-))
+
+     call SplineEval1Dx1D(0,R_Talus,Theta_Talus,z(kk))  ! elevation for Zernike
+    end do
+   end do
+
+   call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
+
+
+! generate the Zpolynomial degree_polynomial values for each point, makes a matrix degree_polynomials x length_data
+! if n >= 0 ABS(m) <= n  & mod(n-m,2) = 0
+  do kk=1,10*12   
+   k=0
+   do m=0,4
+    do n=m,4
+     if (mod(n-m,2) == 0) then
+      k=k+1
+      B_Matrix(k,kk)=zern(n,m,R_Talus(kk),Theta_Talus(kk))  ! local cylindrical coordinates
+     else
+      cycle
+     endif
+    end do
+   end do
+  end do
+
+! solve the LSQ equations, solution is degree_polynomials number of coefficients  B_Matrix(k,kk)*ZernC(k)=z(kk)
 
 ! the above 
 ! to plot "talus" instead of center, pick a point with circle around it; same thing as above, plot the vertical coma vs position; will be compute more intensive
