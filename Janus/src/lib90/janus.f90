@@ -1,6 +1,7 @@
   subroutine Janus(flag, mainfile, elements, vertices, nV, nE)  
 ! DRIVER PROGRAM FOR SPLINE ROUTINES
   use set_precision, ONLY : wp
+  use lapackinterface
   use cornea_arrays
   use special_fct
   use io_functions
@@ -8,7 +9,7 @@
   use c_interfaces, ONLY : OpenGL_Show
   use omp_lib
   IMPLICIT NONE     
-  integer :: i, thread, ierr
+  integer :: i, j, k, ii, kk, m, thread, ierr, info, nrhs
   integer :: MM, N ,M1, N1, ITH
   integer :: TestData                  ! TestData: -1=test, 0=EyeSys, 1=Atlas, (2-5)=Penta 
   integer :: NP                        ! PentaCam=141
@@ -25,12 +26,15 @@
   character(len=4096) :: new_path
   character(:), ALLOCATABLE :: inputfile1,inputfile2
   character(:), ALLOCATABLE :: logfile
-  integer ::  j, nblines, file_idx, file_pfx
+  integer ::  nblines, file_idx, file_pfx
   integer,allocatable :: MV(:)
   real :: time_start, time_end
   real(wp) :: POWMIN,POWMAX,POWMIN2,POWMAX2,POWCTR,POW
   logical :: donut, exists
   real(wp) :: Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo
+  integer :: LWORK, k_max, kk_max
+  real(wp), allocatable :: WORK(:), ZernC(:,:), B_Matrix(:,:), rlocal(:), thtlocal(:)
+  real(wp) :: ctr_circle_x, ctr_circle_y, R_Talus, Theta_Talus
 
 !write(*,*) 'file from kernunos: ',mainfile  ! this will have a lot of extra random non ASCII stuff after the file name
 !! need this because GCC11 isn't F2018 compliant with deferred length character with Bind C
@@ -435,52 +439,70 @@ file_idx=index(inputfile1, ".DAT")
 
 ! Try to generate Zernike coefficients based on central elevations & lsq to Zernike polynomials
 
-! collect all points in circle, make a vector length_data; or generate points in a circle with spline?
-   ctr_circle_x=0.0
-   ctr_circle_y=0.0
-   do i=1,MM
-    do j=1,N
-     JMatrix%Z0(j,i)  
-   
-    end do
-   end do 
-
 !  Reload RadSlope & respline
    do i=1,MM
     do j=1,RadSlope%MV(i)
-     RadSlope%Zp(j,i)=JMatrix%Z0(j,i)
+     RadSlope%Zp(j,i)=JMatrix%Z(j,i)
     end do
    end do
    DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope   ! generate the splines diagonally (generate zp2)
 
-   kk=0
-   do i=1,10
-    do j=1,12
-    kk=kk+1
-!   local cylindrical coordinates
-    r(kk)=(i-1)/9.0  ! r goes from 0 to 1
-    tht(kk)=2*PI*j/11  ! tht from 0 to 2*Pi without overlap
-!   global cylindrical coordinates
-
-    R_talus=sqrt((ctr_circle_x-)*(ctr_circle_x-)+(ctr_circle_y-)*(ctr_circle_y-))
-
-     call SplineEval1Dx1D(0,R_Talus,Theta_Talus,z(kk))  ! elevation for Zernike
-    end do
-   end do
-
-   call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
-
-
-! generate the Zpolynomial degree_polynomial values for each point, makes a matrix degree_polynomials x length_data
-! if n >= 0 ABS(m) <= n  & mod(n-m,2) = 0
-  do kk=1,10*12   
+! allocate working matrices
+   nrhs=1
+   kk_max=10*12
    k=0
    do m=0,4
     do n=m,4
      if (mod(n-m,2) == 0) then
       k=k+1
-      B_Matrix(k,kk)=zern(n,m,R_Talus(kk),Theta_Talus(kk))  ! local cylindrical coordinates
+     endif
+    end do
+   end do
+   k_max=k   
+   allocate (B_Matrix(k_max,kk_max),ZernC(kk_max,nrhs),rlocal(kk_max),thtlocal(kk_max))
+   
+   do ii=1,nrhs
+!  center of local geometry   
+   ctr_circle_x=20.1
+   ctr_circle_y=30.0
+   ctr_circle_x=0.0
+   ctr_circle_y=0.0
+!   ctr_circle_x=fct of nrhs
+!   ctr_circle_y=fct of nrhs
+   
+   kk=0   
+   do i=1,10
+    do j=1,12  !kk_max=10*12
+    kk=kk+1
+!   local cylindrical coordinates
+    rlocal(kk)=(i-1)/9.0  ! r goes from 0 to 1
+    thtlocal(kk)=2*PI*(j-1)/12  ! tht from 0 to 2*Pi without overlap
+!   global cylindrical coordinates
+    R_Talus=sqrt((ctr_circle_x-rlocal(kk)*cos(thtlocal(kk)))*(ctr_circle_x-rlocal(kk)*cos(thtlocal(kk)))+&
+                 (ctr_circle_y-rlocal(kk)*sin(thtlocal(kk)))*(ctr_circle_y-rlocal(kk)*sin(thtlocal(kk))))
+    if (ABS(ctr_circle_x-rlocal(kk)*cos(thtlocal(kk))) > EPS) then
+     Theta_Talus=ATan((ctr_circle_y-rlocal(kk)*sin(thtlocal(kk)))/(ctr_circle_x-rlocal(kk)*cos(thtlocal(kk))))
+     call SplineEval1Dx1D(0,R_Talus,Theta_Talus,ZernC(kk,ii))  ! elevation for Zernike; use coefficient vector as temporary storage
+    else
+     Theta_Talus=PI/2
+     call SplineEval1Dx1D(0,R_Talus,Theta_Talus,ZernC(kk,ii))  ! elevation for Zernike; use coefficient vector as temporary storage    
+    endif 
+    end do
+   end do
+   end do
+   
+   call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
+
+! generate the Zpolynomial degree_polynomial values for each point, makes a matrix degree_polynomials x length_data
+! if n >= 0 ABS(m) <= n  & mod(n-m,2) = 0
+  do kk=1,kk_max   
+   k=0
+   do m=0,4
+    do n=m,4
+     if (mod(n-m,2) == 0) then
+      k=k+1
+      B_Matrix(k,kk)=zern(n,m,rlocal(kk),thtlocal(kk))  ! local cylindrical coordinates
      else
       cycle
      endif
@@ -488,12 +510,25 @@ file_idx=index(inputfile1, ".DAT")
    end do
   end do
 
-! solve the LSQ equations, solution is degree_polynomials number of coefficients  B_Matrix(k,kk)*ZernC(k)=z(kk)
+! solve the LSQ equations for ZernC(k): solution is degree_polynomials number of coefficients;  B_Matrix(k,kk)*ZernC(k)=z(kk) 
+! Use normal equation XTX.c=X.z ie. B_Matrix(k,kk)*ZernC(k)=z(kk) or use LAPACKs dgels()
+! only have to call this once; NRHS can be for the whole talus plot since B_Matrix is invariant.
+! have to allocate WORK
+  LWORK = min(k_max,kk_max) + max( min(k_max,kk_max), nrhs )
+  allocate (WORK(LWORK))! WORK is dimension LWORK
+  call DGELS( 'T', k_max, kk_max, nrhs, B_Matrix, k_max, ZernC , kk_max, WORK, LWORK, INFO ) ! overwrites ZernC
 
 ! the above 
 ! to plot "talus" instead of center, pick a point with circle around it; same thing as above, plot the vertical coma vs position; will be compute more intensive
+write(*,*) 'k_max: ',k_max
+write(*,*) ZernC(1:k_max,1) 
 
-
+! Done with Zernike
+  deallocate(WORK,ZernC)
+ 
+stop
+  
+  
 !  use fillarray to fill DiaSlope Zp with calculated value based on IuseG, optionally generate LIOC
 !  using SplineEval1Dx1D to refill a new matrix RadSlope using f0, derivatives to get calculated powers
   

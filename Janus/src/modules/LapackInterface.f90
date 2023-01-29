@@ -56,7 +56,14 @@
          INTEGER            IPIV( * )
          DOUBLE PRECISION   A( LDA, * ), B( LDB, * )
          END SUBROUTINE DGESV
-
+         
+         SUBROUTINE DGELS( TRANS, M, N, NRHS, A, LDA, B, LDB, WORK, LWORK, INFO )
+!     .. Scalar Arguments ..
+         CHARACTER          TRANS
+         INTEGER            INFO, LDA, LDB, LWORK, M, N, NRHS
+!     .. Array Arguments ..
+         DOUBLE PRECISION   A( LDA, * ), B( LDB, * ), WORK( * )
+         END SUBROUTINE DGELS
 
           SUBROUTINE DGETRF( M, N, A, LDA, IPIV, INFO )
 !     .. Scalar Arguments ..

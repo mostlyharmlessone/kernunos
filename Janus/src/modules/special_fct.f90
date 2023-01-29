@@ -369,7 +369,7 @@ recursive function RZern(n,m,p)  result(f) ! radial zernike polynomial
   stop
  endif
  if ( n == m) then
-  f=rho**n
+  f=p**n
  else
  if (n > 4) then
    f = ( 2*(n-1)*(2*n*(n-2)*p*p-m*m-n*(n-2))*RZern(n-2,m,p)-n*(n+m-2)*(n-m-2)*RZern(n-4,m,p))/((n+m)*(n-m)*(n-2))
@@ -394,7 +394,7 @@ end function RZern
 function zern(n,m,p,phi) result(f)
  INTEGER, INTENT(IN) :: n,m
  REAL(wp) :: f
- REAL(wp),INTENT(IN) :: p
+ REAL(wp),INTENT(IN) :: p,phi
  if (m >= 0) then
   f = RZern(n,m,p)*cos(m*phi)
  else
