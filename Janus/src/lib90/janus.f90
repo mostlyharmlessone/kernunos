@@ -515,13 +515,13 @@ file_idx=index(inputfile1, ".DAT")
 ! only have to call this once; NRHS can be for the whole talus plot since B_Matrix is invariant.
 ! have to allocate WORK
 
-  XTX=matmul(Transpose(B_matrix),B_matrix)=vecmul(Transpose(B_matrix),ZernC)
-  call DGESV(2*KU,2*KU+NRHS,A,2*KU,IPIV,EE,2*KU,INFO) ! overwrites EE into solution 
+!  XTX=matmul(Transpose(B_matrix),B_matrix)=vecmul(Transpose(B_matrix),ZernC)
+!  call DGESV(2*KU,2*KU+NRHS,A,2*KU,IPIV,EE,2*KU,INFO) ! overwrites EE into solution 
 !    call GaussJordan( 2*KU, 2*KU+NRHS ,A ,2*KU , EE, 2*KU, INFO )   ! overwrites EE into solution
 
-  LWORK = min(k_max,kk_max) + max( min(k_max,kk_max), nrhs )
-  allocate (WORK(LWORK))! WORK is dimension LWORK
-  call DGELS( 'T', k_max, kk_max, nrhs, B_Matrix, k_max, ZernC , kk_max, WORK, LWORK, INFO ) ! overwrites ZernC
+!  LWORK = min(k_max,kk_max) + max( min(k_max,kk_max), nrhs )
+!  allocate (WORK(LWORK))! WORK is dimension LWORK
+!  call DGELS( 'T', k_max, kk_max, nrhs, B_Matrix, k_max, ZernC , kk_max, WORK, LWORK, INFO ) ! overwrites ZernC
 
 ! the above 
 ! to plot "talus" instead of center, pick a point with circle around it; same thing as above, plot the vertical coma vs position; will be compute more intensive
