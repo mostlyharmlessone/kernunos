@@ -529,9 +529,9 @@ write(*,*) 'k_max, info: ',k_max,info
 write(*,*) ZernC(1:k_max,1) 
 
 ! Done with Zernike
-  deallocate(WORK,B_Matrix,ZernC,rlocal,thtlocal)
+!  deallocate(WORK,B_Matrix,ZernC,rlocal,thtlocal)
  
-stop
+!stop
   
   
 !  use fillarray to fill DiaSlope Zp with calculated value based on IuseG, optionally generate LIOC
