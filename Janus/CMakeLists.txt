@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.16)
-cmake_policy(VERSION 3.16)
+cmake_minimum_required(VERSION 3.26)
+cmake_policy(VERSION 3.26)
 
 project(Jupiter VERSION 0.1.0 LANGUAGES C CXX Fortran)
 
@@ -109,26 +109,26 @@ find_package(BLAS)
  if ( BLAS_FOUND )
   message(STATUS "BLAS found at ${BLAS_LIBRARIES}")
  else()
-  set(BLAS_LIBRARIES "/usr/local/lib/libblas.so")
+  set(BLAS_LIBRARIES "/usr/lib/libblas.so")
  endif()
 find_package(LAPACK)
  if ( LAPACK_FOUND )
   message(STATUS "LAPACK found at ${LAPACK_LIBRARIES}")
  else()
-  set(LAPACK_LIBRARIES "/usr/lib/i386-linux-gnu/lapack/liblapack.so.3")
+  set(LAPACK_LIBRARIES "/usr/lib/liblapack.so.3")
  endif()
 find_package(SuperLU)
  if ( SUPERLU_FOUND )
   message(STATUS "SUPERLU found at ${SUPERLU_LIBRARIES}")   
  else()
-  set(SUPERLU_LIBRARIES "/usr/local/lib/libsuperlu.so")
+  set(SUPERLU_LIBRARIES "/usr/libsuperlu.so")
  endif()
 find_package(OpenCL)
  if ( OPENCL_FOUND )
   message(STATUS "OPENCL found at ${OPENCL_LIBRARIES}")   
  else()
 #  set(OPENCL_LIBRARIES "/usr/lib/libOpenCL.so")
-  set(OPENCL_LIBRARIES "/usr/lib/x86_64-linux-gnu/libOpenCL.so.1") 
+  set(OPENCL_LIBRARIES "/usr/lib/libOpenCL.so.1") 
  endif()
 find_package(OpenMP)
 # from learnopengl: attempt to make buildable apple/win32 too
@@ -207,35 +207,36 @@ endif(WIN32)
     add_library( rply_includes ${rply_sources})
     add_library( modules ${mod_sources90})
     add_library( splia ${lib_sources90})
-
+    
+#libraries      
     set(LIBS ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} glfw)
 
+#kernunos Qt version
     add_executable(kernunos 
                    src/cxx/kernunos/kernunos.cpp 
                    src/lib90/janus.f90 
                    src/cxx/opengl_show.cpp
-                   )  
-                   
+                   )                     
     set_target_properties(kernunos PROPERTIES
         WIN32_EXECUTABLE TRUE
         MACOSX_BUNDLE TRUE
-        )                   
-                   
+        )                                      
     target_link_libraries(kernunos
                    PRIVATE OpenMP::OpenMP_CXX 
                    PUBLIC Qt6::Core Qt6::OpenGLWidgets Qt6::Gui Qt6::Charts Qt6::OpenGL 
                    splia modules rply_includes ${LIBS}
                    )
-       
-#    add_executable(${PROJECT_NAME} src/cxx/Jupiter.cpp src/lib90/janus.f90 src/cxx/opengl_show.cpp src/cxx/mathstuff.cpp )
+                   
+#Jupiter wxWidgets version      
+    add_executable(${PROJECT_NAME} src/cxx/Jupiter/Jupiter.cpp src/lib90/janus.f90 src/cxx/opengl_show.cpp src/cxx/Jupiter/mathstuff.cpp )
+    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${wxWidgets_LIBRARIES} ${LIBS})
+
+#juno commandline/glfw version
     add_executable(juno 
                    src/lib90/juno.f90 
                    src/lib90/janus.f90 
                    src/cxx/opengl_show.cpp 
                    f90getopt/f90getopt.F90)
-
-#    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${wxWidgets_LIBRARIES} ${LIBS})
-
     target_link_libraries(juno 
                    PRIVATE OpenMP::OpenMP_CXX 
                    PUBLIC splia modules rply_includes ${LIBS})

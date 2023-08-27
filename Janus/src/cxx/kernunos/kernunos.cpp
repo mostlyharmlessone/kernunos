@@ -87,7 +87,7 @@ void GLwidget::initializeGL()
 
   // Enable depth test
   glEnable(GL_DEPTH_TEST);
-  // Accept fragment if it closer to the camera than the former one
+  // Accept fragment if it is closer to the camera than the former one
   glDepthFunc(GL_LESS);
 
   // load and compile vertex shader

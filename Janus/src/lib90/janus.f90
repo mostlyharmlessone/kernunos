@@ -39,7 +39,7 @@
 !write(*,*) 'file from kernunos: ',mainfile  ! this will have a lot of extra random non ASCII stuff after the file name
 !! need this because GCC11 isn't F2018 compliant with deferred length character with Bind C
 !! ie. can't do CHARACTER(*,c_char), INTENT(IN) :: mainfile with BIND(C) with GCC11
-!! Juno's mainfile declaration   character(len=12), dimension(:), allocatable :: args with args(1) works too
+!! Juno's mainfile declaration   character(len=12), dimension(:), allocatable :: args with args(1) works too, but limited in length
 !   Converting C char array to Fortran character.
     new_path = " "
     loop_string: do i=1, 4096
@@ -423,6 +423,7 @@ file_idx=index(inputfile1, ".DAT")
   allocate (MV(MM))
   MV(:)=RadSlope%MV(:) ! store a copy
 
+! simple subtraction the second time through
   if (allocated(JMatrix1%R)) then
      JMatrix%SAGC(:,:)=JMatrix1%SAGC(:,:)-JMatrix%SAGC(:,:)
      JMatrix%INSTC(:,:)=JMatrix1%INSTC(:,:)-JMatrix%INSTC(:,:)
@@ -461,6 +462,7 @@ file_idx=index(inputfile1, ".DAT")
    end do
    k_max=k   
    allocate (B_Matrix(k_max,kk_max),ZernC(kk_max,nrhs),rlocal(kk_max),thtlocal(kk_max))
+   ZernC=0
    
    do ii=1,nrhs
 !  center of local geometry   
@@ -492,7 +494,7 @@ file_idx=index(inputfile1, ".DAT")
    end do
    end do
    
-   call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
+   call RadSlope_eq_JMatrix(RadSlope,JMatrix)                      ! restore RadSlope
 
 ! generate the Zpolynomial degree_polynomial values for each point, makes a matrix degree_polynomials x length_data
 ! if n >= 0 ABS(m) <= n  & mod(n-m,2) = 0
@@ -530,8 +532,9 @@ write(*,*) ZernC(1:k_max,1)
 
 ! Done with Zernike
 !  deallocate(WORK,B_Matrix,ZernC,rlocal,thtlocal)
- 
-!stop
+
+! put stop in here to work on zernike 
+stop
   
   
 !  use fillarray to fill DiaSlope Zp with calculated value based on IuseG, optionally generate LIOC
