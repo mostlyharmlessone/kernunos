@@ -80,8 +80,8 @@ include_directories(${LibEpoxy_INCLUDE_DIRS})
 if(UNIX AND NOT APPLE)
  set(wxWidgets_CONFIG_OPTIONS_DEFAULT "--toolkit=gtk3")
 endif()
-#find_package(wxWidgets 3 REQUIRED gl richtext aui adv html webview core xml net base)
-#find_package(wxWidgets 3 REQUIRED gl core net base)
+find_package(wxWidgets 3 REQUIRED gl richtext aui adv html webview core xml net base)
+find_package(wxWidgets 3 REQUIRED gl core net base)
 if(wxWidgets_FOUND)
   include(${wxWidgets_USE_FILE})
       message("-- FOUND WxWidgets library")
@@ -228,8 +228,8 @@ endif(WIN32)
                    )
                    
 #Jupiter wxWidgets version      
-    add_executable(${PROJECT_NAME} src/cxx/Jupiter/Jupiter.cpp src/lib90/janus.f90 src/cxx/opengl_show.cpp src/cxx/Jupiter/mathstuff.cpp )
-    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${wxWidgets_LIBRARIES} ${LIBS})
+   add_executable(${PROJECT_NAME} src/cxx/Jupiter/Jupiter.cpp src/lib90/janus.f90 src/cxx/opengl_show.cpp src/cxx/Jupiter/mathstuff.cpp )
+   target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${wxWidgets_LIBRARIES} ${LIBS})
 
 #juno commandline/glfw version
     add_executable(juno 

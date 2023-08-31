@@ -34,7 +34,7 @@
   real(wp) :: Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo
   integer :: LWORK, k_max, kk_max
   real(wp), allocatable :: WORK(:), ZernC(:,:), B_Matrix(:,:), rlocal(:), thtlocal(:)
-  real(wp) :: ctr_circle_x, ctr_circle_y, R_Talus, Theta_Talus
+  real(wp) :: ctr_circle_x, ctr_circle_y, R_Talus, Theta_Talus, X_global, Y_global
 
 !write(*,*) 'file from kernunos: ',mainfile  ! this will have a lot of extra random non ASCII stuff after the file name
 !! need this because GCC11 isn't F2018 compliant with deferred length character with Bind C
@@ -468,8 +468,8 @@ file_idx=index(inputfile1, ".DAT")
 !  center of local geometry   
    ctr_circle_x=20.1
    ctr_circle_y=30.0
-   ctr_circle_x=0.0
-   ctr_circle_y=0.0
+   ctr_circle_x=2.0
+   ctr_circle_y=3.0
 !   ctr_circle_x=fct of nrhs
 !   ctr_circle_y=fct of nrhs
    
@@ -478,17 +478,29 @@ file_idx=index(inputfile1, ".DAT")
     do j=1,12  !kk_max=10*12
     kk=kk+1
 !   local cylindrical coordinates
-    rlocal(kk)=(i-1)/9.0  ! r goes from 0 to 1
+    rlocal(kk)=30*(i-1)/9.0  ! r goes from 0 to 1
     thtlocal(kk)=2*PI*(j-1)/12  ! tht from 0 to 2*Pi without overlap
 !   global cylindrical coordinates
-    R_Talus=sqrt((ctr_circle_x-rlocal(kk)*cos(thtlocal(kk)))*(ctr_circle_x-rlocal(kk)*cos(thtlocal(kk)))+&
-                 (ctr_circle_y-rlocal(kk)*sin(thtlocal(kk)))*(ctr_circle_y-rlocal(kk)*sin(thtlocal(kk))))
-    if (ABS(ctr_circle_x-rlocal(kk)*cos(thtlocal(kk))) > EPS) then
-     Theta_Talus=ATan((ctr_circle_y-rlocal(kk)*sin(thtlocal(kk)))/(ctr_circle_x-rlocal(kk)*cos(thtlocal(kk))))
-     call SplineEval1Dx1D(0,R_Talus,Theta_Talus,ZernC(kk,ii))  ! elevation for Zernike; use coefficient vector as temporary storage
+    Y_global=(rlocal(kk)*sin(thtlocal(kk))-ctr_circle_y)
+    X_global=(rlocal(kk)*cos(thtlocal(kk))-ctr_circle_x)
+    R_Talus=sqrt(X_global*X_global+Y_global*Y_global)
+    if (ABS(X_global) > EPS .AND. ABS(Y_global) > EPS) then
+     if (X_global > 0 .AND. Y_global > 0 ) then
+      Theta_Talus=ATan(Y_global/X_global)
+     endif
+     if (X_global < 0 .AND. Y_global > 0 ) then
+      Theta_Talus=ATan(Y_global/X_global)+PI
+     endif
+     if (X_global < 0 .AND. Y_global < 0 ) then
+      Theta_Talus=ATan(Y_global/X_global)+PI
+     endif
+     if (X_global > 0 .AND. Y_global < 0 ) then
+      Theta_Talus=ATan(Y_global/X_global)+2*PI
+     endif
+     call SplineEval1Dx1D(1,R_Talus,Theta_Talus,ZernC(kk,ii))  ! elevation for Zernike; use coefficient vector as temporary storage
     else
-     Theta_Talus=PI/2
-     call SplineEval1Dx1D(0,R_Talus,Theta_Talus,ZernC(kk,ii))  ! elevation for Zernike; use coefficient vector as temporary storage    
+     Theta_Talus=0
+     call SplineEval1Dx1D(1,R_Talus,Theta_Talus,ZernC(kk,ii))  ! elevation for Zernike; use coefficient vector as temporary storage   
     endif 
     end do
    end do
@@ -512,6 +524,12 @@ file_idx=index(inputfile1, ".DAT")
    end do
   end do
 
+
+do kk=1,kk_max
+!write(*,*) rlocal(kk)*cos(thtlocal(kk)),rlocal(kk)*sin(thtlocal(kk)),ZernC(kk,1)
+end do 
+
+
 ! solve the LSQ equations for ZernC(k): solution is degree_polynomials number of coefficients;  B_Matrix(k,kk)*ZernC(k)=z(kk) 
 ! Use normal equation XTX.c=X.z ie. B_Matrix(k,kk)*ZernC(k)=z(kk) or use LAPACKs dgels()
 ! only have to call this once; NRHS can be for the whole talus plot since B_Matrix is invariant.
@@ -521,17 +539,17 @@ file_idx=index(inputfile1, ".DAT")
 !  call DGESV(2*KU,2*KU+NRHS,A,2*KU,IPIV,EE,2*KU,INFO) ! overwrites EE into solution 
 !    call GaussJordan( 2*KU, 2*KU+NRHS ,A ,2*KU , EE, 2*KU, INFO )   ! overwrites EE into solution
 
-!  LWORK = min(k_max,kk_max) + max( min(k_max,kk_max), nrhs )
-!  allocate (WORK(LWORK))! WORK is dimension LWORK
-!  call DGELS( 'T', k_max, kk_max, nrhs, B_Matrix, k_max, ZernC , kk_max, WORK, LWORK, INFO ) ! overwrites ZernC
+  LWORK = min(k_max,kk_max) + max( min(k_max,kk_max), nrhs )
+  allocate (WORK(LWORK))! WORK is dimension LWORK
+  call DGELS( 'T', k_max, kk_max, nrhs, B_Matrix, k_max, ZernC , kk_max, WORK, LWORK, INFO ) ! overwrites ZernC
 
 ! the above 
 ! to plot "talus" instead of center, pick a point with circle around it; same thing as above, plot the vertical coma vs position; will be compute more intensive
-write(*,*) 'k_max, info: ',k_max,info
-write(*,*) ZernC(1:k_max,1) 
+write(*,*) 'k_max, info: ',kk_max,info
+write(*,*) ZernC(1:kk_max,1) 
 
 ! Done with Zernike
-!  deallocate(WORK,B_Matrix,ZernC,rlocal,thtlocal)
+  deallocate(WORK,B_Matrix,ZernC,rlocal,thtlocal)
 
 ! put stop in here to work on zernike 
 stop
