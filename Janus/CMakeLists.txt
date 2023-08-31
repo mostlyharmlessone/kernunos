@@ -33,7 +33,7 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
     set(bounds "-check bounds")
 endif()
 #  nvfortran==pgi
-if(CMAKE_Fortran_COMPILER_ID MATCHES "pgfortran")
+if(CMAKE_Fortran_COMPILER_ID MATCHES "nvfortran")
 #    set(dialect "-Mfreeform -Mdclchk -Mstandard -Mallocatable=03")
 #    set(bounds "-C")
 endif()
@@ -81,7 +81,7 @@ if(UNIX AND NOT APPLE)
  set(wxWidgets_CONFIG_OPTIONS_DEFAULT "--toolkit=gtk3")
 endif()
 #find_package(wxWidgets 3 REQUIRED gl richtext aui adv html webview core xml net base)
-find_package(wxWidgets 3 REQUIRED gl core net base)
+#find_package(wxWidgets 3 REQUIRED gl core net base)
 if(wxWidgets_FOUND)
   include(${wxWidgets_USE_FILE})
       message("-- FOUND WxWidgets library")
@@ -167,12 +167,12 @@ endif(WIN32)
 #viennaCL
 
 # ViennaCL example
-  add_executable(viennacl src/cxx/vienna/viennacl-info.cpp)  
-  target_link_libraries(viennacl ${OPENCL_LIBRARIES} ) 
-  add_executable(sparse src/cxx/vienna/sparse.cpp)  
-  target_link_libraries(sparse ${OPENCL_LIBRARIES} )
-  add_executable(blasexample src/cxx/vienna/blas3.cpp)  
-  target_link_libraries(blasexample ${OPENCL_LIBRARIES} )
+#  add_executable(viennacl src/cxx/vienna/viennacl-info.cpp)  
+#  target_link_libraries(viennacl ${OPENCL_LIBRARIES} ) 
+#  add_executable(sparse src/cxx/vienna/sparse.cpp)  
+#  target_link_libraries(sparse ${OPENCL_LIBRARIES} )
+#  add_executable(blasexample src/cxx/vienna/blas3.cpp)  
+#  target_link_libraries(blasexample ${OPENCL_LIBRARIES} )
 
 # Compile.
 
