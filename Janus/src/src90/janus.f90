@@ -34,6 +34,8 @@
   real(wp) :: Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo
   integer :: LWORK, k_max, kk_max
   real(wp), allocatable :: WORK(:), ZernC(:,:), B_Matrix(:,:), rlocal(:), thtlocal(:)
+  real(wp), allocatable :: XTX(:,:),EE(:)
+  integer, allocatable :: IPIV(:)
   real(wp) :: ctr_circle_x, ctr_circle_y, R_Talus, Theta_Talus, X_global, Y_global
 
 !write(*,*) 'file from kernunos: ',mainfile  ! this will have a lot of extra random non ASCII stuff after the file name
@@ -257,7 +259,7 @@ file_idx=index(inputfile1, ".DAT")
    end do
 
    if (Testdata .eq. 1) then
-    Atlas=0
+!    Atlas=0                                deallocation of Atlas temporary for Zernikes
    endif
    RadSlope=0
    DiaSlope=0
@@ -524,31 +526,33 @@ file_idx=index(inputfile1, ".DAT")
    end do
   end do
 
-
-do kk=1,kk_max
-!write(*,*) rlocal(kk)*cos(thtlocal(kk)),rlocal(kk)*sin(thtlocal(kk)),ZernC(kk,1)
-end do 
-
-
 ! solve the LSQ equations for ZernC(k): solution is degree_polynomials number of coefficients;  B_Matrix(k,kk)*ZernC(k)=z(kk) 
 ! Use normal equation XTX.c=X.z ie. B_Matrix(k,kk)*ZernC(k)=z(kk) or use LAPACKs dgels()
 ! only have to call this once; NRHS can be for the whole talus plot since B_Matrix is invariant.
 ! have to allocate WORK
+allocate(XTX(k_max,k_max),EE(k_max),IPIV(k_max))
 
-!  XTX=matmul(Transpose(B_matrix),B_matrix)=vecmul(Transpose(B_matrix),ZernC)
-!  call DGESV(2*KU,2*KU+NRHS,A,2*KU,IPIV,EE,2*KU,INFO) ! overwrites EE into solution 
-!    call GaussJordan( 2*KU, 2*KU+NRHS ,A ,2*KU , EE, 2*KU, INFO )   ! overwrites EE into solution
+! from old version lsqfill routine in cornearrays
+Atlas%AR = lsqfill(Atlas) ! uses lsq fit with cosine series instead of spline
+
+
+   XTX=matmul(B_matrix,Transpose(B_matrix))
+   EE=matmul(B_matrix,ZernC(:,1))
+!  call DGESV(M2, 1, XTX, M2, ipvt, zpX, M2, INFO ) k_max+NRHS
+   call DGESV(k_max,1,XTX,k_max,IPIV,EE,k_max,INFO) ! overwrites EE into solution 
+!    call GaussJordan( k_max, k_max+NRHS ,XTX ,k_max , EE, k_max, INFO )   ! overwrites EE into solution
 
   LWORK = min(k_max,kk_max) + max( min(k_max,kk_max), nrhs )
   allocate (WORK(LWORK))! WORK is dimension LWORK
-  call DGELS( 'T', k_max, kk_max, nrhs, B_Matrix, k_max, ZernC , kk_max, WORK, LWORK, INFO ) ! overwrites ZernC
+!  call DGELS( 'T', k_max, kk_max, nrhs, B_Matrix, k_max, ZernC , kk_max, WORK, LWORK, INFO ) ! overwrites ZernC (only to k_max)
 
 ! the above 
 ! to plot "talus" instead of center, pick a point with circle around it; same thing as above, plot the vertical coma vs position; will be compute more intensive
 write(*,*) 'k_max, info: ',kk_max,info
-write(*,*) ZernC(1:kk_max,1) 
+write(*,*) ZernC(1:k_max,1) 
 
 ! Done with Zernike
+  deallocate(XTX,EE,IPIV)
   deallocate(WORK,B_Matrix,ZernC,rlocal,thtlocal)
 
 ! put stop in here to work on zernike 

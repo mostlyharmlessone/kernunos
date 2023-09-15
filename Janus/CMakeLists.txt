@@ -202,8 +202,8 @@ endif(WIN32)
 #    target_link_libraries(qt-example4 Qt5::Core Qt5::OpenGL Qt5::Gui ${OPENGL_LIBRARIES})
 
 #   Fortran Source
-    file(GLOB_RECURSE lib_sources90  src/lib90 *.f90 *.for)
-    file(GLOB_RECURSE mod_sources90  src/modules *.f90)
+    file(GLOB_RECURSE lib_sources90  src/src90 *.f90 *.for)
+    file(GLOB_RECURSE mod_sources90  src/mod90 *.f90)
     add_library( rply_includes ${rply_sources})
     add_library( modules ${mod_sources90})
     add_library( splia ${lib_sources90})
@@ -214,7 +214,7 @@ endif(WIN32)
 #kernunos Qt version
     add_executable(kernunos 
                    src/cxx/kernunos/kernunos.cpp 
-                   src/lib90/janus.f90 
+                   src/src90/janus.f90 
                    src/cxx/opengl_show.cpp
                    )                     
     set_target_properties(kernunos PROPERTIES
@@ -228,13 +228,13 @@ endif(WIN32)
                    )
                    
 #Jupiter wxWidgets version      
-   add_executable(${PROJECT_NAME} src/cxx/Jupiter/Jupiter.cpp src/lib90/janus.f90 src/cxx/opengl_show.cpp src/cxx/Jupiter/mathstuff.cpp )
+   add_executable(${PROJECT_NAME} src/cxx/Jupiter/Jupiter.cpp src/src90/janus.f90 src/cxx/opengl_show.cpp src/cxx/Jupiter/mathstuff.cpp )
    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${wxWidgets_LIBRARIES} ${LIBS})
 
 #juno commandline/glfw version
     add_executable(juno 
-                   src/lib90/juno.f90 
-                   src/lib90/janus.f90 
+                   src/src90/juno.f90 
+                   src/src90/janus.f90 
                    src/cxx/opengl_show.cpp 
                    f90getopt/f90getopt.F90)
     target_link_libraries(juno 

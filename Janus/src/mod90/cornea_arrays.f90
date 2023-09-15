@@ -746,7 +746,7 @@ function lsqfill(b) result(a)
  TYPE(wpAtlasMatrix),INTENT(IN) :: b
  integer :: M1,N1,i,j,k,l,info,ipvt(M2)
  real(wp) :: a(size(b%AR,1),size(b%AR,2)),t(size(b%AR,1)),z(size(b%AR,1))
- real(wp) :: c(M2),X(M2,size(b%AR,1)),XpX(M2),zpX(M2),XTX(M2,M2)
+ real(wp) :: c(M2),X(M2,size(b%AR,1)),zpX(M2),XTX(M2,M2)
  logical :: Q
 ! real (wp) res(size(b%AR,1)),respres,sumr2,zpz
  N1=size(b%AR,2) !N1=N 
@@ -755,7 +755,6 @@ function lsqfill(b) result(a)
  t=0
  a=0
  do i=1,N1
-  XpX=0
   zpX=0 
   c=0  
 ! X is cosine terms of fourier, t are angles, Z are radii for current ring
@@ -766,7 +765,6 @@ function lsqfill(b) result(a)
      t(k)=b%DEG(k)*PI/180.0_wp         
      z(k)=b%AR(k,i)
      X(j,k)=cos((j-1)*t(k))    ! cosine series including 0 term
-     XpX(j)=XpX(j)+X(j,k)*X(j,k)
      zpX(j)=zpX(j)+z(k)*X(j,k)
     endif      
    end do 
