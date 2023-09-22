@@ -14,7 +14,7 @@ SUBROUTINE c_dgemm(transa,transb,m,n,k,alpha,a,lda,b,ldb,beta,c,ldc) bind(c,name
 END SUBROUTINE c_dgemm
 
 ! call from c++ to fortran as extern "C" for data exchange
-SUBROUTINE Janus(flag,mainfile, elements, vertices, nV, nE) !do not use BIND(C, name=) that's only for fortran calling C/C++ not vice versa bind(C,name='janus_')
+SUBROUTINE Janus(flag,mainfile, elements, vertices, nV, nE) bind(C,name='janus_')
  USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
  IMPLICIT NONE 
  CHARACTER(c_char), INTENT(IN), DIMENSION(4096) :: mainfile

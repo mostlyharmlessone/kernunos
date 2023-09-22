@@ -14,6 +14,8 @@ MODULE cornea_arrays
 ! INTEGER, PARAMETER :: MM=180, N=22   ! Atlas
 ! INTEGER, PARAMETER :: MM=360, N=16  ! EyeSys
  integer, PARAMETER :: M2=3 ! lsq fourier cosine series terms
+! integer :: LWORK1
+! real(wp), allocatable :: WORK1(:)
 
 ! Defining common data arrays
  
@@ -765,26 +767,21 @@ function lsqfill(b) result(a)
      t(k)=b%DEG(k)*PI/180.0_wp         
      z(k)=b%AR(k,i)
      X(j,k)=cos((j-1)*t(k))    ! cosine series including 0 term
-     zpX(j)=zpX(j)+z(k)*X(j,k)
     endif      
    end do 
   end do
-! X transpose X
-  XTX=0
-  do j=1,M2
-   do l=1,M2 
-    do k=1,M1 
-     Q=ABS(b%AR(k,i)) > 0  
-     if (Q) then ! means it is  =/ 0    
-      XTX(j,l)=XTX(j,l)+X(j,k)*X(l,k)
-     endif
-    end do
-   end do
-  end do
+  XTX=matmul(X,Transpose(X))
+  zpX=matmul(X,z)
 ! get solution fit coefficients c to XTX.c=z.X
   c=0
 !  call gauss_2(XTX,zpX,c,M2) ! simple G-J routine
+!  or
 !  call DGESV(M2, 1, XTX, M2, ipvt, zpX, M2, INFO )
+!  or
+!  LWORK1 = min(M1,M2) + max( min(M1,M2), 1 )
+!  allocate (WORK1(LWORK1))! WORK is dimension LWORK
+!  call DGELS( 'T', M2, M1, 1, X, M2, z , M1, WORK1, LWORK1, INFO ) ! overwrites z (only to M2)
+!  or
 ! The lapack insertion below from Hanson & Hopkins chapter 2: exampleLapack90.f90
   call dgetrf(M2,M2,XTX,M2,ipvt,info)
 ! Check that the Lapack routine has been successful
@@ -801,6 +798,7 @@ function lsqfill(b) result(a)
    WRITE (*,'(''Argument '',i3,'' has an illegal value'')') - info
   END IF
   end if
+!deallocate(WORK1)
   c=zpX
 ! generate lsq fillin values
   do k=1,M1
