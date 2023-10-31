@@ -452,13 +452,16 @@ file_idx=index(inputfile1, ".DAT")
    DiaSlope%Zpd2 = .n. DiaSlope   ! generate the splines diagonally (generate zp2)
 
 ! allocate working matrices
-   nrhs=1
+   nrhs=2
    kk_max=10*12
    k=0
-   do m=0,4
-    do n=m,4
+   do m=-4,4
+    do n=ABS(m),4
      if (mod(n-m,2) == 0) then
       k=k+1
+
+write(*,*) 'k,n,m: ',k,n,m
+
      endif
     end do
    end do
@@ -468,12 +471,10 @@ file_idx=index(inputfile1, ".DAT")
    
    do ii=1,nrhs
 !  center of local geometry   
-   ctr_circle_x=20.1
-   ctr_circle_y=30.0
-   ctr_circle_x=2.0
-   ctr_circle_y=3.0
-!   ctr_circle_x=fct of nrhs
-!   ctr_circle_y=fct of nrhs
+!!   ctr_circle_x=2.0
+!!   ctr_circle_y=3.0
+   ctr_circle_x=2.0+(ii-1)*10
+   ctr_circle_y=3.0+(ii-1)*10
    
    kk=0   
    do i=1,10
@@ -514,8 +515,8 @@ file_idx=index(inputfile1, ".DAT")
 ! if n >= 0 ABS(m) <= n  & mod(n-m,2) = 0
   do kk=1,kk_max   
    k=0
-   do m=0,4
-    do n=m,4
+   do m=-4,4
+    do n=ABS(m),4
      if (mod(n-m,2) == 0) then
       k=k+1
       B_Matrix(k,kk)=zern(n,m,rlocal(kk),thtlocal(kk))  ! local cylindrical coordinates
@@ -541,7 +542,10 @@ file_idx=index(inputfile1, ".DAT")
  
 ! to plot "talus" instead of center, pick a point with circle around it; same thing as above, plot the vertical coma vs position; will be compute more intensive
 write(*,*) 'k_max,kk_max, info: ',k_max,kk_max,info
-write(*,*) ZernC(1:k_max,1)
+do kk=1,nrhs
+ write(*,*) ZernC(1:k_max,kk)
+ write(*,*) ' '
+end do
 
 ! Done with Zernike
 !  deallocate(XTX,EE,IPIV)
