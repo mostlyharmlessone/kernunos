@@ -144,6 +144,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
 
     int mWidth;
     int mHeight;
+    int timerID;
 
     int oldX, oldY;
     int newX, newY;

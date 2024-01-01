@@ -552,7 +552,7 @@ end do
   deallocate(WORK,B_Matrix,ZernC,rlocal,thtlocal)
 
 ! put stop in here to work on zernike 
-stop
+!stop
   
   
 !  use fillarray to fill DiaSlope Zp with calculated value based on IuseG, optionally generate LIOC

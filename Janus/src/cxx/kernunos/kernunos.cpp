@@ -55,6 +55,7 @@ GLwidget::GLwidget ( QWidget *parent ) : QOpenGLWidget(parent)
 {
   setFocusPolicy(Qt::StrongFocus);
   cameraPos = QVector3D(0, 0, 6);
+  timerID = startTimer(1000);
 }
 
 GLwidget::~GLwidget()
@@ -64,6 +65,7 @@ GLwidget::~GLwidget()
   glDeleteBuffers(1, &vertexbuffer);
   glDeleteBuffers(1,&elementbuffer);
   glDeleteProgram(programID);
+  killTimer(timerID);
 }
 
 void GLwidget::initializeGL()
@@ -278,11 +280,12 @@ void GLwidget::paintGL(void)
     // Unbind
     glBindBuffer(vertexbuffer,0);
     glBindBuffer(elementbuffer,0);
-
 }
 
+// refreshes the window
 void GLwidget::timerEvent(QTimerEvent*)
 {
+ update();
 }
 
 void GLwidget::resizeGL(int w, int h)
@@ -305,6 +308,10 @@ void GLwidget::keyPressEvent(QKeyEvent *e)
      mViewMatrix.scale(QVector3D(0.004,0.004,0.004));
      update();
     break;
+    case Qt::Key_N:  /*  N Key */
+     mViewMatrix.scale(QVector3D(50,50,50));
+     update();
+    break;    
     case Qt::Key_Q:  /*  Q Key */
      mViewMatrix.translate(50*QVector3D(0,0,-0.1));
      update();
@@ -340,11 +347,11 @@ void GLwidget::wheelEvent(QWheelEvent *e)
     QPoint numPixels = e->pixelDelta();
 
          if (numPixels.y() > 0) {
-         mViewMatrix.translate(QVector3D(0,0,-0.1));
+         mViewMatrix.translate(500*QVector3D(0,0,-0.1));
          update();
          }
          else {
-         mViewMatrix.translate(QVector3D(0,0,0.1));
+         mViewMatrix.translate(500*QVector3D(0,0,0.1));
          update();
          }
     e->accept();
@@ -623,14 +630,14 @@ void MainWindow::about()
     unsigned int hwConcurr= (hw != 0)? hw : hwGuess;
     std::string t = std::to_string(hwConcurr);
     char const *n_char = t.c_str();
-    // infoLabel->setText(tr("Cores found by Kernunos: ")+n_char);
+    //infoLabel->setText(tr("CPU Cores found by Kernunos: ")+n_char);
 
     infoLabel->setText(tr("Invoked <b>Help|About</b>"));
     const char *glstring;
     QByteArray gl8 = glstring_global.toLocal8Bit();
     glstring = gl8.data();
     QString sglVer = "Kernunos runs on Qt and OpenGL.\nSee acknowledgements\n";
-    sglVer += "\nCores found: ";
+    sglVer += "\nCPU Cores found: ";
     sglVer += n_char;
     sglVer += glstring;
     QMessageBox::about(this, tr("About Kernunos"),sglVer);
