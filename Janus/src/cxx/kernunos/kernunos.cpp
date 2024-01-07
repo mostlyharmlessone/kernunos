@@ -290,6 +290,8 @@ void GLwidget::timerEvent(QTimerEvent*)
 
 void GLwidget::resizeGL(int w, int h)
 {
+//  w *= devicePixelRatio();  // unsure what this does for me
+//  h *= devicePixelRatio();
   mWidth = w;
   mHeight = h;
   mProjectionMatrix.setToIdentity();
@@ -436,11 +438,11 @@ MainWindow::MainWindow()
     QOpenGLWidget *window1 = new GLwidget(this);
     window1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    QOpenGLWidget *window2 = new GLwidget(this);
-    window2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    //QOpenGLWidget *window2 = new GLwidget(this);
+   // window2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    QWidget *window3 = new QWidget(this);
-    window3->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    //QWidget *window3 = new QWidget(this);
+    //window3->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     infoLabel = new QLabel(tr("<i>Welcome! Please Open a file.</i>"));
     infoLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
@@ -495,9 +497,6 @@ MainWindow::MainWindow()
     colorHBox->addWidget(legend);
     colorGroupBox->setLayout(colorHBox);
 
-
-
-
     QBarSet *negative = new QBarSet("Negative");
     QBarSet *positive = new QBarSet("Positive");
 
@@ -532,6 +531,7 @@ MainWindow::MainWindow()
         "Z(2,-2) Oblique Astigmatism"
     };
 
+
     QValueAxis *axisX = new QValueAxis();
     QBarCategoryAxis *axisY = new QBarCategoryAxis();
     axisY->append(aberrations);
@@ -552,17 +552,14 @@ MainWindow::MainWindow()
 
 
     colorHBox->addWidget(chartView);
-
-
-
     vlayout->addWidget(colorGroupBox);
 
 
 
 
 
-    vlayout->addWidget(window2);
-    vlayout->addWidget(window3);
+ //   vlayout->addWidget(window2);
+ //   vlayout->addWidget(window3);
     widget->setLayout(vlayout);
     vlayout->addWidget(infoLabel);
 
