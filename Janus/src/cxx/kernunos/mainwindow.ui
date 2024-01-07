@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
+    <width>892</width>
     <height>853</height>
    </rect>
   </property>
@@ -50,34 +50,14 @@
      <string>TextLabel</string>
     </property>
    </widget>
-   <widget class="QOpenGLWidget" name="openGLWidget_2">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>350</y>
-      <width>241</width>
-      <height>200</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QOpenGLWidget" name="openGLWidget_3">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>560</y>
-      <width>241</width>
-      <height>200</height>
-     </rect>
-    </property>
-   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
-     <height>22</height>
+     <width>892</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
