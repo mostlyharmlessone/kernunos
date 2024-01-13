@@ -213,8 +213,10 @@ endif(WIN32)
     set(LIBS ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} glfw)
 
 #kernunos Qt version
-    add_executable(kernunos 
+    qt_add_executable(kernunos 
                    src/cxx/kernunos/kernunos.cpp 
+                   src/cxx/kernunos/kernunos.h 
+                   src/cxx/kernunos/mainwindow.ui 
                    src/src90/janus.f90 
                    src/cxx/opengl_show.cpp
                    )                     
@@ -224,7 +226,7 @@ endif(WIN32)
         )                                      
     target_link_libraries(kernunos
                    PRIVATE OpenMP::OpenMP_CXX 
-                   PUBLIC Qt6::Core Qt6::OpenGLWidgets Qt6::Gui Qt6::Charts Qt6::OpenGL 
+                   PUBLIC Qt6::Core Qt6::OpenGLWidgets Qt6::Gui Qt::Widgets Qt6::Charts Qt6::OpenGL 
                    splia modules rply_includes ${LIBS}
                    )
                    
@@ -241,14 +243,16 @@ endif(WIN32)
     target_link_libraries(juno 
                    PRIVATE OpenMP::OpenMP_CXX 
                    PUBLIC splia modules rply_includes ${LIBS})
+       
+   
 
-#if(NOT DEFINED INSTALL_EXAMPLESDIR)
-#    set(INSTALL_EXAMPLESDIR "examples")
-#endif()
+if(NOT DEFINED INSTALL_EXAMPLESDIR)
+    set(INSTALL_EXAMPLESDIR "/Janus/Janus")
+endif()
 
-## set(INSTALL_EXAMPLEDIR "${INSTALL_EXAMPLESDIR}/charts/temperaturerecords")        
- ## install(TARGETS kernunos RUNTIME DESTINATION "${INSTALL_EXAMPLEDIR}" BUNDLE DESTINATION "${INSTALL_EXAMPLEDIR}" LIBRARY DESTINATION "${INSTALL_EXAMPLEDIR}")   
-
+install(TARGETS kernunos RUNTIME DESTINATION "${INSTALL_EXAMPLEDIR}" 
+                BUNDLE DESTINATION "${INSTALL_EXAMPLEDIR}" 
+                LIBRARY DESTINATION "${INSTALL_EXAMPLEDIR}")
 
 
 
