@@ -217,6 +217,7 @@ endif(WIN32)
     qt_add_executable(kernunos 
                    src/cxx/kernunos/kernunos.cpp 
                    src/cxx/kernunos/kernunos.h 
+                   src/cxx/kernunos/GLwidget.h 
                    src/cxx/kernunos/mainwindow.ui 
                    src/src90/janus.f90 
                    src/cxx/opengl_show.cpp

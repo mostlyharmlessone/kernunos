@@ -430,49 +430,51 @@ QVector3D GLwidget::getArcBallVector(int x, int y)
 }
 
 
+
 MainWindow::MainWindow()
 {
-    QWidget *widget = new QWidget;
-    setCentralWidget(widget);
+   //   QWidget *widget = new QWidget;
+   //   setCentralWidget(widget);
 
-    QOpenGLWidget *window1 = new GLwidget(this);
-    window1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+   ui.setupUi(this);
+   connect(ui.inputSpinBox1, &QSpinBox::valueChanged, this, &MainWindow::updateResult);
+   connect(ui.inputSpinBox2, &QSpinBox::valueChanged, this, &MainWindow::updateResult);
 
-    //QOpenGLWidget *window2 = new GLwidget(this);
-   // window2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    //QWidget *window3 = new QWidget(this);
-    //window3->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+   //    QOpenGLWidget *window1 = new GLwidget(this);
+   //    window1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    infoLabel = new QLabel(tr("<i>Welcome! Please Open a file.</i>"));
-    infoLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
-    infoLabel->setAlignment(Qt::AlignCenter);
 
-    QVBoxLayout *vlayout = new QVBoxLayout();
+   infoLabel = new QLabel(tr("<i>Welcome! Please Open a file.</i>"));
+   infoLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
+   infoLabel->setAlignment(Qt::AlignCenter);
 
-    QGroupBox *colorGroupBox = new QGroupBox(QStringLiteral("First Window"));
-    QLinearGradient grBtoY(0, 0, 1, 600);
- // from rgb5color {{0,0,255},{0,255,255},{0,255,0},{255,255,0},{255,0,0}}
-    QColor rgbcolor1= QColor::fromRgb(0, 0, 255, 255);
-    grBtoY.setColorAt(1.0, rgbcolor1);
-    QColor rgbcolor2= QColor::fromRgb(0, 255, 255, 255);
-    grBtoY.setColorAt(0.67, rgbcolor2);
-    QColor rgbcolor3= QColor::fromRgb(0, 255, 0, 255);
-    grBtoY.setColorAt(0.33, rgbcolor3);
-    QColor rgbcolor4= QColor::fromRgb(255, 255, 0, 255);
-    grBtoY.setColorAt(0.0, rgbcolor4);
-    QColor rgbcolor5= QColor::fromRgb(255, 0, 0, 255);
-    grBtoY.setColorAt(0.0, rgbcolor5);
-    QPixmap pm(24, 600);
-    QPainter pmp(&pm);
-    pmp.setBrush(QBrush(grBtoY));
-    pmp.setPen(Qt::NoPen);
-    pmp.setRenderHint(QPainter::Antialiasing, true);
+   QVBoxLayout *vlayout = new QVBoxLayout();
 
-    QRect rect1(0, 0, 24, 600);  //there are three 600s here that need auto resize
-    pmp.drawRect(rect1);
+   QGroupBox *colorGroupBox = new QGroupBox(QStringLiteral("First Window"));
+   QLinearGradient grBtoY(0, 0, 1, 600);
+   // from rgb5color {{0,0,255},{0,255,255},{0,255,0},{255,255,0},{255,0,0}}
+   QColor rgbcolor1= QColor::fromRgb(0, 0, 255, 255);
+   grBtoY.setColorAt(1.0, rgbcolor1);
+   QColor rgbcolor2= QColor::fromRgb(0, 255, 255, 255);
+   grBtoY.setColorAt(0.67, rgbcolor2);
+   QColor rgbcolor3= QColor::fromRgb(0, 255, 0, 255);
+   grBtoY.setColorAt(0.33, rgbcolor3);
+   QColor rgbcolor4= QColor::fromRgb(255, 255, 0, 255);
+   grBtoY.setColorAt(0.0, rgbcolor4);
+   QColor rgbcolor5= QColor::fromRgb(255, 0, 0, 255);
+   grBtoY.setColorAt(0.0, rgbcolor5);
+   QPixmap pm(24, 600);
+   QPainter pmp(&pm);
+   pmp.setBrush(QBrush(grBtoY));
+   pmp.setPen(Qt::NoPen);
+   pmp.setRenderHint(QPainter::Antialiasing, true);
 
-    QLabel *legendpix = new QLabel(widget);
+   QRect rect1(0, 0, 24, 600);  //there are three 600s here that need auto resize
+   pmp.drawRect(rect1);
+
+   /*
+     QLabel *legendpix = new QLabel(widget);
     legendpix->setPixmap(pm);
     QLabel *legend = new QLabel(widget);
 
@@ -485,238 +487,247 @@ MainWindow::MainWindow()
      legendvalues += n_char;
      legendvalues += "\n";
     }
+*/
 
-    legend->setText(legendvalues);
-    legend->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    legendpix->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-
-
-    QHBoxLayout *colorHBox = new QHBoxLayout;
-    colorHBox->addWidget(window1);
-    colorHBox->addWidget(legendpix);
-    colorHBox->addWidget(legend);
-    colorGroupBox->setLayout(colorHBox);
-
-    QBarSet *negative = new QBarSet("Negative");
-    QBarSet *positive = new QBarSet("Positive");
-
-    *negative << -.42 << 0 << -.45 << -.37 << -.25 << -0.08
-         << -0.0 << -0 << 0 << 0 << -0 << -0.1;
-    *positive << 0  << .128 << 0 << 0 << 0 << 0
-          << .38 << .34 << .29 << .204 << .15 << 0;
-
-    QHorizontalStackedBarSeries *series = new QHorizontalStackedBarSeries();
-
-    series->append(negative);
-    negative->setColor(QColorConstants::Red);
-    series->append(positive);
-    positive->setColor(QColorConstants::Blue);
-
-    QChart *chart = new QChart();
-    chart->addSeries(series);
-    chart->setTitle("Corneal Aberrometry");
-
-    QStringList aberrations = {
-        "Z(4,4) Vertical Quatrafoil",
-        "Z(4,2) Vertical 2nd Astig.",
-        "Z(4,0) Spherical Aberration",
-        "Z(4,-2) Oblique 2nd Astig.",
-        "Z(4,-4) Oblique Quatrafoil",
-        "Z(3,3) Oblique Trefoil",
-        "Z(3,1) Horizontal Coma",
-        "Z(3,-1) Vertical Coma",
-        "Z(3,-3) Vertical Trefoil",
-        "Z(2,2) Vertical Astig.",
-        "Z(2,0) Defocus",
-        "Z(2,-2) Oblique Astigmatism"
-    };
+   //   legend->setText(legendvalues);
+   //   legend->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+   //   legendpix->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
 
-    QValueAxis *axisX = new QValueAxis();
-    QBarCategoryAxis *axisY = new QBarCategoryAxis();
-    axisY->append(aberrations);
+   //    QHBoxLayout *colorHBox = new QHBoxLayout;
+   //    colorHBox->addWidget(window1);
+   //    colorHBox->addWidget(legendpix);
+   //    colorHBox->addWidget(legend);
+   //   colorGroupBox->setLayout(colorHBox);
 
-    axisX->setRange(-0.500, 0.500);
-    axisX->setTitleText("micrometers");
+   QBarSet *negative = new QBarSet("Negative");
+   QBarSet *positive = new QBarSet("Positive");
 
-    chart->addAxis(axisX, Qt::AlignBottom);
-    chart->addAxis(axisY, Qt::AlignRight);
-    series->attachAxis(axisX);
-    series->attachAxis(axisY);
+   *negative << -.42 << 0 << -.45 << -.37 << -.25 << -0.08
+             << -0.0 << -0 << 0 << 0 << -0 << -0.1;
+   *positive << 0  << .128 << 0 << 0 << 0 << 0
+             << .38 << .34 << .29 << .204 << .15 << 0;
 
-    chart->legend()->setVisible(false);
-    chart->legend()->setAlignment(Qt::AlignBottom);
+   QHorizontalStackedBarSeries *series = new QHorizontalStackedBarSeries();
 
-    QChartView *chartView = new QChartView(chart);
-    chartView->setRenderHint(QPainter::Antialiasing);
+   series->append(negative);
+   negative->setColor(QColorConstants::Red);
+   series->append(positive);
+   positive->setColor(QColorConstants::Blue);
+
+   QChart *chart = new QChart();
+   chart->addSeries(series);
+   chart->setTitle("Corneal Aberrometry");
+
+   QStringList aberrations = {
+       "Z(4,4) Vertical Quatrafoil",
+       "Z(4,2) Vertical 2nd Astig.",
+       "Z(4,0) Spherical Aberration",
+       "Z(4,-2) Oblique 2nd Astig.",
+       "Z(4,-4) Oblique Quatrafoil",
+       "Z(3,3) Oblique Trefoil",
+       "Z(3,1) Horizontal Coma",
+       "Z(3,-1) Vertical Coma",
+       "Z(3,-3) Vertical Trefoil",
+       "Z(2,2) Vertical Astig.",
+       "Z(2,0) Defocus",
+       "Z(2,-2) Oblique Astigmatism"
+   };
 
 
-    colorHBox->addWidget(chartView);
-    vlayout->addWidget(colorGroupBox);
+   QValueAxis *axisX = new QValueAxis();
+   QBarCategoryAxis *axisY = new QBarCategoryAxis();
+   axisY->append(aberrations);
+
+   axisX->setRange(-0.500, 0.500);
+   axisX->setTitleText("micrometers");
+
+   chart->addAxis(axisX, Qt::AlignBottom);
+   chart->addAxis(axisY, Qt::AlignRight);
+   series->attachAxis(axisX);
+   series->attachAxis(axisY);
+
+   chart->legend()->setVisible(false);
+   chart->legend()->setAlignment(Qt::AlignBottom);
+
+   QChartView *chartView = new QChartView(chart);
+   chartView->setRenderHint(QPainter::Antialiasing);
+
+
+   //   colorHBox->addWidget(chartView);
+   vlayout->addWidget(colorGroupBox);
 
 
 
 
 
- //   vlayout->addWidget(window2);
- //   vlayout->addWidget(window3);
-    widget->setLayout(vlayout);
-    vlayout->addWidget(infoLabel);
+   //   vlayout->addWidget(window2);
+   //   vlayout->addWidget(window3);
+   //   widget->setLayout(vlayout);
+   vlayout->addWidget(infoLabel);
 
-    createActions();
-    createMenus();
-    setWindowTitle(tr("Kernunos"));
-    setMinimumSize(400, 400);
-    resize(SCR_WIDTH, SCR_HEIGHT);
-    update();
+   createActions();
+   createMenus();
+   setWindowTitle(tr("Kernunos"));
+   setMinimumSize(400, 400);
+   resize(SCR_WIDTH, SCR_HEIGHT);
+   update();
 }
 
 void MainWindow::SetGLString(QString& gls)
 {    m_GLString =  &gls;
-     glstring_global=*m_GLString;
+   glstring_global=*m_GLString;
 }
 
 void MainWindow::open()
 {
-    infoLabel->setText(tr("Invoked <b>File|Open</b>"));
+   infoLabel->setText(tr("Invoked <b>File|Open</b>"));
 
-    QString filter = "All (*.*);;PentaCam (*.CUR *.ELE *.CUR.CSV *.ELE.CSV);;EyeSys (*.DAT);;Atlas (*.CSV)";
-    QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
-    if (fileName.isEmpty())
-      return;
-    QByteArray ba = fileName.toLocal8Bit();
-    const char *filename = ba.data();
-    infoLabel->setText(tr("filename:  ")+tr(filename));
-    if (!fileName.isEmpty())
-        m_GLwidget->DataLoad(fileName, false);
-    update();
+   QString filter = "All (*.*);;PentaCam (*.CUR *.ELE *.CUR.CSV *.ELE.CSV);;EyeSys (*.DAT);;Atlas (*.CSV)";
+   QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
+   if (fileName.isEmpty())
+       return;
+   QByteArray ba = fileName.toLocal8Bit();
+   const char *filename = ba.data();
+   infoLabel->setText(tr("filename:  ")+tr(filename));
+   if (!fileName.isEmpty())
+       m_GLwidget->DataLoad(fileName, false);
+   update();
 }
 
 void MainWindow::compare()
 {
-    infoLabel->setText(tr("Invoked <b>File|Compare</b>"));
+   infoLabel->setText(tr("Invoked <b>File|Compare</b>"));
 
-    QString filter = "All (*.*);;PentaCam (*.CUR *.ELE *.CUR.CSV *.ELE.CSV);;EyeSys (*.DAT);;Atlas (*.CSV)";
-    QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
-    if (fileName.isEmpty())
-      return;
-    QByteArray ba = fileName.toLocal8Bit();
-    const char *filename = ba.data();
-    infoLabel->setText(tr("filename:  ")+tr(filename));
-    if (!fileName.isEmpty())
-        m_GLwidget_secondwindow->DataLoad(fileName,true);
-    update();
+   QString filter = "All (*.*);;PentaCam (*.CUR *.ELE *.CUR.CSV *.ELE.CSV);;EyeSys (*.DAT);;Atlas (*.CSV)";
+   QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
+   if (fileName.isEmpty())
+       return;
+   QByteArray ba = fileName.toLocal8Bit();
+   const char *filename = ba.data();
+   infoLabel->setText(tr("filename:  ")+tr(filename));
+   if (!fileName.isEmpty())
+       m_GLwidget_secondwindow->DataLoad(fileName,true);
+   update();
 }
 
 void MainWindow::save()
 {
-    infoLabel->setText(tr("Invoked <b>File|Save</b>"));
+   infoLabel->setText(tr("Invoked <b>File|Save</b>"));
 }
 
 void MainWindow::print()
 {
-    infoLabel->setText(tr("Invoked <b>File|Print</b>"));
+   infoLabel->setText(tr("Invoked <b>File|Print</b>"));
 }
 
 void MainWindow::about()
 {
-    // https://www.modernescpp.com/index.php/asynchronous-callable-wrappers
-    static const unsigned int hwGuess= 4;
-    //  these could come in handy later for available number of threads/cores for asynchronous tasks
-    unsigned int hw = std::thread::hardware_concurrency();
-    unsigned int hwConcurr= (hw != 0)? hw : hwGuess;
-    std::string t = std::to_string(hwConcurr);
-    char const *n_char = t.c_str();
-    //infoLabel->setText(tr("CPU Cores found by Kernunos: ")+n_char);
+   // https://www.modernescpp.com/index.php/asynchronous-callable-wrappers
+   static const unsigned int hwGuess= 4;
+   //  these could come in handy later for available number of threads/cores for asynchronous tasks
+   unsigned int hw = std::thread::hardware_concurrency();
+   unsigned int hwConcurr= (hw != 0)? hw : hwGuess;
+   std::string t = std::to_string(hwConcurr);
+   char const *n_char = t.c_str();
+   //infoLabel->setText(tr("CPU Cores found by Kernunos: ")+n_char);
 
-    infoLabel->setText(tr("Invoked <b>Help|About</b>"));
-    const char *glstring;
-    QByteArray gl8 = glstring_global.toLocal8Bit();
-    glstring = gl8.data();
-    QString sglVer = "Kernunos runs on Qt and OpenGL.\nSee acknowledgements\n";
-    sglVer += "\nCPU Cores found: ";
-    sglVer += n_char;
-    sglVer += glstring;
-    QMessageBox::about(this, tr("About Kernunos"),sglVer);
+   infoLabel->setText(tr("Invoked <b>Help|About</b>"));
+   const char *glstring;
+   QByteArray gl8 = glstring_global.toLocal8Bit();
+   glstring = gl8.data();
+   QString sglVer = "Kernunos runs on Qt and OpenGL.\nSee acknowledgements\n";
+   sglVer += "\nCPU Cores found: ";
+   sglVer += n_char;
+   sglVer += glstring;
+   QMessageBox::about(this, tr("About Kernunos"),sglVer);
 }
 
 void MainWindow::aboutQt()
 {
-    infoLabel->setText(tr("Invoked <b>Help|About Qt</b>"));
+   infoLabel->setText(tr("Invoked <b>Help|About Qt</b>"));
 }
 
 
 void MainWindow::createActions()
 {
 
-    openAct = new QAction(tr("&Open..."), this);
-    openAct->setShortcuts(QKeySequence::Open);
-    openAct->setStatusTip(tr("Open an existing file"));
-    connect(openAct, &QAction::triggered, this, &MainWindow::open);
+   openAct = new QAction(tr("&Open..."), this);
+   openAct->setShortcuts(QKeySequence::Open);
+   openAct->setStatusTip(tr("Open an existing file"));
+   connect(openAct, &QAction::triggered, this, &MainWindow::open);
 
-    compareAct = new QAction(tr("&Compare..."), this);
-    compareAct->setStatusTip(tr("Compare to previous file"));
-    connect(compareAct, &QAction::triggered, this, &MainWindow::compare);
+   compareAct = new QAction(tr("&Compare..."), this);
+   compareAct->setStatusTip(tr("Compare to previous file"));
+   connect(compareAct, &QAction::triggered, this, &MainWindow::compare);
 
-    saveAct = new QAction(tr("&Save"), this);
-    saveAct->setShortcuts(QKeySequence::Save);
-    saveAct->setStatusTip(tr("Save the document to disk"));
-    connect(saveAct, &QAction::triggered, this, &MainWindow::save);
+   saveAct = new QAction(tr("&Save"), this);
+   saveAct->setShortcuts(QKeySequence::Save);
+   saveAct->setStatusTip(tr("Save the document to disk"));
+   connect(saveAct, &QAction::triggered, this, &MainWindow::save);
 
-    printAct = new QAction(tr("&Print..."), this);
-    printAct->setShortcuts(QKeySequence::Print);
-    printAct->setStatusTip(tr("Print the document"));
-    connect(printAct, &QAction::triggered, this, &MainWindow::print);
+   printAct = new QAction(tr("&Print..."), this);
+   printAct->setShortcuts(QKeySequence::Print);
+   printAct->setStatusTip(tr("Print the document"));
+   connect(printAct, &QAction::triggered, this, &MainWindow::print);
 
-    exitAct = new QAction(tr("E&xit"), this);
-    exitAct->setShortcuts(QKeySequence::Quit);
-    exitAct->setStatusTip(tr("Exit the application"));
-    connect(exitAct, &QAction::triggered, this, &QWidget::close);
+   exitAct = new QAction(tr("E&xit"), this);
+   exitAct->setShortcuts(QKeySequence::Quit);
+   exitAct->setStatusTip(tr("Exit the application"));
+   connect(exitAct, &QAction::triggered, this, &QWidget::close);
 
-    aboutAct = new QAction(tr("&About"), this);
-    aboutAct->setStatusTip(tr("Show the application's About box"));
-    connect(aboutAct, &QAction::triggered, this, &MainWindow::about);
+   aboutAct = new QAction(tr("&About"), this);
+   aboutAct->setStatusTip(tr("Show the application's About box"));
+   connect(aboutAct, &QAction::triggered, this, &MainWindow::about);
 
-    aboutQtAct = new QAction(tr("About &Qt"), this);
-    aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
-    connect(aboutQtAct, &QAction::triggered, qApp, &QApplication::aboutQt);
-    connect(aboutQtAct, &QAction::triggered, this, &MainWindow::aboutQt);
+   aboutQtAct = new QAction(tr("About &Qt"), this);
+   aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
+   connect(aboutQtAct, &QAction::triggered, qApp, &QApplication::aboutQt);
+   connect(aboutQtAct, &QAction::triggered, this, &MainWindow::aboutQt);
 
 }
 
 void MainWindow::createMenus()
 {
-    fileMenu = menuBar()->addMenu(tr("&File"));
-    fileMenu->addAction(openAct);
-    fileMenu->addAction(compareAct);
-    fileMenu->addAction(saveAct);
-    fileMenu->addAction(printAct);
-    fileMenu->addSeparator();
-    fileMenu->addAction(exitAct);
-    helpMenu = menuBar()->addMenu(tr("&Help"));
-    helpMenu->addAction(aboutAct);
-    helpMenu->addAction(aboutQtAct);
+   fileMenu = menuBar()->addMenu(tr("&File"));
+   fileMenu->addAction(openAct);
+   fileMenu->addAction(compareAct);
+   fileMenu->addAction(saveAct);
+   fileMenu->addAction(printAct);
+   fileMenu->addSeparator();
+   fileMenu->addAction(exitAct);
+   helpMenu = menuBar()->addMenu(tr("&Help"));
+   helpMenu->addAction(aboutAct);
+   helpMenu->addAction(aboutQtAct);
 }
+
+void MainWindow::updateResult()
+{
+   const int sum = ui.inputSpinBox1->value() +  ui.inputSpinBox2->value();
+   ui.outputWidget->setText(QString::number(sum));
+   ui.progressBar->setValue(sum);
+}
+
 
 int main(int argc, char *argv[])
 {
 
-    QApplication app(argc, argv);
-    QCoreApplication::setOrganizationName("QtProject");
-    QCoreApplication::setApplicationName("kernunos front end");
-    QCoreApplication::setApplicationVersion(QT_VERSION_STR);
-    QCommandLineParser parser;
-    parser.setApplicationDescription(QCoreApplication::applicationName());
-    parser.addHelpOption();
-    parser.addVersionOption();
-    parser.addPositionalArgument("file", "The file to open.");
-    parser.process(app);
+   QApplication app(argc, argv);
+   QCoreApplication::setOrganizationName("QtProject");
+   QCoreApplication::setApplicationName("kernunos front end");
+   QCoreApplication::setApplicationVersion(QT_VERSION_STR);
+   QCommandLineParser parser;
+   parser.setApplicationDescription(QCoreApplication::applicationName());
+   parser.addHelpOption();
+   parser.addVersionOption();
+   parser.addPositionalArgument("file", "The file to open.");
+   parser.process(app);
 
-    QTranslator translator;
-    const QStringList uiLanguages = QLocale::system().uiLanguages();
-    for (const QString &locale : uiLanguages) {
-        const QString baseName = "untitled_" + QLocale(locale).name();
-        if (translator.load(":/i18n/" + baseName)) {
+   QTranslator translator;
+   const QStringList uiLanguages = QLocale::system().uiLanguages();
+   for (const QString &locale : uiLanguages) {
+       const QString baseName = "untitled_" + QLocale(locale).name();
+       if (translator.load(":/i18n/" + baseName)) {
             app.installTranslator(&translator);
             break;
         }
