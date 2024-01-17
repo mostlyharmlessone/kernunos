@@ -69,15 +69,16 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
 
   protected:
 
-    void initializeGL(void);
-    void resizeGL( int w, int h );
-    void paintGL();
-    void keyPressEvent( QKeyEvent *e);
-    void mouseMoveEvent(QMouseEvent *e);
-    void mousePressEvent(QMouseEvent *e);
-    void mouseReleaseEvent(QMouseEvent *e);
-    void wheelEvent(QWheelEvent *e);
-    void timerEvent(QTimerEvent*);
+    void initializeGL(void) override;
+    //void resizeEvent(QResizeEvent *event) override;
+    void resizeGL( int w, int h ) override;
+    void paintGL() override;
+    void keyPressEvent( QKeyEvent *e) override;
+    void mouseMoveEvent(QMouseEvent *e) override;
+    void mousePressEvent(QMouseEvent *e) override;
+    void mouseReleaseEvent(QMouseEvent *e) override;
+    void wheelEvent(QWheelEvent *e) override;
+    void timerEvent(QTimerEvent*) override;
     void updateMouse();
 
   private:
@@ -110,6 +111,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     bool loaded;
     bool rotate;
     bool useArcBall;
+
 };
 
 

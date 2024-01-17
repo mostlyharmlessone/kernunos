@@ -10,10 +10,15 @@ enable_language(C)
 # /opt/cuda/bin/nvcc is the compiler
 #enable_language(ASM)
 
-set (CMAKE_Fortran_COMPILER_ID "gfortran")
-set (CMAKE_Fortran_COMPILER "gfortran")
-set (FC "gfortran") 
-set (CXX "g++")
+#set(CMAKE_CROSSCOMPILING true)
+#set(CMAKE_SYSTEM_NAME Windows)
+#set(CMAKE_SYSTEM_VERSION 10.0)
+
+#set (CMAKE_Fortran_COMPILER_ID "gfortran")
+#set (CMAKE_Fortran_COMPILER "gfortran")
+#set (FC "gfortran")
+#set (CXX "g++")
+
 set(CMAKE_CXX_STANDARD 17) # doesn't apply to win32
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
@@ -68,6 +73,26 @@ if(WIN32)
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 endif(WIN32)
 
+# STATIC stuff (Windows)
+set(BUILD_FOR_WIN FALSE)
+if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+        set(BUILD_FOR_WIN TRUE)
+endif()
+option(STATIC_BUILD "Build a static binary." ${BUILD_FOR_WIN})
+
+if (STATIC_BUILD)
+        set(CMAKE_EXE_LINKER_FLAGS "-static")
+        set(CMAKE_FIND_LIBRARY_SUFFIXES ".a" CONFIG)
+        set(BUILD_SHARED_LIBS OFF)
+endif()
+
+if (STATIC_BUILD AND ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+        # include plugins into static build on windows
+        # (we lack support for static on other platforms right now)
+        set(QT_PLUGINS SvgIcon WindowsIntegration WindowsVistaStyle)
+endif()
+
+
 link_directories(${CMAKE_SOURCE_DIR}/lib)
 
 # find the required packages
@@ -82,8 +107,12 @@ include_directories(${LibEpoxy_INCLUDE_DIRS})
 if(UNIX AND NOT APPLE)
  set(wxWidgets_CONFIG_OPTIONS_DEFAULT "--toolkit=gtk3")
 endif()
-find_package(wxWidgets 3 REQUIRED gl richtext aui adv html webview core xml net base)
-find_package(wxWidgets 3 REQUIRED gl core net base)
+if (BUILD_FOR_WIN)
+#nothing
+else()
+ find_package(wxWidgets 3 REQUIRED gl richtext aui adv html webview core xml net base)
+ find_package(wxWidgets 3 REQUIRED gl core net base)
+endif()
 if(wxWidgets_FOUND)
   include(${wxWidgets_USE_FILE})
       message("-- FOUND WxWidgets library")
@@ -188,11 +217,12 @@ endif(WIN32)
 #   C source 
 #   rply conversion 
     file(GLOB rply_sources  src/c/rply/convertplytobin.c src/c/rply/rply.c src/c/rply *.h )
-#   gtk example with gtk4 & blas fortran
-    file(GLOB blas_f2c src/c/gtk/c_dgemm.f90)
-    add_library( blas_f2c ${blas_f2c})
-    add_executable(example-2 src/c/gtk/gtkexample2.c)
-    target_link_libraries(example-2 ${GTK4_LIBRARIES} blas_f2c ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+    # gtk example with gtk4 & blas fortran
+    #doesn't compile with mingw cmake because of multiple definitions of dgemm
+#     file(GLOB blas_f2c src/c/gtk/c_dgemm.f90)
+#     add_library( blas_f2c ${blas_f2c})
+#     add_executable(example-2 src/c/gtk/gtkexample2.c)
+#     target_link_libraries(example-2 ${GTK4_LIBRARIES} blas_f2c ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 #   gtk GL example
 #    add_executable(glarea src/c/gtk/glarea-app-window.c )
 #    target_link_libraries(glarea ${GTK3_LIBRARIES} epoxy)
@@ -212,6 +242,9 @@ endif(WIN32)
     
 #libraries      
     set(LIBS ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} glfw)
+
+# need this so that GLwidget.h can be found by AUTOUIC and ui.mainwindow.h
+include_directories(src/cxx/kernunos)
 
 #kernunos Qt version
     qt_add_executable(kernunos 
@@ -233,12 +266,15 @@ endif(WIN32)
                    PRIVATE OpenMP::OpenMP_CXX 
                    PUBLIC Qt6::Core Qt6::OpenGLWidgets Qt6::Gui Qt::Widgets Qt6::Charts Qt6::OpenGL 
                    splia modules rply_includes ${LIBS}
-                   )
-                   
+               )
+
+if (BUILD_FOR_WIN)
+#nothing
+else()
 #Jupiter wxWidgets version      
    add_executable(${PROJECT_NAME} src/cxx/Jupiter/Jupiter.cpp src/src90/janus.f90 src/cxx/opengl_show.cpp src/cxx/Jupiter/mathstuff.cpp )
    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${wxWidgets_LIBRARIES} ${LIBS})
-
+endif()
 #juno commandline/glfw version
     add_executable(juno 
                    src/src90/juno.f90 

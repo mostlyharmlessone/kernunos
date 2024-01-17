@@ -439,8 +439,11 @@ QVector3D GLwidget::getArcBallVector(int x, int y)
 MainWindow::MainWindow()
 {
       QWidget *widget = new QWidget;
+<<<<<<< HEAD
       widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
+=======
+>>>>>>> 292a94e0 (fixed the GLwidget.h problem)
    //   setCentralWidget(widget);
 
    ui.setupUi(this);
@@ -450,7 +453,17 @@ MainWindow::MainWindow()
    ui.outputWidget->setText("");
    ui.progressBar->setValue(0);
 
+<<<<<<< HEAD
    ui.infoLabel->setText(tr("<i>Welcome! Please Open a file.</i>"));
+=======
+   //    QOpenGLWidget *window1 = new GLwidget(this);
+   //    window1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+   ui.outputWidget->setText("");
+   ui.progressBar->setValue(0);
+   ui.infoLabel->setText(tr("<i>Welcome! Please Open a file.</i>"));
+
+>>>>>>> 292a94e0 (fixed the GLwidget.h problem)
    ui.infoLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
    ui.infoLabel->setAlignment(Qt::AlignCenter);
 
@@ -478,6 +491,13 @@ MainWindow::MainWindow()
    QRect rect1(0, 0, 24, 600);  //there are three 600s here that need auto resize
    pmp.drawRect(rect1);
 
+<<<<<<< HEAD
+=======
+   QGraphicsScene *scene = new QGraphicsScene();
+   ui.graphicsView->setScene(scene);
+   scene->addWidget(widget);
+
+>>>>>>> 292a94e0 (fixed the GLwidget.h problem)
     QLabel *legendpix = new QLabel(widget);
     QLabel *legend = new QLabel(widget);
 
@@ -499,7 +519,11 @@ MainWindow::MainWindow()
 
 
       QHBoxLayout *colorHBox = new QHBoxLayout;
+<<<<<<< HEAD
 
+=======
+     // colorHBox->addWidget(window1);
+>>>>>>> 292a94e0 (fixed the GLwidget.h problem)
       colorHBox->addWidget(legendpix);
       colorHBox->addWidget(legend);
       colorGroupBox->setLayout(colorHBox);
@@ -557,6 +581,7 @@ MainWindow::MainWindow()
    chartView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
    chartView->setRenderHint(QPainter::Antialiasing);
 
+<<<<<<< HEAD
    colorHBox->addWidget(chartView);
    vlayout->addWidget(colorGroupBox);
    widget->setLayout(vlayout);
@@ -564,6 +589,19 @@ MainWindow::MainWindow()
    QGraphicsScene *scene = new QGraphicsScene();
    ui.graphicsView->setScene(scene);
    scene->addWidget(widget);
+=======
+
+   colorHBox->addWidget(chartView);
+
+   vlayout->addWidget(colorGroupBox);
+   scene->addWidget(colorGroupBox);
+   scene->addWidget(chartView);
+
+   //   vlayout->addWidget(window2);
+   //   vlayout->addWidget(window3);
+   //   widget->setLayout(vlayout);
+  // vlayout->addWidget(infoLabel);
+>>>>>>> 292a94e0 (fixed the GLwidget.h problem)
 
    createActions();
    createMenus();
