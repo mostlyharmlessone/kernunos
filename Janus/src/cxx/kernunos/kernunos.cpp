@@ -439,15 +439,18 @@ MainWindow::MainWindow()
    ui.setupUi(this);
    connect(ui.inputSpinBox1, &QSpinBox::valueChanged, this, &MainWindow::updateResult);
    connect(ui.inputSpinBox2, &QSpinBox::valueChanged, this, &MainWindow::updateResult);
+   ui.progressBar->setValue(0);
 
 
    //    QOpenGLWidget *window1 = new GLwidget(this);
    //    window1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
 
-   infoLabel = new QLabel(tr("<i>Welcome! Please Open a file.</i>"));
-   infoLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
-   infoLabel->setAlignment(Qt::AlignCenter);
+   ui.infoLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
+   ui.infoLabel->setAlignment(Qt::AlignCenter);
+   ui.infoLabel->setText(tr("<i>Welcome! Please Open a file.</i>"));
+   ui.outputWidget->setText(tr(""));
+
 
    QVBoxLayout *vlayout = new QVBoxLayout();
 
@@ -564,7 +567,7 @@ MainWindow::MainWindow()
    //   vlayout->addWidget(window2);
    //   vlayout->addWidget(window3);
    //   widget->setLayout(vlayout);
-   vlayout->addWidget(infoLabel);
+   //vlayout->addWidget(infoLabel);
 
    createActions();
    createMenus();
@@ -581,7 +584,7 @@ void MainWindow::SetGLString(QString& gls)
 
 void MainWindow::open()
 {
-   infoLabel->setText(tr("Invoked <b>File|Open</b>"));
+   ui.infoLabel->setText(tr("Invoked <b>File|Open</b>"));
 
    QString filter = "All (*.*);;PentaCam (*.CUR *.ELE *.CUR.CSV *.ELE.CSV);;EyeSys (*.DAT);;Atlas (*.CSV)";
    QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
@@ -589,7 +592,7 @@ void MainWindow::open()
        return;
    QByteArray ba = fileName.toLocal8Bit();
    const char *filename = ba.data();
-   infoLabel->setText(tr("filename:  ")+tr(filename));
+   ui.infoLabel->setText(tr("filename:  ")+tr(filename));
    if (!fileName.isEmpty())
        m_GLwidget->DataLoad(fileName, false);
    update();
@@ -597,7 +600,7 @@ void MainWindow::open()
 
 void MainWindow::compare()
 {
-   infoLabel->setText(tr("Invoked <b>File|Compare</b>"));
+   ui.infoLabel->setText(tr("Invoked <b>File|Compare</b>"));
 
    QString filter = "All (*.*);;PentaCam (*.CUR *.ELE *.CUR.CSV *.ELE.CSV);;EyeSys (*.DAT);;Atlas (*.CSV)";
    QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
@@ -605,7 +608,7 @@ void MainWindow::compare()
        return;
    QByteArray ba = fileName.toLocal8Bit();
    const char *filename = ba.data();
-   infoLabel->setText(tr("filename:  ")+tr(filename));
+   ui.infoLabel->setText(tr("filename:  ")+tr(filename));
    if (!fileName.isEmpty())
        m_GLwidget_secondwindow->DataLoad(fileName,true);
    update();
@@ -613,12 +616,12 @@ void MainWindow::compare()
 
 void MainWindow::save()
 {
-   infoLabel->setText(tr("Invoked <b>File|Save</b>"));
+   ui.infoLabel->setText(tr("Invoked <b>File|Save</b>"));
 }
 
 void MainWindow::print()
 {
-   infoLabel->setText(tr("Invoked <b>File|Print</b>"));
+   ui.infoLabel->setText(tr("Invoked <b>File|Print</b>"));
 }
 
 void MainWindow::about()
@@ -632,7 +635,7 @@ void MainWindow::about()
    char const *n_char = t.c_str();
    //infoLabel->setText(tr("CPU Cores found by Kernunos: ")+n_char);
 
-   infoLabel->setText(tr("Invoked <b>Help|About</b>"));
+   ui.infoLabel->setText(tr("Invoked <b>Help|About</b>"));
    const char *glstring;
    QByteArray gl8 = glstring_global.toLocal8Bit();
    glstring = gl8.data();
@@ -645,7 +648,7 @@ void MainWindow::about()
 
 void MainWindow::aboutQt()
 {
-   infoLabel->setText(tr("Invoked <b>Help|About Qt</b>"));
+   ui.infoLabel->setText(tr("Invoked <b>Help|About Qt</b>"));
 }
 
 
@@ -684,7 +687,6 @@ void MainWindow::createActions()
    aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
    connect(aboutQtAct, &QAction::triggered, qApp, &QApplication::aboutQt);
    connect(aboutQtAct, &QAction::triggered, this, &MainWindow::aboutQt);
-
 }
 
 void MainWindow::createMenus()

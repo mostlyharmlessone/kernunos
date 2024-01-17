@@ -45,7 +45,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 if(CMAKE_VERSION VERSION_LESS "3.7.0")
-    set(CMAKE_INCLUDE_CURRENT_DIR ON)
+    set(CMAKE_INCLUDE_CURRENT_DIR ON)    
 endif()
 
 # set(CMAKE_BUILD_TYPE Release) # no debug or bounds check
@@ -221,7 +221,10 @@ endif(WIN32)
                    src/cxx/kernunos/mainwindow.ui 
                    src/src90/janus.f90 
                    src/cxx/opengl_show.cpp
-                   )                     
+                   )
+
+#    target_include_directories(kernunos PUBLIC ${PROJECT_SOURCE_DIR})
+
     set_target_properties(kernunos PROPERTIES
         WIN32_EXECUTABLE TRUE
         MACOSX_BUNDLE TRUE
