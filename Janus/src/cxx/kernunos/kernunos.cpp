@@ -312,7 +312,7 @@ void GLwidget::keyPressEvent(QKeyEvent *e)
      exit(0);
     break;
     case Qt::Key_M:  /*  M Key */
-     mViewMatrix.scale(QVector3D(0.004,0.004,0.004));
+     mViewMatrix.scale(QVector3D(0.01,0.01,0.01));
      update();
     break;
     case Qt::Key_N:  /*  N Key */
@@ -492,17 +492,15 @@ MainWindow::MainWindow()
      legendvalues += "\n";
     }
 
+    legend->setText(legendvalues);
+    legend->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    legendpix->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-      legend->setText(legendvalues);
-      legend->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-      legendpix->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    QHBoxLayout *colorHBox = new QHBoxLayout;
 
-
-      QHBoxLayout *colorHBox = new QHBoxLayout;
-
-      colorHBox->addWidget(legendpix);
-      colorHBox->addWidget(legend);
-      colorGroupBox->setLayout(colorHBox);
+    colorHBox->addWidget(legendpix);
+    colorHBox->addWidget(legend);
+    colorGroupBox->setLayout(colorHBox);
 
    QBarSet *negative = new QBarSet("Negative");
    QBarSet *positive = new QBarSet("Positive");
@@ -522,6 +520,7 @@ MainWindow::MainWindow()
    QChart *chart = new QChart();
    chart->addSeries(series);
    chart->setTitle("Corneal Aberrometry");
+   chart->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
    QStringList aberrations = {
        "Z(4,4) Vertical Quatrafoil",
@@ -556,6 +555,7 @@ MainWindow::MainWindow()
    QChartView *chartView = new QChartView(chart);
    chartView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
    chartView->setRenderHint(QPainter::Antialiasing);
+   chartView->setMinimumSize(800,800);   //another hard code number!
 
    colorHBox->addWidget(chartView);
    vlayout->addWidget(colorGroupBox);
