@@ -12,7 +12,8 @@ SOURCES += \
 
 
 HEADERS  += \
-    kernunos.h 
+    kernunos.h
+    GLwidget.h 
 
 RESOURCES += GLShaders.qrc
 
