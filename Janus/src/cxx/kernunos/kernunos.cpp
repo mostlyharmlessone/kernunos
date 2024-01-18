@@ -1,7 +1,10 @@
 #include "kernunos.h"
+//lifted from examples zoomlinechart
+#include "chart.h"   // Copyright (C) 2023 The Qt Company Ltd.
+#include "chartview.h" // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
 
 // settings
-const unsigned int SCR_WIDTH = 1000;
+const unsigned int SCR_WIDTH = 1500;
 const unsigned int SCR_HEIGHT = 800;
 
 int flag=0;
@@ -517,7 +520,8 @@ MainWindow::MainWindow()
    series->append(positive);
    positive->setColor(QColorConstants::Blue);
 
-   QChart *chart = new QChart();
+   // Uses zoomlinechart example Chart class
+   QChart *chart = new Chart();
    chart->addSeries(series);
    chart->setTitle("Corneal Aberrometry");
    chart->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -551,8 +555,10 @@ MainWindow::MainWindow()
 
    chart->legend()->setVisible(false);
    chart->legend()->setAlignment(Qt::AlignBottom);
+   chart->setAnimationOptions(QChart::SeriesAnimations);
 
-   QChartView *chartView = new QChartView(chart);
+   // uses zoomlinechart example ChartView class
+   QChartView *chartView = new ChartView(chart);
    chartView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
    chartView->setRenderHint(QPainter::Antialiasing);
    chartView->setMinimumSize(800,800);   //another hard code number!
@@ -734,6 +740,8 @@ int main(int argc, char *argv[])
 
     MainWindow window;
     window.show();
+    window.grabGesture(Qt::PanGesture);
+    window.grabGesture(Qt::PinchGesture);
     return app.exec();
 /*
     MainWindow mainWin;

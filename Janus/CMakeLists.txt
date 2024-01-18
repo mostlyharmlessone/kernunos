@@ -250,7 +250,11 @@ include_directories(src/cxx/kernunos)
     qt_add_executable(kernunos 
                    src/cxx/kernunos/kernunos.cpp 
                    src/cxx/kernunos/kernunos.h 
-                   src/cxx/kernunos/GLwidget.h 
+                   src/cxx/kernunos/GLwidget.h
+                   src/cxx/kernunos/chart.cpp
+                   src/cxx/kernunos/chart.h
+                   src/cxx/kernunos/chartview.cpp
+                   src/cxx/kernunos/chartview.h
                    src/cxx/kernunos/mainwindow.ui 
                    src/src90/janus.f90 
                    src/cxx/opengl_show.cpp
