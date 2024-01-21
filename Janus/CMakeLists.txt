@@ -123,7 +123,7 @@ endif()
 SET(Qt5_DIR "/usr/lib/x86_64-linux-gnu/qt5")
 SET(Qt6_DIR "/usr/lib/x86_64-linux-gnu/qt6")
 find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets OpenGL)
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Charts OpenGLWidgets OpenGL)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Charts OpenGLWidgets OpenGL Widgets)
 #GTK4
 find_package (PkgConfig REQUIRED)
 pkg_check_modules(GTK4 REQUIRED gtk4)
@@ -248,13 +248,10 @@ include_directories(src/cxx/kernunos)
 
 #kernunos Qt version
     qt_add_executable(kernunos 
-                   src/cxx/kernunos/kernunos.cpp 
-                   src/cxx/kernunos/kernunos.h 
+                   src/cxx/kernunos/kernunos.cpp src/cxx/kernunos/kernunos.h
                    src/cxx/kernunos/GLwidget.h
-                   src/cxx/kernunos/chart.cpp
-                   src/cxx/kernunos/chart.h
-                   src/cxx/kernunos/chartview.cpp
-                   src/cxx/kernunos/chartview.h
+                   src/cxx/kernunos/chart.cpp src/cxx/kernunos/chart.h
+                   src/cxx/kernunos/chartview.cpp src/cxx/kernunos/chartview.h
                    src/cxx/kernunos/mainwindow.ui 
                    src/src90/janus.f90 
                    src/cxx/opengl_show.cpp
@@ -272,13 +269,22 @@ include_directories(src/cxx/kernunos)
                    splia modules rply_includes ${LIBS}
                )
 
-if (BUILD_FOR_WIN)
+
+
+#if (BUILD_FOR_WIN)
 #nothing
-else()
+#else()
 #Jupiter wxWidgets version      
-   add_executable(${PROJECT_NAME} src/cxx/Jupiter/Jupiter.cpp src/src90/janus.f90 src/cxx/opengl_show.cpp src/cxx/Jupiter/mathstuff.cpp )
+   add_executable(${PROJECT_NAME}
+       src/cxx/Jupiter/Jupiter.cpp
+       src/cxx/Jupiter/Jupiter.h
+       src/src90/janus.f90 src/cxx/opengl_show.cpp
+       src/cxx/Jupiter/mathstuff.cpp
+       src/cxx/Jupiter/mathstuff.h
+       src/cxx/Jupiter/camera.h
+   )
    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${wxWidgets_LIBRARIES} ${LIBS})
-endif()
+#endif()
 #juno commandline/glfw version
     add_executable(juno 
                    src/src90/juno.f90 

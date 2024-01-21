@@ -64,6 +64,7 @@ GLwidget::GLwidget ( QWidget *parent ) : QOpenGLWidget(parent)
 GLwidget::~GLwidget()
 {
   // cleanup
+  //currentTargetBuffer();
   makeCurrent();
   glDeleteBuffers(1, &vertexbuffer);
   glDeleteBuffers(1,&elementbuffer);
@@ -205,9 +206,6 @@ bool GLwidget::DataLoad(QString fileName, bool first_time)
 
     paintme=true;
 
-// can't be here why not?
-//    loaded = LoadSurfaceToBuffer(nV, nE, vertices, elements);
-
   return true;
 }
 
@@ -262,8 +260,6 @@ void GLwidget::paintGL(void)
     std::cout << "paint: nV: " << nV << std::endl;
     std::cout << "paint: vertices[6]: " << vertices[6] << std::endl;
 
-//    LoadSurfaceToBuffer(nV, nE, vertices, elements);
-
     // Clear the screen
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // Use our shader
@@ -290,13 +286,6 @@ void GLwidget::timerEvent(QTimerEvent*)
 {
  update();
 }
-
-
-//void GLwidget::resizeEvent(QResizeEvent * /* event */)
-//{
- //w *= devicePixelRatio();  // unsure what this does for me
- //h *= devicePixelRatio();
-//}
 
 void GLwidget::resizeGL(int w, int h)
 {
@@ -441,16 +430,14 @@ QVector3D GLwidget::getArcBallVector(int x, int y)
 
 MainWindow::MainWindow()
 {
-      QWidget *widget = new QWidget;
-      widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-
-   //   setCentralWidget(widget);
+   QWidget *widget = new QWidget;
+   widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
    ui.setupUi(this);
    connect(ui.inputSpinBox1, &QSpinBox::valueChanged, this, &MainWindow::updateResult);
    connect(ui.inputSpinBox2, &QSpinBox::valueChanged, this, &MainWindow::updateResult);
 
-   ui.outputWidget->setText("");
+   ui.outputWidget->setText("Sum");
    ui.progressBar->setValue(0);
 
    ui.infoLabel->setText(tr("<i>Welcome! Please Open a file.</i>"));
@@ -694,6 +681,7 @@ void MainWindow::createActions()
 
 void MainWindow::createMenus()
 {
+
    fileMenu = menuBar()->addMenu(tr("&File"));
    fileMenu->addAction(openAct);
    fileMenu->addAction(compareAct);
@@ -714,9 +702,10 @@ void MainWindow::updateResult()
 }
 
 
+
+
 int main(int argc, char *argv[])
 {
-
    QApplication app(argc, argv);
    QCoreApplication::setOrganizationName("QtProject");
    QCoreApplication::setApplicationName("kernunos front end");

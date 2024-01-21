@@ -5,6 +5,7 @@
 #include <QtMath>
 #include "GLwidget.h"
 #include "ui_mainwindow.h"
+#include <QMainWindow>
 
 QT_BEGIN_NAMESPACE
 class QAction;
