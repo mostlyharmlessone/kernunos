@@ -249,7 +249,10 @@ include_directories(src/cxx/kernunos)
 #kernunos Qt version
     qt_add_executable(kernunos 
                    src/cxx/kernunos/kernunos.cpp src/cxx/kernunos/kernunos.h
-                   src/cxx/kernunos/GLwidget.h
+                   src/cxx/kernunos/GLwidget.cpp src/cxx/kernunos/GLwidget.h
+                   src/cxx/kernunos/glw.cpp src/cxx/kernunos/glw.h
+                   src/cxx/kernunos/window.cpp src/cxx/kernunos/window.h
+                   src/cxx/kernunos/logo.cpp src/cxx/kernunos/logo.h
                    src/cxx/kernunos/chart.cpp src/cxx/kernunos/chart.h
                    src/cxx/kernunos/chartview.cpp src/cxx/kernunos/chartview.h
                    src/cxx/kernunos/mainwindow.ui 

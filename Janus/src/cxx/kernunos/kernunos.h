@@ -1,11 +1,32 @@
 #ifndef KERNUNOS_H
 #define KERNUNOS_H
 
-#include <cmath>
-#include <QtMath>
 #include "GLwidget.h"
 #include "ui_mainwindow.h"
-#include <QMainWindow>
+
+// global variables
+extern const unsigned int SCR_WIDTH;
+extern const unsigned int SCR_HEIGHT;
+
+extern int flag;
+
+extern bool success;
+extern bool paintme;
+
+//how very Fortran that these need to be static & global
+extern int nV;
+extern int nE;
+extern std::vector<GLuint> Elements;
+extern std::vector<GLfloat> Vertices;
+extern GLfloat* vertices;
+extern GLuint* elements;
+
+extern "C" {
+void janus_(int *flag, const char *filename, GLuint *elements, GLfloat *vertices, int *nV, int *nE); // needs an underscore despite c_interface.f90 bind C declaration
+};
+
+extern QString *m_GLString;
+extern QString glstring_global;
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -32,6 +53,7 @@ private slots:
     void about();
     void aboutQt();
     void updateResult();
+    void onAddNew();
 
 private:
     void createActions();
@@ -45,6 +67,7 @@ private:
     QAction *openAct;
     QAction *compareAct;
     QAction *saveAct;
+    QAction *AddNewAct;
     QAction *exitAct;
     QAction *printAct;
     QAction *aboutAct;

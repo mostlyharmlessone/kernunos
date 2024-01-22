@@ -5,22 +5,30 @@
 #include <QtWidgets>
 #include <QApplication>
 #include <QMouseEvent>
-#include <QOpenGLShaderProgram>
 #include <QCoreApplication>
+#include <QMainWindow>
+#include <QKeySequence>
+#include <QMenuBar>
+#include <QMenu>
+#include <QMessageBox>
+
+#include <cmath>
 #include <math.h>
 #include <stdio.h>
 #include <chrono>
 #include <iostream>
 #include <future>
 #include <thread>
+#include <vector>
 #include <memory>
-#include <QMainWindow>
+
 #include <QOpenGLWidget>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLFunctions>
 #include <QOpenGLTexture>
 #include <QKeyEvent>
 #include <QTime>
+#include <QtMath>
 #include <QVector3D>
 #include <QMatrix4x4>
 #include <QPointF>
@@ -43,6 +51,33 @@
 
 #include <qt6/QtCore/qtmetamacros.h>
 
+#include "logo.h"
+
+// global variables
+extern const unsigned int SCR_WIDTH;
+extern const unsigned int SCR_HEIGHT;
+
+extern int flag;
+
+extern bool success;
+extern bool paintme;
+
+//how very Fortran that these need to be static & global
+extern int nV;
+extern int nE;
+extern std::vector<GLuint> Elements;
+extern std::vector<GLfloat> Vertices;
+extern GLfloat* vertices;
+extern GLuint* elements;
+
+extern "C" {
+void janus_(int *flag, const char *filename, GLuint *elements, GLfloat *vertices, int *nV, int *nE); // needs an underscore despite c_interface.f90 bind C declaration
+};
+
+extern QString *m_GLString;
+extern QString glstring_global;
+
+
 QT_BEGIN_NAMESPACE
 class QAction;
 class QActionGroup;
@@ -57,20 +92,36 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     Q_OBJECT
 
   public:
-    GLwidget( QWidget *parent );
-    ~GLwidget();  
+    GLwidget( QWidget *parent = nullptr );
+    ~GLwidget();
+
+    static bool isTransparent() { return m_transparent; }
+    static void setTransparent(bool t) { m_transparent = t; }
+
+    QSize minimumSizeHint() const override;
+    QSize sizeHint() const override;
 
     bool DataLoad(QString fileName, bool first);
 
 
   public slots:
 
+    void setXRotation(int angle);
+    void setYRotation(int angle);
+    void setZRotation(int angle);
+    void cleanup();
+
+
   signals:
+
+    void xRotationChanged(int angle);
+    void yRotationChanged(int angle);
+    void zRotationChanged(int angle);
+
 
   protected:
 
     void initializeGL(void) override;
-    //void resizeEvent(QResizeEvent *event) override;
     void resizeGL( int w, int h ) override;
     void paintGL() override;
     void keyPressEvent( QKeyEvent *e) override;
@@ -111,6 +162,27 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     bool loaded;
     bool rotate;
     bool useArcBall;
+
+    void setupVertexAttribs();
+
+    bool m_core;
+    int m_xRot = 0;
+    int m_yRot = 0;
+    int m_zRot = 0;
+    QPoint m_lastPos;
+    Logo m_logo;
+    QOpenGLVertexArrayObject m_vao;
+    QOpenGLBuffer m_logoVbo;
+    QOpenGLShaderProgram *m_program = nullptr;
+    int m_projMatrixLoc = 0;
+    int m_mvMatrixLoc = 0;
+    int m_normalMatrixLoc = 0;
+    int m_lightPosLoc = 0;
+    QMatrix4x4 m_proj;
+    QMatrix4x4 m_camera;
+    QMatrix4x4 m_world;
+    static bool m_transparent;
+
 
 };
 
