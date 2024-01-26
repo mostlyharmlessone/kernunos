@@ -70,6 +70,7 @@ void GLwidget::cleanup()
 
 void GLwidget::initializeGL()
 {
+  connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &GLwidget::cleanup);
   // initialize OpenGL
   initializeOpenGLFunctions();
 
