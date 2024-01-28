@@ -60,17 +60,17 @@ void GLwidget::cleanup()
   if (m_program == nullptr)
             return;
   makeCurrent();
-  m_logoVbo.destroy();
-  delete m_program;
-  m_program = nullptr;
+  //m_logoVbo.destroy();
+  //delete m_program;
+  //m_program = nullptr;
   doneCurrent();
-  QObject::disconnect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &GLwidget::cleanup);
+  //QObject::disconnect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &GLwidget::cleanup);
 }
 
 
 void GLwidget::initializeGL()
 {
-  connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &GLwidget::cleanup);
+  //connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &GLwidget::cleanup);
   // initialize OpenGL
   initializeOpenGLFunctions();
 

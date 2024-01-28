@@ -62,7 +62,7 @@ extern int flag;
 extern bool success;
 extern bool paintme;
 
-//how very Fortran that these need to be static & global
+//how very FORTRAN that these need to be static & global
 extern int nV;
 extern int nE;
 extern std::vector<GLuint> Elements;
@@ -86,6 +86,8 @@ class QMenu;
 QT_END_NAMESPACE
 
 class MainWindow ;
+
+QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)
 
 class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
