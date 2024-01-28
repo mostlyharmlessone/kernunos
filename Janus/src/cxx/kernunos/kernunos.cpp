@@ -144,7 +144,7 @@ MainWindow::MainWindow()
    QChartView *chartView = new ChartView(chart);
    chartView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
    chartView->setRenderHint(QPainter::Antialiasing);
-   chartView->setMinimumSize(800,800);   //another hard code number!
+   chartView->setMinimumSize(400,400);   //another hard code number!
 
    colorHBox->addWidget(chartView);
    vlayout->addWidget(colorGroupBox);
@@ -339,7 +339,25 @@ int main(int argc, char *argv[])
    parser.addHelpOption();
    parser.addVersionOption();
    parser.addPositionalArgument("file", "The file to open.");
+
+   QCommandLineOption multipleSampleOption("multisample", "Multisampling");
+   parser.addOption(multipleSampleOption);
+   QCommandLineOption coreProfileOption("coreprofile", "Use core profile");
+   parser.addOption(coreProfileOption);
+   QCommandLineOption transparentOption("transparent", "Transparent window");
+   parser.addOption(transparentOption);
+
    parser.process(app);
+
+   QSurfaceFormat fmt;
+   fmt.setDepthBufferSize(24);
+   if (parser.isSet(multipleSampleOption))
+       fmt.setSamples(4);
+   if (parser.isSet(coreProfileOption)) {
+       fmt.setVersion(4, 6);   //minimum
+       fmt.setProfile(QSurfaceFormat::CoreProfile);
+   }
+   QSurfaceFormat::setDefaultFormat(fmt);
 
    QTranslator translator;
    const QStringList uiLanguages = QLocale::system().uiLanguages();
@@ -352,16 +370,30 @@ int main(int argc, char *argv[])
     }
 
     MainWindow window;
+
+    //if (!parser.positionalArguments().isEmpty())
+    //window.loadFile(parser.positionalArguments().first()); //eventually command line arguments
+
+    GLWidget::setTransparent(parser.isSet(transparentOption));
+    if (GLWidget::isTransparent()) {
+        window.setAttribute(Qt::WA_TranslucentBackground);
+        window.setAttribute(Qt::WA_NoSystemBackground, false);
+    }
+
+    window.resize(window.sizeHint());
+    int desktopArea = QGuiApplication::primaryScreen()->size().width() *
+                      QGuiApplication::primaryScreen()->size().height();
+    int widgetArea = window.width() * window.height();
+    if (((float)widgetArea / (float)desktopArea) < 0.75f){
     window.show();
     window.grabGesture(Qt::PanGesture);
     window.grabGesture(Qt::PinchGesture);
-    return app.exec();
-/*
-    MainWindow mainWindow;
-    if (!parser.positionalArguments().isEmpty())
-        mainWindow.loadFile(parser.positionalArguments().first());
-    mainWindow.show();
-*/
+    }
+    else {
+    window.showMaximized();
+    window.grabGesture(Qt::PanGesture);
+    window.grabGesture(Qt::PinchGesture);
+    }
     return app.exec();
 }
 

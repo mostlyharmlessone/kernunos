@@ -14,10 +14,11 @@ enable_language(C)
 #set(CMAKE_SYSTEM_NAME Windows)
 #set(CMAKE_SYSTEM_VERSION 10.0)
 
-#set (CMAKE_Fortran_COMPILER_ID "gfortran")
-#set (CMAKE_Fortran_COMPILER "gfortran")
-#set (FC "gfortran")
-#set (CXX "g++")
+# these don't override system environment, unfortunately
+set (CMAKE_Fortran_COMPILER_ID "gfortran")
+set (CMAKE_Fortran_COMPILER "gfortran")
+set (FC "gfortran")
+set (CXX "g++")
 
 set(CMAKE_CXX_STANDARD 17) # doesn't apply to win32
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
