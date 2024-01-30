@@ -123,7 +123,7 @@ void GLwidget::initializeGL()
              );
   // Model matrix : an identity matrix (model will be at the origin)
   mModelMatrix.setToIdentity();
-  mRotate.setToIdentity();
+ // mRotate.setToIdentity();
 
   shaderProgram.link();
 
@@ -190,6 +190,7 @@ bool GLwidget::DataLoad(QString fileName, bool first_time)
       nV=nV_cube;
       nE=nE_cube;
       //arrays have to be assigned this way vertices=cube_vertices only works in the same scope
+      //fortran array handling seems a lot more consistently intuitive
       for (int i=0; i<= nV; ++i){
       vertices[i]=cube_vertices[i];
       }
@@ -268,7 +269,13 @@ void GLwidget::paintGL(void)
 
     // Send our transformation to the currently bound shader,
     // in the "MVP" uniform
-    QMatrix4x4 MVP = mProjectionMatrix * mViewMatrix * mModelMatrix * mRotate;
+    m_world.setToIdentity();
+    m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
+    m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
+    m_world.rotate(m_zRot / 16.0f, 0, 0, 1);
+
+
+    QMatrix4x4 MVP = mProjectionMatrix * mViewMatrix * mModelMatrix * m_world;
     glUniformMatrix4fv(MatrixID, 1, GL_FALSE, MVP.data());
 
     glDrawElements(GL_TRIANGLES, nE, GL_UNSIGNED_INT, 0);
@@ -286,8 +293,8 @@ void GLwidget::timerEvent(QTimerEvent*)
 
 void GLwidget::resizeGL(int w, int h)
 {
-  mWidth = w;
-  mHeight = h;
+  //mWidth = w;
+  //mHeight = h;
   mProjectionMatrix.setToIdentity();
   mProjectionMatrix.perspective(45.0f, GLfloat(w) / h, 0.01f, 100.0f);
   update();
@@ -352,7 +359,7 @@ void GLwidget::wheelEvent(QWheelEvent *e)
          }
     e->accept();
 }
-
+/*
 void GLwidget::mousePressEvent(QMouseEvent *e)
 {
   rotate=false;
@@ -382,12 +389,32 @@ void GLwidget::mouseMoveEvent(QMouseEvent *e)
       oldY = e->position().toPoint().y();
   }
 }
+*/
+void GLwidget::mousePressEvent(QMouseEvent *e)
+{
+    m_lastPos = e->position().toPoint();
+}
 
+void GLwidget::mouseMoveEvent(QMouseEvent *e)
+{
+    int dx = e->position().toPoint().x() - m_lastPos.x();
+    int dy = e->position().toPoint().y() - m_lastPos.y();
 
+    if (e->buttons() & Qt::LeftButton) {
+        setXRotation(m_xRot + 8 * dy);
+        setYRotation(m_yRot + 8 * dx);
+    } else if (e->buttons() & Qt::RightButton) {
+        setXRotation(m_xRot + 8 * dy);
+        setZRotation(m_zRot + 8 * dx);
+    }
+    m_lastPos = e->position().toPoint();
+}
+
+/*
 void GLwidget::mouseReleaseEvent(QMouseEvent *e)
 {
-  if(e->button() == Qt::LeftButton)
-    useArcBall = false;
+ // if(e->button() == Qt::LeftButton)
+ //   useArcBall = false;
 }
 
 void GLwidget::updateMouse()
@@ -422,6 +449,8 @@ QVector3D GLwidget::getArcBallVector(int x, int y)
        pt.normalize();
    return pt;
 }
+*/
+
 QSize GLwidget::minimumSizeHint() const
 {
    return QSize(50, 50);

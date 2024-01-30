@@ -129,10 +129,10 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     void keyPressEvent( QKeyEvent *e) override;
     void mouseMoveEvent(QMouseEvent *e) override;
     void mousePressEvent(QMouseEvent *e) override;
-    void mouseReleaseEvent(QMouseEvent *e) override;
+   // void mouseReleaseEvent(QMouseEvent *e) override;
     void wheelEvent(QWheelEvent *e) override;
     void timerEvent(QTimerEvent*) override;
-    void updateMouse();
+   // void updateMouse();
 
   private:
 
@@ -140,12 +140,12 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     QOpenGLShaderProgram shaderProgram;
     GLuint programID;
     QMatrix4x4 mModelMatrix;
-    QMatrix4x4 mRotate;
+    //QMatrix4x4 mRotate;
     QMatrix4x4 mViewMatrix;
     QMatrix4x4 mProjectionMatrix;
 
     bool LoadSurfaceToBuffer(int nV, int nE, GLfloat *vertices, GLuint *elements);
-    QVector3D getArcBallVector(int x, int y);
+    //QVector3D getArcBallVector(int x, int y);
 
     QVector3D cameraPos;
     QVector3D mPosition;
@@ -154,16 +154,16 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     GLuint elementbuffer;
     GLuint vertexbuffer;
 
-    int mWidth;
-    int mHeight;
+    //int mWidth;
+    //int mHeight;
     int timerID;
 
-    int oldX, oldY;
-    int newX, newY;
+    //int oldX, oldY;
+    //int newX, newY;
 
     bool loaded;
     bool rotate;
-    bool useArcBall;
+    //bool useArcBall;
 
     void setupVertexAttribs();
 
