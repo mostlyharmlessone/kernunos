@@ -49,20 +49,21 @@ GLwidget::GLwidget ( QWidget *parent ) : QOpenGLWidget(parent)
 GLwidget::~GLwidget()
 {
   cleanup();
-  glDeleteBuffers(1, &vertexbuffer);
-  glDeleteBuffers(1,&elementbuffer);
-  glDeleteProgram(programID);
-  killTimer(timerID);
+
 }
 
 void GLwidget::cleanup()
 {
-  if (m_program == nullptr)
+  if (shaderProgram == nullptr)
             return;
   makeCurrent();
+  glDeleteBuffers(1, &vertexbuffer);
+  glDeleteBuffers(1,&elementbuffer);
+  glDeleteProgram(programID);
+  killTimer(timerID);
   //m_logoVbo.destroy();
-  //delete m_program;
-  //m_program = nullptr;
+  delete shaderProgram;
+  shaderProgram = nullptr;
   doneCurrent();
   //QObject::disconnect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &GLwidget::cleanup);
 }
@@ -93,9 +94,11 @@ void GLwidget::initializeGL()
   // Accept fragment if it is closer to the camera than the former one
   glDepthFunc(GL_LESS);
 
+  shaderProgram = new QOpenGLShaderProgram;
   // load and compile vertex shader
-  success = shaderProgram.addShaderFromSourceCode(QOpenGLShader::Vertex,vertexSource);
-  // if (success) std::cout << "Compiled vertex shader" << std::endl;
+  //success = shaderProgram.addShaderFromSourceCode(QOpenGLShader::Vertex,vertexSource);
+  success = shaderProgram->addShaderFromSourceCode(QOpenGLShader::Vertex,vertexSource);
+  //if (success) std::cout << "Compiled vertex shader" << std::endl;
   if (!success)
   {
     std::cout << "DID NOT compile vertex shader" << std::endl;
@@ -103,15 +106,17 @@ void GLwidget::initializeGL()
    }
 
   // load and compile fragment shader
-  success = shaderProgram.addShaderFromSourceCode(QOpenGLShader::Fragment,fragmentSource);
-  //  if (success) std::cout << "Compiled fragment shader" << std::endl;
+  //success = shaderProgram.addShaderFromSourceCode(QOpenGLShader::Fragment,fragmentSource);
+  success = shaderProgram->addShaderFromSourceCode(QOpenGLShader::Fragment,fragmentSource);
+  //if (success) std::cout << "Compiled fragment shader" << std::endl;
   if (!success)
   {
     std::cout << "DID NOT compile fragment shader" << std::endl;
     QWidget::close();
    }
 
-  programID = shaderProgram.programId();
+  //programID = shaderProgram.programId();
+  programID = shaderProgram->programId();
 
   // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
   mProjectionMatrix.perspective(45.0, 4.0/3.0, 0.1, 100.0);
@@ -125,16 +130,32 @@ void GLwidget::initializeGL()
   mModelMatrix.setToIdentity();
  // mRotate.setToIdentity();
 
-  shaderProgram.link();
+  //shaderProgram.link();
+  shaderProgram->link();
 
   // Get a handle
   MatrixID = glGetUniformLocation(programID, "mMVP");
   glBindAttribLocation(programID, 0, "fragColor");
 
+  shaderProgram->bind();
+  m_projMatrixLoc = shaderProgram->uniformLocation("mMVP");
+
+  m_projMatrixLoc = shaderProgram->uniformLocation("projMatrix");
+  m_mvMatrixLoc = shaderProgram->uniformLocation("mvMatrix");
+  m_normalMatrixLoc = shaderProgram->uniformLocation("normalMatrix");
+  m_lightPosLoc = shaderProgram->uniformLocation("lightPos");
+
+
   // Create a Vertex Buffer Object
     glGenBuffers(1, &vertexbuffer);
   // Create an element array
     glGenBuffers(1, &elementbuffer);
+
+
+  // Light position is fixed.
+  shaderProgram->setUniformValue(m_lightPosLoc, QVector3D(0, 0, 70));
+
+  shaderProgram->release();
 }
 
 bool GLwidget::DataLoad(QString fileName, bool first_time)
@@ -261,28 +282,35 @@ void GLwidget::paintGL(void)
     // Clear the screen
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // Use our shader
-    glUseProgram(programID);
+    //glUseProgram(programID);
+    shaderProgram->bind();
 
  // Bind
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
 
-    // Send our transformation to the currently bound shader,
-    // in the "MVP" uniform
     m_world.setToIdentity();
     m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
     m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
     m_world.rotate(m_zRot / 16.0f, 0, 0, 1);
 
-
+    // Send our transformation to the currently bound shader,
+    // in the "MVP" uniform
     QMatrix4x4 MVP = mProjectionMatrix * mViewMatrix * mModelMatrix * m_world;
     glUniformMatrix4fv(MatrixID, 1, GL_FALSE, MVP.data());
+
+    shaderProgram->setUniformValue(m_projMatrixLoc, m_proj);
+    shaderProgram->setUniformValue(m_mvMatrixLoc, m_camera * m_world);
+    QMatrix3x3 normalMatrix = m_world.normalMatrix();
+    shaderProgram->setUniformValue(m_normalMatrixLoc, normalMatrix);
 
     glDrawElements(GL_TRIANGLES, nE, GL_UNSIGNED_INT, 0);
 
     // Unbind
     glBindBuffer(vertexbuffer,0);
     glBindBuffer(elementbuffer,0);
+    shaderProgram->release();
+
 }
 
 // refreshes the window

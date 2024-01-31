@@ -137,7 +137,8 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
   private:
 
     MainWindow *m_parent;
-    QOpenGLShaderProgram shaderProgram;
+   // QOpenGLShaderProgram shaderProgram;
+    QOpenGLShaderProgram *shaderProgram = nullptr;
     GLuint programID;
     QMatrix4x4 mModelMatrix;
     //QMatrix4x4 mRotate;

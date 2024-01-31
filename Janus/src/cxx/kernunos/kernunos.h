@@ -3,6 +3,10 @@
 
 #include "GLwidget.h"
 #include "ui_mainwindow.h"
+#include <QWidget>
+
+QT_FORWARD_DECLARE_CLASS(QSlider)
+QT_FORWARD_DECLARE_CLASS(QPushButton)
 
 // global variables
 extern const unsigned int SCR_WIDTH;
@@ -54,11 +58,22 @@ private slots:
     void aboutQt();
     void updateResult();
     void onAddNew();
+    void dockUndock();
 
 private:
     void createActions();
     void createMenus();
     Ui::MainWindow ui;
+
+    void dock();
+    void undock();
+    QSlider *createSlider();
+
+    GLwidget *glWidget;
+    QSlider *xSlider;
+    QSlider *ySlider;
+    QSlider *zSlider;
+    QPushButton *dockBtn;
 
     GLwidget* m_GLwidget;
     GLwidget* m_GLwidget_secondwindow;
