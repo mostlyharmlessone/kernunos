@@ -4,6 +4,14 @@
 #include "chartview.h" // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
 #include "window.h"
 #include <QSlider>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QKeyEvent>
+#include <QPushButton>
+#include <QApplication>
+#include <QMessageBox>
+#include <QMainWindow>
+#include <iostream>
 
 // global settings
 const unsigned int SCR_WIDTH = 1500;
@@ -157,43 +165,30 @@ MainWindow::MainWindow()
    chartView->setRenderHint(QPainter::Antialiasing);
    chartView->setMinimumSize(400,400);   //another hard code number!
 
+
+/* if using ui, have to edit properties as below
+   slider->setRange(0, 360 * 16);
+   slider->setSingleStep(16);
+   slider->setPageStep(15 * 16);
+   slider->setTickInterval(15 * 16);
+   slider->setTickPosition(QSlider::TicksRight);*/
+   connect(ui.xSlider, &QSlider::valueChanged, ui.openGLWidget_2, &GLwidget::setXRotation);
+   connect(ui.openGLWidget_2, &GLwidget::xRotationChanged, ui.xSlider, &QSlider::setValue);
+   connect(ui.ySlider, &QSlider::valueChanged, ui.openGLWidget_2, &GLwidget::setYRotation);
+   connect(ui.openGLWidget_2, &GLwidget::yRotationChanged, ui.ySlider, &QSlider::setValue);
+   connect(ui.zSlider, &QSlider::valueChanged, ui.openGLWidget_2, &GLwidget::setZRotation);
+   connect(ui.openGLWidget_2, &GLwidget::zRotationChanged, ui.zSlider, &QSlider::setValue);
+
+   connect(ui.dockButton, &QPushButton::clicked, this, &MainWindow::dockUndock);
+
+
    colorHBox->addWidget(chartView);
    vlayout->addWidget(colorGroupBox);
    widget->setLayout(vlayout);
 
-/*
-   xSlider = createSlider();
-   ySlider = createSlider();
-   zSlider = createSlider();
-
-   connect(xSlider, &QSlider::valueChanged, glWidget, &GLwidget::setXRotation);
-   connect(glWidget, &GLwidget::xRotationChanged, xSlider, &QSlider::setValue);
-   connect(ySlider, &QSlider::valueChanged, glWidget, &GLwidget::setYRotation);
-   connect(glWidget, &GLwidget::yRotationChanged, ySlider, &QSlider::setValue);
-   connect(zSlider, &QSlider::valueChanged, glWidget, &GLwidget::setZRotation);
-   connect(glWidget, &GLwidget::zRotationChanged, zSlider, &QSlider::setValue);
-
-
-   QVBoxLayout *mainLayout = new QVBoxLayout(this);
-   QWidget *w = new QWidget;
-   QHBoxLayout *container = new QHBoxLayout(w);
-   container->addWidget(glWidget);
-   container->addWidget(xSlider);
-   container->addWidget(ySlider);
-   container->addWidget(zSlider);
-
-   mainLayout->addWidget(w);
-   dockBtn = new QPushButton(tr("Undock"), this);
-   connect(dockBtn, &QPushButton::clicked, this, &MainWindow::dockUndock);
-   mainLayout->addWidget(dockBtn);
-
-
-   xSlider->setValue(15 * 16);
-   ySlider->setValue(345 * 16);
-   zSlider->setValue(0 * 16);
-*/
-
-
+   ui.xSlider->setValue(15 * 16);
+   ui.ySlider->setValue(345 * 16);
+   ui.zSlider->setValue(0 * 16);
 
    QGraphicsScene *scene = new QGraphicsScene();
    ui.graphicsView->setScene(scene);
@@ -214,16 +209,6 @@ MainWindow::MainWindow()
    update();
 
 }
-QSlider *MainWindow::createSlider()
-{
-   QSlider *slider = new QSlider(Qt::Vertical);
-   slider->setRange(0, 360 * 16);
-   slider->setSingleStep(16);
-   slider->setPageStep(15 * 16);
-   slider->setTickInterval(15 * 16);
-   slider->setTickPosition(QSlider::TicksRight);
-   return slider;
-}
 
 void MainWindow::dockUndock()
 {
@@ -240,7 +225,6 @@ void MainWindow::dockUndock()
 void MainWindow::dock()
 {
    auto *mainWindow = findMainWindow();
-   //  auto *mainWindow = parentWidget();
 
    if (mainWindow == nullptr || !mainWindow->isVisible()) {
      QMessageBox::information(this, tr("Cannot Dock Closed"),
@@ -248,15 +232,12 @@ void MainWindow::dock()
      return;
    }
    if (mainWindow->centralWidget()) {
-     // if (mainWindow->isActiveWindow()) {
-
      QMessageBox::information(this, tr("Cannot Dock Occupied"),
                               tr("Main window already occupied"));
      return;
    }
    setAttribute(Qt::WA_DeleteOnClose, false);
-   dockBtn->setText(tr("Undock"));
-
+   ui.dockButton->setText(tr("Undock"));
    mainWindow->setCentralWidget(this);
    show();
 
@@ -269,7 +250,7 @@ void MainWindow::undock()
    const auto geometry = screen()->availableGeometry();
    move(geometry.x() + (geometry.width() - width()) / 2,
         geometry.y() + (geometry.height() - height()) / 2);
-   dockBtn->setText(tr("Dock"));
+   ui.dockButton->setText(tr("Dock"));
    show();
 }
 
@@ -418,18 +399,19 @@ void MainWindow::updateResult()
 
 void MainWindow::onAddNew()
 {
-//   if (!centralWidget()){
-//       setCentralWidget(new Window);
-   if (!centralWidget()){
+    if (!centralWidget()){
+       setCentralWidget(new Window);
+/*   if (!centralWidget()){
        QGraphicsScene *scene2 = new QGraphicsScene();
        ui.graphicsView_2->setScene(scene2);
        scene2->addWidget(new Window);
+*/
    }
    else
        QMessageBox::information(this, tr("Cannot Add New Window"),
                                 tr("Already occupied. Undock first."));
 
-   ui.infoLabel->setText(tr("Invoked <b>File|Save</b>"));
+   ui.infoLabel->setText(tr("Invoked <b>File|New</b>"));
 }
 
 

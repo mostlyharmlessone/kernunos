@@ -43,13 +43,12 @@ GLwidget::GLwidget ( QWidget *parent ) : QOpenGLWidget(parent)
         }
   setFocusPolicy(Qt::StrongFocus);
   cameraPos = QVector3D(0, 0, 6);
-  timerID = startTimer(1000);
+  timerID = startTimer(100);
 }
 
 GLwidget::~GLwidget()
 {
   cleanup();
-
 }
 
 void GLwidget::cleanup()
