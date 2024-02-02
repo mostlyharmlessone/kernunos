@@ -83,10 +83,10 @@ MainWindow::MainWindow()
    QRect rect1(0, 0, 24, 600);  //there are three 600s here that need auto resize
    pmp.drawRect(rect1);
 
-    QLabel *legendpix = new QLabel(widget);
-    QLabel *legend = new QLabel(widget);
+//    QLabel *legendpix = new QLabel(widget);
+//    QLabel *legend = new QLabel(widget);
 
-    legendpix->setPixmap(pm);
+    ui.legendpix->setPixmap(pm);
     QString legendvalues = "";
     for (int i = 1; i <= 37; ++i) {
      int j = 60;
@@ -97,14 +97,14 @@ MainWindow::MainWindow()
      legendvalues += "\n";
     }
 
-    legend->setText(legendvalues);
-    legend->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    legendpix->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui.legend->setText(legendvalues);
+    ui.legend->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui.legendpix->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     QHBoxLayout *colorHBox = new QHBoxLayout;
 
-    colorHBox->addWidget(legendpix);
-    colorHBox->addWidget(legend);
+    //colorHBox->addWidget(legendpix);
+   // colorHBox->addWidget(legend);
     colorGroupBox->setLayout(colorHBox);
 
    QBarSet *negative = new QBarSet("Negative");
