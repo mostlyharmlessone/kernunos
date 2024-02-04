@@ -429,8 +429,6 @@ int main(int argc, char *argv[])
 
    QCommandLineOption multipleSampleOption("multisample", "Multisampling");
    parser.addOption(multipleSampleOption);
-   QCommandLineOption coreProfileOption("coreprofile", "Use core profile");
-   parser.addOption(coreProfileOption);
    QCommandLineOption transparentOption("transparent", "Transparent window");
    parser.addOption(transparentOption);
 
@@ -440,10 +438,6 @@ int main(int argc, char *argv[])
    fmt.setDepthBufferSize(24);
    if (parser.isSet(multipleSampleOption))
        fmt.setSamples(4);
-   if (parser.isSet(coreProfileOption)) {
-       fmt.setVersion(4, 6);   //minimum
-       fmt.setProfile(QSurfaceFormat::CoreProfile);
-   }
    QSurfaceFormat::setDefaultFormat(fmt);
 
    QTranslator translator;

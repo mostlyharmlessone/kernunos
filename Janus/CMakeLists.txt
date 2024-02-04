@@ -258,8 +258,8 @@ include_directories(src/cxx/kernunos)
                    src/cxx/kernunos/chartview.cpp src/cxx/kernunos/chartview.h
                    src/cxx/kernunos/mainwindow.ui 
                    src/src90/janus.f90 
-                   src/cxx/camera.h
                    src/cxx/opengl_show.cpp
+                   src/cxx/Jupiter/camera.h
                    )
 
 #    target_include_directories(kernunos PUBLIC ${PROJECT_SOURCE_DIR})

@@ -2,12 +2,10 @@
 #include "kernunos.h"
 
 static const GLchar* vertexSource = R"glsl(
-#version 400 core
-layout (location = 0) in vec3 position;   // the position variable has attribute position 0
-layout (location = 1) in vec3 incolor; // the color variable has attribute position 1
-
+#version 150 core
+in vec3 position;   // the position variable has attribute position 0
+in vec3 incolor; // the color variable has attribute position 1
 out vec3 outColor; // output a color to the fragment shader
-
 uniform mat4 mMVP;
 
 void main()
@@ -18,7 +16,7 @@ void main()
 )glsl";
 
 static const GLchar* fragmentSource = R"glsl(
-#version 400 core
+#version 150 core
 out vec4 fragColor;
 in vec3 outColor;
 
@@ -33,7 +31,6 @@ bool GLwidget::m_transparent = false;
 
 GLwidget::GLwidget ( QWidget *parent ) : QOpenGLWidget(parent)
 {
-        m_core = QSurfaceFormat::defaultFormat().profile() == QSurfaceFormat::CoreProfile;
         // --transparent causes the clear color to be transparent. Therefore, on systems that
         // support it, the widget will become transparent apart from the logo.
         if (m_transparent) {
@@ -42,7 +39,6 @@ GLwidget::GLwidget ( QWidget *parent ) : QOpenGLWidget(parent)
             setFormat(fmt);
         }
   setFocusPolicy(Qt::StrongFocus);
-  cameraPos = QVector3D(0, 0, 6);
   timerID = startTimer(100);
 }
 
@@ -86,7 +82,7 @@ void GLwidget::initializeGL()
   sglVer += reinterpret_cast<const char *>(GLrenderer);
   m_parent->SetGLString(sglVer);
 
-  glClearColor(0.2f, 0.3f, 0.3f, 0.0f);
+  glClearColor(0.2f, 0.3f, 0.3f, m_transparent ? 0 : 1);
 
   // Enable depth test
   glEnable(GL_DEPTH_TEST);
@@ -95,7 +91,6 @@ void GLwidget::initializeGL()
 
   shaderProgram = new QOpenGLShaderProgram;
   // load and compile vertex shader
-  //success = shaderProgram.addShaderFromSourceCode(QOpenGLShader::Vertex,vertexSource);
   success = shaderProgram->addShaderFromSourceCode(QOpenGLShader::Vertex,vertexSource);
   //if (success) std::cout << "Compiled vertex shader" << std::endl;
   if (!success)
@@ -105,7 +100,6 @@ void GLwidget::initializeGL()
    }
 
   // load and compile fragment shader
-  //success = shaderProgram.addShaderFromSourceCode(QOpenGLShader::Fragment,fragmentSource);
   success = shaderProgram->addShaderFromSourceCode(QOpenGLShader::Fragment,fragmentSource);
   //if (success) std::cout << "Compiled fragment shader" << std::endl;
   if (!success)
@@ -114,22 +108,7 @@ void GLwidget::initializeGL()
     QWidget::close();
    }
 
-  //programID = shaderProgram.programId();
   programID = shaderProgram->programId();
-
-  // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-  mProjectionMatrix.perspective(45.0, 4.0/3.0, 0.1, 100.0);
-
-  // Camera matrix
-  mViewMatrix.lookAt( cameraPos, // Camera is at (0,0,6), in World Space
-               QVector3D(0,0,0), // and looks at the origin
-               QVector3D(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
-             );
-  // Model matrix : an identity matrix (model will be at the origin)
-  mModelMatrix.setToIdentity();
- // mRotate.setToIdentity();
-
-  //shaderProgram.link();
   shaderProgram->link();
 
   // Get a handle
@@ -139,6 +118,10 @@ void GLwidget::initializeGL()
   shaderProgram->bind();
   m_projMatrixLoc = shaderProgram->uniformLocation("mMVP");
 
+  // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
+  mProjectionMatrix.perspective(45.0, 4.0/3.0, 0.1, 100.0);
+
+  //none of this does anything yet because not in  shaderProgram code
   m_projMatrixLoc = shaderProgram->uniformLocation("projMatrix");
   m_mvMatrixLoc = shaderProgram->uniformLocation("mvMatrix");
   m_normalMatrixLoc = shaderProgram->uniformLocation("normalMatrix");
@@ -151,8 +134,11 @@ void GLwidget::initializeGL()
     glGenBuffers(1, &elementbuffer);
 
 
-  // Light position is fixed.
+  // Light position is fixed
   shaderProgram->setUniformValue(m_lightPosLoc, QVector3D(0, 0, 70));
+  // Camera is fixed
+  m_camera.setToIdentity();
+  m_camera.translate(0, 0, -1);
 
   shaderProgram->release();
 }
@@ -295,7 +281,7 @@ void GLwidget::paintGL(void)
 
     // Send our transformation to the currently bound shader,
     // in the "MVP" uniform
-    QMatrix4x4 MVP = mProjectionMatrix * mViewMatrix * mModelMatrix * m_world;
+    QMatrix4x4 MVP =  mProjectionMatrix * mViewMatrix  * m_world;
     glUniformMatrix4fv(MatrixID, 1, GL_FALSE, MVP.data());
 
     shaderProgram->setUniformValue(m_projMatrixLoc, m_proj);
@@ -320,8 +306,6 @@ void GLwidget::timerEvent(QTimerEvent*)
 
 void GLwidget::resizeGL(int w, int h)
 {
-  //mWidth = w;
-  //mHeight = h;
   mProjectionMatrix.setToIdentity();
   mProjectionMatrix.perspective(45.0f, GLfloat(w) / h, 0.01f, 100.0f);
   update();
@@ -386,37 +370,7 @@ void GLwidget::wheelEvent(QWheelEvent *e)
          }
     e->accept();
 }
-/*
-void GLwidget::mousePressEvent(QMouseEvent *e)
-{
-  rotate=false;
-  if(e->button() == Qt::LeftButton)
-  {
-    oldX = e->position().toPoint().x();
-    oldY = e->position().toPoint().y();
-    newX = e->position().toPoint().x();
-    newY = e->position().toPoint().y();
-    rotate = true;
-    useArcBall = true;
-  }
-}
 
-
-void GLwidget::mouseMoveEvent(QMouseEvent *e)
-{
-  if(e->buttons() & Qt::LeftButton)
-  {
-    if(rotate)
-    {
-      newX = e->position().toPoint().x();
-      newY = e->position().toPoint().y();
-      updateMouse();
-    }
-      oldX = e->position().toPoint().x();
-      oldY = e->position().toPoint().y();
-  }
-}
-*/
 void GLwidget::mousePressEvent(QMouseEvent *e)
 {
     m_lastPos = e->position().toPoint();
@@ -437,46 +391,6 @@ void GLwidget::mouseMoveEvent(QMouseEvent *e)
     m_lastPos = e->position().toPoint();
 }
 
-/*
-void GLwidget::mouseReleaseEvent(QMouseEvent *e)
-{
- // if(e->button() == Qt::LeftButton)
- //   useArcBall = false;
-}
-
-void GLwidget::updateMouse()
-{
-  QVector3D v = getArcBallVector(oldX,oldY); // from the mouse
-  QVector3D u = getArcBallVector(newX, newY);
-
-  float angle = std::acos(std::min(1.0f, QVector3D::dotProduct(u,v)));
-
-  QVector3D rotAxis = QVector3D::crossProduct(v,u);
-  QMatrix4x4 eye2ObjSpaceMat = mRotate.inverted();
-  QVector3D objSpaceRotAxis = eye2ObjSpaceMat.map(rotAxis);
-
-  oldX = newX;
-  oldY = newY;
-
-  mRotate.rotate(4 * qRadiansToDegrees(angle), objSpaceRotAxis);
-  update();
-}
-
-QVector3D GLwidget::getArcBallVector(int x, int y)
-{
-   QVector3D pt = QVector3D(2.0 * x / mWidth - 1.0, 2.0 * y / mHeight  - 1.0 , 0);
-   pt.setY(pt.y() * -1);
-
-   // compute z-coordinates
-   float xySquared = pt.x() * pt.x() + pt.y() * pt.y();
-
-   if(xySquared <= 1.0)
-       pt.setZ(std::sqrt(1.0 - xySquared));
-   else
-       pt.normalize();
-   return pt;
-}
-*/
 
 QSize GLwidget::minimumSizeHint() const
 {

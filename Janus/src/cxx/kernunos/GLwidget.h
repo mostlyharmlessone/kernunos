@@ -129,46 +129,26 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     void keyPressEvent( QKeyEvent *e) override;
     void mouseMoveEvent(QMouseEvent *e) override;
     void mousePressEvent(QMouseEvent *e) override;
-   // void mouseReleaseEvent(QMouseEvent *e) override;
     void wheelEvent(QWheelEvent *e) override;
     void timerEvent(QTimerEvent*) override;
-   // void updateMouse();
 
   private:
 
     MainWindow *m_parent;
-   // QOpenGLShaderProgram shaderProgram;
     QOpenGLShaderProgram *shaderProgram = nullptr;
     GLuint programID;
-    QMatrix4x4 mModelMatrix;
-    //QMatrix4x4 mRotate;
     QMatrix4x4 mViewMatrix;
     QMatrix4x4 mProjectionMatrix;
 
     bool LoadSurfaceToBuffer(int nV, int nE, GLfloat *vertices, GLuint *elements);
-    //QVector3D getArcBallVector(int x, int y);
 
-    QVector3D cameraPos;
-    QVector3D mPosition;
     GLuint MatrixID;
-
     GLuint elementbuffer;
     GLuint vertexbuffer;
-
-    //int mWidth;
-    //int mHeight;
     int timerID;
-
-    //int oldX, oldY;
-    //int newX, newY;
-
-    bool loaded;
-    bool rotate;
-    //bool useArcBall;
 
     void setupVertexAttribs();
 
-    bool m_core;
     int m_xRot = 0;
     int m_yRot = 0;
     int m_zRot = 0;
