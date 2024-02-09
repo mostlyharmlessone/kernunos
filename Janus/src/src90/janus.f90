@@ -591,7 +591,7 @@ end do
 !  atmp=pca(3,RadSlope)
 ! writes values in openGL friendly format to matrices for passing to C/C++; flag to display with glfw using juno
 
-   call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
+   call Geom(flag, JMatrix, donut, powmin, powmax, opengl_show, elements, vertices, nV, nE)
 !  the cube example
 !   nV = 48
 

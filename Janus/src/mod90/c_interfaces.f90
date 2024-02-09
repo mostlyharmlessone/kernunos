@@ -35,8 +35,29 @@ SUBROUTINE OpenGL_Show(vertices, elements, nV, nE) BIND(C,name='opengl_show')
  integer(c_int), value, INTENT(IN) :: nE
 END SUBROUTINE OpenGL_Show
 
+! dummy version
+SUBROUTINE OpenGL_Show2(vertices, elements, nV, nE) 
+ USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int
+ IMPLICIT NONE                
+ real(c_float), INTENT(IN) :: vertices(*)
+ integer(c_int), INTENT(IN) :: elements(*) 
+ integer(c_int), value, INTENT(IN) :: nV 
+ integer(c_int), value, INTENT(IN) :: nE
+END SUBROUTINE OpenGL_Show2
+
  END INTERFACE
     
  contains
+
+! does nothing
+ subroutine OpenGL_Show2(vertices, elements, nV, nE) 
+  USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int
+  IMPLICIT NONE                
+  real(c_float), INTENT(IN) :: vertices(*)
+  integer(c_int), INTENT(IN) :: elements(*) 
+  integer(c_int), value, INTENT(IN) :: nV 
+  integer(c_int), value, INTENT(IN) :: nE
+ end subroutine OpenGL_Show2
+
     
-end module
+end module c_interfaces

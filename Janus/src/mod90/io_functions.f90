@@ -21,7 +21,7 @@ module io_functions
       real(wp), intent(out) :: POWMIN, POWMAX
     END SUBROUTINE
 
-    SUBROUTINE Geom(flag, b, donut, powmin, powmax, elements, vertices, nV, nE)
+    SUBROUTINE Geom(flag, b, donut, powmin, powmax, opengl_sub, elements, vertices, nV, nE)
        use cornea_arrays
        use set_precision, ONLY : wp
        use c_interfaces, ONLY : OpenGL_Show

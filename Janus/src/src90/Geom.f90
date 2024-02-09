@@ -1,6 +1,6 @@
 !      Generates matrices for openGL
 
-       subroutine Geom(flag, b, donut, powmin, powmax, elements, vertices, nV, nE)
+       subroutine Geom(flag, b, donut, powmin, powmax, opengl_sub, elements, vertices, nV, nE)
        use cornea_arrays, ONLY : wpJMatrix
        use set_precision, ONLY : wp
        use c_interfaces, ONLY : OpenGL_Show
@@ -9,7 +9,20 @@
        use, intrinsic ::  ieee_arithmetic
        use ISO_FORTRAN_ENV, only: stdin=>input_unit     ! for the pause read(stdin,*)
        TYPE(wpJMatrix),INTENT(IN) :: b      
-       real(wp), intent(INOUT) :: powmin,powmax 
+       real(wp), intent(INOUT) :: powmin,powmax
+
+       interface
+        SUBROUTINE OpenGL_Sub(vertices, elements, nV, nE) 
+        USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int
+        IMPLICIT NONE                
+        real(c_float), INTENT(IN) :: vertices(*)
+        integer(c_int), INTENT(IN) :: elements(*) 
+        integer(c_int), value, INTENT(IN) :: nV 
+        integer(c_int), value, INTENT(IN) :: nE
+        END SUBROUTINE OpenGL_Sub
+       end interface
+
+
        real(wp) :: X1,X2,X3
        real(wp) :: vert1,vert2,vert3       
        real(c_float) :: c_vert(3),c_rgbv(3)
@@ -23,7 +36,7 @@
        logical :: quad           
        N1=size(b%r,1)
        M1=size(b%r,2)
-       
+
        quad = .FALSE.
        if (donut .AND. quad) then
         write(*,*) 'Geom: Cannot have closed disk with quadrilaterals'
@@ -202,7 +215,7 @@
        !read(stdin,*)  ! the new pause needs use ISO_FORTRAN_ENV, only: stdin=>input_unit
        if (flag > 0) then
         write(*,*) 'Display in separate OpenGL window'                           
-        call OpenGL_Show(vertices, elements, nV, nE)  ! glfw program incompatible with Jupiter/wxWidgets
+        call OpenGL_Sub(vertices, elements, nV, nE)  ! glfw program incompatible with Jupiter/wxWidgets
        endif
 
        end subroutine Geom
