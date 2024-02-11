@@ -80,14 +80,12 @@ void GLwidget::cleanup()
   makeCurrent();
   glDeleteBuffers(1, &vertexbuffer);
   glDeleteBuffers(1,&elementbuffer);
-  glDeleteProgram(programID);
   killTimer(timerID);
   delete shaderProgram;
   shaderProgram = nullptr;
   doneCurrent();
   //QObject::disconnect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &GLwidget::cleanup);
 }
-
 
 void GLwidget::initializeGL()
 {
@@ -124,7 +122,7 @@ void GLwidget::initializeGL()
     QWidget::close();  //just closes the OpenGL widget
    }
 
-  // load and compile fragment shader
+  // load and compile fragment shader; optional normals used for lighting
   success = shaderProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, m_normal ? fragmentSourceNormal : fragmentSource);
   //if (success) std::cout << "Compiled fragment shader" << std::endl;
   if (!success)
@@ -133,16 +131,11 @@ void GLwidget::initializeGL()
     QWidget::close();
    }
 
-  programID = shaderProgram->programId();
   shaderProgram->link();
-
-  // Get a handle
- // glBindAttribLocation(programID, 0, "fragColor");
 
   shaderProgram->bindAttributeLocation("position", 0);
   shaderProgram->bindAttributeLocation("normal", 1);
   shaderProgram->bindAttributeLocation("incolor", 2);
-
 
   shaderProgram->bind();
 
@@ -155,7 +148,6 @@ void GLwidget::initializeGL()
   m_normalMatrixLoc = shaderProgram->uniformLocation("normalMatrix");
   m_lightPosLoc = shaderProgram->uniformLocation("lightPos");
 
-
   // Create a Vertex Buffer Object
     glGenBuffers(1, &vertexbuffer);
   // Create an element array
@@ -163,7 +155,6 @@ void GLwidget::initializeGL()
 
   // Light position is fixed
   shaderProgram->setUniformValue(m_lightPosLoc, QVector3D(0, 0, 700));
-
   shaderProgram->release();
 }
 
@@ -174,14 +165,14 @@ bool GLwidget::DataLoad(QString fileName, bool first_time)
     int nE_cube = 36;
 
     GLfloat cube_vertices[] = {
-        -50.0f,  50.0f, -50.0f, -1.0f,  1.0f, -1.0f, 1.0f, 0.0f, 0.0f,  // Top-left & Red (x,y,z,nx,ny,nz,r,g,b)
-         50.0f,  50.0f, -50.0f,  1.0f,  1.0f, -1.0f, 0.0f, 1.0f, 0.0f,    // Top-right & Green
-         50.0f, -50.0f, -50.0f,  1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f,    // Bottom-right & Blue
-        -50.0f, -50.0f, -50.0f, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f,   // Bottom-left & White
-        -50.0f,  50.0f,  50.0f, -1.0f,  1.0f,  1.0f, 1.0f, 1.0f, 0.0f,   // Top-left & Orange?
-         50.0f,  50.0f,  50.0f,  1.0f,  1.0f,  1.0f, 0.0f, 1.0f, 1.0f,   // Top-right & Yellow?
-         50.0f, -50.0f,  50.0f,  1.0f, -1.0f,  1.0f, 1.0f, 0.0f, 1.0f,    // Bottom-right & Pink?
-        -50.0f, -50.0f,  50.0f, -1.0f, -1.0f,  1.0f, 0.0f, 0.0f, 0.0f     // Bottom-left & Black
+        -50.0f,  50.0f, -50.0f, -0.76f,  0.76f, -0.76f, 1.0f, 0.0f, 0.0f,  // Top-left & Red (x,y,z,nx,ny,nz,r,g,b)
+         50.0f,  50.0f, -50.0f,  0.76f,  0.76f, -0.76f, 0.0f, 1.0f, 0.0f,    // Top-right & Green
+         50.0f, -50.0f, -50.0f,  0.76f, -0.76f, -0.76f, 0.0f, 0.0f, 1.0f,    // Bottom-right & Blue
+        -50.0f, -50.0f, -50.0f, -0.76f, -0.76f, -0.76f, 1.0f, 1.0f, 1.0f,   // Bottom-left & White
+        -50.0f,  50.0f,  50.0f, -0.76f,  0.76f,  0.76f, 1.0f, 1.0f, 0.0f,   // Top-left & Orange?
+         50.0f,  50.0f,  50.0f,  0.76f,  0.76f,  0.76f, 0.0f, 1.0f, 1.0f,   // Top-right & Yellow?
+         50.0f, -50.0f,  50.0f,  0.76f, -0.76f,  0.76f, 1.0f, 0.0f, 1.0f,    // Bottom-right & Pink?
+        -50.0f, -50.0f,  50.0f, -0.76f, -0.76f,  0.76f, 0.0f, 0.0f, 0.0f     // Bottom-left & Black
     };
 
     // 12 triangles = 6 faces with 2 triangles per face

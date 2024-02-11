@@ -46,6 +46,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow();
     void SetGLString(QString& gls);
+    void loadFile(QString& fileName);
 
 protected:
 

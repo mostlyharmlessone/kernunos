@@ -3,7 +3,7 @@
        subroutine Geom(flag, b, donut, powmin, powmax, elements, vertices, nV, nE)
        use cornea_arrays, ONLY : wpJMatrix
        use set_precision, ONLY : wp
-       use c_interfaces, ONLY : OpenGL_Show
+!       use c_interfaces, ONLY : OpenGL_Show
        use special_fct, only : rgb2, rgb5
        use, intrinsic :: iso_c_binding, ONLY : c_float,c_int
        use, intrinsic ::  ieee_arithmetic
@@ -213,7 +213,7 @@
        !read(stdin,*)  ! the new pause needs use ISO_FORTRAN_ENV, only: stdin=>input_unit
        if (flag > 0) then
         write(*,*) 'Display in separate OpenGL window'                           
-        call OpenGL_Show(vertices, elements, nV, nE)  ! glfw program incompatible with Jupiter/wxWidgets
+!       call OpenGL_Show(vertices, elements, nV, nE)  ! glfw program incompatible with Jupiter/wxWidgets
        endif
 
        end subroutine Geom

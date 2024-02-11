@@ -414,6 +414,17 @@ void MainWindow::onAddNew()
    ui.infoLabel->setText(tr("Invoked <b>File|New</b>"));
 }
 
+void MainWindow::loadFile(QString& fileName)
+{
+   if (fileName.isEmpty())
+       return;
+   QByteArray ba = fileName.toLocal8Bit();
+   const char *filename = ba.data();
+   ui.infoLabel->setText(tr("filename:  ")+tr(filename));
+   if (!fileName.isEmpty())
+       m_GLwidget->DataLoad(fileName, false);
+   update();
+}
 
 int main(int argc, char *argv[])
 {
@@ -454,12 +465,12 @@ int main(int argc, char *argv[])
 
     MainWindow window;
 
-    //if (!parser.positionalArguments().isEmpty())
-    //window.loadFile(parser.positionalArguments().first()); //eventually command line arguments
+    if (!parser.positionalArguments().isEmpty())
+     window.loadFile(parser.positionalArguments().first());
 
     GLwidget::setNormal(parser.isSet(normalsOption));
     GLwidget::setTransparent(parser.isSet(transparentOption));
-    if (GLWidget::isTransparent()) {
+    if (GLwidget::isTransparent()) {
         window.setAttribute(Qt::WA_TranslucentBackground);
         window.setAttribute(Qt::WA_NoSystemBackground, false);
     }
