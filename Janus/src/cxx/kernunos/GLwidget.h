@@ -100,6 +100,9 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     static bool isTransparent() { return m_transparent; }
     static void setTransparent(bool t) { m_transparent = t; }
 
+    static bool isNormal() { return m_normal; }
+    static void setNormal(bool t) { m_normal = t; }
+
     QSize minimumSizeHint() const override;
     QSize sizeHint() const override;
 
@@ -142,7 +145,6 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
 
     bool LoadSurfaceToBuffer(int nV, int nE, GLfloat *vertices, GLuint *elements);
 
-    GLuint MatrixID;
     GLuint elementbuffer;
     GLuint vertexbuffer;
     int timerID;
@@ -153,19 +155,15 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     int m_yRot = 0;
     int m_zRot = 0;
     QPoint m_lastPos;
-    Logo m_logo;
     QOpenGLVertexArrayObject m_vao;
     QOpenGLBuffer m_logoVbo;
-    QOpenGLShaderProgram *m_program = nullptr;
     int m_projMatrixLoc = 0;
-    int m_mvMatrixLoc = 0;
     int m_normalMatrixLoc = 0;
     int m_lightPosLoc = 0;
-    QMatrix4x4 m_proj;
     QMatrix4x4 m_camera;
     QMatrix4x4 m_world;
     static bool m_transparent;
-
+    static bool m_normal;
 
 };
 

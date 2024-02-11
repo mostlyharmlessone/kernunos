@@ -2,32 +2,58 @@
 #include "kernunos.h"
 
 static const GLchar* vertexSource = R"glsl(
-#version 150 core
-in vec3 position;   // the position variable has attribute position 0
-in vec3 incolor; // the color variable has attribute position 1
-out vec3 outColor; // output a color to the fragment shader
-uniform mat4 mMVP;
-
-void main()
-{
-    gl_Position = mMVP * vec4(position, 1.0);
-    outColor = incolor; // set outColor to the input color we got from the vertex data
-}
+    #version 150 core
+    in vec3 position;   // the position variable has attribute position 0
+    in vec3 normal; // the normal variable has attribute position 1
+    in vec3 incolor; // the color variable has attribute position 2
+    out vec3 outColor;  // output a color to the fragment shader
+    out vec3 vert;
+    out vec3 vertNormal;
+    uniform mat4 mMVP;
+    uniform mat3 normalMatrix;
+    void main()
+    {
+       vert=position;
+       vertNormal = normalMatrix * normal;
+       gl_Position = mMVP * vec4(position, 1.0);
+       outColor = incolor; // set outColor to the input color we got from the vertex data
+    }
 )glsl";
 
 static const GLchar* fragmentSource = R"glsl(
-#version 150 core
-out vec4 fragColor;
-in vec3 outColor;
-
-void main()
-{
-    fragColor = vec4(outColor, 1.0);
-}
+    #version 150 core
+    out vec4 fragColor;
+    in vec3 outColor;
+    in vec3 vert;
+    in vec3 vertNormal;
+    uniform vec3 lightPos;
+    void main()
+    {
+      vec3 L = normalize(lightPos - vert);
+      float NL = max(dot(normalize(vertNormal), L), 0.0);
+      vec3 col = clamp(outColor * 0.2 + outColor * 0.8 * NL, 0.0, 1.0);
+      fragColor = vec4(outColor, 1.0);
+    }
 )glsl";
 
+static const GLchar* fragmentSourceNormal = R"glsl(
+    #version 150 core
+    out vec4 fragColor;
+    in vec3 outColor;
+    in vec3 vert;
+    in vec3 vertNormal;
+    uniform vec3 lightPos;
+    void main()
+    {
+      vec3 L = normalize(lightPos - vert);
+      float NL = max(dot(normalize(vertNormal), L), 0.0);
+      vec3 col = clamp(outColor * 0.2 + outColor * 0.8 * NL, 0.0, 1.0);
+      fragColor = vec4(col, 1.0);
+    }
+)glsl";
 
 bool GLwidget::m_transparent = false;
+bool GLwidget::m_normal = false;
 
 GLwidget::GLwidget ( QWidget *parent ) : QOpenGLWidget(parent)
 {
@@ -56,7 +82,6 @@ void GLwidget::cleanup()
   glDeleteBuffers(1,&elementbuffer);
   glDeleteProgram(programID);
   killTimer(timerID);
-  //m_logoVbo.destroy();
   delete shaderProgram;
   shaderProgram = nullptr;
   doneCurrent();
@@ -100,7 +125,7 @@ void GLwidget::initializeGL()
    }
 
   // load and compile fragment shader
-  success = shaderProgram->addShaderFromSourceCode(QOpenGLShader::Fragment,fragmentSource);
+  success = shaderProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, m_normal ? fragmentSourceNormal : fragmentSource);
   //if (success) std::cout << "Compiled fragment shader" << std::endl;
   if (!success)
   {
@@ -112,18 +137,21 @@ void GLwidget::initializeGL()
   shaderProgram->link();
 
   // Get a handle
-  MatrixID = glGetUniformLocation(programID, "mMVP");
-  glBindAttribLocation(programID, 0, "fragColor");
+ // glBindAttribLocation(programID, 0, "fragColor");
+
+  shaderProgram->bindAttributeLocation("position", 0);
+  shaderProgram->bindAttributeLocation("normal", 1);
+  shaderProgram->bindAttributeLocation("incolor", 2);
+
 
   shaderProgram->bind();
+
   m_projMatrixLoc = shaderProgram->uniformLocation("mMVP");
+  // proper distance & scale for cube
+  mViewMatrix.setToIdentity();
+  mViewMatrix.scale(QVector3D(0.005,0.005,0.005));
+  mViewMatrix.translate(QVector3D(0,0,-500));
 
-  // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-  mProjectionMatrix.perspective(45.0, 4.0/3.0, 0.1, 100.0);
-
-  //none of this does anything yet because not in  shaderProgram code
-  m_projMatrixLoc = shaderProgram->uniformLocation("projMatrix");
-  m_mvMatrixLoc = shaderProgram->uniformLocation("mvMatrix");
   m_normalMatrixLoc = shaderProgram->uniformLocation("normalMatrix");
   m_lightPosLoc = shaderProgram->uniformLocation("lightPos");
 
@@ -133,12 +161,8 @@ void GLwidget::initializeGL()
   // Create an element array
     glGenBuffers(1, &elementbuffer);
 
-
   // Light position is fixed
-  shaderProgram->setUniformValue(m_lightPosLoc, QVector3D(0, 0, 70));
-  // Camera is fixed
-  m_camera.setToIdentity();
-  m_camera.translate(0, 0, -1);
+  shaderProgram->setUniformValue(m_lightPosLoc, QVector3D(0, 0, 700));
 
   shaderProgram->release();
 }
@@ -146,21 +170,21 @@ void GLwidget::initializeGL()
 bool GLwidget::DataLoad(QString fileName, bool first_time)
 {
 
-    int nV_cube = 48;
+    int nV_cube = 72;
     int nE_cube = 36;
+
     GLfloat cube_vertices[] = {
-                  -50.0f,  50.0f, -50.0f, 1.0f, 0.0f, 0.0f,  // Top-left & Red (x,y,z,r,g,b)
-                  50.0f,  50.0f, -50.0f, 0.0f, 1.0f, 0.0f,  // Top-right & Green
-                  50.0f, -50.0f, -50.0f, 0.0f, 0.0f, 1.0f,  // Bottom-right & Blue
-                 -50.0f, -50.0f, -50.0f, 1.0f, 1.0f, 1.0f,   // Bottom-left & White
-                  -50.0f,  50.0f, 50.0f, 1.0f, 1.0f, 0.0f,  // Top-left & Orange? (x,y,z,r,g,b)
-                  50.0f,  50.0f, 50.0f, 0.0f, 1.0f, 1.0f,  // Top-right & Yellow?
-                  50.0f, -50.0f, 50.0f, 1.0f, 0.0f, 1.0f,  // Bottom-right & Pink?
-                 -50.0f, -50.0f, 50.0f, 0.0f, 0.0f, 0.0f   // Bottom-left & Black
-              };
+        -50.0f,  50.0f, -50.0f, -1.0f,  1.0f, -1.0f, 1.0f, 0.0f, 0.0f,  // Top-left & Red (x,y,z,nx,ny,nz,r,g,b)
+         50.0f,  50.0f, -50.0f,  1.0f,  1.0f, -1.0f, 0.0f, 1.0f, 0.0f,    // Top-right & Green
+         50.0f, -50.0f, -50.0f,  1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f,    // Bottom-right & Blue
+        -50.0f, -50.0f, -50.0f, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f,   // Bottom-left & White
+        -50.0f,  50.0f,  50.0f, -1.0f,  1.0f,  1.0f, 1.0f, 1.0f, 0.0f,   // Top-left & Orange?
+         50.0f,  50.0f,  50.0f,  1.0f,  1.0f,  1.0f, 0.0f, 1.0f, 1.0f,   // Top-right & Yellow?
+         50.0f, -50.0f,  50.0f,  1.0f, -1.0f,  1.0f, 1.0f, 0.0f, 1.0f,    // Bottom-right & Pink?
+        -50.0f, -50.0f,  50.0f, -1.0f, -1.0f,  1.0f, 0.0f, 0.0f, 0.0f     // Bottom-left & Black
+    };
 
-
-    // 12 triangles = 6 faces with triangles per face
+    // 12 triangles = 6 faces with 2 triangles per face
     GLuint cube_elements[] = {
                   0, 1, 2,
                   2, 3, 0,
@@ -185,7 +209,7 @@ bool GLwidget::DataLoad(QString fileName, bool first_time)
     if (!first_time)
      {
       // reload values to avoid seg fault if previous nV and nE are too small
-      nV=34560;
+      nV=51840;
       nE=26130;
       auto future1 = std::async([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);});
       future1.get();
@@ -204,9 +228,6 @@ bool GLwidget::DataLoad(QString fileName, bool first_time)
       elements[i]=cube_elements[i];
       }
      }
-
-    std::cout << "DataLoad: nV: " << nV << std::endl;
-    std::cout << "DataLoad vertices[6]: " << vertices[6] << std::endl;
 
     paintme=true;
 
@@ -242,15 +263,22 @@ bool GLwidget::LoadSurfaceToBuffer(int nV, int nE, GLfloat* vertices, GLuint* el
         return false;
        }
 
-    GLint posAttrib = glGetAttribLocation(programID, "position");
-    glEnableVertexAttribArray(posAttrib);
-    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-                                                            // 6 floats = 3 positions + 3 colors per vertex
+    // positions, colors and normals all stored as floats
+
+    // vertex position
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), nullptr);
+                                                            // 9 floats = 3 positions + 3 colors per vertex + 3 normals
+    // vertex normals
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), reinterpret_cast<void *>(3 * sizeof(GLfloat)));
+        // offset 3 because normals start after 3 positions.   9 * sizeof(GLfloat) = 3 x 3 floats
+
     // color attribute
-    GLint colAttrib = glGetAttribLocation(programID, "incolor");
-    glEnableVertexAttribArray(colAttrib);
-    glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-                                                           // offset 3 because colors start after 3 positions
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), reinterpret_cast<void *>(6 * sizeof(GLfloat)));
+                                                           // offset 6 because colors start after 3 positions
+
     return true;
 }
 
@@ -261,13 +289,9 @@ void GLwidget::paintGL(void)
 //     if ( !loaded ) return;  //not until nV, nE, vertices, elements are loaded
     if (!LoadSurfaceToBuffer(nV, nE, vertices, elements)) return;
 
-    std::cout << "paint: nV: " << nV << std::endl;
-    std::cout << "paint: vertices[6]: " << vertices[6] << std::endl;
-
     // Clear the screen
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // Use our shader
-    //glUseProgram(programID);
     shaderProgram->bind();
 
  // Bind
@@ -281,11 +305,9 @@ void GLwidget::paintGL(void)
 
     // Send our transformation to the currently bound shader,
     // in the "MVP" uniform
-    QMatrix4x4 MVP =  mProjectionMatrix * mViewMatrix  * m_world;
-    glUniformMatrix4fv(MatrixID, 1, GL_FALSE, MVP.data());
+    QMatrix4x4 mMVP =  mProjectionMatrix * mViewMatrix  * m_world;
+    shaderProgram->setUniformValue(m_projMatrixLoc, mMVP);
 
-    shaderProgram->setUniformValue(m_projMatrixLoc, m_proj);
-    shaderProgram->setUniformValue(m_mvMatrixLoc, m_camera * m_world);
     QMatrix3x3 normalMatrix = m_world.normalMatrix();
     shaderProgram->setUniformValue(m_normalMatrixLoc, normalMatrix);
 

@@ -1,6 +1,6 @@
 !      Generates matrices for openGL
 
-       subroutine Geom(flag, b, donut, powmin, powmax, opengl_sub, elements, vertices, nV, nE)
+       subroutine Geom(flag, b, donut, powmin, powmax, elements, vertices, nV, nE)
        use cornea_arrays, ONLY : wpJMatrix
        use set_precision, ONLY : wp
        use c_interfaces, ONLY : OpenGL_Show
@@ -10,22 +10,9 @@
        use ISO_FORTRAN_ENV, only: stdin=>input_unit     ! for the pause read(stdin,*)
        TYPE(wpJMatrix),INTENT(IN) :: b      
        real(wp), intent(INOUT) :: powmin,powmax
-
-       interface
-        SUBROUTINE OpenGL_Sub(vertices, elements, nV, nE) 
-        USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int
-        IMPLICIT NONE                
-        real(c_float), INTENT(IN) :: vertices(*)
-        integer(c_int), INTENT(IN) :: elements(*) 
-        integer(c_int), value, INTENT(IN) :: nV 
-        integer(c_int), value, INTENT(IN) :: nE
-        END SUBROUTINE OpenGL_Sub
-       end interface
-
-
        real(wp) :: X1,X2,X3
-       real(wp) :: vert1,vert2,vert3       
-       real(c_float) :: c_vert(3),c_rgbv(3)
+       real(wp) :: vert1,vert2,vert3,nrm1,nrm2,nrm3,normal
+       real(c_float) :: c_vert(3),c_rgbv(3),c_norm(3)
        real(wp) :: pow
        integer :: i,j,k,M1,N1,verts,faces,edges
        integer(c_int) :: ivert1,ivert2,ivert3,ivert4
@@ -108,27 +95,37 @@
        if (donut .eqv. .FALSE.) then ! add one last vertex at origin
          vert1 = 0      
          vert2 = 0
-         X3=b%Z0(1)
-         pow=b%SAGC0(1)    
+         X3=-b%Z0(1)          ! flip it upside down
+         pow=b%SAGC0(1)       ! not just X3 for future painting
          vert3 = real(X3,kind=4)
+         nrm1=0
+         nrm2=0
+         nrm3=1
          if (ieee_is_finite(vert3) .and. ieee_is_finite(pow)) then         
           !ok          
          else
           vert3 = 0         ! for out of bound values
           pow = 0           ! for out of bound values                              
-         endif                    
+         endif   
+         c_norm=real((/nrm1,nrm2,nrm3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float                          
          c_vert=real((/vert1,vert2,vert3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float
          c_rgbv=rgb5(pow,powmin,powmax)/255.0  !openGL wants scale of 1.0 not 255        
-         vertices(k:k+5)=(/c_vert,c_rgbv/)
-         k=k+6      ! matrix index          
+         vertices(k:k+8)=(/c_vert,c_norm,c_rgbv/)
+         k=k+9      ! matrix index        
        endif
 
        do i=1,M1
         do j=1,N1
          X1=b%THT(i)
          X2=b%R(j,i)
-         X3=b%Z(j,i)
+         X3=-b%Z(j,i)        ! flip it upside down
          pow=b%SAGC(j,i)     ! not just X3 for future painting
+         nrm1=-b%YPR(j,i)
+         nrm2=-b%YPTHETA(j,i)
+         normal=sqrt(nrm1*nrm1+nrm2*nrm2+1)
+         nrm1=-nrm1/normal
+         nrm2=-nrm2/normal
+         nrm3=1/normal        
          vert1 = real(ABS(X2)*COS(X1),kind=4)   !explicitly make these c/w c_float
          vert2 = real(ABS(X2)*SIN(X1),kind=4)
          vert3 = real(X3,kind=4)  
@@ -141,10 +138,11 @@
           vert3 = 0  ! for out of bound values
           pow = 0           ! for out of bound values       
          endif
+         c_norm=real((/nrm1,nrm2,nrm3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float
          c_vert=real((/vert1,vert2,vert3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float
          c_rgbv=rgb5(pow,powmin,powmax)/255.0  !openGL wants scale of 1.0 not 255        
-         vertices(k:k+5)=(/c_vert,c_rgbv/)
-         k=k+6      ! matrix index
+         vertices(k:k+8)=(/c_vert,c_norm,c_rgbv/)
+         k=k+9      ! matrix index
         end do
        end do
         
@@ -215,7 +213,7 @@
        !read(stdin,*)  ! the new pause needs use ISO_FORTRAN_ENV, only: stdin=>input_unit
        if (flag > 0) then
         write(*,*) 'Display in separate OpenGL window'                           
-        call OpenGL_Sub(vertices, elements, nV, nE)  ! glfw program incompatible with Jupiter/wxWidgets
+        call OpenGL_Show(vertices, elements, nV, nE)  ! glfw program incompatible with Jupiter/wxWidgets
        endif
 
        end subroutine Geom

@@ -26,7 +26,7 @@ bool paintme = false;
 int nV;
 int nE;
 std::vector<GLuint> Elements(26130);
-std::vector<GLfloat> Vertices(34560);
+std::vector<GLfloat> Vertices(51840);
 GLfloat* vertices = Vertices.data();
 GLuint* elements = Elements.data();
 
@@ -431,6 +431,8 @@ int main(int argc, char *argv[])
    parser.addOption(multipleSampleOption);
    QCommandLineOption transparentOption("transparent", "Transparent window");
    parser.addOption(transparentOption);
+   QCommandLineOption normalsOption("normals", "show surface normals with reflection");
+   parser.addOption(normalsOption);
 
    parser.process(app);
 
@@ -455,7 +457,8 @@ int main(int argc, char *argv[])
     //if (!parser.positionalArguments().isEmpty())
     //window.loadFile(parser.positionalArguments().first()); //eventually command line arguments
 
-    GLWidget::setTransparent(parser.isSet(transparentOption));
+    GLwidget::setNormal(parser.isSet(normalsOption));
+    GLwidget::setTransparent(parser.isSet(transparentOption));
     if (GLWidget::isTransparent()) {
         window.setAttribute(Qt::WA_TranslucentBackground);
         window.setAttribute(Qt::WA_NoSystemBackground, false);

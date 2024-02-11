@@ -40,7 +40,7 @@ MODULE cornea_arrays
 !  Computed results: R is from make rings or Penta version; need to declare one of each of these for each data set for comparison
 !  each array except for R,THT, is (N+1,MM) to include values at each ring and also at RC==RadSplineCenter pseudo ring
 !  each matching name has the value at origin, min value and max value
-   REAL (wp), ALLOCATABLE :: R(:,:),Z(:,:),THT(:),SAGC(:,:),INSTC(:,:),INSTC2(:,:),MEANC(:,:),MONGEA(:,:)
+   REAL (wp), ALLOCATABLE :: R(:,:),Z(:,:),THT(:),SAGC(:,:),INSTC(:,:),INSTC2(:,:),MEANC(:,:),MONGEA(:,:),YPR(:,:),YPTHETA(:,:)
    REAL (wp), ALLOCATABLE :: RC(:),LIOC(:,:) !last one is MM*N,4  RC is RadSplineCenter, compare to R0
    INTEGER, ALLOCATABLE :: MV(:)
    REAL (wp) :: R0,THT0,Z0(3),SAGC0(3),INSTC0(3),INSTC20(3),MEANC0(3),MONGEA0(3)
@@ -141,7 +141,7 @@ end subroutine init_mat_Penta
 subroutine init_mat_JMatrix(MM,N,b) ! allocate EyeSys arrays
   INTEGER, INTENT(IN) :: MM,N
   TYPE(wpJMatrix) :: b
-  allocate (b%R(N,MM),b%Z(N+1,MM),b%THT(MM),b%SAGC(N+1,MM),&
+  allocate (b%R(N,MM),b%Z(N+1,MM),b%THT(MM),b%YPR(N,MM),b%YPTHETA(N,MM),b%SAGC(N+1,MM),&
             b%INSTC(N+1,MM),b%INSTC2(N+1,MM),b%MEANC(N+1,MM),b%MONGEA(N+1,MM))
   allocate (b%MV(MM),b%RC(MM),b%LIOC(MM*N,4))
 end subroutine init_mat_JMatrix

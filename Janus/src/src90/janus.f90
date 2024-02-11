@@ -152,7 +152,9 @@ file_idx=index(inputfile1, ".DAT")
      write(*,*) 'allocating JMatrix1'
      call init_mat_JMatrix(M1,N1,JMatrix1)
      JMatrix1%R(:,:)=JMatrix%R(:,:)
-     JMatrix1%Z(:,:)=JMatrix%Z(:,:)
+     JMatrix1%Z(:,:)=JMatrix%Z(:,:)    
+     JMatrix1%YPR(:,:)=JMatrix%YPR(:,:)
+     JMatrix1%YPTHETA(:,:)=JMatrix%YPTHETA(:,:)  
      JMatrix1%THT(:)=JMatrix%THT(:)
      JMatrix1%SAGC(:,:)=JMatrix%SAGC(:,:)
      JMatrix1%INSTC(:,:)=JMatrix%INSTC(:,:)
@@ -238,6 +240,9 @@ file_idx=index(inputfile1, ".DAT")
 !      JMatrix%Z(j,i)-Y
      endif 
      call SplineEval1Dx1D(1,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
+!    save for vertex normals     
+     JMatrix%YPR(j,i)=YPR
+     JMatrix%YPTHETA(j,i)=YPTHETA
      call AXIALP(JMatrix%R(j,i),YPR,YP2R2,JMatrix%SAGC(j,i))
      call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i),JMatrix%INSTC2(j,i))
      call MEANP(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
@@ -322,6 +327,9 @@ file_idx=index(inputfile1, ".DAT")
       call SplineEval1Dx1D(0,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)  !do not integrate for ELE version with slope
       call AXIALP(JMatrix%R(j,i),YPR,YP2R2,JMatrix%SAGC(j,i))  !generate SAGC
      endif
+!    save for vertex normals     
+     JMatrix%YPR(j,i)=YPR
+     JMatrix%YPTHETA(j,i)=YPTHETA     
      call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i),JMatrix%INSTC2(j,i))
      call MEANP(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
      call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
@@ -591,7 +599,7 @@ end do
 !  atmp=pca(3,RadSlope)
 ! writes values in openGL friendly format to matrices for passing to C/C++; flag to display with glfw using juno
 
-   call Geom(flag, JMatrix, donut, powmin, powmax, opengl_show, elements, vertices, nV, nE)
+   call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
 !  the cube example
 !   nV = 48
 
