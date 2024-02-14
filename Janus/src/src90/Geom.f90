@@ -116,15 +116,15 @@
 
        do i=1,M1
         do j=1,N1
-         X1=b%THT(i)
+         X1=b%THT(i)         ! in radians
          X2=b%R(j,i)
-         X3=-b%Z(j,i)        ! flip it upside down
+         X3=-b%Z(j,i)         ! flip it
          pow=b%SAGC(j,i)     ! not just X3 for future painting
-         nrm1=-b%YPR(j,i)
-         nrm2=-b%YPTHETA(j,i)
+         nrm1=-abs(b%YPR(j,i))      !get rid of spurious sign
+         nrm2=-b%YPTHETA(j,i)/X2    !polar coordinates
          normal=sqrt(nrm1*nrm1+nrm2*nrm2+1)
-         nrm1=-nrm1/normal
-         nrm2=-nrm2/normal
+         nrm1=nrm1/normal
+         nrm2=nrm2/normal
          nrm3=1/normal        
          vert1 = real(ABS(X2)*COS(X1),kind=4)   !explicitly make these c/w c_float
          vert2 = real(ABS(X2)*SIN(X1),kind=4)

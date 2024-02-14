@@ -1,6 +1,6 @@
 #include "GLwidget.h"
 #include "kernunos.h"
-
+/*
 static const GLchar* vertexSource = R"glsl(
     #version 330 core
     in vec3 position;   // the position variable has attribute position 0
@@ -19,8 +19,71 @@ static const GLchar* vertexSource = R"glsl(
        outColor = incolor; // set outColor to the input color we got from the vertex data
     }
 )glsl";
+*/
+static const GLchar* vertexSource = R"glsl(
+#version 330 core
+in vec3 position;
+in vec3 normal;
+
+out VS_OUT {
+    vec3 normal;
+} vs_out;
+
+    uniform mat4 mMVP;
+    uniform mat3 normalMatrix;;
+
+void main()
+{
+    gl_Position = mMVP * vec4(position, 1.0);
+    vs_out.normal = normalize(vec3(vec4(normalMatrix * normal, 0.0)));
+}
+
+)glsl";
+
+static const GLchar* geometrySource = R"glsl(
+
+#version 330 core
+layout (triangles) in;
+layout (line_strip, max_vertices = 6) out;
+
+in VS_OUT {
+    vec3 normal;
+} gs_in[];
+
+const float MAGNITUDE = 0.4;
+
+uniform mat4 projection;
+
+void GenerateLine(int index)
+{
+    gl_Position = projection * gl_in[index].gl_Position;
+    EmitVertex();
+    gl_Position = projection * (gl_in[index].gl_Position +
+                                vec4(gs_in[index].normal, 0.0) * MAGNITUDE);
+    EmitVertex();
+    EndPrimitive();
+}
+
+void main()
+{
+    GenerateLine(0); // first vertex normal
+    GenerateLine(1); // second vertex normal
+    GenerateLine(2); // third vertex normal
+}
+
+)glsl";
 
 static const GLchar* fragmentSource = R"glsl(
+
+#version 330 core
+out vec4 FragColor;
+
+void main()
+{
+    FragColor = vec4(1.0, 1.0, 0.0, 1.0);
+}
+
+/*
     #version 330 core
     out vec4 fragColor;
     in vec3 outColor;
@@ -34,6 +97,8 @@ static const GLchar* fragmentSource = R"glsl(
       vec3 col = clamp(outColor * 0.2 + outColor * 0.8 * NL, 0.0, 1.0);
       fragColor = vec4(outColor, 1.0);
     }
+
+*/
 )glsl";
 
 static const GLchar* fragmentSourceNormal = R"glsl(
@@ -51,34 +116,6 @@ static const GLchar* fragmentSourceNormal = R"glsl(
       fragColor = vec4(col, 1.0);
     }
 )glsl";
-
-static const GLchar* geometryShader = R"glsl(
-#version 330 core
-
- layout (points) in;
- layout (line_strip, max_vertices = 2) out;
- in vec3 vs_normal[];
- uniform float normal_scale = 0.5;
- uniform mat4 mMVP;
-
-void main()
-{
-    // we simply transform and emit the incoming vertex - this is v0 of our
-    // line segment
-
-    vec4 v0     = gl_in[0].gl_Position;
-    gl_Position = mMVP * v0;
-    EmitVertex();
-
-    // we calculate v1 of our line segment
-    vec4 v1     = v0 + vec4(vs_normal[0] * normal_scale, 0);
-    gl_Position = mMVP * v1;
-    EmitVertex();
-
-    EndPrimitive();
-}
-)glsl";
-
 
 bool GLwidget::m_transparent = false;
 bool GLwidget::m_normal = false;
@@ -151,7 +188,7 @@ void GLwidget::initializeGL()
    }
 
   // load and compile geometry shader
-  success = shaderProgram->addShaderFromSourceCode(QOpenGLShader::Geometry,geometryShader);
+  success = shaderProgram->addShaderFromSourceCode(QOpenGLShader::Geometry,geometrySource);
   //if (success) std::cout << "Compiled geometry shader" << std::endl;
   if (!success)
   {
@@ -191,20 +228,12 @@ void GLwidget::initializeGL()
     glGenBuffers(1, &elementbuffer);
 
   // Light position is fixed
-  shaderProgram->setUniformValue(m_lightPosLoc, QVector3D(0, 0, 700));
+  shaderProgram->setUniformValue(m_lightPosLoc, QVector3D(0, 0, 1000));
   shaderProgram->release();
-
-  GLint er1 = glGetError();
-  if (er1 > 0)
-   {std::cout << "initializeGL error:  " << er1 << std::endl; QWidget::close();}
-  else
-   {std::cout << "initializeGL passed without error" << std::endl;}
-
 }
 
 bool GLwidget::DataLoad(QString fileName, bool first_time)
 {
-
     int nV_cube = 72;
     int nE_cube = 36;
 
@@ -272,15 +301,6 @@ bool GLwidget::DataLoad(QString fileName, bool first_time)
 
 bool GLwidget::LoadSurfaceToBuffer(int nV, int nE, GLfloat* vertices, GLuint* elements)
 {
-
-  GLint er1 = glGetError();
-  if (er1 > 0)
-  {std::cout << "LoadSurfaceToBuffer error:  " << er1 << std::endl; QWidget::close();}
-  else
-  {std::cout << "LoadSurfaceToBuffer passed without error" << std::endl;}
-
-
-
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
     GLint data_size_in_bytes = sizeof(GLfloat)*nV;                              // 4-bytes per float x number of vertices
     glBufferData(GL_ARRAY_BUFFER, data_size_in_bytes, vertices, GL_STATIC_DRAW);
@@ -307,21 +327,21 @@ bool GLwidget::LoadSurfaceToBuffer(int nV, int nE, GLfloat* vertices, GLuint* el
         return false;
        }
 
-    // positions, colors and normals all stored as floats
+    // positions, colors and normals all stored as floats: 9 * sizeof(GLfloat) = 3 x 3 floats
 
     // vertex position
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), nullptr);
-                                                            // 9 floats = 3 positions + 3 colors per vertex + 3 normals
+                                                           // offset 0, 9 floats = 3 positions + 3 normals+ 3 colors per vertex
     // vertex normals
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), reinterpret_cast<void *>(3 * sizeof(GLfloat)));
-        // offset 3 because normals start after 3 positions.   9 * sizeof(GLfloat) = 3 x 3 floats
+                                                           // offset 3 because normals start after 3 positions.
 
     // color attribute
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), reinterpret_cast<void *>(6 * sizeof(GLfloat)));
-                                                           // offset 6 because colors start after 3 positions
+                                                           // offset 6 because colors start after 3 positions + 3 normals
 
     return true;
 }
@@ -356,7 +376,7 @@ void GLwidget::paintGL(void)
     shaderProgram->setUniformValue(m_normalMatrixLoc, normalMatrix);
 
     glDrawElements(GL_TRIANGLES, nE, GL_UNSIGNED_INT, 0);
-    glDrawArrays(GL_LINE_STRIP, 0, nV);
+    glDrawArrays(GL_LINE_STRIP_ADJACENCY, 0, nV);
 
     // Unbind
     glBindBuffer(vertexbuffer,0);
