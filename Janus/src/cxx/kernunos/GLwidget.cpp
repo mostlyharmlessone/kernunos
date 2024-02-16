@@ -21,27 +21,42 @@ static const GLchar* vertexSource = R"glsl(
 )glsl";
 */
 static const GLchar* vertexSource = R"glsl(
-#version 330 core
-in vec3 position;
-in vec3 normal;
+    #version 330 core
+    in vec3 position;   // the position variable has attribute position 0
+    in vec3 normal; // the normal variable has attribute position 1
+    in vec3 incolor; // the color variable has attribute position 2
+    out vec3 outColor;  // output a color to the fragment shader
 
-out VS_OUT {
-    vec3 normal;
-} vs_out;
+    out VS_OUT {
+      vec3 normal;
+    } vs_out;
 
+    out vec3 vert;
+    out vec3 vertNormal;
     uniform mat4 mMVP;
-    uniform mat3 normalMatrix;;
-
-void main()
-{
-    gl_Position = mMVP * vec4(position, 1.0);
-    vs_out.normal = normalize(vec3(vec4(normalMatrix * normal, 0.0)));
-}
-
+    uniform mat3 normalMatrix;
+    void main()
+    {
+       vert=position;
+       //vertNormal = normalMatrix * normal;
+       vs_out.normal = vertNormal;
+       gl_Position = mMVP * vec4(position, 1.0);
+       outColor = incolor; // set outColor to the input color we got from the vertex data
+    }
 )glsl";
 
 static const GLchar* geometrySource = R"glsl(
 
+#version 330 core
+layout (triangles) in;
+layout (line_strip, max_vertices = 6) out;
+
+void main() {
+    gl_Position = gl_in[0].gl_Position;
+    EmitVertex();
+    EndPrimitive();
+}
+/*
 #version 330 core
 layout (triangles) in;
 layout (line_strip, max_vertices = 6) out;
@@ -52,25 +67,23 @@ in VS_OUT {
 
 const float MAGNITUDE = 0.4;
 
-uniform mat4 projection;
-
 void GenerateLine(int index)
 {
-    gl_Position = projection * gl_in[index].gl_Position;
+    gl_Position =  gl_in[index].gl_Position;
     EmitVertex();
-    gl_Position = projection * (gl_in[index].gl_Position +
-                                vec4(gs_in[index].normal, 0.0) * MAGNITUDE);
-    EmitVertex();
+    //gl_Position = (gl_in[index].gl_Position +
+    //                            vec4(gs_in[index].normal, 0.0) * MAGNITUDE);
+    //EmitVertex();
     EndPrimitive();
 }
 
 void main()
 {
-    GenerateLine(0); // first vertex normal
-    GenerateLine(1); // second vertex normal
-    GenerateLine(2); // third vertex normal
+   GenerateLine(0); // first vertex normal
+   GenerateLine(1); // second vertex normal
+   GenerateLine(2); // third vertex normal
 }
-
+*/
 )glsl";
 
 static const GLchar* fragmentSource = R"glsl(
@@ -355,7 +368,7 @@ void GLwidget::paintGL(void)
 
     // Clear the screen
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    // Use our shader
+    // Use our shader; can use an alternate shader here like "normalshader" possibly selectable
     shaderProgram->bind();
 
  // Bind
@@ -376,7 +389,7 @@ void GLwidget::paintGL(void)
     shaderProgram->setUniformValue(m_normalMatrixLoc, normalMatrix);
 
     glDrawElements(GL_TRIANGLES, nE, GL_UNSIGNED_INT, 0);
-    glDrawArrays(GL_LINE_STRIP_ADJACENCY, 0, nV);
+    //glDrawArrays(GL_TRIANGLE_STRIP, 0, nV);
 
     // Unbind
     glBindBuffer(vertexbuffer,0);
