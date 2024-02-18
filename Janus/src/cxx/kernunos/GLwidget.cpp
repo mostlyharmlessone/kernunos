@@ -1,6 +1,6 @@
 #include "GLwidget.h"
 #include "kernunos.h"
-/*
+
 static const GLchar* vertexSource = R"glsl(
     #version 330 core
     in vec3 position;   // the position variable has attribute position 0
@@ -19,50 +19,36 @@ static const GLchar* vertexSource = R"glsl(
        outColor = incolor; // set outColor to the input color we got from the vertex data
     }
 )glsl";
-*/
-static const GLchar* vertexSource = R"glsl(
+
+static const GLchar* vertexGeoSource = R"glsl(
     #version 330 core
     in vec3 position;   // the position variable has attribute position 0
     in vec3 normal; // the normal variable has attribute position 1
     in vec3 incolor; // the color variable has attribute position 2
-    out vec3 outColor;  // output a color to the fragment shader
 
     out VS_OUT {
       vec3 normal;
+      vec3 color;
     } vs_out;
 
-    out vec3 vert;
-    out vec3 vertNormal;
     uniform mat4 mMVP;
     uniform mat3 normalMatrix;
     void main()
-    {
-       vert=position;
-       //vertNormal = normalMatrix * normal;
-       vs_out.normal = vertNormal;
+    { 
+       vs_out.normal = normalMatrix * normal;
+       vs_out.color = incolor;
        gl_Position = mMVP * vec4(position, 1.0);
-       outColor = incolor; // set outColor to the input color we got from the vertex data
     }
 )glsl";
 
 static const GLchar* geometrySource = R"glsl(
-
-#version 330 core
-layout (triangles) in;
-layout (line_strip, max_vertices = 6) out;
-
-void main() {
-    gl_Position = gl_in[0].gl_Position;
-    EmitVertex();
-    EndPrimitive();
-}
-/*
 #version 330 core
 layout (triangles) in;
 layout (line_strip, max_vertices = 6) out;
 
 in VS_OUT {
     vec3 normal;
+    vec3 color;
 } gs_in[];
 
 const float MAGNITUDE = 0.4;
@@ -71,9 +57,9 @@ void GenerateLine(int index)
 {
     gl_Position =  gl_in[index].gl_Position;
     EmitVertex();
-    //gl_Position = (gl_in[index].gl_Position +
-    //                            vec4(gs_in[index].normal, 0.0) * MAGNITUDE);
-    //EmitVertex();
+    gl_Position = (gl_in[index].gl_Position +
+                               vec4(gs_in[index].normal, 0.0) * MAGNITUDE);
+    EmitVertex();
     EndPrimitive();
 }
 
@@ -83,20 +69,20 @@ void main()
    GenerateLine(1); // second vertex normal
    GenerateLine(2); // third vertex normal
 }
-*/
 )glsl";
 
-static const GLchar* fragmentSource = R"glsl(
-
+static const GLchar* fragmentGeoSource = R"glsl(
 #version 330 core
-out vec4 FragColor;
+in vec3 outColor;
+out vec4 fragColor;
 
 void main()
 {
-    FragColor = vec4(1.0, 1.0, 0.0, 1.0);
+    fragColor = vec4(0.0, 0.0, 0.0, 0.0);  //black normals
 }
+)glsl";
 
-/*
+static const GLchar* fragmentColor = R"glsl(
     #version 330 core
     out vec4 fragColor;
     in vec3 outColor;
@@ -108,13 +94,11 @@ void main()
       vec3 L = normalize(lightPos - vert);
       float NL = max(dot(normalize(vertNormal), L), 0.0);
       vec3 col = clamp(outColor * 0.2 + outColor * 0.8 * NL, 0.0, 1.0);
-      fragColor = vec4(outColor, 1.0);
+      fragColor = vec4(outColor, 1.0);   //doesn't chnage the color based on normals
     }
-
-*/
 )glsl";
 
-static const GLchar* fragmentSourceNormal = R"glsl(
+static const GLchar* fragmentColorNormal = R"glsl(
     #version 330 core
     out vec4 fragColor;
     in vec3 outColor;
@@ -161,6 +145,10 @@ void GLwidget::cleanup()
   killTimer(timerID);
   delete shaderProgram;
   shaderProgram = nullptr;
+  delete shaderGeoProgram;
+  shaderGeoProgram = nullptr;
+  delete shaderNormalProgram;
+  shaderNormalProgram = nullptr;
   doneCurrent();
   //QObject::disconnect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &GLwidget::cleanup);
 }
@@ -191,8 +179,12 @@ void GLwidget::initializeGL()
   glDepthFunc(GL_LESS);
 
   shaderProgram = new QOpenGLShaderProgram;
-  // load and compile vertex shader
+  shaderGeoProgram = new QOpenGLShaderProgram;
+  shaderNormalProgram = new QOpenGLShaderProgram;
+  // load and compile vertex shaders
   success = shaderProgram->addShaderFromSourceCode(QOpenGLShader::Vertex,vertexSource);
+  success = success && shaderNormalProgram->addShaderFromSourceCode(QOpenGLShader::Vertex,vertexSource);
+  success = success && shaderGeoProgram->addShaderFromSourceCode(QOpenGLShader::Vertex,vertexGeoSource);
   //if (success) std::cout << "Compiled vertex shader" << std::endl;
   if (!success)
   {
@@ -201,7 +193,7 @@ void GLwidget::initializeGL()
    }
 
   // load and compile geometry shader
-  success = shaderProgram->addShaderFromSourceCode(QOpenGLShader::Geometry,geometrySource);
+  success = shaderGeoProgram->addShaderFromSourceCode(QOpenGLShader::Geometry,geometrySource);
   //if (success) std::cout << "Compiled geometry shader" << std::endl;
   if (!success)
   {
@@ -210,7 +202,10 @@ void GLwidget::initializeGL()
   }
 
   // load and compile fragment shader; optional normals used for lighting
-  success = shaderProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, m_normal ? fragmentSourceNormal : fragmentSource);
+  // success = shaderProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, m_normal ? fragmentColorNormal : fragmentColor);
+  success = shaderProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, fragmentColor);
+  success = success && shaderNormalProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, fragmentColorNormal);
+  success = success && shaderGeoProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, fragmentGeoSource);
   //if (success) std::cout << "Compiled fragment shader" << std::endl;
   if (!success)
   {
@@ -218,31 +213,64 @@ void GLwidget::initializeGL()
     QWidget::close();
    }
 
-  shaderProgram->link();
-
-  shaderProgram->bindAttributeLocation("position", 0);
-  shaderProgram->bindAttributeLocation("normal", 1);
-  shaderProgram->bindAttributeLocation("incolor", 2);
-
-  shaderProgram->bind();
-
-  m_projMatrixLoc = shaderProgram->uniformLocation("mMVP");
   // proper distance & scale for cube
   mViewMatrix.setToIdentity();
   mViewMatrix.scale(QVector3D(0.005,0.005,0.005));
   mViewMatrix.translate(QVector3D(0,0,-500));
 
+  //link the programs
+  shaderProgram->link();
+  shaderNormalProgram->link();
+  shaderGeoProgram->link();
+
+  //set regular shader program up
+  shaderProgram->bindAttributeLocation("position", 0);
+  shaderProgram->bindAttributeLocation("normal", 1);
+  shaderProgram->bindAttributeLocation("incolor", 2);
+
+  shaderProgram->bind();
+  m_projMatrixLoc = shaderProgram->uniformLocation("mMVP");
   m_normalMatrixLoc = shaderProgram->uniformLocation("normalMatrix");
   m_lightPosLoc = shaderProgram->uniformLocation("lightPos");
-
-  // Create a Vertex Buffer Object
-    glGenBuffers(1, &vertexbuffer);
-  // Create an element array
-    glGenBuffers(1, &elementbuffer);
 
   // Light position is fixed
   shaderProgram->setUniformValue(m_lightPosLoc, QVector3D(0, 0, 1000));
   shaderProgram->release();
+
+  //set light/normal shader program up
+  shaderNormalProgram->bindAttributeLocation("position", 0);
+  shaderNormalProgram->bindAttributeLocation("normal", 1);
+  shaderNormalProgram->bindAttributeLocation("incolor", 2);
+
+  shaderNormalProgram->bind();
+  m_projMatrixLoc = shaderNormalProgram->uniformLocation("mMVP");
+  m_normalMatrixLoc = shaderNormalProgram->uniformLocation("normalMatrix");
+  m_lightPosLoc = shaderNormalProgram->uniformLocation("lightPos");
+
+  // Light position is fixed
+  shaderNormalProgram->setUniformValue(m_lightPosLoc, QVector3D(0, 0, 1000));
+  shaderNormalProgram->release();
+
+  // Now for the normals
+  shaderGeoProgram->bindAttributeLocation("position", 0);
+  shaderGeoProgram->bindAttributeLocation("normal", 1);
+  shaderGeoProgram->bindAttributeLocation("incolor", 2);
+
+  shaderGeoProgram->bind();
+
+  m_projMatrixLoc = shaderGeoProgram->uniformLocation("mMVP");
+  m_normalMatrixLoc = shaderGeoProgram->uniformLocation("normalMatrix");
+  m_lightPosLoc = shaderGeoProgram->uniformLocation("lightPos");
+
+  // Light position is fixed
+  shaderGeoProgram->setUniformValue(m_lightPosLoc, QVector3D(0, 0, 1000));
+  shaderGeoProgram->release();
+
+  // Create a Vertex Buffer Object
+  glGenBuffers(1, &vertexbuffer);
+  // Create an element array
+  glGenBuffers(1, &elementbuffer);
+
 }
 
 bool GLwidget::DataLoad(QString fileName, bool first_time)
@@ -341,21 +369,18 @@ bool GLwidget::LoadSurfaceToBuffer(int nV, int nE, GLfloat* vertices, GLuint* el
        }
 
     // positions, colors and normals all stored as floats: 9 * sizeof(GLfloat) = 3 x 3 floats
-
     // vertex position
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), nullptr);
+       glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), nullptr);
                                                            // offset 0, 9 floats = 3 positions + 3 normals+ 3 colors per vertex
     // vertex normals
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), reinterpret_cast<void *>(3 * sizeof(GLfloat)));
                                                            // offset 3 because normals start after 3 positions.
-
     // color attribute
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), reinterpret_cast<void *>(6 * sizeof(GLfloat)));
                                                            // offset 6 because colors start after 3 positions + 3 normals
-
     return true;
 }
 
@@ -368,10 +393,8 @@ void GLwidget::paintGL(void)
 
     // Clear the screen
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    // Use our shader; can use an alternate shader here like "normalshader" possibly selectable
-    shaderProgram->bind();
 
- // Bind
+ // Bind buffers
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
 
@@ -379,23 +402,32 @@ void GLwidget::paintGL(void)
     m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
     m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
     m_world.rotate(m_zRot / 16.0f, 0, 0, 1);
+    QMatrix4x4 mMVP =  mProjectionMatrix * mViewMatrix  * m_world;
+    QMatrix3x3 normalMatrix = m_world.normalMatrix();
 
+    // Use shader or shaderNormal
+    shaderNormalProgram->bind();
     // Send our transformation to the currently bound shader,
     // in the "mMVP" uniform
-    QMatrix4x4 mMVP =  mProjectionMatrix * mViewMatrix  * m_world;
-    shaderProgram->setUniformValue(m_projMatrixLoc, mMVP);
-
-    QMatrix3x3 normalMatrix = m_world.normalMatrix();
-    shaderProgram->setUniformValue(m_normalMatrixLoc, normalMatrix);
-
+    shaderNormalProgram->setUniformValue(m_projMatrixLoc, mMVP);
+    shaderNormalProgram->setUniformValue(m_normalMatrixLoc, normalMatrix);
     glDrawElements(GL_TRIANGLES, nE, GL_UNSIGNED_INT, 0);
-    //glDrawArrays(GL_TRIANGLE_STRIP, 0, nV);
+    // Unbind shader
+    shaderNormalProgram->release();
 
-    // Unbind
+    // Use shader; can use an alternate shader here
+    shaderGeoProgram->bind();
+    // Send our transformation to the currently bound shader,
+    // in the "mMVP" uniform
+    shaderGeoProgram->setUniformValue(m_projMatrixLoc, mMVP);
+    shaderGeoProgram->setUniformValue(m_normalMatrixLoc, normalMatrix);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, nE);  //nV?
+    // Unbind shader
+    shaderGeoProgram->release();
+
+    // Unbind buffers
     glBindBuffer(vertexbuffer,0);
     glBindBuffer(elementbuffer,0);
-    shaderProgram->release();
-
 }
 
 // refreshes the window

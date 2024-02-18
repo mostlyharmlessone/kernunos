@@ -51,8 +51,6 @@
 
 #include <qt6/QtCore/qtmetamacros.h>
 
-#include "logo.h"
-
 // global variables
 extern const unsigned int SCR_WIDTH;
 extern const unsigned int SCR_HEIGHT;
@@ -139,6 +137,8 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
 
     MainWindow *m_parent;
     QOpenGLShaderProgram *shaderProgram = nullptr;
+    QOpenGLShaderProgram *shaderGeoProgram = nullptr;
+    QOpenGLShaderProgram *shaderNormalProgram = nullptr;
     QMatrix4x4 mViewMatrix;
     QMatrix4x4 mProjectionMatrix;
 
@@ -155,7 +155,6 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     int m_zRot = 0;
     QPoint m_lastPos;
     QOpenGLVertexArrayObject m_vao;
-    QOpenGLBuffer m_logoVbo;
     int m_projMatrixLoc = 0;
     int m_normalMatrixLoc = 0;
     int m_lightPosLoc = 0;
