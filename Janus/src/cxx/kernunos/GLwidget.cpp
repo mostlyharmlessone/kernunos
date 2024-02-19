@@ -10,12 +10,14 @@ static const GLchar* vertexSource = R"glsl(
     out vec3 vert;
     out vec3 vertNormal;
     uniform mat4 mMVP;
-    uniform mat3 normalMatrix;
+    uniform mat4 projectionMatrix;
+
     void main()
     {
        vert=position;
-       vertNormal = normalMatrix * normal;
-       gl_Position = mMVP * vec4(position, 1.0);
+       mat3 normalMatrix = mat3(transpose(inverse(mMVP)));
+       vertNormal = normalize(vec3(vec4(normalMatrix * normal, 0.0)));
+       gl_Position = projectionMatrix * mMVP * vec4(position, 1.0);
        outColor = incolor; // set outColor to the input color we got from the vertex data
     }
 )glsl";
@@ -32,10 +34,11 @@ static const GLchar* vertexGeoSource = R"glsl(
     } vs_out;
 
     uniform mat4 mMVP;
-    uniform mat3 normalMatrix;
+
     void main()
-    { 
-       vs_out.normal = normalMatrix * normal;
+    {
+       mat3 normalMatrix = mat3(transpose(inverse(mMVP)));
+       vs_out.normal = normalize(vec3(vec4(normalMatrix * normal, 0.0)));
        vs_out.color = incolor;
        gl_Position = mMVP * vec4(position, 1.0);
     }
@@ -51,13 +54,14 @@ in VS_OUT {
     vec3 color;
 } gs_in[];
 
-const float MAGNITUDE = 0.4;
+const float MAGNITUDE = 0.1;
+uniform mat4 projectionMatrix;
 
 void GenerateLine(int index)
 {
-    gl_Position =  gl_in[index].gl_Position;
+    gl_Position =  projectionMatrix * gl_in[index].gl_Position;
     EmitVertex();
-    gl_Position = (gl_in[index].gl_Position +
+    gl_Position = projectionMatrix * (gl_in[index].gl_Position +
                                vec4(gs_in[index].normal, 0.0) * MAGNITUDE);
     EmitVertex();
     EndPrimitive();
@@ -116,6 +120,7 @@ static const GLchar* fragmentColorNormal = R"glsl(
 
 bool GLwidget::m_transparent = false;
 bool GLwidget::m_normal = false;
+bool GLwidget::m_lighting = false;
 
 GLwidget::GLwidget ( QWidget *parent ) : QOpenGLWidget(parent)
 {
@@ -216,7 +221,7 @@ void GLwidget::initializeGL()
   // proper distance & scale for cube
   mViewMatrix.setToIdentity();
   mViewMatrix.scale(QVector3D(0.005,0.005,0.005));
-  mViewMatrix.translate(QVector3D(0,0,-500));
+  mViewMatrix.translate(QVector3D(0,0,-1000));
 
   //link the programs
   shaderProgram->link();
@@ -229,8 +234,8 @@ void GLwidget::initializeGL()
   shaderProgram->bindAttributeLocation("incolor", 2);
 
   shaderProgram->bind();
-  m_projMatrixLoc = shaderProgram->uniformLocation("mMVP");
-  m_normalMatrixLoc = shaderProgram->uniformLocation("normalMatrix");
+  m_viewMatrixLoc = shaderProgram->uniformLocation("mMVP");
+  m_projMatrixLoc = shaderProgram->uniformLocation("projectionMatrix");
   m_lightPosLoc = shaderProgram->uniformLocation("lightPos");
 
   // Light position is fixed
@@ -243,8 +248,8 @@ void GLwidget::initializeGL()
   shaderNormalProgram->bindAttributeLocation("incolor", 2);
 
   shaderNormalProgram->bind();
-  m_projMatrixLoc = shaderNormalProgram->uniformLocation("mMVP");
-  m_normalMatrixLoc = shaderNormalProgram->uniformLocation("normalMatrix");
+  m_viewMatrixLoc = shaderNormalProgram->uniformLocation("mMVP");
+  m_projMatrixLoc = shaderNormalProgram->uniformLocation("projectionMatrix");
   m_lightPosLoc = shaderNormalProgram->uniformLocation("lightPos");
 
   // Light position is fixed
@@ -257,9 +262,8 @@ void GLwidget::initializeGL()
   shaderGeoProgram->bindAttributeLocation("incolor", 2);
 
   shaderGeoProgram->bind();
-
-  m_projMatrixLoc = shaderGeoProgram->uniformLocation("mMVP");
-  m_normalMatrixLoc = shaderGeoProgram->uniformLocation("normalMatrix");
+  m_viewMatrixLoc = shaderGeoProgram->uniformLocation("mMVP");
+  m_projMatrixLoc = shaderGeoProgram->uniformLocation("projectionMatrix");
   m_lightPosLoc = shaderGeoProgram->uniformLocation("lightPos");
 
   // Light position is fixed
@@ -270,7 +274,6 @@ void GLwidget::initializeGL()
   glGenBuffers(1, &vertexbuffer);
   // Create an element array
   glGenBuffers(1, &elementbuffer);
-
 }
 
 bool GLwidget::DataLoad(QString fileName, bool first_time)
@@ -402,28 +405,41 @@ void GLwidget::paintGL(void)
     m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
     m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
     m_world.rotate(m_zRot / 16.0f, 0, 0, 1);
-    QMatrix4x4 mMVP =  mProjectionMatrix * mViewMatrix  * m_world;
-    QMatrix3x3 normalMatrix = m_world.normalMatrix();
+    QMatrix4x4 mMVP =  mViewMatrix  * m_world;
 
     // Use shader or shaderNormal
+    if (m_lighting) {
     shaderNormalProgram->bind();
     // Send our transformation to the currently bound shader,
     // in the "mMVP" uniform
-    shaderNormalProgram->setUniformValue(m_projMatrixLoc, mMVP);
-    shaderNormalProgram->setUniformValue(m_normalMatrixLoc, normalMatrix);
+    shaderNormalProgram->setUniformValue(m_viewMatrixLoc, mMVP);
+    shaderNormalProgram->setUniformValue(m_projMatrixLoc, projectionMatrix);
     glDrawElements(GL_TRIANGLES, nE, GL_UNSIGNED_INT, 0);
     // Unbind shader
     shaderNormalProgram->release();
+    } else {
+    shaderProgram->bind();
+    // Send our transformation to the currently bound shader,
+    // in the "mMVP" uniform
+    shaderProgram->setUniformValue(m_viewMatrixLoc, mMVP);
+    shaderProgram->setUniformValue(m_projMatrixLoc, projectionMatrix);
+    glDrawElements(GL_TRIANGLES, nE, GL_UNSIGNED_INT, 0);
+    // Unbind shader
+    shaderProgram->release();
+    };
 
+
+    if (m_normal) {
     // Use shader; can use an alternate shader here
     shaderGeoProgram->bind();
     // Send our transformation to the currently bound shader,
     // in the "mMVP" uniform
-    shaderGeoProgram->setUniformValue(m_projMatrixLoc, mMVP);
-    shaderGeoProgram->setUniformValue(m_normalMatrixLoc, normalMatrix);
+    shaderGeoProgram->setUniformValue(m_viewMatrixLoc, mMVP);
+    shaderGeoProgram->setUniformValue(m_projMatrixLoc, projectionMatrix);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, nE);  //nV?
     // Unbind shader
     shaderGeoProgram->release();
+    };
 
     // Unbind buffers
     glBindBuffer(vertexbuffer,0);
@@ -438,8 +454,8 @@ void GLwidget::timerEvent(QTimerEvent*)
 
 void GLwidget::resizeGL(int w, int h)
 {
-  mProjectionMatrix.setToIdentity();
-  mProjectionMatrix.perspective(45.0f, GLfloat(w) / h, 0.01f, 100.0f);
+  projectionMatrix.setToIdentity();
+  projectionMatrix.perspective(45.0f, GLfloat(w) / h, 0.01f, 100.0f);
   update();
 }
 

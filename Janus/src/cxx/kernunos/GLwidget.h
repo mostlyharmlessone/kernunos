@@ -101,6 +101,9 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     static bool isNormal() { return m_normal; }
     static void setNormal(bool t) { m_normal = t; }
 
+    static bool isLight() { return m_lighting; }
+    static void setLight(bool t) { m_lighting = t; }
+
     QSize minimumSizeHint() const override;
     QSize sizeHint() const override;
 
@@ -139,9 +142,8 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     QOpenGLShaderProgram *shaderProgram = nullptr;
     QOpenGLShaderProgram *shaderGeoProgram = nullptr;
     QOpenGLShaderProgram *shaderNormalProgram = nullptr;
+    QMatrix4x4 projectionMatrix;
     QMatrix4x4 mViewMatrix;
-    QMatrix4x4 mProjectionMatrix;
-
     bool LoadSurfaceToBuffer(int nV, int nE, GLfloat *vertices, GLuint *elements);
 
     GLuint elementbuffer;
@@ -156,13 +158,13 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     QPoint m_lastPos;
     QOpenGLVertexArrayObject m_vao;
     int m_projMatrixLoc = 0;
-    int m_normalMatrixLoc = 0;
+    int m_viewMatrixLoc = 0;
     int m_lightPosLoc = 0;
     QMatrix4x4 m_camera;
     QMatrix4x4 m_world;
     static bool m_transparent;
     static bool m_normal;
-
+    static bool m_lighting;
 };
 
 

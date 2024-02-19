@@ -55,6 +55,8 @@ private slots:
     void compare();
     void save();
     void print();
+    void normal();
+    void light();
     void about();
     void aboutQt();
     void updateResult();
@@ -79,6 +81,7 @@ private:
     GLwidget* m_GLwidget;
     GLwidget* m_GLwidget_secondwindow;
     QMenu *fileMenu;
+    QMenu *viewMenu;
     QMenu *helpMenu;
     QAction *openAct;
     QAction *compareAct;
@@ -86,6 +89,8 @@ private:
     QAction *AddNewAct;
     QAction *exitAct;
     QAction *printAct;
+    QAction *lightAct;
+    QAction *normalAct;
     QAction *aboutAct;
     QAction *aboutQtAct;
     QLabel *infoLabel;

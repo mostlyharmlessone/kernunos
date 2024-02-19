@@ -186,9 +186,9 @@ MainWindow::MainWindow()
    vlayout->addWidget(colorGroupBox);
    widget->setLayout(vlayout);
 
-   ui.xSlider->setValue(15 * 16);
+   ui.xSlider->setValue(0 * 16);
    ui.ySlider->setValue(345 * 16);
-   ui.zSlider->setValue(0 * 16);
+   ui.zSlider->setValue(15 * 16);
 
    QGraphicsScene *scene = new QGraphicsScene();
    ui.graphicsView->setScene(scene);
@@ -255,7 +255,6 @@ void MainWindow::undock()
 }
 
 
-
 void MainWindow::SetGLString(QString& gls)
 {    m_GLString =  &gls;
    glstring_global=*m_GLString;
@@ -302,6 +301,29 @@ void MainWindow::print()
 {
    ui.infoLabel->setText(tr("Invoked <b>File|Print</b>"));
 }
+
+
+void MainWindow::light()
+{
+   if (GLwidget::isLight()) {
+   GLwidget::setLight(false);
+   ui.infoLabel->setText(tr("Set <b>View:Lighting false</b>"));
+   } else {
+   GLwidget::setLight(true);
+   ui.infoLabel->setText(tr("Set <b>View:Lighting true</b>"));
+   };
+}
+void MainWindow::normal()
+{
+   if (GLwidget::isNormal()) {
+   GLwidget::setNormal(false);
+   ui.infoLabel->setText(tr("Set <b>View:Normal false</b>"));
+   } else {
+   GLwidget::setNormal(true);
+   ui.infoLabel->setText(tr("Set <b>View:Normal true</b>"));
+   };
+}
+
 
 void MainWindow::about()
 {
@@ -367,6 +389,14 @@ void MainWindow::createActions()
    aboutAct->setStatusTip(tr("Show the application's About box"));
    connect(aboutAct, &QAction::triggered, this, &MainWindow::about);
 
+   lightAct = new QAction(tr("&Lighting"), this);
+   lightAct->setStatusTip(tr("Change the lighting in the window"));
+   connect(lightAct, &QAction::triggered, this, &MainWindow::light);
+
+   normalAct = new QAction(tr("&Show Normals"), this);
+   lightAct->setStatusTip(tr("Show the surface normals"));
+   connect(normalAct, &QAction::triggered, this, &MainWindow::normal);
+
    aboutQtAct = new QAction(tr("About &Qt"), this);
    aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
    connect(aboutQtAct, &QAction::triggered, qApp, &QApplication::aboutQt);
@@ -385,6 +415,9 @@ void MainWindow::createMenus()
    fileMenu->addAction(printAct);
    fileMenu->addSeparator();
    fileMenu->addAction(exitAct);
+   viewMenu = menuBar()->addMenu(tr("&View"));
+   viewMenu->addAction(lightAct);
+   viewMenu->addAction(normalAct);
    helpMenu = menuBar()->addMenu(tr("&Help"));
    helpMenu->addAction(aboutAct);
    helpMenu->addAction(aboutQtAct);
@@ -442,7 +475,7 @@ int main(int argc, char *argv[])
    parser.addOption(multipleSampleOption);
    QCommandLineOption transparentOption("transparent", "Transparent window");
    parser.addOption(transparentOption);
-   QCommandLineOption normalsOption("normals", "show surface normals with reflection");
+   QCommandLineOption normalsOption("normals", "show surface normals ");
    parser.addOption(normalsOption);
 
    parser.process(app);
