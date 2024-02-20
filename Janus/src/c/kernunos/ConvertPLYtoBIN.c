@@ -1,3 +1,8 @@
+//  minimallly modified code from convert.c from:
+//   PLY conversion from  https://w3.impa.br/~diego/software/rply/
+//                        https://github.com/diegonehab/rply
+//  c program to convert ASCII PLY to binary PLY; MIT licence, included source in tree
+
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <string.h> 

@@ -211,13 +211,15 @@ endif(WIN32)
 #   PLY conversion from  https://w3.impa.br/~diego/software/rply/
 #                        https://github.com/diegonehab/rply
 #   copy convert.c from rply/etc to rply and both to src/c/rply
-    file(COPY rply/etc/convert.c DESTINATION src/c/rply)
-    file(COPY rply/rply.c rply/rply.h rply/rplyfile.h DESTINATION src/c/rply)
-    file(GLOB_RECURSE src/c/rply *.c .h)
-    add_executable(ConvertPLYtoBIN src/c/rply/convert.c src/c/rply/rply.c )  
+#    file(COPY rply/etc/convert.c DESTINATION src/c/rply)
+#    file(COPY rply/rply.c rply/rply.h rply/rplyfile.h DESTINATION src/c/rply)
+#    file(GLOB_RECURSE src/c/rply *.c .h)
+#    add_executable(ConvertPLYtoBIN src/c/rply/convert.c src/c/rply/rply.c )
+
 #   C source 
 #   rply conversion 
     file(GLOB rply_sources  src/c/rply/convertplytobin.c src/c/rply/rply.c src/c/rply *.h )
+
     # gtk example with gtk4 & blas fortran
     #doesn't compile with mingw cmake because of multiple definitions of dgemm
 #     file(GLOB blas_f2c src/c/gtk/c_dgemm.f90)
@@ -266,7 +268,7 @@ include_directories(src/cxx/kernunos src/c/rply)
     target_link_libraries(kernunos
                    PRIVATE OpenMP::OpenMP_CXX 
                    PUBLIC Qt6::Core Qt6::OpenGLWidgets Qt6::Gui Qt::Widgets Qt6::Charts Qt6::OpenGL 
-                   splia modules rply_includes ${LIBS}
+                          splia modules rply_includes ${LIBS}
                )
 
 
@@ -283,7 +285,8 @@ include_directories(src/cxx/kernunos src/c/rply)
        src/cxx/Jupiter/mathstuff.h
        src/cxx/Jupiter/camera.h
    )
-   target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules rply_includes ${wxWidgets_LIBRARIES} ${LIBS})
+   target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules
+       rply_includes ${wxWidgets_LIBRARIES} ${LIBS})
 #endif()
 #juno commandline/glfw version
     add_executable(juno 
@@ -293,7 +296,7 @@ include_directories(src/cxx/kernunos src/c/rply)
                    f90getopt/f90getopt.F90)
     target_link_libraries(juno 
                    PRIVATE OpenMP::OpenMP_CXX 
-                   PUBLIC splia modules rply_includes ${LIBS})
+                   PUBLIC splia modules rply_includes  ${LIBS})
        
    
 

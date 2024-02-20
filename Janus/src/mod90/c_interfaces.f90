@@ -35,7 +35,7 @@ SUBROUTINE OpenGL_Show(vertices, elements, nV, nE) BIND(C,name='opengl_show')
  integer(c_int), value, INTENT(IN) :: nE
 END SUBROUTINE OpenGL_Show
 
- END INTERFACE
+END INTERFACE
     
  contains
 

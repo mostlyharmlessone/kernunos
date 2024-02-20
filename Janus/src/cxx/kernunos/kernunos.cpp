@@ -422,7 +422,8 @@ void MainWindow::createMenus()
    fileMenu->addAction(compareAct);
    fileMenu->addAction(saveAct);
    fileMenu->addAction(AddNewAct);
-   fileMenu->addAction(printAct);
+   exportMenu = fileMenu->addMenu(tr("&Export"));
+   exportMenu->addAction(printAct);
    fileMenu->addSeparator();
    fileMenu->addAction(exitAct);
    viewMenu = menuBar()->addMenu(tr("&View"));

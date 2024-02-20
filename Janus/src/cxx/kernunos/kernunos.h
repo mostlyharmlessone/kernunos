@@ -25,8 +25,14 @@ extern std::vector<GLfloat> Vertices;
 extern GLfloat* vertices;
 extern GLuint* elements;
 
+// calling fortran code
 extern "C" {
 void janus_(int *flag, const char *filename, GLuint *elements, GLfloat *vertices, int *nV, int *nE); // needs an underscore despite c_interface.f90 bind C declaration
+};
+
+// calling C code directly from kernunos
+extern "C" {
+int ConvertPLYtoBIN(const char *iname, const char *oname);
 };
 
 extern QString *m_GLString;
@@ -81,6 +87,7 @@ private:
     GLwidget* m_GLwidget;
     GLwidget* m_GLwidget_secondwindow;
     QMenu *fileMenu;
+    QMenu *exportMenu;
     QMenu *viewMenu;
     QMenu *helpMenu;
     QAction *openAct;
