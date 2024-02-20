@@ -276,6 +276,32 @@ void GLwidget::initializeGL()
   glGenBuffers(1, &elementbuffer);
 }
 
+bool GLwidget::DataPrint(QString fileName)
+{
+/*
+                         bool generate_gz( const String& path )
+                         {
+                             bool res = false;
+// LINUX
+#ifndef __WXMSW__
+
+
+                             res = (0 == execute_command(String::Format("gzip %s", path.c_str())));
+
+// WINDOWS
+#else
+
+        std::cout << "'gnuplot' command is not available.\n";
+
+#endif
+
+                             return res;
+                         }
+*/
+
+  return true;
+}
+
 bool GLwidget::DataLoad(QString fileName, bool first_time)
 {
     int nV_cube = 72;

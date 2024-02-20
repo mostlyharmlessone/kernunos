@@ -370,8 +370,6 @@ file_idx=index(inputfile1, ".DAT")
   else  
 ! OR GENERATE TEST DATA (EYESYS,ATLAS OR PENTA STYLE)
 
-   call init_mat_JMatrix(MM,N,JMatrix)   !whoops can't do this here anymore
-
    call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
    call init_mat_Atlas(MM,N,Atlas)
    call init_mat_Penta(NP,Penta,Skyline)   ! allocate the PentaCam matices   
@@ -585,6 +583,7 @@ end do
   call WriteGeom(JMatrix,donut,powmin,powmax,'elevation.off','elevation.ply')
 ! from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY; MIT licence, included source in tree
 ! call execute_command_line ("./ConvertPLYtoBIN -l elevation.ply elevation.bin.ply",exitstat=i)
+  call ConvertPLYtoBIN('elevation.ply','elevation.bin.ply')
 ! only call if quad .eqv. .FALSE.
 ! Writes STL from OFF
   call ConvertOFFtoSTL('elevation.off','elevation.stl','elevation.bin.stl')
@@ -684,6 +683,7 @@ end do
    WRITE(unitno1,*) 'set multiplot layout 1,2 rowsfirst'
    CALL PRINTGRAPH(unitno1,POWMIN,POWMAX,BigPlot)
    CALL PRINTGRAPH(unitno1,POWMIN2,POWMAX2,BigGrainyPlot)
+   WRITE(unitno1,*) 'pause mouse close'  !this allows the file to be opened by gnuplot by clicking on it without closing the window
    CLOSE (unitno1)
 
 !  call execute_command_line ("gnuplot -p plot2.gnu &", exitstat=i)

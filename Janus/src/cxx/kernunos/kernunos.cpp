@@ -299,6 +299,16 @@ void MainWindow::save()
 
 void MainWindow::print()
 {
+   QString filter = "All (*.*);;gnuplot (*.gnu);;STL ASCII  (*.stl);;STL BINARY (*.bin.stl);;OFF (*.off);;PLY ASCII (*.ply);;PLY BIN (*.bin.ply)";
+   QString fileName = QFileDialog::getSaveFileName(this,"Print to file format", "", filter);
+   if (fileName.isEmpty())
+       return;
+   QByteArray ba = fileName.toLocal8Bit();
+   const char *filename = ba.data();
+   ui.infoLabel->setText(tr("filename:  ")+tr(filename));
+   if (!fileName.isEmpty())
+       m_GLwidget_secondwindow->DataPrint(fileName);
+   update();
    ui.infoLabel->setText(tr("Invoked <b>File|Print</b>"));
 }
 
