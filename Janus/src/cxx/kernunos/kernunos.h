@@ -60,7 +60,7 @@ private slots:
     void open();
     void compare();
     void save();
-    void print();
+    void export2file();
     void normal();
     void light();
     void about();
@@ -95,7 +95,7 @@ private:
     QAction *saveAct;
     QAction *AddNewAct;
     QAction *exitAct;
-    QAction *printAct;
+    QAction *exportAct;
     QAction *lightAct;
     QAction *normalAct;
     QAction *aboutAct;

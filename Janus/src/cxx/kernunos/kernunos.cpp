@@ -297,10 +297,10 @@ void MainWindow::save()
    ui.infoLabel->setText(tr("Invoked <b>File|Save</b>"));
 }
 
-void MainWindow::print()
+void MainWindow::export2file()
 {
    QString filter = "All (*.*);;gnuplot (*.gnu);;STL ASCII  (*.stl);;STL BINARY (*.bin.stl);;OFF (*.off);;PLY ASCII (*.ply);;PLY BIN (*.bin.ply)";
-   QString fileName = QFileDialog::getSaveFileName(this,"Print to file format", "", filter);
+   QString fileName = QFileDialog::getSaveFileName(this,"Export to file format", "", filter);
    if (fileName.isEmpty())
        return;
    QByteArray ba = fileName.toLocal8Bit();
@@ -309,9 +309,8 @@ void MainWindow::print()
    if (!fileName.isEmpty())
        m_GLwidget_secondwindow->DataPrint(fileName);
    update();
-   ui.infoLabel->setText(tr("Invoked <b>File|Print</b>"));
+   ui.infoLabel->setText(tr("Invoked <b>File|Export</b>"));
 }
-
 
 void MainWindow::light()
 {
@@ -384,10 +383,10 @@ void MainWindow::createActions()
    AddNewAct->setStatusTip(tr("New Window"));
    connect(AddNewAct, &QAction::triggered, this, &MainWindow::onAddNew);
 
-   printAct = new QAction(tr("&Print..."), this);
-   printAct->setShortcuts(QKeySequence::Print);
-   printAct->setStatusTip(tr("Print the document"));
-   connect(printAct, &QAction::triggered, this, &MainWindow::print);
+   exportAct = new QAction(tr("&Export..."), this);
+   exportAct->setShortcuts(QKeySequence::SaveAs);
+   exportAct->setStatusTip(tr("Export to file"));
+   connect(exportAct, &QAction::triggered, this, &MainWindow::export2file);
 
    exitAct = new QAction(tr("E&xit"), this);
    exitAct->setShortcuts(QKeySequence::Quit);
@@ -423,7 +422,7 @@ void MainWindow::createMenus()
    fileMenu->addAction(saveAct);
    fileMenu->addAction(AddNewAct);
    exportMenu = fileMenu->addMenu(tr("&Export"));
-   exportMenu->addAction(printAct);
+   exportMenu->addAction(exportAct);
    fileMenu->addSeparator();
    fileMenu->addAction(exitAct);
    viewMenu = menuBar()->addMenu(tr("&View"));
