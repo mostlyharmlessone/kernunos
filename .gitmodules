@@ -34,3 +34,6 @@
 [submodule "Janus/gnuplot-iostream"]
 	path = Janus/gnuplot-iostream
 	url = https://github.com/dstahlke/gnuplot-iostream
+[submodule "f90getopt"]
+	path = f90getopt
+	url = https://github.com/haniibrahim/f90getopt
