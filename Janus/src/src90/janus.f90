@@ -6,7 +6,7 @@
   use special_fct
   use io_functions
   use, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
-  use c_interfaces, ONLY : OpenGL_Show
+  use c_interfaces, ONLY : ConvertPLYtoBIN
   use omp_lib
   IMPLICIT NONE     
   integer :: i, j, k, ii, kk, m, thread, ierr, info, nrhs
@@ -474,7 +474,12 @@ write(*,*) 'k,n,m: ',k,n,m
    k_max=k   
    allocate (B_Matrix(k_max,kk_max),ZernC(kk_max,nrhs),rlocal(kk_max),thtlocal(kk_max))  ! ZernC(kk_max) to hold data though only k_max Zernike coeficients
    ZernC=0
-   
+   if (allocated(ZernJ%ZC)) then
+   ! nothing
+   else
+    call init_mat_ZernJ(N+1,MM,ZernJ)
+   endif
+
    do ii=1,nrhs
 !  center of local geometry   
 !!   ctr_circle_x=2.0
