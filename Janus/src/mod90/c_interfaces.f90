@@ -35,6 +35,13 @@ SUBROUTINE OpenGL_Show(vertices, elements, nV, nE) BIND(C,name='opengl_show')
  integer(c_int), value, INTENT(IN) :: nE
 END SUBROUTINE OpenGL_Show
 
+! call from fortran to c
+subroutine ConvertPLYtoBIN(iname, oname) BIND(C,name='ConvertPLYtoBIN')
+ USE, INTRINSIC :: iso_c_binding, ONLY : c_char,c_null_char
+ CHARACTER(c_char), INTENT(IN) :: iname
+ CHARACTER(c_char), INTENT(OUT) :: oname
+end subroutine ConvertPLYtoBIN
+
 END INTERFACE
     
  contains

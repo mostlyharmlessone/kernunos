@@ -368,15 +368,15 @@ file_idx=index(inputfile1, ".DAT")
    endif
 
   else  
-! OR GENERATE TEST DATA (EYESYS,ATLAS OR PENTA STYLE)
+! OR GENERATE Fake data (EYESYS,ATLAS OR PENTA STYLE)
 
    call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
    call init_mat_Atlas(MM,N,Atlas)
    call init_mat_Penta(NP,Penta,Skyline)   ! allocate the PentaCam matices   
    call RCNVRTT(MM,N,NP)
 !   uncomment next two lines to test fake Penta data
-!   Skyline=Penta
-!   call RadSlope_eq_Skyline(RadSlope, Skyline, Penta)  !needs Penta & RadSlope for border check
+   Skyline=Penta
+   call RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)  !needs Penta for border check populates RadSlope with ZFCT
    if (MM == 360) then
     call RadSlope_eq_EyeSys(RadSlope,EyeSys) 
     Atlas=RadSlope   ! total caca

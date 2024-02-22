@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.26)
 cmake_policy(VERSION 3.26)
 
-project(Jupiter VERSION 0.1.0 LANGUAGES C CXX Fortran)
+project(kernunos VERSION 0.1.0 LANGUAGES C CXX Fortran)
 
 enable_language(Fortran)
 enable_language(CXX)
@@ -111,8 +111,8 @@ endif()
 if (BUILD_FOR_WIN)
 #nothing
 else()
- find_package(wxWidgets 3 REQUIRED gl richtext aui adv html webview core xml net base)
- find_package(wxWidgets 3 REQUIRED gl core net base)
+# find_package(wxWidgets 3 REQUIRED gl richtext aui adv html webview core xml net base)
+# find_package(wxWidgets 3 REQUIRED gl core net base)
 endif()
 if(wxWidgets_FOUND)
   include(${wxWidgets_USE_FILE})
@@ -277,26 +277,26 @@ include_directories(src/cxx/kernunos src/c/rply)
 #nothing
 #else()
 #Jupiter wxWidgets version      
-   add_executable(${PROJECT_NAME}
-       src/cxx/Jupiter/Jupiter.cpp
-       src/cxx/Jupiter/Jupiter.h
-       src/src90/janus.f90 src/cxx/opengl_show.cpp
-       src/cxx/Jupiter/mathstuff.cpp
-       src/cxx/Jupiter/mathstuff.h
-       src/cxx/Jupiter/camera.h
-   )
-   target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules
-       rply_includes ${wxWidgets_LIBRARIES} ${LIBS})
+#   add_executable(${PROJECT_NAME}
+#       src/cxx/Jupiter/Jupiter.cpp
+#       src/cxx/Jupiter/Jupiter.h
+#       src/src90/janus.f90 src/cxx/opengl_show.cpp
+#       src/cxx/Jupiter/mathstuff.cpp
+#       src/cxx/Jupiter/mathstuff.h
+#       src/cxx/Jupiter/camera.h
+#   )
+#   target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules
+#       rply_includes ${wxWidgets_LIBRARIES} ${LIBS})
 #endif()
 #juno commandline/glfw version
-    add_executable(juno 
-                   src/src90/juno.f90 
-                   src/src90/janus.f90 
-                   src/cxx/opengl_show.cpp 
-                   f90getopt/f90getopt.F90)
-    target_link_libraries(juno 
-                   PRIVATE OpenMP::OpenMP_CXX 
-                   PUBLIC splia modules rply_includes  ${LIBS})
+#    add_executable(juno
+#                   src/src90/juno.f90
+#                   src/src90/janus.f90
+#                   src/cxx/opengl_show.cpp
+#                   f90getopt/f90getopt.F90)
+#    target_link_libraries(juno
+#                   PRIVATE OpenMP::OpenMP_CXX
+#                   PUBLIC splia modules rply_includes  ${LIBS})
        
    
 
