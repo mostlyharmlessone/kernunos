@@ -156,7 +156,7 @@ end subroutine init_mat_JMatrix
 subroutine init_mat_ZernJ(MM,N,b) ! allocate Zernike array
   INTEGER, INTENT(IN) :: MM,N
   TYPE(wpZernJ) :: b
-  allocate (b%ZC(N+1,MM,12))
+  allocate (b%ZC(N+1,MM,15))
 end subroutine init_mat_ZernJ
 
 subroutine init_mat_EyeSys(MM,N,EyeSys) ! allocate EyeSys arrays

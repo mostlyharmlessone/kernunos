@@ -125,6 +125,7 @@ SET(Qt5_DIR "/usr/lib/x86_64-linux-gnu/qt5")
 SET(Qt6_DIR "/usr/lib/x86_64-linux-gnu/qt6")
 find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets OpenGL)
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Charts OpenGLWidgets OpenGL Widgets)
+find_package(Qt6 COMPONENTS Concurrent REQUIRED)
 #GTK4
 find_package (PkgConfig REQUIRED)
 pkg_check_modules(GTK4 REQUIRED gtk4)
@@ -266,8 +267,8 @@ include_directories(src/cxx/kernunos src/c/rply)
         MACOSX_BUNDLE TRUE
         )                                      
     target_link_libraries(kernunos
-                   PRIVATE OpenMP::OpenMP_CXX 
-                   PUBLIC Qt6::Core Qt6::OpenGLWidgets Qt6::Gui Qt::Widgets Qt6::Charts Qt6::OpenGL 
+                   PRIVATE OpenMP::OpenMP_CXX Qt6::Concurrent
+                   PUBLIC Qt6::Core Qt6::OpenGLWidgets Qt6::Gui Qt::Widgets Qt6::Charts Qt6::OpenGL
                           splia modules rply_includes ${LIBS}
                )
 

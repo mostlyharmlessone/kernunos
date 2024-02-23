@@ -9,17 +9,17 @@
   use c_interfaces, ONLY : ConvertPLYtoBIN
   use omp_lib
   IMPLICIT NONE     
-  integer :: i, j, k, ii, kk, m, thread, ierr, info, nrhs
-  integer :: MM, N ,M1, N1, ITH
+  integer :: i, j, k, ii, kk, m, i1, j1, thread, ierr, info, nrhs
+  integer :: MM, N ,M1, N1, NN, ITH
   integer :: TestData                  ! TestData: -1=test, 0=EyeSys, 1=Atlas, (2-5)=Penta 
   integer :: NP                        ! PentaCam=141
   integer :: unitno1                  
-  character(c_char), INTENT(IN), DIMENSION(4096) :: mainfile
+  character(c_char), INTENT(IN), DIMENSION(4096) :: mainfile, plyfile, plybinfile
   integer(c_int), INTENT(INOUT) :: flag ! 0 = called from kernunos or Jupiter 1=called from juno  
   integer(c_int), INTENT(INOUT) :: nV 
   integer(c_int), INTENT(INOUT) :: nE               
   real(c_float), INTENT(INOUT) :: vertices(*)
-  integer(c_int), INTENT(INOUT) :: elements(*) 
+  integer(c_int), INTENT(INOUT) :: elements(*)
   character(len=8) :: BigGrainyPlot
   character(len=7) :: BigPlot
   character(len=8) :: LinesOfCurv
@@ -447,6 +447,7 @@ file_idx=index(inputfile1, ".DAT")
   endif
 
 ! Try to generate Zernike coefficients based on central elevations & lsq to Zernike polynomials
+ call CPU_TIME(time_start)
 
 !  Reload RadSlope & respline
    do i=1,MM
@@ -458,15 +459,15 @@ file_idx=index(inputfile1, ".DAT")
    DiaSlope%Zpd2 = .n. DiaSlope   ! generate the splines diagonally (generate zp2)
 
 ! allocate working matrices
-   nrhs=2
-   kk_max=10*12
+   nrhs=MM*N+1
+   kk_max=5*12
    k=0
    do m=-4,4
-    do n=ABS(m),4
-     if (mod(n-m,2) == 0) then
+    do nn=ABS(m),4
+     if (mod(nn-m,2) == 0) then
       k=k+1
 
-write(*,*) 'k,n,m: ',k,n,m
+!  write(*,*) 'k,n,m: ',k,nn,m
 
      endif
     end do
@@ -477,22 +478,32 @@ write(*,*) 'k,n,m: ',k,n,m
    if (allocated(ZernJ%ZC)) then
    ! nothing
    else
-    call init_mat_ZernJ(N+1,MM,ZernJ)
+    call init_mat_ZernJ(MM,N+1,ZernJ)
    endif
 
    do ii=1,nrhs
-!  center of local geometry   
-!!   ctr_circle_x=2.0
-!!   ctr_circle_y=3.0
-   ctr_circle_x=2.0+(ii-1)*10
-   ctr_circle_y=3.0+(ii-1)*10
-   
+!  cycle through i1 1 to MM and j1 1 to N with one point for origin at N+1
+   i1=mod(ii,MM)
+   j1=int(ii/MM)+1
+   if (i1 .eq. 0) then
+    i1=MM
+    j1=j1-1
+   endif
+
+!  center of local geometry
+   if (ii .LT. nrhs) then
+    ctr_circle_x=JMatrix%R(j1,i1)*cos(JMatrix%THT(i1))
+    ctr_circle_y=JMatrix%R(j1,i1)*sin(JMatrix%THT(i1))
+   else ! last one is origin
+    ctr_circle_x=0.0
+    ctr_circle_y=0.0
+   endif
    kk=0   
-   do i=1,10
+   do i=1,5
     do j=1,12  !kk_max=10*12
     kk=kk+1
 !   local cylindrical coordinates
-    rlocal(kk)=30*(i-1)/9.0  ! r goes from 0 to 1
+    rlocal(kk)=(i-1)/4.0  ! r goes from 0 to 1
     thtlocal(kk)=2*PI*(j-1)/12  ! tht from 0 to 2*Pi without overlap
 !   global cylindrical coordinates
     Y_global=(rlocal(kk)*sin(thtlocal(kk))-ctr_circle_y)
@@ -518,7 +529,7 @@ write(*,*) 'k,n,m: ',k,n,m
     endif 
     end do
    end do
-   end do
+   end do  ! end ii to nrhs
    
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)                      ! restore RadSlope
 
@@ -527,10 +538,10 @@ write(*,*) 'k,n,m: ',k,n,m
   do kk=1,kk_max   
    k=0
    do m=-4,4
-    do n=ABS(m),4
-     if (mod(n-m,2) == 0) then
+    do nn=ABS(m),4
+     if (mod(nn-m,2) == 0) then
       k=k+1
-      B_Matrix(k,kk)=zern(n,m,rlocal(kk),thtlocal(kk))  ! local cylindrical coordinates
+      B_Matrix(k,kk)=zern(nn,m,rlocal(kk),thtlocal(kk))  ! local cylindrical coordinates
      else
       cycle
      endif
@@ -553,15 +564,25 @@ write(*,*) 'k,n,m: ',k,n,m
  
 ! to plot "talus" instead of center, pick a point with circle around it; same thing as above, plot the vertical coma vs position; will be compute more intensive
 write(*,*) 'k_max,kk_max, info: ',k_max,kk_max,info
-do kk=1,nrhs
- write(*,*) ZernC(1:k_max,kk)
- write(*,*) ' '
-end do
 
+do kk=1,nrhs
+!  cycle through i1 1 to MM and j1 1 to N with one point for origin at N+1
+i1=mod(kk,MM)
+j1=int(kk/MM)+1
+if (i1 .eq. 0) then
+ i1=MM
+ j1=j1-1
+endif
+  ZernJ%ZC(j1,i1,1:k_max)=ZernC(1:k_max,kk)
+end do
+write(*,*) ZernC(1:k_max,nrhs)
+write(*,*) ' '
 ! Done with Zernike
 !  deallocate(XTX,EE,IPIV)
   deallocate(WORK,B_Matrix,ZernC,rlocal,thtlocal)
-  
+  call CPU_TIME(time_end)
+  write(*,*) 'Time to compute Zernike: ',(time_end-time_start)
+
 !  use fillarray to fill DiaSlope Zp with calculated value based on IuseG, optionally generate LIOC
 !  using SplineEval1Dx1D to refill a new matrix RadSlope using f0, derivatives to get calculated powers
   
@@ -584,7 +605,25 @@ end do
   call WriteGeom(JMatrix,donut,powmin,powmax,'elevation.off','elevation.ply')
 ! from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY; MIT licence, included source in tree
 ! call execute_command_line ("./ConvertPLYtoBIN -l elevation.ply elevation.bin.ply",exitstat=i)
-  call ConvertPLYtoBIN('elevation.ply','elevation.bin.ply')
+  plyfile='elevation.ply'
+  plybinfile='elevation.bin.ply'
+!  call ConvertPLYtoBIN('elevation.ply','elevation.bin.ply')
+
+
+!!!!!!!!this needs to merge with mainfile, using flags above
+!   Converting C char array to Fortran character.
+    new_path = " "
+    loop_string: do i=1, 4096
+        if ( mainfile (i) == c_null_char ) then
+            exit loop_string
+        else
+            new_path (i:i) = mainfile (i)
+        end if
+    end do loop_string
+
+write(*,*) 'file from Jupiter/Juno/kerberos: ',trim(new_path)
+  call ConvertPLYtoBIN(trim(plyfile),trim(plybinfile))
+
 ! only call if quad .eqv. .FALSE.
 ! Writes STL from OFF
   call ConvertOFFtoSTL('elevation.off','elevation.stl','elevation.bin.stl')
