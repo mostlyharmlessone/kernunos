@@ -276,7 +276,7 @@ void GLwidget::initializeGL()
   glGenBuffers(1, &elementbuffer);
 }
 
-bool GLwidget::DataPrint(QString fileName)
+bool GLwidget::DataPrint(int flag, QString fileName)
 {
 /*
                          bool generate_gz( const String& path )
@@ -298,7 +298,18 @@ bool GLwidget::DataPrint(QString fileName)
                              return res;
                          }
 */
+  QByteArray ba = fileName.toLocal8Bit();
+  const char *filename = ba.data();
+  //    std::cout << "filename in C++ in DataLoad: " << filename << std::endl;
+  //    std::cout << "first_time: " << first_time << std::endl;
 
+  if (!(flag == 0)){
+    // reload values to avoid seg fault if previous nV and nE are too small
+    nV=51840;
+    nE=26130;
+    auto future1 = std::async([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);});
+    future1.get();
+  }
   return true;
 }
 
@@ -343,6 +354,7 @@ bool GLwidget::DataLoad(QString fileName, bool first_time)
     if (!first_time)
      {
       // reload values to avoid seg fault if previous nV and nE are too small
+      int flag =0;  //load and generate JMatrix, no Zernike
       nV=51840;
       nE=26130;
       auto future1 = std::async([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);});

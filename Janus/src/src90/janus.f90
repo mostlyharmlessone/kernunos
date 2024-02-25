@@ -1,4 +1,4 @@
-  subroutine Janus(flag, mainfile, elements, vertices, nV, nE)  
+  subroutine Janus(flag, file_from_C, elements, vertices, nV, nE)
 ! DRIVER PROGRAM FOR SPLINE ROUTINES
   use set_precision, ONLY : wp
   use lapackinterface
@@ -14,7 +14,7 @@
   integer :: TestData                  ! TestData: -1=test, 0=EyeSys, 1=Atlas, (2-5)=Penta 
   integer :: NP                        ! PentaCam=141
   integer :: unitno1                  
-  character(c_char), INTENT(IN), DIMENSION(4096) :: mainfile, plyfile, plybinfile
+  character(c_char), INTENT(IN), DIMENSION(4096) :: file_from_C
   integer(c_int), INTENT(INOUT) :: flag ! 0 = called from kernunos or Jupiter 1=called from juno  
   integer(c_int), INTENT(INOUT) :: nV 
   integer(c_int), INTENT(INOUT) :: nE               
@@ -23,7 +23,7 @@
   character(len=8) :: BigGrainyPlot
   character(len=7) :: BigPlot
   character(len=8) :: LinesOfCurv
-  character(len=4096) :: new_path
+  character(len=4096) :: new_path, new_path2
   character(:), ALLOCATABLE :: inputfile1,inputfile2
   character(:), ALLOCATABLE :: logfile
   integer ::  nblines, file_idx, file_pfx
@@ -38,27 +38,48 @@
   integer, allocatable :: IPIV(:)
   real(wp) :: ctr_circle_x, ctr_circle_y, R_Talus, Theta_Talus, X_global, Y_global
 
-!write(*,*) 'file from kernunos: ',mainfile  ! this will have a lot of extra random non ASCII stuff after the file name
+!write(*,*) 'file from kernunos: ',file_from_C  ! this will have a lot of extra random non ASCII stuff after the file name
 !! need this because GCC11 isn't F2018 compliant with deferred length character with Bind C
-!! ie. can't do CHARACTER(*,c_char), INTENT(IN) :: mainfile with BIND(C) with GCC11
-!! Juno's mainfile declaration   character(len=12), dimension(:), allocatable :: args with args(1) works too, but limited in length
+!! ie. can't do CHARACTER(*,c_char), INTENT(IN) :: file_from_C_1 with BIND(C) with GCC11
+!! declaring character(len=12), dimension(:), allocatable :: args with args(1) works too, but limited in length
 !   Converting C char array to Fortran character.
     new_path = " "
-    loop_string: do i=1, 4096
-        if ( mainfile (i) == c_null_char ) then
-            exit loop_string
+    do i=1, 4096
+        if ( file_from_C (i) == c_null_char ) then
+            exit
         else
-            new_path (i:i) = mainfile (i)
+            new_path (i:i) = file_from_C (i)
         end if
-    end do loop_string
+    end do
 
-write(*,*) 'file from Jupiter/Juno/kerberos: ',trim(new_path)
+write(*,*) 'flag:',flag
+write(*,*) 'first file from kerberos: ',trim(new_path)
 nblines=len(trim(new_path)) 
 allocate(character(nblines) :: inputfile1)
-allocate(character(nblines) :: inputfile2)
 allocate(character(nblines) :: logfile)
 inputfile1=trim(new_path)
 
+! only make sense if we've allocated and run data
+if (allocated(JMatrix%R)) then
+ if (flag == 5) then
+! from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY; MIT licence, included source in tree
+! call execute_command_line ("./ConvertPLYtoBIN -l elevation.ply elevation.bin.ply",exitstat=i)
+!  call ConvertPLYtoBIN('elevation.ply','elevation.ply.bin')
+  write(*,*) 'files from kerberos: ',inputfile1
+  file_idx=index(inputfile1, ".ply")
+  if( file_idx == 0)then
+   write(*,*) 'Not a .ply file'
+   else
+    allocate(character(nblines+4) :: inputfile2)
+    inputfile2=replacestr(string=inputfile1,search=".ply",substitute=".bin.ply")
+    write(*,*) 'writing: ',inputfile2
+    call ConvertPLYtoBIN(inputfile1,inputfile2)
+   endif
+  return
+ endif
+endif
+
+allocate(character(nblines) :: inputfile2)
 ! From either RA?.DAT or XX?.DAT, set inputfile1 to the XX version, inputfile1 to the RA version.
 ! For either .CUR or .ELE or .CUR.CSV or .ELE.CSV set inputfile1 to Penta file of appropriate type with TestData
 ! For CSV but not .ELE.CSV or .CUR.CSV set inputfile1 to Atlas file
@@ -446,6 +467,8 @@ file_idx=index(inputfile1, ".DAT")
      JMatrix%MONGEA0(:)=JMatrix1%MONGEA0(:)-JMatrix%MONGEA0(:)   
   endif
 
+if (allocated(JMatrix%R)) then
+ if (flag == 1) then
 ! Try to generate Zernike coefficients based on central elevations & lsq to Zernike polynomials
  call CPU_TIME(time_start)
 
@@ -582,7 +605,8 @@ write(*,*) ' '
   deallocate(WORK,B_Matrix,ZernC,rlocal,thtlocal)
   call CPU_TIME(time_end)
   write(*,*) 'Time to compute Zernike: ',(time_end-time_start)
-
+endif
+endif
 !  use fillarray to fill DiaSlope Zp with calculated value based on IuseG, optionally generate LIOC
 !  using SplineEval1Dx1D to refill a new matrix RadSlope using f0, derivatives to get calculated powers
   
@@ -605,24 +629,8 @@ write(*,*) ' '
   call WriteGeom(JMatrix,donut,powmin,powmax,'elevation.off','elevation.ply')
 ! from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY; MIT licence, included source in tree
 ! call execute_command_line ("./ConvertPLYtoBIN -l elevation.ply elevation.bin.ply",exitstat=i)
-  plyfile='elevation.ply'
-  plybinfile='elevation.bin.ply'
 !  call ConvertPLYtoBIN('elevation.ply','elevation.bin.ply')
 
-
-!!!!!!!!this needs to merge with mainfile, using flags above
-!   Converting C char array to Fortran character.
-    new_path = " "
-    loop_string: do i=1, 4096
-        if ( mainfile (i) == c_null_char ) then
-            exit loop_string
-        else
-            new_path (i:i) = mainfile (i)
-        end if
-    end do loop_string
-
-write(*,*) 'file from Jupiter/Juno/kerberos: ',trim(new_path)
-  call ConvertPLYtoBIN(trim(plyfile),trim(plybinfile))
 
 ! only call if quad .eqv. .FALSE.
 ! Writes STL from OFF
@@ -636,37 +644,15 @@ write(*,*) 'file from Jupiter/Juno/kerberos: ',trim(new_path)
 ! eigenvalues show shape of RadSlope without make_rings but with FillArray 7 elevations
 !  atmp=pca(2,RadSlope) 
 !  atmp=pca(3,RadSlope)
+
 ! writes values in openGL friendly format to matrices for passing to C/C++; flag to display with glfw using juno
-
+! flag determines what to write for elevation and color
    call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
-!  the cube example
-!   nV = 48
 
-!    vertices(1:nV) = (/  -50.0,  50.0, -50.0, 1.0, 0.0, 0.0, 50.0,  50.0, -50.0, 0.0, 1.0, 0.0,  &
-!        50.0, -50.0, -50.0, 0.0, 0.0, 1.0, -50.0, -50.0, -50.0, 1.0, 1.0, 1.0,   &
-!        -50.0,  50.0, 50.0, 1.0, 1.0, 0.0, 50.0,  50.0, 50.0, 0.0, 1.0, 1.0,  &
-!        50.0, -50.0, 50.0, 1.0, 0.0, 1.0, -50.0, -50.0, 50.0, 0.0, 0.0, 0.0 /)
-
-!   nE = 36
-!    elements(1:nE) = (/  &
-!       0, 1, 2,&
-!       2, 3, 0,&
-!       4, 5, 6,&
-!       6, 7, 4,&
-!       0, 4, 5,&
-!       5, 1, 0,&
-!       3, 7, 6,&
-!       6, 2, 3,&
-!       0, 4, 7,&
-!       7, 3, 0,&
-!       1, 5, 6,&
-!      & 6, 2, 1      /) 
-
-
-! make more than one plot
   deallocate(MV)
   deallocate(RadSplineCenter)
 
+! make more than one plot
   do i=1,2
   if (i==1) then
    write(*,*) 'Plot: ',i 

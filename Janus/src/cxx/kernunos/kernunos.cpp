@@ -354,15 +354,17 @@ void MainWindow::save()
 
 void MainWindow::export2file()
 {
-   QString filter = "All (*.*);;gnuplot (*.gnu);;STL ASCII  (*.stl);;STL BINARY (*.bin.stl);;OFF (*.off);;PLY ASCII (*.ply);;PLY BIN (*.bin.ply)";
-   QString fileName = QFileDialog::getSaveFileName(this,"Export to file format", "", filter);
+   QString filter = "All (*.*);;gnuplot (*.gnu);;ascii STL  (*.stl);;binary STL (*.bin.stl);;OFF (*.off);;ascii PLY (*.ply);;binary PLY (*.bin.ply)";
+   QString fileName = QFileDialog::getOpenFileName(this,"Export to file format", "", filter);
    if (fileName.isEmpty())
        return;
    QByteArray ba = fileName.toLocal8Bit();
    const char *filename = ba.data();
    ui.infoLabel->setText(tr("filename:  ")+tr(filename));
-   if (!fileName.isEmpty())
-       m_GLwidget_secondwindow->DataPrint(fileName);
+   if (!fileName.isEmpty()) {
+       flag=5;
+       m_GLwidget_secondwindow->DataPrint(flag, fileName);
+   };
    update();
    ui.infoLabel->setText(tr("Invoked <b>File|Export</b>"));
 }
@@ -573,7 +575,7 @@ int main(int argc, char *argv[])
         window.setAttribute(Qt::WA_NoSystemBackground, false);
     }
 
-    // ?iterations ?map(vector,spin) below)
+    /* ?iterations ?map(vector,spin) below)
     const int iterations = 20;
     // Prepare the vector.
     QVector<int> vector;
@@ -591,7 +593,7 @@ int main(int argc, char *argv[])
     QObject::connect(&futureWatcher,  &QFutureWatcher<void>::progressRangeChanged, &dialog, &QProgressDialog::setRange);
     QObject::connect(&futureWatcher, &QFutureWatcher<void>::progressValueChanged,  &dialog, &QProgressDialog::setValue);
 
-  /*
+
     // Our function to compute
     std::function<void(int&)> spin = [](int &iteration) {
         const int work = 1000 * 1000 * 400;
@@ -605,6 +607,7 @@ int main(int argc, char *argv[])
     // Start the computation.
     futureWatcher.setFuture(QtConcurrent::map(vector, spin));  //? QtConcurrent::run()
 
+
     // Display the dialog and start the event loop.
     dialog.exec();
 
@@ -612,8 +615,7 @@ int main(int argc, char *argv[])
 
     // Query the future to check if was canceled.
     qDebug() << "Canceled?" << futureWatcher.future().isCanceled();
-
- */
+*/
 
 
     window.resize(window.sizeHint());
