@@ -23,7 +23,7 @@
   character(len=8) :: BigGrainyPlot
   character(len=7) :: BigPlot
   character(len=8) :: LinesOfCurv
-  character(len=4096) :: new_path, new_path2
+  character(len=4096) :: new_path
   character(:), ALLOCATABLE :: inputfile1,inputfile2
   character(:), ALLOCATABLE :: logfile
   integer ::  nblines, file_idx, file_pfx
@@ -53,15 +53,14 @@
     end do
 
 write(*,*) 'flag:',flag
-write(*,*) 'first file from kerberos: ',trim(new_path)
+write(*,*) 'file from kernunos: ',trim(new_path)
 nblines=len(trim(new_path)) 
 allocate(character(nblines) :: inputfile1)
 allocate(character(nblines) :: logfile)
 inputfile1=trim(new_path)
 
-! only make sense if we've allocated and run data
-if (allocated(JMatrix%R)) then
  if (flag == 5) then
+  if (allocated(JMatrix%R)) then  ! only makes sense if we've allocated and run data
 ! from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY; MIT licence, included source in tree
 ! call execute_command_line ("./ConvertPLYtoBIN -l elevation.ply elevation.bin.ply",exitstat=i)
 !  call ConvertPLYtoBIN('elevation.ply','elevation.ply.bin')
@@ -72,12 +71,15 @@ if (allocated(JMatrix%R)) then
    else
     allocate(character(nblines+4) :: inputfile2)
     inputfile2=replacestr(string=inputfile1,search=".ply",substitute=".bin.ply")
-    write(*,*) 'writing: ',inputfile2
-    call ConvertPLYtoBIN(inputfile1,inputfile2)
+    write (*,*) 'read: ',inputfile1,len(inputfile1)
+    write(*,*) 'writing: ',inputfile2,len(inputfile2)
+    call ConvertPLYtoBIN(inputfile1,inputfile2)  !this doesn't allways work in the build directory/suggest moving c routine to kernunos?
    endif
-  return
+   return
+  else
+   return !do nothing if flag=5 and not allocated
+  endif
  endif
-endif
 
 allocate(character(nblines) :: inputfile2)
 ! From either RA?.DAT or XX?.DAT, set inputfile1 to the XX version, inputfile1 to the RA version.
@@ -467,10 +469,11 @@ file_idx=index(inputfile1, ".DAT")
      JMatrix%MONGEA0(:)=JMatrix1%MONGEA0(:)-JMatrix%MONGEA0(:)   
   endif
 
-if (allocated(JMatrix%R)) then
+
  if (flag == 1) then
+  if (allocated(JMatrix%R)) then
 ! Try to generate Zernike coefficients based on central elevations & lsq to Zernike polynomials
- call CPU_TIME(time_start)
+  call CPU_TIME(time_start)
 
 !  Reload RadSlope & respline
    do i=1,MM
@@ -489,9 +492,7 @@ if (allocated(JMatrix%R)) then
     do nn=ABS(m),4
      if (mod(nn-m,2) == 0) then
       k=k+1
-
-!  write(*,*) 'k,n,m: ',k,nn,m
-
+!     write(*,*) 'k,n,m: ',k,nn,m
      endif
     end do
    end do
@@ -504,6 +505,7 @@ if (allocated(JMatrix%R)) then
     call init_mat_ZernJ(MM,N+1,ZernJ)
    endif
 
+!!!$OMP PARALLEL DO PRIVATE(ii,i1,j1,i,j,kk,ctr_circle_x,ctr_circle_y,Y_global,X_global,R_Talus,Theta_Talus,rlocal,thtlocal)
    do ii=1,nrhs
 !  cycle through i1 1 to MM and j1 1 to N with one point for origin at N+1
    i1=mod(ii,MM)
@@ -553,7 +555,8 @@ if (allocated(JMatrix%R)) then
     end do
    end do
    end do  ! end ii to nrhs
-   
+ !!!$OMP END PARALLEL DO
+
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)                      ! restore RadSlope
 
 ! generate the Zpolynomial degree_polynomial values for each point, makes a matrix degree_polynomials x length_data
@@ -588,6 +591,7 @@ if (allocated(JMatrix%R)) then
 ! to plot "talus" instead of center, pick a point with circle around it; same thing as above, plot the vertical coma vs position; will be compute more intensive
 write(*,*) 'k_max,kk_max, info: ',k_max,kk_max,info
 
+!$OMP PARALLEL DO PRIVATE(i1,j1,i,j,kk)
 do kk=1,nrhs
 !  cycle through i1 1 to MM and j1 1 to N with one point for origin at N+1
 i1=mod(kk,MM)
@@ -598,6 +602,7 @@ if (i1 .eq. 0) then
 endif
   ZernJ%ZC(j1,i1,1:k_max)=ZernC(1:k_max,kk)
 end do
+!$OMP END PARALLEL DO
 write(*,*) ZernC(1:k_max,nrhs)
 write(*,*) ' '
 ! Done with Zernike
@@ -605,8 +610,12 @@ write(*,*) ' '
   deallocate(WORK,B_Matrix,ZernC,rlocal,thtlocal)
   call CPU_TIME(time_end)
   write(*,*) 'Time to compute Zernike: ',(time_end-time_start)
+  return
+ else
+  return !if flag==1 and not allocated do nothing
+ endif
 endif
-endif
+
 !  use fillarray to fill DiaSlope Zp with calculated value based on IuseG, optionally generate LIOC
 !  using SplineEval1Dx1D to refill a new matrix RadSlope using f0, derivatives to get calculated powers
   
