@@ -505,7 +505,7 @@ file_idx=index(inputfile1, ".DAT")
     call init_mat_ZernJ(MM,N+1,ZernJ)
    endif
 
-!!!$OMP PARALLEL DO PRIVATE(ii,i1,j1,i,j,kk,ctr_circle_x,ctr_circle_y,Y_global,X_global,R_Talus,Theta_Talus,rlocal,thtlocal)
+!$OMP PARALLEL DO PRIVATE(ii,i1,j1,i,j,kk,ctr_circle_x,ctr_circle_y,Y_global,X_global,R_Talus,Theta_Talus,rlocal,thtlocal)
    do ii=1,nrhs
 !  cycle through i1 1 to MM and j1 1 to N with one point for origin at N+1
    i1=mod(ii,MM)
@@ -555,7 +555,7 @@ file_idx=index(inputfile1, ".DAT")
     end do
    end do
    end do  ! end ii to nrhs
- !!!$OMP END PARALLEL DO
+ !$OMP END PARALLEL DO
 
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)                      ! restore RadSlope
 

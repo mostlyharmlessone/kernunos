@@ -1,5 +1,6 @@
 #include "GLwidget.h"
 #include "kernunos.h"
+#include "qtconcurrentrun.h"
 
 static const GLchar* vertexSource = R"glsl(
     #version 330 core
@@ -351,15 +352,39 @@ bool GLwidget::DataLoad(QString fileName, bool first_time)
 //    std::cout << "filename in C++ in DataLoad: " << filename << std::endl;
 //    std::cout << "first_time: " << first_time << std::endl;
 
+
     if (!first_time)
      {
       // reload values to avoid seg fault if previous nV and nE are too small
       int flag =0;  //load and generate JMatrix, no Zernike
       nV=51840;
       nE=26130;
-      auto future1 = std::async([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);});
-      future1.get();
-      //      janus_(&flag, filename, elements, vertices, &nV, &nE);
+      //  for this to work, I'd have to call from inside janus with map/ mapped/ mapReduce not run
+      // Create a progress dialog.
+      QProgressDialog dialog;
+      dialog.setLabelText(QString("Loading the data..."));
+
+      // Create a QFutureWatcher and connect signals and slots.
+      QFutureWatcher<void> futureWatcher;
+      QObject::connect(&futureWatcher, &QFutureWatcher<void>::finished, &dialog, &QProgressDialog::reset);
+      QObject::connect(&dialog, &QProgressDialog::canceled, &futureWatcher, &QFutureWatcher<void>::cancel);
+      QObject::connect(&futureWatcher,  &QFutureWatcher<void>::progressRangeChanged, &dialog, &QProgressDialog::setRange);
+      QObject::connect(&futureWatcher, &QFutureWatcher<void>::progressValueChanged,  &dialog, &QProgressDialog::setValue);
+
+      // Start the computation.
+      futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);}));
+
+      // Display the dialog and start the event loop.
+      dialog.exec();
+
+      futureWatcher.waitForFinished();
+
+      // Query the future to check if was canceled.
+      qDebug() << "Canceled?" << futureWatcher.future().isCanceled();
+
+    //  auto future1 = std::async([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);});
+    //  future1.get();
+    //      janus_(&flag, filename, elements, vertices, &nV, &nE);
      }
     else
      {

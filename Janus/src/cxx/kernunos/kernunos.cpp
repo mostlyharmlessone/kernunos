@@ -383,7 +383,7 @@ void MainWindow::save()
     };
 
     // Start the computation.
-    futureWatcher.setFuture(QtConcurrent::map(vector, spin));  //? QtConcurrent::run()
+    futureWatcher.setFuture(QtConcurrent::map(vector, spin));
 
 
     // Display the dialog and start the event loop.
