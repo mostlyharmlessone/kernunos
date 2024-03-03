@@ -277,7 +277,7 @@ void GLwidget::initializeGL()
   glGenBuffers(1, &elementbuffer);
 }
 
-bool GLwidget::DataPrint(int flag, QString fileName)
+bool GLwidget::DataPrint(QString fileName)
 {
 /*
                          bool generate_gz( const String& path )
@@ -300,7 +300,7 @@ bool GLwidget::DataPrint(int flag, QString fileName)
                          }
 */
   QByteArray ba = fileName.toLocal8Bit();
-  const char *filename = ba.data();
+  filename = ba.data();
   //    std::cout << "filename in C++ in DataLoad: " << filename << std::endl;
   //    std::cout << "first_time: " << first_time << std::endl;
 
@@ -308,8 +308,10 @@ bool GLwidget::DataPrint(int flag, QString fileName)
     // reload values to avoid seg fault if previous nV and nE are too small
     nV=51840;
     nE=26130;
-    auto future1 = std::async([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);});
-    future1.get();
+//    auto future1 = std::async([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);});
+//    future1.get();
+    std::cout << "flag from C: " << flag; //is global
+    std::thread([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);}).detach();
   }
   return true;
 }
@@ -348,7 +350,7 @@ bool GLwidget::DataLoad(QString fileName, bool first_time)
 
 
     QByteArray ba = fileName.toLocal8Bit();
-    const char *filename = ba.data();
+    filename = ba.data();
 //    std::cout << "filename in C++ in DataLoad: " << filename << std::endl;
 //    std::cout << "first_time: " << first_time << std::endl;
 
@@ -356,10 +358,10 @@ bool GLwidget::DataLoad(QString fileName, bool first_time)
     if (!first_time)
      {
       // reload values to avoid seg fault if previous nV and nE are too small
-      int flag =0;  //load and generate JMatrix, no Zernike
+      flag = 0;  //load and generate JMatrix, no Zernike
       nV=51840;
       nE=26130;
-      //  for this to work, I'd have to call from inside janus with map/ mapped/ mapReduce not run
+
       // Create a progress dialog.
       QProgressDialog dialog;
       dialog.setLabelText(QString("Loading the data..."));

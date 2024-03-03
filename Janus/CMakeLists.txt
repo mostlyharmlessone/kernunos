@@ -138,6 +138,7 @@ message(STATUS "----- GTK3_LINK_LIBRARIES: ${GTK3_LINK_LIBRARIES}")
 include_directories(${GTK3_INCLUDE_DIRS})
 link_directories(${GTK3_LIBRARY_DIRS})
 list(APPEND FC_DEP_LIBS ${GTK3_LIBRARIES})
+find_library(GFORTRAN_LIBRARY NAMES gfortran)  # trying to fix ISO_Fortran_binding.h not found error, doesn't solve it, might be Intel compiler only
 find_package(BLAS)
  if ( BLAS_FOUND )
   message(STATUS "BLAS found at ${BLAS_LIBRARIES}")
@@ -245,7 +246,7 @@ endif(WIN32)
     add_library( splia ${lib_sources90})
     
 #libraries      
-    set(LIBS ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES})
+    set(LIBS ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} ${GFORTRAN_LIBRARY})
 
 # need this so that GLwidget.h can be found by AUTOUIC and ui.mainwindow.h, and for rply
 include_directories(src/cxx/kernunos src/c/rply)

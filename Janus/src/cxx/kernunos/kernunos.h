@@ -13,6 +13,7 @@ extern const unsigned int SCR_WIDTH;
 extern const unsigned int SCR_HEIGHT;
 
 extern int flag;
+extern char *filename;
 
 extern bool success;
 extern bool paintme;
@@ -27,7 +28,7 @@ extern GLuint* elements;
 
 // calling fortran code
 extern "C" {
-void janus_(int *flag, const char *filename, GLuint *elements, GLfloat *vertices, int *nV, int *nE); // needs an underscore despite c_interface.f90 bind C declaration
+void janus_(int *flag, char *filename, GLuint *elements, GLfloat *vertices, int *nV, int *nE); // needs an underscore despite c_interface.f90 bind C declaration
 };
 
 // calling C code directly from kernunos

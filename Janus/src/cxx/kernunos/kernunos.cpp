@@ -49,6 +49,11 @@
 ****************************************************************************/
 
 #include "kernunos.h"
+
+//not found for some reason, need explicit location here
+//https://community.intel.com/t5/Intel-Fortran-Compiler/How-to-access-ALLOCATABLE-4-D-Fortran-array-from-C/m-p/1478884/highlight/true
+//#include "/usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include/ISO_Fortran_binding.h"
+
 //lifted from examples zoomlinechart
 #include "chart.h"   // Copyright (C) 2023 The Qt Company Ltd.
 #include "chartview.h" // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
@@ -73,6 +78,11 @@ const unsigned int SCR_WIDTH = 1500;
 const unsigned int SCR_HEIGHT = 800;
 
 int flag=0;
+
+//https://stackoverflow.com/questions/16296284/workaround-for-blocking-async
+// was const char *filename and not global
+
+char *filename;
 
 bool success=false;
 bool paintme = false;
@@ -324,7 +334,7 @@ void MainWindow::open()
    if (fileName.isEmpty())
        return;
    QByteArray ba = fileName.toLocal8Bit();
-   const char *filename = ba.data();
+   filename = ba.data();
    ui.infoLabel->setText(tr("filename:  ")+tr(filename));
    if (!fileName.isEmpty())
        m_GLwidget->DataLoad(fileName, false);
@@ -352,9 +362,9 @@ void MainWindow::save()
 
    QString fileName = "nothing";
        flag=1;
-       m_GLwidget_secondwindow->DataPrint(flag, fileName);
+       m_GLwidget_secondwindow->DataPrint(fileName);
    update();
-
+/*
     const int iterations = 20;
     // Prepare the vector.
     QVector<int> vector;
@@ -394,7 +404,7 @@ void MainWindow::save()
     // Query the future to check if was canceled.
     qDebug() << "Canceled?" << futureWatcher.future().isCanceled();
 
-
+*/
    ui.infoLabel->setText(tr("Invoked <b>File|Save</b>"));
 }
 
@@ -408,8 +418,8 @@ void MainWindow::export2file()
    const char *filename = ba.data();
    ui.infoLabel->setText(tr("filename:  ")+tr(filename));
    if (!fileName.isEmpty()) {
-       flag=5;
-       m_GLwidget_secondwindow->DataPrint(flag, fileName);
+       flag=5;  //doesn't have to get passed, is global
+       m_GLwidget_secondwindow->DataPrint(fileName);
    };
    update();
    ui.infoLabel->setText(tr("Invoked <b>File|Export</b>"));

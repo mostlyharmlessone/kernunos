@@ -15,7 +15,7 @@
   integer :: NP                        ! PentaCam=141
   integer :: unitno1                  
   character(c_char), INTENT(IN), DIMENSION(4096) :: file_from_C
-  integer(c_int), INTENT(INOUT) :: flag ! 0 = called from kernunos or Jupiter 1=called from juno  
+  integer(c_int), INTENT(INOUT) :: flag
   integer(c_int), INTENT(INOUT) :: nV 
   integer(c_int), INTENT(INOUT) :: nE               
   real(c_float), INTENT(INOUT) :: vertices(*)
@@ -52,7 +52,7 @@
         end if
     end do
 
-write(*,*) 'flag:',flag
+write(*,*) 'flag to Fortran:',flag
 write(*,*) 'file from kernunos: ',trim(new_path)
 nblines=len(trim(new_path)) 
 allocate(character(nblines) :: inputfile1)
@@ -81,6 +81,7 @@ inputfile1=trim(new_path)
   endif
  endif
 
+if (flag == 0) then
 allocate(character(nblines) :: inputfile2)
 ! From either RA?.DAT or XX?.DAT, set inputfile1 to the XX version, inputfile1 to the RA version.
 ! For either .CUR or .ELE or .CUR.CSV or .ELE.CSV set inputfile1 to Penta file of appropriate type with TestData
@@ -96,7 +97,7 @@ file_idx=index(inputfile1, ".DAT")
         file_idx=index(inputfile1, ".ELE")
         if( file_idx == 0) then
          write(*,*) 'Not a PentaCam file' 
-         write(*,*) 'Unknown file type: make some test data'
+         write(*,*) 'Unknown file type: make some test data, flag = ',flag
          TestData=-1; MM=180; N=22 ; NP=141  ! make some test data not working
 !         TestData=-1; MM=360; N=16 ; NP=141  ! make some test data rcnvrt not working 360        
         else
@@ -469,12 +470,14 @@ file_idx=index(inputfile1, ".DAT")
      JMatrix%MONGEA0(:)=JMatrix1%MONGEA0(:)-JMatrix%MONGEA0(:)   
   endif
 
+endif !(flag == 0)
 
- if (flag == 1) then
+if (flag == 1) then
   if (allocated(JMatrix%R)) then
 ! Try to generate Zernike coefficients based on central elevations & lsq to Zernike polynomials
-  call CPU_TIME(time_start)
-
+!  call CPU_TIME(time_start)
+  time_start=omp_get_wtime()
+  MM=180; N=22; NP=141
 !  Reload RadSlope & respline
    do i=1,MM
     do j=1,RadSlope%MV(i)
@@ -485,7 +488,7 @@ file_idx=index(inputfile1, ".DAT")
    DiaSlope%Zpd2 = .n. DiaSlope   ! generate the splines diagonally (generate zp2)
 
 ! allocate working matrices
-   nrhs=MM*N+1
+   nrhs=(MM*N+1)
    kk_max=5*12
    k=0
    do m=-4,4
@@ -497,7 +500,11 @@ file_idx=index(inputfile1, ".DAT")
     end do
    end do
    k_max=k   
-   allocate (B_Matrix(k_max,kk_max),ZernC(kk_max,nrhs),rlocal(kk_max),thtlocal(kk_max))  ! ZernC(kk_max) to hold data though only k_max Zernike coeficients
+   allocate (B_Matrix(k_max,kk_max),ZernC(kk_max,nrhs),rlocal(kk_max),thtlocal(kk_max),stat=ierr) ! ZernC(kk_max) to hold data though only k_max Zernike coeficients
+   if (ierr /= 0) then
+    write(*,*) 'unable to allocate memory in Zernike'
+    return
+   endif
    ZernC=0
    if (allocated(ZernJ%ZC)) then
    ! nothing
@@ -505,8 +512,8 @@ file_idx=index(inputfile1, ".DAT")
     call init_mat_ZernJ(MM,N+1,ZernJ)
    endif
 
-!$OMP PARALLEL DO PRIVATE(ii,i1,j1,i,j,kk,ctr_circle_x,ctr_circle_y,Y_global,X_global,R_Talus,Theta_Talus,rlocal,thtlocal)
-   do ii=1,nrhs
+!!!$OMP PARALLEL DO PRIVATE(ii,i1,j1,i,j,kk,ctr_circle_x,ctr_circle_y,Y_global,X_global,R_Talus,Theta_Talus,rlocal,thtlocal)
+do ii=1,nrhs
 !  cycle through i1 1 to MM and j1 1 to N with one point for origin at N+1
    i1=mod(ii,MM)
    j1=int(ii/MM)+1
@@ -525,7 +532,7 @@ file_idx=index(inputfile1, ".DAT")
    endif
    kk=0   
    do i=1,5
-    do j=1,12  !kk_max=10*12
+    do j=1,12  !kk_max=5*12
     kk=kk+1
 !   local cylindrical coordinates
     rlocal(kk)=(i-1)/4.0  ! r goes from 0 to 1
@@ -555,7 +562,7 @@ file_idx=index(inputfile1, ".DAT")
     end do
    end do
    end do  ! end ii to nrhs
- !$OMP END PARALLEL DO
+!!!$OMP END PARALLEL DO
 
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)                      ! restore RadSlope
 
@@ -608,7 +615,8 @@ write(*,*) ' '
 ! Done with Zernike
 !  deallocate(XTX,EE,IPIV)
   deallocate(WORK,B_Matrix,ZernC,rlocal,thtlocal)
-  call CPU_TIME(time_end)
+!  call CPU_TIME(time_end)
+  time_end=omp_get_wtime()
   write(*,*) 'Time to compute Zernike: ',(time_end-time_start)
   return
  else
@@ -633,7 +641,12 @@ endif
    write(*,*) 'powctr,POWMIN,POWMAX',powctr,POWMIN,POWMAX
    powmin=35.5
    powmax=55.5
-   
+
+! writes values in openGL friendly format to matrices for passing to C/C++
+! flag determines what to write for elevation and color
+  call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
+
+
 ! Writes OFF and ASCII PLY files
   call WriteGeom(JMatrix,donut,powmin,powmax,'elevation.off','elevation.ply')
 ! from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY; MIT licence, included source in tree
@@ -653,10 +666,6 @@ endif
 ! eigenvalues show shape of RadSlope without make_rings but with FillArray 7 elevations
 !  atmp=pca(2,RadSlope) 
 !  atmp=pca(3,RadSlope)
-
-! writes values in openGL friendly format to matrices for passing to C/C++; flag to display with glfw using juno
-! flag determines what to write for elevation and color
-   call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
 
   deallocate(MV)
   deallocate(RadSplineCenter)
@@ -723,8 +732,8 @@ endif
 
 !  call execute_command_line ("gnuplot -p plot2.gnu &", exitstat=i)
 
-  RadSlope=0
-  DiaSlope=0
+!  RadSlope=0
+!  DiaSlope=0
 
   write(*,*) 'Done: janus'
 
