@@ -24,7 +24,6 @@ module io_functions
     SUBROUTINE Geom(flag, b, donut, powmin, powmax, elements, vertices, nV, nE)
        use cornea_arrays
        use set_precision, ONLY : wp
-       use c_interfaces, ONLY : OpenGL_Show
        use special_fct, only : rgb2, rgb5
        use, intrinsic :: iso_c_binding, ONLY : c_float,c_int
        use ISO_FORTRAN_ENV, only: stdin=>input_unit     

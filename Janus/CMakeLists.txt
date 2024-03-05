@@ -34,7 +34,7 @@ if(CMAKE_Fortran_COMPILER MATCHES "gfortran")
  #     set(-pg)    
 #  src profiling with gcov -a -b xxx.f90
 #     set(-g -coverage) 
-    set(optimize "-O3 -march=native -ffast-math -funroll-loops")    
+    set(optimize "-O3 -march=native -ffast-math -funroll-loops")
 endif()
 if(CMAKE_Fortran_COMPILER MATCHES "Intel")
     set(dialect "-stand f08 -free -implicitnone")
@@ -54,7 +54,7 @@ if(CMAKE_VERSION VERSION_LESS "3.7.0")
     set(CMAKE_INCLUDE_CURRENT_DIR ON)    
 endif()
 
-# set(CMAKE_BUILD_TYPE Release) # no debug or bounds check
+#set(CMAKE_BUILD_TYPE RELEASE) # no debug or bounds check
 set(CMAKE_BUILD_TYPE DEBUG) #this include debugging with addition of bounds flags as specified below
 set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${bounds}")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${dialect}")
@@ -260,6 +260,7 @@ include_directories(src/cxx/kernunos src/c/rply)
                    src/cxx/kernunos/chartview.cpp src/cxx/kernunos/chartview.h
                    src/cxx/kernunos/mainwindow.ui
                    src/c/kernunos/ConvertPLYtoBIN.c
+                   src/src90/ConvertOFFtoSTL_C.f90
                    src/src90/janus.f90 
                    )
 

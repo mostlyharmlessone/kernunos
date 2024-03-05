@@ -31,6 +31,10 @@ extern "C" {
 void janus_(int *flag, char *filename, GLuint *elements, GLfloat *vertices, int *nV, int *nE); // needs an underscore despite c_interface.f90 bind C declaration
 };
 
+extern "C" {
+void ConvertOFFtoSTL_C_(char *iname, char *oname);
+};
+
 // calling C code directly from kernunos
 extern "C" {
 int ConvertPLYtoBIN(const char *iname, const char *oname);
@@ -61,7 +65,8 @@ private slots:
     void open();
     void compare();
     void save();
-    void export2file();
+    void ply2bin();
+    void off2stl();
     void normal();
     void light();
     void about();
@@ -96,7 +101,8 @@ private:
     QAction *saveAct;
     QAction *AddNewAct;
     QAction *exitAct;
-    QAction *exportAct;
+    QAction *ply2binAct;
+    QAction *off2stlAct;
     QAction *lightAct;
     QAction *normalAct;
     QAction *aboutAct;

@@ -408,21 +408,56 @@ void MainWindow::save()
    ui.infoLabel->setText(tr("Invoked <b>File|Save</b>"));
 }
 
-void MainWindow::export2file()
+void MainWindow::ply2bin()
 {
-   QString filter = "All (*.*);;gnuplot (*.gnu);;ascii STL  (*.stl);;binary STL (*.bin.stl);;OFF (*.off);;ascii PLY (*.ply);;binary PLY (*.bin.ply)";
-   QString fileName = QFileDialog::getOpenFileName(this,"Export to file format", "", filter);
+   QString filter = "ascii PLY (*.ply)";
+   QString fileName = QFileDialog::getOpenFileName(this,"Open *.ply file", "", filter);
    if (fileName.isEmpty())
        return;
    QByteArray ba = fileName.toLocal8Bit();
    const char *filename = ba.data();
    ui.infoLabel->setText(tr("filename:  ")+tr(filename));
    if (!fileName.isEmpty()) {
-       flag=5;  //doesn't have to get passed, is global
-       m_GLwidget_secondwindow->DataPrint(fileName);
+       filter = "binary PLY (*.bin.ply)";
+       fileName = QFileDialog::getSaveFileName(this,"Convert PLY to file format *bin.ply", "", filter);
+       if (fileName.isEmpty())
+            return;
+       ba = fileName.toLocal8Bit();
+       const char *filenameout = ba.data();
+    // from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY; MIT licence, included source in tree
+       int wrote=ConvertPLYtoBIN(filename,filenameout);
+    //   flag=5;  //doesn't have to get passed, is global
+    //   m_GLwidget_secondwindow->DataPrint(fileName);
+       if (wrote == 0) {
+            ui.infoLabel->setText(tr("Wrote  ")+tr(filenameout)); }
+       else {
+            ui.infoLabel->setText(tr("Failed to write  ")+tr(filenameout));}
    };
    update();
-   ui.infoLabel->setText(tr("Invoked <b>File|Export</b>"));
+
+}
+
+void MainWindow::off2stl()
+{
+   QString filter = "OFF (*.off)";
+   QString fileName = QFileDialog::getOpenFileName(this,"Open *.off file", "", filter);
+   if (fileName.isEmpty())
+       return;
+   QByteArray ba = fileName.toLocal8Bit();
+   char *filename = ba.data();
+   ui.infoLabel->setText(tr("filename:  ")+tr(filename));
+   if (!fileName.isEmpty()) {
+       filter = "STL (*.stl);;binary STL (*.bin.stl)";
+       fileName = QFileDialog::getSaveFileName(this,"Convert OFF to file format *.stl or *.bin.stl", "", filter);
+       if (fileName.isEmpty())
+            return;
+       ba = fileName.toLocal8Bit();
+       char *filenameout = ba.data();
+       ConvertOFFtoSTL_C_(filename,filenameout);
+       ui.infoLabel->setText(tr("Wrote  ")+tr(filenameout));
+   };
+   update();
+
 }
 
 void MainWindow::light()
@@ -496,10 +531,15 @@ void MainWindow::createActions()
    AddNewAct->setStatusTip(tr("New Window"));
    connect(AddNewAct, &QAction::triggered, this, &MainWindow::onAddNew);
 
-   exportAct = new QAction(tr("&Export..."), this);
-   exportAct->setShortcuts(QKeySequence::SaveAs);
-   exportAct->setStatusTip(tr("Export to file"));
-   connect(exportAct, &QAction::triggered, this, &MainWindow::export2file);
+   ply2binAct = new QAction(tr("&PLY to BIN..."), this);
+   ply2binAct->setShortcuts(QKeySequence::SaveAs);
+   ply2binAct->setStatusTip(tr("Convert ASCII PLY to binary PLY"));
+   connect(ply2binAct, &QAction::triggered, this, &MainWindow::ply2bin);
+
+   off2stlAct = new QAction(tr("&OFF to STL..."), this);
+   off2stlAct->setShortcuts(QKeySequence::SaveAs);
+   off2stlAct->setStatusTip(tr("Convert OFF to STL"));
+   connect(off2stlAct, &QAction::triggered, this, &MainWindow::off2stl);
 
    exitAct = new QAction(tr("E&xit"), this);
    exitAct->setShortcuts(QKeySequence::Quit);
@@ -535,7 +575,8 @@ void MainWindow::createMenus()
    fileMenu->addAction(saveAct);
    fileMenu->addAction(AddNewAct);
    exportMenu = fileMenu->addMenu(tr("&Export"));
-   exportMenu->addAction(exportAct);
+   exportMenu->addAction(ply2binAct);
+   exportMenu->addAction(off2stlAct);
    fileMenu->addSeparator();
    fileMenu->addAction(exitAct);
    viewMenu = menuBar()->addMenu(tr("&View"));

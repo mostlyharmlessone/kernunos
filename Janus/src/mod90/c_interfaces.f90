@@ -3,16 +3,6 @@ module c_interfaces
  ! gathering all the interfaces for c/fortran interaction
  INTERFACE
 
-! allows call from c to fortran77 dgemm in LAPACK using c_dgemm.f90
-SUBROUTINE c_dgemm(transa,transb,m,n,k,alpha,a,lda,b,ldb,beta,c,ldc) bind(c,name='C_dgemm')
- USE, INTRINSIC :: iso_c_binding, ONLY : c_char, c_int, c_double
- USE LapackInterface, ONLY : dgemm
- CHARACTER (c_char), INTENT (IN) :: transa, transb
- INTEGER (c_int), INTENT (IN) :: m, n, k, lda, ldb, ldc
- REAL (c_double), INTENT (IN) :: alpha, beta, a(lda,*), b(ldb,*)
- REAL (c_double), INTENT (INOUT) :: c(ldc,*)
-END SUBROUTINE c_dgemm
-
 ! call from c++ to fortran as extern "C" for data exchange
 SUBROUTINE Janus(flag,file_from_C,elements, vertices, nV, nE) bind(C,name='janus_')
  USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
@@ -24,16 +14,18 @@ SUBROUTINE Janus(flag,file_from_C,elements, vertices, nV, nE) bind(C,name='janus
  real(c_float), INTENT(INOUT) :: vertices(*)
  integer(c_int), INTENT(INOUT) :: elements(*) 
 END SUBROUTINE Janus
- 
-! call from fortran to c++ as extern "C" for openGL display
-SUBROUTINE OpenGL_Show(vertices, elements, nV, nE) BIND(C,name='opengl_show')
- USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int
- IMPLICIT NONE                
- real(c_float), INTENT(IN) :: vertices(*)
- integer(c_int), INTENT(IN) :: elements(*) 
- integer(c_int), value, INTENT(IN) :: nV 
- integer(c_int), value, INTENT(IN) :: nE
-END SUBROUTINE OpenGL_Show
+
+! call from c++ to fortran as extern "C" 
+ subroutine ConvertOFFtoSTL_C(INAME,ONAME) bind(C,name='ConvertOFFtoSTL_C_')
+! Reads OFF file created by WriteOFF and generates ASCII and binary STL files 
+! modified to be called from C/C++
+  use io_functions, only : get_new_fileunit
+  use special_fct, only : surface_normal,rgb2attr
+  use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32 
+  use, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
+  implicit none
+  character(c_char), INTENT(INOUT), DIMENSION(4096) :: INAME,ONAME
+end subroutine ConvertOFFtoSTL_C
 
 ! call from fortran to c
 subroutine ConvertPLYtoBIN(iname, oname) BIND(C,name='ConvertPLYtoBIN')

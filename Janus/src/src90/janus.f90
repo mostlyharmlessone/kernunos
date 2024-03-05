@@ -1,4 +1,4 @@
-  subroutine Janus(flag, file_from_C, elements, vertices, nV, nE)
+  subroutine Janus(flag, file_from_C, elements, vertices, nV, nE) bind(C,name='janus_')
 ! DRIVER PROGRAM FOR SPLINE ROUTINES
   use set_precision, ONLY : wp
   use lapackinterface
@@ -6,7 +6,7 @@
   use special_fct
   use io_functions
   use, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
-  use c_interfaces, ONLY : ConvertPLYtoBIN
+  !use c_interfaces, ONLY : ConvertPLYtoBIN
   use omp_lib
   IMPLICIT NONE     
   integer :: i, j, k, ii, kk, m, i1, j1, thread, ierr, info, nrhs
@@ -58,28 +58,6 @@ nblines=len(trim(new_path))
 allocate(character(nblines) :: inputfile1)
 allocate(character(nblines) :: logfile)
 inputfile1=trim(new_path)
-
- if (flag == 5) then
-  if (allocated(JMatrix%R)) then  ! only makes sense if we've allocated and run data
-! from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY; MIT licence, included source in tree
-! call execute_command_line ("./ConvertPLYtoBIN -l elevation.ply elevation.bin.ply",exitstat=i)
-!  call ConvertPLYtoBIN('elevation.ply','elevation.ply.bin')
-  write(*,*) 'files from kerberos: ',inputfile1
-  file_idx=index(inputfile1, ".ply")
-  if( file_idx == 0)then
-   write(*,*) 'Not a .ply file'
-   else
-    allocate(character(nblines+4) :: inputfile2)
-    inputfile2=replacestr(string=inputfile1,search=".ply",substitute=".bin.ply")
-    write (*,*) 'read: ',inputfile1,len(inputfile1)
-    write(*,*) 'writing: ',inputfile2,len(inputfile2)
-    call ConvertPLYtoBIN(inputfile1,inputfile2)  !this doesn't allways work in the build directory/suggest moving c routine to kernunos?
-   endif
-   return
-  else
-   return !do nothing if flag=5 and not allocated
-  endif
- endif
 
 if (flag == 0) then
 allocate(character(nblines) :: inputfile2)
