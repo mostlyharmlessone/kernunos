@@ -37,3 +37,6 @@
 [submodule "f90getopt"]
 	path = f90getopt
 	url = https://github.com/haniibrahim/f90getopt
+[submodule "assimp"]
+	path = assimp
+	url = https://github.com/assimp/assimp.git

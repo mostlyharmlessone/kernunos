@@ -40,6 +40,9 @@ extern "C" {
 int ConvertPLYtoBIN(const char *iname, const char *oname);
 };
 
+// external cpp code
+int lioc();
+
 extern QString *m_GLString;
 extern QString glstring_global;
 
@@ -74,6 +77,7 @@ private slots:
     void updateResult();
     void onAddNew();
     void dockUndock();
+    void LinesofCurvature();
 
 private:
     void createActions();
@@ -93,6 +97,7 @@ private:
     GLwidget* m_GLwidget;
     GLwidget* m_GLwidget_secondwindow;
     QMenu *fileMenu;
+    QMenu *analyzeMenu;
     QMenu *exportMenu;
     QMenu *viewMenu;
     QMenu *helpMenu;
@@ -104,6 +109,7 @@ private:
     QAction *ply2binAct;
     QAction *off2stlAct;
     QAction *lightAct;
+    QAction *liocAct;
     QAction *normalAct;
     QAction *aboutAct;
     QAction *aboutQtAct;

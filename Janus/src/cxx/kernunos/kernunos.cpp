@@ -457,8 +457,17 @@ void MainWindow::off2stl()
        ui.infoLabel->setText(tr("Wrote  ")+tr(filenameout));
    };
    update();
-
 }
+
+void MainWindow::LinesofCurvature()
+{
+   int wrote=lioc();  // here as test
+   if (wrote == 0) {
+       ui.infoLabel->setText(tr("gnuplot called successfully  ")); }
+   else {
+       ui.infoLabel->setText(tr("gnuplot call failed!"));}
+}
+
 
 void MainWindow::light()
 {
@@ -559,6 +568,10 @@ void MainWindow::createActions()
    lightAct->setStatusTip(tr("Show the surface normals"));
    connect(normalAct, &QAction::triggered, this, &MainWindow::normal);
 
+   liocAct = new QAction(tr("&Lines of Curvature"), this);
+   liocAct->setStatusTip(tr("Show plot of lines of curvature"));
+   connect(liocAct, &QAction::triggered, this, &MainWindow::LinesofCurvature);
+
    aboutQtAct = new QAction(tr("About &Qt"), this);
    aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
    connect(aboutQtAct, &QAction::triggered, qApp, &QApplication::aboutQt);
@@ -579,6 +592,8 @@ void MainWindow::createMenus()
    exportMenu->addAction(off2stlAct);
    fileMenu->addSeparator();
    fileMenu->addAction(exitAct);
+   analyzeMenu = menuBar()->addMenu(tr("&Analyze"));
+   analyzeMenu->addAction(liocAct);
    viewMenu = menuBar()->addMenu(tr("&View"));
    viewMenu->addAction(lightAct);
    viewMenu->addAction(normalAct);

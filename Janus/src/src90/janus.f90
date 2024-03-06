@@ -624,17 +624,16 @@ endif
 ! flag determines what to write for elevation and color
   call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
 
-
 ! Writes OFF and ASCII PLY files
   call WriteGeom(JMatrix,donut,powmin,powmax,'elevation.off','elevation.ply')
+
+! this now done by kernunos
 ! from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY; MIT licence, included source in tree
 ! call execute_command_line ("./ConvertPLYtoBIN -l elevation.ply elevation.bin.ply",exitstat=i)
 !  call ConvertPLYtoBIN('elevation.ply','elevation.bin.ply')
-
-
 ! only call if quad .eqv. .FALSE.
 ! Writes STL from OFF
-  call ConvertOFFtoSTL('elevation.off','elevation.stl','elevation.bin.stl')
+! call ConvertOFFtoSTL('elevation.off','elevation.stl','elevation.bin.stl')
 !  can view with meshlab e.g.
 !  write(*,*) 'Exit meshlab to continue'
 !  call execute_command_line ("meshlab elevation.off", exitstat=i)

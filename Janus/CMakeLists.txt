@@ -165,6 +165,8 @@ find_package(OPENCL)
   set(OPENCL_LIBRARIES "/usr/lib/libOpenCL.so.1") 
  endif()
 find_package(OpenMP)
+#  boost, needed for gnuplot-iostream
+find_package(Boost REQUIRED COMPONENTS iostreams system filesystem)
 # from learnopengl: attempt to make buildable apple/win32 too
 if(APPLE)
   find_package(Freetype REQUIRED)
@@ -258,6 +260,7 @@ include_directories(src/cxx/kernunos src/c/rply)
                    src/cxx/kernunos/window.cpp src/cxx/kernunos/window.h
                    src/cxx/kernunos/chart.cpp src/cxx/kernunos/chart.h
                    src/cxx/kernunos/chartview.cpp src/cxx/kernunos/chartview.h
+                   src/cxx/kernunos/lioc.cpp gnuplot-iostream/gnuplot-iostream.h
                    src/cxx/kernunos/mainwindow.ui
                    src/c/kernunos/ConvertPLYtoBIN.c
                    src/src90/ConvertOFFtoSTL_C.f90
@@ -267,13 +270,27 @@ include_directories(src/cxx/kernunos src/c/rply)
     set_target_properties(kernunos PROPERTIES
         WIN32_EXECUTABLE TRUE
         MACOSX_BUNDLE TRUE
-        )                                      
+        )
+
+    # Target for gnuplot-iostream
+    add_library(gnuplot_iostream INTERFACE)
+    target_include_directories(gnuplot_iostream INTERFACE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/>
+        $<INSTALL_INTERFACE:>)
+    target_link_libraries(gnuplot_iostream INTERFACE
+        Boost::iostreams
+        Boost::system
+        Boost::filesystem)
+
     target_link_libraries(kernunos
                    PRIVATE OpenMP::OpenMP_CXX Qt6::Concurrent
+                   gnuplot_iostream
+                   boost_iostreams
+                   boost_system
+                   boost_filesystem
                    PUBLIC Qt6::Core Qt6::OpenGLWidgets Qt6::Gui Qt::Widgets Qt6::Charts Qt6::OpenGL
                           splia modules rply_includes ${LIBS}
                )
-
 
 
 #if (BUILD_FOR_WIN)
