@@ -9,7 +9,7 @@
 
 int main(int argc, char** argv)
 {
-    std::string filename = "float-color.ply";
+    std::string filename = "elevation2.ply";
 
  //   auto stream = aiGetPredefinedLogStream(aiDefaultLogStream_STDOUT,NULL);
  //   aiAttachLogStream(&stream);
@@ -26,23 +26,27 @@ int main(int argc, char** argv)
         printf("Error parsing '%s': '%s'\n", filename.c_str(), Importer.GetErrorString());
         return 1;
     }
-
+//0: dae 1: x 2: stp 3: obj 4: obj 5: stl 6: stl 7: ply 8: ply 9: 3ds 10: gltf 11: glb 12: gltf2 13: assbin 14: assxml 15: x3d 16: 3mf
+// https://github.com/assimp/assimp/issues/3827  binary ply is broken, use rply
 
     Assimp::Exporter Exporter;
-//    const aiExportFormatDesc* format = Exporter.GetExportFormatDescription(0);
-    const aiExportFormatDesc* format = Exporter.GetExportFormatDescription(0);
+  //  const aiExportFormatDesc* format = Exporter.GetExportFormatDescription(0);  //dae == collada
+    const aiExportFormatDesc* format = Exporter.GetExportFormatDescription(15);
     int lIndex = filename.find_last_of('/');
 
     //const string path = Filename.substr(0,lIndex+1);
-    std::string path = "float-color.off";
+    std::string path = "elevation2.x3d";
     std::cout << "\tExport path: " << path << std::endl;
 
-    Assimp::ExportProperties *properties = new Assimp::ExportProperties;
-    properties->SetPropertyBool(AI_CONFIG_EXPORT_POINT_CLOUDS, true);
+//    Assimp::ExportProperties *properties = new Assimp::ExportProperties;
+//    properties->SetPropertyBool(AI_CONFIG_EXPORT_POINT_CLOUDS, true);
 //    aiReturn ret = Exporter.Export(aiscene, "off", path, 0, properties );  //makes no error and no file
 //    aiReturn ret = Exporter.Export(aiscene, "off", path);  //no error and no file
- //   aiReturn ret = Exporter.Export(aiscene, "off", "float-color.off");  //no error and no file
-    aiReturn ret = Exporter.Export(aiscene, format->id, path, 0);  //id makes bad file with error, description,extension make no file, no error
+//    aiReturn ret = Exporter.Export(aiscene, "off", "float-color.off");  //no error and no file
+
+    aiReturn ret = Exporter.Export(aiscene, format->id , path, 0);
+
+ //   aiReturn ret = Exporter.Export(aiscene, "obj", path);
 
     if (!(aiReturn_SUCCESS == 0)) {
         printf("Error exporting '%s': '%s'\n", filename.c_str(), Exporter.GetErrorString());

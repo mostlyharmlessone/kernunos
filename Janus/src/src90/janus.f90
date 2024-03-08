@@ -626,6 +626,7 @@ endif
 
 ! Writes OFF and ASCII PLY files
   call WriteGeom(JMatrix,donut,powmin,powmax,'elevation.off','elevation.ply')
+  call WriteGeomPLY(JMatrix,donut,powmin,powmax,'elevation2.ply')
 
 ! this now done by kernunos
 ! from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY; MIT licence, included source in tree
