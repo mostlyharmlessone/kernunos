@@ -1,16 +1,18 @@
 !      Writes ASCII PLY files with color overlay
 !      modified for assimp to be vertex colors, c/w Geom.f90 too
-       subroutine WriteGeomPLY(b,donut,powmin,powmax,PLYNAME)
+       subroutine WriteGeomPLY(flag,b,donut,powmin,powmax,PLYNAME)
        use io_functions, only : get_new_fileunit
        use cornea_arrays
        use set_precision, ONLY : wp
        use special_fct, only : rgb2, rgb5
        use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
+       use, intrinsic :: iso_c_binding, ONLY : c_float,c_int       
        use, intrinsic ::  ieee_arithmetic
        TYPE(wpJMatrix),INTENT(IN) :: b
        character(len=*), intent(in) :: PLYNAME
        real(wp), intent(IN) :: powmin,powmax
        logical, intent(IN) :: donut
+       integer(c_int), INTENT(INOUT) :: flag        
        real(wp) :: X1,X2,X3
        real(REAL32) :: vert1,vert2,vert3,nrm1,nrm2,nrm3,normal
        real(wp) :: pow

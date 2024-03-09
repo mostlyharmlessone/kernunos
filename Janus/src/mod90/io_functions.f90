@@ -59,14 +59,27 @@ module io_functions
      INTEGER, INTENT(IN) :: MM,N,NP
     end subroutine
 
-    SUBROUTINE WriteGeom(b,donut,powmin,powmax,OFFNAME,PLYNAME)
+    SUBROUTINE WriteGeomOFF(flag,b,donut,powmin,powmax,OFFNAME)
       USE cornea_arrays
       USE set_precision, ONLY : wp
+      use, intrinsic :: iso_c_binding, ONLY : c_float,c_int
       TYPE(wpJMatrix),INTENT(IN) :: b
-      character(len=*), intent(in) :: OFFNAME,PLYNAME
+      character(len=*), intent(in) :: OFFNAME
       real(wp), intent(IN) :: powmin,powmax
       logical, intent(IN) :: donut   
+      integer(c_int), INTENT(INOUT) :: flag      
     END SUBROUTINE  
+    
+    SUBROUTINE WriteGeomPLY(flag,b,donut,powmin,powmax,PLYNAME)
+      USE cornea_arrays
+      USE set_precision, ONLY : wp
+      use, intrinsic :: iso_c_binding, ONLY : c_float,c_int
+      TYPE(wpJMatrix),INTENT(IN) :: b
+      character(len=*), intent(in) :: PLYNAME
+      real(wp), intent(IN) :: powmin,powmax
+      logical, intent(IN) :: donut   
+      integer(c_int), INTENT(INOUT) :: flag      
+    END SUBROUTINE    
     
     subroutine WriteCenter(b,KXNAME)
       USE cornea_arrays

@@ -20,7 +20,6 @@
   integer(c_int), INTENT(INOUT) :: nE               
   real(c_float), INTENT(INOUT) :: vertices(*)
   integer(c_int), INTENT(INOUT) :: elements(*)
-  character(len=8) :: BigGrainyPlot
   character(len=7) :: BigPlot
   character(len=8) :: LinesOfCurv
   character(len=4096) :: new_path
@@ -37,6 +36,34 @@
   real(wp), allocatable :: XTX(:,:),EE(:)
   integer, allocatable :: IPIV(:)
   real(wp) :: ctr_circle_x, ctr_circle_y, R_Talus, Theta_Talus, X_global, Y_global
+
+! flag == 99 Deallocate
+if (flag == 99) then
+    if (allocated(JMatrix%R)) then
+     JMatrix=0
+    endif
+    if (allocated(JMatrix1%R)) then
+     JMatrix1=0
+    endif
+    if (allocated(DiaSlope%rd)) then
+     DiaSlope=0
+    endif
+    if (allocated(RadSlope%r)) then
+     RadSlope=0
+    endif
+    if (allocated(inputfile1)) then
+     deallocate(inputfile1)
+     deallocate(inputfile2)
+     deallocate(logfile)
+    endif
+    if (allocated(MV)) then
+     deallocate(MV)
+    endif
+    if (allocated(RadSplineCenter)) then
+     deallocate(RadSplineCenter)
+    endif
+    return
+endif
 
 !write(*,*) 'file from kernunos: ',file_from_C  ! this will have a lot of extra random non ASCII stuff after the file name
 !! need this because GCC11 isn't F2018 compliant with deferred length character with Bind C
@@ -58,8 +85,6 @@ nblines=len(trim(new_path))
 allocate(character(nblines) :: inputfile1)
 allocate(character(nblines) :: logfile)
 inputfile1=trim(new_path)
-
-if (flag == 0) then
 allocate(character(nblines) :: inputfile2)
 ! From either RA?.DAT or XX?.DAT, set inputfile1 to the XX version, inputfile1 to the RA version.
 ! For either .CUR or .ELE or .CUR.CSV or .ELE.CSV set inputfile1 to Penta file of appropriate type with TestData
@@ -136,12 +161,14 @@ file_idx=index(inputfile1, ".DAT")
     write(*,*) "EyeSys files: ",inputfile1," ",inputfile2
    endif
 
-  BigGrainyPlot='BIGG.CAR'
-  BigPlot='BIG.CAR'
-  LinesOfCurv='LIOC.CAR'
-
-  call CPU_TIME(time_start)             
-  call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
+  ! flag == 0 Import file and compute JMatrix, RAdSlope, etc.
+  if (flag == 0) then
+  call CPU_TIME(time_start)
+  if (allocated(RadSlope%r)) then
+   write(*,*) 'Radslope,DiaSlope already allocated'
+  else
+   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
+  endif
   call CPU_TIME(time_end)
   write(*,*) 'Time to allocate memory: ',(time_end-time_start)*1000 
 
@@ -450,6 +477,7 @@ file_idx=index(inputfile1, ".DAT")
 
 endif !(flag == 0)
 
+!Zernike coefficents
 if (flag == 1) then
   if (allocated(JMatrix%R)) then
 ! Try to generate Zernike coefficients based on central elevations & lsq to Zernike polynomials
@@ -591,25 +619,29 @@ end do
 write(*,*) ZernC(1:k_max,nrhs)
 write(*,*) ' '
 ! Done with Zernike
-!  deallocate(XTX,EE,IPIV)
+  !deallocate(XTX,EE,IPIV)  !if used above
   deallocate(WORK,B_Matrix,ZernC,rlocal,thtlocal)
 !  call CPU_TIME(time_end)
   time_end=omp_get_wtime()
   write(*,*) 'Time to compute Zernike: ',(time_end-time_start)
   return
  else
-  return !if flag==1 and not allocated do nothing
+  return ! if flag==1 and not allocated do nothing
  endif
 endif
 
 !  use fillarray to fill DiaSlope Zp with calculated value based on IuseG, optionally generate LIOC
 !  using SplineEval1Dx1D to refill a new matrix RadSlope using f0, derivatives to get calculated powers
-  
+
+! something happened to lioc?!
+
+   LinesOfCurv='LIOC.CAR'
+
 !  Generate LIOC with vector format
    call FILLARRAY(8,LinesOfCurv,POWMIN2,POWMAX2)    ! don't redo bounds consider optional !  plot 'LIOC.CAR' using 1:2:3:4 with vectors
-!  call execute_command_line ("gnuplot -p plotlioc.gnu &", exitstat=i)
+!   call execute_command_line ("gnuplot -p plotlioc.gnu &", exitstat=i)
 
-!  write OFF and STL files
+!  write OFF files
 
    donut = .FALSE.
 
@@ -620,76 +652,62 @@ endif
    powmin=35.5
    powmax=55.5
 
+
+! needs a flag to select function as well as OFF/PLY etc, or call directly from kernunos?
+
 ! writes values in openGL friendly format to matrices for passing to C/C++
 ! flag determines what to write for elevation and color
   call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
 
-! Writes OFF and ASCII PLY files
-  call WriteGeom(JMatrix,donut,powmin,powmax,'elevation.off','elevation.ply')
-  call WriteGeomPLY(JMatrix,donut,powmin,powmax,'elevation2.ply')
-
-! this now done by kernunos
-! from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY; MIT licence, included source in tree
-! call execute_command_line ("./ConvertPLYtoBIN -l elevation.ply elevation.bin.ply",exitstat=i)
-!  call ConvertPLYtoBIN('elevation.ply','elevation.bin.ply')
-! only call if quad .eqv. .FALSE.
-! Writes STL from OFF
-! call ConvertOFFtoSTL('elevation.off','elevation.stl','elevation.bin.stl')
-!  can view with meshlab e.g.
-!  write(*,*) 'Exit meshlab to continue'
-!  call execute_command_line ("meshlab elevation.off", exitstat=i)
-!  call execute_command_line ("meshlab elevation.stl", exitstat=i)
-!  call execute_command_line ("meshlab elevation.bin.stl", exitstat=i)
+! Writes OFF file
+if (flag == 2) then
+  if (allocated(JMatrix%R)) then
+  file_idx=index(inputfile1, ".off")
+     if( file_idx == 0) then
+      write(*,*) 'not an off file'
+     else
+      call WriteGeomOFF(flag,JMatrix,donut,powmin,powmax,inputfile1)
+      return
+     endif
+  else
+   return ! if flag==2 and not allocated do nothing
+  endif
+ endif
+  ! Writes ASCII PLY file
+  if (flag == 3) then
+ if (allocated(JMatrix%R)) then
+ file_idx=index(inputfile1, ".ply")
+   if( file_idx == 0) then
+     write(*,*) 'not a ply file'
+    else
+    call WriteGeomPLY(flag,JMatrix,donut,powmin,powmax,inputfile1)
+    return
+   endif
+  else
+   return ! if flag==3 and not allocated do nothing
+  endif
+ endif
 
 ! eigenvalues show shape of RadSlope without make_rings but with FillArray 7 elevations
 !  atmp=pca(2,RadSlope) 
 !  atmp=pca(3,RadSlope)
 
-  deallocate(MV)
-  deallocate(RadSplineCenter)
 
-! make more than one plot
-  do i=1,2
-  if (i==1) then
-   write(*,*) 'Plot: ',i 
+!gnuplot output
+
+BigPlot='BIG.CAR'
+
    call CPU_TIME(time_start)   
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)  
    DiaSlope=RadSlope            
-   DiaSlope%Zpd2 = .n. DiaSlope
-!   DiaSlope%Zpd2 = DiaSplineCenter(DiaSlope)   ! generate the splines diagonally with center node added (slopes only)
-!   RadSlope%r=make_rings(DiaSlope,.FALSE.)              
+   DiaSlope%Zpd2 = .n. DiaSlope             
    call FILLARRAY(4,LinesOfCurv,POWMIN,POWMAX)
    write(*,*) 'POWMIN,POWMAX',POWMIN,POWMAX
    call CPU_TIME(time_end)
    write(*,*) 'Time to make plot',i,(time_end-time_start)*1000   
-  endif
 
-  if (i==2) then
-   write(*,*) 'Next Plot: ',i
-   call CPU_TIME(time_start)  
-   call RadSlope_eq_JMatrix(RadSlope,JMatrix)
-   DiaSlope=RadSlope            
-   DiaSlope%Zpd2 = .n. DiaSlope
-!   DiaSlope%Zpd2 = DiaSplineCenter(DiaSlope)   ! generate the splines diagonally with center node added (slopes only)
-   call FILLARRAY(7,LinesOfCurv,POWMIN2,POWMAX2)  ! generate elevation
-   DiaSlope=RadSlope             
-   DiaSlope%Zpd2 = .n. DiaSlope 
-   call FILLARRAY(14,LinesOfCurv,POWMIN2,POWMAX2) ! get derivatives from elevation 14 is the same as 4 but might be grainy
-   write(*,*) 'POWMIN,POWMAX',POWMIN2,POWMAX2
-   call CPU_TIME(time_end)
-   write(*,*) 'Time to make plot',i,(time_end-time_start)*1000   
-  endif   
-
-  
 ! GENERATE PRINT FILES
- if (i==1) then
   call WRITEARRAY(RadSlope,BigPlot)
- endif 
- if (i==2) then
-  call WRITEARRAY(RadSlope,BigGrainyPlot)
- endif  
-  
- end do
 
 ! put in module with printgraph and put loop in; might be able to read the max/min off each file
 ! or embed in the file with a comment/header
@@ -702,16 +720,11 @@ endif
    WRITE(unitno1,*) 'set macros'
    WRITE(unitno1,*) 'NOXTICS = "set format x ''''; unset xlabel"' 
    WRITE(unitno1,*) 'NOYTICS = "set format y ''''; unset ylabel"'     
-   WRITE(unitno1,*) 'set multiplot layout 1,2 rowsfirst'
    CALL PRINTGRAPH(unitno1,POWMIN,POWMAX,BigPlot)
-   CALL PRINTGRAPH(unitno1,POWMIN2,POWMAX2,BigGrainyPlot)
    WRITE(unitno1,*) 'pause mouse close'  !this allows the file to be opened by gnuplot by clicking on it without closing the window
    CLOSE (unitno1)
 
-!  call execute_command_line ("gnuplot -p plot2.gnu &", exitstat=i)
-
-!  RadSlope=0
-!  DiaSlope=0
+!   call execute_command_line ("gnuplot -p plot2.gnu &", exitstat=i)
 
   write(*,*) 'Done: janus'
 

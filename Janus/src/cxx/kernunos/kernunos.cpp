@@ -70,6 +70,7 @@
 #include <QMessageBox>
 #include <QMainWindow>
 #include <iostream>
+#include <QTemporaryFile>
 
 using namespace QtConcurrent;
 
@@ -359,8 +360,8 @@ void MainWindow::compare()
 
 void MainWindow::save()
 {
-
-   QString fileName = "nothing";
+   QTemporaryFile file;
+    QString fileName = file.fileName();
        flag=1;
        m_GLwidget_secondwindow->DataPrint(fileName);
    update();
@@ -426,8 +427,6 @@ void MainWindow::ply2bin()
        const char *filenameout = ba.data();
     // from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY; MIT licence, included source in tree
        int wrote=ConvertPLYtoBIN(filename,filenameout);
-    //   flag=5;  //doesn't have to get passed, is global
-    //   m_GLwidget_secondwindow->DataPrint(fileName);
        if (wrote == 0) {
             ui.infoLabel->setText(tr("Wrote  ")+tr(filenameout)); }
        else {
