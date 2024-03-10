@@ -161,6 +161,23 @@ file_idx=index(inputfile1, ".DAT")
     write(*,*) "EyeSys files: ",inputfile1," ",inputfile2
    endif
 
+! Writes ASCII PLY file
+if (flag == 3) then
+if (allocated(JMatrix%R)) then
+file_idx=index(inputfile1, ".ply")
+ if( file_idx == 0) then
+   write(*,*) 'not a ply file'
+  else
+  write(*,*) 'Writing ply file...',inputfile1
+  call WriteGeomPLY(flag,JMatrix,donut,powmin,powmax,inputfile1)
+  return
+ endif
+else
+  write(*,*) 'Have to allocate data prior to writing a ply file'
+ return ! if flag==3 and not allocated do nothing
+endif
+endif
+
   ! flag == 0 Import file and compute JMatrix, RAdSlope, etc.
   if (flag == 0) then
   call CPU_TIME(time_start)
@@ -671,20 +688,6 @@ if (flag == 2) then
      endif
   else
    return ! if flag==2 and not allocated do nothing
-  endif
- endif
-  ! Writes ASCII PLY file
-  if (flag == 3) then
- if (allocated(JMatrix%R)) then
- file_idx=index(inputfile1, ".ply")
-   if( file_idx == 0) then
-     write(*,*) 'not a ply file'
-    else
-    call WriteGeomPLY(flag,JMatrix,donut,powmin,powmax,inputfile1)
-    return
-   endif
-  else
-   return ! if flag==3 and not allocated do nothing
   endif
  endif
 

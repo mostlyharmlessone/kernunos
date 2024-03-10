@@ -155,6 +155,11 @@ void GLwidget::cleanup()
   shaderGeoProgram = nullptr;
   delete shaderNormalProgram;
   shaderNormalProgram = nullptr;
+  //deallocates Fortran arrays
+  flag=99;
+  QTemporaryFile file;
+  QString fileName = file.fileName();
+  DataPrint(fileName);
   doneCurrent();
   //QObject::disconnect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &GLwidget::cleanup);
 }

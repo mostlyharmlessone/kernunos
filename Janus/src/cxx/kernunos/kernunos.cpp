@@ -358,7 +358,7 @@ void MainWindow::compare()
    update();
 }
 
-void MainWindow::save()
+void MainWindow::zern()
 {
    QTemporaryFile file;
     QString fileName = file.fileName();
@@ -411,27 +411,30 @@ void MainWindow::save()
 
 void MainWindow::ply2bin()
 {
-   QString filter = "ascii PLY (*.ply)";
-   QString fileName = QFileDialog::getOpenFileName(this,"Open *.ply file", "", filter);
-   if (fileName.isEmpty())
-       return;
-   QByteArray ba = fileName.toLocal8Bit();
-   const char *filename = ba.data();
-   ui.infoLabel->setText(tr("filename:  ")+tr(filename));
-   if (!fileName.isEmpty()) {
-       filter = "binary PLY (*.bin.ply)";
-       fileName = QFileDialog::getSaveFileName(this,"Convert PLY to file format *bin.ply", "", filter);
-       if (fileName.isEmpty())
-            return;
-       ba = fileName.toLocal8Bit();
-       const char *filenameout = ba.data();
+    QString filter = "binary PLY (*.bin.ply)";
+    QString fileName = QFileDialog::getSaveFileName(this,"Write to binary PLY .bin.ply", "", filter);
+    if (fileName.isEmpty())
+      return;
+    QByteArray ba = fileName.toLocal8Bit();
+    ba = fileName.toLocal8Bit();
+    const char *filenameout = ba.data();
+    //make temporary PLY file
+    QTemporaryFile file;
+    fileName = file.fileName();
+    fileName.append(".ply");
+    ba = fileName.toLocal8Bit();
+    const char *filename = ba.data();
+    flag=3;
+    std::cout << "file from ply2bin: " << filename;
+    m_GLwidget_secondwindow->DataPrint(filename);
+
     // from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY; MIT licence, included source in tree
-       int wrote=ConvertPLYtoBIN(filename,filenameout);
-       if (wrote == 0) {
-            ui.infoLabel->setText(tr("Wrote  ")+tr(filenameout)); }
-       else {
-            ui.infoLabel->setText(tr("Failed to write  ")+tr(filenameout));}
-   };
+    int wrote=ConvertPLYtoBIN(filename,filenameout);
+    if (wrote == 0) {
+      ui.infoLabel->setText(tr("Wrote  ")+tr(filenameout)); }
+    else {
+      ui.infoLabel->setText(tr("Failed to write  ")+tr(filenameout));}
+
    update();
 
 }
@@ -471,21 +474,21 @@ void MainWindow::LinesofCurvature()
 void MainWindow::light()
 {
    if (GLwidget::isLight()) {
-   GLwidget::setLight(false);
-   ui.infoLabel->setText(tr("Set <b>View:Lighting false</b>"));
+        GLwidget::setLight(false);
+        ui.infoLabel->setText(tr("Set <b>View:Lighting false</b>"));
    } else {
-   GLwidget::setLight(true);
-   ui.infoLabel->setText(tr("Set <b>View:Lighting true</b>"));
+        GLwidget::setLight(true);
+        ui.infoLabel->setText(tr("Set <b>View:Lighting true</b>"));
    };
 }
 void MainWindow::normal()
 {
    if (GLwidget::isNormal()) {
-   GLwidget::setNormal(false);
-   ui.infoLabel->setText(tr("Set <b>View:Normal false</b>"));
+        GLwidget::setNormal(false);
+        ui.infoLabel->setText(tr("Set <b>View:Normal false</b>"));
    } else {
-   GLwidget::setNormal(true);
-   ui.infoLabel->setText(tr("Set <b>View:Normal true</b>"));
+        GLwidget::setNormal(true);
+        ui.infoLabel->setText(tr("Set <b>View:Normal true</b>"));
    };
 }
 
@@ -494,7 +497,6 @@ void MainWindow::about()
 {
    // https://www.modernescpp.com/index.php/asynchronous-callable-wrappers
    static const unsigned int hwGuess= 4;
-   //  these could come in handy later for available number of threads/cores for asynchronous tasks
    unsigned int hw = std::thread::hardware_concurrency();
    unsigned int hwConcurr= (hw != 0)? hw : hwGuess;
    std::string t = std::to_string(hwConcurr);
@@ -529,10 +531,9 @@ void MainWindow::createActions()
    compareAct->setStatusTip(tr("Compare to previous file"));
    connect(compareAct, &QAction::triggered, this, &MainWindow::compare);
 
-   saveAct = new QAction(tr("&Save"), this);
-   saveAct->setShortcuts(QKeySequence::Save);
-   saveAct->setStatusTip(tr("Save the document to disk"));
-   connect(saveAct, &QAction::triggered, this, &MainWindow::save);
+   zernAct = new QAction(tr("&Compute Zernike Coefficients"), this);
+   zernAct->setStatusTip(tr("Save the document to disk"));
+   connect(zernAct, &QAction::triggered, this, &MainWindow::zern);
 
    AddNewAct = new QAction(tr("&New"), this);
    AddNewAct->setShortcuts(QKeySequence::New);
@@ -540,12 +541,10 @@ void MainWindow::createActions()
    connect(AddNewAct, &QAction::triggered, this, &MainWindow::onAddNew);
 
    ply2binAct = new QAction(tr("&PLY to BIN..."), this);
-   ply2binAct->setShortcuts(QKeySequence::SaveAs);
    ply2binAct->setStatusTip(tr("Convert ASCII PLY to binary PLY"));
    connect(ply2binAct, &QAction::triggered, this, &MainWindow::ply2bin);
 
    off2stlAct = new QAction(tr("&OFF to STL..."), this);
-   off2stlAct->setShortcuts(QKeySequence::SaveAs);
    off2stlAct->setStatusTip(tr("Convert OFF to STL"));
    connect(off2stlAct, &QAction::triggered, this, &MainWindow::off2stl);
 
@@ -562,10 +561,14 @@ void MainWindow::createActions()
    lightAct = new QAction(tr("&Lighting"), this);
    lightAct->setStatusTip(tr("Change the lighting in the window"));
    connect(lightAct, &QAction::triggered, this, &MainWindow::light);
+   lightAct->setCheckable(true);
+   lightAct->setChecked(GLwidget::isLight());
 
    normalAct = new QAction(tr("&Show Normals"), this);
-   lightAct->setStatusTip(tr("Show the surface normals"));
+   normalAct->setStatusTip(tr("Show the surface normals"));
    connect(normalAct, &QAction::triggered, this, &MainWindow::normal);
+   normalAct->setCheckable(true);
+   normalAct->setChecked(GLwidget::isNormal());
 
    liocAct = new QAction(tr("&Lines of Curvature"), this);
    liocAct->setStatusTip(tr("Show plot of lines of curvature"));
@@ -584,7 +587,6 @@ void MainWindow::createMenus()
    fileMenu = menuBar()->addMenu(tr("&File"));
    fileMenu->addAction(openAct);
    fileMenu->addAction(compareAct);
-   fileMenu->addAction(saveAct);
    fileMenu->addAction(AddNewAct);
    exportMenu = fileMenu->addMenu(tr("&Export"));
    exportMenu->addAction(ply2binAct);
@@ -592,6 +594,7 @@ void MainWindow::createMenus()
    fileMenu->addSeparator();
    fileMenu->addAction(exitAct);
    analyzeMenu = menuBar()->addMenu(tr("&Analyze"));
+   analyzeMenu->addAction(zernAct);
    analyzeMenu->addAction(liocAct);
    viewMenu = menuBar()->addMenu(tr("&View"));
    viewMenu->addAction(lightAct);

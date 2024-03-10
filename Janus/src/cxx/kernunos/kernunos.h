@@ -28,14 +28,14 @@ extern GLuint* elements;
 
 // calling fortran code
 extern "C" {
-void janus_(int *flag, char *filename, GLuint *elements, GLfloat *vertices, int *nV, int *nE); // needs an underscore despite c_interface.f90 bind C declaration
+void janus_(int *flag, char *filename, GLuint *elements, GLfloat *vertices, int *nV, int *nE);
 };
 
 extern "C" {
 void ConvertOFFtoSTL_C_(char *iname, char *oname);
 };
 
-// calling C code directly from kernunos
+// calling C code
 extern "C" {
 int ConvertPLYtoBIN(const char *iname, const char *oname);
 };
@@ -67,7 +67,7 @@ protected:
 private slots:
     void open();
     void compare();
-    void save();
+    void zern();
     void ply2bin();
     void off2stl();
     void normal();
@@ -103,7 +103,7 @@ private:
     QMenu *helpMenu;
     QAction *openAct;
     QAction *compareAct;
-    QAction *saveAct;
+    QAction *zernAct;
     QAction *AddNewAct;
     QAction *exitAct;
     QAction *ply2binAct;
@@ -114,6 +114,7 @@ private:
     QAction *aboutAct;
     QAction *aboutQtAct;
     QLabel *infoLabel;
+
 };
 
 QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)
