@@ -306,17 +306,17 @@ bool GLwidget::DataPrint(QString fileName)
 */
   QByteArray ba = fileName.toLocal8Bit();
   filename = ba.data();
-  //    std::cout << "filename in C++ in DataLoad: " << filename << std::endl;
-  //    std::cout << "first_time: " << first_time << std::endl;
 
   if (!(flag == 0)){
     // reload values to avoid seg fault if previous nV and nE are too small
     nV=51840;
     nE=26130;
-//    auto future1 = std::async([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);});
-//    future1.get();
-    std::cout << "flag from C: " << flag; //is global
-    std::thread([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);}).detach();
+
+    if (!(flag == 1)){
+      auto future1 = std::async([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);});  //everybody else gets blocking thread
+      future1.get();}    
+    else {
+      std::thread([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);}).detach();}  //zern gets independent thread
   }
   return true;
 }

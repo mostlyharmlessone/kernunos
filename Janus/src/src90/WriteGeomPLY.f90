@@ -17,6 +17,7 @@
        real(REAL32) :: vert1,vert2,vert3,nrm1,nrm2,nrm3,normal
        real(wp) :: pow
        integer :: i,j,M1,N1,verts,faces,edges,unitno1,ierr
+       character(400) :: message
        integer(INT32) :: ivert1,ivert2,ivert3,ivert4,vertnum
        logical :: quad
        integer(int16) :: rgbv(3)  
@@ -24,7 +25,7 @@
        quad = .FALSE.
        if (donut .AND. quad) then
         write(*,*) 'WriteGeom: Cannot have closed disk with quadrilaterals'
-        stop
+        return
        endif
 !      RGB colors can follow after list of faces       
 !      255 0 0 #red
@@ -33,8 +34,14 @@
        N1=size(b%r,1)
        M1=size(b%r,2)
        unitno1 = get_new_fileunit()
-       open(unitno1, file=trim(PLYNAME), action="write", iostat=ierr)
+       open(unitno1, file=trim(PLYNAME), action="write", iostat=ierr, iomsg=message)
        
+       if(ierr == 0) then
+        write(*,*) 'success opening file: ',trim(PLYNAME)
+       else
+        write(*,*) 'failed to open file with ierr: ',trim(PLYNAME),ierr,trim(message)
+       endif
+
 !     if no missing faces
       if (donut) then
        verts=M1*N1
@@ -129,7 +136,6 @@
          rgbv=rgb5(pow,powmin,powmax)                   
          write(unitno1,*) vert1,vert2,vert3,nrm1,nrm2,nrm3,rgbv,255   
        endif
-
        do i=1,M1
         do j=1,N1 
           X1=b%THT(i)
@@ -157,7 +163,6 @@
          write(unitno1,*) vert1,vert2,vert3,nrm1,nrm2,nrm3,rgbv,255
         end do
        end do
-
 !      Faces HAVE to be written/formatted as integers(INT32) 
         if (donut .eqv. .FALSE.) then  ! inner set of faces
          do i=1,M1-1 ! j=1 and the origin j=0
@@ -173,8 +178,7 @@
          ivert1=0   ! verts from above zero indexing, origin given last vertex number
          vertnum=3
          write(unitno1,*) vertnum,ivert1,ivert2,ivert3
-        endif 
-       
+        endif        
        do i=1,M1-1
         do j=1,N1-1
          if (donut) then
@@ -199,8 +203,7 @@
            endif
          endif
         end do
-       end do  
-       
+       end do        
 !       Last one is different
 !       i=M1 because "i+1"=M1, but second terms have 0 because "i" is (i-1)  
         do j=1,N1-1
@@ -227,6 +230,6 @@
          endif
         end do
         
-       close (unitno1)     
-    
+       close (unitno1)    
+  
        end subroutine WriteGeomPLY

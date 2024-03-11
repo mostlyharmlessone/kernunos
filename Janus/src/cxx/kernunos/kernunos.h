@@ -70,6 +70,9 @@ private slots:
     void zern();
     void ply2bin();
     void off2stl();
+    void makeoff();
+    void makeply();
+    void importexport();
     void normal();
     void light();
     void about();
@@ -108,6 +111,9 @@ private:
     QAction *exitAct;
     QAction *ply2binAct;
     QAction *off2stlAct;
+    QAction *makeoffAct;
+    QAction *makeplyAct;
+    QAction *importexportAct;
     QAction *lightAct;
     QAction *liocAct;
     QAction *normalAct;

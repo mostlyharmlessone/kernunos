@@ -139,6 +139,7 @@ include_directories(${GTK3_INCLUDE_DIRS})
 link_directories(${GTK3_LIBRARY_DIRS})
 list(APPEND FC_DEP_LIBS ${GTK3_LIBRARIES})
 find_library(GFORTRAN_LIBRARY NAMES gfortran)  # trying to fix ISO_Fortran_binding.h not found error, doesn't solve it, might be Intel compiler only
+ADD_COMPILE_DEFINITIONS(ASSIMP_VERSION="${ASSIMP_VERSION}")
 find_package(BLAS)
  if ( BLAS_FOUND )
   message(STATUS "BLAS found at ${BLAS_LIBRARIES}")
@@ -250,7 +251,7 @@ endif(WIN32)
 #libraries      
     set(LIBS ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} ${GFORTRAN_LIBRARY})
 
-# need this so that GLwidget.h can be found by AUTOUIC and ui.mainwindow.h, and for rply
+# need this so that GLwidget.h can be found by AUTOUIC and ui.mainwindow.h, and for rply and assimp
 include_directories(src/cxx/kernunos src/c/rply)
 
 #kernunos Qt version
@@ -289,7 +290,7 @@ include_directories(src/cxx/kernunos src/c/rply)
                    boost_system
                    boost_filesystem
                    PUBLIC Qt6::Core Qt6::OpenGLWidgets Qt6::Gui Qt::Widgets Qt6::Charts Qt6::OpenGL
-                          splia modules rply_includes ${LIBS}
+                          assimp splia modules rply_includes ${LIBS} -Wno-deprecated-declarations     #doesn't do anything
                )
 
 

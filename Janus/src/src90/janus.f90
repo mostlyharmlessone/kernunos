@@ -86,6 +86,61 @@ allocate(character(nblines) :: inputfile1)
 allocate(character(nblines) :: logfile)
 inputfile1=trim(new_path)
 allocate(character(nblines) :: inputfile2)
+
+! Writes ASCII PLY file
+if (flag == 3) then
+if (allocated(JMatrix%R)) then
+file_idx=index(inputfile1, ".ply")
+ if( file_idx == 0) then
+   write(*,*) 'not a ply file'
+  else
+
+  donut = .FALSE.
+
+  powctr=JMatrix%SAGC0(1)
+  powmin=JMatrix%SAGC0(2)
+  powmax=JMatrix%SAGC0(3)
+  write(*,*) 'powctr,POWMIN,POWMAX',powctr,POWMIN,POWMAX
+  powmin=35.5
+  powmax=55.5
+
+  call WriteGeomPLY(flag,JMatrix,donut,powmin,powmax,inputfile1)
+  write(*,*) 'Wrote ply file...',inputfile1
+  return
+ endif
+else
+  write(*,*) 'Have to allocate data prior to writing a ply file'
+ return ! if flag==3 and not allocated do nothing
+endif
+endif
+
+! Writes OFF file
+if (flag == 2) then
+if (allocated(JMatrix%R)) then
+file_idx=index(inputfile1, ".off")
+ if( file_idx == 0) then
+   write(*,*) 'not an off file'
+  else
+
+  donut = .FALSE.
+
+  powctr=JMatrix%SAGC0(1)
+  powmin=JMatrix%SAGC0(2)
+  powmax=JMatrix%SAGC0(3)
+  write(*,*) 'powctr,POWMIN,POWMAX',powctr,POWMIN,POWMAX
+  powmin=35.5
+  powmax=55.5
+
+  call WriteGeomOFF(flag,JMatrix,donut,powmin,powmax,inputfile1)
+  write(*,*) 'Wrote off file...',inputfile1
+  return
+ endif
+else
+  write(*,*) 'Have to allocate data prior to writing an off file'
+ return ! if flag==2 and not allocated do nothing
+endif
+endif
+
 ! From either RA?.DAT or XX?.DAT, set inputfile1 to the XX version, inputfile1 to the RA version.
 ! For either .CUR or .ELE or .CUR.CSV or .ELE.CSV set inputfile1 to Penta file of appropriate type with TestData
 ! For CSV but not .ELE.CSV or .CUR.CSV set inputfile1 to Atlas file
@@ -160,23 +215,6 @@ file_idx=index(inputfile1, ".DAT")
     TestData=0 ; MM=360; N=16   ! EyeSys
     write(*,*) "EyeSys files: ",inputfile1," ",inputfile2
    endif
-
-! Writes ASCII PLY file
-if (flag == 3) then
-if (allocated(JMatrix%R)) then
-file_idx=index(inputfile1, ".ply")
- if( file_idx == 0) then
-   write(*,*) 'not a ply file'
-  else
-  write(*,*) 'Writing ply file...',inputfile1
-  call WriteGeomPLY(flag,JMatrix,donut,powmin,powmax,inputfile1)
-  return
- endif
-else
-  write(*,*) 'Have to allocate data prior to writing a ply file'
- return ! if flag==3 and not allocated do nothing
-endif
-endif
 
   ! flag == 0 Import file and compute JMatrix, RAdSlope, etc.
   if (flag == 0) then
@@ -676,20 +714,6 @@ endif
 ! flag determines what to write for elevation and color
   call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
 
-! Writes OFF file
-if (flag == 2) then
-  if (allocated(JMatrix%R)) then
-  file_idx=index(inputfile1, ".off")
-     if( file_idx == 0) then
-      write(*,*) 'not an off file'
-     else
-      call WriteGeomOFF(flag,JMatrix,donut,powmin,powmax,inputfile1)
-      return
-     endif
-  else
-   return ! if flag==2 and not allocated do nothing
-  endif
- endif
 
 ! eigenvalues show shape of RadSlope without make_rings but with FillArray 7 elevations
 !  atmp=pca(2,RadSlope) 

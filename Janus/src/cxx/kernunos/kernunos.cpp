@@ -72,6 +72,12 @@
 #include <iostream>
 #include <QTemporaryFile>
 
+#include <assimp/cimport.h>
+#include <assimp/Importer.hpp>
+#include <assimp/Exporter.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 using namespace QtConcurrent;
 
 // global settings
@@ -409,57 +415,151 @@ void MainWindow::zern()
    ui.infoLabel->setText(tr("Invoked <b>File|Save</b>"));
 }
 
+void MainWindow::importexport()
+{
+   QString filter = "Export with Assimp OBJ (*.obj) ;; Collada (*.dea) ;; 3ds (*.3ds) )";
+   QString fileName = QFileDialog::getSaveFileName(this,"Write Assimp exports", "", filter);
+   if (fileName.isEmpty())
+       return;
+   QByteArray ba = fileName.toLocal8Bit();
+   const char *filenameout = ba.data();
+   //make temporary PLY file
+   QTemporaryFile FILE;
+   FILE.setAutoRemove(true);
+   FILE.open();
+   QString filenamelocal = FILE.fileName();
+   filenamelocal = filenamelocal.append(".ply");
+   ba = filenamelocal.toLocal8Bit();
+   const char *filename = ba.data();
+   flag=3;
+   m_GLwidget_secondwindow->DataPrint(filename);
+//Assimp code here
+    auto stream = aiGetPredefinedLogStream(aiDefaultLogStream_STDOUT,NULL);
+    aiAttachLogStream(&stream);
+    Assimp::Importer Importer;
+    // Check and validate the specified model file extension.
+    //0: dae 1: x 2: stp 3: obj 4: obj 5: stl 6: stl 7: ply 8: ply 9: 3ds 10: gltf 11: glb 12: gltf2 13: assbin 14: assxml 15: x3d 16: 3mf
+    // https://github.com/assimp/assimp/issues/3827  binary ply is broken, use rply
+    const char* extension = strrchr(filenameout, '.');
+    if (!extension) {
+       std::cout <<"Please provide a file with a valid extension.\n";
+       return;
+    }
+    if (AI_FALSE == aiIsExtensionSupported(extension)) {
+       std::cout <<"The specified model file extension is currently unsupported in Assimp "; ASSIMP_VERSION ".";
+    }
+    std::cout << "\tReading file using ASSIMP" << std::endl;
+    const aiScene *aiscene = Importer.ReadFile(filename, aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
+    //  const aiScene *aiscene = aiImportFile(filename, aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
+    if (!aiscene) {
+       printf("Error parsing '%s': '%s'\n", filename, Importer.GetErrorString());
+       return;
+    }
+    uint ID = Importer.GetImporterIndex(extension);
+
+    Assimp::Exporter Exporter;
+    const aiExportFormatDesc *format = Exporter.GetExportFormatDescription(ID);
+    Exporter.Export(aiscene, format->id , filenameout, 0);
+
+    if (!(aiReturn_SUCCESS == 0)) {
+       ui.infoLabel->setText(tr("Error exporting")+tr(filenameout)+tr(Exporter.GetErrorString() ) );
+    }
+   else {
+       ui.infoLabel->setText(tr("Wrote  ")+tr(filenameout)); }
+   aiDetachAllLogStreams();
+   update();
+}
+
+
+
 void MainWindow::ply2bin()
 {
-    QString filter = "binary PLY (*.bin.ply)";
+    QString filter = "binary PLY *.bin.ply (*.bin.ply)";
     QString fileName = QFileDialog::getSaveFileName(this,"Write to binary PLY .bin.ply", "", filter);
     if (fileName.isEmpty())
       return;
     QByteArray ba = fileName.toLocal8Bit();
-    ba = fileName.toLocal8Bit();
     const char *filenameout = ba.data();
     //make temporary PLY file
-    QTemporaryFile file;
-    fileName = file.fileName();
-    fileName.append(".ply");
-    ba = fileName.toLocal8Bit();
+    /*
+    std::string filenamelocal = std::tmpnam(nullptr);
+    filenamelocal = filenamelocal.append(".ply");
+    std::cout << "temporary file name: " << filenamelocal << '\n';
+    const char *filename = filenamelocal.c_str();
+    */
+    QTemporaryFile FILE;
+    FILE.setAutoRemove(true);
+    FILE.open();
+    QString filenamelocal = FILE.fileName();
+    filenamelocal = filenamelocal.append(".ply");
+    ba = filenamelocal.toLocal8Bit();
     const char *filename = ba.data();
     flag=3;
-    std::cout << "file from ply2bin: " << filename;
-    m_GLwidget_secondwindow->DataPrint(filename);
-
+       m_GLwidget_secondwindow->DataPrint(filename);
     // from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY; MIT licence, included source in tree
     int wrote=ConvertPLYtoBIN(filename,filenameout);
     if (wrote == 0) {
       ui.infoLabel->setText(tr("Wrote  ")+tr(filenameout)); }
     else {
       ui.infoLabel->setText(tr("Failed to write  ")+tr(filenameout));}
-
    update();
-
 }
 
 void MainWindow::off2stl()
 {
-   QString filter = "OFF (*.off)";
-   QString fileName = QFileDialog::getOpenFileName(this,"Open *.off file", "", filter);
+   QString filter = "*.stl  (*.stl) ;; Binary *.bin.stl (*.bin.stl)";
+   QString fileName = QFileDialog::getSaveFileName(this,"Write to an ASCII STL or Binary STL file", "", filter);
    if (fileName.isEmpty())
-       return;
+      return;
    QByteArray ba = fileName.toLocal8Bit();
+   char *filenameout = ba.data();
+   //make temporary OFF file
+   /*
+    std::string filenamelocal = std::tmpnam(nullptr);
+    filenamelocal = filenamelocal.append(".off");
+    std::cout << "temporary file name: " << filenamelocal << '\n';
+    const char *filename = filenamelocal.c_str();
+    */
+   QTemporaryFile FILE;
+   FILE.setAutoRemove(true);  //doesnt do anything
+   FILE.open();
+   QString filenamelocal = FILE.fileName();
+   filenamelocal = filenamelocal.append(".off");
+   ba = filenamelocal.toLocal8Bit();
    char *filename = ba.data();
-   ui.infoLabel->setText(tr("filename:  ")+tr(filename));
-   if (!fileName.isEmpty()) {
-       filter = "STL (*.stl);;binary STL (*.bin.stl)";
-       fileName = QFileDialog::getSaveFileName(this,"Convert OFF to file format *.stl or *.bin.stl", "", filter);
-       if (fileName.isEmpty())
-            return;
-       ba = fileName.toLocal8Bit();
-       char *filenameout = ba.data();
-       ConvertOFFtoSTL_C_(filename,filenameout);
-       ui.infoLabel->setText(tr("Wrote  ")+tr(filenameout));
-   };
-   update();
+   flag=2;
+   m_GLwidget_secondwindow->DataPrint(filename);
+   ConvertOFFtoSTL_C_(filename,filenameout);
+   ui.infoLabel->setText(tr("Wrote  ")+tr(filenameout));
+   FILE.remove();    //doesnt do anything
 }
+
+void MainWindow::makeoff()
+{
+   QString filter = "OFF *.off (*.off) ";
+   QString fileName = QFileDialog::getSaveFileName(this,"Write to an OFF file", "", filter);
+   if (fileName.isEmpty())
+      return;
+   QByteArray ba = fileName.toLocal8Bit();
+   char *filenameout = ba.data();
+   flag=2;
+   m_GLwidget_secondwindow->DataPrint(filenameout);
+   ui.infoLabel->setText(tr("Wrote  ")+tr(filenameout));
+}
+
+void MainWindow::makeply()
+{
+   QString filter = "PLY *.ply  (*.ply) ";
+   QString fileName = QFileDialog::getSaveFileName(this,"Write to an ASCII PLY file", "", filter);
+   if (fileName.isEmpty())
+      return;
+   QByteArray ba = fileName.toLocal8Bit();
+   char *filenameout = ba.data();
+   flag=3;
+   m_GLwidget_secondwindow->DataPrint(filenameout);
+   ui.infoLabel->setText(tr("Wrote  ")+tr(filenameout));
+}
+
 
 void MainWindow::LinesofCurvature()
 {
@@ -540,13 +640,21 @@ void MainWindow::createActions()
    AddNewAct->setStatusTip(tr("New Window"));
    connect(AddNewAct, &QAction::triggered, this, &MainWindow::onAddNew);
 
-   ply2binAct = new QAction(tr("&PLY to BIN..."), this);
-   ply2binAct->setStatusTip(tr("Convert ASCII PLY to binary PLY"));
+   ply2binAct = new QAction(tr("Binary PLY format..."), this);
+   ply2binAct->setStatusTip(tr("Write a binary PLY file"));
    connect(ply2binAct, &QAction::triggered, this, &MainWindow::ply2bin);
 
-   off2stlAct = new QAction(tr("&OFF to STL..."), this);
-   off2stlAct->setStatusTip(tr("Convert OFF to STL"));
+   off2stlAct = new QAction(tr("STL (ASCII or binary) format..."), this);
+   off2stlAct->setStatusTip(tr("Write an ASCII or binary STL file"));
    connect(off2stlAct, &QAction::triggered, this, &MainWindow::off2stl);
+
+   makeoffAct = new QAction(tr("OFF format..."), this);
+   makeoffAct->setStatusTip(tr("Write an OFF file"));
+   connect(makeoffAct, &QAction::triggered, this, &MainWindow::makeoff);
+
+   makeplyAct = new QAction(tr("PLY (ASCII) format..."), this);
+   makeplyAct->setStatusTip(tr("Write an ASCII PLY file"));
+   connect(makeplyAct, &QAction::triggered, this, &MainWindow::makeply);
 
    exitAct = new QAction(tr("E&xit"), this);
    exitAct->setShortcuts(QKeySequence::Quit);
@@ -589,7 +697,9 @@ void MainWindow::createMenus()
    fileMenu->addAction(compareAct);
    fileMenu->addAction(AddNewAct);
    exportMenu = fileMenu->addMenu(tr("&Export"));
+   exportMenu->addAction(makeplyAct);
    exportMenu->addAction(ply2binAct);
+   exportMenu->addAction(makeoffAct);
    exportMenu->addAction(off2stlAct);
    fileMenu->addSeparator();
    fileMenu->addAction(exitAct);
@@ -644,7 +754,7 @@ int main(int argc, char *argv[])
 {
    QApplication app(argc, argv);
    QCoreApplication::setOrganizationName("QtProject");
-   QCoreApplication::setApplicationName("kernunos front end");
+   QCoreApplication::setApplicationName("kernunos");
    QCoreApplication::setApplicationVersion(QT_VERSION_STR);
    QCommandLineParser parser;
    parser.setApplicationDescription(QCoreApplication::applicationName());

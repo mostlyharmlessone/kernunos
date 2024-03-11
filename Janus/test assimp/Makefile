@@ -85,6 +85,51 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 .PHONY : rebuild_cache/fast
 
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Available install components are: \"assimp-dev\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+.PHONY : list_install_components/fast
+
+# Special rule for the target install
+install: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install
+
+# Special rule for the target install
+install/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install/fast
+
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local/fast
+
+# Special rule for the target install/strip
+install/strip: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip
+
+# Special rule for the target install/strip
+install/strip/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip/fast
+
 # The main all target
 all: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start "/home/debeus/Janus/Janus/test assimp/CMakeFiles" "/home/debeus/Janus/Janus/test assimp//CMakeFiles/progress.marks"
@@ -117,6 +162,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named assimp_simpleogl
+
+# Build rule for target.
+assimp_simpleogl: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 assimp_simpleogl
+.PHONY : assimp_simpleogl
+
+# fast build rule for target.
+assimp_simpleogl/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/assimp_simpleogl.dir/build.make CMakeFiles/assimp_simpleogl.dir/build
+.PHONY : assimp_simpleogl/fast
+
+#=============================================================================
 # Target rules for targets named importexport
 
 # Build rule for target.
@@ -128,6 +186,21 @@ importexport: cmake_check_build_system
 importexport/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/importexport.dir/build.make CMakeFiles/importexport.dir/build
 .PHONY : importexport/fast
+
+# target to build an object file
+Sample_SimpleOpenGL.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/assimp_simpleogl.dir/build.make CMakeFiles/assimp_simpleogl.dir/Sample_SimpleOpenGL.o
+.PHONY : Sample_SimpleOpenGL.o
+
+# target to preprocess a source file
+Sample_SimpleOpenGL.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/assimp_simpleogl.dir/build.make CMakeFiles/assimp_simpleogl.dir/Sample_SimpleOpenGL.i
+.PHONY : Sample_SimpleOpenGL.i
+
+# target to generate assembly for a file
+Sample_SimpleOpenGL.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/assimp_simpleogl.dir/build.make CMakeFiles/assimp_simpleogl.dir/Sample_SimpleOpenGL.s
+.PHONY : Sample_SimpleOpenGL.s
 
 # target to build an object file
 importexport.o:
@@ -151,8 +224,16 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... edit_cache"
+	@echo "... install"
+	@echo "... install/local"
+	@echo "... install/strip"
+	@echo "... list_install_components"
 	@echo "... rebuild_cache"
+	@echo "... assimp_simpleogl"
 	@echo "... importexport"
+	@echo "... Sample_SimpleOpenGL.o"
+	@echo "... Sample_SimpleOpenGL.i"
+	@echo "... Sample_SimpleOpenGL.s"
 	@echo "... importexport.o"
 	@echo "... importexport.i"
 	@echo "... importexport.s"
