@@ -8,50 +8,69 @@
 
 int main(int argc, char** argv)
 {
-    std::string filename = "elevation2.ply";
+    const char* filenameout = NULL;
+    const char* filename = NULL;
+    filename = argv[1];
+    filenameout = argv[2];
 
- //   auto stream = aiGetPredefinedLogStream(aiDefaultLogStream_STDOUT,NULL);
- //   aiAttachLogStream(&stream);
-
+    auto stream = aiGetPredefinedLogStream(aiDefaultLogStream_STDOUT,NULL);
+    aiAttachLogStream(&stream);
     Assimp::Importer Importer;
-    //Importer.
-    std::cout << "\tReading file using ASSIMP" << std::endl;
-    const aiScene *aiscene = Importer.ReadFile(filename.c_str(), aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
+    Assimp::Exporter Exporter;
+    const aiImporterDesc *iformat = nullptr;
 
-    std::string str = Importer.GetErrorString();
-
-
-    if (!aiscene) {
-        printf("Error parsing '%s': '%s'\n", filename.c_str(), Importer.GetErrorString());
+    // Check and validate the specified model file extension.
+    // https://github.com/assimp/assimp/issues/3827  binary ply is broken, use rply
+    // has to be on both the import and export list.
+    const char* extension = strrchr(filenameout, '.');
+    if (!extension) {
+        std::cout <<"Please provide a file with a valid extension.\n";
         return 1;
     }
-//0: dae 1: x 2: stp 3: obj 4: obj 5: stl 6: stl 7: ply 8: ply 9: 3ds 10: gltf 11: glb 12: gltf2 13: assbin 14: assxml 15: x3d 16: 3mf
-// https://github.com/assimp/assimp/issues/3827  binary ply is broken, use rply
+    if (AI_FALSE == aiIsExtensionSupported(extension)) {
+        std::cout <<"The specified model file extension is currently unsupported in Assimp\n ";
+        return 1;
+    }
 
-    Assimp::Exporter Exporter;
-  //  const aiExportFormatDesc* format = Exporter.GetExportFormatDescription(0);  //dae == collada
-    const aiExportFormatDesc* format = Exporter.GetExportFormatDescription(15);
-    int lIndex = filename.find_last_of('/');
+    std::cout << "\tReading file using ASSIMP" << std::endl;
+    const aiScene *aiscene = Importer.ReadFile(filename, aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
+    if (!aiscene) {
+        printf("Error parsing '%s': '%s'\n", filename, Importer.GetErrorString());
+        return 1;}
 
-    //const string path = Filename.substr(0,lIndex+1);
-    std::string path = "elevation2.x3d";
-    std::cout << "\tExport path: " << path << std::endl;
+    uint countin = Importer.GetImporterCount();
+;
+    uint ID = Importer.GetImporterIndex(extension);  //unfortunately these are not Exporter formatIDs
+    int i = 0 ;
+    do {
+        iformat = Importer.GetImporterInfo(i);
+        std::cout << "id: "<< i << " " << iformat->mFileExtensions << "\n";
+        i++;
+    } while (i < countin);
 
-//    Assimp::ExportProperties *properties = new Assimp::ExportProperties;
-//    properties->SetPropertyBool(AI_CONFIG_EXPORT_POINT_CLOUDS, true);
-//    aiReturn ret = Exporter.Export(aiscene, "off", path, 0, properties );  //makes no error and no file
-//    aiReturn ret = Exporter.Export(aiscene, "off", path);  //no error and no file
-//    aiReturn ret = Exporter.Export(aiscene, "off", "float-color.off");  //no error and no file
 
-    aiReturn ret = Exporter.Export(aiscene, format->id , path, 0);
-
- //   aiReturn ret = Exporter.Export(aiscene, "obj", path);
+    std::cout << "ID: "<< ID << "\n";
+    iformat = Importer.GetImporterInfo(ID);
+    uint count = Exporter.GetExportFormatCount();
+    std::cout << "count: "<< count << "\n";
+    const aiExportFormatDesc *format;
+    i = 0 ;
+    do {
+        format = Exporter.GetExportFormatDescription(i);
+        std::cout << "id: "<< i << " " << format->id << "\n";
+        if (iformat->mFileExtensions == format->id){
+            std::cout << "ID is " << i << "\n";
+            Exporter.Export(aiscene, format->id , filenameout, 0);
+            std::cout << "Wrote " << filenameout << "\n";
+        }
+        i++;
+    } while (i < count);
 
     if (!(aiReturn_SUCCESS == 0)) {
-        printf("Error exporting '%s': '%s'\n", filename.c_str(), Exporter.GetErrorString());
-        return 1;
+        std::cout << "Error exporting" << filenameout << Exporter.GetErrorString() << "\n" ;
     }
 
+    aiDetachAllLogStreams();
 
     return 0;
 }
