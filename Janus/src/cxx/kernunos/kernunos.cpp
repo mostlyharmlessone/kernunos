@@ -417,7 +417,17 @@ void MainWindow::zern()
 
 void MainWindow::importexport()
 {
-   QString filter = "Export with Assimp OBJ (*.obj) ;; Collada (*.dea) ;; 3ds (*.3ds) )";
+   QString filter =
+   "Stanford Polygon Library ASCII .ply (*.ply) ;; "
+   "Stereolithography .stl (*.stl) ;; "
+   "Stereolithography binary .stlb (*.stlb) ;; "
+   "Extensible 3D .x3d (*.x3d) ;; "
+   "Direct3D XFile .x (*.x) ;; "
+   "Autodesk FBX .fbx (*.fbx) ;; "
+   "Wavefront Object .obj (*.obj) ;; "
+   "Collada .dae (*.dae) ;; "
+   "Discreet 3DS .3ds (*.3ds) )";
+
    QString fileName = QFileDialog::getSaveFileName(this,"Write Assimp exports", "", filter);
    if (fileName.isEmpty())
        return;
@@ -434,39 +444,121 @@ void MainWindow::importexport()
    flag=3;
    m_GLwidget_secondwindow->DataPrint(filename);
 //Assimp code here
-    auto stream = aiGetPredefinedLogStream(aiDefaultLogStream_STDOUT,NULL);
-    aiAttachLogStream(&stream);
-    Assimp::Importer Importer;
-    // Check and validate the specified model file extension.
-    //0: dae 1: x 2: stp 3: obj 4: obj 5: stl 6: stl 7: ply 8: ply 9: 3ds 10: gltf 11: glb 12: gltf2 13: assbin 14: assxml 15: x3d 16: 3mf
-    // https://github.com/assimp/assimp/issues/3827  binary ply is broken, use rply
-    const char* extension = strrchr(filenameout, '.');
-    if (!extension) {
+   auto stream = aiGetPredefinedLogStream(aiDefaultLogStream_STDOUT,NULL);
+   aiAttachLogStream(&stream);
+   Assimp::Importer Importer;
+   Assimp::Exporter Exporter;
+   const aiImporterDesc *iformat = nullptr;
+   const aiExportFormatDesc *format;
+   // Check and validate the specified model file extension.
+   // has to be on both the import and export list.
+   // only obj,dae,ascii ply,binary and ascii stl,3ds,x and fbx verified to work from ply. Colors are not always preserved eg. stl
+   const char* extension = strrchr(filenameout, '.');
+
+   std::cout << "errorline kernunos 458: " << extension << "  " << filenameout << "\n";
+
+   std::string extstring = extension;
+   std::string binarystl = ".stlb";
+   if (extstring == binarystl) {
+       //   extension = ".bin.stl";  //because stlb is not recognized, and neither is bin.stl as binary stl
+       std::cout << "\tReading file using ASSIMP" << std::endl;
+       const aiScene *aiscene = Importer.ReadFile(filename, aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
+       if (!aiscene) {
+            printf("Error parsing '%s': '%s'\n", filename, Importer.GetErrorString()); }
+       format = Exporter.GetExportFormatDescription(6);
+       Exporter.Export(aiscene, format->id , filenameout, 0);
+       std::cout << "Wrote " << filenameout << "\n";
+       return;
+   }
+
+   // https://github.com/assimp/assimp/issues/3827  binary ply is broken, use rply instead
+   /*
+   extstring = extension;
+   std::string binaryply = ".plyb";
+   if (extstring == binaryply) {
+       //   extension = ".bin.ply";  //because plyb is not recognized, and neither is bin.ply as binary ply
+       std::cout << "\tReading file using ASSIMP" << std::endl;
+       const aiScene *aiscene = Importer.ReadFile(filename, aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
+       if (!aiscene) {
+            printf("Error parsing '%s': '%s'\n", filename, Importer.GetErrorString()); }
+       format = Exporter.GetExportFormatDescription(8);
+       Exporter.Export(aiscene, format->id , filenameout, 0);
+       std::cout << "Wrote " << filenameout << "\n";
+       return;
+   }
+*/
+
+   if (!extension) {
        std::cout <<"Please provide a file with a valid extension.\n";
        return;
-    }
-    if (AI_FALSE == aiIsExtensionSupported(extension)) {
-       std::cout <<"The specified model file extension is currently unsupported in Assimp "; ASSIMP_VERSION ".";
-    }
-    std::cout << "\tReading file using ASSIMP" << std::endl;
-    const aiScene *aiscene = Importer.ReadFile(filename, aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
-    //  const aiScene *aiscene = aiImportFile(filename, aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
-    if (!aiscene) {
-       printf("Error parsing '%s': '%s'\n", filename, Importer.GetErrorString());
+   }
+   if (AI_FALSE == aiIsExtensionSupported(extension)) {
+       std::cout <<"The specified model file extension is currently unsupported in Assimp\n ";
        return;
-    }
-    uint ID = Importer.GetImporterIndex(extension);
+   }
 
-    Assimp::Exporter Exporter;
-    const aiExportFormatDesc *format = Exporter.GetExportFormatDescription(ID);
-    Exporter.Export(aiscene, format->id , filenameout, 0);
+   std::cout << "\tReading file using ASSIMP" << std::endl;
+   const aiScene *aiscene = Importer.ReadFile(filename, aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
+   if (!aiscene) {
+       printf("Error parsing '%s': '%s'\n", filename, Importer.GetErrorString());
+       return;}
 
-    if (!(aiReturn_SUCCESS == 0)) {
-       ui.infoLabel->setText(tr("Error exporting")+tr(filenameout)+tr(Exporter.GetErrorString() ) );
-    }
-   else {
-       ui.infoLabel->setText(tr("Wrote  ")+tr(filenameout)); }
+   uint ID = Importer.GetImporterIndex(extension);  //unfortunately these are not Exporter formatIDs
+   uint i = 0 ;
+
+   /*
+   uint countin = Importer.GetImporterCount();
+   do {
+       iformat = Importer.GetImporterInfo(i);
+       std::cout << "id: "<< i << " " << iformat->mFileExtensions << "\n";
+       i++;
+   } while (i < countin);
+*/
+
+   //std::cout << "ID: "<< ID << "\n";
+   iformat = Importer.GetImporterInfo(ID);
+   uint count = Exporter.GetExportFormatCount();
+   // std::cout << "count: "<< count << "\n";
+
+   i = 0 ;
+   do {
+       format = Exporter.GetExportFormatDescription(i);
+    //   std::cout << "id: "<< i << " " << format->id << "\n";
+       if (iformat->mFileExtensions == format->id){
+            //        std::cout << "ID is " << i << "\n";
+            Exporter.Export(aiscene, format->id , filenameout, 0);
+            std::cout << "Wrote " << filenameout << "\n";
+       }
+       i++;
+   } while (i < count);
+
+   // special cases
+
+   if (ID == 26) {  // dae or collada
+       format = Exporter.GetExportFormatDescription(0);
+       Exporter.Export(aiscene, format->id , filenameout, 0);
+       std::cout << "Wrote " << filenameout << "\n";
+   }
+
+   if (ID == 45) {  //x3d
+       format = Exporter.GetExportFormatDescription(16);
+       Exporter.Export(aiscene, format->id , filenameout, 0);
+       std::cout << "Wrote " << filenameout << "\n";
+   }
+
+   if (ID == 3) { //3ds
+       format = Exporter.GetExportFormatDescription(9);
+       Exporter.Export(aiscene, format->id , filenameout, 0);
+       std::cout << "Wrote " << filenameout << "\n";
+   }
+
+   if (!(aiReturn_SUCCESS == 0)) {
+       std::cout << "Error exporting" << filenameout << Exporter.GetErrorString() << "\n" ;
+   }
+
    aiDetachAllLogStreams();
+
+
    update();
 }
 
@@ -656,6 +748,10 @@ void MainWindow::createActions()
    makeplyAct->setStatusTip(tr("Write an ASCII PLY file"));
    connect(makeplyAct, &QAction::triggered, this, &MainWindow::makeply);
 
+   importexportAct = new QAction(tr("Export with Assimp: "), this);
+   importexportAct->setStatusTip(tr("Export with Assimp: "));
+   connect(importexportAct, &QAction::triggered, this, &MainWindow::importexport);
+
    exitAct = new QAction(tr("E&xit"), this);
    exitAct->setShortcuts(QKeySequence::Quit);
    exitAct->setStatusTip(tr("Exit the application"));
@@ -701,6 +797,7 @@ void MainWindow::createMenus()
    exportMenu->addAction(ply2binAct);
    exportMenu->addAction(makeoffAct);
    exportMenu->addAction(off2stlAct);
+   exportMenu->addAction(importexportAct);
    fileMenu->addSeparator();
    fileMenu->addAction(exitAct);
    analyzeMenu = menuBar()->addMenu(tr("&Analyze"));
