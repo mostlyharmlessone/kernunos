@@ -417,50 +417,49 @@ void MainWindow::zern()
 
 void MainWindow::importexport()
 {
-   QString filter =
-   "Stanford Polygon Library ASCII .ply (*.ply) ;; "
-   "Stereolithography .stl (*.stl) ;; "
-   "Stereolithography binary .stlb (*.stlb) ;; "
-   "Extensible 3D .x3d (*.x3d) ;; "
-   "Direct3D XFile .x (*.x) ;; "
-   "Autodesk FBX .fbx (*.fbx) ;; "
-   "Wavefront Object .obj (*.obj) ;; "
-   "Collada .dae (*.dae) ;; "
-   "Discreet 3DS .3ds (*.3ds) )";
-
-   QString fileName = QFileDialog::getSaveFileName(this,"Write Assimp exports", "", filter);
-   if (fileName.isEmpty())
-       return;
-   QByteArray ba = fileName.toLocal8Bit();
-   const char *filenameout = ba.data();
-   //make temporary PLY file
+   //make temporary PLY file name
    QTemporaryFile FILE;
    FILE.setAutoRemove(true);
    FILE.open();
    QString filenamelocal = FILE.fileName();
    filenamelocal = filenamelocal.append(".ply");
-   ba = filenamelocal.toLocal8Bit();
+   QByteArray ba = filenamelocal.toLocal8Bit();
    const char *filename = ba.data();
+// generate temp ply file
    flag=3;
    m_GLwidget_secondwindow->DataPrint(filename);
+// get output file name and type
+   QString filter =
+       "Stanford Polygon Library ASCII .ply (*.ply) ;; "
+       "Stereolithography .stl (*.stl) ;; "
+       "Stereolithography binary .stlb (*.stlb) ;; "
+       "Extensible 3D .x3d (*.x3d) ;; "
+       "Direct3D XFile .x (*.x) ;; "
+       "Autodesk FBX .fbx (*.fbx) ;; "
+       "Wavefront Object .obj (*.obj) ;; "
+       "Collada .dae (*.dae) ;; "
+       "Discreet 3DS .3ds (*.3ds) )";
+   QString fileName = QFileDialog::getSaveFileName(this,"Write Assimp exports", "", filter);
+   if (fileName.isEmpty())
+       return;
+   ba = fileName.toLocal8Bit();
+   const char *filenameout = ba.data();
+   const char* extension = strrchr(filenameout, '.');
 //Assimp code here
    auto stream = aiGetPredefinedLogStream(aiDefaultLogStream_STDOUT,NULL);
+   // auto stream = aiGetPredefinedLogStream(aiDefaultLogStream_FILE,"assimp_log.txt");
    aiAttachLogStream(&stream);
    Assimp::Importer Importer;
    Assimp::Exporter Exporter;
    const aiImporterDesc *iformat = nullptr;
    const aiExportFormatDesc *format;
    // Check and validate the specified model file extension.
-   // has to be on both the import and export list.
    // only obj,dae,ascii ply,binary and ascii stl,3ds,x and fbx verified to work from ply. Colors are not always preserved eg. stl
-   const char* extension = strrchr(filenameout, '.');
-
-   std::cout << "errorline kernunos 458: " << extension << "  " << filenameout << "\n";
-
+   // this is a special case that precedes the valid extension test
    std::string extstring = extension;
    std::string binarystl = ".stlb";
    if (extstring == binarystl) {
-       //   extension = ".bin.stl";  //because stlb is not recognized, and neither is bin.stl as binary stl
+       //because stlb is not recognized, and neither is bin.stl as binary stl
        std::cout << "\tReading file using ASSIMP" << std::endl;
        const aiScene *aiscene = Importer.ReadFile(filename, aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
        if (!aiscene) {
@@ -470,13 +469,13 @@ void MainWindow::importexport()
        std::cout << "Wrote " << filenameout << "\n";
        return;
    }
-
+   // this is a special case that precedes the valid extension test
    // https://github.com/assimp/assimp/issues/3827  binary ply is broken, use rply instead
    /*
    extstring = extension;
    std::string binaryply = ".plyb";
    if (extstring == binaryply) {
-       //   extension = ".bin.ply";  //because plyb is not recognized, and neither is bin.ply as binary ply
+       //because plyb is not recognized, and neither is bin.ply as binary ply
        std::cout << "\tReading file using ASSIMP" << std::endl;
        const aiScene *aiscene = Importer.ReadFile(filename, aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
        if (!aiscene) {
@@ -532,7 +531,7 @@ void MainWindow::importexport()
        i++;
    } while (i < count);
 
-   // special cases
+   // special cases that have mismatched import and export descriptions
 
    if (ID == 26) {  // dae or collada
        format = Exporter.GetExportFormatDescription(0);
@@ -748,8 +747,8 @@ void MainWindow::createActions()
    makeplyAct->setStatusTip(tr("Write an ASCII PLY file"));
    connect(makeplyAct, &QAction::triggered, this, &MainWindow::makeply);
 
-   importexportAct = new QAction(tr("Export with Assimp: "), this);
-   importexportAct->setStatusTip(tr("Export with Assimp: "));
+   importexportAct = new QAction(tr("Export with Assimp (multiple formats)... "), this);
+   importexportAct->setStatusTip(tr("Export with Assimp (multiple formats)... "));
    connect(importexportAct, &QAction::triggered, this, &MainWindow::importexport);
 
    exitAct = new QAction(tr("E&xit"), this);

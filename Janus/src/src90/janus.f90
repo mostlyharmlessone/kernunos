@@ -101,8 +101,8 @@ file_idx=index(inputfile1, ".ply")
   powmin=JMatrix%SAGC0(2)
   powmax=JMatrix%SAGC0(3)
   write(*,*) 'powctr,POWMIN,POWMAX',powctr,POWMIN,POWMAX
-  powmin=35.5
-  powmax=55.5
+  ! powmin=35.5
+  ! powmax=55.5
 
   call WriteGeomPLY(flag,JMatrix,donut,powmin,powmax,inputfile1)
   write(*,*) 'Wrote ply file...',inputfile1
@@ -128,8 +128,6 @@ file_idx=index(inputfile1, ".off")
   powmin=JMatrix%SAGC0(2)
   powmax=JMatrix%SAGC0(3)
   write(*,*) 'powctr,POWMIN,POWMAX',powctr,POWMIN,POWMAX
-  powmin=35.5
-  powmax=55.5
 
   call WriteGeomOFF(flag,JMatrix,donut,powmin,powmax,inputfile1)
   write(*,*) 'Wrote off file...',inputfile1
@@ -141,6 +139,8 @@ else
 endif
 endif
 
+! flag == 0 Import file and compute JMatrix, RAdSlope, etc.
+if (flag == 0) then
 ! From either RA?.DAT or XX?.DAT, set inputfile1 to the XX version, inputfile1 to the RA version.
 ! For either .CUR or .ELE or .CUR.CSV or .ELE.CSV set inputfile1 to Penta file of appropriate type with TestData
 ! For CSV but not .ELE.CSV or .CUR.CSV set inputfile1 to Atlas file
@@ -196,6 +196,7 @@ file_idx=index(inputfile1, ".DAT")
        if(.NOT.exists) then
         write(*,*) 'Error: EyeSys files have to be in pairs'
         write(*,*) 'No corresponding',inputfile2,'for',inputfile1
+        return
        endif
       else
        file_pfx=index(inputfile1(file_idx-2:file_idx-1),"RA")
@@ -206,6 +207,7 @@ file_idx=index(inputfile1, ".DAT")
         if(.NOT.exists) then
          write(*,*) 'Error: EyeSys files have to be in pairs'
          write(*,*) 'No corresponding',inputfile1,'for',inputfile2
+         return
         endif
        else
         write(*,*) 'Error parsing EyeSys file name'
@@ -216,9 +218,7 @@ file_idx=index(inputfile1, ".DAT")
     write(*,*) "EyeSys files: ",inputfile1," ",inputfile2
    endif
 
-  ! flag == 0 Import file and compute JMatrix, RAdSlope, etc.
-  if (flag == 0) then
-  call CPU_TIME(time_start)
+call CPU_TIME(time_start)
   if (allocated(RadSlope%r)) then
    write(*,*) 'Radslope,DiaSlope already allocated'
   else
@@ -671,7 +671,24 @@ endif
   ZernJ%ZC(j1,i1,1:k_max)=ZernC(1:k_max,kk)
 end do
 !$OMP END PARALLEL DO
-write(*,*) ZernC(1:k_max,nrhs)
+
+! center values
+do k=1,15
+ ZernJ%ZC0(1,:)=ZernC(1:k_max,nrhs)
+end do
+! find min and max
+ZernJ%ZC0(2,:)=1E30
+ZernJ%ZC0(3,:)=-1E30
+do i =1,MM
+ do j = 1,RadSlope%MV(i)
+  do k = 1,15
+   if (ZernJ%ZC(j,i,k) <= ZernJ%ZC0(2,k)) ZernJ%ZC0(2,k)=ZernJ%ZC(j,i,k)
+   if (ZernJ%ZC(j,i,k) >= ZernJ%ZC0(3,k)) ZernJ%ZC0(3,k)=ZernJ%ZC(j,i,k)
+  end do
+ end do
+end do
+
+write(*,*) 'center Zernike values: ',ZernC(1:k_max,nrhs)
 write(*,*) ' '
 ! Done with Zernike
   !deallocate(XTX,EE,IPIV)  !if used above
@@ -688,8 +705,9 @@ endif
 !  use fillarray to fill DiaSlope Zp with calculated value based on IuseG, optionally generate LIOC
 !  using SplineEval1Dx1D to refill a new matrix RadSlope using f0, derivatives to get calculated powers
 
-! something happened to lioc?!
-
+   call RadSlope_eq_JMatrix(RadSlope,JMatrix)
+   DiaSlope=RadSlope
+   DiaSlope%Zpd2 = .n. DiaSlope
    LinesOfCurv='LIOC.CAR'
 
 !  Generate LIOC with vector format
@@ -704,8 +722,6 @@ endif
    powmin=JMatrix%SAGC0(2)  
    powmax=JMatrix%SAGC0(3)
    write(*,*) 'powctr,POWMIN,POWMAX',powctr,POWMIN,POWMAX
-   powmin=35.5
-   powmax=55.5
 
 
 ! needs a flag to select function as well as OFF/PLY etc, or call directly from kernunos?
