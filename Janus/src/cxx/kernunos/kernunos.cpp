@@ -486,7 +486,6 @@ void MainWindow::importexport()
        return;
    }
 */
-
    if (!extension) {
        std::cout <<"Please provide a file with a valid extension.\n";
        return;
@@ -495,16 +494,13 @@ void MainWindow::importexport()
        std::cout <<"The specified model file extension is currently unsupported in Assimp\n ";
        return;
    }
-
    std::cout << "\tReading file using ASSIMP" << std::endl;
    const aiScene *aiscene = Importer.ReadFile(filename, aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
    if (!aiscene) {
        printf("Error parsing '%s': '%s'\n", filename, Importer.GetErrorString());
        return;}
-
    uint ID = Importer.GetImporterIndex(extension);  //unfortunately these are not Exporter formatIDs
    uint i = 0 ;
-
    /*
    uint countin = Importer.GetImporterCount();
    do {
@@ -513,12 +509,10 @@ void MainWindow::importexport()
        i++;
    } while (i < countin);
 */
-
    //std::cout << "ID: "<< ID << "\n";
    iformat = Importer.GetImporterInfo(ID);
    uint count = Exporter.GetExportFormatCount();
    // std::cout << "count: "<< count << "\n";
-
    i = 0 ;
    do {
        format = Exporter.GetExportFormatDescription(i);
@@ -530,34 +524,26 @@ void MainWindow::importexport()
        }
        i++;
    } while (i < count);
-
    // special cases that have mismatched import and export descriptions
-
    if (ID == 26) {  // dae or collada
        format = Exporter.GetExportFormatDescription(0);
        Exporter.Export(aiscene, format->id , filenameout, 0);
        std::cout << "Wrote " << filenameout << "\n";
    }
-
    if (ID == 45) {  //x3d
        format = Exporter.GetExportFormatDescription(16);
        Exporter.Export(aiscene, format->id , filenameout, 0);
        std::cout << "Wrote " << filenameout << "\n";
    }
-
    if (ID == 3) { //3ds
        format = Exporter.GetExportFormatDescription(9);
        Exporter.Export(aiscene, format->id , filenameout, 0);
        std::cout << "Wrote " << filenameout << "\n";
    }
-
    if (!(aiReturn_SUCCESS == 0)) {
        std::cout << "Error exporting" << filenameout << Exporter.GetErrorString() << "\n" ;
    }
-
    aiDetachAllLogStreams();
-
-
    update();
 }
 
@@ -894,6 +880,10 @@ int main(int argc, char *argv[])
         window.setAttribute(Qt::WA_TranslucentBackground);
         window.setAttribute(Qt::WA_NoSystemBackground, false);
     }
+
+//  https://stackoverflow.com/questions/8832326/how-can-i-execute-a-command-line-command-from-a-c-program
+ // read above on file closure etc..
+   freopen( "logfile.txt", "w", stdout );
 
 
     window.resize(window.sizeHint());
