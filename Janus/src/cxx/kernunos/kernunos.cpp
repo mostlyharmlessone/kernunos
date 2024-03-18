@@ -90,6 +90,7 @@ int flag=0;
 // was const char *filename and not global
 
 char *filename;
+char *message;
 
 bool success=false;
 bool paintme = false;
@@ -104,6 +105,24 @@ GLuint* elements = Elements.data();
 
 QString *m_GLString=nullptr;
 QString glstring_global;
+
+
+bool LogCreated = false;
+
+void Log (QString Message) { FILE *file;
+    if (!LogCreated) { file = fopen(LOGFILE, "w");
+        LogCreated = true; }
+    else file = fopen(LOGFILE, "a");
+    if (file == NULL) { if (LogCreated) LogCreated = false; return; }
+    else {
+        QByteArray ba = Message.toLocal8Bit();
+        message = ba.data();
+        fprintf(file, "%s", message);
+        fprintf(file,"\n");
+        fclose(file); }
+    }
+
+void LogErr (QString Message) { Log(Message); }
 
 
 static QMainWindow *findMainWindow()
@@ -881,10 +900,12 @@ int main(int argc, char *argv[])
         window.setAttribute(Qt::WA_NoSystemBackground, false);
     }
 
-//  https://stackoverflow.com/questions/8832326/how-can-i-execute-a-command-line-command-from-a-c-program
- // read above on file closure etc..
-   freopen( "logfile.txt", "w", stdout );
+//  log the stdout
 
+    Log("open a log file");
+
+    FILE *fp;
+    fp = freopen( "logstdout.log", "w", stdout );
 
     window.resize(window.sizeHint());
     int desktopArea = QGuiApplication::primaryScreen()->size().width() *
@@ -901,5 +922,6 @@ int main(int argc, char *argv[])
     window.grabGesture(Qt::PinchGesture);
     }
     return app.exec();
+    fclose(fp);
 }
 
