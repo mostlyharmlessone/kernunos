@@ -109,7 +109,7 @@ QString glstring_global;
 
 bool LogCreated = false;
 
-void Log (QString Message) { FILE *file;
+extern void Log (QString Message) { FILE *file;
     if (!LogCreated) { file = fopen(LOGFILE, "w");
         LogCreated = true; }
     else file = fopen(LOGFILE, "a");
@@ -121,9 +121,6 @@ void Log (QString Message) { FILE *file;
         fprintf(file,"\n");
         fclose(file); }
     }
-
-void LogErr (QString Message) { Log(Message); }
-
 
 static QMainWindow *findMainWindow()
 {
@@ -351,7 +348,7 @@ void MainWindow::SetGLString(QString& gls)
    glstring_global=*m_GLString;
 }
 
-void MainWindow::open()
+void MainWindow::open()   //multiple invocations makes a comparison
 {
    ui.infoLabel->setText(tr("Invoked <b>File|Open</b>"));
 
@@ -367,7 +364,22 @@ void MainWindow::open()
    update();
 }
 
-void MainWindow::compare()
+void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for the commandline file if any
+{
+   if (fileName.isEmpty())
+       return;
+   QByteArray ba = fileName.toLocal8Bit();
+   //const char *filename = ba.data();
+   filename = ba.data();
+   ui.infoLabel->setText(tr("filename:  ")+tr(filename));
+   //if (!fileName.isEmpty())
+   if (filepresent){
+       m_GLwidget->DataLoad(fileName, false);}
+   else {m_GLwidget->DataLoad(fileName, true);}  //cube
+   update();
+}
+
+void MainWindow::compare()    //right now this foesn't do anything but direct output to second_window (which means nothing as there's only one buffer) and make a cube.
 {
    ui.infoLabel->setText(tr("Invoked <b>File|Compare</b>"));
 
@@ -603,7 +615,7 @@ void MainWindow::ply2bin()
 
 void MainWindow::off2stl()
 {
-   QString filter = "*.stl  (*.stl) ;; Binary *.bin.stl (*.bin.stl)";
+   QString filter = "STL *.stl  (*.stl) ;; Binary *.bin.stl (*.bin.stl)";
    QString fileName = QFileDialog::getSaveFileName(this,"Write to an ASCII STL or Binary STL file", "", filter);
    if (fileName.isEmpty())
       return;
@@ -839,18 +851,6 @@ void MainWindow::onAddNew()
    ui.infoLabel->setText(tr("Invoked <b>File|New</b>"));
 }
 
-void MainWindow::loadFile(QString& fileName)
-{
-   if (fileName.isEmpty())
-       return;
-   QByteArray ba = fileName.toLocal8Bit();
-   const char *filename = ba.data();
-   ui.infoLabel->setText(tr("filename:  ")+tr(filename));
-   if (!fileName.isEmpty())
-       m_GLwidget->DataLoad(fileName, false);
-   update();
-}
-
 int main(int argc, char *argv[])
 {
    QApplication app(argc, argv);
@@ -891,7 +891,10 @@ int main(int argc, char *argv[])
     MainWindow window;
 
     if (!parser.positionalArguments().isEmpty())
-     window.loadFile(parser.positionalArguments().first());
+    {window.loadFile(parser.positionalArguments().first(),true);}  //uses loadfile() above to load a commandline filename
+    else
+     {QString fileName="cube";
+      window.loadFile(fileName,false); }
 
     GLwidget::setNormal(parser.isSet(normalsOption));
     GLwidget::setTransparent(parser.isSet(transparentOption));
@@ -900,10 +903,10 @@ int main(int argc, char *argv[])
         window.setAttribute(Qt::WA_NoSystemBackground, false);
     }
 
-//  log the stdout
-
+//  logs a comment
     Log("open a log file");
 
+//  logs the stdout
     FILE *fp;
     fp = freopen( "logstdout.log", "w", stdout );
 

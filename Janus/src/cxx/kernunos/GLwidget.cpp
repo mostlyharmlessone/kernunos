@@ -301,9 +301,10 @@ bool GLwidget::DataPrint(QString fileName)
   return true;
 }
 
-bool GLwidget::DataLoad(QString fileName, bool first_time)
+bool GLwidget::DataLoad(QString fileName, bool first_time)  //first_time->cube
 {
-    int nV_cube = 72;
+   //  the demo cube
+  int nV_cube = 72;
     int nE_cube = 36;
 
     GLfloat cube_vertices[] = {

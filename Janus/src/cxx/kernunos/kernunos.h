@@ -45,12 +45,8 @@ int ConvertPLYtoBIN(const char *iname, const char *oname);
 int lioc();
 
 #define LOGFILE "kernunos.log"
-// all Log(); messages will be appended to this file
 extern bool LogCreated;
-// keeps track whether the log file is created or not
-void Log (QString Message);
-// logs a message to LOGFILE
-void LogErr (QString Message);
+extern void Log (QString Message);
 
 extern QString *m_GLString;
 extern QString glstring_global;
@@ -69,7 +65,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow();
     void SetGLString(QString& gls);
-    void loadFile(QString& fileName);
+    void loadFile(QString& fileName, bool filepresent);
 
 protected:
 
