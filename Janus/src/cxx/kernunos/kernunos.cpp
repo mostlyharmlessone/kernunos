@@ -78,6 +78,8 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include "/home/debeus/Janus/Janus/src/c/kernunos/logc.h"
+
 using namespace QtConcurrent;
 
 // global settings
@@ -90,7 +92,7 @@ int flag=0;
 // was const char *filename and not global
 
 char *filename;
-char *message;
+//char *message;
 
 bool success=false;
 bool paintme = false;
@@ -106,10 +108,9 @@ GLuint* elements = Elements.data();
 QString *m_GLString=nullptr;
 QString glstring_global;
 
-
+/*
 bool LogCreated = false;
-
-extern void Log (QString Message) { FILE *file;
+extern void LogC (QString Message) { FILE *file;
     if (!LogCreated) { file = fopen(LOGFILE, "w");
         LogCreated = true; }
     else file = fopen(LOGFILE, "a");
@@ -121,7 +122,7 @@ extern void Log (QString Message) { FILE *file;
         fprintf(file,"\n");
         fclose(file); }
     }
-
+*/
 static QMainWindow *findMainWindow()
 {
     for (auto *w : QApplication::topLevelWidgets()) {
@@ -904,7 +905,7 @@ int main(int argc, char *argv[])
     }
 
 //  logs a comment
-    Log("open a log file");
+    LogC("open a log file");
 
 //  logs the stdout
     FILE *fp;

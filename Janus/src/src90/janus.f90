@@ -5,10 +5,13 @@
   use cornea_arrays
   use special_fct
   use io_functions
+  use variableKind
+  use ProgressBar_Class
   use, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
-  !use c_interfaces, ONLY : ConvertPLYtoBIN
+  use c_interfaces, ONLY : LogC, ConvertPLYtoBIN
   use omp_lib
-  IMPLICIT NONE     
+  IMPLICIT NONE
+  type(ProgressBar) :: Pbar
   integer :: i, j, k, ii, kk, m, i1, j1, thread, ierr, info, nrhs
   integer :: MM, N ,M1, N1, NN, ITH
   integer :: TestData                  ! TestData: -1=test, 0=EyeSys, 1=Atlas, (2-5)=Penta 
@@ -141,6 +144,11 @@ endif
 
 ! flag == 0 Import file and compute JMatrix, RAdSlope, etc.
 if (flag == 0) then
+
+! progress bar
+!  call Pbar%set(MM, time = .false.)
+  call Pbar%print(0)
+
 ! From either RA?.DAT or XX?.DAT, set inputfile1 to the XX version, inputfile1 to the RA version.
 ! For either .CUR or .ELE or .CUR.CSV or .ELE.CSV set inputfile1 to Penta file of appropriate type with TestData
 ! For CSV but not .ELE.CSV or .CUR.CSV set inputfile1 to Atlas file
@@ -305,6 +313,10 @@ call CPU_TIME(time_start)
    JMatrix%R0=0 ; JMatrix%THT0=0
    do i=1,M1
     ITH=2*(i-1)                             ! every 2 degrees
+
+!   progress bar
+    call Pbar%print(i)
+
     JMatrix%THT(i)=PI*ITH/180.0_wp
     if (TestData .eq. 0) then 
      JMatrix%MV(i)=MIN(RadSlope%MV(2*i),RadSlope%MV(2*i-1))  ! close to real boundary
@@ -383,8 +395,12 @@ call CPU_TIME(time_start)
    write(*,*) 'Time to convert Penta: ',(time_end-time_start)*1000
    Penta = 0              ! deallocate
    Skyline = 0
-    do i=1,MM              
-     do j=1,RadSlope%MV(i)
+    do i=1,MM
+
+!   progress bar
+    call Pbar%print(i)
+
+    do j=1,RadSlope%MV(i)
       if (TestData.eq.2 .or. TestData.eq.4) then ! put elevation into Zp for splining
        RadSlope%Zp(j,i)=JMatrix%Z(j,i)
       endif
@@ -402,6 +418,9 @@ call CPU_TIME(time_start)
    JMatrix%INSTC20(2)=1E30 ;  JMatrix%INSTC20(3)=-1E30
    JMatrix%MEANC0(2)=1E30  ;  JMatrix%MEANC0(3)=-1E30
    JMatrix%MONGEA0(2)=1E30 ;  JMatrix%MONGEA0(3)=-1E30
+
+     !call Pbar%set(MM, time = .true.)
+
    do i=1,MM
     do j=1,RadSlope%MV(i)
 !    SplineEval1Dx1D works on values in DiaSlope
@@ -432,7 +451,10 @@ call CPU_TIME(time_start)
      if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
     end do
    end do
+     !call Pbar%set(MM, time = .true.)
  endif
+
+
 
   if (TestData .ge. 0) then  ! all data files (not test) needs central values computed unless they already exist
    if (TestData.eq.3 .or. TestData.eq.5 .or. TestData.eq.0 .or. TestData.eq.1) then 
@@ -534,6 +556,12 @@ endif !(flag == 0)
 
 !Zernike coefficents
 if (flag == 1) then
+
+  nrhs=(MM*N+1)
+! progress bar
+  !call Pbar%set(nrhs, time = .false.)
+  call Pbar%print(0)
+
   if (allocated(JMatrix%R)) then
 ! Try to generate Zernike coefficients based on central elevations & lsq to Zernike polynomials
 !  call CPU_TIME(time_start)
@@ -541,6 +569,8 @@ if (flag == 1) then
   MM=180; N=22; NP=141
 !  Reload RadSlope & respline
    do i=1,MM
+!   progressbar
+    call Pbar%print(i)
     do j=1,RadSlope%MV(i)
      RadSlope%Zp(j,i)=JMatrix%Z(j,i)
     end do
@@ -549,7 +579,6 @@ if (flag == 1) then
    DiaSlope%Zpd2 = .n. DiaSlope   ! generate the splines diagonally (generate zp2)
 
 ! allocate working matrices
-   nrhs=(MM*N+1)
    kk_max=5*12
    k=0
    do m=-4,4
@@ -576,6 +605,9 @@ if (flag == 1) then
 !!!$OMP PARALLEL DO PRIVATE(ii,i1,j1,i,j,kk,ctr_circle_x,ctr_circle_y,Y_global,X_global,R_Talus,Theta_Talus,rlocal,thtlocal)
 do ii=1,nrhs
 !  cycle through i1 1 to MM and j1 1 to N with one point for origin at N+1
+!  progressbar
+   call Pbar%print(i)
+
    i1=mod(ii,MM)
    j1=int(ii/MM)+1
    if (i1 .eq. 0) then
@@ -655,13 +687,22 @@ do ii=1,nrhs
   LWORK = min(k_max,kk_max) + max( min(k_max,kk_max), nrhs )
   allocate (WORK(LWORK))! WORK is dimension LWORK
   call DGELS( 'T', k_max, kk_max, nrhs, B_Matrix, k_max, ZernC , kk_max, WORK, LWORK, INFO ) ! overwrites ZernC (only to k_max)
- 
+
+  !call Pbar%set(nrhs, time = .true.)
+
 ! to plot "talus" instead of center, pick a point with circle around it; same thing as above, plot the vertical coma vs position; will be compute more intensive
 write(*,*) 'k_max,kk_max, info: ',k_max,kk_max,info
+! progressbar
+!call Pbar%set(nrhs, time = .false.)
+call Pbar%print(0)
 
 !$OMP PARALLEL DO PRIVATE(i1,j1,i,j,kk)
 do kk=1,nrhs
 !  cycle through i1 1 to MM and j1 1 to N with one point for origin at N+1
+
+! progressbar
+  call Pbar%print(i)
+
 i1=mod(kk,MM)
 j1=int(kk/MM)+1
 if (i1 .eq. 0) then
@@ -695,6 +736,7 @@ write(*,*) ' '
   deallocate(WORK,B_Matrix,ZernC,rlocal,thtlocal)
 !  call CPU_TIME(time_end)
   time_end=omp_get_wtime()
+  !call Pbar%set(nrhs, time = .true.)
   write(*,*) 'Time to compute Zernike: ',(time_end-time_start)
   return
  else
@@ -768,7 +810,7 @@ BigPlot='BIG.CAR'
    CLOSE (unitno1)
 
 !   call execute_command_line ("gnuplot -p plot2.gnu &", exitstat=i)
-
+  call LogC("Done: janus")  //has to be C and declared, not cpp
   write(*,*) 'Done: janus'
 
   return        

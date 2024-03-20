@@ -14,7 +14,7 @@ extern const unsigned int SCR_HEIGHT;
 
 extern int flag;
 extern char *filename;
-extern char *message;
+//extern char *message;
 
 extern bool success;
 extern bool paintme;
@@ -41,13 +41,18 @@ extern "C" {
 int ConvertPLYtoBIN(const char *iname, const char *oname);
 };
 
+extern "C" {
+void LogC(const char *Message);
+};
+
 // external cpp code
 int lioc();
 
+/*
 #define LOGFILE "kernunos.log"
 extern bool LogCreated;
-extern void Log (QString Message);
-
+extern void LogC (QString Message);
+*/
 extern QString *m_GLString;
 extern QString glstring_global;
 

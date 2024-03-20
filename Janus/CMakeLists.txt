@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.26)
 cmake_policy(VERSION 3.26)
 
 project(kernunos VERSION 0.1.0 LANGUAGES C CXX Fortran)
-
+set(CMAKE_MODULE_PATH cmake)
+include(cmake/FortranEnvironment.cmake)
 enable_language(Fortran)
 enable_language(CXX)
 enable_language(C)
@@ -25,7 +26,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 # should read again how to manage compiler flags with Cmake
 if(CMAKE_Fortran_COMPILER MATCHES "gfortran")
-    set(dialect "-ffree-form -std=f2008")
+    set(dialect "-std=f2008ts -cpp -ffree-line-length-none -fall-intrinsics")
 #     set(dialect "-std=gnu")
      set(bounds "-fbounds-check")
      set(omp "-fopenmp")
@@ -64,7 +65,7 @@ set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${NaN}")
 
 set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_DEBUG_MODE 0) #set to 1 to show dependencies
 
-set (CMAKE_PREFIX_PATH "/usr/local")
+set (CMAKE_PREFIX_PATH "/usr/local/lib")
 
 list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
@@ -93,7 +94,6 @@ if (STATIC_BUILD AND ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
         set(QT_PLUGINS SvgIcon WindowsIntegration WindowsVistaStyle)
 endif()
 
-
 link_directories(${CMAKE_SOURCE_DIR}/lib)
 
 # find the required packages
@@ -120,6 +120,10 @@ link_directories(${CMAKE_SOURCE_DIR}/lib)
 #else()
 #    message("Failed to find WxWidgets library")
 #endif()
+
+#coretran fortran subroutines
+find_package(coretran REQUIRED CONFIG)
+
 # Qt
 SET(Qt5_DIR "/usr/lib/x86_64-linux-gnu/qt5")
 SET(Qt6_DIR "/usr/lib/x86_64-linux-gnu/qt6")
@@ -252,7 +256,7 @@ endif(WIN32)
     set(LIBS ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} ${GFORTRAN_LIBRARY})
 
 # need this so that GLwidget.h can be found by AUTOUIC and ui.mainwindow.h, and for rply and assimp
-include_directories(src/cxx/kernunos src/c/rply)
+include_directories(src/cxx/kernunos src/c/rply /usr/local/include/coretran)
 
 #kernunos Qt version
     qt_add_executable(kernunos 
@@ -260,6 +264,7 @@ include_directories(src/cxx/kernunos src/c/rply)
                    src/cxx/kernunos/GLwidget.cpp src/cxx/kernunos/GLwidget.h
                    src/cxx/kernunos/window.cpp src/cxx/kernunos/window.h
                    src/cxx/kernunos/chart.cpp src/cxx/kernunos/chart.h
+                   src/c/kernunos/logc.c src/c/kernunos/logc.h
                    src/cxx/kernunos/chartview.cpp src/cxx/kernunos/chartview.h
                    src/cxx/kernunos/lioc.cpp gnuplot-iostream/gnuplot-iostream.h
                    src/cxx/kernunos/mainwindow.ui
@@ -290,9 +295,8 @@ include_directories(src/cxx/kernunos src/c/rply)
                    boost_system
                    boost_filesystem
                    PUBLIC Qt6::Core Qt6::OpenGLWidgets Qt6::Gui Qt::Widgets Qt6::Charts Qt6::OpenGL
-                          assimp splia modules rply_includes ${LIBS} -Wno-deprecated-declarations     #doesn't do anything
+                          assimp coretran splia modules rply_includes ${LIBS} -Wno-deprecated-declarations     #doesn't do anything
                )
-
 
 #if (BUILD_FOR_WIN)
 #nothing

@@ -40,3 +40,6 @@
 [submodule "assimp"]
 	path = assimp
 	url = https://github.com/assimp/assimp.git
+[submodule "Janus/coretran"]
+	path = Janus/coretran
+	url = https://github.com/leonfoks/coretran
