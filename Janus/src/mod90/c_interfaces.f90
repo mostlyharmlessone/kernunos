@@ -34,9 +34,10 @@ USE, INTRINSIC :: iso_c_binding, ONLY : c_char,c_null_char
  CHARACTER(c_char), INTENT(OUT), dimension(*) :: oname
 end subroutine ConvertPLYtoBIN
 
-subroutine LogC(message) BIND(C,name='LogC')
-USE, INTRINSIC :: iso_c_binding, ONLY : c_char,c_null_char
+subroutine LogC(message, inc) BIND(C,name='LogC')
+USE, INTRINSIC :: iso_c_binding, ONLY : c_char,c_null_char,c_int
  CHARACTER(c_char), INTENT(IN), dimension(*) :: message
+ integer(c_int), INTENT(IN) :: inc
 end subroutine LogC
 
 END INTERFACE

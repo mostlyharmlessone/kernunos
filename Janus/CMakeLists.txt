@@ -122,7 +122,7 @@ link_directories(${CMAKE_SOURCE_DIR}/lib)
 #endif()
 
 #coretran fortran subroutines
-find_package(coretran REQUIRED CONFIG)
+#find_package(coretran REQUIRED CONFIG)
 
 # Qt
 SET(Qt5_DIR "/usr/lib/x86_64-linux-gnu/qt5")
@@ -256,7 +256,7 @@ endif(WIN32)
     set(LIBS ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} ${GFORTRAN_LIBRARY})
 
 # need this so that GLwidget.h can be found by AUTOUIC and ui.mainwindow.h, and for rply and assimp
-include_directories(src/cxx/kernunos src/c/rply /usr/local/include/coretran)
+include_directories(src/cxx/kernunos src/c/rply) # /usr/local/include/coretran)
 
 #kernunos Qt version
     qt_add_executable(kernunos 
@@ -295,7 +295,7 @@ include_directories(src/cxx/kernunos src/c/rply /usr/local/include/coretran)
                    boost_system
                    boost_filesystem
                    PUBLIC Qt6::Core Qt6::OpenGLWidgets Qt6::Gui Qt::Widgets Qt6::Charts Qt6::OpenGL
-                          assimp coretran splia modules rply_includes ${LIBS} -Wno-deprecated-declarations     #doesn't do anything
+                          assimp splia modules rply_includes ${LIBS} -Wno-deprecated-declarations     #doesn't do anything
                )
 
 #if (BUILD_FOR_WIN)

@@ -50,8 +50,9 @@
 
 #include "kernunos.h"
 
-//not found for some reason, need explicit location here
 //https://community.intel.com/t5/Intel-Fortran-Compiler/How-to-access-ALLOCATABLE-4-D-Fortran-array-from-C/m-p/1478884/highlight/true
+// seems like common blocks were much easier
+//not found for some reason, need explicit location here
 //#include "/usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include/ISO_Fortran_binding.h"
 
 //lifted from examples zoomlinechart
@@ -87,12 +88,12 @@ const unsigned int SCR_WIDTH = 1500;
 const unsigned int SCR_HEIGHT = 800;
 
 int flag=0;
+int counter=0;
 
 //https://stackoverflow.com/questions/16296284/workaround-for-blocking-async
 // was const char *filename and not global
 
 char *filename;
-//char *message;
 
 bool success=false;
 bool paintme = false;
@@ -108,21 +109,6 @@ GLuint* elements = Elements.data();
 QString *m_GLString=nullptr;
 QString glstring_global;
 
-/*
-bool LogCreated = false;
-extern void LogC (QString Message) { FILE *file;
-    if (!LogCreated) { file = fopen(LOGFILE, "w");
-        LogCreated = true; }
-    else file = fopen(LOGFILE, "a");
-    if (file == NULL) { if (LogCreated) LogCreated = false; return; }
-    else {
-        QByteArray ba = Message.toLocal8Bit();
-        message = ba.data();
-        fprintf(file, "%s", message);
-        fprintf(file,"\n");
-        fclose(file); }
-    }
-*/
 static QMainWindow *findMainWindow()
 {
     for (auto *w : QApplication::topLevelWidgets()) {
@@ -142,7 +128,11 @@ MainWindow::MainWindow()
    connect(ui.inputSpinBox2, &QSpinBox::valueChanged, this, &MainWindow::updateResult);
 
    ui.outputWidget->setText("Sum");
-   ui.progressBar->setValue(0);
+
+   connect(ui.progressBar, &QProgressBar::valueChanged,this, &MainWindow::updateResult);
+   QTimer *timer = new QTimer(this);
+   connect(timer, &QTimer::timeout, this, QOverload<>::of(&MainWindow::updateResult));
+   timer->start(1000);
 
    ui.infoLabel->setText(tr("<i>Welcome! Please Open a file.</i>"));
    ui.infoLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
@@ -380,7 +370,7 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
    update();
 }
 
-void MainWindow::compare()    //right now this foesn't do anything but direct output to second_window (which means nothing as there's only one buffer) and make a cube.
+void MainWindow::compare()    //right now this doesn't do anything but direct output to second_window (which means nothing as there's only one buffer) and make a cube.
 {
    ui.infoLabel->setText(tr("Invoked <b>File|Compare</b>"));
 
@@ -398,53 +388,10 @@ void MainWindow::compare()    //right now this foesn't do anything but direct ou
 
 void MainWindow::zern()
 {
-   QTemporaryFile file;
-    QString fileName = file.fileName();
-       flag=1;
-       m_GLwidget_secondwindow->DataPrint(fileName);
-   update();
-/*
-    const int iterations = 20;
-    // Prepare the vector.
-    QVector<int> vector;
-    for (int i = 0; i < iterations; ++i)
-        vector.append(i);
-
-    // Create a progress dialog.
-    QProgressDialog dialog;
-    dialog.setLabelText(QString("Progressing using %1 thread(s)...").arg(QThread::idealThreadCount()));
-
-    // Create a QFutureWatcher and connect signals and slots.
-    QFutureWatcher<void> futureWatcher;
-    QObject::connect(&futureWatcher, &QFutureWatcher<void>::finished, &dialog, &QProgressDialog::reset);
-    QObject::connect(&dialog, &QProgressDialog::canceled, &futureWatcher, &QFutureWatcher<void>::cancel);
-    QObject::connect(&futureWatcher,  &QFutureWatcher<void>::progressRangeChanged, &dialog, &QProgressDialog::setRange);
-    QObject::connect(&futureWatcher, &QFutureWatcher<void>::progressValueChanged,  &dialog, &QProgressDialog::setValue);
-
-    // Our function to compute
-    std::function<void(int&)> spin = [](int &iteration) {
-        const int work = 1000 * 1000 * 400;
-        volatile int v = 0;
-        for (int j = 0; j < work; ++j)
-            ++v;
-
-        qDebug() << "iteration" << iteration << "in thread" << QThread::currentThreadId();
-    };
-
-    // Start the computation.
-    futureWatcher.setFuture(QtConcurrent::map(vector, spin));
-
-
-    // Display the dialog and start the event loop.
-    dialog.exec();
-
-    futureWatcher.waitForFinished();
-
-    // Query the future to check if was canceled.
-    qDebug() << "Canceled?" << futureWatcher.future().isCanceled();
-
-*/
-   ui.infoLabel->setText(tr("Invoked <b>File|Save</b>"));
+    flag=1;
+    std::thread([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);}).detach();
+    ui.infoLabel->setText(tr("Invoked <b>Zernike</b>"));
+    return;
 }
 
 void MainWindow::importexport()
@@ -579,8 +526,6 @@ void MainWindow::importexport()
    update();
 }
 
-
-
 void MainWindow::ply2bin()
 {
     QString filter = "binary PLY *.bin.ply (*.bin.ply)";
@@ -669,7 +614,6 @@ void MainWindow::makeply()
    ui.infoLabel->setText(tr("Wrote  ")+tr(filenameout));
 }
 
-
 void MainWindow::LinesofCurvature()
 {
    int wrote=lioc();  // here as test
@@ -678,7 +622,6 @@ void MainWindow::LinesofCurvature()
    else {
        ui.infoLabel->setText(tr("gnuplot call failed!"));}
 }
-
 
 void MainWindow::light()
 {
@@ -700,7 +643,6 @@ void MainWindow::normal()
         ui.infoLabel->setText(tr("Set <b>View:Normal true</b>"));
    };
 }
-
 
 void MainWindow::about()
 {
@@ -832,7 +774,8 @@ void MainWindow::updateResult()
 {
    const int sum = ui.inputSpinBox1->value() +  ui.inputSpinBox2->value();
    ui.outputWidget->setText(QString::number(sum));
-   ui.progressBar->setValue(sum);
+   ui.progressBar->setValue(counter);
+   if (counter > 100) counter=0;
 }
 
 void MainWindow::onAddNew()
@@ -904,8 +847,9 @@ int main(int argc, char *argv[])
         window.setAttribute(Qt::WA_NoSystemBackground, false);
     }
 
-//  logs a comment
-    LogC("open a log file");
+//  logs a comment to kernunos.log
+    int inc = 0;
+    LogC("open a log file",&inc);
 
 //  logs the stdout
     FILE *fp;

@@ -6,12 +6,10 @@
   use special_fct
   use io_functions
   use variableKind
-  use ProgressBar_Class
   use, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
   use c_interfaces, ONLY : LogC, ConvertPLYtoBIN
   use omp_lib
   IMPLICIT NONE
-  type(ProgressBar) :: Pbar
   integer :: i, j, k, ii, kk, m, i1, j1, thread, ierr, info, nrhs
   integer :: MM, N ,M1, N1, NN, ITH
   integer :: TestData                  ! TestData: -1=test, 0=EyeSys, 1=Atlas, (2-5)=Penta 
@@ -23,6 +21,7 @@
   integer(c_int), INTENT(INOUT) :: nE               
   real(c_float), INTENT(INOUT) :: vertices(*)
   integer(c_int), INTENT(INOUT) :: elements(*)
+  integer(c_int) :: inc
   character(len=7) :: BigPlot
   character(len=8) :: LinesOfCurv
   character(len=4096) :: new_path
@@ -144,11 +143,6 @@ endif
 
 ! flag == 0 Import file and compute JMatrix, RAdSlope, etc.
 if (flag == 0) then
-
-! progress bar
-!  call Pbar%set(MM, time = .false.)
-  call Pbar%print(0)
-
 ! From either RA?.DAT or XX?.DAT, set inputfile1 to the XX version, inputfile1 to the RA version.
 ! For either .CUR or .ELE or .CUR.CSV or .ELE.CSV set inputfile1 to Penta file of appropriate type with TestData
 ! For CSV but not .ELE.CSV or .CUR.CSV set inputfile1 to Atlas file
@@ -313,10 +307,6 @@ call CPU_TIME(time_start)
    JMatrix%R0=0 ; JMatrix%THT0=0
    do i=1,M1
     ITH=2*(i-1)                             ! every 2 degrees
-
-!   progress bar
-    call Pbar%print(i)
-
     JMatrix%THT(i)=PI*ITH/180.0_wp
     if (TestData .eq. 0) then 
      JMatrix%MV(i)=MIN(RadSlope%MV(2*i),RadSlope%MV(2*i-1))  ! close to real boundary
@@ -396,10 +386,6 @@ call CPU_TIME(time_start)
    Penta = 0              ! deallocate
    Skyline = 0
     do i=1,MM
-
-!   progress bar
-    call Pbar%print(i)
-
     do j=1,RadSlope%MV(i)
       if (TestData.eq.2 .or. TestData.eq.4) then ! put elevation into Zp for splining
        RadSlope%Zp(j,i)=JMatrix%Z(j,i)
@@ -418,9 +404,6 @@ call CPU_TIME(time_start)
    JMatrix%INSTC20(2)=1E30 ;  JMatrix%INSTC20(3)=-1E30
    JMatrix%MEANC0(2)=1E30  ;  JMatrix%MEANC0(3)=-1E30
    JMatrix%MONGEA0(2)=1E30 ;  JMatrix%MONGEA0(3)=-1E30
-
-     !call Pbar%set(MM, time = .true.)
-
    do i=1,MM
     do j=1,RadSlope%MV(i)
 !    SplineEval1Dx1D works on values in DiaSlope
@@ -451,7 +434,6 @@ call CPU_TIME(time_start)
      if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
     end do
    end do
-     !call Pbar%set(MM, time = .true.)
  endif
 
 
@@ -557,26 +539,27 @@ endif !(flag == 0)
 !Zernike coefficents
 if (flag == 1) then
 
+inc = 0
+call LogC("Starting Zernike computation",inc)
+write(*,*) "Starting Zernike computation"
+
+  MM=180; N=22; NP=141
   nrhs=(MM*N+1)
-! progress bar
-  !call Pbar%set(nrhs, time = .false.)
-  call Pbar%print(0)
 
   if (allocated(JMatrix%R)) then
 ! Try to generate Zernike coefficients based on central elevations & lsq to Zernike polynomials
 !  call CPU_TIME(time_start)
   time_start=omp_get_wtime()
-  MM=180; N=22; NP=141
 !  Reload RadSlope & respline
    do i=1,MM
-!   progressbar
-    call Pbar%print(i)
     do j=1,RadSlope%MV(i)
      RadSlope%Zp(j,i)=JMatrix%Z(j,i)
     end do
    end do
    DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope   ! generate the splines diagonally (generate zp2)
+
+call LogC("..",10)
 
 ! allocate working matrices
    kk_max=5*12
@@ -592,7 +575,7 @@ if (flag == 1) then
    k_max=k   
    allocate (B_Matrix(k_max,kk_max),ZernC(kk_max,nrhs),rlocal(kk_max),thtlocal(kk_max),stat=ierr) ! ZernC(kk_max) to hold data though only k_max Zernike coeficients
    if (ierr /= 0) then
-    write(*,*) 'unable to allocate memory in Zernike'
+    write(*,*) 'unable to allocate memory in Zernike: ', ierr,k_max,kk_max,nrhs
     return
    endif
    ZernC=0
@@ -602,12 +585,11 @@ if (flag == 1) then
     call init_mat_ZernJ(MM,N+1,ZernJ)
    endif
 
+call LogC("..",10)
+
 !!!$OMP PARALLEL DO PRIVATE(ii,i1,j1,i,j,kk,ctr_circle_x,ctr_circle_y,Y_global,X_global,R_Talus,Theta_Talus,rlocal,thtlocal)
 do ii=1,nrhs
 !  cycle through i1 1 to MM and j1 1 to N with one point for origin at N+1
-!  progressbar
-   call Pbar%print(i)
-
    i1=mod(ii,MM)
    j1=int(ii/MM)+1
    if (i1 .eq. 0) then
@@ -657,6 +639,8 @@ do ii=1,nrhs
    end do  ! end ii to nrhs
 !!!$OMP END PARALLEL DO
 
+call LogC("..",10)
+
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)                      ! restore RadSlope
 
 ! generate the Zpolynomial degree_polynomial values for each point, makes a matrix degree_polynomials x length_data
@@ -675,6 +659,9 @@ do ii=1,nrhs
    end do
   end do
 
+call LogC("..",10)
+call LogC("pre-LSQ",0)  !?memory coruption with "work" printed without line return
+
 ! solve the LSQ equations for ZernC(k): solution is degree_polynomials number of coefficients;  B_Matrix(k,kk)*ZernC(k)=z(kk) 
 ! Use normal equation XTX.c=X.z ie. B_Matrix(k,kk)*ZernC(k)=z(kk) or use LAPACKs dgels()
 ! only have to call this once; NRHS can be for the whole talus plot since B_Matrix is invariant.
@@ -687,22 +674,16 @@ do ii=1,nrhs
   LWORK = min(k_max,kk_max) + max( min(k_max,kk_max), nrhs )
   allocate (WORK(LWORK))! WORK is dimension LWORK
   call DGELS( 'T', k_max, kk_max, nrhs, B_Matrix, k_max, ZernC , kk_max, WORK, LWORK, INFO ) ! overwrites ZernC (only to k_max)
-
-  !call Pbar%set(nrhs, time = .true.)
-
 ! to plot "talus" instead of center, pick a point with circle around it; same thing as above, plot the vertical coma vs position; will be compute more intensive
 write(*,*) 'k_max,kk_max, info: ',k_max,kk_max,info
-! progressbar
-!call Pbar%set(nrhs, time = .false.)
-call Pbar%print(0)
+
+call LogC("..",10)
+call LogC("..",10)
+call LogC("post-LSQ",0)
 
 !$OMP PARALLEL DO PRIVATE(i1,j1,i,j,kk)
 do kk=1,nrhs
 !  cycle through i1 1 to MM and j1 1 to N with one point for origin at N+1
-
-! progressbar
-  call Pbar%print(i)
-
 i1=mod(kk,MM)
 j1=int(kk/MM)+1
 if (i1 .eq. 0) then
@@ -730,16 +711,16 @@ do i =1,MM
 end do
 
 write(*,*) 'center Zernike values: ',ZernC(1:k_max,nrhs)
-write(*,*) ' '
+call LogC("Finished Zernike",0)
 ! Done with Zernike
   !deallocate(XTX,EE,IPIV)  !if used above
   deallocate(WORK,B_Matrix,ZernC,rlocal,thtlocal)
 !  call CPU_TIME(time_end)
   time_end=omp_get_wtime()
-  !call Pbar%set(nrhs, time = .true.)
   write(*,*) 'Time to compute Zernike: ',(time_end-time_start)
   return
  else
+  call LogC("Have to open a file prior to computing Zernike",0)
   return ! if flag==1 and not allocated do nothing
  endif
 endif
@@ -810,8 +791,7 @@ BigPlot='BIG.CAR'
    CLOSE (unitno1)
 
 !   call execute_command_line ("gnuplot -p plot2.gnu &", exitstat=i)
-  call LogC("Done: janus")  //has to be C and declared, not cpp
-  write(*,*) 'Done: janus'
+  call LogC("Done: janus",0)  !has to be C and declared, not cpp
 
   return        
 

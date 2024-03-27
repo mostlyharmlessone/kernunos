@@ -1,6 +1,7 @@
 #ifndef KERNUNOS_H
 #define KERNUNOS_H
 
+#include "../kernunos/counter.h"
 #include "GLwidget.h"
 #include "ui_mainwindow.h"
 #include <QWidget>
@@ -14,7 +15,6 @@ extern const unsigned int SCR_HEIGHT;
 
 extern int flag;
 extern char *filename;
-//extern char *message;
 
 extern bool success;
 extern bool paintme;
@@ -42,17 +42,12 @@ int ConvertPLYtoBIN(const char *iname, const char *oname);
 };
 
 extern "C" {
-void LogC(const char *Message);
+void LogC(const char *Message, int *inc);
 };
 
 // external cpp code
 int lioc();
 
-/*
-#define LOGFILE "kernunos.log"
-extern bool LogCreated;
-extern void LogC (QString Message);
-*/
 extern QString *m_GLString;
 extern QString glstring_global;
 
@@ -71,6 +66,7 @@ public:
     MainWindow();
     void SetGLString(QString& gls);
     void loadFile(QString& fileName, bool filepresent);
+    QTimer t;
 
 protected:
 
