@@ -1,7 +1,6 @@
 #ifndef KERNUNOS_H
 #define KERNUNOS_H
 
-#include "../kernunos/counter.h"
 #include "GLwidget.h"
 #include "ui_mainwindow.h"
 #include <QWidget>
@@ -42,7 +41,11 @@ int ConvertPLYtoBIN(const char *iname, const char *oname);
 };
 
 extern "C" {
-void LogC(const char *Message, int *inc);
+void LogC(const char *Message);
+};
+
+extern "C" {
+void Ccounter(int *inc);
 };
 
 // external cpp code

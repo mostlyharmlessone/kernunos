@@ -359,6 +359,7 @@ bool GLwidget::DataLoad(QString fileName, bool first_time)  //first_time->cube
       QObject::connect(&futureWatcher,  &QFutureWatcher<void>::progressRangeChanged, &dialog, &QProgressDialog::setRange);
       QObject::connect(&futureWatcher, &QFutureWatcher<void>::progressValueChanged,  &dialog, &QProgressDialog::setValue);
 
+      // blocks!
       // Start the computation.
       futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);}));
 
@@ -370,8 +371,10 @@ bool GLwidget::DataLoad(QString fileName, bool first_time)  //first_time->cube
       // Query the future to check if was canceled.
       qDebug() << "Canceled?" << futureWatcher.future().isCanceled();
 
-    //  auto future1 = std::async([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);});
+    //   blocks!
+    //  std::future future1 = std::async([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);});
     //  future1.get();
+
     //      janus_(&flag, filename, elements, vertices, &nV, &nE);
      }
     else
@@ -478,10 +481,8 @@ void GLwidget::paintGL(void)
     // Unbind shader
     shaderProgram->release();
     };
-
-
+    // draw normals here
     if (m_normal) {
-    // Use shader; can use an alternate shader here
     shaderGeoProgram->bind();
     // Send our transformation to the currently bound shader,
     // in the "mMVP" uniform

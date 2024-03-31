@@ -72,6 +72,7 @@
 #include <QMainWindow>
 #include <iostream>
 #include <QTemporaryFile>
+#include <QFont>
 
 #include <assimp/cimport.h>
 #include <assimp/Importer.hpp>
@@ -79,7 +80,8 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-#include "/home/debeus/Janus/Janus/src/c/kernunos/logc.h"
+#include "../kernunos/counter.h"
+#include "../kernunos/logc.h"
 
 using namespace QtConcurrent;
 
@@ -353,6 +355,11 @@ void MainWindow::open()   //multiple invocations makes a comparison
    if (!fileName.isEmpty())
        m_GLwidget->DataLoad(fileName, false);
    update();
+   makeoffAct->setEnabled(true);
+   makeplyAct->setEnabled(true);
+   ply2binAct->setEnabled(true);
+   off2stlAct->setEnabled(true);
+   importexportAct->setEnabled(true);
 }
 
 void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for the commandline file if any
@@ -360,12 +367,15 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
    if (fileName.isEmpty())
        return;
    QByteArray ba = fileName.toLocal8Bit();
-   //const char *filename = ba.data();
    filename = ba.data();
    ui.infoLabel->setText(tr("filename:  ")+tr(filename));
-   //if (!fileName.isEmpty())
    if (filepresent){
-       m_GLwidget->DataLoad(fileName, false);}
+       m_GLwidget->DataLoad(fileName, false);
+       makeoffAct->setEnabled(true);
+       makeplyAct->setEnabled(true);
+       ply2binAct->setEnabled(true);
+       off2stlAct->setEnabled(true);
+       importexportAct->setEnabled(true);;}
    else {m_GLwidget->DataLoad(fileName, true);}  //cube
    update();
 }
@@ -389,7 +399,8 @@ void MainWindow::compare()    //right now this doesn't do anything but direct ou
 void MainWindow::zern()
 {
     flag=1;
-    std::thread([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);}).detach();
+    std::thread([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);
+    }).detach();
     ui.infoLabel->setText(tr("Invoked <b>Zernike</b>"));
     return;
 }
@@ -535,7 +546,7 @@ void MainWindow::ply2bin()
     QByteArray ba = fileName.toLocal8Bit();
     const char *filenameout = ba.data();
     //make temporary PLY file
-    /*
+    /*  //without Qt
     std::string filenamelocal = std::tmpnam(nullptr);
     filenamelocal = filenamelocal.append(".ply");
     std::cout << "temporary file name: " << filenamelocal << '\n';
@@ -568,7 +579,7 @@ void MainWindow::off2stl()
    QByteArray ba = fileName.toLocal8Bit();
    char *filenameout = ba.data();
    //make temporary OFF file
-   /*
+   /*  //without Qt
     std::string filenamelocal = std::tmpnam(nullptr);
     filenamelocal = filenamelocal.append(".off");
     std::cout << "temporary file name: " << filenamelocal << '\n';
@@ -616,7 +627,7 @@ void MainWindow::makeply()
 
 void MainWindow::LinesofCurvature()
 {
-   int wrote=lioc();  // here as test
+   int wrote=lioc();
    if (wrote == 0) {
        ui.infoLabel->setText(tr("gnuplot called successfully  ")); }
    else {
@@ -649,12 +660,12 @@ void MainWindow::about()
    // https://www.modernescpp.com/index.php/asynchronous-callable-wrappers
    static const unsigned int hwGuess= 4;
    unsigned int hw = std::thread::hardware_concurrency();
+   unsigned int hw2 = QThread::idealThreadCount();
    unsigned int hwConcurr= (hw != 0)? hw : hwGuess;
    std::string t = std::to_string(hwConcurr);
    char const *n_char = t.c_str();
-   //ui.infoLabel->setText(tr("CPU Cores found by Kernunos: ")+n_char);
-
-   ui.infoLabel->setText(tr("Invoked <b>Help|About</b>"));
+   if (hw != hw2) {ui.infoLabel->setText(tr("CPU Cores found by Kernunos seems inconsistent"));}
+   else {ui.infoLabel->setText(tr("CPU Cores found by Kernunos: ")+n_char);}
    const char *glstring;
    QByteArray gl8 = glstring_global.toLocal8Bit();
    glstring = gl8.data();
@@ -693,22 +704,27 @@ void MainWindow::createActions()
 
    ply2binAct = new QAction(tr("Binary PLY format..."), this);
    ply2binAct->setStatusTip(tr("Write a binary PLY file"));
+   ply2binAct->setEnabled(false);
    connect(ply2binAct, &QAction::triggered, this, &MainWindow::ply2bin);
 
    off2stlAct = new QAction(tr("STL (ASCII or binary) format..."), this);
    off2stlAct->setStatusTip(tr("Write an ASCII or binary STL file"));
+   off2stlAct->setEnabled(false);
    connect(off2stlAct, &QAction::triggered, this, &MainWindow::off2stl);
 
    makeoffAct = new QAction(tr("OFF format..."), this);
    makeoffAct->setStatusTip(tr("Write an OFF file"));
+   makeoffAct->setEnabled(false);
    connect(makeoffAct, &QAction::triggered, this, &MainWindow::makeoff);
 
    makeplyAct = new QAction(tr("PLY (ASCII) format..."), this);
    makeplyAct->setStatusTip(tr("Write an ASCII PLY file"));
+   makeplyAct->setEnabled(false);
    connect(makeplyAct, &QAction::triggered, this, &MainWindow::makeply);
 
    importexportAct = new QAction(tr("Export with Assimp (multiple formats)... "), this);
    importexportAct->setStatusTip(tr("Export with Assimp (multiple formats)... "));
+   importexportAct->setEnabled(false);
    connect(importexportAct, &QAction::triggered, this, &MainWindow::importexport);
 
    exitAct = new QAction(tr("E&xit"), this);
@@ -797,6 +813,7 @@ void MainWindow::onAddNew()
 
 int main(int argc, char *argv[])
 {
+   QApplication::setStyle(QStyleFactory::create("fusion"));
    QApplication app(argc, argv);
    QCoreApplication::setOrganizationName("QtProject");
    QCoreApplication::setApplicationName("kernunos");
@@ -848,8 +865,7 @@ int main(int argc, char *argv[])
     }
 
 //  logs a comment to kernunos.log
-    int inc = 0;
-    LogC("open a log file",&inc);
+    LogC("open a log file");
 
 //  logs the stdout
     FILE *fp;

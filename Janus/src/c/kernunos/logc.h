@@ -1,3 +1,3 @@
 #define LOGFILE "kernunos.log"
-void LogC (const char *Message, int *inc);
+void LogC (const char *Message);
 

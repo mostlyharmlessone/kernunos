@@ -145,6 +145,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     QMatrix4x4 projectionMatrix;
     QMatrix4x4 mViewMatrix;
     bool LoadSurfaceToBuffer(int nV, int nE, GLfloat *vertices, GLuint *elements);
+    void Forever();
 
     GLuint elementbuffer;
     GLuint vertexbuffer;

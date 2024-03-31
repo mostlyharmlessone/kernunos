@@ -7,7 +7,7 @@
   use io_functions
   use variableKind
   use, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
-  use c_interfaces, ONLY : LogC, ConvertPLYtoBIN
+  use c_interfaces, ONLY : LogC, Ccounter, ConvertPLYtoBIN
   use omp_lib
   IMPLICIT NONE
   integer :: i, j, k, ii, kk, m, i1, j1, thread, ierr, info, nrhs
@@ -21,7 +21,6 @@
   integer(c_int), INTENT(INOUT) :: nE               
   real(c_float), INTENT(INOUT) :: vertices(*)
   integer(c_int), INTENT(INOUT) :: elements(*)
-  integer(c_int) :: inc
   character(len=7) :: BigPlot
   character(len=8) :: LinesOfCurv
   character(len=4096) :: new_path
@@ -35,7 +34,7 @@
   real(wp) :: Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo
   integer :: LWORK, k_max, kk_max
   real(wp), allocatable :: WORK(:), ZernC(:,:), B_Matrix(:,:), rlocal(:), thtlocal(:)
-  real(wp), allocatable :: XTX(:,:),EE(:)
+  real(wp), allocatable :: XTX(:,:),EE(:,:)
   integer, allocatable :: IPIV(:)
   real(wp) :: ctr_circle_x, ctr_circle_y, R_Talus, Theta_Talus, X_global, Y_global
 
@@ -539,9 +538,7 @@ endif !(flag == 0)
 !Zernike coefficents
 if (flag == 1) then
 
-inc = 0
-call LogC("Starting Zernike computation",inc)
-write(*,*) "Starting Zernike computation"
+call LogC("Starting Zernike computation"//c_null_char)
 
   MM=180; N=22; NP=141
   nrhs=(MM*N+1)
@@ -559,7 +556,7 @@ write(*,*) "Starting Zernike computation"
    DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope   ! generate the splines diagonally (generate zp2)
 
-call LogC("..",10)
+call Ccounter(10)
 
 ! allocate working matrices
    kk_max=5*12
@@ -585,10 +582,10 @@ call LogC("..",10)
     call init_mat_ZernJ(MM,N+1,ZernJ)
    endif
 
-call LogC("..",10)
+call Ccounter(10)
 
-!!!$OMP PARALLEL DO PRIVATE(ii,i1,j1,i,j,kk,ctr_circle_x,ctr_circle_y,Y_global,X_global,R_Talus,Theta_Talus,rlocal,thtlocal)
 do ii=1,nrhs
+   call Ccounter(1)
 !  cycle through i1 1 to MM and j1 1 to N with one point for origin at N+1
    i1=mod(ii,MM)
    j1=int(ii/MM)+1
@@ -637,9 +634,8 @@ do ii=1,nrhs
     end do
    end do
    end do  ! end ii to nrhs
-!!!$OMP END PARALLEL DO
 
-call LogC("..",10)
+call Ccounter(10)
 
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)                      ! restore RadSlope
 
@@ -659,27 +655,29 @@ call LogC("..",10)
    end do
   end do
 
-call LogC("..",10)
-call LogC("pre-LSQ",0)  !?memory coruption with "work" printed without line return
+call LogC("pre-LSQ"//c_null_char)
 
 ! solve the LSQ equations for ZernC(k): solution is degree_polynomials number of coefficients;  B_Matrix(k,kk)*ZernC(k)=z(kk) 
 ! Use normal equation XTX.c=X.z ie. B_Matrix(k,kk)*ZernC(k)=z(kk) or use LAPACKs dgels()
 ! only have to call this once; NRHS can be for the whole talus plot since B_Matrix is invariant.
-! have to allocate WORK
-!   allocate(XTX(k_max,k_max),EE(k_max),IPIV(k_max))
-!   XTX=matmul(B_matrix,Transpose(B_matrix))
-!   EE=matmul(B_matrix,ZernC(:,1))
-!   call DGESV(k_max,1,XTX,k_max,IPIV,EE,k_max,INFO) ! overwrites EE into solution 
-!   call GaussJordan(k_max, NRHS ,XTX ,k_max , EE, k_max, INFO )   ! overwrites EE into solution
-  LWORK = min(k_max,kk_max) + max( min(k_max,kk_max), nrhs )
-  allocate (WORK(LWORK))! WORK is dimension LWORK
-  call DGELS( 'T', k_max, kk_max, nrhs, B_Matrix, k_max, ZernC , kk_max, WORK, LWORK, INFO ) ! overwrites ZernC (only to k_max)
-! to plot "talus" instead of center, pick a point with circle around it; same thing as above, plot the vertical coma vs position; will be compute more intensive
-write(*,*) 'k_max,kk_max, info: ',k_max,kk_max,info
+! have to allocate XTX,EE,IPIV for DGESV, XTX,EE for G-J
+   allocate(XTX(k_max,k_max),EE(k_max,nrhs),IPIV(k_max),stat=ierr)
+   if (ierr /= 0) then
+    write(*,*) 'unable to allocate memory in Zernike for GJ '
+    return
+   endif
+   XTX=matmul(B_matrix,Transpose(B_matrix))
+   EE=matmul(B_matrix,ZernC)  ! with a second dimension for EE
+!   call DGESV(k_max,nrhs,XTX,k_max,IPIV,EE,k_max,INFO) ! overwrites EE into solution
+   call GaussJordan(k_max,nrhs,XTX,k_max,EE,k_max,INFO )  ! overwrites EE into solution
+!!  have to allocate WORK for DGELS
+!  LWORK = min(k_max,kk_max) + max( min(k_max,kk_max), nrhs )
+!  allocate (WORK(LWORK))! WORK is dimension LWORK
+!  call DGELS( 'T', k_max, kk_max, nrhs, B_Matrix, k_max, ZernC , kk_max, WORK, LWORK, INFO ) ! overwrites ZernC (only to k_max)
+!! if using DGELS have to replace EEwith ZernC below ie EE(1:k_max,kk) => ZernC(1:k_max,kk)
 
-call LogC("..",10)
-call LogC("..",10)
-call LogC("post-LSQ",0)
+call Ccounter(30)
+call LogC("post-LSQ"//c_null_char)
 
 !$OMP PARALLEL DO PRIVATE(i1,j1,i,j,kk)
 do kk=1,nrhs
@@ -690,13 +688,13 @@ if (i1 .eq. 0) then
  i1=MM
  j1=j1-1
 endif
-  ZernJ%ZC(j1,i1,1:k_max)=ZernC(1:k_max,kk)
+  ZernJ%ZC(j1,i1,1:k_max)=EE(1:k_max,kk)
 end do
 !$OMP END PARALLEL DO
 
 ! center values
 do k=1,15
- ZernJ%ZC0(1,:)=ZernC(1:k_max,nrhs)
+ ZernJ%ZC0(1,:)=EE(1:k_max,nrhs)
 end do
 ! find min and max
 ZernJ%ZC0(2,:)=1E30
@@ -710,17 +708,20 @@ do i =1,MM
  end do
 end do
 
-write(*,*) 'center Zernike values: ',ZernC(1:k_max,nrhs)
-call LogC("Finished Zernike",0)
+write(*,*) 'center Zernike values: ',EE(1:k_max,nrhs)
+call LogC("Finished Zernike"//c_null_char)
 ! Done with Zernike
-  !deallocate(XTX,EE,IPIV)  !if used above
-  deallocate(WORK,B_Matrix,ZernC,rlocal,thtlocal)
+
+  deallocate(XTX,EE,IPIV)  !if used above
+!  deallocate(WORK,B_Matrix)
+  deallocate(ZernC,rlocal,thtlocal)
+
 !  call CPU_TIME(time_end)
   time_end=omp_get_wtime()
   write(*,*) 'Time to compute Zernike: ',(time_end-time_start)
   return
  else
-  call LogC("Have to open a file prior to computing Zernike",0)
+  call LogC("Have to open a file prior to computing Zernike"//c_null_char)
   return ! if flag==1 and not allocated do nothing
  endif
 endif
@@ -791,7 +792,7 @@ BigPlot='BIG.CAR'
    CLOSE (unitno1)
 
 !   call execute_command_line ("gnuplot -p plot2.gnu &", exitstat=i)
-  call LogC("Done: janus",0)  !has to be C and declared, not cpp
+  call LogC("Done: janus")  !has to be C and declared, not cpp
 
   return        
 

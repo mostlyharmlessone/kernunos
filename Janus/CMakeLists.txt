@@ -229,6 +229,9 @@ endif(WIN32)
 #   rply conversion 
     file(GLOB rply_sources  src/c/rply/convertplytobin.c src/c/rply/rply.c src/c/rply *.h )
 
+    file(GLOB interface src/c/kernunos/logc.c src/c/kernunos/logc.h
+        src/c/kernunos/Ccounter.c src/c/kernunos/counter.h)
+
     # gtk example with gtk4 & blas fortran
     #doesn't compile with mingw cmake because of multiple definitions of dgemm
 #     file(GLOB blas_f2c src/c/gtk/c_dgemm.f90)
@@ -249,8 +252,8 @@ endif(WIN32)
     file(GLOB_RECURSE lib_sources90  src/src90 *.f90 *.for)
     file(GLOB_RECURSE mod_sources90  src/mod90 *.f90)
     add_library( rply_includes ${rply_sources})
-    add_library( modules ${mod_sources90})
-    add_library( splia ${lib_sources90})
+    add_library( modules ${mod_sources90} ${interface})
+    add_library( splia ${lib_sources90} ${interface})
     
 #libraries      
     set(LIBS ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} ${GFORTRAN_LIBRARY})
@@ -265,6 +268,7 @@ include_directories(src/cxx/kernunos src/c/rply) # /usr/local/include/coretran)
                    src/cxx/kernunos/window.cpp src/cxx/kernunos/window.h
                    src/cxx/kernunos/chart.cpp src/cxx/kernunos/chart.h
                    src/c/kernunos/logc.c src/c/kernunos/logc.h
+                   src/c/kernunos/Ccounter.c src/c/kernunos/counter.h
                    src/cxx/kernunos/chartview.cpp src/cxx/kernunos/chartview.h
                    src/cxx/kernunos/lioc.cpp gnuplot-iostream/gnuplot-iostream.h
                    src/cxx/kernunos/mainwindow.ui
