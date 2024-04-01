@@ -375,6 +375,8 @@ bool GLwidget::DataLoad(QString fileName, bool first_time)  //first_time->cube
     //  std::future future1 = std::async([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);});
     //  future1.get();
 
+    //  std::thread([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);}).detach();  //no blocking thread
+
     //      janus_(&flag, filename, elements, vertices, &nV, &nE);
      }
     else

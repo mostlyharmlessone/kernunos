@@ -5,12 +5,15 @@
   <property name="windowModality">
    <enum>Qt::ApplicationModal</enum>
   </property>
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>1010</width>
-    <height>753</height>
+    <height>411</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,34 +21,11 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="3" column="0">
-     <widget class="QProgressBar" name="progressBar">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="value">
-       <number>24</number>
-      </property>
-     </widget>
+    <item row="0" column="0">
+     <widget class="GLwidget" name="openGLWidget_2"/>
     </item>
-    <item row="2" column="0">
-     <widget class="QSpinBox" name="inputSpinBox2"/>
-    </item>
-    <item row="0" column="6">
-     <widget class="QGraphicsView" name="graphicsView">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="3">
-     <widget class="QSlider" name="zSlider">
+    <item row="0" column="1">
+     <widget class="QSlider" name="xSlider">
       <property name="mouseTracking">
        <bool>true</bool>
       </property>
@@ -63,19 +43,6 @@
       </property>
       <property name="tickInterval">
        <number>240</number>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="4">
-     <widget class="QLabel" name="infoLabel">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="text">
-       <string>TextLabel</string>
       </property>
      </widget>
     </item>
@@ -101,38 +68,8 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="4">
-     <widget class="QPushButton" name="dockButton">
-      <property name="text">
-       <string>UnDock</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="6">
-     <widget class="QSpinBox" name="inputSpinBox1"/>
-    </item>
-    <item row="0" column="0">
-     <widget class="GLwidget" name="openGLWidget_2"/>
-    </item>
-    <item row="1" column="6">
-     <widget class="QGraphicsView" name="graphicsView_2">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="5">
-     <widget class="QLabel" name="legendpix">
-      <property name="text">
-       <string>TextLabel</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1">
-     <widget class="QSlider" name="xSlider">
+    <item row="0" column="3">
+     <widget class="QSlider" name="zSlider">
       <property name="mouseTracking">
        <bool>true</bool>
       </property>
@@ -153,6 +90,30 @@
       </property>
      </widget>
     </item>
+    <item row="0" column="4">
+     <widget class="QLabel" name="legend">
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="5">
+     <widget class="QLabel" name="legendpix">
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="6">
+     <widget class="QGraphicsView" name="graphicsView">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
     <item row="1" column="0">
      <widget class="GLwidget" name="openGLWidget">
       <property name="sizePolicy">
@@ -163,8 +124,50 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="4">
-     <widget class="QLabel" name="legend">
+    <item row="1" column="6">
+     <widget class="QGraphicsView" name="graphicsView_2">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QSpinBox" name="inputSpinBox2"/>
+    </item>
+    <item row="2" column="4">
+     <widget class="QPushButton" name="dockButton">
+      <property name="text">
+       <string>UnDock</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="6">
+     <widget class="QSpinBox" name="inputSpinBox1"/>
+    </item>
+    <item row="3" column="0">
+     <widget class="QProgressBar" name="progressBar">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="value">
+       <number>24</number>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="4">
+     <widget class="QLabel" name="infoLabel">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="text">
        <string>TextLabel</string>
       </property>

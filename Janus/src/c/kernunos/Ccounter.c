@@ -8,6 +8,6 @@
 #include <stdbool.h>
 
 void Ccounter(int *inc) {
-        counter=counter+(int)*inc;
+        counter=(int)*inc;
         return;
     }

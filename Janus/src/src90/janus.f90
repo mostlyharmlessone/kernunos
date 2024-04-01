@@ -142,10 +142,10 @@ endif
 
 ! flag == 0 Import file and compute JMatrix, RAdSlope, etc.
 if (flag == 0) then
-! From either RA?.DAT or XX?.DAT, set inputfile1 to the XX version, inputfile1 to the RA version.
+! From either RA?.? or XX?.?, set inputfile1 to the XX version, inputfile1 to the RA version.
 ! For either .CUR or .ELE or .CUR.CSV or .ELE.CSV set inputfile1 to Penta file of appropriate type with TestData
 ! For CSV but not .ELE.CSV or .CUR.CSV set inputfile1 to Atlas file
-file_idx=index(inputfile1, ".DAT")
+file_idx=index(inputfile1, "RA")+index(inputfile1, "XX")
    if( file_idx == 0)then
       write(*,*) 'Not an EyeSys file'
       file_idx=index(inputfile1, ".CSV")
@@ -155,12 +155,12 @@ file_idx=index(inputfile1, ".DAT")
        if( file_idx == 0) then
         file_idx=index(inputfile1, ".ELE")
         if( file_idx == 0) then
-         write(*,*) 'Not a PentaCam file' 
+         write(*,*) 'Not a PentaCam file'
          write(*,*) 'Unknown file type: make some test data, flag = ',flag
          TestData=-1; MM=180; N=22 ; NP=141  ! make some test data not working
-!         TestData=-1; MM=360; N=16 ; NP=141  ! make some test data rcnvrt not working 360        
+!         TestData=-1; MM=360; N=16 ; NP=141  ! make some test data rcnvrt not working 360
         else
-!        inputfile2=replacestr(string=inputfile1,search="ELE",substitute="CUR")        
+!        inputfile2=replacestr(string=inputfile1,search="ELE",substitute="CUR")
         TestData=2; MM=180; N=22; NP=141 ! PentaCam ELE
        endif
       else
@@ -171,13 +171,13 @@ file_idx=index(inputfile1, ".DAT")
       else
        file_idx=index(inputfile1, ".CUR")
        if( file_idx == 0) then
-        file_idx=index(inputfile1, ".ELE") 
+        file_idx=index(inputfile1, ".ELE")
         if( file_idx == 0) then
-         TestData=1; MM=180; N=22   ! Atlas 
+         TestData=1; MM=180; N=22   ! Atlas
          write(*,*) "Atlas file: ",inputfile1
         else
         write(*,*) 'Not an Atlas file'
- !       inputfile2=replacestr(string=inputfile1,search="ELE",substitute="CUR")        
+ !       inputfile2=replacestr(string=inputfile1,search="ELE",substitute="CUR")
         TestData=4; MM=180; N=22; NP=141 ! PentaCam ELE.CSV
         endif
         else
@@ -188,9 +188,10 @@ file_idx=index(inputfile1, ".DAT")
        endif
       endif
    else
-      write(*,*) 'suffix is found at index: ',file_idx,"length: ",len(inputfile1)
-      write(*,*) 'prefix:',inputfile1(file_idx-2:file_idx-1)
-       file_pfx=index(inputfile1(file_idx-2:file_idx-1),"XX")
+!  EyeSys
+      write(*,*) 'prefix is found at index: ',file_idx,"length: ",len(inputfile1)
+      write(*,*) 'prefix:',inputfile1(file_idx:file_idx+1)
+       file_pfx=index(inputfile1(file_idx:file_idx+1),"XX")
       if (file_pfx /= 0) then
        inputfile2=replacestr(string=inputfile1,search="XX",substitute="RA")
        inquire(file=trim(inputfile2), exist=exists)
@@ -200,7 +201,7 @@ file_idx=index(inputfile1, ".DAT")
         return
        endif
       else
-       file_pfx=index(inputfile1(file_idx-2:file_idx-1),"RA")
+       file_pfx=index(inputfile1(file_idx:file_idx+1),"RA")
        if (file_pfx /= 0) then
         inputfile2=inputfile1
         inputfile1=replacestr(string=inputfile2,search="RA",substitute="XX")
@@ -537,9 +538,8 @@ endif !(flag == 0)
 
 !Zernike coefficents
 if (flag == 1) then
-
+call Ccounter(0)
 call LogC("Starting Zernike computation"//c_null_char)
-
   MM=180; N=22; NP=141
   nrhs=(MM*N+1)
 
@@ -555,8 +555,6 @@ call LogC("Starting Zernike computation"//c_null_char)
    end do
    DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope   ! generate the splines diagonally (generate zp2)
-
-call Ccounter(10)
 
 ! allocate working matrices
    kk_max=5*12
@@ -582,10 +580,8 @@ call Ccounter(10)
     call init_mat_ZernJ(MM,N+1,ZernJ)
    endif
 
-call Ccounter(10)
-
-do ii=1,nrhs
-   call Ccounter(1)
+   do ii=1,nrhs
+   call Ccounter(ii/40)
 !  cycle through i1 1 to MM and j1 1 to N with one point for origin at N+1
    i1=mod(ii,MM)
    j1=int(ii/MM)+1
@@ -635,8 +631,6 @@ do ii=1,nrhs
    end do
    end do  ! end ii to nrhs
 
-call Ccounter(10)
-
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)                      ! restore RadSlope
 
 ! generate the Zpolynomial degree_polynomial values for each point, makes a matrix degree_polynomials x length_data
@@ -676,7 +670,6 @@ call LogC("pre-LSQ"//c_null_char)
 !  call DGELS( 'T', k_max, kk_max, nrhs, B_Matrix, k_max, ZernC , kk_max, WORK, LWORK, INFO ) ! overwrites ZernC (only to k_max)
 !! if using DGELS have to replace EEwith ZernC below ie EE(1:k_max,kk) => ZernC(1:k_max,kk)
 
-call Ccounter(30)
 call LogC("post-LSQ"//c_null_char)
 
 !$OMP PARALLEL DO PRIVATE(i1,j1,i,j,kk)
@@ -710,6 +703,7 @@ end do
 
 write(*,*) 'center Zernike values: ',EE(1:k_max,nrhs)
 call LogC("Finished Zernike"//c_null_char)
+call Ccounter(100)
 ! Done with Zernike
 
   deallocate(XTX,EE,IPIV)  !if used above
@@ -792,7 +786,7 @@ BigPlot='BIG.CAR'
    CLOSE (unitno1)
 
 !   call execute_command_line ("gnuplot -p plot2.gnu &", exitstat=i)
-  call LogC("Done: janus")  !has to be C and declared, not cpp
+  call LogC("Done: janus"//c_null_char)  !has to be C and declared, not cpp
 
   return        
 

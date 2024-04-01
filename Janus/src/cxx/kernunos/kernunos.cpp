@@ -86,8 +86,8 @@
 using namespace QtConcurrent;
 
 // global settings
-const unsigned int SCR_WIDTH = 1500;
-const unsigned int SCR_HEIGHT = 800;
+const unsigned int SCR_WIDTH = 400;
+const unsigned int SCR_HEIGHT = 200;
 
 int flag=0;
 int counter=0;
@@ -244,7 +244,7 @@ MainWindow::MainWindow()
    QChartView *chartView = new ChartView(chart);
    chartView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
    chartView->setRenderHint(QPainter::Antialiasing);
-   chartView->setMinimumSize(400,400);   //another hard code number!
+   chartView->setMinimumSize(200,200);   //another hard code number!
 
 
 /* if using ui, have to edit properties as below
@@ -285,7 +285,7 @@ MainWindow::MainWindow()
    createActions();
    createMenus();
    setWindowTitle(tr("Kernunos"));
-   setMinimumSize(400, 400);
+   setMinimumSize(200, 200);
    resize(SCR_WIDTH, SCR_HEIGHT);
    update();
 
@@ -399,8 +399,7 @@ void MainWindow::compare()    //right now this doesn't do anything but direct ou
 void MainWindow::zern()
 {
     flag=1;
-    std::thread([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);
-    }).detach();
+    std::thread([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);}).detach();
     ui.infoLabel->setText(tr("Invoked <b>Zernike</b>"));
     return;
 }
@@ -791,7 +790,6 @@ void MainWindow::updateResult()
    const int sum = ui.inputSpinBox1->value() +  ui.inputSpinBox2->value();
    ui.outputWidget->setText(QString::number(sum));
    ui.progressBar->setValue(counter);
-   if (counter > 100) counter=0;
 }
 
 void MainWindow::onAddNew()

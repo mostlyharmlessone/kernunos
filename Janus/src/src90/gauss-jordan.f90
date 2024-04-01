@@ -1,6 +1,5 @@
   SUBROUTINE GaussJordan( N, NRHS, A, LDA, B, LDB, INFO )
   use, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
-  use c_interfaces, ONLY : LogC, Ccounter
   IMPLICIT NONE
   
   INTEGER, PARAMETER :: wp = KIND(0.0D0) ! working precision
@@ -65,12 +64,8 @@
 !       CALL xerbla( 'GAUSSJ ', -info )
        RETURN
     END IF
-
-   call LogC("started GJ"//c_null_char)
-
    ipiv=0    
    do i=1,N
-     call Ccounter(1)
      largest=0     
      do j=1,N
        if(ipiv(j) == 1) then 
