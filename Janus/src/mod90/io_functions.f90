@@ -35,22 +35,25 @@ module io_functions
        integer(c_int), INTENT(INOUT) :: flag, nE, nV                         ! passed from janus to call OpenGL
     END SUBROUTINE
 
-    subroutine rcnvrta(KXNAME)
+    subroutine rcnvrta(KXNAME,read_error)
      USE set_precision, ONLY : wp
      USE cornea_arrays, ONLY : Atlas, PI
      character(len=*), intent(in) :: KXNAME
+     integer, intent(out) :: read_error
     end subroutine
 
-    subroutine rcnvrte(RANAME,XXNAME)
+    subroutine rcnvrte(RANAME,XXNAME,read_error)
      USE set_precision, ONLY : wp
      USE cornea_arrays, ONLY : EyeSys
-     character(len=*), intent(in) :: RANAME,XXNAME 
+     character(len=*), intent(in) :: RANAME,XXNAME
+     integer, intent(out) :: read_error
     end subroutine
 
-    subroutine rcnvrtp(TestData,filename)
+    subroutine rcnvrtp(TestData,filename,read_error)
      USE cornea_arrays, ONLY : Penta
      character(len=*), intent(in) :: filename
-     integer :: TestData
+     integer, intent(in) :: TestData
+     integer, intent(out) :: read_error
     end subroutine
 
     subroutine RCNVRTT(MM,N,NP)
@@ -120,13 +123,15 @@ module io_functions
   
 end module io_functions
 
-subroutine rcnvrtp(TestData,filename)
+subroutine rcnvrtp(TestData,filename,read_error)
 ! PENTACAM VERSION FOR ALL
  use io_functions, only : get_new_fileunit
  USE cornea_arrays, ONLY : Penta
  implicit none
  character(len=*), intent(in) :: filename
- integer :: TestData, unitno1, ierr, readerr,i,k,NP, read_front
+ integer, intent(in) :: TestData
+ integer, intent(out) :: read_error
+ integer :: unitno1,ierr,readerr,i,k,NP,read_front
  logical :: exists
  character(len=7) :: matrixchar
  character(len=1) :: iter1,equal
@@ -140,9 +145,33 @@ subroutine rcnvrtp(TestData,filename)
      open(unitno1, file=trim(filename), action="read", iostat=ierr)
      if (ierr .eq. 0) then
      read_front=0
+     i=0
      do
+      i=i+1
       read(unitno1, '(A)', iostat=readerr) somecharacter
          if (readerr .eq. 0) then
+
+          if (somecharacter.eq.'[SYSTEM]'.and.(i.eq.1)) then   !testdata 2 or 3
+           if (TestData .eq. 2 .or. TestData .eq. 3) then
+             write(*,*) 'Read PentaCam CUR/ELE header'
+           else
+             close(unitno1)
+             read_error=1
+             write(*,*) 'Could not read PentaCam CUR/ELE header'
+             return
+           endif
+          endif
+          if (somecharacter(1:5).eq.'FRONT'.and.(i.eq.1)) then  !testdata 4 or 5
+           if (TestData .eq. 4 .or. TestData .eq. 5) then
+            write(*,*) 'Read PentaCam CUR.CSV/ELE.CSV header'
+           else
+           close(unitno1)
+           read_error=2
+           write(*,*) 'Could not read PentaCam CUR.CSV/ELE.CSV header'
+           return
+           endif
+          endif
+
           if ((somecharacter.eq."Matrixsize Y=141" .and. read_front.eq.0 .and. TestData.le.3) &
                .or. (read_front.eq.0 .and. TestData.ge.4) ) then
 !           print*, "Char in file ", trim(filename), " is ", somecharacter
@@ -185,23 +214,26 @@ subroutine rcnvrtp(TestData,filename)
       Penta%DAT(:,1)=0
       else
          print*, "Error ", ierr ," attempting to open file ", trim(filename)
-        stop
+         read_error=3
+        return
     endif
     else
      print*, "Error -- cannot find PentaCam file: ", trim(filename)
-     stop
+     read_error=4
+     return
    endif
 end subroutine rcnvrtp
 
 
-subroutine rcnvrte(RANAME,XXNAME)
+subroutine rcnvrte(RANAME,XXNAME,read_error)
 ! EYESYS VERSION
   use io_functions, only : get_new_fileunit
   USE set_precision, ONLY : wp
   USE cornea_arrays, ONLY : EyeSys
   implicit none
   logical :: exists
-  character(len=*), intent(in) :: RANAME,XXNAME  
+  character(len=*), intent(in) :: RANAME,XXNAME
+  integer, intent(out) :: read_error
   REAL(wp) :: ZX(16),YX(16)
   INTEGER :: I,J,ITH,unitno1,unitno2,MM,N,ierr
   MM=360
@@ -222,30 +254,48 @@ subroutine rcnvrte(RANAME,XXNAME)
        do J=1,N
         EyeSys%RA(i,j)=ZX(j)
         EyeSys%XX(i,j)=YX(j)
+!       Sanity check on file data
+        if (YX(J) > 0 .AND. ZX(J) > 0) then
+         if (YX(J) <= ZX(J)) then
+          WRITE (*,*) 'Error on input EyeSys RA/XX files ArcTan'
+          read_error=1
+          return
+          endif
+         endif
        end do
-       EyeSys%DEG(i)=ITH
+       if (ITH == (I-1)) then
+        EyeSys%DEG(i)=ITH
+       else
+        WRITE (*,*) 'Error on input EyeSys RA/XX files with ITH'
+        read_error=2
+        return
+       endif
       end do 
       CLOSE (unitno1)
       CLOSE (unitno2)
       else
          print*, "Error ", ierr ," attempting to open file ", trim(XXNAME)
-        stop
+         read_error=3
+        return
       endif         
      else
       print*, "Error -- cannot find file: ", trim(XXNAME)
-      stop
+      read_error=4
+      return
      endif 
     else
      print*, "Error ", ierr ," attempting to open file ", trim(RANAME)
-     stop
+     read_error=5
+     return
     endif       
    else
     print*, "Error -- cannot find file: ", trim(RANAME)
-    stop
+    read_error=6
+    return
    endif              
 end subroutine rcnvrte
 
-subroutine rcnvrta(KXNAME)
+subroutine rcnvrta(KXNAME,read_error)
 ! ATLAS VERSION
  use io_functions, only : get_new_fileunit
  USE set_precision, ONLY : wp
@@ -254,11 +304,11 @@ subroutine rcnvrta(KXNAME)
  logical :: exists
  CHARACTER(80) KH1,KH2,KH3
  character(len=*), intent(in) :: KXNAME
+ integer, intent(out) :: read_error
  INTEGER :: K,I,J,io,ITH,JTH,unitno,MM,N,ierr
  REAL(wp) :: R,DIST,Y,POW,AVGN,AVGR
  MM=180
  N=22
-
  inquire(file=trim(KXNAME), exist=exists)
  if (exists) then
   unitno = get_new_fileunit()
@@ -267,15 +317,24 @@ subroutine rcnvrta(KXNAME)
 !   READ HEADERS
     K=0 
     DO 
-       K=K+1 
-       
-       READ(unitno,*,END=100,IOSTAT=io) KH1
-	
+       K=K+1        
+       READ(unitno,*,END=100,IOSTAT=io) KH1	
         IF(io.GT.0) THEN
-         WRITE(*,*) 'ERROR ON INPUT'
+         WRITE(*,*) 'ERROR ON INPUT ATLAS FILE'
+         read_error=1
          GOTO 100
         ENDIF
-	
+
+        IF (K .eq. 1) THEN
+         IF (KH1.EQ.'#ATLAS')THEN
+          WRITE(*,*) 'Atlas header read'
+         else
+          WRITE(*,*) 'ERROR ON INPUT ATLAS FILE'
+          read_error=2
+          goto 100
+         endif
+        endif
+
         IF (KH1.EQ.'#Begin_Table') THEN
          READ(unitno,*,END=100,IOSTAT=io) KH1
          READ(unitno,*,END=100,IOSTAT=io) KH1
@@ -293,8 +352,16 @@ subroutine rcnvrta(KXNAME)
 !	   THETA=2*JTH 
 !          RING NUMBERS
 !          SHOULD ALWAYS BE TRUE: ITH.EQ.(J-1) & JTH.NE.(I-1)
-           IF (ITH.NE.(J-1)) WRITE(*,*) 'ATLAS RADIUS READ ERROR'
-           IF (JTH.NE.(I-1)) WRITE(*,*) 'ATLAS RADIUS POINT=THETA/2 READ ERROR'
+           IF (ITH.NE.(J-1)) then
+             WRITE(*,*) 'ATLAS RADIUS READ ERROR'
+             read_error=3
+             goto 100
+            endif
+           IF (JTH.NE.(I-1)) then
+            WRITE(*,*) 'ATLAS RADIUS POINT=THETA/2 READ ERROR'
+            read_error=4
+            goto 100
+           endif
             Atlas%AR(JTH+1,ITH+1)=R
            end do 
           end do           
@@ -310,8 +377,16 @@ subroutine rcnvrta(KXNAME)
 !          DISTANCE OR RADIUS? ABOVE FOR EACH RING
            READ(unitno,*,END=100,IOSTAT=io) ITH,JTH,DIST,Y,POW,KH1,KH2
 !          SHOULD ALWAYS BE TRUE: ITH.EQ.(J-1) & JTH.NE.(I-1)
-           IF (ITH.NE.(J-1)) WRITE(*,*) 'ATLAS POWER READ ERROR'
-           IF (JTH.NE.(I-1)) WRITE(*,*) 'ATLAS POWER POINT=THETA/2 READ ERROR'
+           IF (ITH.NE.(J-1)) then
+            WRITE(*,*) 'ATLAS POWER READ ERROR'
+            read_error=5
+            goto 100
+           endif
+           IF (JTH.NE.(I-1)) then
+            WRITE(*,*) 'ATLAS POWER POINT=THETA/2 READ ERROR'
+            read_error=6
+            goto 100
+           endif
 !          UNLIKELY TO NEED ELEVATION
             Atlas%AY(JTH+1,ITH+1)=Y
             Atlas%AD(JTH+1,ITH+1)=DIST
@@ -327,11 +402,13 @@ subroutine rcnvrta(KXNAME)
 100   CLOSE (unitno)
       else
        print*, "Error ", ierr ," attempting to open file ", trim(KXNAME)
-       stop
+       read_error=7
+       return
       endif       
     else
      print*, "Error -- cannot find file: ", trim(KXNAME)
-     stop
+     read_error=8
+     return
     endif
 
 !      POPULATE Atlas DEG

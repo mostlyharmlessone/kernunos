@@ -26,7 +26,7 @@
   character(len=4096) :: new_path
   character(:), ALLOCATABLE :: inputfile1,inputfile2
   character(:), ALLOCATABLE :: logfile
-  integer ::  nblines, file_idx, file_pfx
+  integer ::  nblines, file_idx, file_pfx,read_error
   integer,allocatable :: MV(:)
   real :: time_start, time_end
   real(wp) :: POWMIN,POWMAX,POWMIN2,POWMAX2,POWCTR,POW
@@ -142,6 +142,7 @@ endif
 
 ! flag == 0 Import file and compute JMatrix, RAdSlope, etc.
 if (flag == 0) then
+call CCounter(0)
 ! From either RA?.? or XX?.?, set inputfile1 to the XX version, inputfile1 to the RA version.
 ! For either .CUR or .ELE or .CUR.CSV or .ELE.CSV set inputfile1 to Penta file of appropriate type with TestData
 ! For CSV but not .ELE.CSV or .CUR.CSV set inputfile1 to Atlas file
@@ -196,7 +197,7 @@ file_idx=index(inputfile1, "RA")+index(inputfile1, "XX")
        inputfile2=replacestr(string=inputfile1,search="XX",substitute="RA")
        inquire(file=trim(inputfile2), exist=exists)
        if(.NOT.exists) then
-        write(*,*) 'Error: EyeSys files have to be in pairs'
+        write(*,*) 'Error: EyeSys files have to be in pairs, or file name has XX other than prefix'
         write(*,*) 'No corresponding',inputfile2,'for',inputfile1
         return
        endif
@@ -207,7 +208,7 @@ file_idx=index(inputfile1, "RA")+index(inputfile1, "XX")
         inputfile1=replacestr(string=inputfile2,search="RA",substitute="XX")
         inquire(file=trim(inputfile1), exist=exists)
         if(.NOT.exists) then
-         write(*,*) 'Error: EyeSys files have to be in pairs'
+         write(*,*) 'Error: EyeSys files have to be in pairs, or file name has RA other than prefix'
          write(*,*) 'No corresponding',inputfile1,'for',inputfile2
          return
         endif
@@ -269,10 +270,12 @@ call CPU_TIME(time_start)
 ! XX????? ARE THE AXIAL DIST. RX???? ARE THE MIRE RADII  
    call CPU_TIME(time_start)
    call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
-   call RCNVRTE(inputfile2,inputfile1) 
+   read_error=0
+   call RCNVRTE(inputfile2,inputfile1,read_error)
    call CPU_TIME(time_end)
    write(*,*) 'Time to read EyeSys files: ',(time_end-time_start)*1000
-!  Generate the slope matrix using ZFCT 
+!  Generate the slope matrix using ZFCT
+   if (read_error > 0) return
    RadSlope=EyeSys
    EyeSys=0
    DiaSlope=RadSlope              ! move to diagonal format
@@ -283,9 +286,11 @@ call CPU_TIME(time_start)
   if (TestData .eq. 1) then 
    call CPU_TIME(time_start)
    call init_mat_Atlas(MM,N,Atlas)
-   call RCNVRTA(inputfile1)
+   read_error=0
+   call RCNVRTA(inputfile1,read_error)
    call CPU_TIME(time_end)
    write(*,*) 'Time to read Atlas CSV file: ',(time_end-time_start)*1000
+   if (read_error > 0) return
    call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)     
    DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope
@@ -375,7 +380,9 @@ call CPU_TIME(time_start)
 ! ELE are elevations CUR are "sagittal" curvatures in a 141x141 -7 to 7 mm square -1 is no data
 ! .ELE.CSV or .CUR.CSV versions have less text but use semicolons (;) instead of -1
    call init_mat_Penta(NP,Penta,Skyline)   !allocate the PentaCam matices
-   call RCNVRTP(TestData,inputfile1)
+   read_error=0
+   call RCNVRTP(TestData,inputfile1,read_error)
+   if (read_error > 0) return
 !  arrange the data
    call CPU_TIME(time_start)
    Skyline=Penta
