@@ -360,6 +360,7 @@ void MainWindow::open()   //multiple invocations makes a comparison
    ply2binAct->setEnabled(true);
    off2stlAct->setEnabled(true);
    importexportAct->setEnabled(true);
+   zernAct->setEnabled(true);
 }
 
 void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for the commandline file if any
@@ -375,7 +376,8 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
        makeplyAct->setEnabled(true);
        ply2binAct->setEnabled(true);
        off2stlAct->setEnabled(true);
-       importexportAct->setEnabled(true);;}
+       importexportAct->setEnabled(true);
+       zernAct->setEnabled(true);}
    else {m_GLwidget->DataLoad(fileName, true);}  //cube
    update();
 }
@@ -693,7 +695,8 @@ void MainWindow::createActions()
    connect(compareAct, &QAction::triggered, this, &MainWindow::compare);
 
    zernAct = new QAction(tr("&Compute Zernike Coefficients"), this);
-   zernAct->setStatusTip(tr("Save the document to disk"));
+   zernAct->setStatusTip(tr("Compute Zernike coefficients and Talus maps"));
+   zernAct->setEnabled(false);
    connect(zernAct, &QAction::triggered, this, &MainWindow::zern);
 
    AddNewAct = new QAction(tr("&New"), this);

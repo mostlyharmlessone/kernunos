@@ -321,7 +321,7 @@ subroutine Skyline_eq_Penta(Skyline,Penta)  ! Arrange data Skyline, that will al
   Skyline%first_row=first_row                         ! needed for offset
   if  ( Skyline%rows .ne. last_row-first_row+1 ) then
    write(*,*) 'Inconsistent row count in Skyline',Skyline%rows,last_row-first_row+1 ! numbers of rows should be maximum length of columns
-   stop
+   return
   endif
 !  ii = 0 ; jj= 0
 !  do i=1,NP
@@ -950,7 +950,7 @@ subroutine ZFCT(MM,ITH,ZJX,ZIX,X2A1,YA3)
  REAL(wp) :: YA1,YA2
  INTEGER, INTENT(IN) :: ITH,MM
  !     INVERSE IS AXIALP	
-  if (ZIX <= ZJX) WRITE (*,*) 'ERROR IN ARCTAN'
+      if (ZIX <= ZJX) WRITE (*,*) 'ERROR IN ARCTAN'
  !     CONVERTS ZIX TO DZ/DR
       YA1=ZJX/(ZIX-ZJX)
       YA2=ZJX/(ZIX+ZJX)

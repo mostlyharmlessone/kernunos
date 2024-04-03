@@ -223,7 +223,9 @@ file_idx=index(inputfile1, "RA")+index(inputfile1, "XX")
 
 call CPU_TIME(time_start)
   if (allocated(RadSlope%r)) then
-   write(*,*) 'Radslope,DiaSlope already allocated'
+   write(*,*) 'Radslope,DiaSlope need to be reallocated'
+   RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
+   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
   else
    call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
   endif
