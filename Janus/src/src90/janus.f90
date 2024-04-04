@@ -83,6 +83,11 @@ endif
 write(*,*) 'flag to Fortran:',flag
 write(*,*) 'file from kernunos: ',trim(new_path)
 nblines=len(trim(new_path)) 
+if (allocated(inputfile1)) then
+ deallocate(inputfile1)
+ deallocate(inputfile2)
+ deallocate(logfile)
+endif
 allocate(character(nblines) :: inputfile1)
 allocate(character(nblines) :: logfile)
 inputfile1=trim(new_path)
@@ -190,8 +195,8 @@ file_idx=index(inputfile1, "RA")+index(inputfile1, "XX")
       endif
    else
 !  EyeSys
-      write(*,*) 'prefix is found at index: ',file_idx,"length: ",len(inputfile1)
-      write(*,*) 'prefix:',inputfile1(file_idx:file_idx+1)
+!      write(*,*) 'prefix is found at index: ',file_idx,"length: ",len(inputfile1)
+!      write(*,*) 'prefix:',inputfile1(file_idx:file_idx+1)
        file_pfx=index(inputfile1(file_idx:file_idx+1),"XX")
       if (file_pfx /= 0) then
        inputfile2=replacestr(string=inputfile1,search="XX",substitute="RA")
@@ -234,37 +239,39 @@ call CPU_TIME(time_start)
 
    M1=180
    N1=22
-   if (allocated(JMatrix1%R)) then
-    write(*,*) 'JMatrix1 allocated'
-   else
-    if (allocated(JMatrix%R)) then
+   if (allocated(JMatrix%R)) then
+    write(*,*) 'JMatrix allocated'
+    if (allocated(JMatrix1%R)) then
+     write(*,*) 'JMatrix1 allocated'
+    else
      write(*,*) 'allocating JMatrix1'
      call init_mat_JMatrix(M1,N1,JMatrix1)
-     JMatrix1%R(:,:)=JMatrix%R(:,:)
-     JMatrix1%Z(:,:)=JMatrix%Z(:,:)    
-     JMatrix1%YPR(:,:)=JMatrix%YPR(:,:)
-     JMatrix1%YPTHETA(:,:)=JMatrix%YPTHETA(:,:)  
-     JMatrix1%THT(:)=JMatrix%THT(:)
-     JMatrix1%SAGC(:,:)=JMatrix%SAGC(:,:)
-     JMatrix1%INSTC(:,:)=JMatrix%INSTC(:,:)
-     JMatrix1%INSTC2(:,:)=JMatrix%INSTC2(:,:)
-     JMatrix1%MEANC(:,:)=JMatrix%MEANC(:,:)
-     JMatrix1%MONGEA(:,:)=JMatrix%MONGEA(:,:)
-     JMatrix1%RC(:)=JMatrix%RC(:)
-     JMatrix1%LIOC(:,:)=JMatrix%LIOC(:,:)
-     JMatrix1%MV(:)=JMatrix%MV(:)  
-     JMatrix1%R0=JMatrix%R0
-     JMatrix1%Z0(:)=JMatrix%Z0(:)
-     JMatrix1%THT0=JMatrix%THT0
-     JMatrix1%SAGC0(:)=JMatrix%SAGC0(:)
-     JMatrix1%INSTC0(:)=JMatrix%INSTC0(:)
-     JMatrix1%INSTC20(:)=JMatrix%INSTC20(:)
-     JMatrix1%MEANC0(:)=JMatrix%MEANC0(:)
-     JMatrix1%MONGEA0(:)=JMatrix%MONGEA0(:)
-    else
+    endif
+    ! always store the last JMatrix in JMatrix1
+    JMatrix1%R(:,:)=JMatrix%R(:,:)
+    JMatrix1%Z(:,:)=JMatrix%Z(:,:)
+    JMatrix1%YPR(:,:)=JMatrix%YPR(:,:)
+    JMatrix1%YPTHETA(:,:)=JMatrix%YPTHETA(:,:)
+    JMatrix1%THT(:)=JMatrix%THT(:)
+    JMatrix1%SAGC(:,:)=JMatrix%SAGC(:,:)
+    JMatrix1%INSTC(:,:)=JMatrix%INSTC(:,:)
+    JMatrix1%INSTC2(:,:)=JMatrix%INSTC2(:,:)
+    JMatrix1%MEANC(:,:)=JMatrix%MEANC(:,:)
+    JMatrix1%MONGEA(:,:)=JMatrix%MONGEA(:,:)
+    JMatrix1%RC(:)=JMatrix%RC(:)
+    JMatrix1%LIOC(:,:)=JMatrix%LIOC(:,:)
+    JMatrix1%MV(:)=JMatrix%MV(:)
+    JMatrix1%R0=JMatrix%R0
+    JMatrix1%Z0(:)=JMatrix%Z0(:)
+    JMatrix1%THT0=JMatrix%THT0
+    JMatrix1%SAGC0(:)=JMatrix%SAGC0(:)
+    JMatrix1%INSTC0(:)=JMatrix%INSTC0(:)
+    JMatrix1%INSTC20(:)=JMatrix%INSTC20(:)
+    JMatrix1%MEANC0(:)=JMatrix%MEANC0(:)
+    JMatrix1%MONGEA0(:)=JMatrix%MONGEA0(:)
+   else
      write(*,*) 'allocating JMatrix'
      call init_mat_JMatrix(M1,N1,JMatrix)
-    endif
    endif
  
  if (TestData .eq. 0) then  
@@ -401,7 +408,7 @@ call CPU_TIME(time_start)
       endif
      end do
     end do
-   DiaSlope=RadSlope              ! move to diagonal format   
+   DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope                               
    call MakeRadSplineCenter                                   
    call WriteCenter(RadSlope,'Center.dat')
@@ -528,19 +535,19 @@ call CPU_TIME(time_start)
   allocate (MV(MM))
   MV(:)=RadSlope%MV(:) ! store a copy
 
-! simple subtraction the second time through
+! simple difference/subtraction the second time through
   if (allocated(JMatrix1%R)) then
-     JMatrix%SAGC(:,:)=JMatrix1%SAGC(:,:)-JMatrix%SAGC(:,:)
-     JMatrix%INSTC(:,:)=JMatrix1%INSTC(:,:)-JMatrix%INSTC(:,:)
-     JMatrix%INSTC2(:,:)=JMatrix1%INSTC2(:,:)-JMatrix%INSTC2(:,:)
-     JMatrix%MEANC(:,:)=JMatrix1%MEANC(:,:)-JMatrix%MEANC(:,:)
-     JMatrix%MONGEA(:,:)=JMatrix1%MONGEA(:,:)-JMatrix%MONGEA(:,:)
-     JMatrix%Z0(:)=JMatrix1%Z0(:)-JMatrix%Z0(:)
-     JMatrix%SAGC0(:)=JMatrix1%SAGC0(:)-JMatrix%SAGC0(:)
-     JMatrix%INSTC0(:)=JMatrix1%INSTC0(:)-JMatrix%INSTC0(:)
-     JMatrix%INSTC20(:)=JMatrix1%INSTC20(:)-JMatrix%INSTC20(:)
-     JMatrix%MEANC0(:)=JMatrix1%MEANC0(:)-JMatrix%MEANC0(:)
-     JMatrix%MONGEA0(:)=JMatrix1%MONGEA0(:)-JMatrix%MONGEA0(:)   
+     JMatrix%SAGC(:,:)=ABS(JMatrix1%SAGC(:,:)-JMatrix%SAGC(:,:))
+     JMatrix%INSTC(:,:)=ABS(JMatrix1%INSTC(:,:)-JMatrix%INSTC(:,:))
+     JMatrix%INSTC2(:,:)=ABS(JMatrix1%INSTC2(:,:)-JMatrix%INSTC2(:,:))
+     JMatrix%MEANC(:,:)=ABS(JMatrix1%MEANC(:,:)-JMatrix%MEANC(:,:))
+     JMatrix%MONGEA(:,:)=ABS(JMatrix1%MONGEA(:,:)-JMatrix%MONGEA(:,:))
+     JMatrix%Z0(:)=ABS(JMatrix1%Z0(:)-JMatrix%Z0(:))
+     JMatrix%SAGC0(:)=ABS(JMatrix1%SAGC0(:)-JMatrix%SAGC0(:))
+     JMatrix%INSTC0(:)=ABS(JMatrix1%INSTC0(:)-JMatrix%INSTC0(:))
+     JMatrix%INSTC20(:)=ABS(JMatrix1%INSTC20(:)-JMatrix%INSTC20(:))
+     JMatrix%MEANC0(:)=ABS(JMatrix1%MEANC0(:)-JMatrix%MEANC0(:))
+     JMatrix%MONGEA0(:)=ABS(JMatrix1%MONGEA0(:)-JMatrix%MONGEA0(:))
   endif
 
 endif !(flag == 0)

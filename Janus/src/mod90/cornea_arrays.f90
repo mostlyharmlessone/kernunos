@@ -135,15 +135,22 @@ subroutine init_mat_Penta(NP,Penta,Skyline) ! allocate PentaCam arrays
   allocate (Penta%DAT(NP,NP), STAT=ERROR, ERRMSG=ERR_MSG)
   if (ERROR .NE. 0) then 
    write(*,*) 'Allocation error: ',ERROR,ERR_MSG
-   stop
+   return
   endif 
+  Penta%DAT(:,:)=0
   allocate (Skyline%DAT(NP,NP),Skyline%x(NP,NP),&
             Skyline%z2DAT(NP,NP),Skyline%L2x(NP),Skyline%L2y(NP),&
             Skyline%index_col(NP), STAT=ERROR, ERRMSG=ERR_MSG)
   if (ERROR .NE. 0) then 
    write(*,*) 'Allocation error: ',ERROR,ERR_MSG
-   stop
+   return
   endif
+  Skyline%DAT(:,:)=0
+  Skyline%x(:,:)=0
+  Skyline%z2DAT(:,:)=0
+  Skyline%L2x(:)=0
+  Skyline%L2y(:)=0
+  Skyline%index_col(:)=0
 end subroutine init_mat_Penta
 
 subroutine init_mat_JMatrix(MM,N,b) ! allocate common storage arrays
@@ -152,18 +159,23 @@ subroutine init_mat_JMatrix(MM,N,b) ! allocate common storage arrays
   allocate (b%R(N,MM),b%Z(N+1,MM),b%THT(MM),b%YPR(N,MM),b%YPTHETA(N,MM),b%SAGC(N+1,MM),&
             b%INSTC(N+1,MM),b%INSTC2(N+1,MM),b%MEANC(N+1,MM),b%MONGEA(N+1,MM))
   allocate (b%MV(MM),b%RC(MM),b%LIOC(MM*N,4))
+  b%R(:,:)=0 ; b%Z(:,:)=0 ; b%THT(:)=0 ; b%YPR(:,:)=0 ; b%YPTHETA(:,:)=0 ; b%SAGC(:,:)=0
+  b%INSTC(:,:)=0 ; b%INSTC2(:,:)=0 ; b%MEANC(:,:)=0 ; b%MONGEA(:,:)=0
+  b%MV(:)=0 ; b%RC(:)=0 ; b%LIOC(:,:)=0
 end subroutine init_mat_JMatrix
 
 subroutine init_mat_ZernJ(MM,N,b) ! allocate Zernike array
   INTEGER, INTENT(IN) :: MM,N
   TYPE(wpZernJ) :: b
   allocate (b%ZC(N+1,MM,15))
+  b%ZC(:,:,:)=0
 end subroutine init_mat_ZernJ
 
 subroutine init_mat_EyeSys(MM,N,EyeSys) ! allocate EyeSys arrays
   INTEGER, INTENT(IN) :: MM,N
   TYPE(wpEyeSysMatrix) :: EyeSys
   allocate (EyeSys%RA(MM,N),EyeSys%XX(MM,N),EyeSys%DEG(MM))
+  EyeSys%RA(:,:)=0 ; EyeSys%XX(:,:)=0 ; EyeSys%DEG(:)=0
 end subroutine init_mat_EyeSys
 
 subroutine init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter) ! allocate common arrays
@@ -177,7 +189,14 @@ subroutine init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter) ! allocate common ar
             DiaSlope%Zpd2(2*N,MM/2),DiaSlope%L2(MM/2))
   allocate (DiaSlope%rOutMax(MM/2),DiaSlope%rInMax(MM/2),&
             DiaSlope%rOutMin(MM/2),DiaSlope%rInMin(MM/2))
-  allocate (RadSplineCenter(MM))        
+  allocate (RadSplineCenter(MM))
+  RadSlope%r(:,:)=0 ; RadSlope%Z(:,:)=0 ; RadSlope%Zp(:,:)=0 ; RadSlope%Zp2(:,:)=0
+  Radslope%Zt2(:,:)=0 ; RadSlope%thta(:)=0 ; RadSlope%MV(:)=0
+  DiaSlope%rd(:,:)=0 ; DiaSlope%Zd(:,:)=0 ; DiaSlope%Zpd(:,:)=0
+  DiaSlope%Zpd2(:,:)=0 ; DiaSlope%L2(:)=0
+  DiaSlope%rOutMax(:)=0 ; DiaSlope%rInMax(:)=0
+  DiaSlope%rOutMin(:)=0 ; DiaSlope%rInMin(:)=0
+  RadSplineCenter(:)=0
 end subroutine init_mat
 
 subroutine init_mat_Atlas(MM,N,Atlas) ! allocate common arrays
@@ -185,6 +204,8 @@ subroutine init_mat_Atlas(MM,N,Atlas) ! allocate common arrays
   TYPE(wpAtlasMatrix) :: Atlas
   allocate (Atlas%AR(MM,N),Atlas%AD(MM,N),Atlas%AP(MM,N),&
             Atlas%AY(MM,N),Atlas%DEG(MM))
+  Atlas%AR(:,:)=0 ; Atlas%AD(:,:)=0 ; Atlas%AP(:,:)=0
+  Atlas%AY(:,:)=0 ; Atlas%DEG(:)=0
 end subroutine init_mat_Atlas
 
 ! Type()=0 deallocates storage

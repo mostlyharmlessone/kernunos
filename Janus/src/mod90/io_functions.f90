@@ -146,6 +146,7 @@ subroutine rcnvrtp(TestData,filename,read_error)
      if (ierr .eq. 0) then
      read_front=0
      i=0
+     Penta%DAT(:,:)=0   ! zero out data matrix
      do
       i=i+1
       read(unitno1, '(A)', iostat=readerr) somecharacter
@@ -197,10 +198,10 @@ subroutine rcnvrtp(TestData,filename,read_error)
                  read (somecharacter,*,iostat=readerr) (Penta%DAT(k,i),i=1,NP) !why doesn't this need a unitno?
                endif  
              else
-!                  write(*,*) 'Read ',k-1,' rows from ',trim(filename)
-!                  do k=1,NP
-!                  write (*,*) 'Matrix ',k-1,'= ',Penta%DAT(:,k)
-!                  end do
+ !                  write(*,*) 'Read ',k-1,' rows from ',trim(filename)
+ !                  do k=1,NP
+ !                  write (*,*) 'Matrix ',k-1,'= ',Penta%DAT(:,k)
+ !                 end do
                exit  ! End of data         
              endif        
            end do 
