@@ -688,6 +688,7 @@ function DiaSplineCenter(b) result(a)
   end do
 end function DiaSplineCenter
 
+! not currently used
 function DiaIntegrate(b) result(a)
  TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b
  integer :: i,j,M1,N1
@@ -704,6 +705,7 @@ function DiaIntegrate(b) result(a)
   end do
 end function DiaIntegrate
 
+! not currently used
 function RadInterpolate(b) result(a) !interpolates values of radslope%Zp in new rings
  TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
  integer :: i,j,M1,N1
@@ -817,7 +819,7 @@ function lsqfill(b) result(a)
   zpX=matmul(X,z)
 ! get solution fit coefficients c to XTX.c=z.X
   c=0
-!  call gauss_2(XTX,zpX,c,M2) ! simple G-J routine
+!  call GaussJordan(M2, 1, XTX, M2, zpX, M2, INFO )
 !  or
 !  call DGESV(M2, 1, XTX, M2, ipvt, zpX, M2, INFO )
 !  or
