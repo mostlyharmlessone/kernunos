@@ -3,6 +3,7 @@ module special_fct
 use set_precision, ONLY : wp
 use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
 use, intrinsic ::  ieee_arithmetic
+use color
 
 INTERFACE OPERATOR (.p.) ! binary operator summation convention/tensors
 !   a .p. b returns scalar sum matrices; rank 0 of a(i,j)*b(i,j) a,b rank 2
@@ -69,6 +70,26 @@ end function surface_normal
 
 !! color functions
 
+! convert values to heatmap using Hue/Saturation/Value and color.f90
+! input 3 scalars, output integer(kind=2) vector
+! using https://fortranwiki.org/fortran/show/M_color Color Library Version 5.0   
+function hsvrgb(x,minimum, maximum) result(rgbv)
+ REAL (wp), INTENT (IN) :: minimum,maximum,x
+ REAL (wp) :: hue,sat,bright,rr,gg,bb
+ INTEGER :: stat
+ INTEGER(int16) :: rgbv(3) ! rgbv={r,g,b}
+    stat = 0
+    hue = 360*(x-minimum) / (maximum - minimum)
+    sat=50.0 ; bright=50.0
+    call jucolor('hsv',hue,sat,bright,'rgb',rr,gg,bb,stat)
+    if (stat.ne.0) then
+     rgbv=(/255,255,255/)  ! out of range or error = white     
+    endif
+    rgbv(1) = max(255,int(2.55*rr))
+    rgbv(2) = max(255,int(2.55*gg))
+    rgbv(3) = max(255,int(2.55*bb)) 
+end function hsvrgb
+
 ! convert values to rgb 2 color (red to blue) heatmap
 ! input 3 scalars, output integer(kind=2) vector
 ! https://stackoverflow.com/questions/20792445/calculate-rgb-value-for-a-range-of-values-to-create-heat-map    
@@ -93,11 +114,11 @@ function rgb5(x,minimum, maximum) result(rgbv)
  INTEGER(int16) :: nc,rgbv(3),idx1,idx2 ! rgbv={r,g,b}
 ! color={{0,0,255},{0,255,255},{0,255,0},{255,255,0},{255,0,0}}
  INTEGER(int16) :: color(3,5)=reshape( (/ 0, 0, 255, &      !blue
-                                                       0, 255, 255, &    !cyan 
-                                                       0, 255, 0, &      !green
-                                                       255, 255, 0, &    !yellow
-                                                       255, 0, 0 /), &   !red
-                                           (/3,5/)  )
+                                          0, 255, 255, &    !cyan 
+                                          0, 255, 0, &      !green
+                                          255, 255, 0, &    !yellow
+                                          255, 0, 0 /), &   !red
+                                          (/3,5/)  )
 ! color={{255,0,0},{255,255,0},{0,255,0},{0,255,255},{0,0,255}}
 ! INTEGER(int16) :: color(3,5)=reshape( (/              255, 0, 0, &      !red
 !                                                       255, 255, 0, &    !yellow
@@ -136,7 +157,6 @@ function rgb5(x,minimum, maximum) result(rgbv)
    rgbv=(/255,255,255/)  ! out of range = white
   endif
    
-
 end function rgb5
 
 ! Converts full RGB (256x256x256) to SolidView 15 bit color attr
