@@ -234,19 +234,13 @@ endif(WIN32)
 
     # gtk example with gtk4 & blas fortran
     #doesn't compile with mingw cmake because of multiple definitions of dgemm
-#     file(GLOB blas_f2c src/c/gtk/c_dgemm.f90)
+    #     file(GLOB blas_f2c src/c/gtk/c_dgemm.f90)
 #     add_library( blas_f2c ${blas_f2c})
 #     add_executable(example-2 src/c/gtk/gtkexample2.c)
 #     target_link_libraries(example-2 ${GTK4_LIBRARIES} blas_f2c ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 #   gtk GL example
 #    add_executable(glarea src/c/gtk/glarea-app-window.c )
 #    target_link_libraries(glarea ${GTK3_LIBRARIES} epoxy)
-#   C++ source
-#   qt 
-#   needs glsl files and png file in exec directory
-
-#    add_executable(qt-example4 src/cxx/qt/qt4/badprogMainWindow.cpp src/cxx/qt/qt4/badprogOpenGLWidget.cpp src/cxx/qt/qt4/camera3d.cpp src/cxx/qt/qt4/input.cpp src/cxx/qt/qt4/main.cpp src/cxx/qt/transform3d.cpp ${UI_HEADERS})
-#    target_link_libraries(qt-example4 Qt5::Core Qt5::OpenGL Qt5::Gui ${OPENGL_LIBRARIES})
 
 #   Fortran Source
     file(GLOB_RECURSE lib_sources90  src/src90 *.f90 *.for)

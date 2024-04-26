@@ -3,7 +3,7 @@ module special_fct
 use set_precision, ONLY : wp
 use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
 use, intrinsic ::  ieee_arithmetic
-use color
+use M_color, only : jucolor
 
 INTERFACE OPERATOR (.p.) ! binary operator summation convention/tensors
 !   a .p. b returns scalar sum matrices; rank 0 of a(i,j)*b(i,j) a,b rank 2
@@ -70,24 +70,44 @@ end function surface_normal
 
 !! color functions
 
-! convert values to heatmap using Hue/Saturation/Value and color.f90
+function colormap(x,minimum, maximum,map) result(rgbv)
+ REAL (wp), INTENT (IN) :: minimum,maximum,x
+ INTEGER, INTENT (IN) :: map
+ REAL :: hue,sat,bright,rr,gg,bb
+ INTEGER :: stat
+ INTEGER(int16) :: rgbv(3) ! rgbv={r,g,b}
+ SELECT CASE (map)
+   CASE (1)
+      rgbv=rgb2(x,minimum,maximum)
+   CASE (2)
+      rgbv=rgb5(x,minimum,maximum)
+   CASE (3)
+      rgbv=hsvrgb(x,minimum,maximum)
+   CASE DEFAULT
+      rgbv=hsvrgb(x,minimum,maximum)
+END SELECT
+end function colormap
+
+
+! convert values to heatmap using Hue from Hue/Saturation/Value and color.f90
 ! input 3 scalars, output integer(kind=2) vector
 ! using https://fortranwiki.org/fortran/show/M_color Color Library Version 5.0   
 function hsvrgb(x,minimum, maximum) result(rgbv)
  REAL (wp), INTENT (IN) :: minimum,maximum,x
- REAL (wp) :: hue,sat,bright,rr,gg,bb
+ REAL :: hue,sat,bright,rr,gg,bb
  INTEGER :: stat
  INTEGER(int16) :: rgbv(3) ! rgbv={r,g,b}
     stat = 0
     hue = 360*(x-minimum) / (maximum - minimum)
-    sat=50.0 ; bright=50.0
+    sat=100.0 ; bright=100.0
     call jucolor('hsv',hue,sat,bright,'rgb',rr,gg,bb,stat)
     if (stat.ne.0) then
-     rgbv=(/255,255,255/)  ! out of range or error = white     
+     rgbv=(/255,255,255/)  ! out of range or error = white
+     write (*,*) 'Error in hsvrgb', stat, rr,gg,bb
     endif
-    rgbv(1) = max(255,int(2.55*rr))
-    rgbv(2) = max(255,int(2.55*gg))
-    rgbv(3) = max(255,int(2.55*bb)) 
+    rgbv(1) = min(255,int(2.55*rr))
+    rgbv(2) = min(255,int(2.55*gg))
+    rgbv(3) = min(255,int(2.55*bb)) 
 end function hsvrgb
 
 ! convert values to rgb 2 color (red to blue) heatmap

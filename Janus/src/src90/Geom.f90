@@ -3,7 +3,7 @@
        subroutine Geom(flag, b, donut, powmin, powmax, elements, vertices, nV, nE)
        use cornea_arrays, ONLY : wpJMatrix
        use set_precision, ONLY : wp
-       use special_fct, only : rgb2, rgb5
+       use special_fct, only : colormap
        use, intrinsic :: iso_c_binding, ONLY : c_float,c_int
        use, intrinsic ::  ieee_arithmetic
        use ISO_FORTRAN_ENV, only: stdin=>input_unit     ! for the pause read(stdin,*)
@@ -13,15 +13,17 @@
        real(wp) :: vert1,vert2,vert3,nrm1,nrm2,nrm3,normal
        real(c_float) :: c_vert(3),c_rgbv(3),c_norm(3)
        real(wp) :: pow
-       integer :: i,j,k,M1,N1,verts,faces,edges
+       integer :: i,j,k,M1,N1,verts,faces,edges,map
        integer(c_int) :: ivert1,ivert2,ivert3,ivert4
        integer(c_int), INTENT(INOUT) :: elements(*)                          ! faces x 3   
        real(c_float), INTENT(INOUT) :: vertices(*)                           ! vertices x 6 
        integer(c_int), INTENT(INOUT) :: flag, nE, nV                         ! call openGL or not
        logical, intent(IN) :: donut
-       logical :: quad           
+       logical :: quad
+
        N1=size(b%r,1)
        M1=size(b%r,2)
+       map=mod((flag-mod(flag,100))/100,100)
 
        quad = .FALSE.
        if (donut .AND. quad) then
@@ -95,6 +97,7 @@
          vert1 = 0      
          vert2 = 0
          X3=-b%Z0(1)          ! flip it upside down
+         fct=flag-mod(flag,10000))/10000
          pow=b%SAGC0(1)       ! not just X3 for future painting
          vert3 = real(X3,kind=4)
          nrm1=0
@@ -108,7 +111,7 @@
          endif   
          c_norm=real((/nrm1,nrm2,nrm3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float                          
          c_vert=real((/vert1,vert2,vert3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float
-         c_rgbv=rgb5(pow,powmin,powmax)/255.0  !openGL wants scale of 1.0 not 255        
+         c_rgbv=colormap(pow,powmin,powmax,map)/255.0  !openGL wants scale of 1.0 not 255
          vertices(k:k+8)=(/c_vert,c_norm,c_rgbv/)
          k=k+9      ! matrix index        
        endif
@@ -118,6 +121,7 @@
          X1=b%THT(i)         ! in radians
          X2=b%R(j,i)
          X3=-b%Z(j,i)         ! flip it
+         fct=flag-mod(flag,10000))/10000
          pow=b%SAGC(j,i)     ! not just X3 for future painting
          nrm1=-abs(b%YPR(j,i))      !get rid of spurious sign
          nrm2=-b%YPTHETA(j,i)/X2    !polar coordinates
@@ -139,7 +143,7 @@
          endif
          c_norm=real((/nrm1,nrm2,nrm3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float
          c_vert=real((/vert1,vert2,vert3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float
-         c_rgbv=rgb5(pow,powmin,powmax)/255.0  !openGL wants scale of 1.0 not 255        
+         c_rgbv=colormap(pow,powmin,powmax,map)/255.0  !openGL wants scale of 1.0 not 255
          vertices(k:k+8)=(/c_vert,c_norm,c_rgbv/)
          k=k+9      ! matrix index
         end do

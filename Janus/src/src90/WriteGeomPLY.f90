@@ -4,7 +4,7 @@
        use io_functions, only : get_new_fileunit
        use cornea_arrays
        use set_precision, ONLY : wp
-       use special_fct, only : rgb2, rgb5
+       use special_fct, only : colormap
        use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
        use, intrinsic :: iso_c_binding, ONLY : c_float,c_int       
        use, intrinsic ::  ieee_arithmetic
@@ -16,12 +16,13 @@
        real(wp) :: X1,X2,X3
        real(REAL32) :: vert1,vert2,vert3,nrm1,nrm2,nrm3,normal
        real(wp) :: pow
-       integer :: i,j,M1,N1,verts,faces,edges,unitno1,ierr
+       integer :: i,j,M1,N1,verts,faces,edges,unitno1,ierr,map
        character(400) :: message
        integer(INT32) :: ivert1,ivert2,ivert3,ivert4,vertnum
        logical :: quad
        integer(int16) :: rgbv(3)  
 
+       map=mod((flag-mod(flag,100))/100,100)
        quad = .FALSE.
        if (donut .AND. quad) then
         write(*,*) 'WriteGeom: Cannot have closed disk with quadrilaterals'
@@ -115,13 +116,14 @@
 
 !      in this version, colors/powers by vertex
 !      pow=b%Zp(I,J)
-!      rgbv=rgb5(pow,powmin,powmax)
+!      rgbv=colormap(pow,powmin,powmax,map)
 !      Write vertices as REAL32
 !      There are "unreferenced vertices" this way, but it is much easier with vertex numbering
        if (donut .eqv. .FALSE.) then ! add one last vertex at origin
          vert1 = 0_REAL32       
          vert2 = 0_REAL32
          X3=b%Z0(1)
+         fct=flag-mod(flag,10000))/10000
          pow=b%SAGC0(1)       ! not just X3 for future painting
          nrm1=0
          nrm2=0
@@ -133,7 +135,7 @@
           vert3 = 0 ! for out of bound values  
           pow = 0 ! for out of bound values     
          endif  
-         rgbv=rgb5(pow,powmin,powmax)                   
+         rgbv=colormap(pow,powmin,powmax,map)
          write(unitno1,*) vert1,vert2,vert3,nrm1,nrm2,nrm3,rgbv,255   
        endif
        do i=1,M1
@@ -141,6 +143,7 @@
           X1=b%THT(i)
           X2=b%R(j,i)
           X3=b%Z(j,i)
+          fct=flag-mod(flag,10000))/10000
           pow=b%SAGC(j,i)     ! not just X3 for future painting
           nrm1=-abs(b%YPR(j,i))      !get rid of spurious sign
           nrm2=-b%YPTHETA(j,i)/X2    !polar coordinates
@@ -159,7 +162,7 @@
           vert3 = 0_REAL32  ! for out of bound values
           pow = 0 ! for out of bound values
          endif
-         rgbv=rgb5(pow,powmin,powmax)           
+         rgbv=colormap(pow,powmin,powmax,map)
          write(unitno1,*) vert1,vert2,vert3,nrm1,nrm2,nrm3,rgbv,255
         end do
        end do

@@ -58,6 +58,7 @@
 //lifted from examples zoomlinechart
 #include "chart.h"   // Copyright (C) 2023 The Qt Company Ltd.
 #include "chartview.h" // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
+
 #include "window.h"
 #include <QtWidgets>
 #include <QtConcurrent>
@@ -90,6 +91,7 @@ const unsigned int SCR_WIDTH = 400;
 const unsigned int SCR_HEIGHT = 200;
 
 int flag=0;
+int flag2=0;
 int counter=0;
 
 //https://stackoverflow.com/questions/16296284/workaround-for-blocking-async
@@ -394,32 +396,32 @@ void MainWindow::compare()    //right now this doesn't do anything but direct ou
    const char *filename = ba.data();
    ui.infoLabel->setText(tr("filename:  ")+tr(filename));
    if (!fileName.isEmpty())
-       m_GLwidget_secondwindow->DataLoad(fileName,true);
+       m_GLwidget_secondwindow->DataLoad(fileName,true);  //cube
    update();
 }
 
 void MainWindow::zern()
 {
     flag=1;
-    std::thread([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);}).detach();
+    std::thread([&]{return janus_(&flag, &flag2, filename, elements, vertices, &nV, &nE);}).detach();
     ui.infoLabel->setText(tr("Invoked <b>Zernike</b>"));
     return;
 }
 
 void MainWindow::importexport()
 {
-   //make temporary PLY file name
-   QTemporaryFile FILE;
-   FILE.setAutoRemove(true);
-   FILE.open();
-   QString filenamelocal = FILE.fileName();
-   filenamelocal = filenamelocal.append(".ply");
-   QByteArray ba = filenamelocal.toLocal8Bit();
-   const char *filename = ba.data();
-// generate temp ply file
-   flag=3;
-   m_GLwidget_secondwindow->DataPrint(filename);
-// get output file name and type
+    //make temporary PLY file name
+    QTemporaryFile FILE;
+    FILE.setAutoRemove(true);
+    FILE.open();
+    QString filenamelocal = FILE.fileName();
+    filenamelocal = filenamelocal.append(".ply");
+    QByteArray ba = filenamelocal.toLocal8Bit();
+    const char *filename = ba.data();
+    // generate temp ply file
+    flag=3;
+    m_GLwidget_secondwindow->DataPrint(filename);
+    // get output file name and type
    QString filter =
        "Stanford Polygon Library ASCII .ply (*.ply) ;; "
        "Stereolithography .stl (*.stl) ;; "

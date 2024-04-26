@@ -56,6 +56,7 @@ extern const unsigned int SCR_WIDTH;
 extern const unsigned int SCR_HEIGHT;
 
 extern int flag;
+extern int flag2;
 
 extern bool success;
 extern bool paintme;
@@ -69,7 +70,7 @@ extern GLfloat* vertices;
 extern GLuint* elements;
 
 extern "C" {
-void janus_(int *flag, char *filename, GLuint *elements, GLfloat *vertices, int *nV, int *nE); // needs an underscore despite c_interface.f90 bind C declaration
+void janus_(int *flag, int *flag2, char *filename, GLuint *elements, GLfloat *vertices, int *nV, int *nE); // needs an underscore despite c_interface.f90 bind C declaration
 };
 
 extern QString *m_GLString;

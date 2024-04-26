@@ -1,4 +1,4 @@
-  subroutine Janus(flag, file_from_C, elements, vertices, nV, nE) bind(C,name='janus_')
+  subroutine Janus(flag, flag2, file_from_C, elements, vertices, nV, nE) bind(C,name='janus_')
 ! DRIVER PROGRAM FOR SPLINE ROUTINES
   use set_precision, ONLY : wp
   use lapackinterface
@@ -17,6 +17,7 @@
   integer :: unitno1                  
   character(c_char), INTENT(IN), DIMENSION(4096) :: file_from_C
   integer(c_int), INTENT(INOUT) :: flag
+  integer(c_int), INTENT(INOUT) :: flag2
   integer(c_int), INTENT(INOUT) :: nV 
   integer(c_int), INTENT(INOUT) :: nE               
   real(c_float), INTENT(INOUT) :: vertices(*)
@@ -26,7 +27,7 @@
   character(len=4096) :: new_path
   character(:), ALLOCATABLE :: inputfile1,inputfile2
   character(:), ALLOCATABLE :: logfile
-  integer ::  nblines, file_idx, file_pfx,read_error
+  integer ::  nblines, file_idx, file_pfx,read_error,fct
   integer,allocatable :: MV(:)
   real :: time_start, time_end
   real(wp) :: POWMIN,POWMAX,POWMIN2,POWMAX2,POWCTR,POW
@@ -94,7 +95,7 @@ inputfile1=trim(new_path)
 allocate(character(nblines) :: inputfile2)
 
 ! Writes ASCII PLY file
-if (flag == 3) then
+if (mod(flag,100) == 3) then
 if (allocated(JMatrix%R)) then
 file_idx=index(inputfile1, ".ply")
  if( file_idx == 0) then
@@ -102,7 +103,7 @@ file_idx=index(inputfile1, ".ply")
   else
 
   donut = .FALSE.
-
+  fct=flag-mod(flag,10000))/10000
   powctr=JMatrix%SAGC0(1)
   powmin=JMatrix%SAGC0(2)
   powmax=JMatrix%SAGC0(3)
@@ -121,7 +122,7 @@ endif
 endif
 
 ! Writes OFF file
-if (flag == 2) then
+if (mod(flag,100) == 2) then
 if (allocated(JMatrix%R)) then
 file_idx=index(inputfile1, ".off")
  if( file_idx == 0) then
@@ -129,7 +130,7 @@ file_idx=index(inputfile1, ".off")
   else
 
   donut = .FALSE.
-
+  fct=flag-mod(flag,10000))/10000
   powctr=JMatrix%SAGC0(1)
   powmin=JMatrix%SAGC0(2)
   powmax=JMatrix%SAGC0(3)
@@ -146,7 +147,7 @@ endif
 endif
 
 ! flag == 0 Import file and compute JMatrix, RAdSlope, etc.
-if (flag == 0) then
+if (mod(flag,100) == 0) then
 call CCounter(0)
 ! From either RA?.? or XX?.?, set inputfile1 to the XX version, inputfile1 to the RA version.
 ! For either .CUR or .ELE or .CUR.CSV or .ELE.CSV set inputfile1 to Penta file of appropriate type with TestData
@@ -550,10 +551,10 @@ call CPU_TIME(time_start)
      JMatrix%MONGEA0(:)=ABS(JMatrix1%MONGEA0(:)-JMatrix%MONGEA0(:))
   endif
 
-endif !(flag == 0)
+endif !(mod(flag,100) == 0)
 
 !Zernike coefficents
-if (flag == 1) then
+if (mod(flag,100) == 1) then
 call Ccounter(0)
 call LogC("Starting Zernike computation"//c_null_char)
   MM=180; N=22; NP=141
@@ -751,7 +752,7 @@ endif
 !  write OFF files
 
    donut = .FALSE.
-
+   fct=flag-mod(flag,10000))/10000
    powctr=JMatrix%SAGC0(1)  
    powmin=JMatrix%SAGC0(2)  
    powmax=JMatrix%SAGC0(3)

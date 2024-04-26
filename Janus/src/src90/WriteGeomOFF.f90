@@ -4,7 +4,7 @@
        use io_functions, only : get_new_fileunit
        use cornea_arrays
        use set_precision, ONLY : wp
-       use special_fct, only : rgb2, rgb5
+       use special_fct, only : colormap
        use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
        use, intrinsic :: iso_c_binding, ONLY : c_float,c_int      
        use, intrinsic ::  ieee_arithmetic
@@ -16,11 +16,12 @@
        real(wp) :: X1,X2,X3
        real(REAL32) :: vert1,vert2,vert3
        real(wp) :: pow_vert1,pow_vert2,pow_vert3,pow_vert4,pow_face4,pow_face3_1,pow_face3_2
-       integer :: i,j,M1,N1,verts,faces,edges,unitno3,ierr
+       integer :: i,j,M1,N1,verts,faces,edges,unitno3,ierr,map
        integer(INT32) :: ivert1,ivert2,ivert3,ivert4,vertnum
        logical :: quad
-       integer(int16) :: rgbv(3)  
+       integer(int16) :: rgbv(3)
 
+       map=mod((flag-mod(flag,100))/100,100)
        quad = .FALSE.
        if (donut .AND. quad) then
         write(*,*) 'WriteGeom: Cannot have closed disk with quadrilaterals'
@@ -132,13 +133,14 @@
           ivert2=(i-1)*N1+1
           ivert3=i*N1+1
           ivert1=0  ! verts from above zero indexing, origin given last vertex number
+          fct=flag-mod(flag,10000))/10000
           pow_vert1=b%SAGC(1,i)
           pow_vert2=b%SAGC(1,I+1)
           pow_vert3=b%SAGC0(1)
           pow_face3_1=(pow_vert1+pow_vert2+pow_vert3)/3
           if (ieee_is_finite(pow_face3_1) ) then  !.and. (powmax-powmin) > eps
            vertnum=3
-           rgbv=rgb5(pow_face3_1,powmin,powmax)
+           rgbv=colormap(pow_face3_1,powmin,powmax,map)
           else
            write(*,*) 'WriteGeom: Error in central values'
            stop
@@ -149,12 +151,13 @@
          ivert2=(M1-1)*N1+1
          ivert3=1
          ivert1=0   ! verts from above zero indexing, origin given last vertex number
+         fct=flag-mod(flag,10000))/10000
          pow_vert1=b%SAGC(1,M1)
          pow_vert2=b%SAGC(1,1)
          pow_vert3=b%SAGC0(1)
          pow_face3_1=(pow_vert1+pow_vert2+pow_vert3)/3
          vertnum=3
-         rgbv=rgb5(pow_face3_1,powmin,powmax)
+         rgbv=colormap(pow_face3_1,powmin,powmax,map)
          write(unitno3,*) vertnum,ivert1,ivert2,ivert3,rgbv
         endif 
        
@@ -173,7 +176,8 @@
          endif
          if  ( (j < b%MV(i)) .AND. (j < b%MV(i+1)) ) then   
 !        powers go by vertices, but colors need by face
-!        rgbv=rgb5(pow,powmin,powmax)
+!        rgbv=colormap(pow,powmin,powmax,map)
+         fct=flag-mod(flag,10000))/10000
          pow_vert1=b%SAGC(J+1,I)
          pow_vert2=b%SAGC(J+1,I+1)
          pow_vert3=b%SAGC(J,I) 
@@ -183,13 +187,13 @@
          pow_face3_2=(pow_vert1+pow_vert3+pow_vert4)/3
            if (quad) then
             vertnum=4
-            rgbv=rgb5(pow_face4,powmin,powmax)
+            rgbv=colormap(pow_face4,powmin,powmax,map)
             write(unitno3,*) vertnum,ivert1,ivert2,ivert3,ivert4,rgbv             
            else 
             vertnum=3
-            rgbv=rgb5(pow_face3_1,powmin,powmax)
+            rgbv=colormap(pow_face3_1,powmin,powmax,map)
             write(unitno3,*) vertnum,ivert1,ivert2,ivert3,rgbv
-            rgbv=rgb5(pow_face3_2,powmin,powmax)                
+            rgbv=colormap(pow_face3_2,powmin,powmax,map)
             write(unitno3,*) vertnum,ivert3,ivert4,ivert1,rgbv                                 
            endif
          endif
@@ -213,7 +217,8 @@
          if  ( (j < b%MV(M1)) .AND. (j < b%MV(1)) ) then  
 !        powers go by vertices, but colors need by face
 !        pow=b%Zp(I,J)
-!        rgbv=rgb5(pow,powmin,powmax)
+!        rgbv=colormap(pow,powmin,powmax,map)
+         fct=flag-mod(flag,10000))/10000
          pow_vert1=b%SAGC(J+1,M1)
          pow_vert2=b%SAGC(J+1,M1-1)
          pow_vert3=b%SAGC(J,M1) 
@@ -223,13 +228,13 @@
          pow_face3_2=(pow_vert1+pow_vert3+pow_vert4)/3
            if (quad) then
             vertnum=4
-            rgbv=rgb5(pow_face4,powmin,powmax)
+            rgbv=colormap(pow_face4,powmin,powmax,map)
             write(unitno3,*) vertnum,ivert1,ivert2,ivert3,ivert4,rgbv   
            else
             vertnum=3
-            rgbv=rgb5(pow_face3_1,powmin,powmax)
+            rgbv=colormap(pow_face3_1,powmin,powmax,map)
             write(unitno3,*) vertnum,ivert1,ivert2,ivert3,rgbv 
-            rgbv=rgb5(pow_face3_2,powmin,powmax)             
+            rgbv=colormap(pow_face3_2,powmin,powmax,map)
             write(unitno3,*) vertnum,ivert3,ivert4,ivert1,rgbv
            endif
          endif
