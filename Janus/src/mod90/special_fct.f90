@@ -83,11 +83,140 @@ function colormap(x,minimum, maximum,map) result(rgbv)
       rgbv=rgb5(x,minimum,maximum)
    CASE (3)
       rgbv=hsvrgb(x,minimum,maximum)
+   CASE (4)
+      rgbv=gplotpalette(x,minimum,maximum)
+   CASE (5)
+      rgbv=USSpalette(.true.,x,minimum,maximum)
+   CASE (6)
+      rgbv=PerceptuallyUniformPalette(.true.,x,minimum,maximum)
    CASE DEFAULT
-      rgbv=hsvrgb(x,minimum,maximum)
+      rgbv=PerceptuallyUniformPalette(.false.,x,minimum,maximum)
 END SELECT
 end function colormap
 
+! perceptually uniform but single hue sequential maps
+function PerceptuallyUniformPalette(fixedrange,x,powmin, powmax) result(rgbv)
+REAL (wp), INTENT (IN) :: powmin,powmax,x
+LOGICAL, INTENT(IN) :: fixedrange
+INTEGER :: i,high,low
+REAL (wp) :: col(9)
+INTEGER(int16), dimension(3,9) :: palette
+INTEGER(int16) :: rgbv(3) ! rgbv={r,g,b}
+!ANSI 38.5 to 49.5 every 0.5; Brewer 2.0 https://colorbrewer2.org no more than 9 classes max recommended
+if (fixedrange) then
+ minimum =38.5
+ maximum =49.5
+else
+ minimum=powmin
+ maximum=powmax
+endif
+do i=1,9
+ col(i)=maximum-((i-1)/8.0)*(maximum-minimum)
+end do
+palette=reshape((/&
+255,255,217,&
+237,248,177,&
+199,233,180,&
+127,205,187,&
+65,182,196,&
+29,145,192,&
+34,94,168,&
+37,52,148,&
+8,29,88/),shape(palette))
+call bsearch(x,col,9,high,low)
+if ( (col(high)-x) .lt. (x-col(low)) ) then
+ rgbv(:)=palette(:,high)
+else
+ rgbv(:)=palette(:,low)
+endif
+end function PerceptuallyUniformPalette
+
+! fixed discrete diopteric palette
+function USSpalette(fixedrange,x,powmin, powmax) result(rgbv)
+REAL (wp), INTENT (IN) :: powmin,powmax,x
+LOGICAL, INTENT(IN) :: fixedrange
+INTEGER :: i,high,low
+REAL (wp) :: col(26)
+INTEGER(int16), dimension(3,26) :: palette
+INTEGER(int16) :: rgbv(3) ! rgbv={r,g,b}
+!Smolek et al Table 4. USS scale from 67.5 to 30 every 1.5 D
+if (fixedrange) then
+ minimum =30
+ maximum =67.5
+else
+ minimum=powmin
+ maximum=powmax
+endif
+do i=1,26
+ col(i)=maximum-((i-1)/25.0)*(maximum-minimum)
+end do
+palette=reshape((/&
+255, 238, 248, &
+255, 217, 227, &
+255, 197, 207, &
+255, 176, 187, &
+255, 158, 168, &
+255, 138, 148, &
+255, 115, 125, &
+255, 95, 105,  &
+255, 71, 80, &
+255, 40, 50, &
+255, 0, 0, &
+255, 102, 0, &
+252, 153, 0, &
+252, 188, 0, &
+255, 255, 0, &
+162, 250, 59, &
+80, 230, 51, &
+51, 204, 51, &
+32, 176, 72, &
+0, 153, 102, &
+0, 106, 157, &
+0, 51, 204, &
+0, 0, 204, &
+0, 0, 153, &
+0, 0, 112, &
+0, 0, 80/),shape(palette))
+call bsearch(x,col,26,high,low)
+if ( (col(high)-x) .lt. (x-col(low)) ) then
+ rgbv(:)=palette(:,high)
+else
+ rgbv(:)=palette(:,low)
+endif
+end function USSpalette
+
+! makes a noncontinuous/discrete interval 12 color palette similar to the one in printgraph using gnuplot/splot
+function gplotpalette(x,minimum, maximum) result(rgbv)
+REAL (wp), INTENT (IN) :: minimum,maximum,x
+INTEGER :: high,low
+INTEGER(int16) :: rgbv(3) ! rgbv={r,g,b}
+CHARACTER(len=6) :: tempH
+CHARACTER(6), dimension(12) :: palette
+REAL (wp) :: col(12)
+palette=(/'c080ff','00008b','0000ff','add8e6','90ee90','00ff00',&
+         &'00c000','ffff00','ffc020','f03232','ff0000','8b0000'/)
+         col(1)=FLOOR(minimum)
+         col(12)=FLOOR(maximum+4)
+         col(2)=0.09*(col(12)-col(1))+col(1)
+         col(3)=0.18*(col(12)-col(1))+col(1)
+         col(4)=0.27*(col(12)-col(1))+col(1)
+         col(5)=0.36*(col(12)-col(1))+col(1)
+         col(6)=0.45*(col(12)-col(1))+col(1)
+         col(7)=0.54*(col(12)-col(1))+col(1)
+         col(8)=0.63*(col(12)-col(1))+col(1)
+         col(9)=0.72*(col(12)-col(1))+col(1)
+         col(10)=0.81*(col(12)-col(1))+col(1)
+         col(11)=0.90*(col(12)-col(1))+col(1)
+call bsearch(x,col,12,high,low)
+if ( (col(high)-x) .lt. (x-col(low)) ) then
+ tempH=palette(high)
+else
+ tempH=palette(low)
+endif
+read(tempH(1:2),'(Z2)') rgbv(1)
+read(tempH(3:4),'(Z2)') rgbv(2)
+read(tempH(5:6),'(Z2)') rgbv(3)
+end function gplotpalette
 
 ! convert values to heatmap using Hue from Hue/Saturation/Value and color.f90
 ! input 3 scalars, output integer(kind=2) vector

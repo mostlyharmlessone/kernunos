@@ -16,7 +16,7 @@
        real(wp) :: X1,X2,X3
        real(REAL32) :: vert1,vert2,vert3
        real(wp) :: pow_vert1,pow_vert2,pow_vert3,pow_vert4,pow_face4,pow_face3_1,pow_face3_2
-       integer :: i,j,M1,N1,verts,faces,edges,unitno3,ierr,map
+       integer :: i,j,M1,N1,verts,faces,edges,unitno3,ierr,map,fct
        integer(INT32) :: ivert1,ivert2,ivert3,ivert4,vertnum
        logical :: quad
        integer(int16) :: rgbv(3)
@@ -133,10 +133,43 @@
           ivert2=(i-1)*N1+1
           ivert3=i*N1+1
           ivert1=0  ! verts from above zero indexing, origin given last vertex number
-          fct=flag-mod(flag,10000))/10000
-          pow_vert1=b%SAGC(1,i)
-          pow_vert2=b%SAGC(1,I+1)
-          pow_vert3=b%SAGC0(1)
+          fct=(flag-mod(flag,10000))/10000
+          if (fct .lt. 16 .and. fct .gt. 0) then
+             pow_vert1=b%ZC(1,i,fct)
+             pow_vert2=b%ZC(1,i+1,fct)
+             pow_vert3=b%ZC0(1,fct)
+          else
+          SELECT CASE (fct)
+            CASE (0)
+              pow_vert1=b%SAGC(1,i)
+              pow_vert2=b%SAGC(1,i+1)
+              pow_vert3=b%SAGC0(1)
+            CASE (16)
+              pow_vert1=b%INSTC(1,i)
+              pow_vert2=b%INSTC(1,i+1)
+              pow_vert3=b%INSTC0(1)
+            CASE (17)
+              pow_vert1=b%INSTC2(1,i)
+              pow_vert2=b%INSTC2(1,i+1)
+              pow_vert3=b%INSTC20(1)
+            CASE (18)
+              pow_vert1=b%MEANC(1,i)
+              pow_vert2=b%MEANC(1,i+1)
+              pow_vert3=b%MEANC0(1)
+            CASE (19)
+              pow_vert1=b%MONGEA(1,i)
+              pow_vert2=b%MONGEA(1,i+1)
+              pow_vert3=b%MONGEA0(1)
+            CASE (20)
+              pow_vert1=b%Z(1,i)
+              pow_vert2=b%Z(1,i+1)
+              pow_vert3=b%Z0(1)
+            CASE DEFAULT
+              pow_vert1=b%SAGC(1,i)
+              pow_vert2=b%SAGC(1,i+1)
+              pow_vert3=b%SAGC0(1)
+         END SELECT
+         endif
           pow_face3_1=(pow_vert1+pow_vert2+pow_vert3)/3
           if (ieee_is_finite(pow_face3_1) ) then  !.and. (powmax-powmin) > eps
            vertnum=3
@@ -151,10 +184,43 @@
          ivert2=(M1-1)*N1+1
          ivert3=1
          ivert1=0   ! verts from above zero indexing, origin given last vertex number
-         fct=flag-mod(flag,10000))/10000
-         pow_vert1=b%SAGC(1,M1)
-         pow_vert2=b%SAGC(1,1)
-         pow_vert3=b%SAGC0(1)
+         fct=(flag-mod(flag,10000))/10000
+         if (fct .lt. 16 .and. fct .gt. 0) then
+            pow_vert1=b%ZC(1,M1,fct)
+            pow_vert2=b%ZC(1,1,fct)
+            pow_vert3=b%ZC0(1,fct)
+         else
+         SELECT CASE (fct)
+           CASE (0)
+             pow_vert1=b%SAGC(1,M1)
+             pow_vert2=b%SAGC(1,1)
+             pow_vert3=b%SAGC0(1)
+           CASE (16)
+             pow_vert1=b%INSTC(1,M1)
+             pow_vert2=b%INSTC(1,1)
+             pow_vert3=b%INSTC0(1)
+           CASE (17)
+             pow_vert1=b%INSTC2(1,M1)
+             pow_vert2=b%INSTC2(1,1)
+             pow_vert3=b%INSTC20(1)
+           CASE (18)
+             pow_vert1=b%MEANC(1,M1)
+             pow_vert2=b%MEANC(1,1)
+             pow_vert3=b%MEANC0(1)
+           CASE (19)
+             pow_vert1=b%MONGEA(1,M1)
+             pow_vert2=b%MONGEA(1,1)
+             pow_vert3=b%MONGEA0(1)
+           CASE (20)
+             pow_vert1=b%Z(1,M1)
+             pow_vert2=b%Z(1,1)
+             pow_vert3=b%Z0(1)
+           CASE DEFAULT
+             pow_vert1=b%SAGC(1,M1)
+             pow_vert2=b%SAGC(1,1)
+             pow_vert3=b%SAGC0(1)
+        END SELECT
+        endif
          pow_face3_1=(pow_vert1+pow_vert2+pow_vert3)/3
          vertnum=3
          rgbv=colormap(pow_face3_1,powmin,powmax,map)
@@ -177,11 +243,51 @@
          if  ( (j < b%MV(i)) .AND. (j < b%MV(i+1)) ) then   
 !        powers go by vertices, but colors need by face
 !        rgbv=colormap(pow,powmin,powmax,map)
-         fct=flag-mod(flag,10000))/10000
-         pow_vert1=b%SAGC(J+1,I)
-         pow_vert2=b%SAGC(J+1,I+1)
-         pow_vert3=b%SAGC(J,I) 
-         pow_vert4=b%SAGC(J,I+1)
+         fct=(flag-mod(flag,10000))/10000
+         if (fct .lt. 16 .and. fct .gt. 0) then
+           pow_vert1=b%ZC(j+1,i,fct)
+           pow_vert2=b%ZC(j+1,i+1,fct)
+           pow_vert3=b%ZC(j,i,fct)
+           pow_vert4=b%ZC(j,i+1,fct)
+         else
+         SELECT CASE (fct)
+           CASE (0)
+             pow_vert1=b%SAGC(j+1,i)
+             pow_vert2=b%SAGC(j+1,i+1)
+             pow_vert3=b%SAGC(j,i)
+             pow_vert4=b%SAGC(j,i+1)
+           CASE (16)
+             pow_vert1=b%INSTC(j+1,i)
+             pow_vert2=b%INSTC(j+1,i+1)
+             pow_vert3=b%INSTC(j,i)
+             pow_vert4=b%INSTC(j,i+1)
+           CASE (17)
+             pow_vert1=b%INSTC2(j+1,i)
+             pow_vert2=b%INSTC2(j+1,i+1)
+             pow_vert3=b%INSTC2(j,i)
+             pow_vert4=b%INSTC2(j,i+1)
+           CASE (18)
+             pow_vert1=b%MEANC(j+1,i)
+             pow_vert2=b%MEANC(j+1,i+1)
+             pow_vert3=b%MEANC(j,i)
+             pow_vert4=b%MEANC(j,i+1)
+           CASE (19)
+             pow_vert1=b%MONGEA(j+1,i)
+             pow_vert2=b%MONGEA(j+1,i+1)
+             pow_vert3=b%MONGEA(j,i)
+             pow_vert4=b%MONGEA(j,i+1)
+           CASE (20)
+             pow_vert1=b%Z(j+1,i)
+             pow_vert2=b%Z(j+1,i+1)
+             pow_vert3=b%Z(j,i)
+             pow_vert4=b%Z(j,i+1)
+           CASE DEFAULT
+             pow_vert1=b%SAGC(j+1,i)
+             pow_vert2=b%SAGC(j+1,i+1)
+             pow_vert3=b%SAGC(j,i)
+             pow_vert4=b%SAGC(j,i+1)
+        END SELECT
+        endif
          pow_face4=(pow_vert1+pow_vert2+pow_vert3+pow_vert4)/4
          pow_face3_1=(pow_vert1+pow_vert2+pow_vert3)/3
          pow_face3_2=(pow_vert1+pow_vert3+pow_vert4)/3
@@ -216,13 +322,52 @@
          endif
          if  ( (j < b%MV(M1)) .AND. (j < b%MV(1)) ) then  
 !        powers go by vertices, but colors need by face
-!        pow=b%Zp(I,J)
 !        rgbv=colormap(pow,powmin,powmax,map)
-         fct=flag-mod(flag,10000))/10000
-         pow_vert1=b%SAGC(J+1,M1)
-         pow_vert2=b%SAGC(J+1,M1-1)
-         pow_vert3=b%SAGC(J,M1) 
-         pow_vert4=b%SAGC(J,M1-1)
+         fct=(flag-mod(flag,10000))/10000
+         if (fct .lt. 16 .and. fct .gt. 0) then
+           pow_vert1=b%ZC(j+1,M1,fct)
+           pow_vert2=b%ZC(j+1,M1-1,fct)
+           pow_vert3=b%ZC(j,M1,fct)
+           pow_vert4=b%ZC(j,M1-1,fct)
+         else
+         SELECT CASE (fct)
+           CASE (0)
+             pow_vert1=b%SAGC(j+1,M1)
+             pow_vert2=b%SAGC(j+1,M1-1)
+             pow_vert3=b%SAGC(j,M1)
+             pow_vert4=b%SAGC(j,M1-1)
+           CASE (16)
+             pow_vert1=b%INSTC(j+1,M1)
+             pow_vert2=b%INSTC(j+1,M1-1)
+             pow_vert3=b%INSTC(j,M1)
+             pow_vert4=b%INSTC(j,M1-1)
+           CASE (17)
+             pow_vert1=b%INSTC2(j+1,M1)
+             pow_vert2=b%INSTC2(j+1,M1-1)
+             pow_vert3=b%INSTC2(j,M1)
+             pow_vert4=b%INSTC2(j,M1-1)
+           CASE (18)
+             pow_vert1=b%MEANC(j+1,M1)
+             pow_vert2=b%MEANC(j+1,M1-1)
+             pow_vert3=b%MEANC(j,M1)
+             pow_vert4=b%MEANC(j,M1-1)
+           CASE (19)
+             pow_vert1=b%MONGEA(j+1,M1)
+             pow_vert2=b%MONGEA(j+1,M1-1)
+             pow_vert3=b%MONGEA(j,M1)
+             pow_vert4=b%MONGEA(j,M1-1)
+           CASE (20)
+             pow_vert1=b%Z(j+1,M1)
+             pow_vert2=b%Z(j+1,M1-1)
+             pow_vert3=b%Z(j,M1)
+             pow_vert4=b%Z(j,M1-1)
+           CASE DEFAULT
+             pow_vert1=b%SAGC(j+1,M1)
+             pow_vert2=b%SAGC(j+1,M1-1)
+             pow_vert3=b%SAGC(j,M1)
+             pow_vert4=b%SAGC(j,M1-1)
+        END SELECT
+        endif
          pow_face4=(pow_vert1+pow_vert2+pow_vert3+pow_vert4)/4
          pow_face3_1=(pow_vert1+pow_vert2+pow_vert3)/3
          pow_face3_2=(pow_vert1+pow_vert3+pow_vert4)/3

@@ -13,7 +13,6 @@ extern const unsigned int SCR_WIDTH;
 extern const unsigned int SCR_HEIGHT;
 
 extern int flag;
-extern int flag2;
 extern char *filename;
 
 extern bool success;
@@ -29,7 +28,7 @@ extern GLuint* elements;
 
 // calling fortran code
 extern "C" {
-void janus_(int *flag, int *flag2, char *filename, GLuint *elements, GLfloat *vertices, int *nV, int *nE);
+void janus_(int *flag, char *filename, GLuint *elements, GLfloat *vertices, int *nV, int *nE);
 };
 
 extern "C" {

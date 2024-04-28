@@ -3,35 +3,35 @@
        REAL(wp), INTENT(IN) :: POWMIN, POWMAX
        integer, intent(in) :: unitno1
        character(len=*), intent(in) :: FILENAME
-       real :: col1,col2,col3,col4,col5,col6,col7,col8,col9,col10,col11,col12
+       real :: col(12)
 
 800    FORMAT(A,F6.1,A,F6.1,A)
 900    FORMAT(A,F6.1,A,A,A,F6.1,A,A,A,F6.1,A,A,A,F6.1,A,A,A,&
      F6.1,A,A,A,F6.1,A,A,A,F6.1,A,A,A,F6.1,A,A,A,F6.1,A,A,A,&
      F6.1,A,A,A,F6.1,A,A,A,F6.1,A,A,A) 
 
-       col1=FLOOR(POWMIN)
-       col12=FLOOR(POWMAX+4)
-       col2=0.09*(col12-col1)+col1
-       col3=0.18*(col12-col1)+col1
-       col4=0.27*(col12-col1)+col1
-       col5=0.36*(col12-col1)+col1
-       col6=0.45*(col12-col1)+col1
-       col7=0.54*(col12-col1)+col1
-       col8=0.63*(col12-col1)+col1
-       col9=0.72*(col12-col1)+col1
-       col10=0.81*(col12-col1)+col1
-       col11=0.90*(col12-col1)+col1      
+       col(1)=FLOOR(POWMIN)
+       col(12)=FLOOR(POWMAX+4)
+       col(2)=0.09*(col(12)-col(1))+col(1)
+       col(3)=0.18*(col(12)-col(1))+col(1)
+       col(4)=0.27*(col(12)-col(1))+col(1)
+       col(5)=0.36*(col(12)-col(1))+col(1)
+       col(6)=0.45*(col(12)-col(1))+col(1)
+       col(7)=0.54*(col(12)-col(1))+col(1)
+       col(8)=0.63*(col(12)-col(1))+col(1)
+       col(9)=0.72*(col(12)-col(1))+col(1)
+       col(10)=0.81*(col(12)-col(1))+col(1)
+       col(11)=0.90*(col(12)-col(1))+col(1)
        
        WRITE(unitno1,*) 'set pm3d map impl'
-       WRITE(unitno1,800) 'set zrange[',col1,':',col11,']'
-       WRITE(unitno1,900) 'set palette defined (',col1,"'",'purple',&
-     "',",col2,"'",'dark-blue',"',",col3,"'",'blue',&
-     "',",col4,"'",'light-blue',"',",col5,"'",'light-green',&
-     "',",col6,"'",'green',"',",col7,"'",'web-green',&
-     "',",col8,"'",'yellow',"',",col9,"'",'goldenrod',&
-     "',",col10,"'",'light-red',&  
-     "',",col11,"'",'red',"',",col12,"'",'dark-red',"')"
+       WRITE(unitno1,800) 'set zrange[',col(1),':',col(11),']'
+       WRITE(unitno1,900) 'set palette defined (',col(1),"'",'purple',&
+     "',",col(2),"'",'dark-blue',"',",col(3),"'",'blue',&
+     "',",col(4),"'",'light-blue',"',",col(5),"'",'light-green',&
+     "',",col(6),"'",'green',"',",col(7),"'",'web-green',&
+     "',",col(8),"'",'yellow',"',",col(9),"'",'goldenrod',&
+     "',",col(10),"'",'light-red',&
+     "',",col(11),"'",'red',"',",col(12),"'",'dark-red',"')"
        WRITE(unitno1,*) '@NOXTICS ; @NOYTICS'
        WRITE(unitno1,*) 'splot ',"'",FILENAME,"'"
 

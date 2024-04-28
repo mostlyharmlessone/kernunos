@@ -1,4 +1,4 @@
-  subroutine Janus(flag, flag2, file_from_C, elements, vertices, nV, nE) bind(C,name='janus_')
+  subroutine Janus(flag, file_from_C, elements, vertices, nV, nE) bind(C,name='janus_')
 ! DRIVER PROGRAM FOR SPLINE ROUTINES
   use set_precision, ONLY : wp
   use lapackinterface
@@ -17,7 +17,6 @@
   integer :: unitno1                  
   character(c_char), INTENT(IN), DIMENSION(4096) :: file_from_C
   integer(c_int), INTENT(INOUT) :: flag
-  integer(c_int), INTENT(INOUT) :: flag2
   integer(c_int), INTENT(INOUT) :: nV 
   integer(c_int), INTENT(INOUT) :: nE               
   real(c_float), INTENT(INOUT) :: vertices(*)
@@ -39,8 +38,8 @@
   integer, allocatable :: IPIV(:)
   real(wp) :: ctr_circle_x, ctr_circle_y, R_Talus, Theta_Talus, X_global, Y_global
 
-! flag == 99 Deallocate
-if (flag == 99) then
+! mod(flag,100) == 99 Deallocate
+if (mod(flag,100) == 99) then
     if (allocated(JMatrix%R)) then
      JMatrix=0
     endif
@@ -103,10 +102,43 @@ file_idx=index(inputfile1, ".ply")
   else
 
   donut = .FALSE.
-  fct=flag-mod(flag,10000))/10000
-  powctr=JMatrix%SAGC0(1)
-  powmin=JMatrix%SAGC0(2)
-  powmax=JMatrix%SAGC0(3)
+  fct=(flag-mod(flag,10000))/10000
+  if (fct .lt. 16 .and. fct .gt. 0) then
+    powctr=JMatrix%ZC0(1,fct)
+    powmin=JMatrix%ZC0(2,fct)
+    powmax=JMatrix%ZC0(3,fct)
+  else
+  SELECT CASE (fct)
+    CASE (0)
+    powctr=JMatrix%SAGC0(1)
+    powmin=JMatrix%SAGC0(2)
+    powmax=JMatrix%SAGC0(3)
+    CASE (16)
+    powctr=JMatrix%INSTC0(1)
+    powmin=JMatrix%INSTC0(2)
+    powmax=JMatrix%INSTC0(3)
+    CASE (17)
+    powctr=JMatrix%INSTC20(1)
+    powmin=JMatrix%INSTC20(2)
+    powmax=JMatrix%INSTC20(3)
+    CASE (18)
+    powctr=JMatrix%MEANC0(1)
+    powmin=JMatrix%MEANC0(2)
+    powmax=JMatrix%MEANC0(3)
+    CASE (19)
+    powctr=JMatrix%MONGEA0(1)
+    powmin=JMatrix%MONGEA0(2)
+    powmax=JMatrix%MONGEA0(3)
+    CASE (20)
+    powctr=JMatrix%Z0(1)
+    powmin=JMatrix%Z0(2)
+    powmax=JMatrix%Z0(3)
+    CASE DEFAULT
+    powctr=JMatrix%SAGC0(1)
+    powmin=JMatrix%SAGC0(2)
+    powmax=JMatrix%SAGC0(3)
+ END SELECT
+ endif
   write(*,*) 'powctr,POWMIN,POWMAX',powctr,POWMIN,POWMAX
   ! powmin=35.5
   ! powmax=55.5
@@ -130,10 +162,43 @@ file_idx=index(inputfile1, ".off")
   else
 
   donut = .FALSE.
-  fct=flag-mod(flag,10000))/10000
-  powctr=JMatrix%SAGC0(1)
-  powmin=JMatrix%SAGC0(2)
-  powmax=JMatrix%SAGC0(3)
+  fct=(flag-mod(flag,10000))/10000
+  if (fct .lt. 16 .and. fct .gt. 0) then
+    powctr=JMatrix%ZC0(1,fct)
+    powmin=JMatrix%ZC0(2,fct)
+    powmax=JMatrix%ZC0(3,fct)
+  else
+  SELECT CASE (fct)
+    CASE (0)
+    powctr=JMatrix%SAGC0(1)
+    powmin=JMatrix%SAGC0(2)
+    powmax=JMatrix%SAGC0(3)
+    CASE (16)
+    powctr=JMatrix%INSTC0(1)
+    powmin=JMatrix%INSTC0(2)
+    powmax=JMatrix%INSTC0(3)
+    CASE (17)
+    powctr=JMatrix%INSTC20(1)
+    powmin=JMatrix%INSTC20(2)
+    powmax=JMatrix%INSTC20(3)
+    CASE (18)
+    powctr=JMatrix%MEANC0(1)
+    powmin=JMatrix%MEANC0(2)
+    powmax=JMatrix%MEANC0(3)
+    CASE (19)
+    powctr=JMatrix%MONGEA0(1)
+    powmin=JMatrix%MONGEA0(2)
+    powmax=JMatrix%MONGEA0(3)
+    CASE (20)
+    powctr=JMatrix%Z0(1)
+    powmin=JMatrix%Z0(2)
+    powmax=JMatrix%Z0(3)
+    CASE DEFAULT
+    powctr=JMatrix%SAGC0(1)
+    powmin=JMatrix%SAGC0(2)
+    powmax=JMatrix%SAGC0(3)
+ END SELECT
+ endif
   write(*,*) 'powctr,POWMIN,POWMAX',powctr,POWMIN,POWMAX
 
   call WriteGeomOFF(flag,JMatrix,donut,powmin,powmax,inputfile1)
@@ -591,11 +656,6 @@ call LogC("Starting Zernike computation"//c_null_char)
     return
    endif
    ZernC=0
-   if (allocated(ZernJ%ZC)) then
-   ! nothing
-   else
-    call init_mat_ZernJ(MM,N+1,ZernJ)
-   endif
 
    do ii=1,nrhs
    call Ccounter(ii/40)
@@ -698,22 +758,22 @@ if (i1 .eq. 0) then
  i1=MM
  j1=j1-1
 endif
-  ZernJ%ZC(j1,i1,1:k_max)=EE(1:k_max,kk)
+  JMatrix%ZC(j1,i1,1:k_max)=EE(1:k_max,kk)
 end do
 !$OMP END PARALLEL DO
 
 ! center values
 do k=1,15
- ZernJ%ZC0(1,:)=EE(1:k_max,nrhs)
+ JMatrix%ZC0(1,:)=EE(1:k_max,nrhs)
 end do
 ! find min and max
-ZernJ%ZC0(2,:)=1E30
-ZernJ%ZC0(3,:)=-1E30
+JMatrix%ZC0(2,:)=1E30
+JMatrix%ZC0(3,:)=-1E30
 do i =1,MM
  do j = 1,RadSlope%MV(i)
   do k = 1,15
-   if (ZernJ%ZC(j,i,k) <= ZernJ%ZC0(2,k)) ZernJ%ZC0(2,k)=ZernJ%ZC(j,i,k)
-   if (ZernJ%ZC(j,i,k) >= ZernJ%ZC0(3,k)) ZernJ%ZC0(3,k)=ZernJ%ZC(j,i,k)
+   if (JMatrix%ZC(j,i,k) <= JMatrix%ZC0(2,k)) JMatrix%ZC0(2,k)=JMatrix%ZC(j,i,k)
+   if (JMatrix%ZC(j,i,k) >= JMatrix%ZC0(3,k)) JMatrix%ZC0(3,k)=JMatrix%ZC(j,i,k)
   end do
  end do
 end do
@@ -752,10 +812,43 @@ endif
 !  write OFF files
 
    donut = .FALSE.
-   fct=flag-mod(flag,10000))/10000
-   powctr=JMatrix%SAGC0(1)  
-   powmin=JMatrix%SAGC0(2)  
-   powmax=JMatrix%SAGC0(3)
+   fct=(flag-mod(flag,10000))/10000
+   if (fct .lt. 16 .and. fct .gt. 0) then
+     powctr=JMatrix%ZC0(1,fct)
+     powmin=JMatrix%ZC0(2,fct)
+     powmax=JMatrix%ZC0(3,fct)
+   else
+   SELECT CASE (fct)
+     CASE (0)
+     powctr=JMatrix%SAGC0(1)
+     powmin=JMatrix%SAGC0(2)
+     powmax=JMatrix%SAGC0(3)
+     CASE (16)
+     powctr=JMatrix%INSTC0(1)
+     powmin=JMatrix%INSTC0(2)
+     powmax=JMatrix%INSTC0(3)
+     CASE (17)
+     powctr=JMatrix%INSTC20(1)
+     powmin=JMatrix%INSTC20(2)
+     powmax=JMatrix%INSTC20(3)
+     CASE (18)
+     powctr=JMatrix%MEANC0(1)
+     powmin=JMatrix%MEANC0(2)
+     powmax=JMatrix%MEANC0(3)
+     CASE (19)
+     powctr=JMatrix%MONGEA0(1)
+     powmin=JMatrix%MONGEA0(2)
+     powmax=JMatrix%MONGEA0(3)
+     CASE (20)
+     powctr=JMatrix%Z0(1)
+     powmin=JMatrix%Z0(2)
+     powmax=JMatrix%Z0(3)
+     CASE DEFAULT
+     powctr=JMatrix%SAGC0(1)
+     powmin=JMatrix%SAGC0(2)
+     powmax=JMatrix%SAGC0(3)
+  END SELECT
+  endif
    write(*,*) 'powctr,POWMIN,POWMAX',powctr,POWMIN,POWMAX
 
 

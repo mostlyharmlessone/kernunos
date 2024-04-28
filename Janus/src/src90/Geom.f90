@@ -13,7 +13,7 @@
        real(wp) :: vert1,vert2,vert3,nrm1,nrm2,nrm3,normal
        real(c_float) :: c_vert(3),c_rgbv(3),c_norm(3)
        real(wp) :: pow
-       integer :: i,j,k,M1,N1,verts,faces,edges,map
+       integer :: i,j,k,M1,N1,verts,faces,edges,map,fct
        integer(c_int) :: ivert1,ivert2,ivert3,ivert4
        integer(c_int), INTENT(INOUT) :: elements(*)                          ! faces x 3   
        real(c_float), INTENT(INOUT) :: vertices(*)                           ! vertices x 6 
@@ -97,8 +97,27 @@
          vert1 = 0      
          vert2 = 0
          X3=-b%Z0(1)          ! flip it upside down
-         fct=flag-mod(flag,10000))/10000
-         pow=b%SAGC0(1)       ! not just X3 for future painting
+         fct=(flag-mod(flag,10000))/10000
+         if (fct .lt. 16 .and. fct .gt. 0) then
+              pow=b%ZC0(1,fct)
+         else
+         SELECT CASE (fct)
+           CASE (0)
+              pow=b%SAGC0(1)
+           CASE (16)
+              pow=b%INSTC0(1)
+           CASE (17)
+              pow=b%INSTC20(1)
+           CASE (18)
+              pow=b%MEANC0(1)
+           CASE (19)
+              pow=b%MONGEA0(1)
+           CASE (20)
+              pow=b%Z0(1)
+           CASE DEFAULT
+              pow=b%SAGC0(1)
+        END SELECT
+        endif
          vert3 = real(X3,kind=4)
          nrm1=0
          nrm2=0
@@ -121,8 +140,27 @@
          X1=b%THT(i)         ! in radians
          X2=b%R(j,i)
          X3=-b%Z(j,i)         ! flip it
-         fct=flag-mod(flag,10000))/10000
-         pow=b%SAGC(j,i)     ! not just X3 for future painting
+         fct=(flag-mod(flag,10000))/10000
+         if (fct .lt. 16 .and. fct .gt. 0) then
+              pow=b%ZC(j,i,fct)
+         else
+         SELECT CASE (fct)
+           CASE (0)
+              pow=b%SAGC(j,i)
+           CASE (16)
+               pow=b%INSTC(j,i)
+           CASE (17)
+              pow=b%INSTC2(j,i)
+           CASE (18)
+              pow=b%MEANC(j,i)
+           CASE (19)
+              pow=b%MONGEA(j,i)
+           CASE (20)
+              pow=b%Z(j,i)
+           CASE DEFAULT
+              pow=b%SAGC(j,i)
+        END SELECT
+        endif
          nrm1=-abs(b%YPR(j,i))      !get rid of spurious sign
          nrm2=-b%YPTHETA(j,i)/X2    !polar coordinates
          normal=sqrt(nrm1*nrm1+nrm2*nrm2+1)

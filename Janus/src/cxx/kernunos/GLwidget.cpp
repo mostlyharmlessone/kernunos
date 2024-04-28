@@ -293,10 +293,10 @@ bool GLwidget::DataPrint(QString fileName)
     nE=26130;
 
     if (!(flag == 1)){
-      auto future1 = std::async([&]{return janus_(&flag, &flag2, filename, elements, vertices, &nV, &nE);});  //everybody else gets blocking thread
+      auto future1 = std::async([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);});  //everybody else gets blocking thread
       future1.get();}    
     else {
-      std::thread([&]{return janus_(&flag, &flag2, filename, elements, vertices, &nV, &nE);}).detach();}  //zern gets independent thread
+      std::thread([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);}).detach();}  //zern gets independent thread
   }
   return true;
 }
@@ -361,7 +361,7 @@ bool GLwidget::DataLoad(QString fileName, bool first_time)  //first_time->cube
 
       // blocks!
       // Start the computation.
-      futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag, &flag2, filename, elements, vertices, &nV, &nE);}));
+      futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);}));
 
       // Display the dialog and start the event loop.
       dialog.exec();
@@ -372,12 +372,12 @@ bool GLwidget::DataLoad(QString fileName, bool first_time)  //first_time->cube
       qDebug() << "Canceled?" << futureWatcher.future().isCanceled();
 
     //   blocks!
-    //  std::future future1 = std::async([&]{return janus_(&flag, &flag2, filename, elements, vertices, &nV, &nE);});
+    //  std::future future1 = std::async([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);});
     //  future1.get();
 
-    //  std::thread([&]{return janus_(&flag, &flag2, filename, elements, vertices, &nV, &nE);}).detach();  //no blocking thread
+    //  std::thread([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);}).detach();  //no blocking thread
 
-    //      janus_(&flag, &flag2,filename, elements, vertices, &nV, &nE);
+    //      janus_(&flag, filename, elements, vertices, &nV, &nE);
      }
     else
      {

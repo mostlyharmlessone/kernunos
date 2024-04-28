@@ -91,7 +91,6 @@ const unsigned int SCR_WIDTH = 400;
 const unsigned int SCR_HEIGHT = 200;
 
 int flag=0;
-int flag2=0;
 int counter=0;
 
 //https://stackoverflow.com/questions/16296284/workaround-for-blocking-async
@@ -403,7 +402,7 @@ void MainWindow::compare()    //right now this doesn't do anything but direct ou
 void MainWindow::zern()
 {
     flag=1;
-    std::thread([&]{return janus_(&flag, &flag2, filename, elements, vertices, &nV, &nE);}).detach();
+    std::thread([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);}).detach();
     ui.infoLabel->setText(tr("Invoked <b>Zernike</b>"));
     return;
 }
