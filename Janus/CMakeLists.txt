@@ -259,7 +259,6 @@ include_directories(src/cxx/kernunos src/c/rply) # /usr/local/include/coretran)
     qt_add_executable(kernunos 
                    src/cxx/kernunos/kernunos.cpp src/cxx/kernunos/kernunos.h
                    src/cxx/kernunos/GLwidget.cpp src/cxx/kernunos/GLwidget.h
-                   src/cxx/kernunos/window.cpp src/cxx/kernunos/window.h
                    src/cxx/kernunos/chart.cpp src/cxx/kernunos/chart.h
                    src/c/kernunos/logc.c src/c/kernunos/logc.h
                    src/c/kernunos/Ccounter.c src/c/kernunos/counter.h

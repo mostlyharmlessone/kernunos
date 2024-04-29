@@ -73,8 +73,6 @@ end function surface_normal
 function colormap(x,minimum, maximum,map) result(rgbv)
  REAL (wp), INTENT (IN) :: minimum,maximum,x
  INTEGER, INTENT (IN) :: map
- REAL :: hue,sat,bright,rr,gg,bb
- INTEGER :: stat
  INTEGER(int16) :: rgbv(3) ! rgbv={r,g,b}
  SELECT CASE (map)
    CASE (1)
@@ -89,8 +87,12 @@ function colormap(x,minimum, maximum,map) result(rgbv)
       rgbv=USSpalette(.true.,x,minimum,maximum)
    CASE (6)
       rgbv=PerceptuallyUniformPalette(.true.,x,minimum,maximum)
-   CASE DEFAULT
+   CASE (7)
+      rgbv=USSpalette(.false.,x,minimum,maximum)
+   CASE (8)
       rgbv=PerceptuallyUniformPalette(.false.,x,minimum,maximum)
+   CASE DEFAULT
+      rgbv=USSpalette(.true.,x,minimum,maximum)
 END SELECT
 end function colormap
 
@@ -103,6 +105,7 @@ REAL (wp) :: col(9)
 INTEGER(int16), dimension(3,9) :: palette
 INTEGER(int16) :: rgbv(3) ! rgbv={r,g,b}
 !ANSI 38.5 to 49.5 every 0.5; Brewer 2.0 https://colorbrewer2.org no more than 9 classes max recommended
+! but here we interpolate between them to avoid pixellation
 if (fixedrange) then
  minimum =38.5
  maximum =49.5
@@ -124,14 +127,17 @@ palette=reshape((/&
 37,52,148,&
 8,29,88/),shape(palette))
 call bsearch(x,col,9,high,low)
-if ( (col(high)-x) .lt. (x-col(low)) ) then
- rgbv(:)=palette(:,high)
-else
- rgbv(:)=palette(:,low)
-endif
+!Uncomment these and comment out the linear interpolation if you want to be confined to 9 classes with pixellation
+!!if ( (col(high)-x) .lt. (x-col(low)) ) then
+!! rgbv(:)=palette(:,high)
+!!else
+!! rgbv(:)=palette(:,low)
+!!endif
+! linear interpolation in rgb space
+rgbv(:)=((x-col(low))*palette(:,high)+(col(high)-x)*palette(:,low))/(col(high)-col(low))
 end function PerceptuallyUniformPalette
 
-! fixed discrete diopteric palette
+! fixed discrete diopteric palette: The Uniform Standard Scale
 function USSpalette(fixedrange,x,powmin, powmax) result(rgbv)
 REAL (wp), INTENT (IN) :: powmin,powmax,x
 LOGICAL, INTENT(IN) :: fixedrange
@@ -139,7 +145,7 @@ INTEGER :: i,high,low
 REAL (wp) :: col(26)
 INTEGER(int16), dimension(3,26) :: palette
 INTEGER(int16) :: rgbv(3) ! rgbv={r,g,b}
-!Smolek et al Table 4. USS scale from 67.5 to 30 every 1.5 D
+!Smolek et al Ophthalmology Feb 2002 Table 4. USS scale from 67.5 to 30 every 1.5 D
 if (fixedrange) then
  minimum =30
  maximum =67.5
@@ -178,11 +184,8 @@ palette=reshape((/&
 0, 0, 112, &
 0, 0, 80/),shape(palette))
 call bsearch(x,col,26,high,low)
-if ( (col(high)-x) .lt. (x-col(low)) ) then
- rgbv(:)=palette(:,high)
-else
- rgbv(:)=palette(:,low)
-endif
+! linear interpolation in rgb space
+rgbv(:)=((x-col(low))*palette(:,high)+(col(high)-x)*palette(:,low))/(col(high)-col(low))
 end function USSpalette
 
 ! makes a noncontinuous/discrete interval 12 color palette similar to the one in printgraph using gnuplot/splot
@@ -193,6 +196,9 @@ INTEGER(int16) :: rgbv(3) ! rgbv={r,g,b}
 CHARACTER(len=6) :: tempH
 CHARACTER(6), dimension(12) :: palette
 REAL (wp) :: col(12)
+! https://stackoverflow.com/questions/54658674/gnuplot-apply-colornames-from-datafile/54659829#54659829
+! these are gnuplot hexidecimal rgb representations of some of gnuplot's colors used in printgraph.f90:
+!'purple','dark-blue','blue','light-blue','light-green','green','web-green','yellow','goldenrod','light-red','red'
 palette=(/'c080ff','00008b','0000ff','add8e6','90ee90','00ff00',&
          &'00c000','ffff00','ffc020','f03232','ff0000','8b0000'/)
          col(1)=FLOOR(minimum)
@@ -208,11 +214,14 @@ palette=(/'c080ff','00008b','0000ff','add8e6','90ee90','00ff00',&
          col(10)=0.81*(col(12)-col(1))+col(1)
          col(11)=0.90*(col(12)-col(1))+col(1)
 call bsearch(x,col,12,high,low)
+! this is why it looks pixellated, no interpolation
 if ( (col(high)-x) .lt. (x-col(low)) ) then
  tempH=palette(high)
 else
  tempH=palette(low)
 endif
+! assumes hex colors are formatted 'rrggbb'
+! converts character string hex to integer triplet values 0-255, 2 hex chars at a time
 read(tempH(1:2),'(Z2)') rgbv(1)
 read(tempH(3:4),'(Z2)') rgbv(2)
 read(tempH(5:6),'(Z2)') rgbv(3)

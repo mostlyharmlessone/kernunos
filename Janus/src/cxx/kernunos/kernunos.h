@@ -87,8 +87,6 @@ private slots:
     void about();
     void aboutQt();
     void updateResult();
-    void onAddNew();
-    void dockUndock();
     void LinesofCurvature();
 
 private:
