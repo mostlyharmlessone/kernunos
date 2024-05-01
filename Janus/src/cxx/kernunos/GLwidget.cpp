@@ -126,7 +126,7 @@ bool GLwidget::m_lighting = false;
 GLwidget::GLwidget ( QWidget *parent ) : QOpenGLWidget(parent)
 {
         // --transparent causes the clear color to be transparent. Therefore, on systems that
-        // support it, the widget will become transparent apart from the logo.
+        // support it, the widget will become transparent apart from the display window.
         if (m_transparent) {
             QSurfaceFormat fmt = format();
             fmt.setAlphaBufferSize(8);
@@ -161,12 +161,10 @@ void GLwidget::cleanup()
   QString fileName = file.fileName();
   DataPrint(fileName);
   doneCurrent();
-  //QObject::disconnect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &GLwidget::cleanup);
 }
 
 void GLwidget::initializeGL()
 {
-  //connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &GLwidget::cleanup);
   // initialize OpenGL
   initializeOpenGLFunctions();
 

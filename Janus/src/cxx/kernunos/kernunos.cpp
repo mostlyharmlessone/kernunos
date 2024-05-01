@@ -94,6 +94,26 @@ const unsigned int SCR_HEIGHT = 200;
 // first two digits are the function to be plotted as colors
 // 0 = SAGC Sagittal or Axial power
 // 1-15 = Zernike coefficient talus maps
+/*
+    fct   HOA
+    15    "Z(4,4) Vertical Quatrafoil",  Quadrafoil 0 deg
+    13    "Z(4,2) Vertical 2nd Astig.",  4th order astigmatism 0 deg
+    09    "Z(4,0) Spherical Aberration", Spherical Aberration
+    04    "Z(4,-2) Oblique 2nd Astig.",  4th order astigmatism 45 deg
+    01    "Z(4,-4) Oblique Quatrafoil",  Quadrafoil 22.5 deg
+    14    "Z(3,3) Oblique Trefoil",      Trefoil 0 deg
+    11    "Z(3,1) Horizontal Coma",      Coma 0 deg
+    06    "Z(3,-1) Vertical Coma",       Coma 90 deg
+    02    "Z(3,-3) Vertical Trefoil",    Trefoil 30 deg
+          LOA
+    12    "Z(2,2) Vertical Astig.",      Astigmatism 0 deg
+    08    "Z(2,0) Defocus",              Defocus
+    03    "Z(2,-2) Oblique Astigmatism", Astigmatism 45 deg
+
+    05     Z(1,-1) Y tilt                Y tilt
+    10     Z(1,1)  X tilt                X tilt
+    07     Z(0,0)  Piston                Height
+ */
 // 16 = INTC Instantaneous or Tangential power based only on meridional derivatives
 // 17 = INSTC2 Instantaneous or Tangential power using calculated angular derivatives
 // 18 = MEANC Monge Mean Curvature, in diopters
@@ -286,10 +306,6 @@ MainWindow::MainWindow()
    ui.xSlider->setValue(0 * 16);
    ui.ySlider->setValue(345 * 16);
    ui.zSlider->setValue(15 * 16);
-
-   QGraphicsScene *scene = new QGraphicsScene();
-   ui.graphicsView->setScene(scene);
-   scene->addWidget(widget);
 
    createActions();
    createMenus();
@@ -619,7 +635,18 @@ void MainWindow::normal()
         ui.infoLabel->setText(tr("Set <b>View:Normal true</b>"));
    };
 }
-
+/*
+void MainWindow::functionmap()
+{
+   if (GLwidget::isNormal()) {
+        GLwidget::setNormal(false);
+        ui.infoLabel->setText(tr("Set <b>View:Normal false</b>"));
+   } else {
+        GLwidget::setNormal(true);
+        ui.infoLabel->setText(tr("Set <b>View:Normal true</b>"));
+   };
+}
+*/
 void MainWindow::about()
 {
    // https://www.modernescpp.com/index.php/asynchronous-callable-wrappers
@@ -738,6 +765,7 @@ void MainWindow::createMenus()
    analyzeMenu = menuBar()->addMenu(tr("&Analyze"));
    analyzeMenu->addAction(zernAct);
    analyzeMenu->addAction(liocAct);
+   changemapMenu=menuBar()->addMenu(tr("&ChangeMap"));
    viewMenu = menuBar()->addMenu(tr("&View"));
    viewMenu->addAction(lightAct);
    viewMenu->addAction(normalAct);

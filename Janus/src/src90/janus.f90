@@ -645,14 +645,14 @@ call LogC("Starting Zernike computation"//c_null_char)
     do nn=ABS(m),4
      if (mod(nn-m,2) == 0) then
       k=k+1
-!     write(*,*) 'k,n,m: ',k,nn,m
+      write(*,*) 'Zernike coefficent k,n,m: ',k,nn,m  !maps kth computed Zernike coefficient to index k
      endif
     end do
    end do
    k_max=k   
    allocate (B_Matrix(k_max,kk_max),ZernC(kk_max,nrhs),rlocal(kk_max),thtlocal(kk_max),stat=ierr) ! ZernC(kk_max) to hold data though only k_max Zernike coeficients
    if (ierr /= 0) then
-    write(*,*) 'unable to allocate memory in Zernike: ', ierr,k_max,kk_max,nrhs
+!    write(*,*) 'unable to allocate memory in Zernike: ', ierr,k_max,kk_max,nrhs
     return
    endif
    ZernC=0
