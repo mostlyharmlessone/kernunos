@@ -80,7 +80,7 @@ function colormap(x,minimum, maximum,map) result(rgbv)
    CASE (2)
       rgbv=rgb5(x,minimum,maximum)
    CASE (3)
-      rgbv=hsvrgb(x,minimum,maximum)
+      rgbv=hsbrgb(x,minimum,maximum)
    CASE (4)
       rgbv=gplotpalette(x,minimum,maximum)
    CASE (5)
@@ -230,7 +230,7 @@ end function gplotpalette
 ! convert values to heatmap using Hue from Hue/Saturation/Value and color.f90
 ! input 3 scalars, output integer(kind=2) vector
 ! using https://fortranwiki.org/fortran/show/M_color Color Library Version 5.0   
-function hsvrgb(x,minimum, maximum) result(rgbv)
+function hsbrgb(x,minimum, maximum) result(rgbv)
  REAL (wp), INTENT (IN) :: minimum,maximum,x
  REAL :: hue,sat,bright,rr,gg,bb
  INTEGER :: stat
@@ -241,12 +241,12 @@ function hsvrgb(x,minimum, maximum) result(rgbv)
     call jucolor('hsv',hue,sat,bright,'rgb',rr,gg,bb,stat)
     if (stat.ne.0) then
      rgbv=(/255,255,255/)  ! out of range or error = white
-     write (*,*) 'Error in hsvrgb', stat, rr,gg,bb
+     write (*,*) 'Error in hsbrgb', stat, rr,gg,bb
     endif
     rgbv(1) = min(255,int(2.55*rr))
     rgbv(2) = min(255,int(2.55*gg))
     rgbv(3) = min(255,int(2.55*bb)) 
-end function hsvrgb
+end function hsbrgb
 
 ! convert values to rgb 2 color (red to blue) heatmap
 ! input 3 scalars, output integer(kind=2) vector
