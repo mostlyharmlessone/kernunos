@@ -24,8 +24,10 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
   REAL(wp),INTENT(IN) :: y(n) ! ordinates of knots
   REAL(wp),INTENT(IN) :: y2(n) ! second deriv at knots
   REAL(wp),INTENT(OUT),OPTIONAL :: f,fp,fpp,fppp ! function, 1st,2nd,3rd deriv
+  ! centerpoint version
+  REAL(wp) :: xx(n+1),yy(n+1),yy2(n+1)
 
-  INTEGER :: i,i1 ! i1=i+1 in general?
+  INTEGER :: i,i1 ! i1=i+1 unless periodic across gap
   REAL(wp) :: dr,PERD,A,B,C,D,dA,dB,dC,dD
   REAL(wp), DIMENSION(2) :: AB,CD,dAB,dCD,z,z2
   logical :: IsInf
@@ -80,7 +82,7 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
    if (A < 0 .and. B < 0) then 
     if (KP /= 1) then  !  natural spline extrapolation z2=0 outside spline 
      write (*,*) 'Unexpected input in SplineEval',x(i1),u,x(i)
-     stop
+     return
     end if
    end if
        
@@ -95,7 +97,7 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
    IsInf=ieee_is_finite(f)
    If(.not.IsInf) then
     write(*,*) 'Error in SplineEval',KP,u,n,i1,i,z,z2
-    stop
+    return
    endif
                            
   return

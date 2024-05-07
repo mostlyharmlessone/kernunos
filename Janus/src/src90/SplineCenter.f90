@@ -23,7 +23,8 @@
    call SplineEval(0,r,z,zr2,n,u,g,gr) 
    if (ABS(gr) < EPS) then
     u=(r(high)+r(low))/2.0_wp     ! just make it in the center; no guarantee of a local root
-    exit
+    write(*,*) 'no guarantee of a local root in SplineCenter'
+    return
    endif
    u=u-g/gr
   end do
@@ -47,7 +48,8 @@
      call SplineEval(0,r,z,zr2,n,u,g,gr,grr) 
      if (ABS(grr) < EPS) then
       u=(r(high)+r(low))/2.0_wp     ! just make it in the center; no guarantee of a local minmax
-      exit
+      write(*,*) 'no guarantee of a local minmax in SplineCenter'
+      return
      endif     
      u=u-gr/grr
     end do  
@@ -59,6 +61,7 @@
     
     else
       u=(r(high)+r(low))/2.0_wp     ! just make it in the center; no guarantee of a local minmax
+      write(*,*) 'no guarantee of a local minmax in SplineCenter, no change in slope'
     endif 
                  
   endif

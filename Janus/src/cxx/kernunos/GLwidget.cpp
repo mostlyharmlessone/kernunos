@@ -156,7 +156,8 @@ void GLwidget::cleanup()
   delete shaderNormalProgram;
   shaderNormalProgram = nullptr;
   //deallocates Fortran arrays
-  flag=99;
+  flag=flag-(flag%100)+99;  // last two digits of flag = 99;
+  std::cout << "flag in cleanup: " << flag << "\n";
   QTemporaryFile file;
   QString fileName = file.fileName();
   DataPrint(fileName);
@@ -342,7 +343,6 @@ bool GLwidget::DataLoad(QString fileName, bool first_time)  //first_time->cube
     if (!first_time)
      {
       // reload values to avoid seg fault if previous nV and nE are too small
-      flag = 0;  //load and generate JMatrix, no Zernike
       nV=51840;
       nE=26130;
 

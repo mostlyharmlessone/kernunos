@@ -31,11 +31,11 @@ extern "C" {
 void janus_(int *flag, char *filename, GLuint *elements, GLfloat *vertices, int *nV, int *nE);
 };
 
+// calling C code
 extern "C" {
 void ConvertOFFtoSTL_C_(char *iname, char *oname);
 };
 
-// calling C code
 extern "C" {
 int ConvertPLYtoBIN(const char *iname, const char *oname);
 };
@@ -197,6 +197,7 @@ private:
     QMenu *helpMenu;
     QAction *aboutAct;
     QAction *aboutQtAct;
+    QAction *HelpAct;
     QLabel *infoLabel;
 
 };

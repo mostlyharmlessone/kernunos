@@ -59,7 +59,6 @@
 #include "chart.h"   // Copyright (C) 2023 The Qt Company Ltd.
 #include "chartview.h" // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
 
-//#include "window.h"
 #include <QtWidgets>
 #include <QtConcurrent>
 #include <functional>
@@ -89,11 +88,22 @@
 using namespace QtConcurrent;
 
 // global settings
-const unsigned int SCR_WIDTH = 400;
-const unsigned int SCR_HEIGHT = 200;
+const unsigned int SCR_WIDTH = 600;
+const unsigned int SCR_HEIGHT = 400;
 
-// flag xxxxxx fct,map,action
-// first two digits are the function to be plotted as colors
+// flag xxxxxxxx dat,fct,map,action
+// first two digits are Placido disk data fillin and/or center-node tweaks
+// dat = first binary digit 0 no fillin, 1  fillin2
+
+// in fortran: btest(dat, 0)
+// in c++: bitset<32> decimalBitset(dat); decimalBitset.test(pos); decimalBitset.test(pos)
+// decimalBitset.set(pos) makes 1, decimalBitset.unset(pos) makes 0
+//
+// dat = second binary digit 0
+
+// cubic spline integration vs trapezoidal rule integration of slopes for elevation
+
+// second two digits are the function to be plotted as colors
 // 0 = SAGC Sagittal or Axial power
 // 1-15 = Zernike coefficient talus maps
 /*
@@ -121,7 +131,7 @@ const unsigned int SCR_HEIGHT = 200;
 // 18 = MEANC Monge Mean Curvature, in diopters
 // 19 = MONGEA Monge Astigmatism
 // 20 = Z Elevation
-// second two are colormap to use
+// third two are colormap to use
 // default is USS with fixed range
 // 1 = rgb2 discrete heatmap with linear interpolation based on 2 colors
 // 2 = rgb5 discrete heatmap with linear interpolation based on 5 colors
@@ -138,7 +148,7 @@ const unsigned int SCR_HEIGHT = 200;
 // 2 = write OFF file
 // 1 = compute Zernike coefficients/Talus maps
 
-int flag=0;
+int flag=00000000;
 int counter=0;
 
 //https://stackoverflow.com/questions/16296284/workaround-for-blocking-async
@@ -339,6 +349,8 @@ void MainWindow::open()   //multiple invocations makes a comparison
    } else{
     centerAct->setEnabled(true);
    };
+   gnuplotAct->setEnabled(true);
+   liocAct->setEnabled(true);
    makeoffAct->setEnabled(true);
    makeplyAct->setEnabled(true);
    ply2binAct->setEnabled(true);
@@ -355,6 +367,7 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
    filename = ba.data();
    ui.infoLabel->setText(tr("filename:  ")+tr(filename));
    if (filepresent){
+       m_GLwidget->DataLoad(fileName, false);
        std::string str(filename);
        bool pentacam = str.find(".CUR")!= std::string::npos || str.find(".ELE") != std::string::npos;
        if (pentacam) {
@@ -362,7 +375,8 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
        } else{
            centerAct->setEnabled(true);
        };
-       m_GLwidget->DataLoad(fileName, false);
+       gnuplotAct->setEnabled(true);
+       liocAct->setEnabled(true);
        makeoffAct->setEnabled(true);
        makeplyAct->setEnabled(true);
        ply2binAct->setEnabled(true);
@@ -391,7 +405,7 @@ void MainWindow::compare()    //right now this doesn't do anything but direct ou
 
 void MainWindow::zern()
 {
-    flag=1;
+    flag=flag-(flag%100)+1;  // last two digits of flag=1;
     std::thread([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);}).detach();
     ui.infoLabel->setText(tr("Invoked <b>Zernike</b>"));
     return;
@@ -408,7 +422,7 @@ void MainWindow::importexport()
     QByteArray ba = filenamelocal.toLocal8Bit();
     const char *filename = ba.data();
     // generate temp ply file
-    flag=3;
+    flag=flag-(flag%100)+3;  // last two digits of flag=3;
     m_GLwidget_secondwindow->DataPrint(filename);
     // get output file name and type
    QString filter =
@@ -551,7 +565,7 @@ void MainWindow::ply2bin()
     filenamelocal = filenamelocal.append(".ply");
     ba = filenamelocal.toLocal8Bit();
     const char *filename = ba.data();
-    flag=3;
+    flag=flag-(flag%100)+3;  // last two digits of flag=3;
        m_GLwidget_secondwindow->DataPrint(filename);
     // from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY; MIT licence, included source in tree
     int wrote=ConvertPLYtoBIN(filename,filenameout);
@@ -584,7 +598,7 @@ void MainWindow::off2stl()
    filenamelocal = filenamelocal.append(".off");
    ba = filenamelocal.toLocal8Bit();
    char *filename = ba.data();
-   flag=2;
+   flag=flag-(flag%100)+2;  // last two digits of flag=2;
    m_GLwidget_secondwindow->DataPrint(filename);
    ConvertOFFtoSTL_C_(filename,filenameout);
    ui.infoLabel->setText(tr("Wrote  ")+tr(filenameout));
@@ -599,7 +613,7 @@ void MainWindow::makeoff()
       return;
    QByteArray ba = fileName.toLocal8Bit();
    char *filenameout = ba.data();
-   flag=2;
+   flag=flag-(flag%100)+2;  // last two digits of flag=2;
    m_GLwidget_secondwindow->DataPrint(filenameout);
    ui.infoLabel->setText(tr("Wrote  ")+tr(filenameout));
 }
@@ -612,7 +626,7 @@ void MainWindow::makeply()
       return;
    QByteArray ba = fileName.toLocal8Bit();
    char *filenameout = ba.data();
-   flag=3;
+   flag=flag-(flag%100)+3;  // last two digits of flag=3;
    m_GLwidget_secondwindow->DataPrint(filenameout);
    ui.infoLabel->setText(tr("Wrote  ")+tr(filenameout));
 }
@@ -636,10 +650,10 @@ void MainWindow::gnuplotsplot() {
        return;
    }
 
-   // would be better if calcs could be done here instead of in janus, or at least call WriteCenter?
+   // would be better if calcs could be done here instead of in janus, or at least call printgraph?
    Gnuplot gp;
-//   gp << "load \"" << "plot2.gnu\n";           //last line c mouse pause, pauses program
-
+   gp << "load \"" << "plot2.gnu\n";           //last line c mouse pause, pauses program
+/*
  gp << "reset\n";
  gp << "set size square\n";
  gp << "set macros\n";
@@ -648,10 +662,13 @@ void MainWindow::gnuplotsplot() {
  gp << "NOYTICS = \"" << "set format y ''; unset ylabel\n" ;
 
  gp << "set pm3d map impl\n";
+ //needs something for the range
  gp << "set zrange[ 31.0:  51.7]\n";
  gp << "set palette defined (  31.0'purple',  33.1'dark-blue',  35.1'blue',  37.2'light-blue', 39.3'light-green',  41.3'green',  43.4'web-green',  45.5'yellow',  47.6'goldenrod',  49.6'light-red',  51.7'red',  54.0'dark-red'); @NOXTICS ; @NOYTICS\n";
+
  gp  << "splot \"" << "BIG.CAR\n";
 
+*/
 
 #ifdef _WIN32
    // For Windows, prompt for a keystroke before the Gnuplot object goes out of scope so that
@@ -804,6 +821,7 @@ void MainWindow::createActions()
 
    liocAct = new QAction(tr("&Lines of Curvature"), this);
    liocAct->setStatusTip(tr("Show plot of lines of curvature"));
+   liocAct->setEnabled(false);
    connect(liocAct, &QAction::triggered, this, &MainWindow::LinesofCurvature);
 
    centerAct = new QAction(tr("&Center deviations (only for Placido Disk data)"), this);
@@ -813,12 +831,16 @@ void MainWindow::createActions()
 
    gnuplotAct = new QAction(tr("&Plots with Gnuplot Splot"), this);
    gnuplotAct->setStatusTip(tr("Plots with Gnuplot Splot"));
+   gnuplotAct->setEnabled(false);
    connect(gnuplotAct, &QAction::triggered, this, &MainWindow::gnuplotsplot);
 
    aboutQtAct = new QAction(tr("About &Qt"), this);
    aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
    connect(aboutQtAct, &QAction::triggered, qApp, &QApplication::aboutQt);
    connect(aboutQtAct, &QAction::triggered, this, &MainWindow::aboutQt);
+
+   HelpAct = new QAction(tr("&Help"), this);
+   HelpAct->setStatusTip(tr("Shows some help"));
 
    AxialAct=new QAction(tr("&Axial or Sagittal Power"), this);
    TangentialAct=new QAction(tr("&Tangential Power, meridional calculation only"), this);
@@ -904,7 +926,8 @@ void MainWindow::createMenus()
    viewMenu = menuBar()->addMenu(tr("&View"));
    viewMenu->addAction(lightAct);
    viewMenu->addAction(normalAct);
-   helpMenu = menuBar()->addMenu(tr("&Help"));
+   helpMenu = menuBar()->addMenu(tr("&About"));
+   helpMenu->addAction(HelpAct);
    helpMenu->addAction(aboutAct);
    helpMenu->addAction(aboutQtAct);
 }

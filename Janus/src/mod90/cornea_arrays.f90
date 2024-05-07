@@ -100,6 +100,11 @@ INTERFACE OPERATOR (.i.)
  MODULE PROCEDURE DiaIntegrate ! uses CubicSplineQuad.f90, assumes DiaSpline already done, only modifies Zpd
 END INTERFACE 
 
+INTERFACE OPERATOR (.m.)
+! .m. TypeDiaSlopeMatrix integrates the matrix slope values
+ MODULE PROCEDURE DiaSplineCenter ! uses nsplineCenter.f90 to add a center spline node with slope forced to a value
+END INTERFACE
+
 INTERFACE OPERATOR (.n.) ! unary operator
 ! .n. TypeDiaSlopeMatrix populates the matrix with second radial derivatives of z
 ! .n. TypeAtlasMatrix populates the matrix with second angular derivatives of r

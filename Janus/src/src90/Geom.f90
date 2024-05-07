@@ -97,7 +97,7 @@
          vert1 = 0      
          vert2 = 0
          X3=-b%Z0(1)          ! flip it upside down
-         fct=(flag-mod(flag,10000))/10000
+         fct=mod(((flag-mod(flag,10000))/10000),100)
          if (fct .lt. 16 .and. fct .gt. 0) then
               pow=b%ZC0(1,fct)
          else
@@ -140,7 +140,7 @@
          X1=b%THT(i)         ! in radians
          X2=b%R(j,i)
          X3=-b%Z(j,i)         ! flip it
-         fct=(flag-mod(flag,10000))/10000
+         fct=mod(((flag-mod(flag,10000))/10000),100)
          if (fct .lt. 16 .and. fct .gt. 0) then
               pow=b%ZC(j,i,fct)
          else

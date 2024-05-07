@@ -25,7 +25,7 @@
        map=mod((flag-mod(flag,100))/100,100)
        quad = .FALSE.
        if (donut .AND. quad) then
-        write(*,*) 'WriteGeom: Cannot have closed disk with quadrilaterals'
+        write(*,*) 'WriteGeomPly: Cannot have closed disk with quadrilaterals'
         return
        endif
 !      RGB colors can follow after list of faces       
@@ -123,7 +123,7 @@
          vert1 = 0_REAL32       
          vert2 = 0_REAL32
          X3=b%Z0(1)
-         fct=(flag-mod(flag,10000))/10000
+         fct=mod(((flag-mod(flag,10000))/10000),100)
          if (fct .lt. 16 .and. fct .gt. 0) then
               pow=b%ZC0(1,fct)
          else
@@ -155,14 +155,18 @@
           pow = 0 ! for out of bound values     
          endif  
          rgbv=colormap(pow,powmin,powmax,map)
-         write(unitno1,*) vert1,vert2,vert3,nrm1,nrm2,nrm3,rgbv,255   
+         write(unitno1,*) vert1,vert2,vert3,nrm1,nrm2,nrm3,rgbv,255
+
+         write(*,*) 'writegeomply',vert1,vert2,vert3,nrm1,nrm2,nrm3,rgbv,255
+         write(*,*) 'pow,powmin,powmax',pow,powmin,powmax
+
        endif
        do i=1,M1
         do j=1,N1 
           X1=b%THT(i)
           X2=b%R(j,i)
           X3=b%Z(j,i)
-          fct=(flag-mod(flag,10000))/10000
+          fct=mod(((flag-mod(flag,10000))/10000),100)
           if (fct .lt. 16 .and. fct .gt. 0) then
                pow=b%ZC(j,i,fct)
           else

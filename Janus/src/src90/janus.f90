@@ -26,7 +26,7 @@
   character(len=4096) :: new_path
   character(:), ALLOCATABLE :: inputfile1,inputfile2
   character(:), ALLOCATABLE :: logfile
-  integer ::  nblines, file_idx, file_pfx,read_error,fct
+  integer ::  nblines, file_idx, file_pfx,read_error,fct,dat
   integer,allocatable :: MV(:)
   real :: time_start, time_end
   real(wp) :: POWMIN,POWMAX,POWMIN2,POWMAX2,POWCTR,POW
@@ -102,7 +102,7 @@ file_idx=index(inputfile1, ".ply")
   else
 
   donut = .FALSE.
-  fct=(flag-mod(flag,10000))/10000
+  fct=mod(((flag-mod(flag,10000))/10000),100)
   if (fct .lt. 16 .and. fct .gt. 0) then
     powctr=JMatrix%ZC0(1,fct)
     powmin=JMatrix%ZC0(2,fct)
@@ -162,7 +162,7 @@ file_idx=index(inputfile1, ".off")
   else
 
   donut = .FALSE.
-  fct=(flag-mod(flag,10000))/10000
+  fct=mod(((flag-mod(flag,10000))/10000),100)
   if (fct .lt. 16 .and. fct .gt. 0) then
     powctr=JMatrix%ZC0(1,fct)
     powmin=JMatrix%ZC0(2,fct)
@@ -354,7 +354,13 @@ call CPU_TIME(time_start)
    RadSlope=EyeSys
    EyeSys=0
    DiaSlope=RadSlope              ! move to diagonal format
-   DiaSlope%Zpd2 = .n. DiaSlope
+   dat=(flag-mod(flag,1000000))/1000000 !first two digits
+   if (dat == 0 .or. dat == 1) then
+     DiaSlope%Zpd2 = .n. DiaSlope
+   endif
+   if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
+     DiaSlope%Zpd2 = .m. DiaSlope
+   endif
   endif
 
 ! READ THE ATLAS DATA
@@ -368,7 +374,13 @@ call CPU_TIME(time_start)
    if (read_error > 0) return
    call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)     
    DiaSlope=RadSlope              ! move to diagonal format
-   DiaSlope%Zpd2 = .n. DiaSlope
+   dat=(flag-mod(flag,1000000))/1000000 !first two digits
+   if (dat == 0 .or. dat == 1) then
+     DiaSlope%Zpd2 = .n. DiaSlope
+   endif
+   if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
+     DiaSlope%Zpd2 = .m. DiaSlope
+   endif
   endif
   
 
@@ -440,7 +452,13 @@ call CPU_TIME(time_start)
    MM=180
    N=22
    DiaSlope=RadSlope              ! move to diagonal format
-   DiaSlope%Zpd2 = .n. DiaSlope
+   dat=(flag-mod(flag,1000000))/1000000 !first two digits
+   if (dat == 0 .or. dat == 1) then
+     DiaSlope%Zpd2 = .n. DiaSlope
+   endif
+   if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
+     DiaSlope%Zpd2 = .m. DiaSlope
+   endif
 !  These are the spline centers of the elevations
    call MakeRadSplineCenter
 !  WriteCenter shows where the spline of slopes is zero, it should be close to zero for a concave center with a unique maximum
@@ -475,7 +493,13 @@ call CPU_TIME(time_start)
      end do
     end do
    DiaSlope=RadSlope              ! move to diagonal format
-   DiaSlope%Zpd2 = .n. DiaSlope                               
+   dat=(flag-mod(flag,1000000))/1000000 !first two digits
+   if (dat == 0 .or. dat == 1) then
+     DiaSlope%Zpd2 = .n. DiaSlope
+   endif
+   if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
+     DiaSlope%Zpd2 = .m. DiaSlope
+   endif
    call MakeRadSplineCenter                                   
    call WriteCenter(RadSlope,'Center.dat')
 !   call execute_command_line ("gnuplot -p plotcenter.gnu &", exitstat=i)
@@ -518,11 +542,18 @@ call CPU_TIME(time_start)
    end do
  endif
 
-
-
   if (TestData .ge. 0) then  ! all data files (not test) needs central values computed unless they already exist
    if (TestData.eq.3 .or. TestData.eq.5 .or. TestData.eq.0 .or. TestData.eq.1) then 
     call SplineEval1Dx1D(1,JMatrix%R0,JMatrix%THT0,JMatrix%Z0(1))  !center value of elevation; needs integration from slopes
+
+!  similar to WriteCenter
+   write(*,*) 'elevation deviation in janus line 550'
+   do i=1,MM
+    call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),yptheta)  ! center value
+    write(*,*) JMatrix%THT(i),JMatrix%Z0(1)-YPTHETA
+   end do
+
+
    endif  !TestData.eq.2 .or. TestData.eq.4  already has valid Z0 from cornea_arrays & ELE file
    if (TestData.ne.3 .and. TestData.ne.5) then  !TestData.eq.3 .or. TestData.eq.5  already has valid SAGC0 from cornea_arrays & CUR file
 !  Reload RadSlope & re-spline
@@ -532,8 +563,22 @@ call CPU_TIME(time_start)
      end do
     end do
     DiaSlope=RadSlope              ! move to diagonal format
-    DiaSlope%Zpd2 = .n. DiaSlope   ! spline
+    dat=(flag-mod(flag,1000000))/1000000 !first two digits
+    if (dat == 0 .or. dat == 1) then
+      DiaSlope%Zpd2 = .n. DiaSlope
+    endif
+    if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
+      DiaSlope%Zpd2 = .m. DiaSlope
+    endif
     call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT0,JMatrix%SAGC0(1))  ! center value
+
+!  similar to WriteCenter
+   write(*,*) 'sagc0 deviation in janus line 576'
+   do i=1,MM
+    call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),yptheta)  ! center value
+    write(*,*) JMatrix%THT(i),JMatrix%SAGC0(1)-YPTHETA
+   end do
+
     call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
    endif
 
@@ -564,7 +609,13 @@ call CPU_TIME(time_start)
     end do
    end do
    DiaSlope=RadSlope              ! move to diagonal format
-   DiaSlope%Zpd2 = .n. DiaSlope   ! generate the splines diagonally (generate zp2)
+   dat=(flag-mod(flag,1000000))/1000000 !first two digits
+   if (dat == 0 .or. dat == 1) then
+     DiaSlope%Zpd2 = .n. DiaSlope
+   endif
+   if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
+     DiaSlope%Zpd2 = .m. DiaSlope
+   endif
    call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT0,JMatrix%INSTC0(1))  ! center value
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
 !  Reload RadSlope & respline
@@ -574,7 +625,13 @@ call CPU_TIME(time_start)
     end do
    end do
    DiaSlope=RadSlope              ! move to diagonal format
-   DiaSlope%Zpd2 = .n. DiaSlope   ! generate the splines diagonally (generate zp2)
+   dat=(flag-mod(flag,1000000))/1000000 !first two digits
+   if (dat == 0 .or. dat == 1) then
+     DiaSlope%Zpd2 = .n. DiaSlope
+   endif
+   if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
+     DiaSlope%Zpd2 = .m. DiaSlope
+   endif
    call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT0,JMatrix%INSTC20(1))  ! center value
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
 !  Reload RadSlope & respline
@@ -584,7 +641,13 @@ call CPU_TIME(time_start)
     end do
    end do
    DiaSlope=RadSlope              ! move to diagonal format
-   DiaSlope%Zpd2 = .n. DiaSlope   ! generate the splines diagonally (generate zp2)
+   dat=(flag-mod(flag,1000000))/1000000 !first two digits
+   if (dat == 0 .or. dat == 1) then
+     DiaSlope%Zpd2 = .n. DiaSlope
+   endif
+   if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
+     DiaSlope%Zpd2 = .m. DiaSlope
+   endif
    call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT0,JMatrix%MEANC0(1))  ! center value
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
 !  Reload RadSlope & respline
@@ -594,7 +657,13 @@ call CPU_TIME(time_start)
     end do
    end do
    DiaSlope=RadSlope              ! move to diagonal format
-   DiaSlope%Zpd2 = .n. DiaSlope   ! generate the splines diagonally (generate zp2)
+   dat=(flag-mod(flag,1000000))/1000000 !first two digits
+   if (dat == 0 .or. dat == 1) then
+     DiaSlope%Zpd2 = .n. DiaSlope
+   endif
+   if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
+     DiaSlope%Zpd2 = .m. DiaSlope
+   endif
    call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT0,JMatrix%MONGEA0(1))  ! center value
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
   
@@ -636,7 +705,13 @@ call LogC("Starting Zernike computation"//c_null_char)
     end do
    end do
    DiaSlope=RadSlope              ! move to diagonal format
-   DiaSlope%Zpd2 = .n. DiaSlope   ! generate the splines diagonally (generate zp2)
+   dat=(flag-mod(flag,1000000))/1000000 !first two digits
+   if (dat == 0 .or. dat == 1) then
+     DiaSlope%Zpd2 = .n. DiaSlope
+   endif
+   if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
+     DiaSlope%Zpd2 = .m. DiaSlope
+   endif
 
 ! allocate working matrices
    kk_max=5*12
@@ -802,17 +877,21 @@ endif
 
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)
    DiaSlope=RadSlope
-   DiaSlope%Zpd2 = .n. DiaSlope
+   dat=(flag-mod(flag,1000000))/1000000 !first two digits
+   if (dat == 0 .or. dat == 1) then
+     DiaSlope%Zpd2 = .n. DiaSlope
+   endif
+   if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
+     DiaSlope%Zpd2 = .m. DiaSlope
+   endif
    LinesOfCurv='LIOC.CAR'
 
 !  Generate LIOC with vector format
    call FILLARRAY(8,LinesOfCurv,POWMIN2,POWMAX2)    ! don't redo bounds consider optional !  plot 'LIOC.CAR' using 1:2:3:4 with vectors
 !   call execute_command_line ("gnuplot -p plotlioc.gnu &", exitstat=i)
 
-!  write OFF files
-
    donut = .FALSE.
-   fct=(flag-mod(flag,10000))/10000
+   fct=mod(((flag-mod(flag,10000))/10000),100)
    if (fct .lt. 16 .and. fct .gt. 0) then
      powctr=JMatrix%ZC0(1,fct)
      powmin=JMatrix%ZC0(2,fct)
@@ -851,9 +930,6 @@ endif
   endif
    write(*,*) 'powctr,POWMIN,POWMAX',powctr,POWMIN,POWMAX
 
-
-! needs a flag to select function as well as OFF/PLY etc, or call directly from kernunos?
-
 ! writes values in openGL friendly format to matrices for passing to C/C++
 ! flag determines what to write for elevation and color
   call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
@@ -871,7 +947,13 @@ BigPlot='BIG.CAR'
    call CPU_TIME(time_start)   
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)  
    DiaSlope=RadSlope            
-   DiaSlope%Zpd2 = .n. DiaSlope             
+   dat=(flag-mod(flag,1000000))/1000000 !first two digits
+   if (dat == 0 .or. dat == 1) then
+     DiaSlope%Zpd2 = .n. DiaSlope
+   endif
+   if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
+     DiaSlope%Zpd2 = .m. DiaSlope
+   endif
    call FILLARRAY(4,LinesOfCurv,POWMIN,POWMAX)
    write(*,*) 'POWMIN,POWMAX',POWMIN,POWMAX
    call CPU_TIME(time_end)
