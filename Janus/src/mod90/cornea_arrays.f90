@@ -100,11 +100,6 @@ INTERFACE OPERATOR (.i.)
  MODULE PROCEDURE DiaIntegrate ! uses CubicSplineQuad.f90, assumes DiaSpline already done, only modifies Zpd
 END INTERFACE 
 
-INTERFACE OPERATOR (.m.)
-! .m. TypeDiaSlopeMatrix integrates the matrix slope values
- MODULE PROCEDURE DiaSplineCenter ! uses nsplineCenter.f90 to add a center spline node with slope forced to a value
-END INTERFACE
-
 INTERFACE OPERATOR (.n.) ! unary operator
 ! .n. TypeDiaSlopeMatrix populates the matrix with second radial derivatives of z
 ! .n. TypeAtlasMatrix populates the matrix with second angular derivatives of r
@@ -180,8 +175,8 @@ subroutine init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter) ! allocate common ar
   TYPE(wpDiaSlopeMatrix) :: DiaSlope
   allocate (RadSlope%r(N,MM),RadSlope%Z(N,MM),RadSlope%Zp(N,MM),RadSlope%Zp2(N,MM),&
             Radslope%Zt2(N,MM),RadSlope%thta(MM),RadSlope%MV(MM))  
-  allocate (DiaSlope%rd(2*N,MM/2),DiaSlope%Zd(2*N,MM/2),DiaSlope%Zpd(2*N,MM/2),&
-            DiaSlope%Zpd2(2*N,MM/2),DiaSlope%L2(MM/2))
+  allocate (DiaSlope%rd(2*N+1,MM/2),DiaSlope%Zd(2*N+1,MM/2),DiaSlope%Zpd(2*N+1,MM/2),&
+            DiaSlope%Zpd2(2*N+1,MM/2),DiaSlope%L2(MM/2))
   allocate (DiaSlope%rOutMax(MM/2),DiaSlope%rInMax(MM/2),&
             DiaSlope%rOutMin(MM/2),DiaSlope%rInMin(MM/2))
   allocate (RadSplineCenter(MM))
@@ -591,7 +586,7 @@ subroutine DiaSlope_eq_RadSlope(DiaSlope,RadSlope)
  ASSOCIATE(MV=>RadSlope%MV,rOMIN=>DiaSlope%rOutMin,rIMIN=>DiaSlope%rInMin,&
                            rOMAX=>DiaSlope%rOutMax,rIMAX=>DiaSlope%rInMax)
    M1=size(DiaSlope%rd,2) !M1=MM/2
-   N1=size(DiaSlope%rd,1) !N1=2*N for "regular" DiaSlope, N1=2*N*M for augmented 
+   N1=size(DiaSlope%rd,1)-1 !N1=2*N
    do i=1,M1
     DiaSlope%L2(i)=MV(i)+MV(i+M1)
 !   initialize bounds    
@@ -599,7 +594,7 @@ subroutine DiaSlope_eq_RadSlope(DiaSlope,RadSlope)
     rOMAX(i)=-1E30
     rIMIN(i)=-1E30
     rIMAX(i)=1E30
-    do j=1,N1
+    do j=1,N1   ! only go to 2*N, or out of bounds for RadSlope, central value DiaSlope provided in nSplineCenter
       if (j <= MV(i+M1)) then
 !      NO SIGN CHANGE HERE FOR RADIUS, ALREADY DONE IN RCNVRT 
        DiaSlope%rd(j,i)=RadSlope%r(MV(i+M1)-j+1,i+M1)
@@ -633,9 +628,9 @@ subroutine RadSlope_eq_DiaSlope(RadSlope,DiaSlope)
  TYPE(wpDiaSlopeMatrix) :: DiaSlope
  ASSOCIATE(MV => RadSlope%MV) 
    M1=size(DiaSlope%rd,2) !M1=MM/2
-   N1=size(DiaSlope%rd,1) !N1=2*N for "regular" DiaSlope, N1=2*N*M for augmented
+   N1=size(DiaSlope%rd,1)-1 !N1=2*N
    do i=1,M1
-    do j=1,N1
+    do j=1,N1  ! only go to 2*N, or out of bounds for RadSlope, central value DiaSlope provided in nSplineCenter
       if (j <= MV(i+M1)) then
        RadSlope%r(MV(i+M1)-j+1,i+M1)=DiaSlope%rd(j,i)
        RadSlope%Z(MV(i+M1)-j+1,i+M1)=DiaSlope%Zd(j,i)
@@ -656,24 +651,23 @@ end subroutine RadSlope_eq_DiaSlope
 function DiaSpline(b) result(a) 
  TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b
  integer :: M1,N1,i
- real(wp) :: a(size(b%rd,1),size(b%rd,2))  
- N1=size(b%rd,1) !N1=2*N*M for augmented
+ real(wp) :: a(size(b%rd,1)-1,size(b%rd,2))
+ N1=size(b%rd,1)-1 !N1=2*N*M
  M1=size(b%rd,2) !M1=MM/2
   do i=1,M1 
    call nspline(b%rd(:,i),b%Zpd(:,i),b%L2(i),a(:,i)) 
   end do
 end function DiaSpline
 
-function DiaSplineCenter(b) result(a) 
- TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b
+subroutine DiaSplineCenter(b)
+ TYPE(wpDiaSlopeMatrix) :: b
  integer :: M1,N1,i
- real(wp) :: a(size(b%rd,1),size(b%rd,2))  
- N1=size(b%rd,1) !N1=2*N*M for augmented
+ N1=size(b%rd,1) !N1=2*N*M+1
  M1=size(b%rd,2) !M1=MM/2
   do i=1,M1 
-   call nsplineCenter(b%rd(:,i),b%Zpd(:,i),b%L2(i),a(:,i)) 
+   call nsplineCenter(b%rd(:,i),b%Zpd(:,i),b%L2(i),N1,b%Zpd2(:,i))
   end do
-end function DiaSplineCenter
+end subroutine DiaSplineCenter
 
 ! not currently used
 function DiaIntegrate(b) result(a)
@@ -681,7 +675,7 @@ function DiaIntegrate(b) result(a)
  integer :: i,j,M1,N1
  real(wp) :: Q,Q0
  real(wp) :: a(size(b%rd,1),size(b%rd,2))
- N1=size(b%rd,1) !N1=2*N*M for augmented
+ N1=size(b%rd,1)-1 !N1=2*N*M
  M1=size(b%rd,2) !M1=MM/2)
   do i=1,M1
    call CubicSplineQuad(b%rd(:,i),b%Zpd(:,i),b%Zpd2(:,i),b%L2(i),0._wp,Q0)
@@ -778,7 +772,7 @@ end function fillin
 function lsqfill(b) result(a) 
  use set_precision, ONLY : wp
  TYPE(wpAtlasMatrix),INTENT(IN) :: b
- integer :: M1,N1,i,j,k,l,info,ipvt(M2)
+ integer :: M1,N1,i,j,k,info,ipvt(M2)
  real(wp) :: a(size(b%AR,1),size(b%AR,2)),t(size(b%AR,1)),z(size(b%AR,1))
  real(wp) :: c(M2),X(M2,size(b%AR,1)),zpX(M2),XTX(M2,M2)
  logical :: Q

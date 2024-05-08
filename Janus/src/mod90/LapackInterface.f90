@@ -9,6 +9,20 @@
 
         INTERFACE
 
+!     NOT part of LAPACK, but included here anyway
+         SUBROUTINE GaussJordan( N, NRHS, A, LDA, B, LDB, INFO )
+          use, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
+          IMPLICIT NONE
+          INTEGER, PARAMETER :: wp = KIND(0.0D0) ! working precision
+!         .. Scalar Arguments ..
+          INTEGER,INTENT(IN)   :: LDA, LDB, N, NRHS
+          INTEGER, INTENT(OUT) :: INFO
+!         ..
+!         .. Array Arguments ..
+          REAL(wp),INTENT(INOUT) ::  A( LDA, LDA ), B( LDB, NRHS )
+         END SUBROUTINE GaussJordan
+
+
          SUBROUTINE DCTSV( N, NRHS, DL, D, DU, B, LDB, INFO )     !This one is not a LAPACK function, but has a similar interface/function
           USE OMP_LIB     
 !         PURPOSE solves the cyclic/periodic tridiagonal system, see LAPACK routine DGTSV for comparison
@@ -38,7 +52,6 @@
         END SUBROUTINE DCBSV
 
          SUBROUTINE DSYEV( JOBZ, UPLO, N, A, LDA, W, WORK, LWORK, INFO )
-
 !     .. Scalar Arguments ..
          CHARACTER          JOBZ, UPLO
          INTEGER            INFO, LDA, LWORK, N

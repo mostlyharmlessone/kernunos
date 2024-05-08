@@ -28,11 +28,12 @@ module spline_interfaces
   real(wp), INTENT(OUT) :: z2(n)
  end subroutine
 
- subroutine nsplineCenter(r,z,n,z2)
+ subroutine nsplineCenter(r,z,n,N1,z2)
  use set_precision, only : wp
-  integer, INTENT(IN) :: n
-  real(wp), INTENT(IN) ::  r(n),z(n)
-  real(wp), INTENT(OUT) :: z2(n)
+ integer, INTENT(IN) :: n,N1
+ real(wp), INTENT(IN) ::  r(n)
+ real(wp), INTENT(INOUT) ::  z(N1)
+ real(wp), INTENT(OUT) :: z2(N1)
  end subroutine
  
  subroutine SplineCenter(r,z,zr2,n,u)

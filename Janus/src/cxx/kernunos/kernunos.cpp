@@ -148,7 +148,7 @@ const unsigned int SCR_HEIGHT = 400;
 // 2 = write OFF file
 // 1 = compute Zernike coefficients/Talus maps
 
-int flag=00000000;
+int flag=2000000;
 int counter=0;
 
 //https://stackoverflow.com/questions/16296284/workaround-for-blocking-async

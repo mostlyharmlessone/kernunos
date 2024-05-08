@@ -359,7 +359,15 @@ call CPU_TIME(time_start)
      DiaSlope%Zpd2 = .n. DiaSlope
    endif
    if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
-     DiaSlope%Zpd2 = .m. DiaSlope
+
+write(*,*) 'before DiaSplineCenter in janus 364'
+write(*,*) DiaSlope%zpd2
+
+     call DiaSplineCenter(DiaSlope)
+
+write(*,*) 'after DiaSplineCenter in janus 364'
+write(*,*) DiaSlope%zpd2
+
    endif
   endif
 
@@ -379,7 +387,7 @@ call CPU_TIME(time_start)
      DiaSlope%Zpd2 = .n. DiaSlope
    endif
    if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
-     DiaSlope%Zpd2 = .m. DiaSlope
+     call DiaSplineCenter(DiaSlope)
    endif
   endif
   
@@ -457,7 +465,7 @@ call CPU_TIME(time_start)
      DiaSlope%Zpd2 = .n. DiaSlope
    endif
    if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
-     DiaSlope%Zpd2 = .m. DiaSlope
+     call DiaSplineCenter(DiaSlope)
    endif
 !  These are the spline centers of the elevations
    call MakeRadSplineCenter
@@ -498,7 +506,7 @@ call CPU_TIME(time_start)
      DiaSlope%Zpd2 = .n. DiaSlope
    endif
    if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
-     DiaSlope%Zpd2 = .m. DiaSlope
+     call DiaSplineCenter(DiaSlope)
    endif
    call MakeRadSplineCenter                                   
    call WriteCenter(RadSlope,'Center.dat')
@@ -568,7 +576,7 @@ call CPU_TIME(time_start)
       DiaSlope%Zpd2 = .n. DiaSlope
     endif
     if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
-      DiaSlope%Zpd2 = .m. DiaSlope
+      call DiaSplineCenter(DiaSlope)
     endif
     call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT0,JMatrix%SAGC0(1))  ! center value
 
@@ -614,7 +622,7 @@ call CPU_TIME(time_start)
      DiaSlope%Zpd2 = .n. DiaSlope
    endif
    if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
-     DiaSlope%Zpd2 = .m. DiaSlope
+     call DiaSplineCenter(DiaSlope)
    endif
    call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT0,JMatrix%INSTC0(1))  ! center value
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
@@ -630,7 +638,7 @@ call CPU_TIME(time_start)
      DiaSlope%Zpd2 = .n. DiaSlope
    endif
    if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
-     DiaSlope%Zpd2 = .m. DiaSlope
+     call DiaSplineCenter(DiaSlope)
    endif
    call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT0,JMatrix%INSTC20(1))  ! center value
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
@@ -646,7 +654,7 @@ call CPU_TIME(time_start)
      DiaSlope%Zpd2 = .n. DiaSlope
    endif
    if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
-     DiaSlope%Zpd2 = .m. DiaSlope
+     call DiaSplineCenter(DiaSlope)
    endif
    call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT0,JMatrix%MEANC0(1))  ! center value
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
@@ -662,7 +670,7 @@ call CPU_TIME(time_start)
      DiaSlope%Zpd2 = .n. DiaSlope
    endif
    if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
-     DiaSlope%Zpd2 = .m. DiaSlope
+     call DiaSplineCenter(DiaSlope)
    endif
    call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT0,JMatrix%MONGEA0(1))  ! center value
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
@@ -710,7 +718,7 @@ call LogC("Starting Zernike computation"//c_null_char)
      DiaSlope%Zpd2 = .n. DiaSlope
    endif
    if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
-     DiaSlope%Zpd2 = .m. DiaSlope
+     call DiaSplineCenter(DiaSlope)
    endif
 
 ! allocate working matrices
@@ -882,7 +890,7 @@ endif
      DiaSlope%Zpd2 = .n. DiaSlope
    endif
    if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
-     DiaSlope%Zpd2 = .m. DiaSlope
+     call DiaSplineCenter(DiaSlope)
    endif
    LinesOfCurv='LIOC.CAR'
 
@@ -952,7 +960,7 @@ BigPlot='BIG.CAR'
      DiaSlope%Zpd2 = .n. DiaSlope
    endif
    if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
-     DiaSlope%Zpd2 = .m. DiaSlope
+     call DiaSplineCenter(DiaSlope)
    endif
    call FILLARRAY(4,LinesOfCurv,POWMIN,POWMAX)
    write(*,*) 'POWMIN,POWMAX',POWMIN,POWMAX

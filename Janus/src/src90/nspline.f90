@@ -32,12 +32,12 @@
      c(i-1)=(r(i+1)-r(i))/6.0
      d(i-1)=(z(i+1)-z(i))/(r(i+1)-r(i))-(z(i)-z(i-1))/(r(i)-r(i-1))
     end do
-    if (n > 3) then                                   ! n > 3 only if using LAPACK dgtsv
-    allocate (a_short(n-3))
-     do i=1,n-3
-      a_short(i)=a(i+1)                               ! truncated "a" for dgtsv, don't have to truncate "c"
-     end do
-    endif
+!    if (n > 3) then                                   ! n > 3 only if using LAPACK dgtsv
+!    allocate (a_short(n-3))
+!     do i=1,n-3
+!      a_short(i)=a(i+1)                               ! truncated "a" for dgtsv, don't have to truncate "c"
+!     end do
+!    endif
    call thomas(a,b,c,d,zz2,n-2,1) ! can use to check against lapack, doesn't use a(1) or c(n); overwrites b and d
 !  if (n > 3) then
 !   zz2(:)=d(:) ! for lapack
