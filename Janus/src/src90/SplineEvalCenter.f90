@@ -1,6 +1,7 @@
-subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
+! centerpoint version
+subroutine SplineEvalCenter(ii,x,y,y2,n,u,f,fp,fpp,fppp)
  USE set_precision, ONLY : wp
- USE cornea_arrays, ONLY : PI
+ USE cornea_arrays, ONLY : RadSplineCenter
  USE special_fct, ONLY : OPERATOR(.p.) !tensor summation convention
  USE spline_interfaces, ONLY : bsearch
  use,intrinsic :: ieee_arithmetic
@@ -17,64 +18,55 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
 
 !  for extrapolation:  if u<x(1), i=1 is used;if u>x(n), i=n is used 
 
-  INTEGER, INTENT(IN) :: KP ! periodic KP=1 vs natural spline flag KP=0, KP=2 natural spline with no extrapolation allowed
+  INTEGER, INTENT(IN) :: ii ! which MM/2 meridian 
   INTEGER, INTENT(IN) :: n ! vector input length
   REAL(wp),INTENT(IN) :: u ! abscissa at which the spline is to be evaluated
   REAL(wp),INTENT(IN) :: x(n) ! abscissas of knots
   REAL(wp),INTENT(IN) :: y(n) ! ordinates of knots
   REAL(wp),INTENT(IN) :: y2(n) ! second deriv at knots
   REAL(wp),INTENT(OUT),OPTIONAL :: f,fp,fpp,fppp ! function, 1st,2nd,3rd deriv
-  INTEGER :: i,i1 ! i1=i+1 unless periodic across gap
-  REAL(wp) :: dr,PERD,A,B,C,D,dA,dB,dC,dD
+  INTEGER :: i,i1,high,low ! i1=i+1 unless periodic across gap
+  REAL(wp) :: dr,A,B,C,D,dA,dB,dC,dD
   REAL(wp), DIMENSION(2) :: AB,CD,dAB,dCD,z,z2
   logical :: IsInf
+  REAL(wp), allocatable :: xx(:),yy(:),yy2(:)
 
-
-  PERD=2*PI ! period of spline if applicable
-  call bsearch(u,x,n,i1,i) ! binary search
-  dr=x(i1)-x(i)
-  A=(x(i1)-u)/dr ; dA=-1/dr
-  B=(u-x(i))/dr ; dB=1/dr
-  ! FOR PERIODIC SPLINES PERIOD 2*PI  
-   if ((A*B) < 0) then  !redefine A,B,i,i1
-    if (KP == 1) then    
-!    Interpolation across gap with KP=1 , periodic spline 
-     i=N
-     i1=1  
-     dr=x(i1)-x(i)+PERD
-     if (A < 0) then
-       B=(u-x(i))/dr   
-       A=(x(i1)-u+PERD)/dr
-     else
-!      B < 0
-       B=(u-x(i)+PERD)/dr
-       A=(x(i1)-u)/dr
-     endif
-    end if 
-   endif     
-  C=dr*dr*(A**3-A)/6; dC=dr*dr*dA*(3*A**2-1)/6
-  D=dr*dr*(B**3-B)/6; dD=dr*dr*dB*(3*B**2-1)/6
-  AB(1)=A ; AB(2)=B ; dAB(1)=dA ; dAB(2)=dB
-  CD(1)=C ; CD(2)=D ; dCD(1)=dC ; dCD(2)=dD     
-  z(1)=y(i)
-  z(2)=y(i1)
-  z2(1)=y2(i)
-  z2(2)=y2(i1)  
-   if ((A*B) < 0) then 
-    if (KP /= 1) then  !  natural spline extrapolation z2=0 outside spline 
-     z2=0._wp
-     if (KP == 2) then
-      f = 0            ! no provision for anything but only f with KP == 2
-      return
-     endif
-    end if
-   end if
-   if (A < 0 .and. B < 0) then 
-    if (KP /= 1) then  !  natural spline extrapolation z2=0 outside spline 
-     write (*,*) 'Unexpected input in SplineEval',x(i1),u,x(i)
+   allocate(xx(n+1),yy(n+1),yy2(n+1))
+!  find center
+   call bsearch(0.0_wp,x,n,high,low)
+   do i=1,low
+    xx(i)=x(i)
+    yy(i)=y(i)
+    yy2(i)=y2(i)
+   end do
+!  add a centerpoint at origin with zero slope
+    xx(low+1)=0_wp
+    yy(low+1)=RadSplineCenter(2,ii)
+    yy2(low+1)=RadSplineCenter(3,ii)
+   do i=high,n  ! high=low+1
+    xx(i+1)=x(i)
+    yy(i+1)=y(i)
+    yy2(i+1)=y2(i)
+   end do
+    call bsearch(u,xx,n+1,i1,i) ! binary search
+    dr=xx(i1)-xx(i)
+    A=(xx(i1)-u)/dr ; dA=-1/dr
+    B=(u-xx(i))/dr ; dB=1/dr
+    C=dr*dr*(A**3-A)/6; dC=dr*dr*dA*(3*A**2-1)/6
+    D=dr*dr*(B**3-B)/6; dD=dr*dr*dB*(3*B**2-1)/6
+    AB(1)=A ; AB(2)=B ; dAB(1)=dA ; dAB(2)=dB
+    CD(1)=C ; CD(2)=D ; dCD(1)=dC ; dCD(2)=dD
+    z(1)=yy(i)
+    z(2)=yy(i1)
+    z2(1)=yy2(i)
+    z2(2)=yy2(i1)
+    if ((A*B) < 0) then !  natural spline extrapolation z2=0 outside spline
+      z2=0._wp
+    endif
+    if (A < 0 .and. B < 0) then
+     write (*,*) 'Unexpected input in SplineEvalCenter',xx(i1),u,xx(i)
      return
-    end if
-   end if
+    endif
 
        
    if (Present(f)) f = (AB.p.z) + (CD.p.z2) !f=A*y(i)+B*y(i1)+((A**3-A)*y2(i)+(B**3-B)*y2(i1))*(dr**2)/6.0_wp                    
@@ -87,12 +79,12 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
 
    IsInf=ieee_is_finite(f)
    If(.not.IsInf) then
-    write(*,*) 'Error in SplineEval',KP,u,n,i1,i,z,z2
+    write(*,*) 'Error in SplineEval',ii,u,n,i1,i,z,z2
     return
    endif
                            
   return
-end subroutine SplineEval 
+end subroutine SplineEvalCenter
 
 
 

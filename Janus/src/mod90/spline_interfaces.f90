@@ -28,12 +28,12 @@ module spline_interfaces
   real(wp), INTENT(OUT) :: z2(n)
  end subroutine
 
- subroutine nsplineCenter(r,z,n,N1,z2)
+ subroutine nsplineCenter(ii,r,z,n,z2)
  use set_precision, only : wp
- integer, INTENT(IN) :: n,N1
+ integer, INTENT(IN) :: ii,n
  real(wp), INTENT(IN) ::  r(n)
- real(wp), INTENT(INOUT) ::  z(N1)
- real(wp), INTENT(OUT) :: z2(N1)
+ real(wp), INTENT(IN) ::  z(n)
+ real(wp), INTENT(OUT) :: z2(n)
  end subroutine
  
  subroutine SplineCenter(r,z,zr2,n,u)
@@ -62,6 +62,19 @@ module spline_interfaces
   REAL(wp),INTENT(IN) :: y2(n) ! second deriv at knots
   REAL(wp),INTENT(OUT),OPTIONAL :: f,fp,fpp,fppp ! function, 1st,2nd,3rd deriv
  end subroutine  
+
+subroutine SplineEvalCenter(ii,x,y,y2,n,u,f,fp,fpp,fppp)
+ USE set_precision, ONLY : wp
+ USE special_fct, ONLY : OPERATOR(.p.) !tensor summation convention
+ use,intrinsic :: ieee_arithmetic
+ INTEGER, INTENT(IN) :: ii ! meridian
+ INTEGER, INTENT(IN) :: n ! vector input length
+ REAL(wp),INTENT(IN) :: u ! abscissa at which the spline is to be evaluated
+ REAL(wp),INTENT(IN) :: x(n) ! abscissas of knots
+ REAL(wp),INTENT(IN) :: y(n) ! ordinates of knots
+ REAL(wp),INTENT(IN) :: y2(n) ! second deriv at knots
+ REAL(wp),INTENT(OUT),OPTIONAL :: f,fp,fpp,fppp ! function, 1st,2nd,3rd deriv
+end subroutine
 
  subroutine SplineEval1Dx1D(iflag,u,v,f,fr,ft,frt,frr,ftt) 
   use set_precision, ONLY : wp

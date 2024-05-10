@@ -21,8 +21,6 @@
 #include <thread>
 #include <vector>
 #include <memory>
-#include <bitset>
-#include <bits/stdc++.h>
 
 #include <QOpenGLWidget>
 #include <QOpenGLShaderProgram>

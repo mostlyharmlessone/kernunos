@@ -32,6 +32,7 @@
      c(i-1)=(r(i+1)-r(i))/6.0
      d(i-1)=(z(i+1)-z(i))/(r(i+1)-r(i))-(z(i)-z(i-1))/(r(i)-r(i-1))
     end do
+!    lapack
 !    if (n > 3) then                                   ! n > 3 only if using LAPACK dgtsv
 !    allocate (a_short(n-3))
 !     do i=1,n-3

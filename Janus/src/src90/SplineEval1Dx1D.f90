@@ -5,7 +5,7 @@
       USE special_fct, ONLY : OPERATOR(.p.) !tensor summation convention      
       use,intrinsic :: ieee_arithmetic
       implicit none
-      integer, INTENT(IN) :: iflag     ! iflag=0 no integration
+      integer, INTENT(IN) :: iflag     ! iflag=0 no integration iflag=1 trapezoidal integration iflag=2 cubic integration
       real(wp), INTENT(INOUT) :: u, v
       real(wp), INTENT(OUT),OPTIONAL ::  f,fr,ft,frt,frr,ftt
       real(wp) :: g,g0,gr,grr
@@ -26,12 +26,16 @@
         if (iflag == 0) then             
          call SplineEval(0,r,z,zr2,L2,u,g,gr,grr) !first parameter = 0 nonperiodic  
          fTmp(j)=g
-        else  !iflag=1
+        else  !iflag=1 or 2
          call SplineEval(0,r,z,zr2,L2,u,gr,grr)
-!         call CubicSplineQuad(r,z,zr2,L2,0._wp,g0)    
-!         call CubicSplineQuad(r,z,zr2,L2,u,g) 
-         call trapez(r,z,zr2,L2,0._wp,g0)    
-         call trapez(r,z,zr2,L2,u,g) 
+         if (iflag == 2) then
+          call CubicSplineQuad(r,z,zr2,L2,0._wp,g0)
+          call CubicSplineQuad(r,z,zr2,L2,u,g)
+         endif
+         if (iflag == 1) then
+          call trapez(r,z,zr2,L2,0._wp,g0)
+          call trapez(r,z,zr2,L2,u,g)
+         endif
          fTmp(j)=g-g0
         endif      
         frTmp(j)=gr

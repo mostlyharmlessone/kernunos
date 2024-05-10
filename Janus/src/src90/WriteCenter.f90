@@ -9,7 +9,7 @@
        unitno1 = get_new_fileunit()
        open(unitno1, file=trim(KXNAME), action="write", iostat=ierr)            
         do i=1,MM
-         write(unitno1,*) RadSlope%thta(i),RadSplineCenter(i)
+         write(unitno1,*) RadSlope%thta(i),RadSplineCenter(1,i)
         end do
        close (unitno1)       
     

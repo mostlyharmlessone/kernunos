@@ -14,10 +14,10 @@
         z=DiaSlope%Zpd(1:2*N,j)
         zr2=DiaSlope%Zpd2(1:2*N,j)        
         call SplineCenter(r,z,zr2,L2,w)
-        RadSplineCenter(j)=w
+        RadSplineCenter(1,j)=w
 !       odd as it seems, each angle j is also angle L since we're on a diagonal 
         L=j+MM/2
-        RadSplineCenter(L)=RadSplineCenter(j)
+        RadSplineCenter(1,L)=RadSplineCenter(1,j)
       end do
       return
       end subroutine MakeRadSplineCenter

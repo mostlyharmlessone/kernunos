@@ -324,7 +324,7 @@ call CPU_TIME(time_start)
     JMatrix1%INSTC2(:,:)=JMatrix%INSTC2(:,:)
     JMatrix1%MEANC(:,:)=JMatrix%MEANC(:,:)
     JMatrix1%MONGEA(:,:)=JMatrix%MONGEA(:,:)
-    JMatrix1%RC(:)=JMatrix%RC(:)
+    JMatrix1%RC(:,:)=JMatrix%RC(:,:)
     JMatrix1%LIOC(:,:)=JMatrix%LIOC(:,:)
     JMatrix1%MV(:)=JMatrix%MV(:)
     JMatrix1%R0=JMatrix%R0
@@ -353,21 +353,17 @@ call CPU_TIME(time_start)
    if (read_error > 0) return
    RadSlope=EyeSys
    EyeSys=0
-   DiaSlope=RadSlope              ! move to diagonal format
+   DiaSlope=RadSlope                ! move to diagonal format
    dat=(flag-mod(flag,1000000))/1000000 !first two digits
-   if (dat == 0 .or. dat == 1) then
-     DiaSlope%Zpd2 = .n. DiaSlope
+   DiaSlope%Zpd2 = .n. DiaSlope
+   if (btest(dat, 0) ) then               ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+     call MakeRadSplineCenter       ! find local maximum of each meridional spline
+     call DiaSplineCenter(DiaSlope) ! re-spline, with center node
    endif
-   if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
-
-write(*,*) 'before DiaSplineCenter in janus 364'
-write(*,*) DiaSlope%zpd2
-
-     call DiaSplineCenter(DiaSlope)
-
-write(*,*) 'after DiaSplineCenter in janus 364'
-write(*,*) DiaSlope%zpd2
-
+   if (btest(dat, 1)) then               ! use nsplineCenter to force zero slope at origin, moving each meridian to align curves
+     call MakeRadSplineCenter       ! find local maximum of each meridional spline
+     call AdjustRadSplineCenter     ! changes r only
+     DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
    endif
   endif
 
@@ -383,11 +379,10 @@ write(*,*) DiaSlope%zpd2
    call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)     
    DiaSlope=RadSlope              ! move to diagonal format
    dat=(flag-mod(flag,1000000))/1000000 !first two digits
-   if (dat == 0 .or. dat == 1) then
-     DiaSlope%Zpd2 = .n. DiaSlope
-   endif
-   if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
-     call DiaSplineCenter(DiaSlope)
+   DiaSlope%Zpd2 = .n. DiaSlope
+   if (dat == 1) then            ! use nsplineCenter to force zero slope at origin
+   !     call MakeRadSplineCenter
+   !     call DiaSplineCenter(DiaSlope)
    endif
   endif
   
@@ -461,11 +456,10 @@ write(*,*) DiaSlope%zpd2
    N=22
    DiaSlope=RadSlope              ! move to diagonal format
    dat=(flag-mod(flag,1000000))/1000000 !first two digits
-   if (dat == 0 .or. dat == 1) then
-     DiaSlope%Zpd2 = .n. DiaSlope
-   endif
-   if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
-     call DiaSplineCenter(DiaSlope)
+   DiaSlope%Zpd2 = .n. DiaSlope
+   if (dat == 1) then            ! use nsplineCenter to force zero slope at origin
+   !     call MakeRadSplineCenter
+   !     call DiaSplineCenter(DiaSlope)
    endif
 !  These are the spline centers of the elevations
    call MakeRadSplineCenter
@@ -502,11 +496,10 @@ write(*,*) DiaSlope%zpd2
     end do
    DiaSlope=RadSlope              ! move to diagonal format
    dat=(flag-mod(flag,1000000))/1000000 !first two digits
-   if (dat == 0 .or. dat == 1) then
-     DiaSlope%Zpd2 = .n. DiaSlope
-   endif
-   if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
-     call DiaSplineCenter(DiaSlope)
+   DiaSlope%Zpd2 = .n. DiaSlope
+   if (dat == 1) then            ! use nsplineCenter to force zero slope at origin
+   !     call MakeRadSplineCenter
+   !     call DiaSplineCenter(DiaSlope)
    endif
    call MakeRadSplineCenter                                   
    call WriteCenter(RadSlope,'Center.dat')
@@ -572,11 +565,10 @@ write(*,*) DiaSlope%zpd2
     end do
     DiaSlope=RadSlope              ! move to diagonal format
     dat=(flag-mod(flag,1000000))/1000000 !first two digits
-    if (dat == 0 .or. dat == 1) then
-      DiaSlope%Zpd2 = .n. DiaSlope
-    endif
-    if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
-      call DiaSplineCenter(DiaSlope)
+    DiaSlope%Zpd2 = .n. DiaSlope
+    if (dat == 1) then            ! use nsplineCenter to force zero slope at origin
+    !     call MakeRadSplineCenter
+    !     call DiaSplineCenter(DiaSlope)
     endif
     call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT0,JMatrix%SAGC0(1))  ! center value
 
@@ -618,11 +610,10 @@ write(*,*) DiaSlope%zpd2
    end do
    DiaSlope=RadSlope              ! move to diagonal format
    dat=(flag-mod(flag,1000000))/1000000 !first two digits
-   if (dat == 0 .or. dat == 1) then
-     DiaSlope%Zpd2 = .n. DiaSlope
-   endif
-   if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
-     call DiaSplineCenter(DiaSlope)
+   DiaSlope%Zpd2 = .n. DiaSlope
+   if (dat == 1) then            ! use nsplineCenter to force zero slope at origin
+   !     call MakeRadSplineCenter
+   !     call DiaSplineCenter(DiaSlope)
    endif
    call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT0,JMatrix%INSTC0(1))  ! center value
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
@@ -634,11 +625,10 @@ write(*,*) DiaSlope%zpd2
    end do
    DiaSlope=RadSlope              ! move to diagonal format
    dat=(flag-mod(flag,1000000))/1000000 !first two digits
-   if (dat == 0 .or. dat == 1) then
-     DiaSlope%Zpd2 = .n. DiaSlope
-   endif
-   if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
-     call DiaSplineCenter(DiaSlope)
+   DiaSlope%Zpd2 = .n. DiaSlope
+   if (dat == 1) then            ! use nsplineCenter to force zero slope at origin
+   !     call MakeRadSplineCenter
+   !     call DiaSplineCenter(DiaSlope)
    endif
    call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT0,JMatrix%INSTC20(1))  ! center value
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
@@ -650,11 +640,10 @@ write(*,*) DiaSlope%zpd2
    end do
    DiaSlope=RadSlope              ! move to diagonal format
    dat=(flag-mod(flag,1000000))/1000000 !first two digits
-   if (dat == 0 .or. dat == 1) then
-     DiaSlope%Zpd2 = .n. DiaSlope
-   endif
-   if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
-     call DiaSplineCenter(DiaSlope)
+   DiaSlope%Zpd2 = .n. DiaSlope
+   if (dat == 1) then            ! use nsplineCenter to force zero slope at origin
+   !     call MakeRadSplineCenter
+   !     call DiaSplineCenter(DiaSlope)
    endif
    call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT0,JMatrix%MEANC0(1))  ! center value
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
@@ -666,11 +655,10 @@ write(*,*) DiaSlope%zpd2
    end do
    DiaSlope=RadSlope              ! move to diagonal format
    dat=(flag-mod(flag,1000000))/1000000 !first two digits
-   if (dat == 0 .or. dat == 1) then
-     DiaSlope%Zpd2 = .n. DiaSlope
-   endif
-   if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
-     call DiaSplineCenter(DiaSlope)
+   DiaSlope%Zpd2 = .n. DiaSlope
+   if (dat == 1) then            ! use nsplineCenter to force zero slope at origin
+   !     call MakeRadSplineCenter
+   !     call DiaSplineCenter(DiaSlope)
    endif
    call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT0,JMatrix%MONGEA0(1))  ! center value
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
@@ -714,11 +702,10 @@ call LogC("Starting Zernike computation"//c_null_char)
    end do
    DiaSlope=RadSlope              ! move to diagonal format
    dat=(flag-mod(flag,1000000))/1000000 !first two digits
-   if (dat == 0 .or. dat == 1) then
-     DiaSlope%Zpd2 = .n. DiaSlope
-   endif
-   if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
-     call DiaSplineCenter(DiaSlope)
+   DiaSlope%Zpd2 = .n. DiaSlope
+   if (dat == 1) then            ! use nsplineCenter to force zero slope at origin
+   !     call MakeRadSplineCenter
+   !     call DiaSplineCenter(DiaSlope)
    endif
 
 ! allocate working matrices
@@ -886,11 +873,10 @@ endif
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)
    DiaSlope=RadSlope
    dat=(flag-mod(flag,1000000))/1000000 !first two digits
-   if (dat == 0 .or. dat == 1) then
-     DiaSlope%Zpd2 = .n. DiaSlope
-   endif
-   if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
-     call DiaSplineCenter(DiaSlope)
+   DiaSlope%Zpd2 = .n. DiaSlope
+   if (dat == 1) then            ! use nsplineCenter to force zero slope at origin
+   !     call MakeRadSplineCenter
+   !     call DiaSplineCenter(DiaSlope)
    endif
    LinesOfCurv='LIOC.CAR'
 
@@ -956,11 +942,10 @@ BigPlot='BIG.CAR'
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)  
    DiaSlope=RadSlope            
    dat=(flag-mod(flag,1000000))/1000000 !first two digits
-   if (dat == 0 .or. dat == 1) then
-     DiaSlope%Zpd2 = .n. DiaSlope
-   endif
-   if (dat == 2 .or. dat ==3) then            ! use nsplineCenter to force zero slope at origin
-     call DiaSplineCenter(DiaSlope)
+   DiaSlope%Zpd2 = .n. DiaSlope
+   if (dat == 1) then            ! use nsplineCenter to force zero slope at origin
+   !     call MakeRadSplineCenter
+   !     call DiaSplineCenter(DiaSlope)
    endif
    call FILLARRAY(4,LinesOfCurv,POWMIN,POWMAX)
    write(*,*) 'POWMIN,POWMAX',POWMIN,POWMAX

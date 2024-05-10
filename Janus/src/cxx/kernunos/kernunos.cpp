@@ -93,15 +93,10 @@ const unsigned int SCR_HEIGHT = 400;
 
 // flag xxxxxxxx dat,fct,map,action
 // first two digits are Placido disk data fillin and/or center-node tweaks
-// dat = first binary digit 0 no fillin, 1  fillin2
-
-// in fortran: btest(dat, 0)
-// in c++: bitset<32> decimalBitset(dat); decimalBitset.test(pos); decimalBitset.test(pos)
-// decimalBitset.set(pos) makes 1, decimalBitset.unset(pos) makes 0
-//
-// dat = second binary digit 0
-
-// cubic spline integration vs trapezoidal rule integration of slopes for elevation
+// dat = first binary bit 0/1 centernode tweak
+// dat = second binary bit 0/1 shift r-values tweak
+// dat = third binary bit 0/1 cubic spline integration (=1) vs trapezoidal rule (default = 0) integration of slopes for elevation
+// dat =fourth binary bit 0/1 fillin2
 
 // second two digits are the function to be plotted as colors
 // 0 = SAGC Sagittal or Axial power
@@ -148,7 +143,7 @@ const unsigned int SCR_HEIGHT = 400;
 // 2 = write OFF file
 // 1 = compute Zernike coefficients/Talus maps
 
-int flag=2000000;
+int flag=500;
 int counter=0;
 
 //https://stackoverflow.com/questions/16296284/workaround-for-blocking-async
@@ -173,7 +168,28 @@ QString glstring_global;
 
 MainWindow::MainWindow()
 {
-   QWidget *widget = new QWidget;
+
+    std::cout << "flag: " << flag << "\n";
+    int dat=(flag-(flag%1000000))/1000000;
+    std::cout << "dat: " << dat << "\n";
+    dat |= 1UL << 0;     // sets first bit;  dat |= 1UL << 1 is second digit
+    flag=1000000*dat+(flag%1000000);
+    std::cout << "flag: " << flag << "\n";
+    std::cout << "dat: " << dat << "\n";
+    dat &= ~(1UL << 0);  //clears the first bit;  dat &= ~(1UL << 1) second bit
+    flag=1000000*dat+(flag%1000000);
+    std::cout << "flag: " << flag << "\n";
+    std::cout << "dat: " << dat << "\n";
+    bool bit =(dat >> 0) & 1U;
+    std::cout << "bit: " << bit << "\n";
+    dat |= 1UL << 0;     // sets first bit;  dat |= 1UL << 1 is second digit
+    flag=1000000*dat+(flag%1000000);
+    std::cout << "flag: " << flag << "\n";
+    std::cout << "dat: " << dat << "\n";
+    bit =(dat >> 0) & 1U;
+    std::cout << "bit: " << bit << "\n";
+
+    QWidget *widget = new QWidget;
    widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
    ui.setupUi(this);
