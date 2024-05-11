@@ -101,6 +101,26 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     static bool isNormal() { return m_normal; }
     static void setNormal(bool t) { m_normal = t; }
 
+    static bool isCenterNode() { return m_centerNode; }
+    static void setCenterNode(bool t) { m_centerNode = t;
+      int dat=(flag-(flag%1000000))/1000000;
+      if(t) {dat |= 1UL << 0;} else { dat &= ~(1UL << 0);}  //set/unset 0th ie. first bit
+      // m_centerNode =(dat >> 0) & 1U;  should agree with m_centerNode = t;
+      flag=1000000*dat+(flag%1000000); }
+
+
+    static bool isAxial() { return m_Axial; }
+    static void setAxial(bool t) { m_Axial = t;
+      int fct= ((flag-(flag%10000))/10000)%100 ;
+      flag=flag+10000*(0-fct); // 0 sets to Axial
+    }
+
+    static bool isUSSfixed() { return m_USSfixed; }
+    static void setUSSfixed(bool t) { m_USSfixed =t;
+      int map=(flag-(flag%100))/100%100 ;
+      flag=flag+100*(5-map) ; // 5 sets to USS palette with fixed range (default)
+    }
+
     static bool isLight() { return m_lighting; }
     static void setLight(bool t) { m_lighting = t; }
 
@@ -165,6 +185,9 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     static bool m_transparent;
     static bool m_normal;
     static bool m_lighting;
+    static bool m_centerNode;
+    static bool m_Axial;
+    static bool m_USSfixed;
 };
 
 

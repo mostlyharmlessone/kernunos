@@ -92,6 +92,10 @@ private slots:
     void LinesofCurvature();
     void center();
     void gnuplotsplot();
+    void mapAxial();
+    void tweakcenterNode();
+    void colorUSSpalettefixed();
+
 
 private:
     void createActions();
@@ -185,6 +189,7 @@ private:
     QAction *importexportAct;
 
     QMenu *viewMenu;
+    QAction *redrawAct;
     QAction *lightAct;
     QAction *normalAct;
 
@@ -193,6 +198,12 @@ private:
     QAction *liocAct;
     QAction *centerAct;
     QAction *gnuplotAct;
+
+    QMenu *tweaksMenu;
+    QAction *centernodeAct;
+    QAction *adjustradiiAct;
+    QAction *LSQfillinAct;
+    QAction *SplinefillinAct;
 
     QMenu *helpMenu;
     QAction *aboutAct;

@@ -44,7 +44,7 @@
   end do
 ! add a centerpoint at origin with zero slope
    rr(low+1)=0_wp
-   call SplineEval(1,r,z,z2,n,RadSplineCenter(1,ii),zz(low+1))
+   call SplineEval(0,r,z,z2,n,RadSplineCenter(1,ii),zz(low+1))
    RadSplineCenter(2,ii)=zz(low+1)
 
   do i=high,n  ! high=low+1

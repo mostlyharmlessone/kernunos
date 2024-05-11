@@ -172,18 +172,22 @@ MainWindow::MainWindow()
     std::cout << "flag: " << flag << "\n";
     int dat=(flag-(flag%1000000))/1000000;
     std::cout << "dat: " << dat << "\n";
+
     dat |= 1UL << 0;     // sets first bit;  dat |= 1UL << 1 is second digit
     flag=1000000*dat+(flag%1000000);
+
     std::cout << "flag: " << flag << "\n";
     std::cout << "dat: " << dat << "\n";
+
     dat &= ~(1UL << 0);  //clears the first bit;  dat &= ~(1UL << 1) second bit
     flag=1000000*dat+(flag%1000000);
+
     std::cout << "flag: " << flag << "\n";
     std::cout << "dat: " << dat << "\n";
     bool bit =(dat >> 0) & 1U;
     std::cout << "bit: " << bit << "\n";
-    dat |= 1UL << 0;     // sets first bit;  dat |= 1UL << 1 is second digit
-    flag=1000000*dat+(flag%1000000);
+
+
     std::cout << "flag: " << flag << "\n";
     std::cout << "dat: " << dat << "\n";
     bit =(dat >> 0) & 1U;
@@ -746,6 +750,39 @@ void MainWindow::normal()
    };
 }
 
+void MainWindow::mapAxial()
+{
+   if (GLwidget::isAxial()) {
+        GLwidget::setAxial(false);
+        ui.infoLabel->setText(tr("Set <b>View:Axial false</b>"));
+   } else {
+        GLwidget::setAxial(true);
+        ui.infoLabel->setText(tr("Set <b>View:Axial true</b>"));
+   };
+}
+
+void MainWindow::tweakcenterNode()
+{
+   if (GLwidget::isCenterNode()) {
+        GLwidget::setCenterNode(false);
+        ui.infoLabel->setText(tr("Set <b>Tweak:Center Node false</b>"));
+   } else {
+        GLwidget::setCenterNode(true);
+        ui.infoLabel->setText(tr("Set <b>Tweak:Center Node true</b>"));
+   };
+}
+
+void MainWindow::colorUSSpalettefixed()
+{
+   if (GLwidget::isUSSfixed()) {
+        GLwidget::setUSSfixed(false);
+        ui.infoLabel->setText(tr("Set <b>View:USS Palette fixed false</b>"));
+   } else {
+        GLwidget::setUSSfixed(true);
+        ui.infoLabel->setText(tr("Set <b>View:View:USS Palette fixed true</b>"));
+   };
+}
+
 void MainWindow::about()
 {
    // https://www.modernescpp.com/index.php/asynchronous-callable-wrappers
@@ -823,6 +860,8 @@ void MainWindow::createActions()
    aboutAct->setStatusTip(tr("Show the application's About box"));
    connect(aboutAct, &QAction::triggered, this, &MainWindow::about);
 
+   redrawAct = new QAction(tr("&Redraw without relaoding file"), this);
+
    lightAct = new QAction(tr("&Lighting"), this);
    lightAct->setStatusTip(tr("Change the lighting in the window"));
    connect(lightAct, &QAction::triggered, this, &MainWindow::light);
@@ -834,6 +873,17 @@ void MainWindow::createActions()
    connect(normalAct, &QAction::triggered, this, &MainWindow::normal);
    normalAct->setCheckable(true);
    normalAct->setChecked(GLwidget::isNormal());
+
+   centernodeAct=new QAction(tr("&Create center node to force MinMax at origin"), this);
+   centernodeAct->setCheckable(true);
+   connect(centernodeAct, &QAction::triggered, this, &MainWindow::tweakcenterNode);
+
+   adjustradiiAct=new QAction(tr("&Adjust meridional radii to force MinMax at origin"), this);
+   adjustradiiAct->setCheckable(true);
+   LSQfillinAct=new QAction(tr("&Fill in missing data by circumferential LSQ"), this);
+   LSQfillinAct->setCheckable(true);
+   SplinefillinAct=new QAction(tr("&Fill in missing data by circumferential spline"), this);
+   SplinefillinAct->setCheckable(true);
 
    liocAct = new QAction(tr("&Lines of Curvature"), this);
    liocAct->setStatusTip(tr("Show plot of lines of curvature"));
@@ -859,34 +909,65 @@ void MainWindow::createActions()
    HelpAct->setStatusTip(tr("Shows some help"));
 
    AxialAct=new QAction(tr("&Axial or Sagittal Power"), this);
+   AxialAct->setCheckable(true);
+   connect(AxialAct, &QAction::triggered, this, &MainWindow::mapAxial);
+
    TangentialAct=new QAction(tr("&Tangential Power, meridional calculation only"), this);
+   TangentialAct->setCheckable(true);
    InstantaneousAct=new QAction(tr("&Instantaneous/Tangential Power"), this);
+   InstantaneousAct->setCheckable(true);
    MeanAct=new QAction(tr("&Mean Power"), this);
+   MeanAct->setCheckable(true);
    AstigAct=new QAction(tr("&Monge Astigmatism"), this);
+   AstigAct->setCheckable(true);
    ElevationAct=new QAction(tr("&Elevation"), this);
+   ElevationAct->setCheckable(true);
    Z44VerticalQuatrafoilAct=new QAction(tr("&Vertical Quatrafoil"), this);
+   Z44VerticalQuatrafoilAct->setCheckable(true);
    Z42Vertical2ndAstigAct=new QAction(tr("&Vertical 2nd Astigmatism"), this);
+   Z42Vertical2ndAstigAct->setCheckable(true);
    Z40SphericalAberrationAct=new QAction(tr("&Spherical Aberration"), this);
+   Z40SphericalAberrationAct->setCheckable(true);
    Z4neg2Oblique2ndAstigAct=new QAction(tr("&Oblique 2nd Astigmatism"), this);
+   Z4neg2Oblique2ndAstigAct->setCheckable(true);
    Z4neg4ObliqueQuatrafoilAct=new QAction(tr("&Oblique Quadrafoil"), this);
+   Z4neg4ObliqueQuatrafoilAct->setCheckable(true);
    Z33ObliqueTrefoilAct=new QAction(tr("&Oblique Trefoil"), this);
+   Z33ObliqueTrefoilAct->setCheckable(true);
    Z3neg3VerticalTrefoilAct=new QAction(tr("&Vertical Trefoil"), this);
+   Z3neg3VerticalTrefoilAct->setCheckable(true);
    Z31HorizontalComaAct=new QAction(tr("&Horizontal Coma"), this);
+   Z31HorizontalComaAct->setCheckable(true);
    Z3neg1VerticalComaAct=new QAction(tr("&Vertical Coma"), this);
+   Z3neg1VerticalComaAct->setCheckable(true);
    Z22VerticalAstigAct=new QAction(tr("&Vertical Astigmatism"), this);
+   Z22VerticalAstigAct->setCheckable(true);
    Z2neg2ObliqueAstigAct=new QAction(tr("&Oblique Astigmatism"), this);
+   Z2neg2ObliqueAstigAct->setCheckable(true);
    Z20DefocusAct=new QAction(tr("&Defocus"), this);
+   Z20DefocusAct->setCheckable(true);
    Z11XtiltAct=new QAction(tr("&X-Tilt"), this);
+   Z11XtiltAct->setCheckable(true);
    Z1neg1YtiltAct=new QAction(tr("&Y-Tilt"), this);
+   Z1neg1YtiltAct->setCheckable(true);
    Z00PistonAct=new QAction(tr("&Piston"), this);
+   Z00PistonAct->setCheckable(true);
    rgb2Act=new QAction(tr("&Discrete 2 color Heatmap with linear interpolation"), this);
+   rgb2Act->setCheckable(true);
    rgb5Act=new QAction(tr("&Discrete 5 color Heatmap with linear interpolation"), this);
+   rgb5Act->setCheckable(true);
    hsbrgbAct=new QAction(tr("&Continuous Hue Heatmap with fixed Saturation and Brightness"), this);
+   hsbrgbAct->setCheckable(true);
    gplotpaletteAct=new QAction(tr("&Discrete 12 color Heatmap no interpolation gnuplot style"), this);
+   gplotpaletteAct->setCheckable(true);
    USSfixedAct=new QAction(tr("&Uniform Standard Scale discrete map with linear interpolation between 26 colors with fixed range for sagittal/axial powers"), this);
+   USSfixedAct->setCheckable(true);
    USSPaletteAct=new QAction(tr("&Uniform Standard Scale discrete map with linear interpolation between 26 colors"), this);
+   USSPaletteAct->setCheckable(true);
    PerceptualfixedAct=new QAction(tr("&Perceptually Uniform 9 shade Palette discrete map with linear interpolation with ANSI Z80.3 fixed range"), this);
+   PerceptualfixedAct->setCheckable(true);
    PerceptuallyUniformPaletteAct=new QAction(tr("&Perceptually Uniform 9 shade palette discrete map with linear interpolation"), this);
+   PerceptuallyUniformPaletteAct->setCheckable(true);
 }
 
 void MainWindow::createMenus()
@@ -940,8 +1021,14 @@ void MainWindow::createMenus()
    colorMenu->addAction(PerceptualfixedAct);
    colorMenu->addAction(PerceptuallyUniformPaletteAct);
    viewMenu = menuBar()->addMenu(tr("&View"));
+   viewMenu->addAction(redrawAct);
    viewMenu->addAction(lightAct);
    viewMenu->addAction(normalAct);
+   tweaksMenu = menuBar()->addMenu(tr("&Placido data tweaks"));
+   tweaksMenu->addAction(centernodeAct);
+   tweaksMenu->addAction(adjustradiiAct);
+   tweaksMenu->addAction(LSQfillinAct);
+   tweaksMenu->addAction(SplinefillinAct);
    helpMenu = menuBar()->addMenu(tr("&About"));
    helpMenu->addAction(HelpAct);
    helpMenu->addAction(aboutAct);
@@ -950,19 +1037,11 @@ void MainWindow::createMenus()
 
 /*
 
+
+
 above createActions
 
-void MainWindow::functionmap()
-{
-   if (GLwidget::isNormal()) {
-        GLwidget::setNormal(false);
-        ui.infoLabel->setText(tr("Set <b>View:Normal false</b>"));
-   } else {
-        GLwidget::setNormal(true);
-        makeoffAct->setEnabled(true);
-        ui.infoLabel->setText(tr("Set <b>View:Normal true</b>"));
-   };
-}
+
 
 
 can just put gp actions here and avoid .gnu files

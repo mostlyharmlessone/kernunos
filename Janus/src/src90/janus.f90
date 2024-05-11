@@ -211,7 +211,7 @@ else
 endif
 endif
 
-! flag == 0 Import file and compute JMatrix, RAdSlope, etc.
+! las two digits of flag == 0 Import file and compute JMatrix, RAdSlope, etc.
 if (mod(flag,100) == 0) then
 call CCounter(0)
 ! From either RA?.? or XX?.?, set inputfile1 to the XX version, inputfile1 to the RA version.
@@ -668,6 +668,8 @@ call CPU_TIME(time_start)
 
 ! simple difference/subtraction the second time through
   if (allocated(JMatrix1%R)) then
+! skip this for now
+if (.false.) then
      JMatrix%SAGC(:,:)=ABS(JMatrix1%SAGC(:,:)-JMatrix%SAGC(:,:))
      JMatrix%INSTC(:,:)=ABS(JMatrix1%INSTC(:,:)-JMatrix%INSTC(:,:))
      JMatrix%INSTC2(:,:)=ABS(JMatrix1%INSTC2(:,:)-JMatrix%INSTC2(:,:))
@@ -679,6 +681,7 @@ call CPU_TIME(time_start)
      JMatrix%INSTC20(:)=ABS(JMatrix1%INSTC20(:)-JMatrix%INSTC20(:))
      JMatrix%MEANC0(:)=ABS(JMatrix1%MEANC0(:)-JMatrix%MEANC0(:))
      JMatrix%MONGEA0(:)=ABS(JMatrix1%MONGEA0(:)-JMatrix%MONGEA0(:))
+ endif
   endif
 
 endif !(mod(flag,100) == 0)
@@ -863,7 +866,7 @@ call Ccounter(100)
   return
  else
   call LogC("Have to open a file prior to computing Zernike"//c_null_char)
-  return ! if flag==1 and not allocated do nothing
+  return ! if last digits of flag==1 and not allocated do nothing
  endif
 endif
 

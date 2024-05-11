@@ -5,7 +5,7 @@
       USE special_fct, ONLY : OPERATOR(.p.) !tensor summation convention      
       use,intrinsic :: ieee_arithmetic
       implicit none
-      integer, INTENT(IN) :: iflag     ! iflag=0 no integration iflag=1 trapezoidal integration iflag=2 cubic integration
+      integer, INTENT(IN) :: iflag     ! iflag=0 no integration; iflag=1 trapezoidal integration; iflag=2 cubic integration;
       real(wp), INTENT(INOUT) :: u, v
       real(wp), INTENT(OUT),OPTIONAL ::  f,fr,ft,frt,frr,ftt
       real(wp) :: g,g0,gr,grr

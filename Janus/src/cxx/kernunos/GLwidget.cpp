@@ -122,6 +122,9 @@ static const GLchar* fragmentColorNormal = R"glsl(
 bool GLwidget::m_transparent = false;
 bool GLwidget::m_normal = false;
 bool GLwidget::m_lighting = false;
+bool GLwidget::m_centerNode = false;
+bool GLwidget::m_Axial = true;
+bool GLwidget::m_USSfixed = true;
 
 GLwidget::GLwidget ( QWidget *parent ) : QOpenGLWidget(parent)
 {
@@ -286,12 +289,12 @@ bool GLwidget::DataPrint(QString fileName)
   QByteArray ba = fileName.toLocal8Bit();
   filename = ba.data();
 
-  if (!(flag == 0)){
+  if (!((flag%100) == 0)){
     // reload values to avoid seg fault if previous nV and nE are too small
     nV=51840;
     nE=26130;
 
-    if (!(flag == 1)){
+    if (!((flag%100) == 1)){
       auto future1 = std::async([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);});  //everybody else gets blocking thread
       future1.get();}    
     else {
