@@ -119,12 +119,47 @@ static const GLchar* fragmentColorNormal = R"glsl(
     }
 )glsl";
 
+// defaults
 bool GLwidget::m_transparent = false;
 bool GLwidget::m_normal = false;
 bool GLwidget::m_lighting = false;
+
 bool GLwidget::m_centerNode = false;
+bool GLwidget::m_adjustradii = false;
+bool GLwidget::m_cubic = false;
+bool GLwidget::m_LSQfillin = false;
+bool GLwidget::m_Splinefillin = false;
+
 bool GLwidget::m_Axial = true;
+bool GLwidget::m_Tangential = false;
+bool GLwidget::m_Instantaneous = false;
+bool GLwidget::m_Mean = false;
+bool GLwidget::m_MongeAstig = false;
+bool GLwidget::m_Elevation = false;
+bool GLwidget::Z44VerticalQuatrafoil = false;
+bool GLwidget::Z42Vertical2ndAstig = false;
+bool GLwidget::Z40SphericalAberration = false;
+bool GLwidget::Z4neg2Oblique2ndAstig = false;
+bool GLwidget::Z4neg4ObliqueQuatrafoil = false;
+bool GLwidget::Z33ObliqueTrefoil = false;
+bool GLwidget::Z3neg3VerticalTrefoil = false;
+bool GLwidget::Z31HorizontalComa = false;
+bool GLwidget::Z3neg1VerticalComa = false;
+bool GLwidget::Z22VerticalAstig = false;
+bool GLwidget::Z2neg2ObliqueAstig = false;
+bool GLwidget::Z20Defocus = false;
+bool GLwidget::Z11Xtilt = false;
+bool GLwidget::Z1neg1Ytilt = false;
+bool GLwidget::Z00Piston = false;
+
+bool GLwidget::m_rgb2 = false;
+bool GLwidget::m_rgb5 = false;
+bool GLwidget::m_hsbrgb = false;
+bool GLwidget::m_gplotpalette = false;
 bool GLwidget::m_USSfixed = true;
+bool GLwidget::m_perceptualuniformfixed = false;
+bool GLwidget::m_USSpalette = false;
+bool GLwidget::m_perceptualuniformpalette = false;
 
 GLwidget::GLwidget ( QWidget *parent ) : QOpenGLWidget(parent)
 {

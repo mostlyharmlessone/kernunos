@@ -38,6 +38,13 @@
   integer, allocatable :: IPIV(:)
   real(wp) :: ctr_circle_x, ctr_circle_y, R_Talus, Theta_Talus, X_global, Y_global
 
+write(*,*) 'flag to Fortran:',flag
+write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
+write(*,*) 'dat to Fortran:',(flag-mod(flag,1000000))/1000000
+write(*,*) 'tweaks(dat) to Fortran:',btest(dat, 0),btest(dat, 1),btest(dat, 2),btest(dat, 3),btest(dat, 4)
+write(*,*) 'fct to Fortran:',mod(((flag-mod(flag,10000))/10000),100)
+write(*,*) 'color(map) to Fortran:',mod((flag-mod(flag,100))/100,100)
+
 ! mod(flag,100) == 99 Deallocate
 if (mod(flag,100) == 99) then
     if (allocated(JMatrix%R)) then
@@ -66,6 +73,8 @@ if (mod(flag,100) == 99) then
     return
 endif
 
+if (mod(flag,100) /= 4) then !and of course !=99 above
+
 !write(*,*) 'file from kernunos: ',file_from_C  ! this will have a lot of extra random non ASCII stuff after the file name
 !! need this because GCC11 isn't F2018 compliant with deferred length character with Bind C
 !! ie. can't do CHARACTER(*,c_char), INTENT(IN) :: file_from_C_1 with BIND(C) with GCC11
@@ -80,7 +89,6 @@ endif
         end if
     end do
 
-write(*,*) 'flag to Fortran:',flag
 write(*,*) 'file from kernunos: ',trim(new_path)
 nblines=len(trim(new_path)) 
 if (allocated(inputfile1)) then
@@ -92,6 +100,17 @@ allocate(character(nblines) :: inputfile1)
 allocate(character(nblines) :: logfile)
 inputfile1=trim(new_path)
 allocate(character(nblines) :: inputfile2)
+
+else  !mod(flag,100) == 4
+if (allocated(JMatrix%R)) then
+
+
+
+return
+else
+ call LogC("Have to open a file prior to redraw"//c_null_char)
+ return ! if last digits of flag==4 and not allocated do nothing
+endif  ! mod(flag,100) /= 4
 
 ! Writes ASCII PLY file
 if (mod(flag,100) == 3) then
@@ -211,7 +230,7 @@ else
 endif
 endif
 
-! las two digits of flag == 0 Import file and compute JMatrix, RAdSlope, etc.
+! last two digits of flag == 0 Import file and compute JMatrix, RAdSlope, etc.
 if (mod(flag,100) == 0) then
 call CCounter(0)
 ! From either RA?.? or XX?.?, set inputfile1 to the XX version, inputfile1 to the RA version.
@@ -339,7 +358,7 @@ call CPU_TIME(time_start)
      write(*,*) 'allocating JMatrix'
      call init_mat_JMatrix(M1,N1,JMatrix)
    endif
- 
+
  if (TestData .eq. 0) then  
 ! READ THE EYESYS DATA
 ! XX????? ARE THE AXIAL DIST. RX???? ARE THE MIRE RADII  

@@ -61,7 +61,6 @@
 
 #include <QtWidgets>
 #include <QtConcurrent>
-#include <functional>
 #include <QSlider>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -96,7 +95,8 @@ const unsigned int SCR_HEIGHT = 400;
 // dat = first binary bit 0/1 centernode tweak
 // dat = second binary bit 0/1 shift r-values tweak
 // dat = third binary bit 0/1 cubic spline integration (=1) vs trapezoidal rule (default = 0) integration of slopes for elevation
-// dat =fourth binary bit 0/1 fillin2
+// dat =fourth binary bit 0/1 fillin2 cannot be combined with splinefillin
+// dat =fifth binary bit 0/1 splinefillin cannot be combined with lsqfillin
 
 // second two digits are the function to be plotted as colors
 // 0 = SAGC Sagittal or Axial power
@@ -139,6 +139,7 @@ const unsigned int SCR_HEIGHT = 400;
 // last two digits are the program function
 // 0 = open a file, display
 // 99 = deallocate arrays for program closure
+// 4 = redraw without reloading new file
 // 3 = write ASCII PLY file
 // 2 = write OFF file
 // 1 = compute Zernike coefficients/Talus maps
@@ -168,32 +169,7 @@ QString glstring_global;
 
 MainWindow::MainWindow()
 {
-
-    std::cout << "flag: " << flag << "\n";
-    int dat=(flag-(flag%1000000))/1000000;
-    std::cout << "dat: " << dat << "\n";
-
-    dat |= 1UL << 0;     // sets first bit;  dat |= 1UL << 1 is second digit
-    flag=1000000*dat+(flag%1000000);
-
-    std::cout << "flag: " << flag << "\n";
-    std::cout << "dat: " << dat << "\n";
-
-    dat &= ~(1UL << 0);  //clears the first bit;  dat &= ~(1UL << 1) second bit
-    flag=1000000*dat+(flag%1000000);
-
-    std::cout << "flag: " << flag << "\n";
-    std::cout << "dat: " << dat << "\n";
-    bool bit =(dat >> 0) & 1U;
-    std::cout << "bit: " << bit << "\n";
-
-
-    std::cout << "flag: " << flag << "\n";
-    std::cout << "dat: " << dat << "\n";
-    bit =(dat >> 0) & 1U;
-    std::cout << "bit: " << bit << "\n";
-
-    QWidget *widget = new QWidget;
+   QWidget *widget = new QWidget;
    widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
    ui.setupUi(this);
@@ -365,10 +341,11 @@ void MainWindow::open()   //multiple invocations makes a comparison
    std::string str(filename);
    bool pentacam = str.find(".CUR")!= std::string::npos || str.find(".ELE") != std::string::npos;
    if (pentacam) {
-    centerAct->setEnabled(false);
+    centerAct->setEnabled(false);  //center deviations only for Placido
    } else{
     centerAct->setEnabled(true);
    };
+   redrawAct->setEnabled(true);
    gnuplotAct->setEnabled(true);
    liocAct->setEnabled(true);
    makeoffAct->setEnabled(true);
@@ -395,6 +372,7 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
        } else{
            centerAct->setEnabled(true);
        };
+       redrawAct->setEnabled(true);
        gnuplotAct->setEnabled(true);
        liocAct->setEnabled(true);
        makeoffAct->setEnabled(true);
@@ -423,10 +401,30 @@ void MainWindow::compare()    //right now this doesn't do anything but direct ou
    update();
 }
 
+void MainWindow::redraw(){
+   flag=flag-(flag%100)+4;  // last two digits of flag=4;
+   std::thread([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);}).detach();
+   return;}
+
 void MainWindow::zern()
 {
     flag=flag-(flag%100)+1;  // last two digits of flag=1;
     std::thread([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);}).detach();
+    Z44VerticalQuatrafoilAct->setEnabled(true);
+    Z42Vertical2ndAstigAct->setEnabled(true);
+    Z40SphericalAberrationAct->setEnabled(true);
+    Z4neg2Oblique2ndAstigAct->setEnabled(true);
+    Z4neg4ObliqueQuatrafoilAct->setEnabled(true);
+    Z33ObliqueTrefoilAct->setEnabled(true);
+    Z3neg3VerticalTrefoilAct->setEnabled(true);
+    Z31HorizontalComaAct->setEnabled(true);
+    Z3neg1VerticalComaAct->setEnabled(true);
+    Z22VerticalAstigAct->setEnabled(true);
+    Z2neg2ObliqueAstigAct->setEnabled(true);
+    Z20DefocusAct->setEnabled(true);
+    Z11XtiltAct->setEnabled(true);
+    Z1neg1YtiltAct->setEnabled(true);
+    Z00PistonAct->setEnabled(true);
     ui.infoLabel->setText(tr("Invoked <b>Zernike</b>"));
     return;
 }
@@ -728,6 +726,41 @@ void MainWindow::center() {
    return;
 }
 
+void MainWindow::checkfctsflags(){
+    AxialAct->setChecked(GLwidget::isAxial());
+    TangentialAct->setChecked(GLwidget::isTangential());
+    InstantaneousAct->setChecked(GLwidget::isInstantaneous());
+    MeanAct->setChecked(GLwidget::isMean());
+    AstigAct->setChecked(GLwidget::isAstig());
+    ElevationAct->setChecked(GLwidget::isElevation());
+    Z44VerticalQuatrafoilAct->setChecked(GLwidget::isZ44());
+    Z42Vertical2ndAstigAct->setChecked(GLwidget::isZ42());
+    Z40SphericalAberrationAct->setChecked(GLwidget::isZ40());
+    Z4neg2Oblique2ndAstigAct->setChecked(GLwidget::isZ4neg2());
+    Z4neg4ObliqueQuatrafoilAct->setChecked(GLwidget::isZ4neg4());
+    Z33ObliqueTrefoilAct->setChecked(GLwidget::isZ33());
+    Z31HorizontalComaAct->setChecked(GLwidget::isZ31());
+    Z3neg1VerticalComaAct->setChecked(GLwidget::isZ3neg1());
+    Z3neg3VerticalTrefoilAct->setChecked(GLwidget::isZ3neg3());
+    Z22VerticalAstigAct->setChecked(GLwidget::isZ22());
+    Z20DefocusAct->setChecked(GLwidget::isZ20());
+    Z2neg2ObliqueAstigAct->setChecked(GLwidget::isZ2neg2());
+    Z11XtiltAct->setChecked(GLwidget::isZ11());
+    Z1neg1YtiltAct->setChecked(GLwidget::isZ1neg1());
+    Z00PistonAct->setChecked(GLwidget::isPiston());
+    return;
+}
+
+void MainWindow::checkmapsflags(){
+    rgb2Act->setChecked(GLwidget::isrgb2());
+    rgb5Act->setChecked(GLwidget::isrgb5());
+    hsbrgbAct->setChecked(GLwidget::ishsbrgb());
+    gplotpaletteAct->setChecked(GLwidget::isgplotpalette());
+    USSPaletteAct->setChecked(GLwidget::isUSSpalette());
+    USSfixedAct->setChecked(GLwidget::isUSSfixed());
+    PerceptuallyUniformPaletteAct->setChecked(GLwidget::isperceptualuniformpalette());
+    PerceptualfixedAct->setChecked(GLwidget::isperceptualuniformfixed());
+}
 
 void MainWindow::light()
 {
@@ -750,14 +783,278 @@ void MainWindow::normal()
    };
 }
 
-void MainWindow::mapAxial()
+void MainWindow::fctAxial()
 {
    if (GLwidget::isAxial()) {
         GLwidget::setAxial(false);
         ui.infoLabel->setText(tr("Set <b>View:Axial false</b>"));
    } else {
+        GLwidget::setAllfctfalse();
         GLwidget::setAxial(true);
+        checkfctsflags();
         ui.infoLabel->setText(tr("Set <b>View:Axial true</b>"));
+   };
+   return;
+}
+
+void MainWindow::fctTangential()
+{
+   if (GLwidget::isTangential()) {
+        GLwidget::setTangential(false);
+        ui.infoLabel->setText(tr("Set <b>View:Tangential false</b>"));
+   } else {
+        GLwidget::setAllfctfalse();
+        GLwidget::setTangential(true);
+        checkfctsflags();
+        ui.infoLabel->setText(tr("Set <b>View:Tangential true</b>"));
+   };
+   return;
+}
+
+void MainWindow::fctInstantaneous()
+{
+   if (GLwidget::isInstantaneous()) {
+        GLwidget::setInstantaneous(false);
+        ui.infoLabel->setText(tr("Set <b>View:Instantaneous false</b>"));
+   } else {
+        GLwidget::setAllfctfalse();
+        GLwidget::setInstantaneous(true);
+        checkfctsflags();
+        ui.infoLabel->setText(tr("Set <b>View:Instantaneous true</b>"));
+   };
+}
+
+void MainWindow::fctMean()
+{
+   if (GLwidget::isMean()) {
+        GLwidget::setMean(false);
+        ui.infoLabel->setText(tr("Set <b>View:Mean false</b>"));
+   } else {
+        GLwidget::setAllfctfalse();
+        GLwidget::setMean(true);
+        checkfctsflags();
+        ui.infoLabel->setText(tr("Set <b>View:Mean true</b>"));
+   };
+}
+
+void MainWindow::fctMongeAstig()
+{
+   if (GLwidget::isAstig()) {
+        GLwidget::setAstig(false);
+        ui.infoLabel->setText(tr("Set <b>View:Monge Astigmatism false</b>"));
+   } else {
+        GLwidget::setAllfctfalse();
+        GLwidget::setAstig(true);
+        checkfctsflags();
+        ui.infoLabel->setText(tr("Set <b>View:Monge Astigmatism true</b>"));
+   };
+}
+
+void MainWindow::fctElevation()
+{
+   if (GLwidget::isElevation()) {
+        GLwidget::setElevation(false);
+        ui.infoLabel->setText(tr("Set <b>View:Elevation false</b>"));
+   } else {
+        GLwidget::setAllfctfalse();
+        GLwidget::setElevation(true);
+        checkfctsflags();
+        ui.infoLabel->setText(tr("Set <b>View:Elevation true</b>"));
+   };
+}
+
+void MainWindow::fctZ44()
+{
+   if (GLwidget::isZ44()) {
+        GLwidget::setZ44(false);
+        ui.infoLabel->setText(tr("Set <b>View:Vertical Quatrafoil false</b>"));
+   } else {
+        GLwidget::setAllfctfalse();
+        GLwidget::setZ44(true);
+        checkfctsflags();
+        ui.infoLabel->setText(tr("Set <b>View:Vertical Quatrafoil true</b>"));
+   };
+}
+
+void MainWindow::fctZ42()
+{
+   if (GLwidget::isZ42()) {
+        GLwidget::setZ42(false);
+        ui.infoLabel->setText(tr("Set <b>View:Vertical 2nd Astig false</b>"));
+   } else {
+        GLwidget::setAllfctfalse();;
+        GLwidget::setZ42(true);
+        checkfctsflags();
+        ui.infoLabel->setText(tr("Set <b>View:Vertical 2nd Astig true</b>"));
+   };
+}
+
+void MainWindow::fctZ40()
+{
+   if (GLwidget::isZ40()) {
+        GLwidget::setZ40(false);
+        ui.infoLabel->setText(tr("Set <b>View:Spherical Aberration false</b>"));
+   } else {
+        GLwidget::setAllfctfalse();
+        GLwidget::setZ40(true);
+        checkfctsflags();
+        ui.infoLabel->setText(tr("Set <b>View:Spherical Aberration true</b>"));
+   };
+}
+
+void MainWindow::fctZ4neg4()
+{
+   if (GLwidget::isZ4neg4()) {
+        GLwidget::setZ4neg4(false);
+        ui.infoLabel->setText(tr("Set <b>View:Oblique Quatrafoil false</b>"));
+   } else {
+        GLwidget::setAllfctfalse();
+        GLwidget::setZ4neg4(true);
+        checkfctsflags();
+        ui.infoLabel->setText(tr("Set <b>View:Oblique Quatrafoil true</b>"));
+   };
+}
+
+void MainWindow::fctZ4neg2()
+{
+   if (GLwidget::isZ4neg2()) {
+        GLwidget::setZ4neg2(false);
+        ui.infoLabel->setText(tr("Set <b>View:Oblique 2nd Astig false</b>"));
+   } else {
+        GLwidget::setAllfctfalse();
+        GLwidget::setZ4neg2(true);
+        checkfctsflags();
+        ui.infoLabel->setText(tr("Set <b>View:Oblique 2nd Astig true</b>"));
+   };
+}
+
+void MainWindow::fctZ33()
+{
+   if (GLwidget::isZ33()) {
+        GLwidget::setZ33(false);
+        ui.infoLabel->setText(tr("Set <b>View:Oblique Trefoil false</b>"));
+   } else {
+        GLwidget::setAllfctfalse();
+        GLwidget::setZ33(true);
+        checkfctsflags();
+        ui.infoLabel->setText(tr("Set <b>View:Oblique Trefoil true</b>"));
+   };
+}
+
+void MainWindow::fctZ31()
+{
+   if (GLwidget::isZ31()) {
+        GLwidget::setZ31(false);
+        ui.infoLabel->setText(tr("Set <b>View:Horizontal Coma false</b>"));
+   } else {
+        GLwidget::setAllfctfalse();
+        GLwidget::setZ31(true);
+        checkfctsflags();
+        ui.infoLabel->setText(tr("Set <b>View:Horizontal Coma true</b>"));
+   };
+}
+
+void MainWindow::fctZ3neg1()
+{
+   if (GLwidget::isZ3neg1()) {
+        GLwidget::setZ3neg1(false);
+        ui.infoLabel->setText(tr("Set <b>View:Vertical Coma false</b>"));
+   } else {
+        GLwidget::setAllfctfalse();
+        GLwidget::setZ3neg1(true);
+        checkfctsflags();
+        ui.infoLabel->setText(tr("Set <b>View:Vertical Coma true</b>"));
+   };
+}
+
+void MainWindow::fctZ3neg3()
+{
+   if (GLwidget::isZ3neg3()) {
+        GLwidget::setZ3neg3(false);
+        ui.infoLabel->setText(tr("Set <b>View:Vertical Trefoil false</b>"));
+   } else {
+        GLwidget::setAllfctfalse();
+        GLwidget::setZ3neg3(true);
+        checkfctsflags();
+        ui.infoLabel->setText(tr("Set <b>View:Vertical Trefoil true</b>"));
+   };
+}
+
+void MainWindow::fctZ22()
+{
+   if (GLwidget::isZ22()) {
+        GLwidget::setZ22(false);
+        ui.infoLabel->setText(tr("Set <b>View:Vertical Astig false</b>"));
+   } else {
+        GLwidget::setAllfctfalse();
+        GLwidget::setZ22(true);
+        checkfctsflags();
+        ui.infoLabel->setText(tr("Set <b>View:Vertical Astig true</b>"));
+   };
+}
+
+void MainWindow::fctZ20()
+{
+   if (GLwidget::isZ20()) {
+        GLwidget::setZ20(false);
+        ui.infoLabel->setText(tr("Set <b>View:Defocus false</b>"));
+   } else {
+        GLwidget::setAllfctfalse();
+        GLwidget::setZ20(true);
+        checkfctsflags();
+        ui.infoLabel->setText(tr("Set <b>View:Defocus true</b>"));
+   };
+}
+
+void MainWindow::fctZ2neg2()
+{
+   if (GLwidget::isZ2neg2()) {
+        GLwidget::setZ2neg2(false);
+        ui.infoLabel->setText(tr("Set <b>View:Oblique Astig false</b>"));
+   } else {
+        GLwidget::setAllfctfalse();
+        GLwidget::setZ2neg2(true);
+        checkfctsflags();
+        ui.infoLabel->setText(tr("Set <b>View:Oblique Astig true</b>"));
+   };
+}
+
+void MainWindow::fctZ11()
+{
+   if (GLwidget::isZ11()) {
+        GLwidget::setZ11(false);
+        ui.infoLabel->setText(tr("Set <b>View:X-tilt false</b>"));
+   } else {
+        GLwidget::setAllfctfalse();
+        GLwidget::setZ11(true);
+        checkfctsflags();
+        ui.infoLabel->setText(tr("Set <b>View:X-tilt true</b>"));
+   };
+}
+
+void MainWindow::fctZ1neg1()
+{
+   if (GLwidget::isZ1neg1()) {
+        GLwidget::setZ1neg1(false);
+        ui.infoLabel->setText(tr("Set <b>View:Y-tilt false</b>"));
+   } else {
+        GLwidget::setAllfctfalse();
+        GLwidget::setZ1neg1(true);
+        checkfctsflags();
+        ui.infoLabel->setText(tr("Set <b>View:Y-tilt true</b>"));
+   };
+}
+
+void MainWindow::fctZ00()
+{
+   if (GLwidget::isPiston()) {
+        GLwidget::setPiston(false);
+        ui.infoLabel->setText(tr("Set <b>View:Piston false</b>"));
+   } else {
+        GLwidget::setAllfctfalse();
+        GLwidget::setPiston(true);
+        checkfctsflags();
+        ui.infoLabel->setText(tr("Set <b>View:Piston true</b>"));
    };
 }
 
@@ -772,14 +1069,154 @@ void MainWindow::tweakcenterNode()
    };
 }
 
+void MainWindow::tweakadjustradii()
+{
+   if (GLwidget::isadjustradii()) {
+        GLwidget::setadjustradii(false);
+        ui.infoLabel->setText(tr("Set <b>Tweak:Adjust radii false</b>"));
+   } else {
+        GLwidget::setadjustradii(true);
+        ui.infoLabel->setText(tr("Set <b>Tweak:Adjust radii true</b>"));
+   };
+}
+
+void MainWindow::tweakcubic()
+{
+   if (GLwidget::iscubic()) {
+        GLwidget::setcubic(false);
+        ui.infoLabel->setText(tr("Set <b>Tweak:Default Trapezoidal Integration</b>"));
+   } else {
+        GLwidget::setcubic(true);
+        ui.infoLabel->setText(tr("Set <b>Tweak:Cubic Spline Integration</b>"));
+   };
+}
+void MainWindow::tweakLSQfill()
+{
+   if (GLwidget::isLSQfillin()) {
+        GLwidget::setLSQfillin(false);
+        ui.infoLabel->setText(tr("Set <b>Tweak:LSQ fillin false</b>"));
+   } else {
+        GLwidget::setSplinefillin(false);
+        GLwidget::setLSQfillin(true);
+        SplinefillinAct->setChecked(GLwidget::isSplinefillin());
+        ui.infoLabel->setText(tr("Set <b>Tweak:LSQ fillin true</b>"));
+   };
+}
+
+void MainWindow::tweakSplinefill()
+{
+   if (GLwidget::isSplinefillin()) {
+        GLwidget::setSplinefillin(false);
+        ui.infoLabel->setText(tr("Set <b>Tweak:Spline fillin false</b>"));
+   } else {
+        GLwidget::setSplinefillin(true);
+        GLwidget::setLSQfillin(false);
+        LSQfillinAct->setChecked(GLwidget::isLSQfillin());
+        ui.infoLabel->setText(tr("Set <b>Tweak:Spline fillin true</b>"));
+   };
+}
+
+void MainWindow::colorrgb2()
+{
+   if (GLwidget::isrgb2()) {
+        GLwidget::setrgb2(false);
+        ui.infoLabel->setText(tr("Set <b>View:rgb2 false</b>"));
+   } else {
+        GLwidget::setAllmapsfalse();
+        GLwidget::setrgb2(true);
+        checkmapsflags();
+        ui.infoLabel->setText(tr("Set <b>View:View:rgb2 true</b>"));
+   };
+}
+
+void MainWindow::colorrgb5()
+{
+   if (GLwidget::isrgb5()) {
+        GLwidget::setrgb5(false);
+        ui.infoLabel->setText(tr("Set <b>View:rgb5 false</b>"));
+   } else {
+        GLwidget::setAllmapsfalse();
+        GLwidget::setrgb5(true);
+        checkmapsflags();
+        ui.infoLabel->setText(tr("Set <b>View:View:rgb5 true</b>"));
+   };
+}
+
+void MainWindow::colorhsbrgb()
+{
+   if (GLwidget::ishsbrgb()) {
+        GLwidget::sethsbrgb(false);
+        ui.infoLabel->setText(tr("Set <b>View:Hue Sat Brightness Map false</b>"));
+   } else {
+        GLwidget::setAllmapsfalse();
+        GLwidget::sethsbrgb(true);
+        checkmapsflags();
+        ui.infoLabel->setText(tr("Set <b>View:View:Hue Sat Brightness Map true</b>"));
+   };
+}
+
+void MainWindow::colorgplotpalette()
+{
+   if (GLwidget::isgplotpalette()) {
+        GLwidget::setgplotpalette(false);
+        ui.infoLabel->setText(tr("Set <b>View:gplot palette false</b>"));
+   } else {
+        GLwidget::setAllmapsfalse();
+        GLwidget::setgplotpalette(true);
+        checkmapsflags();
+        ui.infoLabel->setText(tr("Set <b>View:View:gplot palette true</b>"));
+   };
+}
+
 void MainWindow::colorUSSpalettefixed()
 {
    if (GLwidget::isUSSfixed()) {
         GLwidget::setUSSfixed(false);
-        ui.infoLabel->setText(tr("Set <b>View:USS Palette fixed false</b>"));
+        ui.infoLabel->setText(tr("Set <b>View:USS Palette fixed range false</b>"));
    } else {
+        GLwidget::setAllmapsfalse();
         GLwidget::setUSSfixed(true);
-        ui.infoLabel->setText(tr("Set <b>View:View:USS Palette fixed true</b>"));
+        checkmapsflags();
+        ui.infoLabel->setText(tr("Set <b>View:View:USS Palette fixed range true</b>"));
+   };
+}
+
+void MainWindow::colorUSSpalette()
+{
+   if (GLwidget::isUSSpalette()) {
+        GLwidget::setUSSpalette(false);
+        ui.infoLabel->setText(tr("Set <b>View:USS Palette false</b>"));
+   } else {
+        GLwidget::setAllmapsfalse();
+        GLwidget::setUSSpalette(true);
+        checkmapsflags();
+        ui.infoLabel->setText(tr("Set <b>View:View:USS Palette true</b>"));
+   };
+}
+
+void MainWindow::colorPerceptualUniformfixed()
+{
+   if (GLwidget::isperceptualuniformfixed()) {
+        GLwidget::setperceptualuniformfixed(false);
+        ui.infoLabel->setText(tr("Set <b>View:Perceptually Uniform Palette fixed range false</b>"));
+   } else {
+        GLwidget::setAllmapsfalse();
+        GLwidget::setperceptualuniformfixed(true);
+        checkmapsflags();
+        ui.infoLabel->setText(tr("Set <b>View:View:Perceptually Uniform Palette fixed range true</b>"));
+   };
+}
+
+void MainWindow::colorPerceptualUniformpalette()
+{
+   if (GLwidget::isperceptualuniformpalette()) {
+        GLwidget::setperceptualuniformpalette(false);
+        ui.infoLabel->setText(tr("Set <b>View:Perceptually Uniform Palette false</b>"));
+   } else {
+        GLwidget::setAllmapsfalse();
+        GLwidget::setperceptualuniformpalette(true);
+        checkmapsflags();
+        ui.infoLabel->setText(tr("Set <b>View:View:Perceptually Uniform Palette true</b>"));
    };
 }
 
@@ -853,26 +1290,28 @@ void MainWindow::createActions()
    exitAct = new QAction(tr("E&xit"), this);
    exitAct->setShortcuts(QKeySequence::Quit);
    exitAct->setStatusTip(tr("Exit the application"));
- //  connect(exitAct, &QAction::triggered, this, &QWidget::close);
+   connect(exitAct, &QAction::triggered, this, &QWidget::close);
    connect(exitAct, &QAction::triggered, qApp, &QApplication::closeAllWindows);
 
    aboutAct = new QAction(tr("&About"), this);
    aboutAct->setStatusTip(tr("Show the application's About box"));
    connect(aboutAct, &QAction::triggered, this, &MainWindow::about);
 
-   redrawAct = new QAction(tr("&Redraw without relaoding file"), this);
+   redrawAct = new QAction(tr("&Redraw without reloading file"), this);
+   redrawAct->setEnabled(false);
+   connect(redrawAct, &QAction::triggered, this, &MainWindow::redraw);
 
    lightAct = new QAction(tr("&Lighting"), this);
    lightAct->setStatusTip(tr("Change the lighting in the window"));
    connect(lightAct, &QAction::triggered, this, &MainWindow::light);
    lightAct->setCheckable(true);
-   lightAct->setChecked(GLwidget::isLight());
+   lightAct->setChecked(GLwidget::isLight());  //need this because can control from commandline
 
    normalAct = new QAction(tr("&Show Normals"), this);
    normalAct->setStatusTip(tr("Show the surface normals"));
    connect(normalAct, &QAction::triggered, this, &MainWindow::normal);
    normalAct->setCheckable(true);
-   normalAct->setChecked(GLwidget::isNormal());
+   normalAct->setChecked(GLwidget::isNormal()); //need this because can control from commandline
 
    centernodeAct=new QAction(tr("&Create center node to force MinMax at origin"), this);
    centernodeAct->setCheckable(true);
@@ -880,10 +1319,19 @@ void MainWindow::createActions()
 
    adjustradiiAct=new QAction(tr("&Adjust meridional radii to force MinMax at origin"), this);
    adjustradiiAct->setCheckable(true);
+   connect(adjustradiiAct, &QAction::triggered, this, &MainWindow::tweakadjustradii);
+
+   cubicAct=new QAction(tr("&Use cubic integration instead of trapezoidal"), this);
+   cubicAct->setCheckable(true);
+   connect(cubicAct, &QAction::triggered, this, &MainWindow::tweakcubic);
+
    LSQfillinAct=new QAction(tr("&Fill in missing data by circumferential LSQ"), this);
    LSQfillinAct->setCheckable(true);
+   connect(LSQfillinAct, &QAction::triggered, this, &MainWindow::tweakLSQfill);
+
    SplinefillinAct=new QAction(tr("&Fill in missing data by circumferential spline"), this);
    SplinefillinAct->setCheckable(true);
+   connect(SplinefillinAct, &QAction::triggered, this, &MainWindow::tweakSplinefill);
 
    liocAct = new QAction(tr("&Lines of Curvature"), this);
    liocAct->setStatusTip(tr("Show plot of lines of curvature"));
@@ -910,69 +1358,140 @@ void MainWindow::createActions()
 
    AxialAct=new QAction(tr("&Axial or Sagittal Power"), this);
    AxialAct->setCheckable(true);
-   connect(AxialAct, &QAction::triggered, this, &MainWindow::mapAxial);
+   connect(AxialAct, &QAction::triggered, this, &MainWindow::fctAxial);
+   AxialAct->setChecked(GLwidget::isAxial());  //needs this here to check initially because it is the default
 
    TangentialAct=new QAction(tr("&Tangential Power, meridional calculation only"), this);
    TangentialAct->setCheckable(true);
+   connect(TangentialAct, &QAction::triggered, this, &MainWindow::fctTangential);
+
    InstantaneousAct=new QAction(tr("&Instantaneous/Tangential Power"), this);
    InstantaneousAct->setCheckable(true);
+   connect(InstantaneousAct, &QAction::triggered, this, &MainWindow::fctInstantaneous);
+
    MeanAct=new QAction(tr("&Mean Power"), this);
    MeanAct->setCheckable(true);
+   connect(MeanAct, &QAction::triggered, this, &MainWindow::fctMean);
+
    AstigAct=new QAction(tr("&Monge Astigmatism"), this);
    AstigAct->setCheckable(true);
+   connect(AstigAct, &QAction::triggered, this, &MainWindow::fctMongeAstig);
+
    ElevationAct=new QAction(tr("&Elevation"), this);
    ElevationAct->setCheckable(true);
+   connect(ElevationAct, &QAction::triggered, this, &MainWindow::fctElevation);
+
    Z44VerticalQuatrafoilAct=new QAction(tr("&Vertical Quatrafoil"), this);
    Z44VerticalQuatrafoilAct->setCheckable(true);
+   Z44VerticalQuatrafoilAct->setEnabled(false);
+   connect(Z44VerticalQuatrafoilAct, &QAction::triggered, this, &MainWindow::fctZ44);
+
    Z42Vertical2ndAstigAct=new QAction(tr("&Vertical 2nd Astigmatism"), this);
    Z42Vertical2ndAstigAct->setCheckable(true);
+   Z42Vertical2ndAstigAct->setEnabled(false);
+   connect(Z42Vertical2ndAstigAct, &QAction::triggered, this, &MainWindow::fctZ42);
+
    Z40SphericalAberrationAct=new QAction(tr("&Spherical Aberration"), this);
    Z40SphericalAberrationAct->setCheckable(true);
+   Z40SphericalAberrationAct->setEnabled(false);
+   connect(Z40SphericalAberrationAct, &QAction::triggered, this, &MainWindow::fctZ40);
+
    Z4neg2Oblique2ndAstigAct=new QAction(tr("&Oblique 2nd Astigmatism"), this);
    Z4neg2Oblique2ndAstigAct->setCheckable(true);
+   Z4neg2Oblique2ndAstigAct->setEnabled(false);
+   connect(Z4neg2Oblique2ndAstigAct, &QAction::triggered, this, &MainWindow::fctZ4neg2);
+
    Z4neg4ObliqueQuatrafoilAct=new QAction(tr("&Oblique Quadrafoil"), this);
    Z4neg4ObliqueQuatrafoilAct->setCheckable(true);
+   Z4neg4ObliqueQuatrafoilAct->setEnabled(false);
+   connect(Z4neg4ObliqueQuatrafoilAct, &QAction::triggered, this, &MainWindow::fctZ4neg4);
+
    Z33ObliqueTrefoilAct=new QAction(tr("&Oblique Trefoil"), this);
    Z33ObliqueTrefoilAct->setCheckable(true);
+   Z33ObliqueTrefoilAct->setEnabled(false);
+   connect(Z33ObliqueTrefoilAct, &QAction::triggered, this, &MainWindow::fctZ33);
+
    Z3neg3VerticalTrefoilAct=new QAction(tr("&Vertical Trefoil"), this);
    Z3neg3VerticalTrefoilAct->setCheckable(true);
+   Z3neg3VerticalTrefoilAct->setEnabled(false);
+   connect(Z3neg3VerticalTrefoilAct, &QAction::triggered, this, &MainWindow::fctZ3neg3);
+
    Z31HorizontalComaAct=new QAction(tr("&Horizontal Coma"), this);
    Z31HorizontalComaAct->setCheckable(true);
+   Z31HorizontalComaAct->setEnabled(false);
+   connect(Z31HorizontalComaAct, &QAction::triggered, this, &MainWindow::fctZ31);
+
    Z3neg1VerticalComaAct=new QAction(tr("&Vertical Coma"), this);
    Z3neg1VerticalComaAct->setCheckable(true);
+   Z3neg1VerticalComaAct->setEnabled(false);
+   connect(Z3neg1VerticalComaAct, &QAction::triggered, this, &MainWindow::fctZ3neg1);
+
    Z22VerticalAstigAct=new QAction(tr("&Vertical Astigmatism"), this);
    Z22VerticalAstigAct->setCheckable(true);
+   Z22VerticalAstigAct->setEnabled(false);
+   connect(Z22VerticalAstigAct, &QAction::triggered, this, &MainWindow::fctZ22);
+
    Z2neg2ObliqueAstigAct=new QAction(tr("&Oblique Astigmatism"), this);
    Z2neg2ObliqueAstigAct->setCheckable(true);
+   Z2neg2ObliqueAstigAct->setEnabled(false);
+   connect(Z2neg2ObliqueAstigAct, &QAction::triggered, this, &MainWindow::fctZ2neg2);
+
    Z20DefocusAct=new QAction(tr("&Defocus"), this);
    Z20DefocusAct->setCheckable(true);
+   Z20DefocusAct->setEnabled(false);
+   connect(Z20DefocusAct, &QAction::triggered, this, &MainWindow::fctZ20);
+
    Z11XtiltAct=new QAction(tr("&X-Tilt"), this);
    Z11XtiltAct->setCheckable(true);
+   Z11XtiltAct->setEnabled(false);
+   connect(Z11XtiltAct, &QAction::triggered, this, &MainWindow::fctZ11);
+
    Z1neg1YtiltAct=new QAction(tr("&Y-Tilt"), this);
    Z1neg1YtiltAct->setCheckable(true);
+   Z1neg1YtiltAct->setEnabled(false);
+   connect(Z1neg1YtiltAct, &QAction::triggered, this, &MainWindow::fctZ1neg1);
+
    Z00PistonAct=new QAction(tr("&Piston"), this);
    Z00PistonAct->setCheckable(true);
+   Z00PistonAct->setEnabled(false);
+   connect(Z00PistonAct, &QAction::triggered, this, &MainWindow::fctZ00);
+
    rgb2Act=new QAction(tr("&Discrete 2 color Heatmap with linear interpolation"), this);
    rgb2Act->setCheckable(true);
+   connect(rgb2Act, &QAction::triggered, this, &MainWindow::colorrgb2);
+
    rgb5Act=new QAction(tr("&Discrete 5 color Heatmap with linear interpolation"), this);
    rgb5Act->setCheckable(true);
+   connect(rgb5Act, &QAction::triggered, this, &MainWindow::colorrgb5);
+
    hsbrgbAct=new QAction(tr("&Continuous Hue Heatmap with fixed Saturation and Brightness"), this);
    hsbrgbAct->setCheckable(true);
+   connect(hsbrgbAct, &QAction::triggered, this, &MainWindow::colorhsbrgb);
+
    gplotpaletteAct=new QAction(tr("&Discrete 12 color Heatmap no interpolation gnuplot style"), this);
    gplotpaletteAct->setCheckable(true);
+   connect(gplotpaletteAct, &QAction::triggered, this, &MainWindow::colorgplotpalette);
+
    USSfixedAct=new QAction(tr("&Uniform Standard Scale discrete map with linear interpolation between 26 colors with fixed range for sagittal/axial powers"), this);
    USSfixedAct->setCheckable(true);
+   connect(USSfixedAct, &QAction::triggered, this, &MainWindow::colorUSSpalettefixed);
+   USSfixedAct->setChecked(GLwidget::isUSSfixed());  //needs this here to check initially because it is the default
+
    USSPaletteAct=new QAction(tr("&Uniform Standard Scale discrete map with linear interpolation between 26 colors"), this);
    USSPaletteAct->setCheckable(true);
+   connect(USSPaletteAct, &QAction::triggered, this, &MainWindow::colorUSSpalette);
+
    PerceptualfixedAct=new QAction(tr("&Perceptually Uniform 9 shade Palette discrete map with linear interpolation with ANSI Z80.3 fixed range"), this);
    PerceptualfixedAct->setCheckable(true);
+   connect(PerceptualfixedAct, &QAction::triggered, this, &MainWindow::colorPerceptualUniformfixed);
+
    PerceptuallyUniformPaletteAct=new QAction(tr("&Perceptually Uniform 9 shade palette discrete map with linear interpolation"), this);
    PerceptuallyUniformPaletteAct->setCheckable(true);
+   connect(PerceptuallyUniformPaletteAct, &QAction::triggered, this, &MainWindow::colorPerceptualUniformpalette);
 }
 
 void MainWindow::createMenus()
 {
-
    fileMenu = menuBar()->addMenu(tr("&File"));
    fileMenu->addAction(openAct);
    fileMenu->addAction(compareAct);
@@ -1027,6 +1546,7 @@ void MainWindow::createMenus()
    tweaksMenu = menuBar()->addMenu(tr("&Placido data tweaks"));
    tweaksMenu->addAction(centernodeAct);
    tweaksMenu->addAction(adjustradiiAct);
+   tweaksMenu->addAction(cubicAct);
    tweaksMenu->addAction(LSQfillinAct);
    tweaksMenu->addAction(SplinefillinAct);
    helpMenu = menuBar()->addMenu(tr("&About"));
@@ -1035,65 +1555,10 @@ void MainWindow::createMenus()
    helpMenu->addAction(aboutQtAct);
 }
 
-/*
-
-
-
-above createActions
-
-
-
-
-can just put gp actions here and avoid .gnu files
-
-
-in createActions:
-
-   normalAct = new QAction(tr("&Show Normals"), this);
-   normalAct->setStatusTip(tr("Show the surface normals"));
-   connect(normalAct, &QAction::triggered, this, &MainWindow::normal);
-   importexportAct->setEnabled(false);
-   normalAct->setCheckable(true);
-   normalAct->setChecked(GLwidget::isNormal());
-
-
-
-    fct   HOA
-    15    "Z(4,4) Vertical Quatrafoil",  Quadrafoil 0 deg
-    13    "Z(4,2) Vertical 2nd Astig.",  4th order astigmatism 0 deg
-    09    "Z(4,0) Spherical Aberration", Spherical Aberration
-    04    "Z(4,-2) Oblique 2nd Astig.",  4th order astigmatism 45 deg
-    01    "Z(4,-4) Oblique Quatrafoil",  Quadrafoil 22.5 deg
-    14    "Z(3,3) Oblique Trefoil",      Trefoil 0 deg
-    11    "Z(3,1) Horizontal Coma",      Coma 0 deg
-    06    "Z(3,-1) Vertical Coma",       Coma 90 deg
-    02    "Z(3,-3) Vertical Trefoil",    Trefoil 30 deg
-          LOA
-    12    "Z(2,2) Vertical Astig.",      Astigmatism 0 deg
-    08    "Z(2,0) Defocus",              Defocus
-    03    "Z(2,-2) Oblique Astigmatism", Astigmatism 45 deg
-
-    05     Z(1,-1) Y tilt                Y tilt
-    10     Z(1,1)  X tilt                X tilt
-    07     Z(0,0)  Piston                Height
-
-    // 1 = rgb2 discrete heatmap with linear interpolation based on 2 colors
-    // 2 = rgb5 discrete heatmap with linear interpolation based on 5 colors
-    // 3 = hsbrgb continuous heatmap with fixed sat and brightness, value mapped to hue
-    // 4 = gplotpalette discrete heatmap based on 12 colors, no interpolation in the style generated by gnuplot
-    // 5 = Uniform Standard Scale (USS)palette discrete map with linear interpolation between 26 colors with fixed range for sagittal/axial powers
-    // 6 = Perceptually Uniform Palette discrete map with linear interpolation between 9 shades with ANSI Z80.3 fixed range
-    // 7 = USSpalette
-    // 8 = Perceptually Uniform Palette
-
-
-*/
-
 void MainWindow::updateResult()
 {
    ui.progressBar->setValue(counter);
 }
-
 
 int main(int argc, char *argv[])
 {
