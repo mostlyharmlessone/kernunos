@@ -327,7 +327,7 @@ void MainWindow::SetGLString(QString& gls)
 void MainWindow::open()   //multiple invocations makes a comparison
 {
    ui.infoLabel->setText(tr("Invoked <b>File|Open</b>"));
-
+   flag=flag-(flag%100)+0;  // last two digits of flag=0; need to reset this
    QString filter = "All (*.*);;PentaCam (*.CUR *.ELE *.CUR.CSV *.ELE.CSV);;EyeSys (*.DAT);;Atlas (*.CSV)";
    QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
    if (fileName.isEmpty())
