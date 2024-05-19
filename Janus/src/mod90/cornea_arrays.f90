@@ -94,19 +94,10 @@ INTERFACE ASSIGNMENT (=)
  MODULE PROCEDURE destroy_Skyline
  MODULE PROCEDURE destroy_JMatrix
 END INTERFACE
-   
-INTERFACE OPERATOR (.i.)
-! .i. TypeDiaSlopeMatrix integrates the matrix slope values 
- MODULE PROCEDURE DiaIntegrate ! uses CubicSplineQuad.f90, assumes DiaSpline already done, only modifies Zpd
-END INTERFACE 
 
 INTERFACE OPERATOR (.n.) ! unary operator
 ! .n. TypeDiaSlopeMatrix populates the matrix with second radial derivatives of z
-! .n. TypeAtlasMatrix populates the matrix with second angular derivatives of r
-! .n. TypeRadSlopeMatrix populates the matrix with second angular derivatives of z
  MODULE PROCEDURE DiaSpline ! uses nspline.f90
- MODULE PROCEDURE fillin ! uses pspli.f90
- MODULE PROCEDURE AngSpline ! uses pspli.f90
 END INTERFACE 
 
 ! declaring common global data arrays
@@ -670,71 +661,6 @@ subroutine DiaSplineCenter(b)
   end do
 end subroutine DiaSplineCenter
 
-! not currently used
-function DiaIntegrate(b) result(a)
- TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b
- integer :: i,j,M1,N1
- real(wp) :: Q,Q0
- real(wp) :: a(size(b%rd,1),size(b%rd,2))
- N1=size(b%rd,1)-1 !N1=2*N*M
- M1=size(b%rd,2) !M1=MM/2)
-  do i=1,M1
-   call CubicSplineQuad(b%rd(:,i),b%Zpd(:,i),b%Zpd2(:,i),b%L2(i),0._wp,Q0)
-   do j=1,b%L2(i)    
-    call CubicSplineQuad(b%rd(:,i),b%Zpd(:,i),b%Zpd2(:,i),b%L2(i),b%rd(j,i),Q)
-    a(i,j)=Q-Q0
-   end do
-  end do
-end function DiaIntegrate
-
-! not currently used
-function RadInterpolate(b) result(a) !interpolates values of radslope%Zp in new rings
- TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
- integer :: i,j,M1,N1
- real(wp) :: f0
- real(wp) :: a(size(b%Zp,1),size(b%Zp,2))  
- N1=size(b%Zp,1) !N1=N or N*M for ARadSlope
- M1=size(b%Zp,2) !M1=MM
-  do i=1,M1
-   do j=1,N1
-    if (j .LE. b%MV(i)) then   !bounds
-    call SplineEval1Dx1D(0,b%r(j,i),b%thta(i),f0)  ! no integration here
-     a(j,i)=f0
-    else
-     a(j,i)=0  ! zero if out of bounds
-    endif
-   end do
-  end do
-end function RadInterpolate
-
-function AngSpline(b) result(a) 
- TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
- TYPE(wpsplinevect) :: spline
- integer :: M1,N1,i,j,k
- real(wp) :: a(size(b%r,2),size(b%r,1)),Q 
- N1=size(b%r,1) !N1=N 
- M1=size(b%r,2) !M1=MM
- allocate (spline%r(M1),spline%z(M1),spline%zp2(M1),spline%mvjr(N1))
- associate (t=>spline%r,z=>spline%z,zt2=>spline%zp2,mvjr=>spline%mvjr)
-  mvjr=0
-  do i=1,N1 
-     do j=1,M1
-       Q=b%Zp(j,i)
-        if (ABS(Q) > 0.) then ! Q can be positive or negative if it's Zp, exactly 0 means no data point
-         mvjr(i)=mvjr(i)+1                  
-         t(mvjr(i))=b%thta(j)         
-         z(mvjr(i))=Q       
-        endif
-      end do
-      call pspli(t,z,mvjr(i),zt2)
-      do k=1,M1                 
-       a(k,i)=zt2(mvjr(i))
-      end do
-   end do   
-   end associate
-   deallocate (spline%r,spline%z,spline%zp2,spline%mvjr)
-end function AngSpline
-
 function fillin(b) result(a) 
  TYPE(wpAtlasMatrix),INTENT(IN) :: b
  TYPE(wpsplinevect) :: spline
@@ -742,13 +668,14 @@ function fillin(b) result(a)
  real(wp) :: a(size(b%AR,1),size(b%AR,2)),RTEMP,Q,degK
  N1=size(b%AR,2) !N1=N 
  M1=size(b%AR,1) !M1=MM
+ a=0  !initialize else the damn thing will fill with NaN
  allocate (spline%r(M1),spline%z(M1),spline%zp2(M1),spline%mvjr(N1))
  associate (t=>spline%r,z=>spline%z,zt2=>spline%zp2,mvjr=>spline%mvjr)
   mvjr=0
   do i=1,N1 
      do j=1,M1
        Q=b%AR(j,i)        
-        if (ABS(Q) > 0.) then ! ABS is optional for AR or AP, contrast with AngSpline above
+        if (ABS(Q) > 0.) then ! ABS is optional for AR or AP
          mvjr(i)=mvjr(i)+1
          t(mvjr(i))=b%DEG(j)*PI/180.0_wp         
          z(mvjr(i))=Q 
@@ -760,7 +687,7 @@ function fillin(b) result(a)
        call SplineEval(1,t,z,zt2,mvjr(i),degK,RTEMP)
         IF(ABS(b%AR(K,I)-RTEMP) > EPS)then
          IF(ABS(b%AR(K,I)) > EPS)THEN
-         write(*,*) 'spline error 3 in cornea_arrays fillin',K,I,b%AR(K,I),RTEMP
+         write(*,*) 'spline error in cornea_arrays fillin',K,I,b%AR(K,I),RTEMP
          endif
         endif 
         a(k,i)=RTEMP
@@ -780,9 +707,9 @@ function lsqfill(b) result(a)
 ! real (wp) res(size(b%AR,1)),respres,sumr2,zpz
  N1=size(b%AR,2) !N1=N 
  M1=size(b%AR,1) !M1=MM
+ a=0  !initialize else the damn thing will fill with NaN
  z=0
  t=0
- a=0
  do i=1,N1
   zpX=0 
   c=0  
@@ -876,7 +803,7 @@ function pca(M3,b) result(a)
  lwork=size(work)
  N1=size(b%r,1) !N1=N 
  M1=size(b%r,2) !M1=MM
-
+ a=0  !initialize else the damn thing will fill with NaN
  if (M3==2) then ! each ring
   do i=1,N1 
    do k=1,M1  

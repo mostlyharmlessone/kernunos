@@ -5,7 +5,10 @@
       USE special_fct, ONLY : OPERATOR(.p.) !tensor summation convention      
       use,intrinsic :: ieee_arithmetic
       implicit none
-      integer, INTENT(IN) :: iflag     ! iflag=0 no integration; iflag=1 trapezoidal integration; iflag=2 cubic integration;
+      integer, INTENT(IN) :: iflag     ! iflag=0/10 no integration;
+                                       ! iflag=1/11 trapezoidal integration;
+                                       ! iflag=2/12 cubic integration;
+                                       ! second digit for integration, so 0,1,2 as before. first digit centernode, doesn't break previous code
       real(wp), INTENT(INOUT) :: u, v
       real(wp), INTENT(OUT),OPTIONAL ::  f,fr,ft,frt,frr,ftt
       real(wp) :: g,g0,gr,grr
@@ -13,7 +16,6 @@
       real(wp) :: thta(size(RadSlope%r,2)),fttTmp(size(RadSlope%r,2)),frttTmp(size(RadSlope%r,2)),frrttTmp(size(RadSlope%r,2))
       real(wp) :: r(2*size(RadSlope%r,1)),z(2*size(RadSlope%r,1)),zr2(2*size(RadSlope%r,1))
       integer :: L2,j,L,MM,N
-!      logical :: IsInf
 
       MM=size(RadSlope%r,2)
       N=size(RadSlope%r,1)
@@ -22,19 +24,23 @@
         thta(j)=RadSlope%thta(j)
         r=DiaSlope%rd(1:2*N,j)
         z=DiaSlope%Zpd(1:2*N,j)
-        zr2=DiaSlope%Zpd2(1:2*N,j)        
-        if (iflag == 0) then             
-         call SplineEval(0,r,z,zr2,L2,u,g,gr,grr) !first parameter = 0 nonperiodic  
+        zr2=DiaSlope%Zpd2(1:2*N,j)
+        if (((iflag-mod(iflag,10))/10) == 0) then    ! no central node
+         call SplineEval(0,r,z,zr2,L2,u,g,gr,grr)  !first parameter = 0 nonperiodic
+        endif
+        if (((iflag-mod(iflag,10))/10) == 1) then    !non-periodic center node radial spline
+         call SplineEvalCenter(j,r,z,zr2,L2,u,g,gr,grr)
+        endif
+        if (mod(iflag,10) == 0) then     ! no integration
          fTmp(j)=g
         else  !iflag=1 or 2
-         call SplineEval(0,r,z,zr2,L2,u,gr,grr)
-         if (iflag == 2) then
-          call CubicSplineQuad(r,z,zr2,L2,0._wp,g0)
-          call CubicSplineQuad(r,z,zr2,L2,u,g)
+         if (mod(iflag,10) == 2) then     !cubic integration
+          call CubicSplineQuad(j,iflag,r,z,zr2,L2,0._wp,g0)
+          call CubicSplineQuad(j,iflag,r,z,zr2,L2,u,g)
          endif
-         if (iflag == 1) then
-          call trapez(r,z,zr2,L2,0._wp,g0)
-          call trapez(r,z,zr2,L2,u,g)
+         if (mod(iflag,10) == 1) then   !trapezoidal integration
+          call trapez(j,iflag,r,z,zr2,L2,0._wp,g0)
+          call trapez(j,iflag,r,z,zr2,L2,u,g)
          endif
          fTmp(j)=g-g0
         endif      
@@ -80,4 +86,4 @@
         endif
 
         RETURN
-        END
+        END SUBROUTINE SplineEval1Dx1D
