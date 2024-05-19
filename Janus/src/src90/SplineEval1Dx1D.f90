@@ -5,10 +5,7 @@
       USE special_fct, ONLY : OPERATOR(.p.) !tensor summation convention      
       use,intrinsic :: ieee_arithmetic
       implicit none
-      integer, INTENT(IN) :: iflag     ! iflag=0/10 no integration;
-                                       ! iflag=1/11 trapezoidal integration;
-                                       ! iflag=2/12 cubic integration;
-                                       ! second digit for integration, so 0,1,2 as before. first digit centernode, doesn't break previous code
+      integer, INTENT(IN) :: iflag     ! iflag=0 no integration; iflag=1 trapezoidal integration; iflag=2 cubic integration;
       real(wp), INTENT(INOUT) :: u, v
       real(wp), INTENT(OUT),OPTIONAL ::  f,fr,ft,frt,frr,ftt
       real(wp) :: g,g0,gr,grr
@@ -25,15 +22,16 @@
         r=DiaSlope%rd(1:2*N,j)
         z=DiaSlope%Zpd(1:2*N,j)
         zr2=DiaSlope%Zpd2(1:2*N,j)
-        if (((iflag-mod(iflag,10))/10) == 0) then    ! no central node
-         call SplineEval(0,r,z,zr2,L2,u,g,gr,grr)  !first parameter = 0 nonperiodic
-        endif
-        if (((iflag-mod(iflag,10))/10) == 1) then    !non-periodic center node radial spline
-         call SplineEvalCenter(j,r,z,zr2,L2,u,g,gr,grr)
-        endif
         if (mod(iflag,10) == 0) then     ! no integration
+         if (((iflag-mod(iflag,10))/10) == 0) then    ! no central node
+          call SplineEval(0,r,z,zr2,L2,u,g,gr,grr)  !first parameter = 0 nonperiodic
+         endif
+         if (((iflag-mod(iflag,10))/10) == 1) then    !non-periodic center node radial spline
+          call SplineEvalCenter(j,r,z,zr2,L2,u,g,gr,grr)
+         endif
          fTmp(j)=g
         else  !iflag=1 or 2
+         call SplineEval(0,r,z,zr2,L2,u,gr,grr)
          if (mod(iflag,10) == 2) then     !cubic integration
           call CubicSplineQuad(j,iflag,r,z,zr2,L2,0._wp,g0)
           call CubicSplineQuad(j,iflag,r,z,zr2,L2,u,g)
@@ -86,4 +84,4 @@
         endif
 
         RETURN
-        END SUBROUTINE SplineEval1Dx1D
+        END
