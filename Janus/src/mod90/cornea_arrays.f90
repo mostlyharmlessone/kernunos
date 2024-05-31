@@ -1,5 +1,5 @@
 MODULE cornea_arrays
-
+! defines arrays and functions ued for corneal topography
  USE set_precision, ONLY : wp
  USE LapackInterface, ONLY : dgetrf, dgetrs, dgesv, dsyev
  USE spline_interfaces 

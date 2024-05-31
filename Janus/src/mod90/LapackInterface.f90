@@ -51,6 +51,7 @@
          Real(wp), Intent(INOUT) ::  B( ldb, * )
         END SUBROUTINE DCBSV
 
+!        These are all actual LAPACK functions
          SUBROUTINE DSYEV( JOBZ, UPLO, N, A, LDA, W, WORK, LWORK, INFO )
 !     .. Scalar Arguments ..
          CHARACTER          JOBZ, UPLO

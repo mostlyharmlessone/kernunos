@@ -1,5 +1,6 @@
  subroutine ConvertOFFtoSTL_C(INAME,ONAME) bind(C,name='ConvertOFFtoSTL_C_')
 ! Reads OFF file created by WriteOFF and generates ASCII and binary STL files 
+! default is ASCII without color, ONAME ending in ".bin.stl" will generate a binary STL file with a Solidworks color attribute.
 ! modified to be called from C/C++   
  !   https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal
  !   https://en.wikipedia.org/wiki/STL_(file_format)
@@ -108,6 +109,7 @@
   allocate(character(nblines) :: file_from_C)
   file_from_C=trim(new_path)
 
+! file_idx will be zero if .bin.stl is not in the filename, ie only ONAME with .bin.stl in it will result in a binary file
   file_idx=index(file_from_C, ".bin.stl")
     
 !  Convert to ASCII or binary STL

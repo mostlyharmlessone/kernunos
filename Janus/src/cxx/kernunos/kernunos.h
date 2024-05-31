@@ -18,7 +18,7 @@ extern char *filename;
 extern bool success;
 extern bool paintme;
 
-//how very Fortran that these need to be static & global
+//how very annoying thatvthese need to be extern & global, but unfortunately cannot then be static
 extern int nV;
 extern int nE;
 extern std::vector<GLuint> Elements;

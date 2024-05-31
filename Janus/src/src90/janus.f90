@@ -5,6 +5,7 @@
   use cornea_arrays
   use special_fct
   use io_functions
+  use spline_interfaces
   use variableKind
   use, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
   use c_interfaces, ONLY : LogC, Ccounter, ConvertPLYtoBIN
@@ -39,6 +40,8 @@
   integer, allocatable :: IPIV(:)
   real(wp) :: ctr_circle_x, ctr_circle_y, R_Talus, Theta_Talus, X_global, Y_global
 
+! default until changed by new file
+MM=180; N=22 ; Testdata =-2 !these used to be in cornea_arrays and were static==implicitly saved
 write(*,*) 'flag to Fortran:',flag
 write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
 dat=(flag-mod(flag,1000000))/1000000 ! first two digits
@@ -48,9 +51,14 @@ fct=mod(((flag-mod(flag,10000))/10000),100)
 write(*,*) 'fct to Fortran:',fct
 map=mod((flag-mod(flag,100))/100,100)
 write(*,*) 'color(map) to Fortran:',map
-! there's a better way with mod
+! iflag passing of dat to SplineEval1Dx1D centernode splines and integration of splines
 ! first digit iflag-mod(iflag,10))/10
 ! second digit mod(iflag,10)
+!btest(dat, 2)     T   F
+!
+!              T  12  11
+!btest(dat,0)
+!              F  02  01
 if (btest(dat, 2)) then
  if (btest(dat,0)) then
   iflag=12
@@ -174,7 +182,6 @@ file_idx=index(inputfile1, ".ply")
  END SELECT
  endif
   write(*,*) 'powctr,POWMIN,POWMAX',powctr,POWMIN,POWMAX
-
   call WriteGeomPLY(flag,JMatrix,donut,powmin,powmax,inputfile1)
   write(*,*) 'Wrote ply file...',inputfile1
   return
@@ -230,7 +237,6 @@ file_idx=index(inputfile1, ".off")
  END SELECT
  endif
   write(*,*) 'powctr,POWMIN,POWMAX',powctr,POWMIN,POWMAX
-
   call WriteGeomOFF(flag,JMatrix,donut,powmin,powmax,inputfile1)
   write(*,*) 'Wrote off file...',inputfile1
   return
@@ -241,7 +247,7 @@ else
 endif
 endif
 
-! last two digits of flag == 0 Import file and compute JMatrix, RAdSlope, etc.
+! last two digits of flag == 0 parse file name, assign TestData type  and MM,N
 if (mod(flag,100) == 0) then
  call CCounter(0)
 ! From either RA?.? or XX?.?, set inputfile1 to the XX version, inputfile1 to the RA version.
@@ -321,8 +327,11 @@ if (mod(flag,100) == 0) then
     TestData=0 ; MM=360; N=16   ! EyeSys
     write(*,*) "EyeSys files: ",inputfile1," ",inputfile2
    endif
+endif ! (mod(flag,100) == 0) parsing the file name
 
-  call CPU_TIME(time_start)
+
+! allocate JMatrix needed for file import
+! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous
   if (allocated(RadSlope%r)) then
    write(*,*) 'Radslope,DiaSlope need to be reallocated'
    RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
@@ -330,9 +339,7 @@ if (mod(flag,100) == 0) then
   else
    call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
   endif
-  call CPU_TIME(time_end)
-  write(*,*) 'Time to allocate memory: ',(time_end-time_start)*1000 
-
+!  JMatrix is 180x22 to make importing from Atlas easier.
    M1=180
    N1=22
    if (allocated(JMatrix%R)) then
@@ -370,6 +377,7 @@ if (mod(flag,100) == 0) then
      call init_mat_JMatrix(M1,N1,JMatrix)
   endif
 
+if (mod(flag,100) == 0) then !read the files
  if (TestData .eq. 0) then
 ! READ THE EYESYS DATA
 ! XX????? ARE THE AXIAL DIST. RX???? ARE THE MIRE RADII  
@@ -397,132 +405,8 @@ if (mod(flag,100) == 0) then
    call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)
  endif
 
- if ((TestData .eq. 1) .or. (TestData .eq. 0)) then
-   DiaSlope=RadSlope              ! move to diagonal format
-   DiaSlope%Zpd2 = .n. DiaSlope
-   if (btest(dat, 0) ) then               ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-    call MakeRadSplineCenter       ! find local maximum of each meridional spline
-    call DiaSplineCenter(DiaSlope) ! re-spline, with center node
-   endif
-   if (btest(dat, 1)) then               ! moving each meridian to align curves
-    call MakeRadSplineCenter       ! find local maximum of each meridional spline
-    call AdjustRadSplineCenter     ! changes r only
-    DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
-   endif
-
-
-
-write(*,*) 'test0'
-    write(*,*) JMatrix%SAGC(:,90)
-    call MakeRadSplineCenter       ! find local maximum of each meridional spline
-    write (*,*) RadSplineCenter(1,:)
-write(*,*) 'test0'
-
-
-!  make round rings and if needed convert 360x16 to 180x22 
-   ! donut
-   rBo=7.0
-   rBi=0.05*rBo 
-   ! min and max bounds                             
-   JMatrix%SAGC0(2)=1E30   ;  JMatrix%SAGC0(3)=-1E30
-   JMatrix%Z0(2)=1E30      ;  JMatrix%Z0(3)=-1E30
-   JMatrix%INSTC0(2)=1E30  ;  JMatrix%INSTC0(3)=-1E30
-   JMatrix%INSTC20(2)=1E30 ;  JMatrix%INSTC20(3)=-1E30
-   JMatrix%MEANC0(2)=1E30  ;  JMatrix%MEANC0(3)=-1E30
-   JMatrix%MONGEA0(2)=1E30 ;  JMatrix%MONGEA0(3)=-1E30
-   JMatrix%R0=0 ; JMatrix%THT0=0
-   do i=1,M1
-    ITH=2*(i-1)                             ! every 2 degrees
-    JMatrix%THT(i)=PI*ITH/180.0_wp
-    if (TestData .eq. 0) then 
-     JMatrix%MV(i)=MIN(RadSlope%MV(2*i),RadSlope%MV(2*i-1))  ! close to real boundary
-    else  ! TestData == 1 and MM==180
-     JMatrix%MV(i)=RadSlope%MV(i)
-    endif
-    do j=1,N1                             ! does not include center point
-     if (i > (M1/2) ) then
-      JMatrix%R(j,i)=100*((1-j)*(rBo-rBi)/(N1-1)-rBi)
-     else
-      JMatrix%R(j,i)=100*((j-1)*(rBo-rBi)/(N1-1)+rBi)
-     endif
-
-     if ( Testdata .eq. 1 ) then  ! check on AD,Z and POW consistency before overwriting JMatrix/Atlas values
-      call SplineEval1Dx1D(iflag,Atlas%AD(i,j),JMatrix%THT(i),Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
-      call AXIALP(Atlas%AD(i,j),YPR,YP2R2,POW)
-!      write(*,*) 'check on Atlas consistency: ',JMatrix%SAGC(j,i),POW
-!      JMatrix%Z(j,i)-Y
-     endif
-
-     call SplineEval1Dx1D(iflag,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
-!    save for vertex normals     
-     JMatrix%YPR(j,i)=YPR
-     JMatrix%YPTHETA(j,i)=YPTHETA
-     call AXIALP(JMatrix%R(j,i),YPR,YP2R2,JMatrix%SAGC(j,i))
-     call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i),JMatrix%INSTC2(j,i))
-     call MEANP(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
-     call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
-!    find min and max
-     if (JMatrix%Z(j,i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z(j,i)
-     if (JMatrix%Z(j,i) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z(j,i)
-     if (JMatrix%SAGC(j,i) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC(j,i)
-     if (JMatrix%SAGC(j,i) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC(j,i)
-     if (JMatrix%INSTC(j,i) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC(j,i)
-     if (JMatrix%INSTC(j,i) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC(j,i)
-     if (JMatrix%INSTC2(j,i) <= JMatrix%INSTC20(2)) JMatrix%INSTC20(2)=JMatrix%INSTC2(j,i)
-     if (JMatrix%INSTC2(j,i) >= JMatrix%INSTC20(3)) JMatrix%INSTC20(3)=JMatrix%INSTC2(j,i)
-     if (JMatrix%MEANC(j,i) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC(j,i)
-     if (JMatrix%MEANC(j,i) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC(j,i)
-     if (JMatrix%MONGEA(j,i) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA(j,i)
-     if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
-    end do
-   end do
-
-!  wipe the slate
-   if (Testdata .eq. 1) then
-     Atlas=0
-   endif
-   RadSlope=0
-   DiaSlope=0
-   deallocate(RadSplineCenter)
-!  reinitialize
-   call init_mat(M1,N1,RadSlope,DiaSlope,RadSplineCenter)
-   call RadSlope_eq_JMatrix(RadSlope,JMatrix)
-   MM=180
-   N=22
-   DiaSlope=RadSlope              ! move to diagonal format
-   DiaSlope%Zpd2 = .n. DiaSlope
-   if (btest(dat, 0) ) then               ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-     call MakeRadSplineCenter       ! find local maximum of each meridional spline
-     call DiaSplineCenter(DiaSlope) ! re-spline, with center node
-   endif
-   if (btest(dat, 1)) then               ! moving each meridian to align curves
-     call MakeRadSplineCenter       ! find local maximum of each meridional spline
-     call AdjustRadSplineCenter     ! changes r only
-     DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
-   endif
-
-
-
-write(*,*) 'test'
-    write(*,*) JMatrix%SAGC(:,90)
-    call MakeRadSplineCenter       ! find local maximum of each meridional spline
-        write (*,*) RadSplineCenter(1,:)
-write(*,*) 'test'
-
-
-
-
-!  These are the spline centers of the elevations
-   call MakeRadSplineCenter
-!  WriteCenter shows where the spline of slopes is zero, it should be close to zero for a concave center with a unique maximum
-   call WriteCenter(RadSlope,'Center.dat')! biggest deviation with nSplineCenter zero slope forced at origin, 
-                                             ! then with zero slope forced at average (r(low)+r(high))/2.0
-                                             ! smallest deviation without nSplineCenter; view with set polar; plot 'Center.dat' with lines
-!   call execute_command_line ("gnuplot -p plotcenter.gnu &", exitstat=i)
-  endif  !(TestData .eq. 1) .or. (TestData .eq. 0) !EyeSys or Atlas
-
 ! READ THE PENTACAM DATA
-  if (TestData .ge. 2 .AND. TestData .le. 5) then
+ if (TestData .ge. 2 .AND. TestData .le. 5) then
 ! ELE are elevations CUR are "sagittal" curvatures in a 141x141 -7 to 7 mm square -1 is no data
 ! .ELE.CSV or .CUR.CSV versions have less text but use semicolons (;) instead of -1
    call init_mat_Penta(NP,Penta,Skyline)   !allocate the PentaCam matices
@@ -538,79 +422,173 @@ write(*,*) 'test'
    write(*,*) 'Time to convert Penta: ',(time_end-time_start)*1000
    Penta = 0              ! deallocate
    Skyline = 0
+   !!!!!!!!!check to make sure this isn't done by RadSlope_eq_Skyline
+   if (TestData.eq.2 .or. TestData.eq.4) then ! ELE or ELE.CSV PentaCam files, put elevation into Zp for splining
     do i=1,MM
-    do j=1,RadSlope%MV(i)
-      if (TestData.eq.2 .or. TestData.eq.4) then ! put elevation into Zp for splining
+     do j=1,RadSlope%MV(i)
        RadSlope%Zp(j,i)=JMatrix%Z(j,i)
-      endif
      end do
     end do
-   DiaSlope=RadSlope              ! move to diagonal format
-   DiaSlope%Zpd2 = .n. DiaSlope
-   if (btest(dat, 0) ) then               ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-     call MakeRadSplineCenter       ! find local maximum of each meridional spline
-     call DiaSplineCenter(DiaSlope) ! re-spline, with center node
    endif
-   if (btest(dat, 1)) then               ! moving each meridian to align curves
-     call MakeRadSplineCenter       ! find local maximum of each meridional spline
-     call AdjustRadSplineCenter     ! changes r only
-     DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
-   endif
-   call MakeRadSplineCenter                                   
-   call WriteCenter(RadSlope,'Center.dat')
-!   call execute_command_line ("gnuplot -p plotcenter.gnu &", exitstat=i)
-   if (TestData.eq.2 .or. TestData.eq.4) then  ! no valid data from Skyline=Penta
-    JMatrix%SAGC0(2)=1E30  ;  JMatrix%SAGC0(3)=-1E30
-   endif
-   JMatrix%INSTC0(2)=1E30  ;  JMatrix%INSTC0(3)=-1E30
-   JMatrix%INSTC20(2)=1E30 ;  JMatrix%INSTC20(3)=-1E30
-   JMatrix%MEANC0(2)=1E30  ;  JMatrix%MEANC0(3)=-1E30
-   JMatrix%MONGEA0(2)=1E30 ;  JMatrix%MONGEA0(3)=-1E30
-   do i=1,MM
-    do j=1,RadSlope%MV(i)
-!    SplineEval1Dx1D works on values in DiaSlope
-     if (TestData.eq.3 .or. TestData.eq.5) then  ! already have SAGC from .CUR and .CUR.CSV
-      call SplineEval1Dx1D(iflag,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
-     else  !TestData.eq.2 .or. TestData.eq.4
-      if (btest(dat,0)) then
-       call SplineEval1Dx1D(10,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)  !do not integrate for ELE version with slope
-      else
-       call SplineEval1Dx1D(0,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)  !do not integrate for ELE version with slope
-      endif
-      call AXIALP(JMatrix%R(j,i),YPR,YP2R2,JMatrix%SAGC(j,i))  !generate SAGC
-     endif
-!    save for vertex normals     
-     JMatrix%YPR(j,i)=YPR
-     JMatrix%YPTHETA(j,i)=YPTHETA     
-     call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i),JMatrix%INSTC2(j,i))
-     call MEANP(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
-     call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
-!    find min and max
-     if (TestData.eq.2 .or. TestData.eq.4) then  ! no valid data from Skyline=Penta
-      if (JMatrix%SAGC(j,i) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC(j,i)
-      if (JMatrix%SAGC(j,i) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC(j,i)
-     endif
-     if (JMatrix%INSTC(j,i) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC(j,i)
-     if (JMatrix%INSTC(j,i) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC(j,i)
-     if (JMatrix%INSTC2(j,i) <= JMatrix%INSTC20(2)) JMatrix%INSTC20(2)=JMatrix%INSTC2(j,i)
-     if (JMatrix%INSTC2(j,i) >= JMatrix%INSTC20(3)) JMatrix%INSTC20(3)=JMatrix%INSTC2(j,i)
-     if (JMatrix%MEANC(j,i) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC(j,i)
-     if (JMatrix%MEANC(j,i) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC(j,i)
-     if (JMatrix%MONGEA(j,i) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA(j,i)
-     if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
-    end do
-   end do
  endif
 
-  if (TestData .ge. 0) then  ! all data files (not test) needs central values computed unless they already exist
-   if (TestData.eq.3 .or. TestData.eq.5 .or. TestData.eq.0 .or. TestData.eq.1) then
+! OR GENERATE Fake data (EYESYS,ATLAS OR PENTA STYLE)
+if (TestData .lt. 0) then
+   call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
+   call init_mat_Atlas(MM,N,Atlas)
+   call init_mat_Penta(NP,Penta,Skyline)   ! allocate the PentaCam matices
+   call RCNVRTT(MM,N,NP)
+!   uncomment next two lines to test fake Penta data
+   Skyline=Penta
+   call RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)  !needs Penta for border check populates RadSlope with ZFCT
+   if (MM == 360) then
+    call RadSlope_eq_EyeSys(RadSlope,EyeSys)
+    Atlas=RadSlope   ! total caca for fake data
+   endif
+   call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)
+    Penta = 0
+    EyeSys = 0
+ endif
+
+ endif !(mod(flag,100) == 0) reading the files and loading RadSlope
+
+if (mod(flag,100) == 4) then
+! Load RadSlope
+ call RadSlope_eq_JMatrix(RadSlope,JMatrix)
+endif
+
+! Make DiaSlope for spline evaluations below
+DiaSlope=RadSlope              ! move to diagonal format
+DiaSlope%Zpd2 = .n. DiaSlope
+!  These are the spline centers of the elevations
+call MakeRadSplineCenter         ! find local maximum of each meridional spline
+if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+  call DiaSplineCenter(DiaSlope) ! re-spline, with center node
+endif
+if (btest(dat, 1)) then          ! moving each meridian to align curves
+  call AdjustRadSplineCenter     ! changes r only
+  DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+endif
+
+
+! Populates the whole JMatrix
+! Make JMatrix
+!  make round rings and if needed convert 360x16 to 180x22
+  ! donut
+  rBo=7.0
+  rBi=0.05*rBo
+  ! min and max bounds
+  JMatrix%SAGC0(2)=1E30   ;  JMatrix%SAGC0(3)=-1E30
+  JMatrix%Z0(2)=1E30      ;  JMatrix%Z0(3)=-1E30
+  JMatrix%INSTC0(2)=1E30  ;  JMatrix%INSTC0(3)=-1E30
+  JMatrix%INSTC20(2)=1E30 ;  JMatrix%INSTC20(3)=-1E30
+  JMatrix%MEANC0(2)=1E30  ;  JMatrix%MEANC0(3)=-1E30
+  JMatrix%MONGEA0(2)=1E30 ;  JMatrix%MONGEA0(3)=-1E30
+  JMatrix%R0=0 ; JMatrix%THT0=0
+  do i=1,M1
+   ITH=2*(i-1)                             ! every 2 degrees
+   JMatrix%THT(i)=PI*ITH/180.0_wp
+   if (TestData .eq. 0) then  ! MM=360 N=16
+    JMatrix%MV(i)=MIN(RadSlope%MV(2*i),RadSlope%MV(2*i-1))  ! close to real boundary
+   else  ! MM==180
+    JMatrix%MV(i)=RadSlope%MV(i)
+   endif
+   do j=1,N1                             ! does not include center point or ? do j=1,RadSlope%MV(i)
+    if (i > (M1/2) ) then
+     JMatrix%R(j,i)=100*((1-j)*(rBo-rBi)/(N1-1)-rBi)
+    else
+     JMatrix%R(j,i)=100*((j-1)*(rBo-rBi)/(N1-1)+rBi)
+    endif
+
+!!!!Testdata only defined if mod(flag,100)==0
+    if ( Testdata .eq. 1 ) then  ! check on AD,Z and POW consistency before overwriting JMatrix/Atlas values
+     call SplineEval1Dx1D(iflag,Atlas%AD(i,j),JMatrix%THT(i),Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
+     call AXIALP(Atlas%AD(i,j),YPR,YP2R2,POW)
+!      write(*,*) 'check on Atlas consistency: ',JMatrix%SAGC(j,i),POW
+!      JMatrix%Z(j,i)-Y
+    endif
+
+!   SplineEval1Dx1D works on values in DiaSlope
+    if (TestData.ne.2 .and. TestData.ne.4) then  ! already have SAGC from .CUR and .CUR.CSV
+     call SplineEval1Dx1D(iflag,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
+    else  !TestData.eq.2 .or. TestData.eq.4  !ELE and ELE.CSV files use elevation
+     if (btest(dat,0)) then
+      call SplineEval1Dx1D(10,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)  !do not integrate for ELE version
+     else
+      call SplineEval1Dx1D(0,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)  !do not integrate for ELE version
+     endif
+    endif
+
+
+!   save for vertex normals
+    JMatrix%YPR(j,i)=YPR
+    JMatrix%YPTHETA(j,i)=YPTHETA
+    call AXIALP(JMatrix%R(j,i),YPR,YP2R2,JMatrix%SAGC(j,i))
+    call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i),JMatrix%INSTC2(j,i))
+    call MEANP(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
+    call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
+!    find min and max
+    if (JMatrix%Z(j,i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z(j,i)
+    if (JMatrix%Z(j,i) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z(j,i)
+    if (JMatrix%SAGC(j,i) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC(j,i)
+    if (JMatrix%SAGC(j,i) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC(j,i)
+    if (JMatrix%INSTC(j,i) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC(j,i)
+    if (JMatrix%INSTC(j,i) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC(j,i)
+    if (JMatrix%INSTC2(j,i) <= JMatrix%INSTC20(2)) JMatrix%INSTC20(2)=JMatrix%INSTC2(j,i)
+    if (JMatrix%INSTC2(j,i) >= JMatrix%INSTC20(3)) JMatrix%INSTC20(3)=JMatrix%INSTC2(j,i)
+    if (JMatrix%MEANC(j,i) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC(j,i)
+    if (JMatrix%MEANC(j,i) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC(j,i)
+    if (JMatrix%MONGEA(j,i) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA(j,i)
+    if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
+   end do
+  end do  
+  if (TestData .lt. 0 .or. TestData .eq. 1) then
+   if (allocated(Atlas%AR)) then
+    Atlas = 0
+   endif
+  endif
+!  Calculate center values for everything
+!  These have MM different values of the center!
+!  Reset these has no more need for EyeSys RadSlope
+  MM=180
+  N=22
+  RadSlope=0
+  DiaSlope=0
+  deallocate(RadSplineCenter)
+!  reinitialize with MM and N
+  call init_mat(M1,N1,RadSlope,DiaSlope,RadSplineCenter)
+  call RadSlope_eq_JMatrix(RadSlope,JMatrix)
+  DiaSlope=RadSlope              ! move to diagonal format
+  DiaSlope%Zpd2 = .n. DiaSlope
+!   These are the spline centers of the elevations
+  call MakeRadSplineCenter         ! find local maximum of each meridional spline
+  if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+    call DiaSplineCenter(DiaSlope) ! re-spline, with center node
+  endif
+  if (btest(dat, 1)) then          ! moving each meridian to align curves
+    call AdjustRadSplineCenter     ! changes r only
+    DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+  endif
+
+
+! WriteCenter
+! WriteCenter shows where the spline of slopes is zero, it should be close to zero for a concave center with a unique maximum
+  call WriteCenter(RadSlope,'Center.dat')! biggest deviation with nSplineCenter zero slope forced at origin,
+                                            ! then with zero slope forced at average (r(low)+r(high))/2.0
+                                            ! smallest deviation without nSplineCenter; view with set polar; plot 'Center.dat' with lines
+!   call execute_command_line ("gnuplot -p plotcenter.gnu &", exitstat=i)
+
+
+!  Z0
+   if (TestData.ne.2 .and. TestData.ne.4) then
     do i=1,MM
      call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%Z0(1))  !center value of elevation; needs integration from slopes
     end do
    endif  !TestData.eq.2 .or. TestData.eq.4  already has valid Z0 from cornea_arrays & ELE file
 
+!  SAGC0
    if (TestData.ne.3 .and. TestData.ne.5) then  !TestData.eq.3 .or. TestData.eq.5  already has valid SAGC0 from cornea_arrays & CUR file
-!  Reload RadSlope & re-spline
+!  Reload RadSlope with SAGC & re-spline; can't compute it from surface because ill-defined at origin
     do i=1,MM
      do j=1,RadSlope%MV(i)
       RadSlope%Zp(j,i)=JMatrix%SAGC(j,i)
@@ -618,12 +596,12 @@ write(*,*) 'test'
     end do
     DiaSlope=RadSlope              ! move to diagonal format
     DiaSlope%Zpd2 = .n. DiaSlope
-    if (btest(dat, 0) ) then               ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-      call MakeRadSplineCenter       ! find local maximum of each meridional spline
+!   These are the spline centers of the elevations
+    call MakeRadSplineCenter         ! find local maximum of each meridional spline
+    if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
       call DiaSplineCenter(DiaSlope) ! re-spline, with center node
     endif
-    if (btest(dat, 1)) then               ! moving each meridian to align curves
-      call MakeRadSplineCenter       ! find local maximum of each meridional spline
+    if (btest(dat, 1)) then          ! moving each meridian to align curves
       call AdjustRadSplineCenter     ! changes r only
       DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
     endif
@@ -635,27 +613,8 @@ write(*,*) 'test'
     endif
     end do
    endif
-   call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
-  else  
-! OR GENERATE Fake data (EYESYS,ATLAS OR PENTA STYLE)
 
-   call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
-   call init_mat_Atlas(MM,N,Atlas)
-   call init_mat_Penta(NP,Penta,Skyline)   ! allocate the PentaCam matices   
-   call RCNVRTT(MM,N,NP)
-!   uncomment next two lines to test fake Penta data
-   Skyline=Penta
-   call RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)  !needs Penta for border check populates RadSlope with ZFCT
-   if (MM == 360) then
-    call RadSlope_eq_EyeSys(RadSlope,EyeSys) 
-    Atlas=RadSlope   ! total caca
-   endif    
-   call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)
-    Penta = 0
-    EyeSys = 0
- endif
-
-!  Calculate center values for everything but Z0,SAGC0 (already done)
+!  INSTC0
 !  Reload RadSlope & respline
    do i=1,MM
     do j=1,RadSlope%MV(i)
@@ -664,122 +623,101 @@ write(*,*) 'test'
    end do
    DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope
-   if (btest(dat, 0) ) then               ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-     call MakeRadSplineCenter       ! find local maximum of each meridional spline
-     call DiaSplineCenter(DiaSlope) ! re-spline, with center node
+!  These are the spline centers of the elevations
+   call MakeRadSplineCenter         ! find local maximum of each meridional spline
+   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+    call DiaSplineCenter(DiaSlope) ! re-spline, with center node
    endif
-   if (btest(dat, 1)) then               ! moving each meridian to align curves
-     call MakeRadSplineCenter       ! find local maximum of each meridional spline
-     call AdjustRadSplineCenter     ! changes r only
-     DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+   if (btest(dat, 1)) then          ! moving each meridian to align curves
+    call AdjustRadSplineCenter     ! changes r only
+    DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
    endif
    do i=1,MM
-   if (btest(dat,0)) then
-    call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC0(1))  ! center value
-   else
-    call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC0(1))  ! center value
+    if (btest(dat,0)) then
+     call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC0(1))  ! center value
+    else
+     call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC0(1))  ! center value
    endif
-   end do
-   call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
+  end do
 
-!  Reload RadSlope & respline
-   do i=1,MM
-    do j=1,RadSlope%MV(i)
-     RadSlope%Zp(j,i)=JMatrix%INSTC2(j,i)
-    end do
+! INSTC20
+! Reload RadSlope & respline
+  do i=1,MM
+   do j=1,RadSlope%MV(i)
+    RadSlope%Zp(j,i)=JMatrix%INSTC2(j,i)
    end do
-   DiaSlope=RadSlope              ! move to diagonal format
-   DiaSlope%Zpd2 = .n. DiaSlope
-   if (btest(dat, 0) ) then               ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-     call MakeRadSplineCenter       ! find local maximum of each meridional spline
-     call DiaSplineCenter(DiaSlope) ! re-spline, with center node
-   endif
-   if (btest(dat, 1)) then               ! moving each meridian to align curves
-     call MakeRadSplineCenter       ! find local maximum of each meridional spline
-     call AdjustRadSplineCenter     ! changes r only
-     DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
-   endif
-   do i=1,MM
+  end do
+  DiaSlope=RadSlope              ! move to diagonal format
+  DiaSlope%Zpd2 = .n. DiaSlope
+! These are the spline centers of the elevations
+  call MakeRadSplineCenter         ! find local maximum of each meridional spline
+  if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+   call DiaSplineCenter(DiaSlope) ! re-spline, with center node
+  endif
+  if (btest(dat, 1)) then          ! moving each meridian to align curves
+   call AdjustRadSplineCenter     ! changes r only
+   DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+  endif
+  do i=1,MM
    if (btest(dat,0)) then
     call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC20(1))  ! center value
    else
     call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC20(1))  ! center value
    endif
+  end do
+
+! MEANC0
+! Reload RadSlope & respline
+  do i=1,MM
+   do j=1,RadSlope%MV(i)
+    RadSlope%Zp(j,i)=JMatrix%MEANC(j,i)
    end do
-   call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
-!  Reload RadSlope & respline
-   do i=1,MM
-    do j=1,RadSlope%MV(i)
-     RadSlope%Zp(j,i)=JMatrix%MEANC(j,i)
-    end do
-   end do
-   DiaSlope=RadSlope              ! move to diagonal format
-   DiaSlope%Zpd2 = .n. DiaSlope
-   if (btest(dat, 0) ) then               ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-     call MakeRadSplineCenter       ! find local maximum of each meridional spline
-     call DiaSplineCenter(DiaSlope) ! re-spline, with center node
-   endif
-   if (btest(dat, 1)) then               ! moving each meridian to align curves
-     call MakeRadSplineCenter       ! find local maximum of each meridional spline
-     call AdjustRadSplineCenter     ! changes r only
-     DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
-   endif
-   do i=1,MM
+  end do
+  DiaSlope=RadSlope              ! move to diagonal format
+  DiaSlope%Zpd2 = .n. DiaSlope
+! These are the spline centers of the elevations
+  call MakeRadSplineCenter         ! find local maximum of each meridional spline
+  if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+   call DiaSplineCenter(DiaSlope) ! re-spline, with center node
+  endif
+  if (btest(dat, 1)) then          ! moving each meridian to align curves
+   call AdjustRadSplineCenter     ! changes r only
+   DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+  endif
+  do i=1,MM
    if (btest(dat,0)) then
     call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%MEANC0(1))  ! center value
    else
     call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%MEANC0(1))  ! center value
    endif
+  end do
+
+! MONGEA0
+! Reload RadSlope & respline
+  do i=1,MM
+   do j=1,RadSlope%MV(i)
+    RadSlope%Zp(j,i)=JMatrix%MONGEA(j,i)
    end do
-   call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
-!  Reload RadSlope & respline
-   do i=1,MM
-    do j=1,RadSlope%MV(i)
-     RadSlope%Zp(j,i)=JMatrix%MONGEA(j,i)
-    end do
-   end do
-   DiaSlope=RadSlope              ! move to diagonal format
-   DiaSlope%Zpd2 = .n. DiaSlope
-   if (btest(dat, 0) ) then               ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-     call MakeRadSplineCenter       ! find local maximum of each meridional spline
-     call DiaSplineCenter(DiaSlope) ! re-spline, with center node
-   endif
-   if (btest(dat, 1)) then               ! moving each meridian to align curves
-     call MakeRadSplineCenter       ! find local maximum of each meridional spline
-     call AdjustRadSplineCenter     ! changes r only
-     DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
-   endif
-   do i=1,MM
+  end do
+  DiaSlope=RadSlope              ! move to diagonal format
+  DiaSlope%Zpd2 = .n. DiaSlope
+! These are the spline centers of the elevations
+  call MakeRadSplineCenter         ! find local maximum of each meridional spline
+  if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+   call DiaSplineCenter(DiaSlope) ! re-spline, with center node
+  endif
+  if (btest(dat, 1)) then          ! moving each meridian to align curves
+   call AdjustRadSplineCenter     ! changes r only
+   DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+  endif
+  do i=1,MM
    if (btest(dat,0)) then
     call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%MONGEA0(1))  ! center value
    else
     call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%MONGEA0(1))  ! center value
-   endif
-   end do
-   call RadSlope_eq_JMatrix(RadSlope,JMatrix)                        ! restore RadSlope
-  
-  allocate (MV(MM))
-  MV(:)=RadSlope%MV(:) ! store a copy
-
-! simple difference/subtraction the second time through
-  if (allocated(JMatrix1%R)) then
-! skip this for now
-if (.false.) then
-     JMatrix%SAGC(:,:)=ABS(JMatrix1%SAGC(:,:)-JMatrix%SAGC(:,:))
-     JMatrix%INSTC(:,:)=ABS(JMatrix1%INSTC(:,:)-JMatrix%INSTC(:,:))
-     JMatrix%INSTC2(:,:)=ABS(JMatrix1%INSTC2(:,:)-JMatrix%INSTC2(:,:))
-     JMatrix%MEANC(:,:)=ABS(JMatrix1%MEANC(:,:)-JMatrix%MEANC(:,:))
-     JMatrix%MONGEA(:,:)=ABS(JMatrix1%MONGEA(:,:)-JMatrix%MONGEA(:,:))
-     JMatrix%Z0(:)=ABS(JMatrix1%Z0(:)-JMatrix%Z0(:))
-     JMatrix%SAGC0(:)=ABS(JMatrix1%SAGC0(:)-JMatrix%SAGC0(:))
-     JMatrix%INSTC0(:)=ABS(JMatrix1%INSTC0(:)-JMatrix%INSTC0(:))
-     JMatrix%INSTC20(:)=ABS(JMatrix1%INSTC20(:)-JMatrix%INSTC20(:))
-     JMatrix%MEANC0(:)=ABS(JMatrix1%MEANC0(:)-JMatrix%MEANC0(:))
-     JMatrix%MONGEA0(:)=ABS(JMatrix1%MONGEA0(:)-JMatrix%MONGEA0(:))
- endif
   endif
+ end do
 
-endif !(mod(flag,100) == 0)
 
 !Zernike coefficents
 if (mod(flag,100) == 1) then
@@ -800,12 +738,12 @@ call LogC("Starting Zernike computation"//c_null_char)
    end do
    DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope
-   if (btest(dat, 0) ) then               ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-     call MakeRadSplineCenter       ! find local maximum of each meridional spline
+   !  These are the spline centers of the elevations
+   call MakeRadSplineCenter         ! find local maximum of each meridional spline
+   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
      call DiaSplineCenter(DiaSlope) ! re-spline, with center node
    endif
-   if (btest(dat, 1)) then               ! moving each meridian to align curves
-     call MakeRadSplineCenter       ! find local maximum of each meridional spline
+   if (btest(dat, 1)) then          ! moving each meridian to align curves
      call AdjustRadSplineCenter     ! changes r only
      DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
    endif
@@ -973,18 +911,34 @@ endif  ! end of flag=1
 !  use fillarray to fill DiaSlope Zp with calculated value based on IuseG, optionally generate LIOC
 !  using SplineEval1Dx1D to refill a new matrix RadSlope using f0, derivatives to get calculated powers
 
-   call RadSlope_eq_JMatrix(RadSlope,JMatrix)
-   DiaSlope=RadSlope
-   DiaSlope%Zpd2 = .n. DiaSlope
-   if (btest(dat, 0) ) then               ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-     call MakeRadSplineCenter       ! find local maximum of each meridional spline
-     call DiaSplineCenter(DiaSlope) ! re-spline, with center node
-   endif
-   if (btest(dat, 1)) then               ! moving each meridian to align curves
-     call MakeRadSplineCenter       ! find local maximum of each meridional spline
-     call AdjustRadSplineCenter     ! changes r only
-     DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
-   endif
+
+
+
+
+allocate (MV(MM))
+MV(:)=RadSlope%MV(:) ! store a copy
+
+! simple difference/subtraction the second time through
+if (allocated(JMatrix1%R)) then
+! skip this for now
+if (.false.) then
+  JMatrix%SAGC(:,:)=ABS(JMatrix1%SAGC(:,:)-JMatrix%SAGC(:,:))
+  JMatrix%INSTC(:,:)=ABS(JMatrix1%INSTC(:,:)-JMatrix%INSTC(:,:))
+  JMatrix%INSTC2(:,:)=ABS(JMatrix1%INSTC2(:,:)-JMatrix%INSTC2(:,:))
+  JMatrix%MEANC(:,:)=ABS(JMatrix1%MEANC(:,:)-JMatrix%MEANC(:,:))
+  JMatrix%MONGEA(:,:)=ABS(JMatrix1%MONGEA(:,:)-JMatrix%MONGEA(:,:))
+  JMatrix%Z0(:)=ABS(JMatrix1%Z0(:)-JMatrix%Z0(:))
+  JMatrix%SAGC0(:)=ABS(JMatrix1%SAGC0(:)-JMatrix%SAGC0(:))
+  JMatrix%INSTC0(:)=ABS(JMatrix1%INSTC0(:)-JMatrix%INSTC0(:))
+  JMatrix%INSTC20(:)=ABS(JMatrix1%INSTC20(:)-JMatrix%INSTC20(:))
+  JMatrix%MEANC0(:)=ABS(JMatrix1%MEANC0(:)-JMatrix%MEANC0(:))
+  JMatrix%MONGEA0(:)=ABS(JMatrix1%MONGEA0(:)-JMatrix%MONGEA0(:))
+endif
+endif
+
+
+
+
    LinesOfCurv='LIOC.CAR'
 
 !  Generate LIOC with vector format
@@ -1048,12 +1002,12 @@ BigPlot='BIG.CAR'
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)  
    DiaSlope=RadSlope            
    DiaSlope%Zpd2 = .n. DiaSlope
-   if (btest(dat, 0) ) then               ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-     call MakeRadSplineCenter       ! find local maximum of each meridional spline
+   !  These are the spline centers of the elevations
+   call MakeRadSplineCenter         ! find local maximum of each meridional spline
+   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
      call DiaSplineCenter(DiaSlope) ! re-spline, with center node
    endif
-   if (btest(dat, 1)) then               ! moving each meridian to align curves
-     call MakeRadSplineCenter       ! find local maximum of each meridional spline
+   if (btest(dat, 1)) then          ! moving each meridian to align curves
      call AdjustRadSplineCenter     ! changes r only
      DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
    endif

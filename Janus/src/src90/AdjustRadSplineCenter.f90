@@ -1,4 +1,5 @@
 !     shifts each meridional curve over by the deviation of the maximum from the origin 
+!     relies on MakeRadSplineCenter
       subroutine AdjustRadSplineCenter 
       USE cornea_arrays, ONLY : DiaSlope, RadSlope, RadSplineCenter
       USE set_precision, ONLY : wp

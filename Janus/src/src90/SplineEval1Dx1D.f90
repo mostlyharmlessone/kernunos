@@ -1,7 +1,7 @@
       subroutine SplineEval1Dx1D(iflag,u,v,f,fr,ft,frt,frr,ftt) 
       USE cornea_arrays, ONLY : DiaSlope, RadSlope
       USE set_precision, ONLY : wp
-      USE spline_interfaces, ONLY : pspli, SplineEval, trapez, CubicSplineQuad
+      USE spline_interfaces, ONLY : pspli, SplineEval, SplineEvalCenter, trapez, CubicSplineQuad
       USE special_fct, ONLY : OPERATOR(.p.) !tensor summation convention      
       use,intrinsic :: ieee_arithmetic
       implicit none

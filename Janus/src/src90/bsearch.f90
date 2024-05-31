@@ -1,3 +1,4 @@
+! binary search for r in rv
 subroutine bsearch(r,rv,n,high,low)
  use set_precision, only : wp
 integer, intent(in) :: n
@@ -7,7 +8,7 @@ integer m
  low=1
  high=n
  if ( n < 1 ) then
-  write(*,*) 'Error in bsearch, n < 1',n
+  write(*,*) 'FATAL Error in bsearch, n < 1',n
   stop
  endif
  if ( rv(n) > rv(1) ) then  ! forward ordered vector, lowest to highest

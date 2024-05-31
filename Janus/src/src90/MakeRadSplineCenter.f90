@@ -12,7 +12,7 @@
         L2=DiaSlope%L2(j)
         r=DiaSlope%rd(1:2*N,j)
         z=DiaSlope%Zpd(1:2*N,j)
-        zr2=DiaSlope%Zpd2(1:2*N,j)        
+        zr2=DiaSlope%Zpd2(1:2*N,j)
         call SplineCenter(r,z,zr2,L2,w)
         RadSplineCenter(1,j)=w
 !       odd as it seems, each angle j is also angle L since we're on a diagonal 

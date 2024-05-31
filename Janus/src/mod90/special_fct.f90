@@ -1,5 +1,8 @@
 module special_fct
-
+! vector and matrix functions
+! color functions
+! zernike functions
+! string replacement function
 use set_precision, ONLY : wp
 use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
 use, intrinsic ::  ieee_arithmetic
@@ -374,7 +377,7 @@ pure recursive function replaceStr(string,search,substitute) result(modifiedStri
     end function replaceStr
 
 !! epsilon & factorial functions
-
+! needed for zernike functions
 function eps2(m) result(e) !eps2(0)=2, eps2(m)=1 m /=0
  INTEGER :: e
  INTEGER, INTENT(IN) :: m

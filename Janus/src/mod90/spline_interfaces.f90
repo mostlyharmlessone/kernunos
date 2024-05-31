@@ -2,7 +2,10 @@ module spline_interfaces
  ! alphabetical order
  ! gathering all the interfaces of spline subprograms not in a module
  INTERFACE
-      
+
+ subroutine AdjustRadSplineCenter
+ end subroutine AdjustRadSplineCenter
+
  subroutine bsearch(r,rv,n,high,low)
   use set_precision, only : wp
   integer, intent(in) :: n
@@ -35,19 +38,19 @@ module spline_interfaces
  real(wp), INTENT(IN) ::  z(n)
  real(wp), INTENT(OUT) :: z2(n)
  end subroutine
+
+subroutine pspli(t,z,n,zt2)
+ use set_precision, only :  wp
+  REAL(wp), intent(in) :: t(*),z(*)
+  INTEGER, intent(in) :: n
+  REAL(wp), intent(out) ::zt2(n)
+end subroutine
  
  subroutine SplineCenter(r,z,zr2,n,u)
  use set_precision, only : wp
   integer, INTENT(IN) :: n
   real(wp), INTENT(IN) ::  r(n),z(n),zr2(n)
   real(wp), INTENT(OUT) :: u
- end subroutine
-
- subroutine pspli(t,z,n,zt2)
-  use set_precision, only :  wp
-   REAL(wp), intent(in) :: t(*),z(*)
-   INTEGER, intent(in) :: n
-   REAL(wp), intent(out) ::zt2(n)
  end subroutine
       
  subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)

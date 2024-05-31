@@ -87,8 +87,8 @@
 using namespace QtConcurrent;
 
 // global settings
-const unsigned int SCR_WIDTH = 600;
-const unsigned int SCR_HEIGHT = 400;
+const unsigned int SCR_WIDTH = 800;
+const unsigned int SCR_HEIGHT = 600;
 
 // flag xxxxxxxx dat,fct,map,action
 // first two digits are Placido disk data fillin and/or center-node tweaks
@@ -328,8 +328,9 @@ void MainWindow::open()   //multiple invocations makes a comparison
 {
    ui.infoLabel->setText(tr("Invoked <b>File|Open</b>"));
    flag=flag-(flag%100)+0;  // last two digits of flag=0; need to reset this
-   QString filter = "All (*.*);;PentaCam (*.CUR *.ELE *.CUR.CSV *.ELE.CSV);;EyeSys (*.DAT);;Atlas (*.CSV)";
-   QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
+// note that the Atlas CSV filter is non-specific and will include all CSV files
+   QString filter = "All (*);;PentaCam (*.CUR *.ELE *.CUR.CSV *.ELE.CSV);;EyeSys (RA*.* XX*.*);;Atlas (*.CSV)";
+   static QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
    if (fileName.isEmpty())
        return;
    QByteArray ba = fileName.toLocal8Bit();
@@ -389,8 +390,9 @@ void MainWindow::compare()    //right now this doesn't do anything but direct ou
 {
    ui.infoLabel->setText(tr("Invoked <b>File|Compare</b>"));
 
-   QString filter = "All (*.*);;PentaCam (*.CUR *.ELE *.CUR.CSV *.ELE.CSV);;EyeSys (*.DAT);;Atlas (*.CSV)";
-   QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
+    // note that the Atlas CSV filter is non-specific and will include all CSV files
+    QString filter = "All (*);;PentaCam (*.CUR *.ELE *.CUR.CSV *.ELE.CSV);;EyeSys (RA*.* XX*.*);;Atlas (*.CSV)";
+    QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
    if (fileName.isEmpty())
        return;
    QByteArray ba = fileName.toLocal8Bit();
@@ -403,12 +405,35 @@ void MainWindow::compare()    //right now this doesn't do anything but direct ou
 
 void MainWindow::redraw(){
    flag=flag-(flag%100)+4;  // last two digits of flag=4;
-   std::thread([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);}).detach();
+
+//    make sure we redefine all terms!!!!!!!!!!!!!!!!!!!!!
+
+    //these are all random and not preserved after the first call despite being global, perhaps I need to declare them static wtf
+    // that's also why in the new janus version MM is wiped clean, because there's no file description to preserve it and it isn't redeclared
+    std::cout << "zern nV,nE: "<< "\n";
+    std :: cout << nV << "\n";
+    std :: cout << nE << "\n";
+    QString fileName = "redraw";
+    QByteArray ba = fileName.toLocal8Bit();
+    filename = ba.data();
+
+ //   std::thread([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);}).detach();
+   janus_(&flag, filename, elements, vertices, &nV, &nE);
    return;}
 
 void MainWindow::zern()
 {
     flag=flag-(flag%100)+1;  // last two digits of flag=1;
+
+    //these are all random and not preserved after the first call despite being global, perhaps I need to declare them static wtf
+    // that's also why in the new janus version MM is wiped clean, because there's no file description to preserve it and it isn't redeclared
+    std::cout << "zern nV,nE: "<< "\n";
+    std :: cout << nV << "\n";
+    std :: cout << nE << "\n";
+    QString fileName = "zern";
+    QByteArray ba = fileName.toLocal8Bit();
+    filename = ba.data();
+
     std::thread([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);}).detach();
     Z44VerticalQuatrafoilAct->setEnabled(true);
     Z42Vertical2ndAstigAct->setEnabled(true);

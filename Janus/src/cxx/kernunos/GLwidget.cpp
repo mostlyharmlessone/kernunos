@@ -325,7 +325,7 @@ bool GLwidget::DataPrint(QString fileName)
   filename = ba.data();
 
   if (!((flag%100) == 0)){
-    // reload values to avoid seg fault if previous nV and nE are too small
+    // reload values to avoid seg fault if previous nV and nE are too small.. and besides, they're not static!
     nV=51840;
     nE=26130;
 
@@ -380,7 +380,7 @@ bool GLwidget::DataLoad(QString fileName, bool first_time)  //first_time->cube
 
     if (!first_time)
      {
-      // reload values to avoid seg fault if previous nV and nE are too small
+      // reload values to avoid seg fault if previous nV and nE are too small.. and besides, they're not static, nor can they be!
       nV=51840;
       nE=26130;
 
@@ -420,7 +420,7 @@ bool GLwidget::DataLoad(QString fileName, bool first_time)  //first_time->cube
       nV=nV_cube;
       nE=nE_cube;
       //arrays have to be assigned this way vertices=cube_vertices only works in the same scope
-      //fortran array handling seems a lot more consistently intuitive
+      //fortran array handling seems a lot more consistently intuitive, to say nothing of the whole static idiocy in c++
       for (int i=0; i<= nV; ++i){
       vertices[i]=cube_vertices[i];
       }
