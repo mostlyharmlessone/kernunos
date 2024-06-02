@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.26)
 cmake_policy(VERSION 3.26)
+set (CMAKE_Fortran_COMPILER_ID "gfortran")
+set (CMAKE_Fortran_COMPILER "gfortran")
+set (CMAKE_C_COMPILER "gcc")
 
 project(kernunos VERSION 0.1.0 LANGUAGES C CXX Fortran)
 set(CMAKE_MODULE_PATH cmake)
@@ -16,8 +19,6 @@ enable_language(C)
 #set(CMAKE_SYSTEM_VERSION 10.0)
 
 # these don't override system environment, unfortunately
-set (CMAKE_Fortran_COMPILER_ID "gfortran")
-set (CMAKE_Fortran_COMPILER "gfortran")
 set (FC "gfortran")
 set (CXX "g++")
 set (CC "gcc")

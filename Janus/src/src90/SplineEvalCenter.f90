@@ -1,4 +1,4 @@
-! centerpoint version
+! centerpoint version, radial spline + extrapolation, needs radial meridian ii
 subroutine SplineEvalCenter(ii,x,y,y2,n,u,f,fp,fpp,fppp)
  USE set_precision, ONLY : wp
  USE cornea_arrays, ONLY : RadSplineCenter

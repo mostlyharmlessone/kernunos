@@ -330,7 +330,7 @@ void MainWindow::open()   //multiple invocations makes a comparison
    flag=flag-(flag%100)+0;  // last two digits of flag=0; need to reset this
 // note that the Atlas CSV filter is non-specific and will include all CSV files
    QString filter = "All (*);;PentaCam (*.CUR *.ELE *.CUR.CSV *.ELE.CSV);;EyeSys (RA*.* XX*.*);;Atlas (*.CSV)";
-   static QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
+   QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
    if (fileName.isEmpty())
        return;
    QByteArray ba = fileName.toLocal8Bit();
@@ -405,18 +405,11 @@ void MainWindow::compare()    //right now this doesn't do anything but direct ou
 
 void MainWindow::redraw(){
    flag=flag-(flag%100)+4;  // last two digits of flag=4;
-
-//    make sure we redefine all terms!!!!!!!!!!!!!!!!!!!!!
-
-    //these are all random and not preserved after the first call despite being global, perhaps I need to declare them static wtf
-    // that's also why in the new janus version MM is wiped clean, because there's no file description to preserve it and it isn't redeclared
-    std::cout << "zern nV,nE: "<< "\n";
-    std :: cout << nV << "\n";
-    std :: cout << nE << "\n";
+    nV=51840;
+    nE=26130;
     QString fileName = "redraw";
     QByteArray ba = fileName.toLocal8Bit();
     filename = ba.data();
-
  //   std::thread([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);}).detach();
    janus_(&flag, filename, elements, vertices, &nV, &nE);
    return;}
@@ -424,16 +417,11 @@ void MainWindow::redraw(){
 void MainWindow::zern()
 {
     flag=flag-(flag%100)+1;  // last two digits of flag=1;
-
-    //these are all random and not preserved after the first call despite being global, perhaps I need to declare them static wtf
-    // that's also why in the new janus version MM is wiped clean, because there's no file description to preserve it and it isn't redeclared
-    std::cout << "zern nV,nE: "<< "\n";
-    std :: cout << nV << "\n";
-    std :: cout << nE << "\n";
+    nV=51840;
+    nE=26130;
     QString fileName = "zern";
     QByteArray ba = fileName.toLocal8Bit();
     filename = ba.data();
-
     std::thread([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);}).detach();
     Z44VerticalQuatrafoilAct->setEnabled(true);
     Z42Vertical2ndAstigAct->setEnabled(true);

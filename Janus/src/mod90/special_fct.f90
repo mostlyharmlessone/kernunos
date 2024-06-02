@@ -244,7 +244,7 @@ function hsbrgb(x,minimum, maximum) result(rgbv)
     call jucolor('hsv',hue,sat,bright,'rgb',rr,gg,bb,stat)
     if (stat.ne.0) then
      rgbv=(/255,255,255/)  ! out of range or error = white
-     write (*,*) 'Error in hsbrgb', stat, rr,gg,bb
+     write (*,*) 'Error in hsbrgb', stat,hue,x,minimum,maximum
     endif
     rgbv(1) = min(255,int(2.55*rr))
     rgbv(2) = min(255,int(2.55*gg))

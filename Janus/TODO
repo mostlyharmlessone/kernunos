@@ -1,0 +1,7 @@
+things to do
+  
+2-D splining
+
+Investigate:
+Passing an assumed-shape array or array pointer to an explicit-shape array can slow run-time performance. https://www.cita.utoronto.ca/~merz/intel_f10b/main_for/mergedProjects/optaps_for/fortran/optaps_prg_arrs_f.htm
+Spline routines seem to have explicit shape, and are passed possibly assumed-shape

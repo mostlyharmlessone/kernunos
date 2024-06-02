@@ -1,3 +1,4 @@
+! no center point version, periodic/natural/optional radial extrapolation
 subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
  USE set_precision, ONLY : wp
  USE cornea_arrays, ONLY : PI

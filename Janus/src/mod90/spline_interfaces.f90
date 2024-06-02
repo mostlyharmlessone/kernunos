@@ -20,8 +20,10 @@ module spline_interfaces
   real(wp), INTENT(OUT) :: z
  end subroutine 
 
- subroutine MakeRadSplineCenter 
- USE set_precision, ONLY : wp
+ subroutine MakeRadSplineCenter(dat)
+  use, INTRINSIC :: iso_c_binding, ONLY : c_int
+  use set_precision, ONLY : wp
+  integer(c_int), INTENT(IN) :: dat
  end subroutine
 
  subroutine nspline(r,z,n,z2)
@@ -32,11 +34,11 @@ module spline_interfaces
  end subroutine
 
  subroutine nsplineCenter(ii,r,z,n,z2)
- use set_precision, only : wp
- integer, INTENT(IN) :: ii,n
- real(wp), INTENT(IN) ::  r(n)
- real(wp), INTENT(IN) ::  z(n)
- real(wp), INTENT(OUT) :: z2(n)
+  use set_precision, only : wp
+  integer, INTENT(IN) :: ii,n
+  real(wp), INTENT(IN) ::  r(n)
+  real(wp), INTENT(IN) ::  z(n)
+  real(wp), INTENT(OUT) :: z2(n)
  end subroutine
 
 subroutine pspli(t,z,n,zt2)
@@ -46,9 +48,11 @@ subroutine pspli(t,z,n,zt2)
   REAL(wp), intent(out) ::zt2(n)
 end subroutine
  
- subroutine SplineCenter(r,z,zr2,n,u)
+ subroutine SplineCenter(dat,jj,r,z,zr2,n,u)
  use set_precision, only : wp
-  integer, INTENT(IN) :: n
+ use, INTRINSIC :: iso_c_binding, ONLY : c_int
+  integer(c_int), INTENT(IN) :: dat
+  integer, INTENT(IN) :: n,jj
   real(wp), INTENT(IN) ::  r(n),z(n),zr2(n)
   real(wp), INTENT(OUT) :: u
  end subroutine
