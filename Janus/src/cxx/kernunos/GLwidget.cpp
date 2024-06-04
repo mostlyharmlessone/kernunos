@@ -421,6 +421,9 @@ bool GLwidget::DataLoad(QString fileName, bool first_time)  //first_time->cube
       nE=nE_cube;
       //arrays have to be assigned this way vertices=cube_vertices only works in the same scope
       //fortran array handling seems a lot more consistently intuitive, to say nothing of the whole static idiocy in c++
+      // however in non-DEBUG compilation the program fails to load data without error or crash and has the following warnings
+      // warning: iteration 72 (36 in the elements loop) invokes undefined behavior [-Waggressive-loop-optimizations]
+      // and void*_builtin_memcpy(void*,const void*,long unsigned int) reading 292 bytes froma region of size 288 (or 148 from 144 in the elements loop)
       for (int i=0; i<= nV; ++i){
       vertices[i]=cube_vertices[i];
       }

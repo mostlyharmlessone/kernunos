@@ -461,29 +461,24 @@ if (mod(flag,100) == 4 .or. mod(flag,100) == 1) then
 endif
 
 
-if (.false.) then !skip for now
+
 !btest(dat, 3),btest(dat, 4)
 !  R is not constant; they're not circles, so splining along the curve gives curvatures that
 !  are not orthogonal to R, nor z2(deriv of theta)  probably best not to do this
  ! partial Atlas or full Atlas via FILL IN MISSING RING DATA USING CIRCUMFERENTIAL SPLINES
-    call CPU_TIME(time_start)
 !    call fillin2 ! fills in AP and AR
 !    Atlas%AR2 = .n. Atlas ! fills in second derivatives of r=Atlas%AR, easy to modify to fill in AR like fillin2
 !    Atlas%AR = .n. Atlas ! fills in Atlas%AR  also need to modify commented line in fillin in cornea_arrays
-    Atlas%AR = lsqfill(Atlas) ! uses lsq fit with cosine series instead of spline
-    call CPU_TIME(time_end)
-    t(3)=time_end-time_start
-    write(*,*) 'Time to run fillin: ',t(3)*1000
+!    Atlas%AR = lsqfill(Atlas) ! uses lsq fit with cosine series instead of spline
 !  filling in AR is better by LSQ fit in missing section; look at these intersecting rings using
 !  gnuplot plot 'datafile dumped with >' u 1:2  (don't set polar) first option, or splot second option
-   do j=1,N
-    do i=1,MM
+!   do j=1,N
+!    do i=1,MM
 !     write(*,*) Atlas%DEG(i),Atlas%AR(i,j)
 !     write(*,*) Atlas%AR(i,j)*COS(PI*Atlas%DEG(i)/180.0),Atlas%AR(i,j)*SIN(PI*Atlas%DEG(i)/180.0),0
-    end do
+ !   end do
 !    write(*,*) ' '
-   end do
-endif
+!   end do
 
 
 ! Populates the JMatrix

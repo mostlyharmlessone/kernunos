@@ -37,7 +37,8 @@ if(CMAKE_Fortran_COMPILER MATCHES "gfortran")
  #     set(-pg)    
 #  src profiling with gcov -a -b xxx.f90
 #     set(-g -coverage) 
-    set(optimize "-O3 -march=native -ffast-math -funroll-loops")
+#     set(-Wno-deprecated-declarations)
+    set(optimize "-march=native -ffast-math -fno-aggressive-loop-optimizations -fcheck=all")
 endif()
 if(CMAKE_Fortran_COMPILER MATCHES "Intel")
     set(dialect "-stand f08 -free -implicitnone")
@@ -57,8 +58,8 @@ if(CMAKE_VERSION VERSION_LESS "3.7.0")
     set(CMAKE_INCLUDE_CURRENT_DIR ON)    
 endif()
 
-#set(CMAKE_BUILD_TYPE RELEASE) # no debug or bounds check
-set(CMAKE_BUILD_TYPE DEBUG) #this include debugging with addition of bounds flags as specified below
+set(CMAKE_BUILD_TYPE RELEASE) # no debug or bounds check
+#set(CMAKE_BUILD_TYPE DEBUG) #this include debugging with addition of bounds flags as specified below
 set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${bounds}")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${dialect}")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS_RELEASE} ${optimize}")
@@ -132,6 +133,7 @@ SET(Qt6_DIR "/usr/lib/x86_64-linux-gnu/qt6")
 find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets OpenGL)
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Charts OpenGLWidgets OpenGL Widgets)
 find_package(Qt6 COMPONENTS Concurrent REQUIRED)
+
 #GTK4
 find_package (PkgConfig REQUIRED)
 pkg_check_modules(GTK4 REQUIRED gtk4)
@@ -144,6 +146,7 @@ message(STATUS "----- GTK3_LINK_LIBRARIES: ${GTK3_LINK_LIBRARIES}")
 include_directories(${GTK3_INCLUDE_DIRS})
 link_directories(${GTK3_LIBRARY_DIRS})
 list(APPEND FC_DEP_LIBS ${GTK3_LIBRARIES})
+
 find_library(GFORTRAN_LIBRARY NAMES gfortran)  # trying to fix ISO_Fortran_binding.h not found error, doesn't solve it, might be Intel compiler only
 ADD_COMPILE_DEFINITIONS(ASSIMP_VERSION="${ASSIMP_VERSION}")
 find_package(BLAS)
@@ -294,7 +297,7 @@ include_directories(src/cxx/kernunos src/c/rply) # /usr/local/include/coretran)
                    boost_system
                    boost_filesystem
                    PUBLIC Qt6::Core Qt6::OpenGLWidgets Qt6::Gui Qt::Widgets Qt6::Charts Qt6::OpenGL
-                          assimp splia modules rply_includes ${LIBS} -Wno-deprecated-declarations     #doesn't do anything
+                          assimp splia modules rply_includes ${LIBS}
                )
 
 #if (BUILD_FOR_WIN)
