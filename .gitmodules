@@ -10,9 +10,6 @@
 [submodule "Janus/wxWidgets"]
 	path = Janus/wxWidgets
 	url = https://github.com/wxWidgets/wxWidgets
-[submodule "Janus/rply"]
-	path = Janus/rply
-	url = https://github.com/diegonehab/rply
 [submodule "Janus/libigl-example-project"]
 	path = Janus/libigl-example-project
 	url = https://github.com/libigl/libigl-example-project
