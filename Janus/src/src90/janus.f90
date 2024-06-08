@@ -55,7 +55,8 @@ map=mod((flag-mod(flag,100))/100,100)
 write(*,*) 'color(map) to Fortran:',map
 ! dat = first binary bit 0/1 centernode tweak ie btest(dat,0) = .true.
 ! dat = second binary bit 0/1 shift r-values tweak ie btest(dat,1) = .true.
-! dat = third binary bit 0/1 cubic spline integration (=1) vs trapezoidal rule (default = 0) integration of slopes for elevation ie btest(dat,2) = .true.
+! integration of slopes for elevation:
+! dat = third binary bit 0/1 cubic spline integration (=1)(ie btest(dat,2) = .true.) vs trapezoidal rule (default = 0)
 ! dat =fourth binary bit 0/1 fillin2 cannot be combined with splinefillin ie btest(dat,3) = .true.
 ! dat =fifth binary bit 0/1 splinefillin cannot be combined with lsqfillin ie btest(dat,4) = .true.
 
@@ -502,7 +503,7 @@ write(*,*) RadSplineCenter(1,:)
   ! donut
   rBo=7.0
   rBi=0.05*rBo
-  ! min and max bounds
+!  min and max bounds
   JMatrix%SAGC0(2)=1E30   ;  JMatrix%SAGC0(3)=-1E30
   JMatrix%Z0(2)=1E30      ;  JMatrix%Z0(3)=-1E30
   JMatrix%INSTC0(2)=1E30  ;  JMatrix%INSTC0(3)=-1E30

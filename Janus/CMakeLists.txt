@@ -33,12 +33,13 @@ if(CMAKE_Fortran_COMPILER MATCHES "gfortran")
      set(bounds "-fbounds-check")
      set(omp "-fopenmp")
      set(NaN "-Wall -Wextra -Wimplicit-interface -g -fcheck=all -fbacktrace -ffpe-trap=invalid,zero,overflow -finit-real=snan -finit-integer=-99999999")
+     set(NaN2 "-Wall -Wextra -Wimplicit-interface -g -fcheck=all -fbacktrace -ffpe-trap=invalid,zero,overflow -finit-real=snan -finit-integer=-99999999")
 #  profiling with gprof 
  #     set(-pg)    
 #  src profiling with gcov -a -b xxx.f90
 #     set(-g -coverage) 
 #     set(-Wno-deprecated-declarations)
-    set(optimize "-march=native -ffast-math -fno-aggressive-loop-optimizations -fcheck=all")
+    set(optimize "-fno-aggressive-loop-optimizations")
 endif()
 if(CMAKE_Fortran_COMPILER MATCHES "Intel")
     set(dialect "-stand f08 -free -implicitnone")
@@ -58,13 +59,18 @@ if(CMAKE_VERSION VERSION_LESS "3.7.0")
     set(CMAKE_INCLUDE_CURRENT_DIR ON)    
 endif()
 
-set(CMAKE_BUILD_TYPE RELEASE) # no debug or bounds check
-#set(CMAKE_BUILD_TYPE DEBUG) #this include debugging with addition of bounds flags as specified below
-set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${bounds}")
+#set(CMAKE_BUILD_TYPE RELEASE) # no debug or bounds check
+set(CMAKE_BUILD_TYPE DEBUG) #this include debugging with addition of bounds flags as specified below
+
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${dialect}")
-set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS_RELEASE} ${optimize}")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${omp}")
+
+set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${bounds}")
 set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${NaN}")
+
+#set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} ${optimize}")
+set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} ${bounds}")
+set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} ${NaN2}")
 
 set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_DEBUG_MODE 0) #set to 1 to show dependencies
 
