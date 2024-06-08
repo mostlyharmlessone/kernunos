@@ -7,17 +7,12 @@ USE cornea_arrays
  INTEGER, INTENT(IN) :: MM,N,NP
  REAL(wp) :: DIST,R,A,B,X,YP,POW,XDIST,YDIST,XX,YY,DX,DY,D,YT,YZ
 
-! EyeSys or Atlas Simulation data
+! fake EyeSys and PentaCam data, only works for MM=360
 
   RadSlope%MV=0.0_wp
   do i=1,MM
-    if (MM == 360) then
     EyeSys%DEG(i)=i-1
     RadSlope%thta(i)=PI*EyeSys%DEG(i)/180.0_wp
-    else  !MM == 180
-    Atlas%DEG(i)=2*i-1
-    RadSlope%thta(i)=PI*Atlas%DEG(i)/180.0_wp
-    endif
     do j=1,N+1     
 
 !     ROUND MIRES, SINGLE AXIAL POWER SPHERE    
@@ -70,11 +65,6 @@ USE cornea_arrays
         RadSlope%MV(i)=RadSlope%MV(i)+1             
         EyeSys%XX(i,j)=RFCT/POW
         EyeSys%RA(i,j)=DIST*100
-
-        Atlas%AR(I,J)=DIST
-        Atlas%AD(I,J)=DIST
-        Atlas%AP(I,J)=POW  
-        Atlas%AY(I,J)=YZ
        else
         write(*,*) 'error in RCNVRTT'  
        endif

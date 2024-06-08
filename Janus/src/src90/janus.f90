@@ -14,7 +14,7 @@
   integer :: i, j, k, ii, kk, m, i1, j1, thread, ierr, info, nrhs
   integer,save :: MM, N ,M1, N1, NN
   integer,save :: TestData             ! TestData: -1=test, 0=EyeSys, 1=Atlas, (2-5)=Penta
-  integer :: NP                        ! PentaCam=141
+  integer,save :: NP                        ! PentaCam=141
   integer :: unitno1, ITH
   character(c_char), INTENT(IN), DIMENSION(4096) :: file_from_C
   integer(c_int), INTENT(INOUT) :: flag
@@ -42,9 +42,9 @@
 
 write(*,*) 'flag to Fortran:',flag
 write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
-if (mod(flag,100) /= 0) then ! changed by new file, if there are previous values from last call, these are the exisiting values
+if (mod(flag,100) /= 0) then ! changed by new file, if there are previous values from last call, these are the existing values
  !these used to be in cornea_arrays and were static==implicitly saved, now they are locally saved
- write(*,*) 'MM,N,TestData: ',MM,N,TestData
+ write(*,*) 'previous MM,N,TestData: ',MM,N,TestData
 endif
 dat=(flag-mod(flag,1000000))/1000000 ! first two digits
 write(*,*) 'dat to Fortran:',dat
@@ -108,6 +108,18 @@ if (mod(flag,100) == 99) then
     endif
     if (allocated(RadSplineCenter)) then
      deallocate(RadSplineCenter)
+    endif
+    if (allocated(EyeSys%RA)) then
+     EyeSys=0
+    endif
+    if (allocated(Atlas%AR)) then
+     Atlas=0
+    endif
+    if (allocated(Penta%DAT)) then
+     Penta=0
+    endif
+    if (allocated(Skyline%DAT)) then
+     Skyline=0
     endif
     return
 endif
@@ -334,14 +346,6 @@ if (mod(flag,100) == 0) then
 
 
 ! allocate JMatrix needed for file import
-! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
-  if (allocated(RadSlope%r)) then
-   write(*,*) 'Radslope,DiaSlope need to be reallocated'
-   RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
-   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
-  else
-   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
-  endif
 !  JMatrix is 180x22 to make importing from Atlas easier.
    M1=180
    N1=22
@@ -380,89 +384,132 @@ if (mod(flag,100) == 0) then
      call init_mat_JMatrix(M1,N1,JMatrix)
   endif
 
-if (mod(flag,100) == 0) then !read the files
- if (TestData .eq. 0) then
+if (TestData .eq. 0) then
+ MM=360; N=16   ! EyeSys
+ ! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
+ if (allocated(RadSlope%r)) then
+  write(*,*) 'Radslope,DiaSlope need to be reallocated'
+  RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
+  call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
+ else
+  call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
+ endif
+ if(.not.allocated(EyeSys%RA)) then
+  call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
+ endif
+ if (mod(flag,100) == 0) then !read the files
 ! READ THE EYESYS DATA
 ! XX????? ARE THE AXIAL DIST. RX???? ARE THE MIRE RADII  
    call CPU_TIME(time_start)
-   call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
    read_error=0
    call RCNVRTE(inputfile2,inputfile1,read_error)
    call CPU_TIME(time_end)
    write(*,*) 'Time to read EyeSys files: ',(time_end-time_start)*1000
-!  Generate the slope matrix using ZFCT
    if (read_error > 0) return
-   RadSlope=EyeSys
-   EyeSys=0
+  endif  !(mod(flag,100) /= 0,99,2,3 must be 1 or 4, reload the original data
+! Generate the slope matrix using ZFCT
+  RadSlope=EyeSys
  endif
 
 ! READ THE ATLAS DATA
  if (TestData .eq. 1) then
-   call CPU_TIME(time_start)
+  MM=180; N=22   ! Atlas
+! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
+  if (allocated(RadSlope%r)) then
+   write(*,*) 'Radslope,DiaSlope need to be reallocated'
+   RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
+   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
+  else
+   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
+  endif
+  if(.not.allocated(Atlas%AR)) then
    call init_mat_Atlas(MM,N,Atlas)
+  endif
+  if (mod(flag,100) == 0) then !read the files
+   call CPU_TIME(time_start)
    read_error=0
    call RCNVRTA(inputfile1,read_error)
    call CPU_TIME(time_end)
    write(*,*) 'Time to read Atlas CSV file: ',(time_end-time_start)*1000
    if (read_error > 0) return
-   call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)
+  endif  !(mod(flag,100) /= 0,99,2,3 must be 1 or 4, reload the original data
+  call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)
  endif
 
 ! READ THE PENTACAM DATA
  if (TestData .ge. 2 .AND. TestData .le. 5) then
+  MM=180; N=22; NP=141   ! PentaCam
+! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
+  if (allocated(RadSlope%r)) then
+   write(*,*) 'Radslope,DiaSlope need to be reallocated'
+   RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
+   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
+  else
+   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
+  endif
+  if(.not.allocated(Penta%DAT)) then
+   call init_mat_Penta(NP,Penta,Skyline)   !allocate the PentaCam matices
+  endif
 ! ELE are elevations CUR are "sagittal" curvatures in a 141x141 -7 to 7 mm square -1 is no data
 ! .ELE.CSV or .CUR.CSV versions have less text but use semicolons (;) instead of -1
-   call init_mat_Penta(NP,Penta,Skyline)   !allocate the PentaCam matices
+  if (mod(flag,100) == 0) then ! read the files
    read_error=0
    call RCNVRTP(TestData,inputfile1,read_error)
    if (read_error > 0) return
 !  arrange the data
    call CPU_TIME(time_start)
-   Skyline=Penta
-!  convert to polar with splining; makes round rings as above with 180x22 - also already has either center value Z0(1) or SAGC0(1)
-   call RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)  !needs Penta for border check populates RadSlope with ZFCT
-   call CPU_TIME(time_end)
-   write(*,*) 'Time to convert Penta: ',(time_end-time_start)*1000
-   Penta = 0              ! deallocate
-   Skyline = 0
-   !!!!!!!!!check to make sure this isn't done by RadSlope_eq_Skyline
-   if (TestData.eq.2 .or. TestData.eq.4) then ! ELE or ELE.CSV PentaCam files, put elevation into Zp for splining
-    do i=1,MM
-     do j=1,RadSlope%MV(i)
-       RadSlope%Zp(j,i)=JMatrix%Z(j,i)
-     end do
+  endif  !(mod(flag,100) /= 0,99,2,3 must be 1 or 4, reload the original data
+  Skyline=Penta
+! convert to polar with splining; makes round rings as above with 180x22 - also already has either center value Z0(1) or SAGC0(1)
+  ! RadSlope_eq_Skyline puts elevation into JMatrix%Z(j,i) and possibly populates JMatrix%Z(j,i) with crap look at ca line 405
+  call RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)  !needs Penta for border check populates RadSlope with ZFCT
+  call CPU_TIME(time_end)
+  write(*,*) 'Time to convert Penta: ',(time_end-time_start)*1000
+  if (TestData.eq.2 .or. TestData.eq.4) then ! ELE or ELE.CSV PentaCam files, put elevation into Zp for splining
+   do i=1,MM
+    do j=1,RadSlope%MV(i)
+      RadSlope%Zp(j,i)=JMatrix%Z(j,i)
     end do
-   endif
+   end do
+  endif
  endif
 
 ! OR GENERATE Fake data (EYESYS,ATLAS OR PENTA STYLE)
 if (TestData .lt. 0) then
-   call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
+ MM=360; N=16   ! fake EyeSys
+! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
+ if (allocated(RadSlope%r)) then
+  write(*,*) 'Radslope,DiaSlope need to be reallocated'
+  RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
+  call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
+ else
+  call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
+ endif
+ if(.not.allocated(EyeSys%RA)) then
+  call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
+ endif
+  if(.not.allocated(Atlas%AR)) then
    call init_mat_Atlas(MM,N,Atlas)
-   call init_mat_Penta(NP,Penta,Skyline)   ! allocate the PentaCam matices
+  endif
+  if(.not.allocated(Penta%DAT)) then
+   call init_mat_Penta(NP,Penta,Skyline)   !allocate the PentaCam matices
+  endif
+  if (mod(flag,100) == 0) then !read the files
    call RCNVRTT(MM,N,NP)
-!   uncomment next two lines to test fake Penta data
-   Skyline=Penta
-   call RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)  !needs Penta for border check populates RadSlope with ZFCT
-   if (MM == 360) then
-    call RadSlope_eq_EyeSys(RadSlope,EyeSys)
-    Atlas=RadSlope   ! total caca for fake data
-   endif
-   call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)
-    Penta = 0
-    EyeSys = 0
+  endif  !(mod(flag,100) /= 0,99,2,3 must be 1 or 4, reload the original data  endif
+! uncomment next two lines to test fake Penta data
+  Skyline=Penta
+  call RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)  !needs Penta for border check populates RadSlope with ZFCT
+  if (MM == 360) then
+   RadSlope=EyeSys
+   Atlas=RadSlope   ! total caca for fake data
+  endif
+  call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)
  endif
 
-endif !(mod(flag,100) == 0) reading the files
+! ?good place for fillin tweaks
 
-! if the files were already read but not this time ?good place for filllin tweaks
-if (mod(flag,100) == 4 .or. mod(flag,100) == 1) then
-! Load RadSlope
- call RadSlope_eq_JMatrix(RadSlope,JMatrix)
-endif
-
-
-
+! fillin tweaks
 !btest(dat, 3),btest(dat, 4)
 !  R is not constant; they're not circles, so splining along the curve gives curvatures that
 !  are not orthogonal to R, nor z2(deriv of theta)  probably best not to do this
@@ -481,23 +528,23 @@ endif
 !    write(*,*) ' '
 !   end do
 
-
-! Populates the JMatrix
 ! Spline RadSlope
   DiaSlope=RadSlope              ! move to diagonal format
-  DiaSlope%Zpd2 = .n. DiaSlope
+  DiaSlope%Zpd2 = .n. DiaSlope   ! spline across center without tweaks
 
-call MakeRadSplineCenter(0)       ! this initial call should rely only on RadSlope, why is AdjustRadSplineCenter permanent?
+  call MakeRadSplineCenter(0)    ! capture the spline center deviations from unmodified RadSlope
 
-write(*,*) RadSplineCenter(1,:)
-
+! Have to do AdjustSlope tweak before centernode, since centernode essentially reduces RadSplineCenter(1,:) to 0
+  if (btest(dat, 1)) then         ! moving each meridian to align curves
+   call AdjustRadSplineCenter     ! changes r only in DiaSlope
+   DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+  endif
   if (btest(dat, 0) ) then        ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
    call DiaSplineCenter(DiaSlope) ! re-spline, with center node
   endif
-  if (btest(dat, 1)) then         ! moving each meridian to align curves
-   call AdjustRadSplineCenter     ! changes r only
-   DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
-  endif
+
+  call MakeRadSplineCenter(dat)        ! generates spline centers with tweaks
+
 ! Make JMatrix
 !  make round rings and if needed convert 360x16 to 180x22
   ! donut
@@ -590,15 +637,18 @@ write(*,*) RadSplineCenter(1,:)
    call RadSlope_eq_JMatrix(RadSlope,JMatrix)
    DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope
+
+   call MakeRadSplineCenter(0)     ! remakes RadSplineCenter(1,:)
+   if (btest(dat, 0) ) then        ! use nsplineCenter to force zero slope at origin,
+    call DiaSplineCenter(DiaSlope) ! re-spline, with center node
+                                   ! changes spline but requires SplineEvalCenter
+                                   ! remakes RadSplineCenter(2,:) and RadSplineCenter(3,:)
+   endif
+
    call MakeRadSplineCenter(dat)        ! this relies on JMatrix, not the original data in RadSlope from the file
 
 
-write(*,*) RadSplineCenter(1,:)
-
-
-   if (btest(dat, 0) ) then        ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-    call DiaSplineCenter(DiaSlope) ! re-spline, with center node
-   endif
+!  Should I do this again? and for each one?
    if (btest(dat, 1)) then         ! moving each meridian to align curves
     call AdjustRadSplineCenter     ! changes r only
     DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard

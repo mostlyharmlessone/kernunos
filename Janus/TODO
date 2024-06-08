@@ -1,6 +1,56 @@
 things to do
-  
+
+CorneaCopia
+
+branch cut or other calc error with Monge Astig and Mean curvature 
+
+extreme value filter for scales
+resurrect old noise reduction code?
+need lapack or open version of numrec fourn:  fftpack
+
+adjustsplinecenter permanent and works differently on original read than later
+works differently on JMatrix or RadSlope
+
+might need centerpoint version for pentacam has to incorporate center from Penta
+
+implement nsplineCenter; have to also
+save all center points not just theta=0
+change JMatrix and all assignments
+zc0 is ok, not by meridian
+
+move faq to help menu
+notes from spline.odt into help/faq
+
+windows and scaling: distance
+bounding box from above
+
+gnuplot stacked horizontal histogram p109? for zernike instead of chart
+
+decentration in test data, which needs fixing anyway
+
+rotation error/fixation-> measure by quality of fit to parabola in each meridian
+a tilted parabola is less of a parabola than a translated parabola when both fit to a centered parabola model?
+
+fake data from old version in ISIS
+
+Blender to make offset sphere data
+or using surface normals lighting 
+
+Fit elevation with
+Principal component analysis, meh 
+
+Adapt code in book to do LS-BICSA
 2-D splining
+
+get u12 keratograph (same as pentacam?) file and start bin->ASC with different assumptions, like uint32 or uint16
+can try rply.c code as starter; use hexdump to look at bin.ply as well as U12
+assuming 180  x  22 rings for the oculus keratograph
+
+valgrind/profiling can also try helegrind for cyclic 4 way slow down
+
+MSYS2 for Windows app build etc
+https://wiki.wxwidgets.org/Cross-Compiling_Under_Linux
+https://github.com/Zeranoe/mingw-w64-build
 
 Investigate:
 Passing an assumed-shape array or array pointer to an explicit-shape array can slow run-time performance. https://www.cita.utoronto.ca/~merz/intel_f10b/main_for/mergedProjects/optaps_for/fortran/optaps_prg_arrs_f.htm

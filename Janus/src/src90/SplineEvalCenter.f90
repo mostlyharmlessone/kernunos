@@ -76,12 +76,6 @@ subroutine SplineEvalCenter(ii,x,y,y2,n,u,f,fp,fpp,fppp)
    if (Present(fpp)) fpp = (AB.p.z2)  ! fpp=A*y2(i)+B*y2(i1) 
 !  3rd deriv 
    if (Present(fppp)) fppp = (dAB.p.z2) ! fppp=(y2(i1)-y2(i))/dr   
-
-!   IsInf=ieee_is_finite(fppp)
-!   If(.not.IsInf) then
-!    write(*,*) 'Error in SplineEval',ii,u,n,i1,i,z,z2
-!    return
-!   endif
                            
   return
 end subroutine SplineEvalCenter

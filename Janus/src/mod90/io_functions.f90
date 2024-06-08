@@ -182,7 +182,7 @@ subroutine rcnvrtp(TestData,filename,read_error)
            if (TestData.eq.4 .or. TestData.eq.5) then
              read(unitno1,'(A)',iostat=readerr) somecharacter
            endif
-            if (TestData.eq.2 .or. TestData.eq.3) then       
+           if (TestData.eq.2 .or. TestData.eq.3) then
             if (k <= 10 ) then
              read(unitno1,'(A,A,A,A)',iostat=readerr) matrixchar,iter1,equal,somecharacter
             endif
@@ -195,13 +195,15 @@ subroutine rcnvrtp(TestData,filename,read_error)
            endif
             if (k <= NP ) then
                if (readerr .eq. 0) then  ! reads till end of data matches
-                 read (somecharacter,*,iostat=readerr) (Penta%DAT(k,i),i=1,NP) !why doesn't this need a unitno?
+                 read (somecharacter,*,iostat=readerr) (Penta%DAT(k,i),i=1,NP) !somecharacter read from file above
+                 write(*,*) somecharacter
+                 write(*,*) Penta%DAT(k,:)
                endif  
              else
- !                  write(*,*) 'Read ',k-1,' rows from ',trim(filename)
- !                  do k=1,NP
- !                  write (*,*) 'Matrix ',k-1,'= ',Penta%DAT(:,k)
- !                 end do
+!                  write(*,*) 'Read ',k-1,' rows from ',trim(filename)
+!                  do k=1,NP
+!                   write (*,*) 'Matrix ',k-1,'= ',Penta%DAT(:,k)
+!                  end do
                exit  ! End of data         
              endif        
            end do 

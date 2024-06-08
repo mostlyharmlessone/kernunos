@@ -11,7 +11,7 @@
   real(wp), INTENT(OUT) :: u
   real(wp) :: g,gr,grr,slopeh,slopel
   integer :: high, low, j
-  
+
 ! bracket the origin between r values ange their indices
   call bsearch(0.0_wp,r,n,high,low)
  
@@ -23,7 +23,7 @@
   gr=2*g/(r(high)-r(low))
   do while ((j < 10) .AND. (ABS(g/gr) > eps)) ! no more than 10 iterations
    j=j+1
-! First time through RadSlopeCenter == 0
+! First time through RadSlopeCenter == 0 and dat == 0
   if (btest(dat, 0) ) then ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
    call SplineEvalCenter(jj,r,z,zr2,n,u,g,gr)
   else
