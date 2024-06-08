@@ -43,3 +43,6 @@
 [submodule "4935ae72bcbcc1ba5c72"]
 	path = 4935ae72bcbcc1ba5c72
 	url = https://gist.github.com/fairlight1337/4935ae72bcbcc1ba5c72.git
+[submodule "Janus/--force"]
+	path = Janus/--force
+	url = https://github.com/diegonehab/rply
