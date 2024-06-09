@@ -347,6 +347,7 @@ void MainWindow::open()   //multiple invocations makes a comparison
     centerAct->setEnabled(true);
    };
    redrawAct->setEnabled(true);
+   redrawOptionAct->setEnabled(true);
    gnuplotAct->setEnabled(true);
    liocAct->setEnabled(true);
    makeoffAct->setEnabled(true);
@@ -374,6 +375,7 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
            centerAct->setEnabled(true);
        };
        redrawAct->setEnabled(true);
+       redrawOptionAct->setEnabled(true);
        gnuplotAct->setEnabled(true);
        liocAct->setEnabled(true);
        makeoffAct->setEnabled(true);
@@ -785,6 +787,19 @@ void MainWindow::light()
         ui.infoLabel->setText(tr("Set <b>View:Lighting true</b>"));
    };
 }
+
+// Auto Redraw on all changes to tweaks or colors only (didn't include activating stanza for fcts)
+void MainWindow::redrawOption()
+{
+    if (GLwidget::isRedraw()) {
+        GLwidget::setRedraw(false);
+        ui.infoLabel->setText(tr("Set <b>View:Auto Redraw false</b>"));
+    } else {
+        GLwidget::setRedraw(true);
+        ui.infoLabel->setText(tr("Set <b>View:Auto Redraw true</b>"));
+    };
+}
+
 void MainWindow::normal()
 {
    if (GLwidget::isNormal()) {
@@ -1080,6 +1095,9 @@ void MainWindow::tweakcenterNode()
         GLwidget::setCenterNode(true);
         ui.infoLabel->setText(tr("Set <b>Tweak:Center Node true</b>"));
    };
+   if (GLwidget::isRedraw()) {
+       redraw();
+   };
 }
 
 void MainWindow::tweakadjustradii()
@@ -1090,6 +1108,9 @@ void MainWindow::tweakadjustradii()
    } else {
         GLwidget::setadjustradii(true);
         ui.infoLabel->setText(tr("Set <b>Tweak:Adjust radii true</b>"));
+   };
+   if (GLwidget::isRedraw()) {
+       redraw();
    };
 }
 
@@ -1102,6 +1123,9 @@ void MainWindow::tweakcubic()
         GLwidget::setcubic(true);
         ui.infoLabel->setText(tr("Set <b>Tweak:Cubic Spline Integration</b>"));
    };
+   if (GLwidget::isRedraw()) {
+       redraw();
+   };
 }
 void MainWindow::tweakLSQfill()
 {
@@ -1113,6 +1137,9 @@ void MainWindow::tweakLSQfill()
         GLwidget::setLSQfillin(true);
         SplinefillinAct->setChecked(GLwidget::isSplinefillin());
         ui.infoLabel->setText(tr("Set <b>Tweak:LSQ fillin true</b>"));
+   };
+   if (GLwidget::isRedraw()) {
+       redraw();
    };
 }
 
@@ -1127,6 +1154,9 @@ void MainWindow::tweakSplinefill()
         LSQfillinAct->setChecked(GLwidget::isLSQfillin());
         ui.infoLabel->setText(tr("Set <b>Tweak:Spline fillin true</b>"));
    };
+   if (GLwidget::isRedraw()) {
+       redraw();
+   };
 }
 
 void MainWindow::colorrgb2()
@@ -1139,6 +1169,9 @@ void MainWindow::colorrgb2()
         GLwidget::setrgb2(true);
         checkmapsflags();
         ui.infoLabel->setText(tr("Set <b>View:View:rgb2 true</b>"));
+   };
+   if (GLwidget::isRedraw()) {
+       redraw();
    };
 }
 
@@ -1153,6 +1186,9 @@ void MainWindow::colorrgb5()
         checkmapsflags();
         ui.infoLabel->setText(tr("Set <b>View:View:rgb5 true</b>"));
    };
+   if (GLwidget::isRedraw()) {
+       redraw();
+   };
 }
 
 void MainWindow::colorhsbrgb()
@@ -1165,6 +1201,9 @@ void MainWindow::colorhsbrgb()
         GLwidget::sethsbrgb(true);
         checkmapsflags();
         ui.infoLabel->setText(tr("Set <b>View:View:Hue Sat Brightness Map true</b>"));
+   };
+   if (GLwidget::isRedraw()) {
+       redraw();
    };
 }
 
@@ -1179,6 +1218,9 @@ void MainWindow::colorgplotpalette()
         checkmapsflags();
         ui.infoLabel->setText(tr("Set <b>View:View:gplot palette true</b>"));
    };
+   if (GLwidget::isRedraw()) {
+       redraw();
+   };
 }
 
 void MainWindow::colorUSSpalettefixed()
@@ -1191,6 +1233,9 @@ void MainWindow::colorUSSpalettefixed()
         GLwidget::setUSSfixed(true);
         checkmapsflags();
         ui.infoLabel->setText(tr("Set <b>View:View:USS Palette fixed range true</b>"));
+   };
+   if (GLwidget::isRedraw()) {
+       redraw();
    };
 }
 
@@ -1205,6 +1250,9 @@ void MainWindow::colorUSSpalette()
         checkmapsflags();
         ui.infoLabel->setText(tr("Set <b>View:View:USS Palette true</b>"));
    };
+   if (GLwidget::isRedraw()) {
+       redraw();
+   };
 }
 
 void MainWindow::colorPerceptualUniformfixed()
@@ -1218,6 +1266,9 @@ void MainWindow::colorPerceptualUniformfixed()
         checkmapsflags();
         ui.infoLabel->setText(tr("Set <b>View:View:Perceptually Uniform Palette fixed range true</b>"));
    };
+   if (GLwidget::isRedraw()) {
+       redraw();
+   };
 }
 
 void MainWindow::colorPerceptualUniformpalette()
@@ -1230,6 +1281,9 @@ void MainWindow::colorPerceptualUniformpalette()
         GLwidget::setperceptualuniformpalette(true);
         checkmapsflags();
         ui.infoLabel->setText(tr("Set <b>View:View:Perceptually Uniform Palette true</b>"));
+   };
+   if (GLwidget::isRedraw()) {
+       redraw();
    };
 }
 
@@ -1310,9 +1364,15 @@ void MainWindow::createActions()
    aboutAct->setStatusTip(tr("Show the application's About box"));
    connect(aboutAct, &QAction::triggered, this, &MainWindow::about);
 
-   redrawAct = new QAction(tr("&Redraw without reloading file"), this);
+   redrawAct = new QAction(tr("&Redraw"), this);
    redrawAct->setEnabled(false);
    connect(redrawAct, &QAction::triggered, this, &MainWindow::redraw);
+
+   redrawOptionAct = new QAction(tr("&Auto Redraw"), this);
+   redrawOptionAct->setEnabled(false);
+   connect(redrawOptionAct, &QAction::triggered, this, &MainWindow::redrawOption);
+   redrawOptionAct->setCheckable(true);
+   redrawOptionAct->setChecked(GLwidget::isRedraw());
 
    lightAct = new QAction(tr("&Lighting"), this);
    lightAct->setStatusTip(tr("Change the lighting in the window"));
@@ -1516,6 +1576,7 @@ void MainWindow::createMenus()
    exportMenu->addAction(importexportAct);
    fileMenu->addSeparator();
    fileMenu->addAction(exitAct);
+   menuBar()->addAction(redrawAct);
    analyzeMenu = menuBar()->addMenu(tr("&Analyze"));
    analyzeMenu->addAction(zernAct);
    analyzeMenu->addAction(liocAct);
@@ -1553,7 +1614,7 @@ void MainWindow::createMenus()
    colorMenu->addAction(PerceptualfixedAct);
    colorMenu->addAction(PerceptuallyUniformPaletteAct);
    viewMenu = menuBar()->addMenu(tr("&View"));
-   viewMenu->addAction(redrawAct);
+   viewMenu->addAction(redrawOptionAct);
    viewMenu->addAction(lightAct);
    viewMenu->addAction(normalAct);
    tweaksMenu = menuBar()->addMenu(tr("&Placido data tweaks"));

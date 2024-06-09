@@ -106,6 +106,9 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     static bool isLight() { return m_lighting; }
     static void setLight(bool t) { m_lighting = t; }
 
+    static bool isRedraw() { return m_redraw; }
+    static void setRedraw(bool t) { m_redraw = t; }
+
     static bool isCenterNode() { return m_centerNode; }
     static void setCenterNode(bool t) { m_centerNode = t;
       int dat=(flag-(flag%1000000))/1000000;
@@ -457,6 +460,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     static bool m_transparent;
     static bool m_normal;
     static bool m_lighting;
+    static bool m_redraw;
 
     static bool m_centerNode;
     static bool m_adjustradii;

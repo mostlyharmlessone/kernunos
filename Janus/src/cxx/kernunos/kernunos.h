@@ -89,6 +89,7 @@ private slots:
     void checkmapsflags();
     void checkfctsflags();
     void light();
+    void redrawOption();
     void about();
     void aboutQt();
     void updateResult();
@@ -194,7 +195,7 @@ private:
     QAction *importexportAct;
 
     QMenu *viewMenu;
-    QAction *redrawAct;
+    QAction *redrawOptionAct;
     QAction *lightAct;
     QAction *normalAct;
 
@@ -216,6 +217,8 @@ private:
     QAction *aboutQtAct;
     QAction *HelpAct;
     QLabel *infoLabel;
+
+    QAction *redrawAct;
 
 };
 

@@ -123,6 +123,7 @@ static const GLchar* fragmentColorNormal = R"glsl(
 bool GLwidget::m_transparent = false;
 bool GLwidget::m_normal = false;
 bool GLwidget::m_lighting = false;
+bool GLwidget::m_redraw = false;
 
 bool GLwidget::m_centerNode = false;
 bool GLwidget::m_adjustradii = false;
