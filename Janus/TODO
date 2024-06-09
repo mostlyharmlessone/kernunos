@@ -2,18 +2,12 @@ things to do
 
 CorneaCopia
 
-branch cut or other calc error with Monge Astig and Mean curvature 
-
-extreme value filter for scales
-resurrect old noise reduction code?
-need lapack or open version of numrec fourn:  fftpack
-
-adjustsplinecenter permanent and works differently on original read than later
-works differently on JMatrix or RadSlope
-
+some kind of error in ELE and _ELE.CSV files ? elevations put in as slopes?
 might need centerpoint version for pentacam has to incorporate center from Penta
 
-implement nsplineCenter; have to also
+
+branch cut or other calc error with Monge Astig and Mean curvature 
+
 save all center points not just theta=0
 change JMatrix and all assignments
 zc0 is ok, not by meridian
@@ -26,12 +20,15 @@ bounding box from above
 
 gnuplot stacked horizontal histogram p109? for zernike instead of chart
 
-decentration in test data, which needs fixing anyway
-
 rotation error/fixation-> measure by quality of fit to parabola in each meridian
 a tilted parabola is less of a parabola than a translated parabola when both fit to a centered parabola model?
 
 fake data from old version in ISIS
+decentration in test data, which needs fixing anyway
+
+extreme value filter for scales
+resurrect old noise reduction code?
+need lapack or open version of numrec fourn:  fftpack
 
 Blender to make offset sphere data
 or using surface normals lighting 

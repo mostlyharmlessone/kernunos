@@ -1,5 +1,8 @@
 module io_functions
 ! module for opening files sanely
+! these are for parsing input
+  integer, parameter :: MAX_LINE = 1000    ! max size of line input
+  character(MAX_LINE) :: line
 
    INTERFACE
 
@@ -106,8 +109,35 @@ module io_functions
     END SUBROUTINE
     
   END INTERFACE
- 
+
  contains
+
+! https://community.intel.com/t5/Intel-Fortran-Compiler/Trouble-reading-a-csv-file/m-p/1034136
+! modified to output formatted real, as unformatted reads with semicolons seem broken with the latest gcc-fortran/gfortran
+function getArg(n) result(argn)
+    implicit none
+    character(10) :: arg
+    real :: argn
+    integer :: n,i,j,count
+    j = 0
+    do count=1,n
+        i = j + 1
+        j = INDEX(line(i:),';')
+        if(j == 0) exit
+        j = j + i - 1
+    end do
+    if(j == 0) then
+        if(count == n) then
+            arg = line(i:)
+        else
+            arg = ' '
+        endif
+    else
+        arg = line(i:j-1)
+    endif
+        read(arg,'(F15.7)') argn
+end function getArg
+
   
  function get_new_fileunit() result (f)
  implicit none
@@ -125,8 +155,8 @@ end module io_functions
 
 subroutine rcnvrtp(TestData,filename,read_error)
 ! PENTACAM VERSION FOR ALL
- use io_functions, only : get_new_fileunit
- USE cornea_arrays, ONLY : Penta
+ use io_functions, only : get_new_fileunit,getArg,line
+ use cornea_arrays, ONLY : Penta
  implicit none
  character(len=*), intent(in) :: filename
  integer, intent(in) :: TestData
@@ -195,9 +225,23 @@ subroutine rcnvrtp(TestData,filename,read_error)
            endif
             if (k <= NP ) then
                if (readerr .eq. 0) then  ! reads till end of data matches
-                 read (somecharacter,*,iostat=readerr) (Penta%DAT(k,i),i=1,NP) !somecharacter read from file above
-                 write(*,*) somecharacter
-                 write(*,*) Penta%DAT(k,:)
+                 read (somecharacter,*,iostat=readerr) (Penta%DAT(k,i),i=1,NP) !somecharacter read from file above, works for comma-delimited
+!                but broken for semicolon delimited sometime in 2024 by gcc changes
+                 if (TestData.eq.5) then !this works with getArg for .CUR.CSV
+                  line=somecharacter
+                  do i=1,NP
+                   Penta%DAT(k,i) = getArg(i)
+                  end do
+                  endif
+                  if (TestData.eq.4) then !this works with getArg for _ELE.CSV
+                   line=somecharacter
+                   do i=1,NP
+                    Penta%DAT(k,i) = 10000000*getArg(i)    !huge multiplier because of f15.7 interpretation of data
+                   end do
+                  endif
+!               if (k == 76) then
+!                write(*,*) Penta%DAT(k,:)
+!               endif
                endif  
              else
 !                  write(*,*) 'Read ',k-1,' rows from ',trim(filename)
@@ -213,7 +257,7 @@ subroutine rcnvrtp(TestData,filename,read_error)
          endif        
       end do  
       close(unitno1) 
-!     First column is invalid for .CUR.CSV and .ELE.CSV files, does no harm for .ELE and .CUR
+!     First column is invalid for _CUR.CSV and _ELE.CSV files, does no harm for .ELE and .CUR
       Penta%DAT(:,1)=0
       else
          print*, "Error ", ierr ," attempting to open file ", trim(filename)
@@ -309,7 +353,7 @@ subroutine rcnvrta(KXNAME,read_error)
  character(len=*), intent(in) :: KXNAME
  integer, intent(out) :: read_error
  INTEGER :: K,I,J,io,ITH,JTH,unitno,MM,N,ierr
- REAL(wp) :: R,DIST,Y,POW,AVGN,AVGR
+ REAL(wp) :: R,DIST,Y,POW
  MM=180
  N=22
  inquire(file=trim(KXNAME), exist=exists)
@@ -321,7 +365,7 @@ subroutine rcnvrta(KXNAME,read_error)
     K=0 
     DO 
        K=K+1        
-       READ(unitno,*,END=100,IOSTAT=io) KH1	
+       READ(unitno,*,END=100,IOSTAT=io) KH1
         IF(io.GT.0) THEN
          WRITE(*,*) 'ERROR ON INPUT ATLAS FILE'
          read_error=1

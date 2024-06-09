@@ -28,18 +28,19 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 # should read again how to manage compiler flags with Cmake
 if(CMAKE_Fortran_COMPILER MATCHES "gfortran")
-    set(dialect "-std=f2008ts -cpp -ffree-line-length-none -fall-intrinsics")
+    set(dialect "-std=f2018 -cpp -ffree-line-length-none -fall-intrinsics")
 #     set(dialect "-std=gnu")
-     set(bounds "-fbounds-check")
+     set(bounds "-fcheck=bounds")
+#     set(bounds "-fcheck=all -pedantic")
      set(omp "-fopenmp")
      set(NaN "-Wall -Wextra -Wimplicit-interface -g -fcheck=all -fbacktrace -ffpe-trap=invalid,zero,overflow -finit-real=snan -finit-integer=-99999999")
-     set(NaN2 "-Wall -Wextra -Wimplicit-interface -g -fcheck=all -fbacktrace -ffpe-trap=invalid,zero,overflow -finit-real=snan -finit-integer=-99999999")
 #  profiling with gprof 
  #     set(-pg)    
 #  src profiling with gcov -a -b xxx.f90
 #     set(-g -coverage) 
 #     set(-Wno-deprecated-declarations)
-    set(optimize "-fno-aggressive-loop-optimizations")
+    set (bugcheck "-fno-strict-aliasing -fwrapv -fno-aggressive-loop-optimizations -fsanitize=undefined")
+    set(optimize "-O2 -fexternal-blas")
 endif()
 if(CMAKE_Fortran_COMPILER MATCHES "Intel")
     set(dialect "-stand f08 -free -implicitnone")
@@ -67,10 +68,11 @@ set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${omp}")
 
 set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${bounds}")
 set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${NaN}")
+#set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${bugcheck}")
 
 #set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} ${optimize}")
 set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} ${bounds}")
-set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} ${NaN2}")
+set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} ${NaN}")
 
 set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_DEBUG_MODE 0) #set to 1 to show dependencies
 

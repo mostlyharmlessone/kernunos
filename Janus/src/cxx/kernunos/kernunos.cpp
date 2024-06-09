@@ -329,7 +329,7 @@ void MainWindow::open()   //multiple invocations makes a comparison
    ui.infoLabel->setText(tr("Invoked <b>File|Open</b>"));
    flag=flag-(flag%100)+0;  // last two digits of flag=0; need to reset this
 // note that the Atlas CSV filter is non-specific and will include all CSV files
-   QString filter = "All (*);;PentaCam (*.CUR *.ELE *.CUR.CSV *.ELE.CSV);;EyeSys (RA*.* XX*.*);;Atlas (*.CSV)";
+   QString filter = "All (*);;PentaCam (*.CUR *.ELE *_CUR.CSV *_ELE.CSV);;EyeSys (RA*.* XX*.*);;Atlas (*.CSV)";
    QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
    if (fileName.isEmpty())
        return;
@@ -391,7 +391,7 @@ void MainWindow::compare()    //right now this doesn't do anything but direct ou
    ui.infoLabel->setText(tr("Invoked <b>File|Compare</b>"));
 
     // note that the Atlas CSV filter is non-specific and will include all CSV files
-    QString filter = "All (*);;PentaCam (*.CUR *.ELE *.CUR.CSV *.ELE.CSV);;EyeSys (RA*.* XX*.*);;Atlas (*.CSV)";
+    QString filter = "All (*);;PentaCam (*.CUR *.ELE *_CUR.CSV *_ELE.CSV);;EyeSys (RA*.* XX*.*);;Atlas (*.CSV)";
     QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
    if (fileName.isEmpty())
        return;

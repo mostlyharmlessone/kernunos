@@ -11,7 +11,7 @@
   use c_interfaces, ONLY : LogC, Ccounter, ConvertPLYtoBIN
   use omp_lib
   IMPLICIT NONE
-  integer :: i, j, k, ii, kk, m, i1, j1, thread, ierr, info, nrhs
+  integer :: i, j, k, ii, kk, m, i1, j1, ierr, info, nrhs
   integer,save :: MM, N ,M1, N1, NN
   integer,save :: TestData             ! TestData: -1=test, 0=EyeSys, 1=Atlas, (2-5)=Penta
   integer,save :: NP                        ! PentaCam=141
@@ -29,13 +29,13 @@
   character(:),save, ALLOCATABLE :: logfile
   integer ::  nblines, file_idx, file_pfx,read_error
   integer,allocatable :: MV(:)
-  real :: time_start, time_end
+  real(8) :: time_start, time_end
   real(wp) :: POWMIN,POWMAX,POWMIN2,POWMAX2,POWCTR,POW
   logical :: donut, exists
   real(wp) :: Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo
-  integer :: LWORK, k_max, kk_max, iflag
+  integer :: k_max, kk_max, iflag !,LWORK
   integer(c_int) :: dat, fct, map
-  real(wp), allocatable :: WORK(:), ZernC(:,:), B_Matrix(:,:), rlocal(:), thtlocal(:)
+  real(wp), allocatable :: ZernC(:,:), B_Matrix(:,:), rlocal(:), thtlocal(:) !,WORK(:)
   real(wp), allocatable :: XTX(:,:),EE(:,:)
   integer, allocatable :: IPIV(:)
   real(wp) :: ctr_circle_x, ctr_circle_y, R_Talus, Theta_Talus, X_global, Y_global
@@ -266,8 +266,8 @@ endif
 if (mod(flag,100) == 0) then
  call CCounter(0)
 ! From either RA?.? or XX?.?, set inputfile1 to the XX version, inputfile1 to the RA version.
-! For either .CUR or .ELE or .CUR.CSV or .ELE.CSV set inputfile1 to Penta file of appropriate type with TestData
-! For CSV but not .ELE.CSV or .CUR.CSV set inputfile1 to Atlas file
+! For either .CUR or .ELE or _CUR.CSV or _ELE.CSV set inputfile1 to Penta file of appropriate type with TestData
+! For CSV but not _ELE.CSV or _CUR.CSV set inputfile1 to Atlas file
  file_idx=index(inputfile1, "RA")+index(inputfile1, "XX")
    if( file_idx == 0)then
       write(*,*) 'Not an EyeSys file'
@@ -292,9 +292,9 @@ if (mod(flag,100) == 0) then
        TestData=3; MM=180; N=22; NP=141 ! PentaCam CUR
       endif
       else
-       file_idx=index(inputfile1, ".CUR")
+       file_idx=index(inputfile1, "_CUR")
        if( file_idx == 0) then
-        file_idx=index(inputfile1, ".ELE")
+        file_idx=index(inputfile1, "_ELE")
         if( file_idx == 0) then
          TestData=1; MM=180; N=22   ! Atlas
          write(*,*) "Atlas file: ",inputfile1
@@ -451,7 +451,7 @@ if (TestData .eq. 0) then
    call init_mat_Penta(NP,Penta,Skyline)   !allocate the PentaCam matices
   endif
 ! ELE are elevations CUR are "sagittal" curvatures in a 141x141 -7 to 7 mm square -1 is no data
-! .ELE.CSV or .CUR.CSV versions have less text but use semicolons (;) instead of -1
+! _ELE.CSV or _CUR.CSV versions have less text but use semicolons (;) instead of -1
   if (mod(flag,100) == 0) then ! read the files
    read_error=0
    call RCNVRTP(TestData,inputfile1,read_error)
@@ -914,7 +914,7 @@ call LogC("pre-LSQ"//c_null_char)
    EE=matmul(B_matrix,ZernC)  ! with a second dimension for EE
 !   call DGESV(k_max,nrhs,XTX,k_max,IPIV,EE,k_max,INFO) ! overwrites EE into solution
    call GaussJordan(k_max,nrhs,XTX,k_max,EE,k_max,INFO )  ! overwrites EE into solution
-!!  have to allocate WORK for DGELS
+!!  have to allocate WORK for DGELS, to use these uncomment them in declarations too
 !  LWORK = min(k_max,kk_max) + max( min(k_max,kk_max), nrhs )
 !  allocate (WORK(LWORK))! WORK is dimension LWORK
 !  call DGELS( 'T', k_max, kk_max, nrhs, B_Matrix, k_max, ZernC , kk_max, WORK, LWORK, INFO ) ! overwrites ZernC (only to k_max)
