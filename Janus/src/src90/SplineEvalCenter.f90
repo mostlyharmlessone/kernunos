@@ -28,7 +28,6 @@ subroutine SplineEvalCenter(ii,x,y,y2,n,u,f,fp,fpp,fppp)
   INTEGER :: i,i1,high,low ! i1=i+1 unless periodic across gap
   REAL(wp) :: dr,A,B,C,D,dA,dB,dC,dD
   REAL(wp), DIMENSION(2) :: AB,CD,dAB,dCD,z,z2
-  logical :: IsInf
   REAL(wp), allocatable :: xx(:),yy(:),yy2(:)
 
    allocate(xx(n+1),yy(n+1),yy2(n+1))

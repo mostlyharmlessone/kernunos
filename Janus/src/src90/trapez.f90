@@ -6,7 +6,7 @@ subroutine trapez(ii,iflag,rv,zv,z2v,n,r,z)
    real(wp), INTENT(IN) ::  rv(*),zv(*),z2v(*),r
    integer, INTENT(IN) :: n,iflag,ii
    real(wp), INTENT(OUT) :: z
-   real(wp) :: TRAP, z1, z2, z3
+   real(wp) :: TRAP
    integer :: i, high, low
    call bsearch(r,rv,n,high,low)
 !  TRAPEZOIDAL RULE, UNEVEN STEPS     

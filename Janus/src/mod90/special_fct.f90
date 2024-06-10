@@ -7,6 +7,7 @@ use set_precision, ONLY : wp
 use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
 use, intrinsic ::  ieee_arithmetic
 use M_color, only : jucolor
+implicit none
 
 INTERFACE OPERATOR (.p.) ! binary operator summation convention/tensors
 !   a .p. b returns scalar sum matrices; rank 0 of a(i,j)*b(i,j) a,b rank 2
@@ -104,7 +105,7 @@ function PerceptuallyUniformPalette(fixedrange,x,powmin, powmax) result(rgbv)
 REAL (wp), INTENT (IN) :: powmin,powmax,x
 LOGICAL, INTENT(IN) :: fixedrange
 INTEGER :: i,high,low
-REAL (wp) :: col(9)
+REAL (wp) :: col(9), minimum, maximum
 INTEGER(int16), dimension(3,9) :: palette
 INTEGER(int16) :: rgbv(3) ! rgbv={r,g,b}
 !ANSI 38.5 to 49.5 every 0.5; Brewer 2.0 https://colorbrewer2.org no more than 9 classes max recommended
@@ -145,8 +146,8 @@ function USSpalette(fixedrange,x,powmin, powmax) result(rgbv)
 REAL (wp), INTENT (IN) :: powmin,powmax,x
 LOGICAL, INTENT(IN) :: fixedrange
 INTEGER :: i,high,low
-REAL (wp) :: col(26)
-INTEGER(int16), dimension(3,26) :: palette
+REAL (wp) :: col(26),minimum,maximum
+INTEGER, dimension(3,26) :: palette
 INTEGER(int16) :: rgbv(3) ! rgbv={r,g,b}
 !Smolek et al Ophthalmology Feb 2002 Table 4. USS scale from 67.5 to 30 every 1.5 D
 if (fixedrange) then
@@ -274,11 +275,11 @@ function rgb5(x,minimum, maximum) result(rgbv)
  REAL (wp) :: ratio,fract
  INTEGER(int16) :: nc,rgbv(3),idx1,idx2 ! rgbv={r,g,b}
 ! color={{0,0,255},{0,255,255},{0,255,0},{255,255,0},{255,0,0}}
- INTEGER(int16) :: color(3,5)=reshape( (/ 0, 0, 255, &      !blue
-                                          0, 255, 255, &    !cyan 
-                                          0, 255, 0, &      !green
-                                          255, 255, 0, &    !yellow
-                                          255, 0, 0 /), &   !red
+ INTEGER(int16) :: color(3,5)=reshape( (/ 0_int16, 0_int16, 255_int16, &      !blue
+                                          0_int16, 255_int16, 255_int16, &    !cyan
+                                          0_int16, 255_int16, 0_int16, &      !green
+                                          255_int16, 255_int16, 0_int16, &    !yellow
+                                          255_int16, 0_int16, 0_int16 /), &   !red
                                           (/3,5/)  )
 ! color={{255,0,0},{255,255,0},{0,255,0},{0,255,255},{0,0,255}}
 ! INTEGER(int16) :: color(3,5)=reshape( (/              255, 0, 0, &      !red
@@ -315,7 +316,7 @@ function rgb5(x,minimum, maximum) result(rgbv)
    rgbv(2) = (color(2,idx2) - color(2,idx1))*fract + color(2,idx1)
    rgbv(3) = (color(3,idx2) - color(3,idx1))*fract + color(3,idx1)
   else
-   rgbv=(/255,255,255/)  ! out of range = white
+   rgbv=(/255_int16,255_int16,255_int16/)  ! out of range = white
   endif
    
 end function rgb5

@@ -6,7 +6,7 @@
   integer, INTENT(IN) :: n
   real(wp), INTENT(IN) ::  r(n),z(n) 
   real(wp), INTENT(OUT) :: z2(n) 
-  real(wp),allocatable ::  a(:),b(:),c(:),d(:),zz2(:),a_short(:)
+  real(wp),allocatable ::  a(:),b(:),c(:),d(:),zz2(:) !,a_short(:)
   integer :: i,info    ! for lapack use below
   real(wp) :: f      ! error handling
   logical :: IsNaN    

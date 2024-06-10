@@ -2,7 +2,7 @@
 ! only use after nspline and MakeRadSplineCenter have run
  subroutine nsplineCenter(ii,r,z,n,z2)
  use set_precision, only : wp
- use cornea_arrays, only : eps, RadSplineCenter
+ use cornea_arrays, only : RadSplineCenter
  use spline_interfaces, ONLY : bsearch, thomas, SplineEval
  use LapackInterface, ONLY : dgtsv
  use,intrinsic :: ieee_arithmetic
@@ -10,12 +10,10 @@
   real(wp), INTENT(IN) ::  r(n)
   real(wp), INTENT(IN) ::  z(n)
   real(wp), INTENT(OUT) :: z2(n)
-  real(wp),allocatable ::  a(:),b(:),c(:),d(:),zz2(:),a_short(:)
+  real(wp),allocatable ::  a(:),b(:),c(:),d(:),zz2(:) !,a_short(:)
   real(wp),allocatable ::  rr(:),zz(:)
   integer :: high, low, i
-  integer :: info    ! for lapack use below
-  real(wp) :: f      ! error handling
-  logical :: IsNaN 
+  integer :: info    ! for lapack use below 
 
   INFO=0             
   if ( n < 2 ) then  ! invalid parameter

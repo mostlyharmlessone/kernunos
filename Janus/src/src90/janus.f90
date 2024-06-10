@@ -6,7 +6,6 @@
   use special_fct
   use io_functions
   use spline_interfaces
-  use variableKind
   use, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
   use c_interfaces, ONLY : LogC, Ccounter, ConvertPLYtoBIN
   use omp_lib

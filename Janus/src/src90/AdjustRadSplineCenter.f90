@@ -2,7 +2,6 @@
 !     relies on MakeRadSplineCenter
       subroutine AdjustRadSplineCenter 
       USE cornea_arrays, ONLY : DiaSlope, RadSlope, RadSplineCenter
-      USE set_precision, ONLY : wp
       implicit none
       integer :: i,j,MM,N
       MM=size(RadSlope%r,2)
