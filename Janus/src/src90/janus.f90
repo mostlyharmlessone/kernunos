@@ -14,7 +14,7 @@
   integer,save :: MM, N ,M1, N1, NN
   integer,save :: TestData             ! TestData: -1=test, 0=EyeSys, 1=Atlas, (2-5)=Penta
   integer,save :: NP                        ! PentaCam=141
-  integer :: unitno1, ITH
+  integer :: unitno1
   character(c_char), INTENT(IN), DIMENSION(4096) :: file_from_C
   integer(c_int), INTENT(INOUT) :: flag
   integer(c_int), INTENT(INOUT) :: nV 
@@ -506,26 +506,46 @@ if (TestData .lt. 0) then
   call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)
  endif
 
-! ?good place for fillin tweaks
-
 ! fillin tweaks
-!btest(dat, 3),btest(dat, 4)
+!  FILL IN MISSING ATLAS RING DATA USING CIRCUMFERENTIAL SPLINES
 !  R is not constant; they're not circles, so splining along the curve gives curvatures that
 !  are not orthogonal to R, nor z2(deriv of theta)  probably best not to do this
- ! partial Atlas or full Atlas via FILL IN MISSING RING DATA USING CIRCUMFERENTIAL SPLINES
-!    call fillin2 ! fills in AP and AR
-!    Atlas%AR2 = .n. Atlas ! fills in second derivatives of r=Atlas%AR, easy to modify to fill in AR like fillin2
-!    Atlas%AR = .n. Atlas ! fills in Atlas%AR  also need to modify commented line in fillin in cornea_arrays
-!    Atlas%AR = lsqfill(Atlas) ! uses lsq fit with cosine series instead of spline
-!  filling in AR is better by LSQ fit in missing section; look at these intersecting rings using
-!  gnuplot plot 'datafile dumped with >' u 1:2  (don't set polar) first option, or splot second option
+if (TestData .eq. 1) then
+ if (btest(dat, 4)) then
+  if(.not.allocated(AtlasSave%AR)) then
+   call init_mat_Atlas(MM,N,AtlasSave)
+  endif
+  AtlasSave=Atlas
+  Atlas%AR=splinefillin(Atlas%AR)
+  Atlas%AP=splinefillin(Atlas%AP)
+  Atlas%AD=splinefillin(Atlas%AD)
+ endif
+!  FILL IN MISSING ATLAS RING DATA USING LSQ cosine series
+ if (btest(dat, 3)) then
+  if(.not.allocated(AtlasSave%AR)) then
+   call init_mat_Atlas(MM,N,AtlasSave)
+  endif
+  AtlasSave=Atlas
+  Atlas%AR=lsqfillin(Atlas%AR)
+  Atlas%AP=lsqfillin(Atlas%AP)
+  Atlas%AD=lsqfillin(Atlas%AD)
+ endif
+
+ if (btest(dat, 4) .or. btest(dat, 3)) then
+  call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)
+  Atlas=AtlasSave  ! restore Atlas
+!  Look at these intersecting rings using
+!  gnuplot 'plot 'datafile dumped with' u 1:2'  (don't set polar) first option, or splot second option
+
 !   do j=1,N
 !    do i=1,MM
-!     write(*,*) Atlas%DEG(i),Atlas%AR(i,j)
-!     write(*,*) Atlas%AR(i,j)*COS(PI*Atlas%DEG(i)/180.0),Atlas%AR(i,j)*SIN(PI*Atlas%DEG(i)/180.0),0
- !   end do
-!    write(*,*) ' '
+ !    write(*,*) Atlas%DEG(i),Atlas%AR(i,j)
+ !    write(*,*) Atlas%AR(i,j)*COS(PI*Atlas%DEG(i)/180.0),Atlas%AR(i,j)*SIN(PI*Atlas%DEG(i)/180.0),0
+!    end do
+ !   write(*,*) ' '
 !   end do
+ endif
+endif
 
 ! Spline RadSlope
   DiaSlope=RadSlope              ! move to diagonal format
@@ -558,9 +578,8 @@ if (TestData .lt. 0) then
   JMatrix%MONGEA0(2)=1E30 ;  JMatrix%MONGEA0(3)=-1E30
   JMatrix%R0=0 ; JMatrix%THT0=0
 ! Generate the rings
-  do i=1,M1
-   ITH=2*(i-1)                             ! every 2 degrees
-   JMatrix%THT(i)=PI*ITH/180.0_wp
+  do i=1,M1                             ! every 2 degrees
+   JMatrix%THT(i)=PI*(i-1)/90.0_wp
    if (MM == 360 .and. N == 16) then  ! original EyeSys RadSlope
     JMatrix%MV(i)=MIN(RadSlope%MV(2*i),RadSlope%MV(2*i-1))  ! close to real boundary
    else  ! MM==180

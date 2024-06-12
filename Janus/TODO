@@ -2,7 +2,9 @@ things to do
 
 CorneaCopia
 
-some kind of error in ELE and _ELE.CSV files ? elevations put in as slopes?
+tweak center part of fillin so that there's no blackspot
+
+check on calculations for elevation from .ELE
 might need centerpoint version for pentacam has to incorporate center from Penta
 
 branch cut or other calc error with Monge Astig and Mean curvature 

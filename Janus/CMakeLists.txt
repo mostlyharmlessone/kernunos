@@ -3,6 +3,10 @@ cmake_policy(VERSION 3.26)
 set (CMAKE_Fortran_COMPILER_ID "gfortran")
 set (CMAKE_Fortran_COMPILER "gfortran")
 set (CMAKE_C_COMPILER "gcc")
+# these don't override system environment, unfortunately
+set (FC "gfortran")
+set (CXX "g++")
+set (CC "gcc")
 
 project(kernunos VERSION 0.1.0 LANGUAGES C CXX Fortran)
 set(CMAKE_MODULE_PATH cmake)
@@ -17,11 +21,6 @@ enable_language(C)
 #set(CMAKE_CROSSCOMPILING true)
 #set(CMAKE_SYSTEM_NAME Windows)
 #set(CMAKE_SYSTEM_VERSION 10.0)
-
-# these don't override system environment, unfortunately
-set (FC "gfortran")
-set (CXX "g++")
-set (CC "gcc")
 
 set(CMAKE_CXX_STANDARD 17) # doesn't apply to win32
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -132,9 +131,6 @@ link_directories(${CMAKE_SOURCE_DIR}/lib)
 #    message("Failed to find WxWidgets library")
 #endif()
 
-#coretran fortran subroutines
-#find_package(coretran REQUIRED CONFIG)
-
 # Qt
 SET(Qt5_DIR "/usr/lib/x86_64-linux-gnu/qt5")
 SET(Qt6_DIR "/usr/lib/x86_64-linux-gnu/qt6")
@@ -147,6 +143,7 @@ find_package (PkgConfig REQUIRED)
 pkg_check_modules(GTK4 REQUIRED gtk4)
 INCLUDE_DIRECTORIES(${GTK4_INCLUDE_DIRS})
 LINK_DIRECTORIES (${GTK4_LIBRARY_DIRS})
+#GTK3
 pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
 message(STATUS "----- GTK3_INCLUDE_DIRS: ${GTK3_INCLUDE_DIRS}")
 message(STATUS "----- GKT3_LIBRARIES: ${GTK3_LIBRARIES}")
@@ -185,6 +182,7 @@ find_package(OPENCL)
 find_package(OpenMP)
 #  boost, needed for gnuplot-iostream
 find_package(Boost REQUIRED COMPONENTS iostreams system filesystem)
+
 # from learnopengl: attempt to make buildable apple/win32 too
 if(APPLE)
   find_package(Freetype REQUIRED)

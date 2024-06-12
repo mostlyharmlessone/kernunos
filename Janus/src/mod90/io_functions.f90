@@ -135,7 +135,7 @@ function getArg(n) result(argn)
     else
         arg = line(i:j-1)
     endif
-        read(arg,'(F15.7)') argn
+        read(arg,'(F23.5)') argn
 end function getArg
 
   
@@ -236,11 +236,11 @@ subroutine rcnvrtp(TestData,filename,read_error)
                   if (TestData.eq.4) then !this works with getArg for _ELE.CSV
                    line=somecharacter
                    do i=1,NP
-                    Penta%DAT(k,i) = 10000000*getArg(i)    !huge multiplier because of f15.7 interpretation of data
+                    Penta%DAT(k,i) = 100000*getArg(i)
                    end do
                   endif
 !               if (k == 76) then
-!                write(*,*) Penta%DAT(k,:)
+                write(*,*) Penta%DAT(k,:)
 !               endif
                endif  
              else

@@ -106,6 +106,7 @@ END INTERFACE
  TYPE(wpEyeSysMatrix) :: EyeSys
  TYPE(wpRadSlopeMatrix) :: RadSlope
  TYPE(wpAtlasMatrix) :: Atlas
+ TYPE(wpAtlasMatrix) :: AtlasSave
  TYPE(wpPentaMatrix) :: Penta
  TYPE(wpSkyline) :: Skyline
  TYPE(wpDiaSlopeMatrix) :: DiaSlope
@@ -661,52 +662,52 @@ subroutine DiaSplineCenter(b)
   end do
 end subroutine DiaSplineCenter
 
-function fillin(b) result(a) 
- TYPE(wpAtlasMatrix),INTENT(IN) :: b
+function splinefillin(b) result(a)
+ real(wp),INTENT(IN) :: b(:,:)
  TYPE(wpsplinevect) :: spline
  integer :: M1,N1,i,j,k
- real(wp) :: a(size(b%AR,1),size(b%AR,2)),RTEMP,Q,degK
- N1=size(b%AR,2) !N1=N 
- M1=size(b%AR,1) !M1=MM
- a=0  !initialize else the damn thing will fill with NaN
+ real(wp) :: a(size(b,1),size(b,2)),tht(size(b,1)),RTEMP,Q,radianK
+ N1=size(b,2) !N1=N
+ M1=size(b,1) !M1=MM
+ a=0 ; tht=0  !initialize else the damn thing will fill with NaN
  allocate (spline%r(M1),spline%z(M1),spline%zp2(M1),spline%mvjr(N1))
  associate (t=>spline%r,z=>spline%z,zt2=>spline%zp2,mvjr=>spline%mvjr)
   mvjr=0
-  do i=1,N1 
+  do i=1,N1
      do j=1,M1
-       Q=b%AR(j,i)        
+     tht(j)=PI*(j-1)/90.0_wp  ! every 2 degrees
+       Q=b(j,i)
         if (ABS(Q) > 0.) then ! ABS is optional for AR or AP
          mvjr(i)=mvjr(i)+1
-         t(mvjr(i))=b%DEG(j)*PI/180.0_wp         
-         z(mvjr(i))=Q 
+         t(mvjr(i))=tht(j)
+         z(mvjr(i))=Q
         endif
       end do
       call pspli(t,z,mvjr(i),zt2)
-      do k=1,M1 
-      degK=b%DEG(k)*PI/180.0_wp  
-       call SplineEval(1,t,z,zt2,mvjr(i),degK,RTEMP)
-        IF(ABS(b%AR(K,I)-RTEMP) > EPS)then
-         IF(ABS(b%AR(K,I)) > EPS)THEN
-         write(*,*) 'spline error in cornea_arrays fillin',K,I,b%AR(K,I),RTEMP
+      do k=1,M1
+      radianK=tht(k)
+       call SplineEval(1,t,z,zt2,mvjr(i),radianK,RTEMP)
+        IF(ABS(b(K,I)-RTEMP) > EPS)then
+         IF(ABS(b(K,I)) > EPS)THEN
+         write(*,*) 'spline error in cornea_arrays fillin',K,I,b(K,I),RTEMP
          endif
-        endif 
+        endif
         a(k,i)=RTEMP
       end do
-   end do   
+   end do
    end associate
    deallocate (spline%r,spline%z,spline%zp2,spline%mvjr)
-end function fillin
+end function splinefillin
 
-function lsqfill(b) result(a) 
- use set_precision, ONLY : wp
- TYPE(wpAtlasMatrix),INTENT(IN) :: b
+function lsqfillin(b) result(a)
+ real(wp),INTENT(IN) :: b(:,:)
  integer :: M1,N1,i,j,k,info,ipvt(M2)
- real(wp) :: a(size(b%AR,1),size(b%AR,2)),t(size(b%AR,1)),z(size(b%AR,1))
- real(wp) :: c(M2),X(M2,size(b%AR,1)),zpX(M2),XTX(M2,M2)
+ real(wp) :: a(size(b,1),size(b,2)),t(size(b,1)),z(size(b,1))
+ real(wp) :: c(M2),X(M2,size(b,1)),zpX(M2),XTX(M2,M2)
  logical :: Q
-! real (wp) res(size(b%AR,1)),respres,sumr2,zpz
- N1=size(b%AR,2) !N1=N 
- M1=size(b%AR,1) !M1=MM
+! real (wp) res(size(b,1)),respres,sumr2,zpz
+ N1=size(b,2) !N1=N
+ M1=size(b,1) !M1=MM
  a=0  !initialize else the damn thing will fill with NaN
  z=0
  t=0
@@ -715,11 +716,11 @@ function lsqfill(b) result(a)
   c=0  
 ! X is cosine terms of fourier, t are angles, Z are radii for current ring
   do j=1,M2
-   do k=1,M1  
-    Q=ABS(b%AR(k,i)) > 0  
+   do k=1,M1
+    Q=ABS(b(k,i)) > 0
     if (Q) then ! means it is  =/ 0
-     t(k)=b%DEG(k)*PI/180.0_wp         
-     z(k)=b%AR(k,i)
+     t(k)=PI*(k-1)/90.0_wp  ! every 2 degrees
+     z(k)=b(k,i)
      X(j,k)=cos((j-1)*t(k))    ! cosine series including 0 term
     endif      
    end do 
@@ -756,12 +757,12 @@ function lsqfill(b) result(a)
   c=zpX
 ! generate lsq fillin values
   do k=1,M1
-    Q=ABS(b%AR(k,i)) > 0  
+    Q=ABS(b(k,i)) > 0
     if (Q) then ! means it is  =/ 0
-     a(k,i)=b%AR(k,i)   ! retain old values where they exist
+     a(k,i)=b(k,i)   ! retain old values where they exist
     else
      do j=1,M2
-      a(k,i)=a(k,i)+c(j)*cos((j-1)*b%DEG(k)*PI/180.0_wp) ! just replace missing values
+      a(k,i)=a(k,i)+c(j)*cos((j-1)*PI*(k-1)/90.0_wp) ! just replace missing values
      end do 
     endif    
   end do
@@ -770,7 +771,7 @@ function lsqfill(b) result(a)
 !  respres=0
 !  zpz=0
 !   do k=1,M1  
-!    Q=ABS(b%AR(k,i)) > 0
+!    Q=ABS(b(k,i)) > 0
 !    if (Q) then ! means it is  =/ 0 
 !     res(k)=z(k)-a(k,i)
 !     respres=respres+res(k)*res(k)
@@ -780,7 +781,7 @@ function lsqfill(b) result(a)
 !  sumr2=respres/zpz  
 !   if (i == 18) then 
 !   do k=1,M1
-!    Q=ABS(b%AR(k,i)) > 0
+!    Q=ABS(b(k,i)) > 0
 !    if (Q) then ! means it is  =/ 0 
 !     write(*,*) a(k,i)*cos(t(k)),a(k,i)*sin(t(k)),z(k)*cos(t(k)),z(k)*sin(t(k))
 !    else
@@ -790,7 +791,7 @@ function lsqfill(b) result(a)
 !   endif     
 !   write(*,*) i,sumr2,c           	 	
  end do   
-end function lsqfill
+end function lsqfillin
 
 function pca(M3,b) result(a) 
  use set_precision, ONLY : wp

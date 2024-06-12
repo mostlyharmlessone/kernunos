@@ -1398,11 +1398,11 @@ void MainWindow::createActions()
    cubicAct->setCheckable(true);
    connect(cubicAct, &QAction::triggered, this, &MainWindow::tweakcubic);
 
-   LSQfillinAct=new QAction(tr("&Fill in missing data by circumferential LSQ"), this);
+   LSQfillinAct=new QAction(tr("&Fill in missing Atlas data by circumferential LSQ"), this);
    LSQfillinAct->setCheckable(true);
    connect(LSQfillinAct, &QAction::triggered, this, &MainWindow::tweakLSQfill);
 
-   SplinefillinAct=new QAction(tr("&Fill in missing data by circumferential spline"), this);
+   SplinefillinAct=new QAction(tr("&Fill in missing Atlas data by circumferential spline"), this);
    SplinefillinAct->setCheckable(true);
    connect(SplinefillinAct, &QAction::triggered, this, &MainWindow::tweakSplinefill);
 
