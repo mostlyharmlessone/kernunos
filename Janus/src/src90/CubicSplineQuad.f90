@@ -8,7 +8,6 @@ subroutine CubicSplineQuad(ii,iflag,rv,zv,z2v,n,r,z)
   real(wp), INTENT(OUT) :: z
   real(wp) :: QUAD,z1,z2
   integer :: i, high, low
-
    call bsearch(r,rv,n,high,low)
 !  from Forsythe p.90    
    QUAD=0      

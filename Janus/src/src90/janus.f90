@@ -311,8 +311,11 @@ if (mod(flag,100) == 0) then
       endif
    else
 !  EyeSys
+
+
 !      write(*,*) 'prefix is found at index: ',file_idx,"length: ",len(inputfile1)
 !      write(*,*) 'prefix:',inputfile1(file_idx:file_idx+1)
+       file_idx=index(inputfile1, "XX")  !index(inputfile1, "XX", back)
        file_pfx=index(inputfile1(file_idx:file_idx+1),"XX")
       if (file_pfx /= 0) then
        inputfile2=replacestr(string=inputfile1,search="XX",substitute="RA")
@@ -323,6 +326,7 @@ if (mod(flag,100) == 0) then
         return
        endif
       else
+       file_idx=index(inputfile1, "RA") !index(inputfile1, "RA", back)
        file_pfx=index(inputfile1(file_idx:file_idx+1),"RA")
        if (file_pfx /= 0) then
         inputfile2=inputfile1
@@ -437,6 +441,7 @@ if (TestData .eq. 0) then
 
 ! READ THE PENTACAM DATA
  if (TestData .ge. 2 .AND. TestData .le. 5) then
+  call CPU_TIME(time_start)
   MM=180; N=22; NP=141   ! PentaCam
 ! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
   if (allocated(RadSlope%r)) then
@@ -455,22 +460,26 @@ if (TestData .eq. 0) then
    read_error=0
    call RCNVRTP(TestData,inputfile1,read_error)
    if (read_error > 0) return
-!  arrange the data
-   call CPU_TIME(time_start)
   endif  !(mod(flag,100) /= 0,99,2,3 must be 1 or 4, reload the original data
+! arrange the data
   Skyline=Penta
 ! convert to polar with splining; makes round rings as above with 180x22 - also already has either center value Z0(1) or SAGC0(1)
-  ! RadSlope_eq_Skyline puts elevation into JMatrix%Z(j,i) and possibly populates JMatrix%Z(j,i) with crap look at ca line 405
+  ! RadSlope_eq_Skyline puts elevation into JMatrix%Z(j,i) and possibly populates JMatrix%Z(j,i) with crap
   call RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)  !needs Penta for border check populates RadSlope with ZFCT
   call CPU_TIME(time_end)
   write(*,*) 'Time to convert Penta: ',(time_end-time_start)*1000
-  if (TestData.eq.2 .or. TestData.eq.4) then ! ELE or ELE.CSV PentaCam files, put elevation into Zp for splining
+  if (TestData.eq.2 .or. TestData.eq.4) then ! ELE or ELE.CSV PentaCam files, put elevation into Zp for splining without integration
+   RadSlope%Zp(:,:)=0 ; JMatrix%SAGC(:,:) = 0 ; JMatrix%SAGC0(:) = 0 ! ELE shoudln't have anything in Zp or SAGC yet
    do i=1,MM
     do j=1,RadSlope%MV(i)
-      RadSlope%Zp(j,i)=JMatrix%Z(j,i)
+      RadSlope%Zp(j,i)=JMatrix%Z(j,i) !=RadSlope%Z(j,i) ! at this point
     end do
    end do
-  endif
+   write(*,*) 'Central Elevation, min, max: ',JMatrix%Z0(1),JMatrix%Z0(2),JMatrix%Z0(3)
+  else ! CUR version shouldn't have elevations yet
+   JMatrix%Z(:,:) = 0 ; JMatrix%Z0(:) = 0
+   write(*,*) 'Central Sagittal power, min, max: ',JMatrix%SAGC0(1),JMatrix%SAGC0(2),JMatrix%SAGC0(3)
+  endif  
  endif
 
 ! OR GENERATE Fake data (EYESYS,ATLAS OR PENTA STYLE)
@@ -519,6 +528,7 @@ if (TestData .eq. 1) then
   Atlas%AR=splinefillin(Atlas%AR)
   Atlas%AP=splinefillin(Atlas%AP)
   Atlas%AD=splinefillin(Atlas%AD)
+  Atlas%AY=splinefillin(Atlas%AY)
  endif
 !  FILL IN MISSING ATLAS RING DATA USING LSQ cosine series
  if (btest(dat, 3)) then
@@ -529,6 +539,7 @@ if (TestData .eq. 1) then
   Atlas%AR=lsqfillin(Atlas%AR)
   Atlas%AP=lsqfillin(Atlas%AP)
   Atlas%AD=lsqfillin(Atlas%AD)
+  Atlas%AY=lsqfillin(Atlas%AY)
  endif
 
  if (btest(dat, 4) .or. btest(dat, 3)) then
@@ -536,21 +547,20 @@ if (TestData .eq. 1) then
   Atlas=AtlasSave  ! restore Atlas
 !  Look at these intersecting rings using
 !  gnuplot 'plot 'datafile dumped with' u 1:2'  (don't set polar) first option, or splot second option
-
-!   do j=1,N
+!  do j=1,N
 !    do i=1,MM
- !    write(*,*) Atlas%DEG(i),Atlas%AR(i,j)
+!     write(*,*) Atlas%DEG(i),Atlas%AP(i,j)
  !    write(*,*) Atlas%AR(i,j)*COS(PI*Atlas%DEG(i)/180.0),Atlas%AR(i,j)*SIN(PI*Atlas%DEG(i)/180.0),0
 !    end do
- !   write(*,*) ' '
+!    write(*,*) ' '
 !   end do
  endif
+
 endif
 
 ! Spline RadSlope
   DiaSlope=RadSlope              ! move to diagonal format
   DiaSlope%Zpd2 = .n. DiaSlope   ! spline across center without tweaks
-
   call MakeRadSplineCenter(0)    ! capture the spline center deviations from unmodified RadSlope
 
 ! Have to do AdjustSlope tweak before centernode, since centernode essentially reduces RadSplineCenter(1,:) to 0
@@ -563,6 +573,40 @@ endif
   endif
 
   call MakeRadSplineCenter(dat)        ! generates spline centers with tweaks
+
+ ! Atlas spline consistency check and computation of elevation by power vs elevation in file
+ if ( Testdata .eq. 1 ) then
+  k=0 ; powmax2 = 0 ; powmax =0  ! Use these temporarily
+ ! find max elevation from Atlas file
+  do i=1,M1
+   do j=1,N1
+    if (100*Atlas%AY(i,j) > powmax) powmax=100*Atlas%AY(i,j)
+    end do
+   end do
+ ! check spline power & elevation at knots
+   do i=1,M1
+    do j=1,N1
+     if (i > 90) then
+      call SplineEval1Dx1D(iflag,-100*Atlas%AD(i,j),JMatrix%THT(i),Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
+      call AXIALP(-100*Atlas%AD(i,j),YPR,YP2R2,JMatrix%SAGC(j,i))
+     else
+      call SplineEval1Dx1D(iflag,100*Atlas%AD(i,j),JMatrix%THT(i),Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
+      call AXIALP(100*Atlas%AD(i,j),YPR,YP2R2,JMatrix%SAGC(j,i))
+     endif
+!   skip missing elevation points to compute average error
+    if (Atlas%AY(i,j) > 0) then
+      k=k+1
+      powmax2=powmax2+ABS(Y-powmax+100*Atlas%AY(i,j))
+     endif
+!   checks that power at knots is correct at knts
+     if (ABS(Atlas%AP(i,j)-JMatrix%SAGC(j,i)) > EPS .and. (Atlas%AP(i,j) .gt. 0)) then
+      write(*,*) 'Atlas power spline error in janus: ',j,i,Atlas%AP(i,j),JMatrix%SAGC(j,i)
+     endif
+    end do
+   end do
+   JMatrix%SAGC(:,:) = 0 ! clean up
+   write(*,*) 'Atlas avg abs elevation percent error : ',(100*powmax2/k)/powmax
+ endif
 
 ! Make JMatrix
 !  make round rings and if needed convert 360x16 to 180x22
@@ -591,33 +635,17 @@ endif
     else
      JMatrix%R(j,i)=100*((j-1)*(rBo-rBi)/(N1-1)+rBi)
     endif
-
-! Atlas only
-    if ( Testdata .eq. 1 ) then  ! check on AD,Z and POW consistency before overwriting JMatrix/Atlas values
-     call SplineEval1Dx1D(iflag,Atlas%AD(i,j),JMatrix%THT(i),Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
-     call AXIALP(Atlas%AD(i,j),YPR,YP2R2,POW)
-!      write(*,*) 'check on Atlas consistency: ',JMatrix%SAGC(j,i),POW
-!      JMatrix%Z(j,i)-Y
-    endif
-! Atlas only used for Atlas or FakeData
-  if (TestData .lt. 0 .or. TestData .eq. 1) then
-   if (allocated(Atlas%AR)) then
-!   Atlas = 0
-   endif
-  endif
-
 ! populate JMatrix rings, not the centers
 ! elevations
-    if (TestData.ne.2 .and. TestData.ne.4) then  ! already have SAGC from .CUR and .CUR.CSV
+    if (TestData.ne.2 .and. TestData.ne.4) then  ! slope based data, integrate based on iflag with or without cubic/trapez or center point or not for values
      call SplineEval1Dx1D(iflag,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
-    else  !TestData.eq.2 .or. TestData.eq.4  !ELE and ELE.CSV files use elevation
+    else  !TestData.eq.2 .or. TestData.eq.4  ! ELE and ELE.CSV files use elevation, no integration, center point or not
      if (btest(dat,0)) then
-      call SplineEval1Dx1D(10,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)  !do not integrate for ELE version
+      call SplineEval1Dx1D(10,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
      else
-      call SplineEval1Dx1D(0,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)  !do not integrate for ELE version
+      call SplineEval1Dx1D(0,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
      endif
     endif
-
 !  save for vertex normals
     JMatrix%YPR(j,i)=YPR
     JMatrix%YPTHETA(j,i)=YPTHETA

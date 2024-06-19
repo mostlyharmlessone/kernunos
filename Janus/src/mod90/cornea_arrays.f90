@@ -422,8 +422,6 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
   RadSlope%MV(:)=imv(:)  ! save boundary
   JMatrix%MV(:)=RadSlope%MV(:)  
   JMatrix%THT(:)=RadSlope%thta(:)
- write(*,*) 'Central Sagittal power, min, max: ',JMatrix%SAGC0(1),JMatrix%SAGC0(2),JMatrix%SAGC0(3)
- write(*,*) 'Central Elevation, min, max: ',JMatrix%Z0(1),JMatrix%Z0(2),JMatrix%Z0(3)
 end subroutine RadSlope_eq_Skyline
 
 ! uses ZFCT converts lhs to rhs
@@ -538,7 +536,7 @@ subroutine RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas) ! initially populates r, th
      RadSlope%thta(i)=PI*Atlas%DEG(i)/180.0_wp
      JMatrix%THT(i)=PI*Atlas%DEG(i)/180.0_wp
      do j=1,N
-      if ((Atlas%AP(i,j) > 0) .AND. (Atlas%AR(i,j) > 0) .AND. (Atlas%AD(i,j) > 0)) then    ! Only for Atlas with valid data /= 0
+      if ((Atlas%AP(i,j) > 0) .AND. (Atlas%AR(i,j) > 0) .AND. (Atlas%AD(i,j) > 0) .AND. (Atlas%AY(i,j) > 0)) then    ! Only for Atlas with valid data /= 0
        DIST=Atlas%AD(i,j)
        R=Atlas%AR(i,j)
        POW=Atlas%AP(i,j)
@@ -553,8 +551,10 @@ subroutine RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas) ! initially populates r, th
        endif
        RadSlope%r(imv(i),i)=X2A1
        RadSlope%Zp(imv(i),i)=YA3
+    !  These are not even close; Y is tiny, AY range is in the 2's
        RadSlope%Z(imv(i),i)=Atlas%AY(i,j)
-       JMatrix%SAGC(imv(i),i)=POW        
+       JMatrix%SAGC(imv(i),i)=POW
+!      These are not even close; Y is tiny, AY range is in the 2's
        JMatrix%Z(imv(i),i)=Atlas%AY(i,j) 
        RadSlope%Zp2(imv(i),i)=1/803.0_wp ! fallback value before splining
       endif
@@ -687,8 +687,8 @@ function splinefillin(b) result(a)
       do k=1,M1
       radianK=tht(k)
        call SplineEval(1,t,z,zt2,mvjr(i),radianK,RTEMP)
-        IF(ABS(b(K,I)-RTEMP) > EPS)then
-         IF(ABS(b(K,I)) > EPS)THEN
+        if(ABS(b(K,I)-RTEMP) > EPS)then
+         if(ABS(b(K,I)) > EPS)THEN
          write(*,*) 'spline error in cornea_arrays fillin',K,I,b(K,I),RTEMP
          endif
         endif

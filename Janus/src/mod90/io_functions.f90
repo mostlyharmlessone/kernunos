@@ -240,7 +240,7 @@ subroutine rcnvrtp(TestData,filename,read_error)
                    end do
                   endif
 !               if (k == 76) then
-                write(*,*) Penta%DAT(k,:)
+!                write(*,*) Penta%DAT(k,:)
 !               endif
                endif  
              else
@@ -280,6 +280,8 @@ subroutine rcnvrte(RANAME,XXNAME,read_error)
   implicit none
   logical :: exists
   character(len=*), intent(in) :: RANAME,XXNAME
+  character(1000) header
+  integer :: file_idx1,file_idx2
   integer, intent(out) :: read_error
   REAL(wp) :: ZX(16),YX(16)
   INTEGER :: I,J,ITH,unitno1,unitno2,MM,N,ierr
@@ -294,10 +296,30 @@ subroutine rcnvrte(RANAME,XXNAME,read_error)
     if (exists) then
      unitno2 = get_new_fileunit()
      open(unitno2, file=trim(XXNAME), action="read", iostat=ierr)      
-     if (ierr .eq. 0) then       
+     if (ierr .eq. 0) then
+      READ (unitno1,*) header
+      file_idx1=index(trim(header),"|")
+      if (file_idx1>0) then
+       write(*,*) 'RA EyeSys header detected: ',trim(header)
+      endif
+      READ (unitno2,*) header
+      file_idx2=index(trim(header),"|")
+      if (file_idx2>0) then
+       write(*,*) 'XX EyeSys header detected: ',trim(header)
+      else
+       write(*,*) 'No EyeSys header detected, assuming data only'
+       REWIND(unitno1)
+       REWIND(unitno2)
+      endif
       do I=1,MM
-       READ(unitno1,*) ITH,ZX(:)
-       READ(unitno2,*) ITH,YX(:)
+       if (file_idx1>0 .and. file_idx2>0) then
+        READ(unitno1,*) header,ZX(:)
+        READ(unitno2,*) header,YX(:)
+        ITH=I-1
+       else
+        READ(unitno1,*) ITH,ZX(:)
+        READ(unitno2,*) ITH,YX(:)
+       endif
        do J=1,N
         EyeSys%RA(i,j)=ZX(j)
         EyeSys%XX(i,j)=YX(j)
@@ -463,28 +485,6 @@ subroutine rcnvrta(KXNAME,read_error)
         ITH=2*(i-1)
         Atlas%DEG(i)=ITH
        end do
-
-!      CODE for debugging
-!       unitno = get_new_fileunit()
-!       open(unitno, file='READR.ORIG.CAR', iostat=ierr)
-!       if (ierr .eq. 0) then
-!       DO I=1,MM 
-!       DO J=1,N
-!       IF (J.EQ.19)THEN 
-!       IF (Atlas%AP(I,J).GT.0)THEN
-!        WRITE(unitno,*) I,Atlas%AP(I,J)  
-!       ENDIF 
-!       IF (Atlas%AR(I,J).GT.0)THEN
-!        WRITE(unitno,*) I,Atlas%AP(I,J)/10,Atlas%AR(I,J),Atlas%AD(I,J)  
-!       ENDIF 
-!       ENDIF
-!       end do	 
-!       end do 
-!       CLOSE(unitno)
-!      else
-!       print*, "Error ", ierr ," attempting to open file ", trim('READR.ORIG.CAR')
-!       stop
-!      endif
              
        RETURN
        

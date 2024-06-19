@@ -1621,8 +1621,8 @@ void MainWindow::createMenus()
    tweaksMenu->addAction(centernodeAct);
    tweaksMenu->addAction(adjustradiiAct);
    tweaksMenu->addAction(cubicAct);
-   tweaksMenu->addAction(LSQfillinAct);
    tweaksMenu->addAction(SplinefillinAct);
+   tweaksMenu->addAction(LSQfillinAct);
    helpMenu = menuBar()->addMenu(tr("&About"));
    helpMenu->addAction(HelpAct);
    helpMenu->addAction(aboutAct);
