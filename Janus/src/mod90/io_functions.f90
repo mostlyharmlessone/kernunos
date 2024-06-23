@@ -12,7 +12,7 @@ module io_functions
      character(len=*), intent(in) :: OFFNAME,STLNAME,STLBINNAME
     end subroutine
 
-    SUBROUTINE fillarray(IuseG,KX1,POWMIN,POWMAX)
+    SUBROUTINE fillarray(IuseG,KX1)
 !     COMPUTES ATLAS DATA 
 !     IuseG to select what to place in RadSlope%Zp AND/OR compute LIOC
       USE cornea_arrays, ONLY : RadSlope,AxialP,sagc2,instantp,meanp,mongea,lioc
@@ -21,7 +21,6 @@ module io_functions
       use,intrinsic :: ieee_arithmetic
       integer, intent(in) :: IuseG 
       character(len=*), intent(in) :: KX1     
-      real(wp), intent(out) :: POWMIN, POWMAX
     END SUBROUTINE
 
     SUBROUTINE Geom(flag, b, donut, powmin, powmax, elements, vertices, nV, nE)
@@ -38,11 +37,11 @@ module io_functions
        integer(c_int), INTENT(INOUT) :: flag, nE, nV                         ! passed from janus to call OpenGL
     END SUBROUTINE
 
-    subroutine rcnvrta(KXNAME,read_error)
+    subroutine rcnvrta(KXNAME,N,read_error)
      USE set_precision, ONLY : wp
      USE cornea_arrays, ONLY : Atlas, PI
      character(len=*), intent(in) :: KXNAME
-     integer, intent(out) :: read_error
+     integer, intent(out) :: N, read_error
     end subroutine
 
     subroutine rcnvrte(RANAME,XXNAME,read_error)
@@ -59,10 +58,10 @@ module io_functions
      integer, intent(out) :: read_error
     end subroutine
 
-    subroutine RCNVRTT(MM,N,NP)
+    subroutine RCNVRTT(MM,N)
      USE set_precision, ONLY : wp
      USE cornea_arrays
-     INTEGER, INTENT(IN) :: MM,N,NP
+     INTEGER, INTENT(IN) :: MM,N
     end subroutine
 
     SUBROUTINE WriteGeomOFF(flag,b,donut,powmin,powmax,OFFNAME)
@@ -92,7 +91,13 @@ module io_functions
       USE set_precision, ONLY : wp
       TYPE(wpRadSlopeMatrix),INTENT(IN) :: b 
       character(len=*), intent(in) :: KXNAME   
-    end subroutine      
+    end subroutine
+
+    subroutine WriteCenterJ(a,b,KXNAME)
+     USE set_precision, ONLY : wp
+     real(wp),INTENT(IN) :: a, b(:,:)
+     character(len=*), intent(in) :: KXNAME
+    end subroutine
 
     SUBROUTINE WRITEARRAY(b,KXNAME)
       USE cornea_arrays
@@ -364,7 +369,7 @@ subroutine rcnvrte(RANAME,XXNAME,read_error)
    endif              
 end subroutine rcnvrte
 
-subroutine rcnvrta(KXNAME,read_error)
+subroutine rcnvrta(KXNAME,N,read_error)
 ! ATLAS VERSION
  use io_functions, only : get_new_fileunit
  USE set_precision, ONLY : wp
@@ -373,8 +378,8 @@ subroutine rcnvrta(KXNAME,read_error)
  logical :: exists
  CHARACTER(80) KH1,KH2,KH3
  character(len=*), intent(in) :: KXNAME
- integer, intent(out) :: read_error
- INTEGER :: K,I,J,io,ITH,JTH,unitno,MM,N,ierr
+ integer, intent(out) :: N, read_error
+ INTEGER :: K,I,J,io,ITH,JTH,unitno,MM,ierr
  REAL(wp) :: R,DIST,Y,POW
  MM=180
  N=22
@@ -384,12 +389,12 @@ subroutine rcnvrta(KXNAME,read_error)
   open(unitno, file=trim(KXNAME), action="read", iostat=ierr)
    if (ierr .eq. 0) then                         
 !   READ HEADERS
-    K=0 
+    K=0
     DO 
        K=K+1        
        READ(unitno,*,END=100,IOSTAT=io) KH1
         IF(io.GT.0) THEN
-         WRITE(*,*) 'ERROR ON INPUT ATLAS FILE'
+         WRITE(*,*) 'I/O ERROR ON INPUT ATLAS FILE',io, 'line',K  !possibly it's the first semicolon, try sed in janus
          read_error=1
          GOTO 100
         ENDIF
@@ -398,7 +403,7 @@ subroutine rcnvrta(KXNAME,read_error)
          IF (KH1.EQ.'#ATLAS')THEN
           WRITE(*,*) 'Atlas header read'
          else
-          WRITE(*,*) 'ERROR ON INPUT ATLAS FILE'
+          WRITE(*,*) 'ERROR - Could not read Atlas header'
           read_error=2
           goto 100
          endif
@@ -409,7 +414,7 @@ subroutine rcnvrta(KXNAME,read_error)
          READ(unitno,*,END=100,IOSTAT=io) KH1
          READ(unitno,*,END=100,IOSTAT=io) KH1,KH2,KH3
         ENDIF
-	
+!       There only seem to be N=22 of these, and they're of unknown usefulness in calculation
         IF (KH1.EQ.'Ring') THEN
          IF (KH2.EQ.'Point'.AND.KH3.EQ.'Radius') THEN
 !         DATA READ RADIUS? RING POSITION
@@ -434,9 +439,19 @@ subroutine rcnvrta(KXNAME,read_error)
             Atlas%AR(JTH+1,ITH+1)=R
            end do 
           end do           
-        ENDIF 
+         ENDIF
         ENDIF  
-	
+
+        IF (KH1.EQ.'#End_Table') THEN
+         READ(unitno,*,END=100,IOSTAT=io) KH1,KH2
+         IF (KH1.EQ.'Power_Rings_Count') THEN
+          read(KH2,*) N
+          if (N > 22) write(*,*) 'Atlas 900 file'
+          if (N < 25) write(*,*) 'Atlas 9000 file'
+          write(*,*) trim(KH1),N
+         ENDIF
+        ENDIF
+
         IF (KH1.EQ.'Ring') THEN
          IF (KH2.EQ.'Point'.AND.KH3.EQ.'Distance(MM)') THEN       
 !         DATA READ POWER

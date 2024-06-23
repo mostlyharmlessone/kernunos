@@ -82,7 +82,7 @@ INTERFACE ASSIGNMENT (=)
  MODULE PROCEDURE Atlas_eq_RadSlope
  MODULE PROCEDURE Skyline_eq_Penta
  MODULE PROCEDURE RadSlope_eq_EyeSys
-! MODULE PROCEDURE RadSlope_eq_Atlas
+ MODULE PROCEDURE RadSlope_eq_Atlas
  MODULE PROCEDURE DiaSlope_eq_RadSlope
  MODULE PROCEDURE RadSlope_eq_DiaSlope
  ! Type(oneofthesebelow) = INTEGER(0) deallocates the matrix
@@ -337,10 +337,12 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
   real(wp) :: r(size(RadSlope%r,2)),z(Skyline%cols),z2(Skyline%cols)
   real(wp) :: x(Skyline%cols)              ! maximum size needed, don't need NP
   real(wp) :: y(Skyline%rows)
+  real(wp) :: rmax
   M1=size(RadSlope%r,2)
   N1=size(RadSlope%r,1)
   NP=size(Skyline%DAT,1)                                                   
   imv=0
+  rmax=-1E30
 ! Spline in x                               (this is the equivalent of DiaSpline)
   do i=1,Skyline%rows
    L2=Skyline%L2x(i)                                       
@@ -370,10 +372,12 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
     endif
 !   boundary check here 
     xx=u*(NP-1)/14.0 ; yy=v*(NP-1)/14.0
-    if (Penta%DAT(1+(NP-1)/2+sign(floor(ABS(xx)),floor(xx)),1+(NP-1)/2+sign(floor(ABS(yy)),floor(yy))) > 0) then  ! test for >0 is why Penta needed here
-     imv(i)=imv(i)+1   ! could cycle here and not compute/extrapolate out of bounds
+    if (Penta%DAT(1+(NP-1)/2+sign(floor(ABS(xx)),floor(xx)),&
+                 &1+(NP-1)/2+sign(floor(ABS(yy)),floor(yy))) > 0) then  ! test for >0 is why Penta needed here
+     imv(i)=imv(i)+1   ! cycle here and do not compute/extrapolate out of bounds
+     if (r(j) >= rmax) rmax=r(j)
     else
-!     cycle
+     cycle
     endif 
 !   Populate JMatrix with Splined PentaCam
 !   Spline in y      (this is the equivalent of Spline1Dx1D)
@@ -401,24 +405,34 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
       JMatrix%Z0(1)=ABS(DAT)                  ! if elevation
     else
 !    Use imv(i),i to only compute within boundaries together with commented cycle statement above 
-     RadSlope%Z(j,i)=ABS(DAT)/10.0              ! if elevation
+!     if (ABS(DAT) > 0) then
+!      RadSlope%Z(j,i)=ABS(DAT)/10.0              ! if elevation
+!      JMatrix%SAGC(j,i)=RFCT/(100.0*ABS(DAT))    ! if curvatures
+!      CALL ZFCT(M1,i,100.0*ABS(r(j)),100.0*ABS(DAT),RadSlope%r(j,i),RadSlope%Zp(j,i))  !only for curvatures
+!     endif
      if (ABS(DAT) > 0) then
-      JMatrix%SAGC(j,i)=RFCT/(100.0*ABS(DAT))    ! if curvatures
-      CALL ZFCT(M1,i,100.0*ABS(r(j)),100.0*ABS(DAT),RadSlope%r(j,i),RadSlope%Zp(j,i))  !only for curvatures
+      RadSlope%Z(imv(i),i)=ABS(DAT)/10                  !if elevation
+      JMatrix%SAGC(imv(i),i)=RFCT/(100.0*ABS(DAT))      !if curvatures
+      CALL ZFCT(M1,i,100*ABS(r(imv(i))),100.0*ABS(DAT),RadSlope%r(imv(i),i),RadSlope%Zp(imv(i),i)) !only for curvatures
      endif
-!     CALL ZFCT(M1,i,100*ABS(r(imv(i))),100.0*ABS(DAT),RadSlope%r(imv(i),i),RadSlope%Zp(imv(i),i)) !only for curvatures
-!     RadSlope%Z(imv(i),i)=ABS(DAT)/10                  !if elevation
-!     JMatrix%SAGC(imv(i),i)=RFCT/(100.0*ABS(DAT))      !if curvatures
-    JMatrix%R(j,i)=RadSlope%r(j,i)
-    JMatrix%Z(j,i)=RadSlope%Z(j,i)
+!    JMatrix%R(j,i)=RadSlope%r(j,i)
+!    JMatrix%Z(j,i)=RadSlope%Z(j,i)
 !   finds min and max
-    if (JMatrix%Z(j,i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z(j,i)
-    if (JMatrix%Z(j,i) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z(j,i)
-    if (JMatrix%SAGC(j,i) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC(j,i)
-    if (JMatrix%SAGC(j,i) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC(j,i)  
+!    if (JMatrix%Z(j,i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z(j,i)
+!    if (JMatrix%Z(j,i) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z(j,i)
+!    if (JMatrix%SAGC(j,i) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC(j,i)
+!    if (JMatrix%SAGC(j,i) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC(j,i)
+    JMatrix%R(imv(i),i)=RadSlope%r(imv(i),i)
+    JMatrix%Z(imv(i),i)=RadSlope%Z(imv(i),i)
+!   finds min and max
+    if (JMatrix%Z(imv(i),i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z(imv(i),i)
+    if (JMatrix%Z(imv(i),i) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z(imv(i),i)
+    if (JMatrix%SAGC(imv(i),i) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC(imv(i),i)
+    if (JMatrix%SAGC(imv(i),i) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC(imv(i),i)
     endif
    end do !j to N1
   end do !i to M1
+  write(*,*) 'rmax from RadSlope_eq_Skyline',rmax
   RadSlope%MV(:)=imv(:)  ! save boundary
   JMatrix%MV(:)=RadSlope%MV(:)  
   JMatrix%THT(:)=RadSlope%thta(:)
@@ -509,39 +523,34 @@ subroutine Atlas_eq_RadSlope(Atlas,RadSlope)
       Y2X=RadSlope%Zp2(j,i)
       if (ABS(YP) > 0._wp) then
        CALL AXIALP(X2,YP,Y2X,POW)
-       Atlas%AR(i,j)=ABS(RadSlope%r(j,i))/100.0_wp ! scale value 
-       Atlas%AD(i,j)=Atlas%AR(i,j)
+       Atlas%AD(i,j)=ABS(RadSlope%r(j,i))/100.0_wp ! scale value
+       Atlas%AR(i,j)=Atlas%AD(i,j)  !just to make something
        Atlas%AP(i,j)=POW
-       Atlas%AY(i,j)=RadSlope%Z(j,i)
+       Atlas%AY(i,j)=RadSlope%Z(j,i)  !completely scaled wrong
       endif
       end do
   end do
 end subroutine Atlas_eq_RadSlope
 
 !aka power2slope using ZFCT converts lhs to rhs
-subroutine RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas) ! initially populates r, thta, Zp, MV
+subroutine RadSlope_eq_Atlas(RadSlope,Atlas) ! initially populates r, thta, Zp, MV
   TYPE(wpRadSlopeMatrix) :: RadSlope
   TYPE(wpAtlasMatrix) :: Atlas
-  TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
   REAL(wp) :: ZIX,ZJX,YA3,X2A1
   REAL(wp) :: DIST,R,POW
-  INTEGER :: i,j,MM,N,imv(size(RadSlope%r,2))
+  INTEGER :: i,j,MM,imv(size(RadSlope%r,2))
     MM=size(RadSlope%r,2)
     N=size(RadSlope%r,1)
     imv=0
-    JMatrix%SAGC0(2)=1E30   ;  JMatrix%SAGC0(3)=-1E30
-    JMatrix%Z0(2)=1E30      ;  JMatrix%Z0(3)=-1E30
-    JMatrix%R0=0 ; JMatrix%THT0=0
     do i=1,MM
      RadSlope%thta(i)=PI*Atlas%DEG(i)/180.0_wp
-     JMatrix%THT(i)=PI*Atlas%DEG(i)/180.0_wp
      do j=1,N
       if ((Atlas%AP(i,j) > 0) .AND. (Atlas%AR(i,j) > 0) .AND. (Atlas%AD(i,j) > 0) .AND. (Atlas%AY(i,j) > 0)) then    ! Only for Atlas with valid data /= 0
        DIST=Atlas%AD(i,j)
        R=Atlas%AR(i,j)
        POW=Atlas%AP(i,j)
        ZIX=RFCT/POW
-!      could use DIST or R here
+!      only use AD == DIST not R here
        ZJX=DIST*100
        if (ZIX > ZJX) then
         imv(i)=imv(i)+1                                            
@@ -552,21 +561,12 @@ subroutine RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas) ! initially populates r, th
        RadSlope%r(imv(i),i)=X2A1
        RadSlope%Zp(imv(i),i)=YA3
     !  These are not even close; Y is tiny, AY range is in the 2's
-       RadSlope%Z(imv(i),i)=Atlas%AY(i,j)
-       JMatrix%SAGC(imv(i),i)=POW
-!      These are not even close; Y is tiny, AY range is in the 2's
-       JMatrix%Z(imv(i),i)=Atlas%AY(i,j) 
+       RadSlope%Z(imv(i),i)=Atlas%AY(i,j) 
        RadSlope%Zp2(imv(i),i)=1/803.0_wp ! fallback value before splining
       endif
-      if (JMatrix%Z(j,i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z(j,i)
-      if (JMatrix%Z(j,i) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z(j,i)  
-      if (JMatrix%SAGC(j,i) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC(j,i)
-      if (JMatrix%SAGC(j,i) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC(j,i)
      end do
-     JMatrix%R(:,i)=RadSlope%r(:,i)
     end do
     RadSlope%MV(:)=imv(:)
-    JMatrix%MV(:)=imv(:)
 end subroutine RadSlope_eq_Atlas
 
 subroutine DiaSlope_eq_RadSlope(DiaSlope,RadSlope)

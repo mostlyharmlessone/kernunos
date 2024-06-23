@@ -1,13 +1,13 @@
-subroutine RCNVRTT(MM,N,NP)
+subroutine RCNVRTT(MM,N)
 
 USE set_precision, ONLY : wp
 USE cornea_arrays
 
  INTEGER :: i,j
- INTEGER, INTENT(IN) :: MM,N,NP
- REAL(wp) :: DIST,R,A,B,X,YP,POW,XDIST,YDIST,XX,YY,DX,DY,D,YT,YZ
+ INTEGER, INTENT(IN) :: MM,N
+ REAL(wp) :: DIST,R,A,B,X,YP,POW,D,YT,YZ
 
-! fake EyeSys and PentaCam data, only works for MM=360
+! fake EyeSys
 
   RadSlope%MV=0.0_wp
   do i=1,MM
@@ -17,16 +17,16 @@ USE cornea_arrays
 
 !     ROUND MIRES, SINGLE AXIAL POWER SPHERE    
        if (j > N) then
-        R=50.0_wp
-        A=40.0_wp
-        B=30.0_wp
+        R=48.0_wp
+        A=46.0_wp
+        B=50.0_wp
         D=0.0_wp ; X=0.0_wp
        else 
-        DIST=0.4_wp+(j-1)*0.15_wp
+        DIST=0.2_wp+(j-1)*0.13_wp
 !       ELLIPSOID WITH ASTIGMATISM Z=R-R*SQRT(1-(rCOSt/A)^2-(rSINt)/B)^2)
-        R=50.0_wp
-        A=40.0_wp
-        B=30.0_wp
+        R=48.0_wp
+        A=46.0_wp
+        B=50.0_wp
         X=DIST*A/5.0
 !	D=DIST  alternate version without scale for derivative magnitude check
         D=X
@@ -53,13 +53,12 @@ USE cornea_arrays
         YZ=R-R*SQRT(1-(X*COS(RadSlope%thta(i))/A)**2-(X*SIN(RadSlope%thta(i))/B)**2) 
         YZ=R-R*SQRT(1-(D*COS(RadSlope%thta(i))/A)**2-(D*SIN(RadSlope%thta(i))/B)**2)
       if (j > N) then
-        POW=42  ! SAGC undefined when YP=0
+        POW=48  ! SAGC undefined when YP=0
       else    
         POW=ABS(X/YP)*SQRT(1+YP**2)
         POW=ABS(D/YP)*SQRT(1+YP**2)
       endif
       if (j > N) then
-       JMatrix%R0=0 ; JMatrix%Z0(1)=YZ; JMatrix%THT0=0; JMatrix%SAGC0(1)=POW     
       else            
        if (POW > 0 .AND. DIST > 0) then   ! should always be true
         RadSlope%MV(i)=RadSlope%MV(i)+1             
@@ -71,61 +70,5 @@ USE cornea_arrays
       endif
      end do 
   end do
-
-!    PentaCam Simulation data
-  do i=1,NP
-   do j=1,NP
-
-!     ROUND MIRES, SINGLE AXIAL POWER SPHERE         
-
-        XDIST=(-7.00+((i-1)*14.00)/(NP-1.0))/400.0
-        YDIST=(-7.00+((j-1)*14.00)/(NP-1.0))/400.0
-
-!       ELLIPSOID WITH ASTIGMATISM Z=R-R*SQRT(1-(X/A)^2-(Y/B)^2)
-        R=50.0_wp
-        A=40.0_wp
-        B=30.0_wp
-        XX=XDIST*A/5.0
-        YY=YDIST*B/5.0
-!	DX=XDIST  alternate version without scale for derivative magnitude check
-!	DY=YDIST  alternate version without scale for derivative magnitude check
-        DX=XX
-        DY=YY
-        D=sqrt(DX*DX+DY*DY)
-
-        YP=-(DX/A)**2 - (DY/B)**2
-        YP=YP*D/SQRT(1 - (DX/A)**2 - (DY/B)**2 )
-
-!       THE SIGN OF YP IS BY CONVENTION THIS WAY, NOT THE REVERSE BY THE USUAL CONVENTION
-!       SIGN OF SLOPE IS ANNIHILATED BY POWER CONVERSION
-!        IF(ITHETA.GE.180) THEN 
-!        YP1=YP
-!        YP=-YP1
-!        else
-!        YP1=YP
-!        YP=YP1            
-!        ENDIF 	
-!       NEED A CHECK ON MY THETA DERIVATIVES SINCE THESE MIRES HAVE CONSTANT RADII 
-
-        YT=(DY/B**2-DX/A**2)
-        YT=YT*R/SQRT(1-(DX/A)**2-(DY/B)**2)
-
-!       NEED A CHECK ON ELEVATION 
-        YZ=R-R*SQRT(1-(DX/A)**2-(DY/B)**2)
-        
-        if ( i == 1 .AND. j == 1) then
-         POW=ABS(D/YP)*SQRT(1+YP**2) 
-        else
-         POW =42 ! undefined at origin
-        endif 
-        
-   if ( D < R/400.0 ) then
-    Penta%DAT(i,j)=POW 
-
-   else
-    Penta%DAT(i,j)=-1
-   endif
-   end do
-  end do 
 
  end subroutine RCNVRTT     

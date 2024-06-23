@@ -26,10 +26,10 @@
   character(len=4096) :: new_path
   character(:),save, ALLOCATABLE :: inputfile1,inputfile2
   character(:),save, ALLOCATABLE :: logfile
-  integer ::  nblines, file_idx, file_pfx,read_error
+  integer ::  nblines, file_idx, file_pfx,read_error,io
   integer,allocatable :: MV(:)
   real(8) :: time_start, time_end
-  real(wp) :: POWMIN,POWMAX,POWMIN2,POWMAX2,POWCTR,POW
+  real(wp) :: POWMIN,POWMAX,POWMAX2,POWCTR,POW
   logical :: donut, exists
   real(wp) :: Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo
   integer :: k_max, kk_max, iflag !,LWORK
@@ -279,8 +279,7 @@ if (mod(flag,100) == 0) then
         if( file_idx == 0) then
          write(*,*) 'Not a PentaCam file'
          write(*,*) 'Unknown file type: make some test data, flag = ',flag
-         TestData=-1; MM=180; N=22 ; NP=141  ! make some test data not working
-!         TestData=-1; MM=360; N=16 ; NP=141  ! make some test data rcnvrt not working 360
+         TestData=-1; MM=360; N=16 ; NP=141
         else
 !        inputfile2=replacestr(string=inputfile1,search="ELE",substitute="CUR")
         TestData=2; MM=180; N=22; NP=141 ! PentaCam ELE
@@ -295,7 +294,7 @@ if (mod(flag,100) == 0) then
        if( file_idx == 0) then
         file_idx=index(inputfile1, "_ELE")
         if( file_idx == 0) then
-         TestData=1; MM=180; N=22   ! Atlas
+         TestData=1; MM=180; N=25   ! Atlas 900 can be up to 25, 9000 seems to be 22
          write(*,*) "Atlas file: ",inputfile1
         else
         write(*,*) 'Not an Atlas file'
@@ -416,8 +415,38 @@ if (TestData .eq. 0) then
 
 ! READ THE ATLAS DATA
  if (TestData .eq. 1) then
-  MM=180; N=22   ! Atlas
-! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
+  MM=180; N=25   ! Atlas
+  if(.not.allocated(Atlas%AR)) then
+   call init_mat_Atlas(MM,N,Atlas)
+  endif
+  if (mod(flag,100) == 0) then !read the files
+   if(allocated(Atlas%AR)) then
+    Atlas=0   !might need to reallocate if N=25 or 22?
+    call init_mat_Atlas(MM,N,Atlas)
+   endif
+   call CPU_TIME(time_start)
+   read_error=0
+   call RCNVRTA(inputfile1,N,read_error)
+   if (read_error .eq. 1) then
+    write(*,*) 'Possible semicolon delimited Atlas file, try sed'
+    inputfile2=replacestr(string=inputfile1,search=".CSV",substitute=".TMP")
+    write(*,*) 'sed "s/;/,/g" ' // inputfile1 // ' > ' // inputfile2
+    call system('sed "s/;/,/g" ' // inputfile1 // ' > ' // inputfile2, io)
+    if (io > 0) then
+    write (*,*) 'system command to sed failed'
+    write (*,*) 'Consider using your text editor to search/replace all semicolons with commas in',inputfile1
+    else
+     call RCNVRTA(inputfile2, N, read_error)
+     if (read_error > 0) write (*,*) 'temp Atlas file read error, probably not because semicolon delimited'
+     call system('rm ' // inputfile2, io)
+     if (io > 0) write (*,*) 'system command to remove tmp file failed'
+    endif
+   endif
+   call CPU_TIME(time_end)
+   write(*,*) 'Time to read Atlas CSV file: ',(time_end-time_start)*1000
+   if (read_error > 0) return
+  endif  !(mod(flag,100) /= 0,99,2,3 must be 1 or 4, reload the original data
+  ! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
   if (allocated(RadSlope%r)) then
    write(*,*) 'Radslope,DiaSlope need to be reallocated'
    RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
@@ -425,18 +454,7 @@ if (TestData .eq. 0) then
   else
    call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
   endif
-  if(.not.allocated(Atlas%AR)) then
-   call init_mat_Atlas(MM,N,Atlas)
-  endif
-  if (mod(flag,100) == 0) then !read the files
-   call CPU_TIME(time_start)
-   read_error=0
-   call RCNVRTA(inputfile1,read_error)
-   call CPU_TIME(time_end)
-   write(*,*) 'Time to read Atlas CSV file: ',(time_end-time_start)*1000
-   if (read_error > 0) return
-  endif  !(mod(flag,100) /= 0,99,2,3 must be 1 or 4, reload the original data
-  call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)
+  RadSlope=Atlas
  endif
 
 ! READ THE PENTACAM DATA
@@ -469,7 +487,7 @@ if (TestData .eq. 0) then
   call CPU_TIME(time_end)
   write(*,*) 'Time to convert Penta: ',(time_end-time_start)*1000
   if (TestData.eq.2 .or. TestData.eq.4) then ! ELE or ELE.CSV PentaCam files, put elevation into Zp for splining without integration
-   RadSlope%Zp(:,:)=0 ; JMatrix%SAGC(:,:) = 0 ; JMatrix%SAGC0(:) = 0 ! ELE shoudln't have anything in Zp or SAGC yet
+   RadSlope%Zp(:,:)=0 ; JMatrix%SAGC(:,:) = 0 ; JMatrix%SAGC0(:) = 0 ! ELE should not have anything in Zp or SAGC yet
    do i=1,MM
     do j=1,RadSlope%MV(i)
       RadSlope%Zp(j,i)=JMatrix%Z(j,i) !=RadSlope%Z(j,i) ! at this point
@@ -482,7 +500,7 @@ if (TestData .eq. 0) then
   endif  
  endif
 
-! OR GENERATE Fake data (EYESYS,ATLAS OR PENTA STYLE)
+! OR GENERATE Fake EyeSys data
 if (TestData .lt. 0) then
  MM=360; N=16   ! fake EyeSys
 ! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
@@ -496,23 +514,11 @@ if (TestData .lt. 0) then
  if(.not.allocated(EyeSys%RA)) then
   call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
  endif
-  if(.not.allocated(Atlas%AR)) then
-   call init_mat_Atlas(MM,N,Atlas)
-  endif
-  if(.not.allocated(Penta%DAT)) then
-   call init_mat_Penta(NP,Penta,Skyline)   !allocate the PentaCam matices
-  endif
   if (mod(flag,100) == 0) then !read the files
-   call RCNVRTT(MM,N,NP)
+   call RCNVRTT(MM,N)
   endif  !(mod(flag,100) /= 0,99,2,3 must be 1 or 4, reload the original data  endif
-! uncomment next two lines to test fake Penta data
-  Skyline=Penta
-  call RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)  !needs Penta for border check populates RadSlope with ZFCT
-  if (MM == 360) then
-   RadSlope=EyeSys
-   Atlas=RadSlope   ! total caca for fake data
-  endif
-  call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)
+! Generate the slope matrix using ZFCT
+  RadSlope=EyeSys
  endif
 
 ! fillin tweaks
@@ -543,14 +549,14 @@ if (TestData .eq. 1) then
  endif
 
  if (btest(dat, 4) .or. btest(dat, 3)) then
-  call RadSlope_eq_Atlas(JMatrix,RadSlope,Atlas)
+  RadSlope=Atlas
   Atlas=AtlasSave  ! restore Atlas
 !  Look at these intersecting rings using
 !  gnuplot 'plot 'datafile dumped with' u 1:2'  (don't set polar) first option, or splot second option
 !  do j=1,N
 !    do i=1,MM
 !     write(*,*) Atlas%DEG(i),Atlas%AP(i,j)
- !    write(*,*) Atlas%AR(i,j)*COS(PI*Atlas%DEG(i)/180.0),Atlas%AR(i,j)*SIN(PI*Atlas%DEG(i)/180.0),0
+ !    write(*,*) Atlas%AD(i,j)*COS(PI*Atlas%DEG(i)/180.0),Atlas%AD(i,j)*SIN(PI*Atlas%DEG(i)/180.0),0
 !    end do
 !    write(*,*) ' '
 !   end do
@@ -579,47 +585,47 @@ endif
   k=0 ; powmax2 = 0 ; powmax =0  ! Use these temporarily
  ! find max elevation from Atlas file
   do i=1,M1
-   do j=1,N1
+   do j=1,min(RadSlope%MV(i),N1)  ! in case Atlas 900 data has MV(i) greater than 22
     if (100*Atlas%AY(i,j) > powmax) powmax=100*Atlas%AY(i,j)
     end do
    end do
  ! check spline power & elevation at knots
    do i=1,M1
-    do j=1,N1
+    do j=1,min(RadSlope%MV(i),N1)  ! in case Atlas 900 data has MV(i) greater than 22
      if (i > 90) then
-      call SplineEval1Dx1D(iflag,-100*Atlas%AD(i,j),JMatrix%THT(i),Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
-      call AXIALP(-100*Atlas%AD(i,j),YPR,YP2R2,JMatrix%SAGC(j,i))
+      call SplineEval1Dx1D(iflag,-100*Atlas%AD(i,j),PI*(i-1)/90.0_wp,Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
+      call AXIALP(-100*Atlas%AD(i,j),YPR,YP2R2,pow)
      else
-      call SplineEval1Dx1D(iflag,100*Atlas%AD(i,j),JMatrix%THT(i),Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
-      call AXIALP(100*Atlas%AD(i,j),YPR,YP2R2,JMatrix%SAGC(j,i))
+      call SplineEval1Dx1D(iflag,100*Atlas%AD(i,j),PI*(i-1)/90.0_wp,Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
+      call AXIALP(100*Atlas%AD(i,j),YPR,YP2R2,pow)
      endif
-!   skip missing elevation points to compute average error
+!   skip missing elevation points to compute (cumulative) average error
     if (Atlas%AY(i,j) > 0) then
       k=k+1
       powmax2=powmax2+ABS(Y-powmax+100*Atlas%AY(i,j))
      endif
 !   checks that power at knots is correct at knts
-     if (ABS(Atlas%AP(i,j)-JMatrix%SAGC(j,i)) > EPS .and. (Atlas%AP(i,j) .gt. 0)) then
-      write(*,*) 'Atlas power spline error in janus: ',j,i,Atlas%AP(i,j),JMatrix%SAGC(j,i)
+     if (ABS(Atlas%AP(i,j)-pow) > EPS .and. (Atlas%AP(i,j) .gt. 0) .and. (Atlas%AD(i,j) .gt. 0) .and. (Atlas%AY(i,j) .gt. 0)) then
+      write(*,*) 'Atlas power spline error in janus: ',j,i,Atlas%AP(i,j),pow
      endif
     end do
    end do
-   JMatrix%SAGC(:,:) = 0 ! clean up
    write(*,*) 'Atlas avg abs elevation percent error : ',(100*powmax2/k)/powmax
  endif
 
 ! Make JMatrix
-!  make round rings and if needed convert 360x16 to 180x22
+!  make round rings and if needed convert 360x16 or 180x25 to 180x22
   ! donut
+  N=22
   rBo=7.0
   rBi=0.05*rBo
 !  min and max bounds
-  JMatrix%SAGC0(2)=1E30   ;  JMatrix%SAGC0(3)=-1E30
-  JMatrix%Z0(2)=1E30      ;  JMatrix%Z0(3)=-1E30
-  JMatrix%INSTC0(2)=1E30  ;  JMatrix%INSTC0(3)=-1E30
-  JMatrix%INSTC20(2)=1E30 ;  JMatrix%INSTC20(3)=-1E30
-  JMatrix%MEANC0(2)=1E30  ;  JMatrix%MEANC0(3)=-1E30
-  JMatrix%MONGEA0(2)=1E30 ;  JMatrix%MONGEA0(3)=-1E30
+  JMatrix%SAGC0(2)=1E30   ;  JMatrix%SAGC0(3)=-1E30 ; JMatrix%SAGC0(1)=0
+  JMatrix%Z0(2)=1E30      ;  JMatrix%Z0(3)=-1E30 ;    JMatrix%Z0(3)=0
+  JMatrix%INSTC0(2)=1E30  ;  JMatrix%INSTC0(3)=-1E30 ; JMatrix%INSTC0(1)=0
+  JMatrix%INSTC20(2)=1E30 ;  JMatrix%INSTC20(3)=-1E30 ; JMatrix%INSTC20(1)=0
+  JMatrix%MEANC0(2)=1E30  ;  JMatrix%MEANC0(3)=-1E30 ; JMatrix%MEANC0(1)=0
+  JMatrix%MONGEA0(2)=1E30 ;  JMatrix%MONGEA0(3)=-1E30 ; JMatrix%MONGEA0(1)=0
   JMatrix%R0=0 ; JMatrix%THT0=0
 ! Generate the rings
   do i=1,M1                             ! every 2 degrees
@@ -629,11 +635,11 @@ endif
    else  ! MM==180
     JMatrix%MV(i)=RadSlope%MV(i)
    endif
-   do j=1,N1                             ! does not include center point or ? do j=1,RadSlope%MV(i)
+   do j=1,min(RadSlope%MV(i),N)                            ! does not include center point
     if (i > (M1/2) ) then
-     JMatrix%R(j,i)=100*((1-j)*(rBo-rBi)/(N1-1)-rBi)
+     JMatrix%R(j,i)=100*((1-j)*(rBo-rBi)/(N-1)-rBi)
     else
-     JMatrix%R(j,i)=100*((j-1)*(rBo-rBi)/(N1-1)+rBi)
+     JMatrix%R(j,i)=100*((j-1)*(rBo-rBi)/(N-1)+rBi)
     endif
 ! populate JMatrix rings, not the centers
 ! elevations
@@ -700,14 +706,15 @@ endif
     DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
    endif
 
-!  Z0
+!  Z
    if (TestData.ne.2 .and. TestData.ne.4) then
     do i=1,MM
-     call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%Z0(1))  !center value of elevation; needs integration from slopes
+     call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%Z(N+1,i))  !center value of elevation; needs integration from slopes
+     JMatrix%Z0(1)=(i*JMatrix%Z0(1)+JMatrix%Z(N+1,i))/(i+1)      ! cumulative average
     end do
    endif  !TestData.eq.2 .or. TestData.eq.4  already has valid Z0 from cornea_arrays & ELE file
 
-!  SAGC0
+!  SAGC
    if (TestData.ne.3 .and. TestData.ne.5) then  !TestData.eq.3 .or. TestData.eq.5  already has valid SAGC0 from cornea_arrays & CUR file
 !  Reload RadSlope with SAGC & re-spline; can't compute it from surface because ill-defined at origin
     do i=1,MM
@@ -725,15 +732,16 @@ endif
       DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
     endif
     do i=1,MM
-    if (btest(dat,0)) then
-     call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%SAGC0(1))  ! center value
-    else
-     call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%SAGC0(1))  ! center value
-    endif
+     if (btest(dat,0)) then
+      call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%SAGC(N+1,i))  ! center value
+     else
+      call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%SAGC(N+1,i))  ! center value
+     endif
+     JMatrix%SAGC0(1)=(i*JMatrix%SAGC0(1)+JMatrix%SAGC(N+1,i))/(i+1)      ! cumulative average
     end do
    endif
 
-!  INSTC0
+!  INSTC
 !  Reload RadSlope & respline
    do i=1,MM
     do j=1,RadSlope%MV(i)
@@ -751,13 +759,14 @@ endif
    endif
    do i=1,MM
     if (btest(dat,0)) then
-     call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC0(1))  ! center value
+     call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC(N+1,i))  ! center value
     else
-     call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC0(1))  ! center value
+     call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC(N+1,i))  ! center value
    endif
+   JMatrix%INSTC0(1)=(i*JMatrix%INSTC0(1)+JMatrix%INSTC(N+1,i))/(i+1)      ! cumulative average
   end do
 
-! INSTC20
+! INSTC2
 ! Reload RadSlope & respline
   do i=1,MM
    do j=1,RadSlope%MV(i)
@@ -775,13 +784,14 @@ endif
   endif
   do i=1,MM
    if (btest(dat,0)) then
-    call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC20(1))  ! center value
+    call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC2(N+1,i))  ! center value
    else
-    call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC20(1))  ! center value
+    call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC2(N+1,i))  ! center value
    endif
+   JMatrix%INSTC20(1)=(i*JMatrix%INSTC20(1)+JMatrix%INSTC2(N+1,i))/(i+1)      ! cumulative average
   end do
 
-! MEANC0
+! MEANC
 ! Reload RadSlope & respline
   do i=1,MM
    do j=1,RadSlope%MV(i)
@@ -799,13 +809,14 @@ endif
   endif
   do i=1,MM
    if (btest(dat,0)) then
-    call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%MEANC0(1))  ! center value
+    call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%MEANC(N+1,i))  ! center value
    else
-    call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%MEANC0(1))  ! center value
+    call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%MEANC(N+1,i))  ! center value
    endif
+   JMatrix%MEANC0(1)=(i*JMatrix%MEANC0(1)+JMatrix%MEANC(N+1,i))/(i+1)      ! cumulative average
   end do
 
-! MONGEA0
+! MONGEA
 ! Reload RadSlope & respline
   do i=1,MM
    do j=1,RadSlope%MV(i)
@@ -823,10 +834,11 @@ endif
   endif
   do i=1,MM
    if (btest(dat,0)) then
-    call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%MONGEA0(1))  ! center value
+    call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%MONGEA(N+1,i))  ! center value
    else
-    call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%MONGEA0(1))  ! center value
+    call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%MONGEA(N+1,i))  ! center value
   endif
+  JMatrix%MONGEA0(1)=(i*JMatrix%MONGEA0(1)+JMatrix%MONGEA(N+1,i))/(i+1)      ! cumulative average
  end do
 ! end populating JMatrix
 
@@ -1045,17 +1057,46 @@ if (allocated(JMatrix1%R)) then
  endif
 endif
 
+
+! need RadSlope for WriteCenter/LIOC
+call RadSlope_eq_JMatrix(RadSlope,JMatrix)
+DiaSlope=RadSlope              ! move to diagonal format
+DiaSlope%Zpd2 = .n. DiaSlope
+
+call MakeRadSplineCenter(0)     ! remakes RadSplineCenter(1,:)
+if (btest(dat, 0) ) then        ! use nsplineCenter to force zero slope at origin,
+ call DiaSplineCenter(DiaSlope) ! re-spline, with center node
+                                ! changes spline but requires SplineEvalCenter
+                                ! remakes RadSplineCenter(2,:) and RadSplineCenter(3,:)
+endif
+call MakeRadSplineCenter(dat)        ! this relies on JMatrix, not the original data in RadSlope from the file
+if (btest(dat, 1)) then         ! moving each meridian to align curves
+ call AdjustRadSplineCenter     ! changes r only
+ DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+endif
+
+
+
+
+
+
 ! WriteCenter
 ! WriteCenter shows where the spline of slopes is zero, it should be close to zero for a concave center with a unique maximum
   call WriteCenter(RadSlope,'Center.dat')! biggest deviation with nSplineCenter zero slope forced at origin,
                                             ! then with zero slope forced at average (r(low)+r(high))/2.0
                                             ! smallest deviation without nSplineCenter; view with set polar; plot 'Center.dat' with lines
-!   call execute_command_line ("gnuplot -p plotcenter.gnu &", exitstat=i)
 
+!   call execute_command_line ("gnuplot -p plotcenter.gnu &", exitstat=i)
+!plots spread of values at origin for each meridian from average
+ call WriteCenterJ(JMatrix%SAGC0(1),JMatrix%SAGC,'CenterSAGC.dat')
+ call WriteCenterJ(JMatrix%INSTC0(1),JMatrix%INSTC,'CenterINSTC.dat')
+ call WriteCenterJ(JMatrix%MEANC0(1),JMatrix%MEANC,'CenterMEANC.dat')
+ call WriteCenterJ(JMatrix%MONGEA0(1),JMatrix%MONGEA,'CenterMONGEA.dat')
+ call WriteCenterJ(JMatrix%Z0(1),JMatrix%Z,'CenterZ.dat')
 
 !  Generate LIOC with vector format
    LinesOfCurv='LIOC.CAR'
-   call FILLARRAY(8,LinesOfCurv,POWMIN2,POWMAX2)    ! don't redo bounds consider optional !  plot 'LIOC.CAR' using 1:2:3:4 with vectors
+   call FILLARRAY(8,LinesOfCurv)    ! don't redo bounds consider optional !  plot 'LIOC.CAR' using 1:2:3:4 with vectors
 !   call execute_command_line ("gnuplot -p plotlioc.gnu &", exitstat=i)
 
 
@@ -1122,13 +1163,19 @@ BigPlot='BIG.CAR'
      call AdjustRadSplineCenter     ! changes r only
      DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
    endif
-   call FILLARRAY(4,LinesOfCurv,POWMIN,POWMAX)
+   call FILLARRAY(4,LinesOfCurv)
    write(*,*) 'POWMIN,POWMAX',POWMIN,POWMAX
    call CPU_TIME(time_end)
    write(*,*) 'Time to make plot',i,(time_end-time_start)*1000   
 
 ! GENERATE PRINT FILES
-  call WRITEARRAY(RadSlope,BigPlot)
+!  RadSlope=DiaSlope
+  do i=1,MM
+   do j=1,RadSlope%MV(i)
+    RadSlope%Zp(j,i)=JMatrix%SAGC(j,i)
+   end do
+  end do
+  call WRITEARRAY(RadSlope,BigPlot)  !plots RadSlope%Zp(j,i)
 
 ! put in module with printgraph and put loop in; might be able to read the max/min off each file
 ! or embed in the file with a comment/header

@@ -65,7 +65,10 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
     if (KP /= 1) then  !  natural spline extrapolation z2=0 outside spline 
      z2=0._wp
      if (KP == 2) then
-      f = 0            ! no provision for anything but only f with KP == 2
+      if (Present(f)) f = 0
+      if (Present(fp)) fp = 0
+      if (Present(fpp)) fpp = 0
+      if (Present(fppp)) fppp = 0
       return
      endif
     end if

@@ -727,8 +727,16 @@ void MainWindow::center() {
    // would be better if calcs could be done here instead of in janus, or at least call WriteCenter?
    Gnuplot gp;
    gp << "set polar\n";
+   gp << "set term x11 0\n";
    gp << "plot \"" << "Center.dat" << "\" using 1:2 with lines\n";
-
+   gp << "set term x11 1\n";
+   gp << "plot \"" << "CenterSAGC.dat" << "\" using 1:2 with lines\n";
+   gp << "set term x11 2\n";
+   gp << "plot \"" << "CenterINSTC.dat" << "\" using 1:2 with lines\n";
+   gp << "set term x11 3\n";
+   gp << "plot \"" << "CenterMEANC.dat" << "\" using 1:2 with lines\n";
+   gp << "set term x11 4\n";
+   gp << "plot \"" << "CenterMONGEA.dat" << "\" using 1:2 with lines\n";
 //   gp << "load \"" << "plotcenter.gnu\n";      //last line c mouse pause, pauses program
 
 #ifdef _WIN32

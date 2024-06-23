@@ -10,7 +10,7 @@
   real(wp), INTENT(IN) ::  r(n)
   real(wp), INTENT(IN) ::  z(n)
   real(wp), INTENT(OUT) :: z2(n)
-  real(wp),allocatable ::  a(:),b(:),c(:),d(:),zz2(:) !,a_short(:)
+  real(wp),allocatable ::  a(:),b(:),c(:),d(:),zz2(:),a_short(:)
   real(wp),allocatable ::  rr(:),zz(:)
   integer :: high, low, i
   integer :: info    ! for lapack use below 
@@ -61,21 +61,21 @@
      d(i-1)=(zz(i+1)-zz(i))/(rr(i+1)-rr(i))-(zz(i)-zz(i-1))/(rr(i)-rr(i-1))
     end do
 
-!!  lapack
-!    if (n > 3) then                                   ! n > 3 only if using LAPACK dgtsv
-!    allocate (a_short(n-3))
-!     do i=1,n-2
-!      a_short(i)=a(i+1)                               ! truncated "a" for dgtsv, don't have to truncate "c"
-!     end do
-!    endif
-  call thomas(a,b,c,d,zz2,n-1,1) ! can use to check against lapack
-!  if (n > 3) then
-!   zz2(:)=d(:) ! for lapack
-!   call dgtsv( n-1, 1, a_short, b, c, zz2, n-1, INFO )     ! overwrites b and d into solution
-!   deallocate(a_short)
-!  else  ! have to use thomas for n=3
-!   call thomas(a,b,c,d,zz2,n-1,1) ! can use to check against lapack, doesn't use a(1) or c(n); overwrites b and d
-!  endif  
+!  lapack
+    if (n > 3) then                                   ! n > 3 only if using LAPACK dgtsv
+    allocate (a_short(n-2))
+     do i=1,n-2
+      a_short(i)=a(i+1)                               ! truncated "a" for dgtsv, don't have to truncate "c"
+     end do
+    endif
+!  call thomas(a,b,c,d,zz2,n-1,1) ! can use to check against lapack
+  if (n > 3) then
+   zz2(:)=d(:) ! for lapack
+   call dgtsv( n-1, 1, a_short, b, c, zz2, n-1, INFO )     ! overwrites b and d into solution
+   deallocate(a_short)
+  else  ! have to use thomas for n=3
+   call thomas(a,b,c,d,zz2,n-1,1) ! can use to check against lapack, doesn't use a(1) or c(n); overwrites b and d
+  endif
 
 ! remove centerpoint zz2(low+1), adjust for zz2 being 1...n-1 corresponding with z2(2...n)
    do i=2,high  

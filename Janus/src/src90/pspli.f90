@@ -61,7 +61,7 @@
    IsInf=ieee_is_finite(error)
    If(.not.IsInf) then
     write(*,*) 'Warning from pspli',m,n,t(1),t(n),ABS(t(1)-t(n)+PERD)
-    stop
+    return
    endif
        
        end subroutine pspli

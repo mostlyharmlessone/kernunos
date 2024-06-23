@@ -6,7 +6,7 @@
   integer, INTENT(IN) :: n
   real(wp), INTENT(IN) ::  r(n),z(n) 
   real(wp), INTENT(OUT) :: z2(n) 
-  real(wp),allocatable ::  a(:),b(:),c(:),d(:),zz2(:) !,a_short(:)
+  real(wp),allocatable ::  a(:),b(:),c(:),d(:),zz2(:),a_short(:)
   integer :: i,info    ! for lapack use below
   real(wp) :: f      ! error handling
   logical :: IsNaN    
@@ -33,20 +33,20 @@
      d(i-1)=(z(i+1)-z(i))/(r(i+1)-r(i))-(z(i)-z(i-1))/(r(i)-r(i-1))
     end do
 !    lapack
-!    if (n > 3) then                                   ! n > 3 only if using LAPACK dgtsv
-!    allocate (a_short(n-3))
-!     do i=1,n-3
-!      a_short(i)=a(i+1)                               ! truncated "a" for dgtsv, don't have to truncate "c"
-!     end do
-!    endif
-   call thomas(a,b,c,d,zz2,n-2,1) ! can use to check against lapack, doesn't use a(1) or c(n); overwrites b and d
-!  if (n > 3) then
-!   zz2(:)=d(:) ! for lapack
-!   call dgtsv( n-2, 1, a_short, b, c, zz2, n-2, INFO )     ! overwrites b and d into solution
-!   deallocate(a_short)
-!  else  ! have to use thomas for n=3
+    if (n > 3) then                                   ! n > 3 only if using LAPACK dgtsv
+    allocate (a_short(n-2))
+     do i=1,n-3
+      a_short(i)=a(i+1)                               ! truncated "a" for dgtsv, don't have to truncate "c"
+     end do
+    endif
 !   call thomas(a,b,c,d,zz2,n-2,1) ! can use to check against lapack, doesn't use a(1) or c(n); overwrites b and d
-!  endif   
+  if (n > 3) then
+   zz2(:)=d(:) ! for lapack
+   call dgtsv( n-2, 1, a_short, b, c, zz2, n-2, INFO )     ! overwrites b and d into solution
+   deallocate(a_short)
+  else  ! have to use thomas for n=3
+   call thomas(a,b,c,d,zz2,n-2,1) ! can use to check against lapack, doesn't use a(1) or c(n); overwrites b and d
+  endif
    do i=2,n-1
      z2(i)=zz2(i-1)
    end do 
@@ -55,7 +55,7 @@
    IsNaN=ieee_is_NaN(f)
    If(IsNaN) then
     write(*,*) 'Warning from nspline: NaN terms probable duplicate r; ',r(1:n)
-    stop
+    return
    endif
  
    deallocate (a,b,c,d,zz2)
