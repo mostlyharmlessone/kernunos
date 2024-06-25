@@ -85,6 +85,7 @@ INTERFACE ASSIGNMENT (=)
  MODULE PROCEDURE RadSlope_eq_Atlas
  MODULE PROCEDURE DiaSlope_eq_RadSlope
  MODULE PROCEDURE RadSlope_eq_DiaSlope
+ MODULE PROCEDURE RadSlope_eq_JMatrix
  ! Type(oneofthesebelow) = INTEGER(0) deallocates the matrix
  MODULE PROCEDURE destroy_EyeSys
  MODULE PROCEDURE destroy_Penta
@@ -254,8 +255,8 @@ end subroutine destroy_Skyline
 !!array conversion routines
 
 subroutine Skyline_eq_Penta(Skyline,Penta)  ! Arrange data Skyline, that will allow loading into SplineEval                                            
-  TYPE(wpSkyline) :: Skyline                ! x,f(x) knots, number of knots(length) and u (test point) 
-  TYPE(wpPentaMatrix) :: Penta              ! This is the equivalent of DiaSlope=RadSlope
+  TYPE(wpSkyline), INTENT(OUT) :: Skyline                ! x,f(x) knots, number of knots(length) and u (test point)
+  TYPE(wpPentaMatrix), INTENT(IN) :: Penta              ! This is the equivalent of DiaSlope=RadSlope
   Integer :: i,j,NP,ii,jj                   ! skyline x by rows, generate y using indices later
   Integer :: first_row,last_row,col(size(Penta%DAT,1)),index_row(size(Penta%DAT,1))                                
   Integer :: first_col,last_col,row(size(Penta%DAT,1)),index_col(size(Penta%DAT,1))
@@ -440,8 +441,8 @@ end subroutine RadSlope_eq_Skyline
 
 ! uses ZFCT converts lhs to rhs
 subroutine RadSlope_eq_EyeSys(RadSlope,EyeSys) ! initially populates r, thta, Zp, MV
-  TYPE(wpEyeSysMatrix) :: EyeSys
-  TYPE(wpRadSlopeMatrix) :: RadSlope
+  TYPE(wpEyeSysMatrix), INTENT(INOUT) :: EyeSys
+  TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
   INTEGER :: i,j,MM,N
   integer :: imv(size(RadSlope%r,2))
   REAL(wp) :: ZIX,ZJX,YA3,X2A1
@@ -481,8 +482,7 @@ subroutine RadSlope_eq_JMatrix(RadSlope,JMatrix)
        ZIX=RFCT/JMatrix%SAGC(j,i)
        if (ZIX > ABS(JMatrix%R(j,i)) ) then
         call ZFCT(MM,i,ABS(JMatrix%R(j,i)),ZIX,X2A1,YA3)
-        else
-        JMatrix%MV(i)=j
+       else
         RadSlope%r(j,i)=JMatrix%R(j,i)
         RadSlope%Zp(j,i)=0._wp  ! sets border
         RadSlope%Z(j,i)=JMatrix%Z(j,i)
@@ -494,7 +494,6 @@ subroutine RadSlope_eq_JMatrix(RadSlope,JMatrix)
        RadSlope%Z(j,i)=JMatrix%Z(j,i)
        RadSlope%Zp2(j,i)=1/803.0_wp ! fallback value before splining
       else
-       JMatrix%MV(i)=j
        RadSlope%r(j,i)=JMatrix%R(j,i)
        RadSlope%Zp(j,i)=0._wp  ! sets border
        RadSlope%Z(j,i)=JMatrix%Z(j,i)
@@ -507,8 +506,8 @@ end subroutine RadSlope_eq_JMatrix
 
 ! aka SLOPE2POWER using AXIALP converts lhs to rhs
 subroutine Atlas_eq_RadSlope(Atlas,RadSlope)
-  TYPE(wpRadSlopeMatrix) :: RadSlope
-  TYPE(wpAtlasMatrix) :: Atlas
+  TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
+  TYPE(wpAtlasMatrix), INTENT(INOUT) :: Atlas
   INTEGER :: i,j,MM,N
   REAL(wp) :: X2,YP,Y2X,POW
   imv=0
@@ -534,8 +533,8 @@ end subroutine Atlas_eq_RadSlope
 
 !aka power2slope using ZFCT converts lhs to rhs
 subroutine RadSlope_eq_Atlas(RadSlope,Atlas) ! initially populates r, thta, Zp, MV
-  TYPE(wpRadSlopeMatrix) :: RadSlope
-  TYPE(wpAtlasMatrix) :: Atlas
+  TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
+  TYPE(wpAtlasMatrix), INTENT(INOUT) :: Atlas
   REAL(wp) :: ZIX,ZJX,YA3,X2A1
   REAL(wp) :: DIST,R,POW
   INTEGER :: i,j,MM,imv(size(RadSlope%r,2))
@@ -570,8 +569,8 @@ subroutine RadSlope_eq_Atlas(RadSlope,Atlas) ! initially populates r, thta, Zp, 
 end subroutine RadSlope_eq_Atlas
 
 subroutine DiaSlope_eq_RadSlope(DiaSlope,RadSlope)
- TYPE(wpDiaSlopeMatrix) :: DiaSlope
- TYPE(wpRadSlopeMatrix) :: RadSlope
+ TYPE(wpDiaSlopeMatrix), INTENT(INOUT) :: DiaSlope
+ TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
  integer :: i,j
  integer :: M1,N1
  real(wp) :: rB
@@ -616,8 +615,8 @@ end subroutine DiaSlope_eq_RadSlope
 subroutine RadSlope_eq_DiaSlope(RadSlope,DiaSlope)
  integer :: i,j
  integer :: M1,N1
- TYPE(wpRadSlopeMatrix) :: RadSlope
- TYPE(wpDiaSlopeMatrix) :: DiaSlope
+ TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
+ TYPE(wpDiaSlopeMatrix), INTENT(INOUT) :: DiaSlope
  ASSOCIATE(MV => RadSlope%MV) 
    M1=size(DiaSlope%rd,2) !M1=MM/2
    N1=size(DiaSlope%rd,1) !N1=2*N
@@ -687,8 +686,8 @@ function splinefillin(b) result(a)
       do k=1,M1
       radianK=tht(k)
        call SplineEval(1,t,z,zt2,mvjr(i),radianK,RTEMP)
-        if(ABS(b(K,I)-RTEMP) > EPS)then
-         if(ABS(b(K,I)) > EPS)THEN
+        if(ABS(b(K,I)-RTEMP) > EPS) then
+         if(ABS(b(K,I)) > EPS) then
          write(*,*) 'spline error in cornea_arrays fillin',K,I,b(K,I),RTEMP
          endif
         endif

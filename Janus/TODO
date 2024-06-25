@@ -2,10 +2,7 @@ things to do
 
 CorneaCopia
 
-Atlas 900 has Atlas spline errors because it has 25 rings  or because it has extrapolation=True in the data!
-
-I broke RadSlope=JMatrix which broke both fillin programs
-
+Atlas 900 has Atlas spline errors because it has 25 rings  or ? because it has extrapolation=True in the data!
 
 Have to re-implement color scale, incorporate values in legend
 

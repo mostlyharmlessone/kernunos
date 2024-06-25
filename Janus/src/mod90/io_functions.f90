@@ -44,6 +44,13 @@ module io_functions
      integer, intent(out) :: N, read_error
     end subroutine
 
+    subroutine rcnvrta_type(KXNAME,N,read_error)
+     USE set_precision, ONLY : wp
+     USE cornea_arrays, ONLY : Atlas, PI
+     character(len=*), intent(in) :: KXNAME
+     integer, intent(out) :: N, read_error
+    end subroutine
+
     subroutine rcnvrte(RANAME,XXNAME,read_error)
      USE set_precision, ONLY : wp
      USE cornea_arrays, ONLY : EyeSys
@@ -369,6 +376,66 @@ subroutine rcnvrte(RANAME,XXNAME,read_error)
    endif              
 end subroutine rcnvrte
 
+subroutine rcnvrta_type(KXNAME,N,read_error)
+! determine ATLAS VERSION if 900 or 9000; N=25 or 22
+ use io_functions, only : get_new_fileunit
+ USE set_precision, ONLY : wp
+ USE cornea_arrays, ONLY : Atlas
+ implicit none
+ logical :: exists
+ CHARACTER(80) KH1,KH2
+ character(len=*), intent(in) :: KXNAME
+ integer, intent(out) :: N, read_error
+ INTEGER :: K,io,unitno,ierr
+ inquire(file=trim(KXNAME), exist=exists)
+ if (exists) then
+  unitno = get_new_fileunit()
+  open(unitno, file=trim(KXNAME), action="read", iostat=ierr)
+   if (ierr .eq. 0) then
+!   READ HEADERS
+    K=0
+    DO
+       K=K+1
+       READ(unitno,*,END=100,IOSTAT=io) KH1
+        IF(io.GT.0) THEN
+         WRITE(*,*) 'I/O ERROR ON INPUT ATLAS FILE',io, 'line',K  !possibly it's the first semicolon, try sed in janus
+         read_error=1
+         GOTO 100
+        ENDIF
+        IF (K .eq. 1) THEN
+         IF (KH1.EQ.'#ATLAS')THEN
+          WRITE(*,*) 'Atlas header read'
+         else
+          WRITE(*,*) 'ERROR - Could not read Atlas header'
+          read_error=2
+          goto 100
+         endif
+        endif
+        IF (KH1.EQ.'#End_Table') THEN
+         READ(unitno,*,END=100,IOSTAT=io) KH1,KH2
+         IF (KH1.EQ.'Power_Rings_Count') THEN
+          read(KH2,*) N
+          if (N > 22) write(*,*) 'Atlas 900 file found'
+          if (N < 25) write(*,*) 'Atlas 9000 file found'
+          write(*,*) trim(KH1),N
+         ENDIF
+        ENDIF
+      END DO
+!      FINISHED READING ATLAS FILE
+100   CLOSE (unitno)
+      else
+       print*, "Error ", ierr ," attempting to open file ", trim(KXNAME)
+       read_error=7
+       return
+      endif
+    else
+     print*, "Error -- cannot find file: ", trim(KXNAME)
+     read_error=8
+     return
+    endif
+  RETURN
+end subroutine rcnvrta_type
+
 subroutine rcnvrta(KXNAME,N,read_error)
 ! ATLAS VERSION
  use io_functions, only : get_new_fileunit
@@ -382,6 +449,7 @@ subroutine rcnvrta(KXNAME,N,read_error)
  INTEGER :: K,I,J,io,ITH,JTH,unitno,MM,ierr
  REAL(wp) :: R,DIST,Y,POW
  MM=180
+ ! its assumed at this point that the AR data is always N=22
  N=22
  inquire(file=trim(KXNAME), exist=exists)
  if (exists) then
@@ -440,14 +508,15 @@ subroutine rcnvrta(KXNAME,N,read_error)
            end do 
           end do           
          ENDIF
-        ENDIF  
+        ENDIF
 
+!       redefines N for data read if necessary
         IF (KH1.EQ.'#End_Table') THEN
          READ(unitno,*,END=100,IOSTAT=io) KH1,KH2
          IF (KH1.EQ.'Power_Rings_Count') THEN
           read(KH2,*) N
-          if (N > 22) write(*,*) 'Atlas 900 file'
-          if (N < 25) write(*,*) 'Atlas 9000 file'
+          if (N > 22) write(*,*) 'Atlas 900 file data read'
+          if (N < 25) write(*,*) 'Atlas 9000 file data read'
           write(*,*) trim(KH1),N
          ENDIF
         ENDIF
@@ -482,8 +551,8 @@ subroutine rcnvrta(KXNAME,N,read_error)
        
       END DO
 !      FINISHED READING ATLAS FILE
-      write(*,*) 'Read ',K,' lines in',trim(KXNAME)     
-100   CLOSE (unitno)
+100   write(*,*) 'Read ',K,' lines in',trim(KXNAME)
+      CLOSE (unitno)
       else
        print*, "Error ", ierr ," attempting to open file ", trim(KXNAME)
        read_error=7
@@ -495,13 +564,12 @@ subroutine rcnvrta(KXNAME,N,read_error)
      return
     endif
 
-!      POPULATE Atlas DEG
-       do i=1,MM
-        ITH=2*(i-1)
-        Atlas%DEG(i)=ITH
-       end do
-             
-       RETURN
-       
-end subroutine rcnvrta
+!   POPULATE Atlas DEG
+    do i=1,MM
+     ITH=2*(i-1)
+     Atlas%DEG(i)=ITH
+    end do
 
+    RETURN
+
+ end subroutine rcnvrta
