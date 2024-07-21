@@ -35,7 +35,6 @@
 
 ! find center
   call bsearch(0.0_wp,r,n,high,low)
-
   do i=1,low
    rr(i)=r(i)
    zz(i)=z(i)

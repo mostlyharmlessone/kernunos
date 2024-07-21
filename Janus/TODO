@@ -2,25 +2,37 @@ things to do
 
 CorneaCopia
 
-Atlas 900 has Atlas spline errors because it has 25 rings  or ? because it has extrapolation=True in the data!
+ELE has weird elevation edges regardless seems to be fixed by rB0=5.0 instead of 7.0; probably an extrapolation error; might need to adjust rbo
+using data; there's TWO places, in janus.f90 line 602 and cornea_arrays.f90 line 354
+slopes go crazy at edge in RadS-eq-skyline? 
+
+check values whether borders are accurate. 
+have to look at Penta also penta looks ok; skyline looks ok
+
+gnuplot of border looks ok despite error in arctan midway; rmin is now consistent
+
+Questionable border check
+in Demo AXL long eye in Pentacam.EXP
+
+******currently working in RadSlope_eq Skyline on imv
+
 
 Have to re-implement color scale, incorporate values in legend
 
-
-Second derivatives have a problem as we go out? limit of natural spline past endpoint?
+Second derivatives
+have a problem as we go out past the limit of natural spline past endpoint?
 Atlas and EyeSys with cubic integration have weird edge effects, haven't seen any in pentacam CUR
+
 weird edge between x=0 line/branch cut; test data loses one edge/branch cut
 also
 branch cut AND other calc error with Monge Astig (even with testdata) and Mean curvature 
 zernike has problems in center ring even with fake data
-
-ELE has weird elevation edges regardless seems to be fixed by rB0=5.0 instead of 7.0; probably an extrapolation error; might need to adjust rbo
-using data; there's TWO places, in janus.f90 line 602 and cornea_arrays.f90 line 354
-slopes go crazy at edge in RadS-eq-skyline? check values whether borders are accurate.
+?ill-condition at x=0
 
 tweak center part of fillin so that there's no blue/blackspot; might need error correct or average?
 
-might need centerpoint version for pentacam has to incorporate center from Penta
+might need centerpoint version for pentacam has to incorporate center from Penta 
+restricted Placido tweaks to Atlas, can consider adding EyeSys
 
 extreme value filter for scales
 resurrect old noise reduction code?
@@ -39,7 +51,7 @@ Atlas instructions: select exam, File/Export for Research, select CSV either com
 Atlas 900 have 25 rings not 22   AD is the proper distance AR is unknown
 
 what if index(inputfile1, "RA") has more than one value? (KERATO.GRP/RA00.x) or XX00000.XX; I only want to replace the last one.
-might need to make notes about this problem or limit replacestr
+might need to make notes about this problem or limit replacestr   fix EyeSys file_pfx crap
 
 move faq to help menu
 notes from spline.odt into help/faq OR add docs in pdf to main release files after some edits

@@ -238,8 +238,8 @@ subroutine rcnvrtp(TestData,filename,read_error)
             if (k <= NP ) then
                if (readerr .eq. 0) then  ! reads till end of data matches
                  read (somecharacter,*,iostat=readerr) (Penta%DAT(k,i),i=1,NP) !somecharacter read from file above, works for comma-delimited
-!                but broken for semicolon delimited sometime in 2024 by gcc changes
-                 if (TestData.eq.5) then !this works with getArg for .CUR.CSV
+!                but broken for semicolon delimited sometime in 2024 by ?gcc changes
+                 if (TestData.eq.5) then !this works with getArg for _CUR.CSV
                   line=somecharacter
                   do i=1,NP
                    Penta%DAT(k,i) = getArg(i)

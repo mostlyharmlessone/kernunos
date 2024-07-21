@@ -310,11 +310,12 @@ if (mod(flag,100) == 0) then
       endif
    else
 !  EyeSys
-!      write(*,*) 'prefix is found at index: ',file_idx,"length: ",len(inputfile1)
-!      write(*,*) 'prefix:',inputfile1(file_idx:file_idx+1)
+      write(*,*) 'prefix is found at index: ',file_idx,"length: ",len(inputfile1)
+      write(*,*) 'prefix:',inputfile1(file_idx:file_idx+1)
+      write(*,*) 'inputfile1: ',inputfile1
        file_idx=index(inputfile1, "XX")  !index(inputfile1, "XX", back)
-       file_pfx=index(inputfile1(file_idx:file_idx+1),"XX")
-      if (file_pfx /= 0) then
+    !   file_pfx=index(inputfile1(file_idx:file_idx+1),"XX")
+      if (file_idx /= 0) then
        inputfile2=replacestr(string=inputfile1,search="XX",substitute="RA")
        inquire(file=trim(inputfile2), exist=exists)
        if(.NOT.exists) then
@@ -324,8 +325,8 @@ if (mod(flag,100) == 0) then
        endif
       else
        file_idx=index(inputfile1, "RA") !index(inputfile1, "RA", back)
-       file_pfx=index(inputfile1(file_idx:file_idx+1),"RA")
-       if (file_pfx /= 0) then
+!       file_pfx=index(inputfile1(file_idx:file_idx+1),"RA")
+       if (file_idx /= 0) then
         inputfile2=inputfile1
         inputfile1=replacestr(string=inputfile2,search="RA",substitute="XX")
         inquire(file=trim(inputfile1), exist=exists)
@@ -511,10 +512,10 @@ endif
       RadSlope%Zp(j,i)=JMatrix%Z(j,i) !=RadSlope%Z(j,i) ! at this point
     end do
    end do
-   write(*,*) 'Central Elevation, min, max: ',JMatrix%Z0(1),JMatrix%Z0(2),JMatrix%Z0(3)
+!   write(*,*) 'Central Elevation, min, max: ',JMatrix%Z0(1),JMatrix%Z0(2),JMatrix%Z0(3)
   else ! CUR version shouldn't have elevations yet
    JMatrix%Z(:,:) = 0 ; JMatrix%Z0(:) = 0
-   write(*,*) 'Central Sagittal power, min, max: ',JMatrix%SAGC0(1),JMatrix%SAGC0(2),JMatrix%SAGC0(3)
+!   write(*,*) 'Central Sagittal power, min, max: ',JMatrix%SAGC0(1),JMatrix%SAGC0(2),JMatrix%SAGC0(3)
   endif  
  endif
 
@@ -588,8 +589,9 @@ endif
 ! Spline RadSlope
   DiaSlope=RadSlope              ! move to diagonal format
   DiaSlope%Zpd2 = .n. DiaSlope   ! spline across center without tweaks
-  call MakeRadSplineCenter(0)    ! capture the spline center deviations from unmodified RadSlope
 
+ if ( Testdata .eq. 1 ) then
+  call MakeRadSplineCenter(0)    ! capture the spline center deviations from unmodified RadSlope
 ! Have to do AdjustSlope tweak before centernode, since centernode essentially reduces RadSplineCenter(1,:) to 0
   if (btest(dat, 1)) then         ! moving each meridian to align curves
    call AdjustRadSplineCenter     ! changes r only in DiaSlope
@@ -598,20 +600,20 @@ endif
   if (btest(dat, 0) ) then        ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
    call DiaSplineCenter(DiaSlope) ! re-spline, with center node
   endif
-
   call MakeRadSplineCenter(dat)        ! generates spline centers with tweaks
+  endif
 
  ! Atlas spline consistency check and computation of elevation by power vs elevation in file
  if ( Testdata .eq. 1 ) then
   k=0 ; powmax2 = 0 ; powmax =0  ! Use these temporarily
  ! find max elevation from Atlas file
-  do i=1,M1
+  do i=1,MM
    do j=1,RadSlope%MV(i)
     if (100*Atlas%AY(i,j) > powmax) powmax=100*Atlas%AY(i,j)
     end do
    end do
  ! check spline power & elevation at knots
-   do i=1,M1
+   do i=1,MM
     do j=1,RadSlope%MV(i)
      if (i > 90) then
       call SplineEval1Dx1D(iflag,-100*Atlas%AD(i,j),PI*(i-1)/90.0_wp,Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
@@ -626,7 +628,7 @@ endif
       powmax2=powmax2+ABS(Y-powmax+100*Atlas%AY(i,j))
      endif
 !   checks that power at knots is correct at knts
-     if (ABS(Atlas%AP(i,j)-pow) > EPS .and. (Atlas%AP(i,j) .gt. 0) .and. (Atlas%AD(i,j) .gt. 0) .and. (Atlas%AY(i,j) .gt. 0)) then
+     if (ABS(Atlas%AP(i,j)-pow) > EPS .and. (Atlas%AP(i,j) .gt. 0) .and. (Atlas%AD(i,j) .gt. 0) .and. (Atlas%AY(i,j) .gt. 0) .AND. (Atlas%AR(i,j) > 0)) then
       write(*,*) 'Atlas power spline error in janus: ',j,i,Atlas%AP(i,j),pow
      endif
     end do
@@ -655,7 +657,7 @@ endif
    else  ! MM==180
     JMatrix%MV(i)=min(RadSlope%MV(i),N1)  ! if N=25
    endif
-   do j=1,N1                             ! does not include center point
+   do j=1,JMatrix%MV(i)                             ! does not include center point
     if (i > (M1/2) ) then
      JMatrix%R(j,i)=100*((1-j)*(rBo-rBi)/(N1-1)-rBi)
     else
@@ -703,37 +705,38 @@ endif
    DiaSlope=0
    deallocate(RadSplineCenter)
 !  reinitialize with M1 and N1
+   MM=M1
+   N=N1
    call init_mat(M1,N1,RadSlope,DiaSlope,RadSplineCenter)
    RadSlope=JMatrix
    DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope
 
+ if ( Testdata .eq. 1 ) then
    call MakeRadSplineCenter(0)     ! remakes RadSplineCenter(1,:)
    if (btest(dat, 0) ) then        ! use nsplineCenter to force zero slope at origin,
     call DiaSplineCenter(DiaSlope) ! re-spline, with center node
                                    ! changes spline but requires SplineEvalCenter
                                    ! remakes RadSplineCenter(2,:) and RadSplineCenter(3,:)
    endif
-
    call MakeRadSplineCenter(dat)        ! this relies on JMatrix, not the original data in RadSlope from the file
-
-
 !  Should I do this again? and for each one?
    if (btest(dat, 1)) then         ! moving each meridian to align curves
     call AdjustRadSplineCenter     ! changes r only
     DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
    endif
+ endif
 
 !  Z
-   if (TestData.ne.2 .and. TestData.ne.4) then
+!   if (TestData.ne.2 .and. TestData.ne.4) then   ! already has valid Z0 from cornea_arrays & ELE file NOT YET IT DOES NOT
     do i=1,MM
      call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%Z(N1+1,i))  !center value of elevation; needs integration from slopes
      JMatrix%Z0(1)=(i*JMatrix%Z0(1)+JMatrix%Z(N1+1,i))/(i+1)      ! cumulative average
     end do
-   endif  !TestData.eq.2 .or. TestData.eq.4  already has valid Z0 from cornea_arrays & ELE file
+!   endif  ! TestData.eq.2 .or. TestData.eq.4
 
 !  SAGC
-   if (TestData.ne.3 .and. TestData.ne.5) then  !TestData.eq.3 .or. TestData.eq.5  already has valid SAGC0 from cornea_arrays & CUR file
+!   if (TestData.ne.3 .and. TestData.ne.5) then  ! already has valid SAGC0 from cornea_arrays & CUR file NOT YET IT DOES NOT
 !  Reload RadSlope with SAGC & re-spline; can't compute it from surface because ill-defined at origin
     do i=1,MM
      do j=1,RadSlope%MV(i)
@@ -742,13 +745,17 @@ endif
     end do
     DiaSlope=RadSlope              ! move to diagonal format
     DiaSlope%Zpd2 = .n. DiaSlope
-    if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-      call DiaSplineCenter(DiaSlope) ! re-spline, with center node
-    endif
-    if (btest(dat, 1)) then          ! moving each meridian to align curves
+
+    if ( Testdata .eq. 1 ) then
+     if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+       call DiaSplineCenter(DiaSlope) ! re-spline, with center node
+     endif
+     if (btest(dat, 1)) then          ! moving each meridian to align curves
       call AdjustRadSplineCenter     ! changes r only
       DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+     endif
     endif
+
     do i=1,MM
      if (btest(dat,0)) then
       call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%SAGC(N1+1,i))  ! center value
@@ -757,7 +764,7 @@ endif
      endif
      JMatrix%SAGC0(1)=(i*JMatrix%SAGC0(1)+JMatrix%SAGC(N1+1,i))/(i+1)      ! cumulative average
     end do
-   endif
+!   endif   ! TestData.eq.3 .or. TestData.eq.5
 
 !  INSTC
 !  Reload RadSlope & respline
@@ -768,12 +775,14 @@ endif
    end do
    DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope
-   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-    call DiaSplineCenter(DiaSlope) ! re-spline, with center node
-   endif
-   if (btest(dat, 1)) then          ! moving each meridian to align curves
-    call AdjustRadSplineCenter     ! changes r only
-    DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+   if ( Testdata .eq. 1 ) then
+    if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+      call DiaSplineCenter(DiaSlope) ! re-spline, with center node
+    endif
+    if (btest(dat, 1)) then          ! moving each meridian to align curves
+     call AdjustRadSplineCenter     ! changes r only
+     DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+    endif
    endif
    do i=1,MM
     if (btest(dat,0)) then
@@ -793,12 +802,14 @@ endif
   end do
   DiaSlope=RadSlope              ! move to diagonal format
   DiaSlope%Zpd2 = .n. DiaSlope
-  if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-   call DiaSplineCenter(DiaSlope) ! re-spline, with center node
-  endif
-  if (btest(dat, 1)) then          ! moving each meridian to align curves
-   call AdjustRadSplineCenter     ! changes r only
-   DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+  if ( Testdata .eq. 1 ) then
+   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+     call DiaSplineCenter(DiaSlope) ! re-spline, with center node
+   endif
+   if (btest(dat, 1)) then          ! moving each meridian to align curves
+    call AdjustRadSplineCenter     ! changes r only
+    DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+   endif
   endif
   do i=1,MM
    if (btest(dat,0)) then
@@ -818,12 +829,14 @@ endif
   end do
   DiaSlope=RadSlope              ! move to diagonal format
   DiaSlope%Zpd2 = .n. DiaSlope
-  if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-   call DiaSplineCenter(DiaSlope) ! re-spline, with center node
-  endif
-  if (btest(dat, 1)) then          ! moving each meridian to align curves
-   call AdjustRadSplineCenter     ! changes r only
-   DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+  if ( Testdata .eq. 1 ) then
+   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+     call DiaSplineCenter(DiaSlope) ! re-spline, with center node
+   endif
+   if (btest(dat, 1)) then          ! moving each meridian to align curves
+    call AdjustRadSplineCenter     ! changes r only
+    DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+   endif
   endif
   do i=1,MM
    if (btest(dat,0)) then
@@ -843,12 +856,14 @@ endif
   end do
   DiaSlope=RadSlope              ! move to diagonal format
   DiaSlope%Zpd2 = .n. DiaSlope
-  if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-   call DiaSplineCenter(DiaSlope) ! re-spline, with center node
-  endif
-  if (btest(dat, 1)) then          ! moving each meridian to align curves
-   call AdjustRadSplineCenter     ! changes r only
-   DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+  if ( Testdata .eq. 1 ) then
+   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+     call DiaSplineCenter(DiaSlope) ! re-spline, with center node
+   endif
+   if (btest(dat, 1)) then          ! moving each meridian to align curves
+    call AdjustRadSplineCenter     ! changes r only
+    DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+   endif
   endif
   do i=1,MM
    if (btest(dat,0)) then
@@ -880,12 +895,14 @@ nrhs=(MM*N+1)
    end do
    DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope
-   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-     call DiaSplineCenter(DiaSlope) ! re-spline, with center node
-   endif
-   if (btest(dat, 1)) then          ! moving each meridian to align curves
+   if ( Testdata .eq. 1 ) then
+    if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+      call DiaSplineCenter(DiaSlope) ! re-spline, with center node
+    endif
+    if (btest(dat, 1)) then          ! moving each meridian to align curves
      call AdjustRadSplineCenter     ! changes r only
      DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+    endif
    endif
 
 ! allocate working matrices
@@ -1081,16 +1098,16 @@ RadSlope=JMatrix
 DiaSlope=RadSlope              ! move to diagonal format
 DiaSlope%Zpd2 = .n. DiaSlope
 
-call MakeRadSplineCenter(0)     ! remakes RadSplineCenter(1,:)
-if (btest(dat, 0) ) then        ! use nsplineCenter to force zero slope at origin,
- call DiaSplineCenter(DiaSlope) ! re-spline, with center node
-                                ! changes spline but requires SplineEvalCenter
-                                ! remakes RadSplineCenter(2,:) and RadSplineCenter(3,:)
-endif
-call MakeRadSplineCenter(dat)        ! this relies on JMatrix, not the original data in RadSlope from the file
-if (btest(dat, 1)) then         ! moving each meridian to align curves
- call AdjustRadSplineCenter     ! changes r only
- DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+
+if ( Testdata .eq. 1 ) then
+ call MakeRadSplineCenter(0)     ! remakes RadSplineCenter(1,:)
+ if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+   call DiaSplineCenter(DiaSlope) ! re-spline, with center node
+ endif
+ if (btest(dat, 1)) then          ! moving each meridian to align curves
+  call AdjustRadSplineCenter     ! changes r only
+  DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+ endif
 endif
 
 
@@ -1174,12 +1191,14 @@ BigPlot='BIG.CAR'
    RadSlope=JMatrix
    DiaSlope=RadSlope            
    DiaSlope%Zpd2 = .n. DiaSlope
-   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-     call DiaSplineCenter(DiaSlope) ! re-spline, with center node
-   endif
-   if (btest(dat, 1)) then          ! moving each meridian to align curves
+   if ( Testdata .eq. 1 ) then
+    if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+      call DiaSplineCenter(DiaSlope) ! re-spline, with center node
+    endif
+    if (btest(dat, 1)) then          ! moving each meridian to align curves
      call AdjustRadSplineCenter     ! changes r only
      DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+    endif
    endif
    call FILLARRAY(4,LinesOfCurv)
    write(*,*) 'POWMIN,POWMAX',POWMIN,POWMAX
