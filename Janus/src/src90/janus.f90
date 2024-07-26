@@ -123,7 +123,7 @@ if (mod(flag,100) == 99) then
     return
 endif
 
-if (mod(flag,100) == 0) then  !only need new file name if opening a file, local save of inputfile1,inputfile2,logfile
+if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3) then  !only need new file name if opening a file or printing, local save of inputfile1,inputfile2,logfile
 !write(*,*) 'file from kernunos: ',file_from_C  ! this will have a lot of extra random non ASCII stuff after the file name
 !! need this because GCC11 isn't F2018 compliant with deferred length character with Bind C
 !! ie. can't do CHARACTER(*,c_char), INTENT(IN) :: file_from_C_1 with BIND(C) with GCC11
@@ -156,7 +156,8 @@ if (mod(flag,100) == 3) then
 if (allocated(JMatrix%R)) then
 file_idx=index(inputfile1, ".ply")
  if( file_idx == 0) then
-   write(*,*) 'not a ply file'
+   write(*,*) inputfile1, 'is not a ply file'
+   return
   else
   donut = .FALSE.
   if (fct .lt. 16 .and. fct .gt. 0) then
@@ -211,7 +212,8 @@ if (mod(flag,100) == 2) then
 if (allocated(JMatrix%R)) then
 file_idx=index(inputfile1, ".off")
  if( file_idx == 0) then
-   write(*,*) 'not an off file'
+   write(*,*) inputfile1,'is not an off file'
+   return
   else
   donut = .FALSE.
   if (fct .lt. 16 .and. fct .gt. 0) then
@@ -590,13 +592,6 @@ endif
   DiaSlope=RadSlope              ! move to diagonal format
   DiaSlope%Zpd2 = .n. DiaSlope   ! spline across center without tweaks
 
-
-!!!!!!!here's the place to check for branch cut spline?
-
-
-
-
-
  if ( Testdata .eq. 1 ) then
   call MakeRadSplineCenter(0)    ! capture the spline center deviations from unmodified RadSlope
 ! Have to do AdjustSlope tweak before centernode, since centernode essentially reduces RadSplineCenter(1,:) to 0
@@ -704,6 +699,13 @@ endif
     if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
    end do
   end do !end JMatrix ring generation
+
+write(*,*) 'erase the below after verifying Forsythe formula'
+write(*,*) 'janus 708',JMatrix%Z(1,1:2),JMatrix%Z(1,M1/2:M1/2+1),JMatrix%Z(1,M1-1:M1)
+write(*,*) (j-1)/2,j
+write(*,*) 'janus 709',JMatrix%Z((j-1)/2,1:2),JMatrix%Z((j-1)/2,M1/2:M1/2+1),JMatrix%Z((j-1)/2,M1-1:M1)
+write(*,*) 'janus 710',JMatrix%Z(j-1,1:2),JMatrix%Z(j-1,M1/2:M1/2+1),JMatrix%Z(j-1,M1-1:M1)
+
 
 !  Calculate center values for everything
 !  These have MM different values of the center!

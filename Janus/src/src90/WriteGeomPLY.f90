@@ -156,10 +156,8 @@
          endif  
          rgbv=colormap(pow,powmin,powmax,map)
          write(unitno1,*) vert1,vert2,vert3,nrm1,nrm2,nrm3,rgbv,255
-
-         write(*,*) 'writegeomply',vert1,vert2,vert3,nrm1,nrm2,nrm3,rgbv,255
-         write(*,*) 'pow,powmin,powmax',pow,powmin,powmax
-
+!         write(*,*) 'writegeomply',vert1,vert2,vert3,nrm1,nrm2,nrm3,rgbv,255
+!         write(*,*) 'pow,powmin,powmax',pow,powmin,powmax
        endif
        do i=1,M1
         do j=1,N1

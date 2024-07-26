@@ -2,17 +2,22 @@ things to do
 
 CorneaCopia
 
+printing is broken because not getting new inputfile name
+
 Have to re-implement color scale, incorporate values in legend
 
-Second derivatives
-have a problem as we go out past the limit of natural spline past endpoint?
-Atlas and EyeSys and test data with cubic integration have weird edge effects, 
-haven't seen any in pentacam CUR
+try to lock actions while Zernike is computing to avoid crash
 
-weird edge between x=0 line/branch cut; test data loses one edge/branch cut
-also
-branch cut AND other calc error with Monge Astig (even with testdata) and Mean curvature 
-zernike has problems in center ring even with fake data
+Atlas and EyeSys and test data with cubic integration have weird edge effects: check Forsythe formula as **2 fixes the issue rather than **3 in CubicSplineQuad
+
+AutoRedraw not working?
+
+? branch cut or other calc error with Monge Astig,VQ (even with testdata)  at 90/270 degrees M1/2
+zernike has problems in center ring even with fake data Obliq Astig,Oblique 2nd Astig,Obl Quad,Obl trefoil, horizontal/vert coma
+
+x-tilt, ytilt, piston has the hole, might be instructive, look good elevation has a hole, nearly the same as piston
+sagc has ugliness in center with contunuous hue not seen with standard scale
+
 ?ill-condition at x=0
 
 tweak center part of fillin so that there's no blue/blackspot; might need error correct or average?

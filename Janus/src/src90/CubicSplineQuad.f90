@@ -13,7 +13,7 @@ subroutine CubicSplineQuad(ii,iflag,rv,zv,z2v,n,r,z)
    QUAD=0      
    do i=2,low
     QUAD=QUAD+(rv(i)-rv(i-1))*(zv(i-1)+zv(i))/2.&
-             -3*(rv(i)-rv(i-1))**3*(z2v(i-1)+z2v(i))/2.
+             -3*(rv(i)-rv(i-1))**2*(z2v(i-1)+z2v(i))/2.
    end do
    if ((iflag-mod(iflag,10))/10 == 0) then
     call SplineEval(0,rv,zv,z2v,n,r,z,z1,z2)
@@ -21,6 +21,6 @@ subroutine CubicSplineQuad(ii,iflag,rv,zv,z2v,n,r,z)
    if ((iflag-mod(iflag,10))/10 == 1) then ! using center-node spline
     call SplineEvalCenter(ii,rv,zv,z2v,n,r,z,z1,z2)
    endif
-   QUAD=QUAD+(r-rv(low))*(z+zv(low))/2.-3*(r-rv(low))**3*(z2+z2v(low))/2.
+   QUAD=QUAD+(r-rv(low))*(z+zv(low))/2.-3*(r-rv(low))**2*(z2+z2v(low))/2.
    z=QUAD
 end subroutine CubicSplineQuad
