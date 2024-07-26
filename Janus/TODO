@@ -2,11 +2,9 @@ things to do
 
 CorneaCopia
 
-printing is broken because not getting new inputfile name
-
 Have to re-implement color scale, incorporate values in legend
 
-try to lock actions while Zernike is computing to avoid crash
+try to lock actions while Zernike is computing to avoid crash ? condition on counter?
 
 Atlas and EyeSys and test data with cubic integration have weird edge effects: check Forsythe formula as **2 fixes the issue rather than **3 in CubicSplineQuad
 

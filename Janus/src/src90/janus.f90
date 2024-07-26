@@ -921,7 +921,7 @@ nrhs=(MM*N+1)
     do nn=ABS(m),4
      if (mod(nn-m,2) == 0) then
       k=k+1
-      write(*,*) 'Zernike coefficent k,n,m: ',k,nn,m  !maps kth computed Zernike coefficient to index k
+!      write(*,*) 'Zernike coefficent k,n,m: ',k,nn,m  !maps kth computed Zernike coefficient to index k
      endif
     end do
    end do
