@@ -126,7 +126,7 @@
           !ok          
          else
           vert3 = 0         ! for out of bound values
-          pow = 0           ! for out of bound values                              
+          pow = powmin           ! for out of bound values
          endif   
          c_norm=real((/nrm1,nrm2,nrm3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float                          
          c_vert=real((/vert1,vert2,vert3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float
@@ -141,6 +141,7 @@
          X2=b%R(j,i)
          X3=-b%Z(j,i)         ! flip it
          fct=mod(((flag-mod(flag,10000))/10000),100)
+         if  ( j < b%MV(i)) then
          if (fct .lt. 16 .and. fct .gt. 0) then
               pow=b%ZC(j,i,fct)
          else
@@ -161,6 +162,9 @@
               pow=b%SAGC(j,i)
         END SELECT
         endif
+        else
+           pow = powmin  ! outside range
+         endif
          nrm1=-abs(b%YPR(j,i))      !get rid of spurious sign
          nrm2=-b%YPTHETA(j,i)/X2    !polar coordinates
          normal=sqrt(nrm1*nrm1+nrm2*nrm2+1)
@@ -177,7 +181,7 @@
           vert1 = 0  ! for out of bound values
           vert2 = 0  ! for out of bound values
           vert3 = 0  ! for out of bound values
-          pow = 0           ! for out of bound values       
+          pow = powmin           ! for out of bound values
          endif
          c_norm=real((/nrm1,nrm2,nrm3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float
          c_vert=real((/vert1,vert2,vert3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float

@@ -590,6 +590,13 @@ endif
   DiaSlope=RadSlope              ! move to diagonal format
   DiaSlope%Zpd2 = .n. DiaSlope   ! spline across center without tweaks
 
+
+!!!!!!!here's the place to check for branch cut spline?
+
+
+
+
+
  if ( Testdata .eq. 1 ) then
   call MakeRadSplineCenter(0)    ! capture the spline center deviations from unmodified RadSlope
 ! Have to do AdjustSlope tweak before centernode, since centernode essentially reduces RadSplineCenter(1,:) to 0
@@ -652,7 +659,7 @@ endif
 ! Generate the rings
   do i=1,M1                             ! every 2 degrees
    JMatrix%THT(i)=PI*(i-1)/90.0_wp
-   if (MM == 360 .and. N == 16) then  ! original EyeSys RadSlope
+   if (MM == 360 .and. N == 16) then  ! original EyeSys RadSlope or fake data
     JMatrix%MV(i)=MIN(RadSlope%MV(2*i),RadSlope%MV(2*i-1))  ! close to real boundary
    else  ! MM==180
     JMatrix%MV(i)=min(RadSlope%MV(i),N1)  ! if N=25
@@ -1175,8 +1182,8 @@ endif
    END SELECT
   endif
 !   write(*,*) 'powctr,POWMIN,POWMAX',powctr,POWMIN,POWMAX
-  call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
 
+  call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
 
 ! eigenvalues show shape of RadSlope without make_rings but with FillArray 7 elevations
 !  atmp=pca(2,RadSlope) 

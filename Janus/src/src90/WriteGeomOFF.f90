@@ -179,23 +179,6 @@
            stop
           endif
           write(unitno3,*) vertnum,ivert1,ivert2,ivert3,rgbv
-
-
-
-
-
-
-write(*,*) 'writeoff vertnum,ivert1,ivert2,ivert3,rgbv',vertnum,ivert1,ivert2,ivert3,rgbv
-write(*,*) 'pow_face3_1,powmin,powmax',pow_face3_1,powmin,powmax
-write(*,*) 'pow_vert1,pow_vert2,pow_vert3',pow_vert1,pow_vert2,pow_vert3
-
-
-
-
-
-
-
-
          end do
 !        Last face is different
          ivert2=(M1-1)*N1+1

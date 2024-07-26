@@ -371,11 +371,9 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
      u=r(j)*COS(RadSlope%thta(i))        ! x,y coordinates of ring point
      v=r(j)*SIN(RadSlope%thta(i))
     endif
-
-
 !    Populate JMatrix with Splined PentaCam
 !    Spline in y      (this is the equivalent of Spline1Dx1D)
-     firstcheck=1
+     firstcheck=0
      do k=1,Skyline%rows
       L2=Skyline%L2x(k)
       x(1:L2)=Skyline%x(k,1:L2)
@@ -384,17 +382,17 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
 !     f is value at u, fTmp is a new 1:(Skyline%rows) column of values at u
       call SplineEval(0,x(1:L2),z(1:L2),z2(1:L2),L2,u,f)   ! first parameter = 0 nonperiodic
       call SplineEval(2,x(1:L2),z(1:L2),z2(1:L2),L2,u,check)   ! first parameter = 0 nonperiodic
-      if (check == 0) firstcheck=0 ! any extrapolation
+      if (check == 0) firstcheck=firstcheck+1 ! how much extrapolation
       fTmp(k)=f
      end do
      offset=Skyline%first_row-1
-     L2=Skyline%rows
+     L2=Skyline%rows       ! this L2 will introduce bogus values at the end of the splines needing trimming
      do kk=1,L2            ! fTmp has to align with y; but ftmp starts at Skyline%first_row, y starts at 1 for calculation
       y(kk)=7.00-((kk-1+offset)*14.00)/(NP-1.0)
      end do
      call nspline(y(1:L2),fTmp(1:L2),L2,f2Tmp(1:L2))             ! spline in Y
      call SplineEval(0,y(1:L2),fTmp(1:L2),f2Tmp(1:L2),L2,v,DAT)  ! first parameter = 0 nonperiodic
-     call SplineEval(2,y(1:L2),fTmp(1:L2),f2Tmp(1:L2),L2,v,secondcheck)  ! first parameter = 0 nonperiodic
+     call SplineEval(2,y(1:L2),fTmp(1:L2),f2Tmp(1:L2),L2,v,secondcheck)  ! first parameter = 2 extrapolation check
 
      if (j > N1) then
       JMatrix%R0=0 ; JMatrix%THT0=0
@@ -403,50 +401,33 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
       endif
        JMatrix%Z0(1)=ABS(DAT)                  ! if elevation
      else
-
-
-
-
-
-
 !   boundary check here
-    xx=u*(NP-1)/14.0 ; yy=v*(NP-1)/14.0
-    if (Penta%DAT(1+(NP-1)/2+sign(floor(ABS(xx)),floor(xx)),&
-                 &1+(NP-1)/2+sign(floor(ABS(yy)),floor(yy))) >= 0) then  ! test for >0 is why Penta needed here
-
-     if (firstcheck /= secondcheck .and. secondcheck /= 0) then ! extrapolation check
-
-      write(*,*) firstcheck,secondcheck,Penta%DAT(1+(NP-1)/2+sign(floor(ABS(xx)),floor(xx)),&
-      &1+(NP-1)/2+sign(floor(ABS(yy)),floor(yy)))
-
-      imv(i)=imv(i)+1
-
-      if (ABS(DAT) > 0 ) then
-       RadSlope%Z(j,i)=ABS(DAT)/10.0              ! if DAT is elevation
-       CALL ZFCT(M1,i,100.0*ABS(r(j)),100.0*ABS(DAT),RadSlope%r(j,i),RadSlope%Zp(j,i))  !only for DAT is curvature/SAGC
+     xx=u*(NP-1)/14.0 ; yy=v*(NP-1)/14.0
+     if (Penta%DAT(1+(NP-1)/2+sign(floor(ABS(xx)),floor(xx)),&
+                &1+(NP-1)/2+sign(floor(ABS(yy)),floor(yy))) >= 0) then  ! test for >0 is why Penta needed here
+      if (firstcheck < 70 .and. secondcheck /= 0) then ! better extrapolation check; the 70 here is arbitrary, 40 is getting too low
+!       write(*,*) firstcheck,secondcheck,Penta%DAT(1+(NP-1)/2+sign(floor(ABS(xx)),floor(xx)),&
+!       &1+(NP-1)/2+sign(floor(ABS(yy)),floor(yy)))
+       imv(i)=imv(i)+1
+       if (ABS(DAT) > 0 ) then
+        RadSlope%Z(j,i)=ABS(DAT)/10.0              ! if DAT is elevation
+        CALL ZFCT(M1,i,100.0*ABS(r(j)),100.0*ABS(DAT),RadSlope%r(j,i),RadSlope%Zp(j,i))  !only for DAT is curvature/SAGC
+       endif
+       JMatrix%Z(j,i)=RadSlope%Z(j,i)   !only for elevations, put in RadSlope%Zp(j,i) in janus
+      else  ! outside boundary
+       if (r(j) < rmin) rmin=r(j)
       endif
-
      endif
-
-    else  ! outside boundary
-     if (r(j) < rmin) rmin=r(j)
     endif
-
-
-
-
-
-
-!!     JMatrix%R(j,i)=RadSlope%r(j,i)
-      JMatrix%Z(j,i)=RadSlope%Z(j,i)   !only for elevations, put in RadSlope%Zp(j,i) in janus
-    endif
-
    end do !j to N1
   end do !i to M1
-  write(*,*) 'rmin from RadSlope_eq_Skyline',rmin
+!  write(*,*) 'rmin from RadSlope_eq_Skyline',rmin
+!  write(*,*) imv(:)
+! trim down imv for r > rmin
+  do i=1,M1
+   if ((imv(i)-1)*(rBo-rBi)/(N1-1)+rBi .gt. rmin) imv(i)=1+(N1-1)*(rmin-rBi)/(rBo-rBi)
+  end do
   RadSlope%MV(:)=imv(:)  ! save boundary
-!!  JMatrix%MV(:)=RadSlope%MV(:)
-!!  JMatrix%THT(:)=RadSlope%thta(:)
 end subroutine RadSlope_eq_Skyline
 
 ! uses ZFCT converts lhs to rhs
@@ -942,7 +923,7 @@ subroutine meanp(X1,X2,Y1XIN,Y1T,Y1XT,Y2T,Y2X,ZMM)
 ! MONGE MEAN CURVATURE
 ! WHEN X2<0 X1>PI
   if (ABS(X2) > EPS) then
-   IF (X2 < 0 .AND. X1 >= PI) THEN
+   IF (X2 > 0 .AND. X1 > PI) THEN
       Y=X2
       Y1X=Y1XIN      
       ZMM=(2*(1+Y1X**2+Y1T**2/Y**2)**(3/2.)*Y**3)
@@ -972,7 +953,7 @@ subroutine mongea(X1,X2,Y1XIN,Y1T,Y1XT,Y2T,Y2X,ZA)
 ! WATCH OUT FOR ZERO AT UMBILICAL POINTS!
 ! WHEN X2>0 X1<PI
    if (ABS(X2) > EPS) then
-     if (X2 > 0 .AND. X1 <= PI) then
+     if (X2 > 0 .AND. X1 > PI) then
        Y=X2
        Y1X=Y1XIN
        ZA1=2*Y1X*Y1T**2-2*Y1X*Y1XT*Y1T*Y+Y2X*Y1T**2*Y

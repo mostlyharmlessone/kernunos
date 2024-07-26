@@ -2,26 +2,12 @@ things to do
 
 CorneaCopia
 
-ELE has weird elevation edges regardless seems to be fixed by rB0=5.0 instead of 7.0; probably an extrapolation error; might need to adjust rbo
-using data; there's TWO places, in janus.f90 line 602 and cornea_arrays.f90 line 354
-slopes go crazy at edge in RadS-eq-skyline? 
-
-check values whether borders are accurate. 
-have to look at Penta also penta looks ok; skyline looks ok
-
-gnuplot of border looks ok despite error in arctan midway; rmin is now consistent
-
-Questionable border check
-in Demo AXL long eye in Pentacam.EXP
-
-******currently working in RadSlope_eq Skyline on imv
-
-
 Have to re-implement color scale, incorporate values in legend
 
 Second derivatives
 have a problem as we go out past the limit of natural spline past endpoint?
-Atlas and EyeSys with cubic integration have weird edge effects, haven't seen any in pentacam CUR
+Atlas and EyeSys and test data with cubic integration have weird edge effects, 
+haven't seen any in pentacam CUR
 
 weird edge between x=0 line/branch cut; test data loses one edge/branch cut
 also
@@ -31,6 +17,7 @@ zernike has problems in center ring even with fake data
 
 tweak center part of fillin so that there's no blue/blackspot; might need error correct or average?
 
+Centerpoints all need work
 might need centerpoint version for pentacam has to incorporate center from Penta 
 restricted Placido tweaks to Atlas, can consider adding EyeSys
 
@@ -67,6 +54,8 @@ Principal component analysis, meh
 
 Adapt code in book to do LS-BICSA
 2-D splining
+Border trimming for PentaCam is draconian, but reliable; 
+to better convert xy to polar splines need 2-D splining
 
 get u12 keratograph (same as pentacam?) file and start bin->ASC with different assumptions, like uint32 or uint16
 can try rply.c code as starter; use hexdump to look at bin.ply as well as U12
