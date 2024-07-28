@@ -2,6 +2,17 @@ things to do
 
 CorneaCopia
 
+In SplineEval1dx1d line 42
+!       I've removed SplineEval though not bsearch from integration
+!       but don't yet have a value of the integration constant, just value at zero g0
+!       which isn't used yet below
+!       needless to say, that f'up everything, even sagc
+need SplineEval1dx1d open
+splineeval
+cubicsplinequad
+trapez
+spline_interfaces
+
 Have to re-implement color scale, incorporate values in legend
 
 try to lock actions while Zernike is computing to avoid crash ? condition on counter?

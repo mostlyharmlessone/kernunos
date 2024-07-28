@@ -13,11 +13,11 @@ module spline_interfaces
   integer, intent(out) :: high, low
  end subroutine
       
- subroutine CubicSplineQuad(ii,iflag,rv,zv,z2v,n,r,z) !Forsythe p.90 cubic spline integration
+ subroutine CubicSplineQuad(rv,zv,z2v,n,r,zp,z0,z,QUAD) !Forsythe p.90 cubic spline integration
   use set_precision, only : wp
-  integer, INTENT(IN) :: n,iflag,ii
-  real(wp), INTENT(IN) ::  rv(n),zv(n),z2v(n),r
-  real(wp), INTENT(OUT) :: z
+  integer, INTENT(IN) :: n
+  real(wp), INTENT(IN) ::  rv(n),zv(n),z2v(n),r,zp,z0,z
+  real(wp), INTENT(OUT) :: QUAD
  end subroutine 
 
  subroutine MakeRadSplineCenter(dat)
@@ -98,11 +98,11 @@ end subroutine
   real (wp), INTENT(OUT) :: z(n,k)
  end subroutine
 
- subroutine trapez(ii,iflag,rv,zv,z2v,n,r,z) !trapezoidal rule for spline integration
+ subroutine trapez(rv,zv,z2v,n,r,z0,z,TRAP) !trapezoidal rule for spline integration
   use set_precision, only : wp
-  real(wp), INTENT(IN) ::  rv(*),zv(*),z2v(*),r
-  integer, INTENT(IN) :: n,iflag,ii
-  real(wp), INTENT(OUT) :: z
+  real(wp), INTENT(IN) ::  rv(*),zv(*),z2v(*),r,z0,z
+  integer, INTENT(IN) :: n
+  real(wp), INTENT(OUT) :: TRAP
  end subroutine
      
  END INTERFACE
