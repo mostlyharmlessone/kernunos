@@ -23,28 +23,26 @@
         z=DiaSlope%Zpd(1:2*N,j)
         zr2=DiaSlope%Zpd2(1:2*N,j)
 
-        if (((iflag-mod(iflag,10))/10) == 0) then    ! no central node
-         call SplineEval(0,r,z,zr2,L2,u,g,gr,grr)  !first parameter = 0 nonperiodic
-        endif
-        if (((iflag-mod(iflag,10))/10) == 1) then    !non-periodic center node radial spline
-         call SplineEvalCenter(j,r,z,zr2,L2,u,g,gr,grr)
-        endif
-
         if (mod(iflag,10) == 0) then     ! no integration
+         if (((iflag-mod(iflag,10))/10) == 0) then    ! no central node
+          call SplineEval(0,r,z,zr2,L2,u,g,gr,grr)  !first parameter = 0 nonperiodic
+         endif
+         if (((iflag-mod(iflag,10))/10) == 1) then    !non-periodic center node radial spline
+          call SplineEvalCenter(j,r,z,zr2,L2,u,g,gr,grr)
+         endif
          fTmp(j)=g
         else  !iflag = 1 or 2
-        if (((iflag-mod(iflag,10))/10) == 0) then    ! no central node
-         call SplineEval(0,r,z,zr2,L2,0._wp,g0)  !first parameter = 0 nonperiodic
-        endif
-        if (((iflag-mod(iflag,10))/10) == 1) then    !non-periodic center node radial spline
-         call SplineEvalCenter(j,r,z,zr2,L2,0._wp,g0)
-        endif
-
+         if (((iflag-mod(iflag,10))/10) == 0) then ! no central node
+          call SplineEval(0,r,z,zr2,L2,u,gr,grr)   ! notice here gr is in the place of g
+         endif
+         if (((iflag-mod(iflag,10))/10) == 1) then     ! non-periodic center node radial spline
+          call SplineEvalCenter(j,r,z,zr2,L2,u,gr,grr) ! notice here gr is in the place of g
+         endif
          if (mod(iflag,10) == 2) then     !cubic integration
-          call CubicSplineQuad(r,z,zr2,L2,u,gr,g0,g,fTmp(j))
+          call CubicSplineQuad(r,z,zr2,L2,u,gr,0._wp,g,fTmp(j))
          endif
          if (mod(iflag,10) == 1) then   !trapezoidal integration
-          call trapez(r,z,zr2,L2,u,g0,g,fTmp(j))
+          call trapez(r,z,zr2,L2,u,0._wp,g,fTmp(j))
          endif        
         endif      
         frTmp(j)=gr
