@@ -354,7 +354,7 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
   end do
 ! make rings
 ! scale in 14x 14 mm of Penta matrix 141x141 divided by 2
-  rBo=7.0
+  rBo=7.0                                   ! try to make radius at least out to 7 (theoretical max on PentaCam)
   rBi=0.05*rBo                              ! donut 
   JMatrix%SAGC0(2)=1E30                     ! bound setting
   JMatrix%SAGC0(3)=-1E30

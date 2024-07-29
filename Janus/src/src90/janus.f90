@@ -640,8 +640,15 @@ endif
 
 ! Make JMatrix
 !  make round rings and if needed convert 360x16 or 180x25 to 180x22
-  ! donut
-  rBo=7.0
+! donut
+! Find maximum radius from data in RadSlope
+  rBo = 0
+  do i=1,MM
+   do j=1,N
+    if (ABS(RadSlope%r(j,i)) >= rBo) rBo=ABS(RadSlope%r(j,i))
+   end do
+  end do
+  rBo=rBo/100.   ! scaling
   rBi=0.05*rBo
 !  min and max bounds
   JMatrix%SAGC0(2)=1E30   ;  JMatrix%SAGC0(3)=-1E30 ; JMatrix%SAGC0(1)=0
@@ -652,6 +659,8 @@ endif
   JMatrix%MONGEA0(2)=1E30 ;  JMatrix%MONGEA0(3)=-1E30 ; JMatrix%MONGEA0(1)=0
   JMatrix%R0=0 ; JMatrix%THT0=0
 ! Generate the rings
+
+write(*,*) 'JMatrix'
   do i=1,M1                             ! every 2 degrees
    JMatrix%THT(i)=PI*(i-1)/90.0_wp
    if (MM == 360 .and. N == 16) then  ! original EyeSys RadSlope or fake data
@@ -661,9 +670,9 @@ endif
    endif
    do j=1,JMatrix%MV(i)                             ! does not include center point
     if (i > (M1/2) ) then
-     JMatrix%R(j,i)=100*((1-j)*(rBo-rBi)/(N1-1)-rBi)
+     JMatrix%R(j,i)=N1*100*((1-j)*(rBo-rBi)/(N1-1)-rBi)/(1.*N)  !scaled to compensate for 16 vs 22 or 25 rings
     else
-     JMatrix%R(j,i)=100*((j-1)*(rBo-rBi)/(N1-1)+rBi)
+     JMatrix%R(j,i)=N1*100*((j-1)*(rBo-rBi)/(N1-1)+rBi)/(1.*N)
     endif
 ! populate JMatrix rings, not the centers
 ! elevations
@@ -700,13 +709,6 @@ endif
    end do
   end do !end JMatrix ring generation
 
-write(*,*) 'erase the below after verifying Forsythe formula'
-write(*,*) 'janus 708',JMatrix%Z(1,1:2),JMatrix%Z(1,M1/2:M1/2+1),JMatrix%Z(1,M1-1:M1)
-write(*,*) (j-1)/2,j
-write(*,*) 'janus 709',JMatrix%Z((j-1)/2,1:2),JMatrix%Z((j-1)/2,M1/2:M1/2+1),JMatrix%Z((j-1)/2,M1-1:M1)
-write(*,*) 'janus 710',JMatrix%Z(j-1,1:2),JMatrix%Z(j-1,M1/2:M1/2+1),JMatrix%Z(j-1,M1-1:M1)
-
-
 !  Calculate center values for everything
 !  These have MM different values of the center!
 !  Reset these has no more need for EyeSys/ATLAS/PentaCam RadSlope
@@ -714,8 +716,8 @@ write(*,*) 'janus 710',JMatrix%Z(j-1,1:2),JMatrix%Z(j-1,M1/2:M1/2+1),JMatrix%Z(j
    DiaSlope=0
    deallocate(RadSplineCenter)
 !  reinitialize with M1 and N1
-   MM=M1
-   N=N1
+!   MM=M1
+!   N=N1
    call init_mat(M1,N1,RadSlope,DiaSlope,RadSplineCenter)
    RadSlope=JMatrix
    DiaSlope=RadSlope              ! move to diagonal format
@@ -736,18 +738,22 @@ write(*,*) 'janus 710',JMatrix%Z(j-1,1:2),JMatrix%Z(j-1,M1/2:M1/2+1),JMatrix%Z(j
    endif
  endif
 
+
+   write(*,*) 'Z'
 !  Z
 !   if (TestData.ne.2 .and. TestData.ne.4) then   ! already has valid Z0 from cornea_arrays & ELE file NOT YET IT DOES NOT
-    do i=1,MM
+    do i=1,M1
      call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%Z(N1+1,i))  !center value of elevation; needs integration from slopes
      JMatrix%Z0(1)=(i*JMatrix%Z0(1)+JMatrix%Z(N1+1,i))/(i+1)      ! cumulative average
     end do
 !   endif  ! TestData.eq.2 .or. TestData.eq.4
 
+
+   write(*,*) 'SAGC'
 !  SAGC
 !   if (TestData.ne.3 .and. TestData.ne.5) then  ! already has valid SAGC0 from cornea_arrays & CUR file NOT YET IT DOES NOT
 !  Reload RadSlope with SAGC & re-spline; can't compute it from surface because ill-defined at origin
-    do i=1,MM
+    do i=1,M1
      do j=1,RadSlope%MV(i)
       RadSlope%Zp(j,i)=JMatrix%SAGC(j,i)
      end do
@@ -765,7 +771,7 @@ write(*,*) 'janus 710',JMatrix%Z(j-1,1:2),JMatrix%Z(j-1,M1/2:M1/2+1),JMatrix%Z(j
      endif
     endif
 
-    do i=1,MM
+    do i=1,M1
      if (btest(dat,0)) then
       call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%SAGC(N1+1,i))  ! center value
      else
@@ -775,9 +781,10 @@ write(*,*) 'janus 710',JMatrix%Z(j-1,1:2),JMatrix%Z(j-1,M1/2:M1/2+1),JMatrix%Z(j
     end do
 !   endif   ! TestData.eq.3 .or. TestData.eq.5
 
+   write(*,*) 'INSTC'
 !  INSTC
 !  Reload RadSlope & respline
-   do i=1,MM
+   do i=1,M1
     do j=1,RadSlope%MV(i)
      RadSlope%Zp(j,i)=JMatrix%INSTC(j,i)
     end do
@@ -793,7 +800,7 @@ write(*,*) 'janus 710',JMatrix%Z(j-1,1:2),JMatrix%Z(j-1,M1/2:M1/2+1),JMatrix%Z(j
      DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
     endif
    endif
-   do i=1,MM
+   do i=1,M1
     if (btest(dat,0)) then
      call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC(N1+1,i))  ! center value
     else
@@ -802,9 +809,10 @@ write(*,*) 'janus 710',JMatrix%Z(j-1,1:2),JMatrix%Z(j-1,M1/2:M1/2+1),JMatrix%Z(j
    JMatrix%INSTC0(1)=(i*JMatrix%INSTC0(1)+JMatrix%INSTC(N1+1,i))/(i+1)      ! cumulative average
   end do
 
+  write(*,*) 'INSTC2'
 ! INSTC2
 ! Reload RadSlope & respline
-  do i=1,MM
+  do i=1,M1
    do j=1,RadSlope%MV(i)
     RadSlope%Zp(j,i)=JMatrix%INSTC2(j,i)
    end do
@@ -820,7 +828,7 @@ write(*,*) 'janus 710',JMatrix%Z(j-1,1:2),JMatrix%Z(j-1,M1/2:M1/2+1),JMatrix%Z(j
     DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
    endif
   endif
-  do i=1,MM
+  do i=1,M1
    if (btest(dat,0)) then
     call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC2(N1+1,i))  ! center value
    else
@@ -829,9 +837,11 @@ write(*,*) 'janus 710',JMatrix%Z(j-1,1:2),JMatrix%Z(j-1,M1/2:M1/2+1),JMatrix%Z(j
    JMatrix%INSTC20(1)=(i*JMatrix%INSTC20(1)+JMatrix%INSTC2(N1+1,i))/(i+1)      ! cumulative average
   end do
 
+
+  write(*,*) 'MEANC'
 ! MEANC
 ! Reload RadSlope & respline
-  do i=1,MM
+  do i=1,M1
    do j=1,RadSlope%MV(i)
     RadSlope%Zp(j,i)=JMatrix%MEANC(j,i)
    end do
@@ -847,7 +857,7 @@ write(*,*) 'janus 710',JMatrix%Z(j-1,1:2),JMatrix%Z(j-1,M1/2:M1/2+1),JMatrix%Z(j
     DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
    endif
   endif
-  do i=1,MM
+  do i=1,M1
    if (btest(dat,0)) then
     call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%MEANC(N1+1,i))  ! center value
    else
@@ -856,9 +866,10 @@ write(*,*) 'janus 710',JMatrix%Z(j-1,1:2),JMatrix%Z(j-1,M1/2:M1/2+1),JMatrix%Z(j
    JMatrix%MEANC0(1)=(i*JMatrix%MEANC0(1)+JMatrix%MEANC(N1+1,i))/(i+1)      ! cumulative average
   end do
 
+  write(*,*) 'MONGEA'
 ! MONGEA
 ! Reload RadSlope & respline
-  do i=1,MM
+  do i=1,M1
    do j=1,RadSlope%MV(i)
     RadSlope%Zp(j,i)=JMatrix%MONGEA(j,i)
    end do
@@ -874,7 +885,7 @@ write(*,*) 'janus 710',JMatrix%Z(j-1,1:2),JMatrix%Z(j-1,M1/2:M1/2+1),JMatrix%Z(j
     DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
    endif
   endif
-  do i=1,MM
+  do i=1,M1
    if (btest(dat,0)) then
     call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%MONGEA(N1+1,i))  ! center value
    else
@@ -883,7 +894,6 @@ write(*,*) 'janus 710',JMatrix%Z(j-1,1:2),JMatrix%Z(j-1,M1/2:M1/2+1),JMatrix%Z(j
   JMatrix%MONGEA0(1)=(i*JMatrix%MONGEA0(1)+JMatrix%MONGEA(N1+1,i))/(i+1)      ! cumulative average
  end do
 ! end populating JMatrix
-
 
 !Zernike coefficents
 if (mod(flag,100) == 1) then
@@ -1216,7 +1226,7 @@ BigPlot='BIG.CAR'
 
 ! GENERATE PRINT FILES
 !  RadSlope=DiaSlope
-  do i=1,MM
+  do i=1,M1
    do j=1,RadSlope%MV(i)
     RadSlope%Zp(j,i)=JMatrix%SAGC(j,i)
    end do

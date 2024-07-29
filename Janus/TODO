@@ -2,6 +2,9 @@ things to do
 
 CorneaCopia
 
+look at in cubic, printed in Spline1dx1d actual correction 
+
+
 Have to re-implement color scale, incorporate values in legend
 
 try to lock actions while Zernike is computing to avoid crash ? condition on counter?
@@ -14,7 +17,7 @@ AutoRedraw not working?
 zernike has problems in center ring even with fake data Obliq Astig,Oblique 2nd Astig,Obl Quad,Obl trefoil, horizontal/vert coma
 
 x-tilt, ytilt, piston has the hole, might be instructive, look good elevation has a hole, nearly the same as piston
-sagc has ugliness in center with contunuous hue not seen with standard scale
+sagc has ugliness in center with continuous hue not seen with standard scale
 
 ?ill-condition at x=0
 

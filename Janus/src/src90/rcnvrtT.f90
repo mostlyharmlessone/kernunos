@@ -23,12 +23,12 @@ USE cornea_arrays
         D=0.0_wp ; X=0.0_wp
        else 
         DIST=0.2_wp+(j-1)*0.13_wp
+!        DIST=(j-1)/(N-1.)
 !       ELLIPSOID WITH ASTIGMATISM Z=R-R*SQRT(1-(rCOSt/A)^2-(rSINt)/B)^2)
         R=48.0_wp
         A=46.0_wp
         B=50.0_wp
-        X=DIST*A/5.0
-!	D=DIST  alternate version without scale for derivative magnitude check
+        X=DIST*A/5.
         D=X
        endif 
         YP=(-(R/A**2)*COS(RadSlope%thta(i))**2-(R/B**2)*SIN(RadSlope%thta(i))**2)

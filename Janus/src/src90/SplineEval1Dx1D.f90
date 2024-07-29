@@ -52,6 +52,7 @@
         frrTmp(L)=frrTmp(j)
       end do
 
+
 !       FIRST CALL FOR PERIODIC SPLINE OF f0, fttTmp is d2Y/dTHETA2 
         if (Present(ftt)) then
          call pspli(thta,fTmp,MM,fttTmp)
