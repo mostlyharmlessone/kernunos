@@ -746,6 +746,8 @@ write(*,*) 'JMatrix'
      call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%Z(N1+1,i))  !center value of elevation; needs integration from slopes
      JMatrix%Z0(1)=(i*JMatrix%Z0(1)+JMatrix%Z(N1+1,i))/(i+1)      ! cumulative average
     end do
+    if (JMatrix%Z0(1) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z0(1)
+    if (JMatrix%Z0(1) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z0(1)
 !   endif  ! TestData.eq.2 .or. TestData.eq.4
 
 
@@ -779,6 +781,8 @@ write(*,*) 'JMatrix'
      endif
      JMatrix%SAGC0(1)=(i*JMatrix%SAGC0(1)+JMatrix%SAGC(N1+1,i))/(i+1)      ! cumulative average
     end do
+    if (JMatrix%SAGC0(1) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC0(1)
+    if (JMatrix%SAGC0(1) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC0(1)
 !   endif   ! TestData.eq.3 .or. TestData.eq.5
 
    write(*,*) 'INSTC'
@@ -808,6 +812,8 @@ write(*,*) 'JMatrix'
    endif
    JMatrix%INSTC0(1)=(i*JMatrix%INSTC0(1)+JMatrix%INSTC(N1+1,i))/(i+1)      ! cumulative average
   end do
+  if (JMatrix%INSTC0(1) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC0(1)
+  if (JMatrix%INSTC0(1) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC0(1)
 
   write(*,*) 'INSTC2'
 ! INSTC2
@@ -836,7 +842,8 @@ write(*,*) 'JMatrix'
    endif
    JMatrix%INSTC20(1)=(i*JMatrix%INSTC20(1)+JMatrix%INSTC2(N1+1,i))/(i+1)      ! cumulative average
   end do
-
+  if (JMatrix%INSTC20(1) <= JMatrix%INSTC20(2)) JMatrix%INSTC20(2)=JMatrix%INSTC20(1)
+  if (JMatrix%INSTC20(1) >= JMatrix%INSTC20(3)) JMatrix%INSTC20(3)=JMatrix%INSTC20(1)
 
   write(*,*) 'MEANC'
 ! MEANC
@@ -865,6 +872,8 @@ write(*,*) 'JMatrix'
    endif
    JMatrix%MEANC0(1)=(i*JMatrix%MEANC0(1)+JMatrix%MEANC(N1+1,i))/(i+1)      ! cumulative average
   end do
+  if (JMatrix%MEANC0(1) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC0(1)
+  if (JMatrix%MEANC0(1) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC0(1)
 
   write(*,*) 'MONGEA'
 ! MONGEA
@@ -893,6 +902,8 @@ write(*,*) 'JMatrix'
   endif
   JMatrix%MONGEA0(1)=(i*JMatrix%MONGEA0(1)+JMatrix%MONGEA(N1+1,i))/(i+1)      ! cumulative average
  end do
+ if (JMatrix%MONGEA0(1) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA0(1)
+ if (JMatrix%MONGEA0(1) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA0(1)
 ! end populating JMatrix
 
 !Zernike coefficents
@@ -1059,6 +1070,8 @@ do i =1,MM
   do k = 1,15
    if (JMatrix%ZC(j,i,k) <= JMatrix%ZC0(2,k)) JMatrix%ZC0(2,k)=JMatrix%ZC(j,i,k)
    if (JMatrix%ZC(j,i,k) >= JMatrix%ZC0(3,k)) JMatrix%ZC0(3,k)=JMatrix%ZC(j,i,k)
+   if (JMatrix%ZC0(1,k) <= JMatrix%ZC0(2,k)) JMatrix%ZC0(2,k)=JMatrix%ZC0(1,k)
+   if (JMatrix%ZC0(1,k) >= JMatrix%ZC0(3,k)) JMatrix%ZC0(3,k)=JMatrix%ZC0(1,k)
   end do
  end do
 end do

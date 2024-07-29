@@ -2,10 +2,9 @@ things to do
 
 CorneaCopia
 
-look at in cubic, printed in Spline1dx1d actual correction 
+Geom makes colored edge probably powermin
 
-
-Have to re-implement color scale, incorporate values in legend
+Have to re-implement size & color scale, incorporate values in legend
 
 try to lock actions while Zernike is computing to avoid crash ? condition on counter?
 

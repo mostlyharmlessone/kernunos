@@ -163,7 +163,7 @@
         END SELECT
         endif
         else
-           pow = powmin  ! outside range
+           pow = powmax  ! outside range
          endif
          nrm1=-abs(b%YPR(j,i))      !get rid of spurious sign
          nrm2=-b%YPTHETA(j,i)/X2    !polar coordinates
