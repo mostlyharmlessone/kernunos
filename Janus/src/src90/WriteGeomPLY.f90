@@ -149,15 +149,12 @@
          nrm3=1
          vert3 = real(X3,kind=REAL32)
          if (ieee_is_finite(vert3)) then
-          ! ok
+          rgbv=colormap(pow,powmin,powmax,map)
          else
           vert3 = 0 ! for out of bound values  
-          pow = powmin ! for out of bound values
+          rgbv = (/255,255,255/)
          endif  
-         rgbv=colormap(pow,powmin,powmax,map)
          write(unitno1,*) vert1,vert2,vert3,nrm1,nrm2,nrm3,rgbv,255
-!         write(*,*) 'writegeomply',vert1,vert2,vert3,nrm1,nrm2,nrm3,rgbv,255
-!         write(*,*) 'pow,powmin,powmax',pow,powmin,powmax
        endif
        do i=1,M1
         do j=1,N1
@@ -165,7 +162,7 @@
           X2=b%R(j,i)
           X3=b%Z(j,i)
           fct=mod(((flag-mod(flag,10000))/10000),100)
-          if  ( j < b%MV(i) ) then
+          if  ( j <= b%MV(i) ) then
           if (fct .lt. 16 .and. fct .gt. 0) then
                pow=b%ZC(j,i,fct)
           else
@@ -187,26 +184,34 @@
          END SELECT
          endif
          else
-          pow =powmin  ! outside range
+          pow = powmax  ! outside range
          endif
           nrm1=-abs(b%YPR(j,i))      !get rid of spurious sign
           nrm2=-b%YPTHETA(j,i)/X2    !polar coordinates
           normal=sqrt(nrm1*nrm1+nrm2*nrm2+1)
-          nrm1=nrm1/normal
-          nrm2=nrm2/normal
-          nrm3=1/normal
+          if (normal .ne. 0) then
+           nrm1=nrm1/normal
+           nrm2=nrm2/normal
+           nrm3=1/normal
+          else
+           nrm1 = 0         ! for out of bound values
+           nrm2 = 0         ! for out of bound values
+           nrm3 = 1         ! for out of bound values
+          endif
           vert1 = real(ABS(X2)*COS(X1),kind=REAL32)
           vert2 = real(ABS(X2)*SIN(X1),kind=REAL32)
           vert3 = real(X3,kind=REAL32)
-         if (ieee_is_finite(vert1) .AND. ieee_is_finite(vert2) .AND. ieee_is_finite(vert3)) then
-          ! ok
+         if (ieee_is_finite(vert1) .AND. ieee_is_finite(vert2) .AND. ieee_is_finite(vert3) .and. ieee_is_finite(nrm3)) then
+          rgbv=colormap(pow,powmin,powmax,map)
          else
           vert1 = 0_REAL32  ! for out of bound values
           vert2 = 0_REAL32  ! for out of bound values
           vert3 = 0_REAL32  ! for out of bound values
-          pow = powmin ! for out of bound values
+          nrm1 = 0         ! for out of bound values
+          nrm2 = 0         ! for out of bound values
+          nrm3 = 1         ! for out of bound values
+          rgbv= (/255,255,255/)
          endif
-         rgbv=colormap(pow,powmin,powmax,map)
          write(unitno1,*) vert1,vert2,vert3,nrm1,nrm2,nrm3,rgbv,255
         end do
        end do

@@ -123,14 +123,13 @@
          nrm2=0
          nrm3=1
          if (ieee_is_finite(vert3) .and. ieee_is_finite(pow)) then         
-          !ok          
+          c_rgbv=colormap(pow,powmin,powmax,map)/255.0  !openGL wants scale of 1.0 not 255
          else
           vert3 = 0         ! for out of bound values
-          pow = powmin           ! for out of bound values
+          c_rgbv = (/1,1,1/)
          endif   
          c_norm=real((/nrm1,nrm2,nrm3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float                          
          c_vert=real((/vert1,vert2,vert3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float
-         c_rgbv=colormap(pow,powmin,powmax,map)/255.0  !openGL wants scale of 1.0 not 255
          vertices(k:k+8)=(/c_vert,c_norm,c_rgbv/)
          k=k+9      ! matrix index        
        endif
@@ -141,7 +140,7 @@
          X2=b%R(j,i)
          X3=-b%Z(j,i)         ! flip it
          fct=mod(((flag-mod(flag,10000))/10000),100)
-         if  ( j < b%MV(i)) then
+         if  ( j <= b%MV(i)) then
          if (fct .lt. 16 .and. fct .gt. 0) then
               pow=b%ZC(j,i,fct)
          else
@@ -168,24 +167,32 @@
          nrm1=-abs(b%YPR(j,i))      !get rid of spurious sign
          nrm2=-b%YPTHETA(j,i)/X2    !polar coordinates
          normal=sqrt(nrm1*nrm1+nrm2*nrm2+1)
-         nrm1=nrm1/normal
-         nrm2=nrm2/normal
-         nrm3=1/normal        
+         if (normal .ne. 0) then
+          nrm1=nrm1/normal
+          nrm2=nrm2/normal
+          nrm3=1/normal
+         else
+          nrm1 = 0         ! for out of bound values
+          nrm2 = 0         ! for out of bound values
+          nrm3 = 1         ! for out of bound values
+         endif
          vert1 = real(ABS(X2)*COS(X1),kind=4)   !explicitly make these c/w c_float
          vert2 = real(ABS(X2)*SIN(X1),kind=4)
          vert3 = real(X3,kind=4)  
          if (ieee_is_finite(vert3) .and. ieee_is_finite(vert2) .and. &
-             ieee_is_finite(vert1) .and. ieee_is_finite(pow)) then
-          !ok
+             ieee_is_finite(vert1) .and. ieee_is_finite(pow) .and. ieee_is_finite(nrm3)) then
+          c_rgbv=colormap(pow,powmin,powmax,map)/255.0  !openGL wants scale of 1.0 not 255
          else
-          vert1 = 0  ! for out of bound values
-          vert2 = 0  ! for out of bound values
-          vert3 = 0  ! for out of bound values
-          pow = powmin           ! for out of bound values
+          vert1 = 0        ! for out of bound values
+          vert2 = 0        ! for out of bound values
+          vert3 = 0        ! for out of bound values
+          nrm1 = 0         ! for out of bound values
+          nrm2 = 0         ! for out of bound values
+          nrm3 = 1         ! for out of bound values
+          c_rgbv = (/1,1,1/)
          endif
          c_norm=real((/nrm1,nrm2,nrm3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float
          c_vert=real((/vert1,vert2,vert3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float
-         c_rgbv=colormap(pow,powmin,powmax,map)/255.0  !openGL wants scale of 1.0 not 255
          vertices(k:k+8)=(/c_vert,c_norm,c_rgbv/)
          k=k+9      ! matrix index
         end do

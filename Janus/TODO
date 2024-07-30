@@ -2,20 +2,17 @@ things to do
 
 CorneaCopia
 
-Geom makes colored edge probably powermin
-
 Have to re-implement size & color scale, incorporate values in legend
 
 try to lock actions while Zernike is computing to avoid crash ? condition on counter?
 
-Atlas and EyeSys and test data with cubic integration have weird edge effects: check Forsythe formula as **2 fixes the issue rather than **3 in CubicSplineQuad
-
 AutoRedraw not working?
 
-? branch cut or other calc error with Monge Astig,VQ (even with testdata)  at 90/270 degrees M1/2
-zernike has problems in center ring even with fake data Obliq Astig,Oblique 2nd Astig,Obl Quad,Obl trefoil, horizontal/vert coma
+? branch cut or other calc error with Monge Astig 
 
-x-tilt, ytilt, piston has the hole, might be instructive, look good elevation has a hole, nearly the same as piston
+fake data:  
+zernike has problems in center ring: Obliq Astig,Oblique 2nd Astig,Obl Quad,Obl trefoil, horizontal/vert coma
+defocus,vert astig, vert 2nd astig, vert trefoil, vert quad spherical aberration have issue at 90/270 degrees M1/2
 sagc has ugliness in center with continuous hue not seen with standard scale
 
 ?ill-condition at x=0
@@ -35,6 +32,8 @@ bounding box from above
 
 gnuplot stacked horizontal histogram p109? for zernike instead of chart
 remove chartview
+
+GEOM/WriteGeomPLY make extra out of range points, but need them to avoid EOF  .. fix?
 
 Update README/FAQ
 EyeSys instructions: unknown, more than one format, one with colon delimited data, RA/XX ?different software versions also EY/PU etc.

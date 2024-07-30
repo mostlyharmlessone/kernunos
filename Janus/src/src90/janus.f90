@@ -911,14 +911,14 @@ if (mod(flag,100) == 1) then
 call Ccounter(0)
 call LogC("Starting Zernike computation"//c_null_char)
 ! relies on saved MM,N
-nrhs=(MM*N+1)
+nrhs=(M1*N1+1)
 
   if (allocated(JMatrix%R)) then
 ! Try to generate Zernike coefficients based on central elevations & lsq to Zernike polynomials
 !  call CPU_TIME(time_start)
   time_start=omp_get_wtime()
 !  Reload RadSlope & respline
-   do i=1,MM
+   do i=1,M1
     do j=1,RadSlope%MV(i)
      RadSlope%Zp(j,i)=JMatrix%Z(j,i)
     end do
@@ -957,10 +957,10 @@ nrhs=(MM*N+1)
    do ii=1,nrhs
    call Ccounter(ii/40)
 !  cycle through i1 1 to MM and j1 1 to N with one point for origin at N+1
-   i1=mod(ii,MM)
-   j1=int(ii/MM)+1
+   i1=mod(ii,M1)
+   j1=int(ii/M1)+1
    if (i1 .eq. 0) then
-    i1=MM
+    i1=M1
     j1=j1-1
    endif
 
@@ -1048,10 +1048,10 @@ call LogC("post-LSQ"//c_null_char)
 !$OMP PARALLEL DO PRIVATE(i1,j1,i,j,kk)
 do kk=1,nrhs
 !  cycle through i1 1 to MM and j1 1 to N with one point for origin at N+1
-i1=mod(kk,MM)
-j1=int(kk/MM)+1
+i1=mod(kk,M1)
+j1=int(kk/M1)+1
 if (i1 .eq. 0) then
- i1=MM
+ i1=M1
  j1=j1-1
 endif
   JMatrix%ZC(j1,i1,1:k_max)=EE(1:k_max,kk)
@@ -1065,7 +1065,7 @@ end do
 ! find min and max
 JMatrix%ZC0(2,:)=1E30
 JMatrix%ZC0(3,:)=-1E30
-do i =1,MM
+do i =1,M1
  do j = 1,RadSlope%MV(i)
   do k = 1,15
    if (JMatrix%ZC(j,i,k) <= JMatrix%ZC0(2,k)) JMatrix%ZC0(2,k)=JMatrix%ZC(j,i,k)
