@@ -796,7 +796,7 @@ void MainWindow::light()
    };
 }
 
-// Auto Redraw on all changes to tweaks or colors only (didn't include activating stanza for fcts)
+// Auto Redraw on all changes to tweaks, functions or colors
 void MainWindow::redrawOption()
 {
     if (GLwidget::isRedraw()) {
@@ -822,8 +822,8 @@ void MainWindow::normal()
 void MainWindow::fctAxial()
 {
    if (GLwidget::isAxial()) {
-        GLwidget::setAxial(false);
-        ui.infoLabel->setText(tr("Set <b>View:Axial false</b>"));
+//        GLwidget::setAxial(false);
+        ui.infoLabel->setText(tr("Set <b>View:Axial is default, set another to deselect</b>"));
    } else {
         GLwidget::setAllfctfalse();
         GLwidget::setAxial(true);
@@ -839,7 +839,8 @@ void MainWindow::fctTangential()
 {
    if (GLwidget::isTangential()) {
         GLwidget::setTangential(false);
-        ui.infoLabel->setText(tr("Set <b>View:Tangential false</b>"));
+        GLwidget::setAxial(true);
+        ui.infoLabel->setText(tr("Set <b>View:Tangential false, reset to Axial</b>"));
    } else {
         GLwidget::setAllfctfalse();
         GLwidget::setTangential(true);
@@ -855,7 +856,8 @@ void MainWindow::fctInstantaneous()
 {
    if (GLwidget::isInstantaneous()) {
         GLwidget::setInstantaneous(false);
-        ui.infoLabel->setText(tr("Set <b>View:Instantaneous false</b>"));
+        GLwidget::setAxial(true);
+        ui.infoLabel->setText(tr("Set <b>View:Instantaneous false, reset to Axial</b>"));
    } else {
         GLwidget::setAllfctfalse();
         GLwidget::setInstantaneous(true);
@@ -871,6 +873,7 @@ void MainWindow::fctMean()
 {
    if (GLwidget::isMean()) {
         GLwidget::setMean(false);
+        GLwidget::setAxial(true);
         ui.infoLabel->setText(tr("Set <b>View:Mean false</b>"));
    } else {
         GLwidget::setAllfctfalse();
@@ -887,6 +890,7 @@ void MainWindow::fctMongeAstig()
 {
    if (GLwidget::isAstig()) {
         GLwidget::setAstig(false);
+        GLwidget::setAxial(true);
         ui.infoLabel->setText(tr("Set <b>View:Monge Astigmatism false</b>"));
    } else {
         GLwidget::setAllfctfalse();
@@ -903,6 +907,7 @@ void MainWindow::fctElevation()
 {
    if (GLwidget::isElevation()) {
         GLwidget::setElevation(false);
+        GLwidget::setAxial(true);
         ui.infoLabel->setText(tr("Set <b>View:Elevation false</b>"));
    } else {
         GLwidget::setAllfctfalse();
@@ -919,6 +924,7 @@ void MainWindow::fctZ44()
 {
    if (GLwidget::isZ44()) {
         GLwidget::setZ44(false);
+        GLwidget::setAxial(true);
         ui.infoLabel->setText(tr("Set <b>View:Vertical Quatrafoil false</b>"));
    } else {
         GLwidget::setAllfctfalse();
@@ -935,6 +941,7 @@ void MainWindow::fctZ42()
 {
    if (GLwidget::isZ42()) {
         GLwidget::setZ42(false);
+        GLwidget::setAxial(true);
         ui.infoLabel->setText(tr("Set <b>View:Vertical 2nd Astig false</b>"));
    } else {
         GLwidget::setAllfctfalse();;
@@ -951,6 +958,7 @@ void MainWindow::fctZ40()
 {
    if (GLwidget::isZ40()) {
         GLwidget::setZ40(false);
+        GLwidget::setAxial(true);
         ui.infoLabel->setText(tr("Set <b>View:Spherical Aberration false</b>"));
    } else {
         GLwidget::setAllfctfalse();
@@ -967,6 +975,7 @@ void MainWindow::fctZ4neg4()
 {
    if (GLwidget::isZ4neg4()) {
         GLwidget::setZ4neg4(false);
+        GLwidget::setAxial(true);
         ui.infoLabel->setText(tr("Set <b>View:Oblique Quatrafoil false</b>"));
    } else {
         GLwidget::setAllfctfalse();
@@ -983,6 +992,7 @@ void MainWindow::fctZ4neg2()
 {
    if (GLwidget::isZ4neg2()) {
         GLwidget::setZ4neg2(false);
+        GLwidget::setAxial(true);
         ui.infoLabel->setText(tr("Set <b>View:Oblique 2nd Astig false</b>"));
    } else {
         GLwidget::setAllfctfalse();
@@ -999,6 +1009,7 @@ void MainWindow::fctZ33()
 {
    if (GLwidget::isZ33()) {
         GLwidget::setZ33(false);
+        GLwidget::setAxial(true);
         ui.infoLabel->setText(tr("Set <b>View:Oblique Trefoil false</b>"));
    } else {
         GLwidget::setAllfctfalse();
@@ -1015,6 +1026,7 @@ void MainWindow::fctZ31()
 {
    if (GLwidget::isZ31()) {
         GLwidget::setZ31(false);
+        GLwidget::setAxial(true);
         ui.infoLabel->setText(tr("Set <b>View:Horizontal Coma false</b>"));
    } else {
         GLwidget::setAllfctfalse();
@@ -1031,6 +1043,7 @@ void MainWindow::fctZ3neg1()
 {
    if (GLwidget::isZ3neg1()) {
         GLwidget::setZ3neg1(false);
+        GLwidget::setAxial(true);
         ui.infoLabel->setText(tr("Set <b>View:Vertical Coma false</b>"));
    } else {
         GLwidget::setAllfctfalse();
@@ -1047,6 +1060,7 @@ void MainWindow::fctZ3neg3()
 {
    if (GLwidget::isZ3neg3()) {
         GLwidget::setZ3neg3(false);
+        GLwidget::setAxial(true);
         ui.infoLabel->setText(tr("Set <b>View:Vertical Trefoil false</b>"));
    } else {
         GLwidget::setAllfctfalse();
@@ -1063,6 +1077,7 @@ void MainWindow::fctZ22()
 {
    if (GLwidget::isZ22()) {
         GLwidget::setZ22(false);
+        GLwidget::setAxial(true);
         ui.infoLabel->setText(tr("Set <b>View:Vertical Astig false</b>"));
    } else {
         GLwidget::setAllfctfalse();
@@ -1079,6 +1094,7 @@ void MainWindow::fctZ20()
 {
    if (GLwidget::isZ20()) {
         GLwidget::setZ20(false);
+        GLwidget::setAxial(true);
         ui.infoLabel->setText(tr("Set <b>View:Defocus false</b>"));
    } else {
         GLwidget::setAllfctfalse();
@@ -1095,6 +1111,7 @@ void MainWindow::fctZ2neg2()
 {
    if (GLwidget::isZ2neg2()) {
         GLwidget::setZ2neg2(false);
+        GLwidget::setAxial(true);
         ui.infoLabel->setText(tr("Set <b>View:Oblique Astig false</b>"));
    } else {
         GLwidget::setAllfctfalse();
@@ -1111,6 +1128,7 @@ void MainWindow::fctZ11()
 {
    if (GLwidget::isZ11()) {
         GLwidget::setZ11(false);
+        GLwidget::setAxial(true);
         ui.infoLabel->setText(tr("Set <b>View:X-tilt false</b>"));
    } else {
         GLwidget::setAllfctfalse();
@@ -1127,6 +1145,7 @@ void MainWindow::fctZ1neg1()
 {
    if (GLwidget::isZ1neg1()) {
         GLwidget::setZ1neg1(false);
+        GLwidget::setAxial(true);
         ui.infoLabel->setText(tr("Set <b>View:Y-tilt false</b>"));
    } else {
         GLwidget::setAllfctfalse();
@@ -1143,6 +1162,7 @@ void MainWindow::fctZ00()
 {
    if (GLwidget::isPiston()) {
         GLwidget::setPiston(false);
+        GLwidget::setAxial(true);
         ui.infoLabel->setText(tr("Set <b>View:Piston false</b>"));
    } else {
         GLwidget::setAllfctfalse();
@@ -1163,9 +1183,9 @@ void MainWindow::tweakcenterNode()
    } else {
         GLwidget::setCenterNode(true);
         ui.infoLabel->setText(tr("Set <b>Tweak:Center Node true</b>"));
-   };
-   if (GLwidget::isRedraw()) {
-       redraw();
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -1177,9 +1197,9 @@ void MainWindow::tweakadjustradii()
    } else {
         GLwidget::setadjustradii(true);
         ui.infoLabel->setText(tr("Set <b>Tweak:Adjust radii true</b>"));
-   };
-   if (GLwidget::isRedraw()) {
-       redraw();
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -1191,9 +1211,9 @@ void MainWindow::tweakcubic()
    } else {
         GLwidget::setcubic(true);
         ui.infoLabel->setText(tr("Set <b>Tweak:Cubic Spline Integration</b>"));
-   };
-   if (GLwidget::isRedraw()) {
-       redraw();
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 void MainWindow::tweakLSQfill()
@@ -1206,9 +1226,9 @@ void MainWindow::tweakLSQfill()
         GLwidget::setLSQfillin(true);
         SplinefillinAct->setChecked(GLwidget::isSplinefillin());
         ui.infoLabel->setText(tr("Set <b>Tweak:LSQ fillin true</b>"));
-   };
-   if (GLwidget::isRedraw()) {
-       redraw();
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -1222,9 +1242,9 @@ void MainWindow::tweakSplinefill()
         GLwidget::setLSQfillin(false);
         LSQfillinAct->setChecked(GLwidget::isLSQfillin());
         ui.infoLabel->setText(tr("Set <b>Tweak:Spline fillin true</b>"));
-   };
-   if (GLwidget::isRedraw()) {
-       redraw();
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -1232,6 +1252,7 @@ void MainWindow::colorrgb2()
 {
    if (GLwidget::isrgb2()) {
         GLwidget::setrgb2(false);
+        GLwidget::setUSSfixed(true);
         ui.infoLabel->setText(tr("Set <b>View:rgb2 false</b>"));
    } else {
         GLwidget::setAllmapsfalse();
@@ -1248,6 +1269,7 @@ void MainWindow::colorrgb5()
 {
    if (GLwidget::isrgb5()) {
         GLwidget::setrgb5(false);
+        GLwidget::setUSSfixed(true);
         ui.infoLabel->setText(tr("Set <b>View:rgb5 false</b>"));
    } else {
         GLwidget::setAllmapsfalse();
@@ -1264,6 +1286,7 @@ void MainWindow::colorhsbrgb()
 {
    if (GLwidget::ishsbrgb()) {
         GLwidget::sethsbrgb(false);
+        GLwidget::setUSSfixed(true);
         ui.infoLabel->setText(tr("Set <b>View:Hue Sat Brightness Map false</b>"));
    } else {
         GLwidget::setAllmapsfalse();
@@ -1280,6 +1303,7 @@ void MainWindow::colorgplotpalette()
 {
    if (GLwidget::isgplotpalette()) {
         GLwidget::setgplotpalette(false);
+        GLwidget::setUSSfixed(true);
         ui.infoLabel->setText(tr("Set <b>View:gplot palette false</b>"));
    } else {
         GLwidget::setAllmapsfalse();
@@ -1295,8 +1319,8 @@ void MainWindow::colorgplotpalette()
 void MainWindow::colorUSSpalettefixed()
 {
    if (GLwidget::isUSSfixed()) {
-        GLwidget::setUSSfixed(false);
-        ui.infoLabel->setText(tr("Set <b>View:USS Palette fixed range false</b>"));
+//        GLwidget::setUSSfixed(false);
+        ui.infoLabel->setText(tr("Set <b>View:USS Palette fixed range is default, deselect by setting another</b>"));
    } else {
         GLwidget::setAllmapsfalse();
         GLwidget::setUSSfixed(true);
@@ -1312,6 +1336,7 @@ void MainWindow::colorUSSpalette()
 {
    if (GLwidget::isUSSpalette()) {
         GLwidget::setUSSpalette(false);
+        GLwidget::setUSSfixed(true);
         ui.infoLabel->setText(tr("Set <b>View:USS Palette false</b>"));
    } else {
         GLwidget::setAllmapsfalse();
@@ -1328,6 +1353,7 @@ void MainWindow::colorPerceptualUniformfixed()
 {
    if (GLwidget::isperceptualuniformfixed()) {
         GLwidget::setperceptualuniformfixed(false);
+        GLwidget::setUSSfixed(true);
         ui.infoLabel->setText(tr("Set <b>View:Perceptually Uniform Palette fixed range false</b>"));
    } else {
         GLwidget::setAllmapsfalse();
@@ -1344,6 +1370,7 @@ void MainWindow::colorPerceptualUniformpalette()
 {
    if (GLwidget::isperceptualuniformpalette()) {
         GLwidget::setperceptualuniformpalette(false);
+        GLwidget::setUSSfixed(true);
         ui.infoLabel->setText(tr("Set <b>View:Perceptually Uniform Palette false</b>"));
    } else {
         GLwidget::setAllmapsfalse();
