@@ -6,8 +6,6 @@ Have to re-implement size & color scale, incorporate values in legend
 
 try to lock actions while Zernike is computing to avoid crash ? condition on counter?
 
-AutoRedraw not working?
-
 ? branch cut or other calc error with Monge Astig 
 
 fake data:  
@@ -15,7 +13,6 @@ zernike has problems in center ring: Obliq Astig,Oblique 2nd Astig,Obl Quad,Obl 
 defocus,vert astig, vert 2nd astig, vert trefoil, vert quad spherical aberration have issue at 90/270 degrees M1/2
 sagc has ugliness in center with continuous hue not seen with standard scale
 
-?ill-condition at x=0
 
 tweak center part of fillin so that there's no blue/blackspot; might need error correct or average?
 

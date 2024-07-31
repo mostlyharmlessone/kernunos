@@ -829,8 +829,10 @@ void MainWindow::fctAxial()
         GLwidget::setAxial(true);
         checkfctsflags();
         ui.infoLabel->setText(tr("Set <b>View:Axial true</b>"));
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
-   return;
 }
 
 void MainWindow::fctTangential()
@@ -843,8 +845,10 @@ void MainWindow::fctTangential()
         GLwidget::setTangential(true);
         checkfctsflags();
         ui.infoLabel->setText(tr("Set <b>View:Tangential true</b>"));
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
-   return;
 }
 
 void MainWindow::fctInstantaneous()
@@ -857,6 +861,9 @@ void MainWindow::fctInstantaneous()
         GLwidget::setInstantaneous(true);
         checkfctsflags();
         ui.infoLabel->setText(tr("Set <b>View:Instantaneous true</b>"));
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -870,6 +877,9 @@ void MainWindow::fctMean()
         GLwidget::setMean(true);
         checkfctsflags();
         ui.infoLabel->setText(tr("Set <b>View:Mean true</b>"));
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -883,6 +893,9 @@ void MainWindow::fctMongeAstig()
         GLwidget::setAstig(true);
         checkfctsflags();
         ui.infoLabel->setText(tr("Set <b>View:Monge Astigmatism true</b>"));
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -896,6 +909,9 @@ void MainWindow::fctElevation()
         GLwidget::setElevation(true);
         checkfctsflags();
         ui.infoLabel->setText(tr("Set <b>View:Elevation true</b>"));
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -909,6 +925,9 @@ void MainWindow::fctZ44()
         GLwidget::setZ44(true);
         checkfctsflags();
         ui.infoLabel->setText(tr("Set <b>View:Vertical Quatrafoil true</b>"));
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -922,6 +941,9 @@ void MainWindow::fctZ42()
         GLwidget::setZ42(true);
         checkfctsflags();
         ui.infoLabel->setText(tr("Set <b>View:Vertical 2nd Astig true</b>"));
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -935,6 +957,9 @@ void MainWindow::fctZ40()
         GLwidget::setZ40(true);
         checkfctsflags();
         ui.infoLabel->setText(tr("Set <b>View:Spherical Aberration true</b>"));
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -948,6 +973,9 @@ void MainWindow::fctZ4neg4()
         GLwidget::setZ4neg4(true);
         checkfctsflags();
         ui.infoLabel->setText(tr("Set <b>View:Oblique Quatrafoil true</b>"));
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -961,6 +989,9 @@ void MainWindow::fctZ4neg2()
         GLwidget::setZ4neg2(true);
         checkfctsflags();
         ui.infoLabel->setText(tr("Set <b>View:Oblique 2nd Astig true</b>"));
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -974,6 +1005,9 @@ void MainWindow::fctZ33()
         GLwidget::setZ33(true);
         checkfctsflags();
         ui.infoLabel->setText(tr("Set <b>View:Oblique Trefoil true</b>"));
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -987,6 +1021,9 @@ void MainWindow::fctZ31()
         GLwidget::setZ31(true);
         checkfctsflags();
         ui.infoLabel->setText(tr("Set <b>View:Horizontal Coma true</b>"));
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -1000,6 +1037,9 @@ void MainWindow::fctZ3neg1()
         GLwidget::setZ3neg1(true);
         checkfctsflags();
         ui.infoLabel->setText(tr("Set <b>View:Vertical Coma true</b>"));
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -1013,6 +1053,9 @@ void MainWindow::fctZ3neg3()
         GLwidget::setZ3neg3(true);
         checkfctsflags();
         ui.infoLabel->setText(tr("Set <b>View:Vertical Trefoil true</b>"));
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -1026,6 +1069,9 @@ void MainWindow::fctZ22()
         GLwidget::setZ22(true);
         checkfctsflags();
         ui.infoLabel->setText(tr("Set <b>View:Vertical Astig true</b>"));
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -1039,6 +1085,9 @@ void MainWindow::fctZ20()
         GLwidget::setZ20(true);
         checkfctsflags();
         ui.infoLabel->setText(tr("Set <b>View:Defocus true</b>"));
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -1052,6 +1101,9 @@ void MainWindow::fctZ2neg2()
         GLwidget::setZ2neg2(true);
         checkfctsflags();
         ui.infoLabel->setText(tr("Set <b>View:Oblique Astig true</b>"));
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -1065,6 +1117,9 @@ void MainWindow::fctZ11()
         GLwidget::setZ11(true);
         checkfctsflags();
         ui.infoLabel->setText(tr("Set <b>View:X-tilt true</b>"));
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -1078,6 +1133,9 @@ void MainWindow::fctZ1neg1()
         GLwidget::setZ1neg1(true);
         checkfctsflags();
         ui.infoLabel->setText(tr("Set <b>View:Y-tilt true</b>"));
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -1091,6 +1149,9 @@ void MainWindow::fctZ00()
         GLwidget::setPiston(true);
         checkfctsflags();
         ui.infoLabel->setText(tr("Set <b>View:Piston true</b>"));
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -1177,9 +1238,9 @@ void MainWindow::colorrgb2()
         GLwidget::setrgb2(true);
         checkmapsflags();
         ui.infoLabel->setText(tr("Set <b>View:View:rgb2 true</b>"));
-   };
-   if (GLwidget::isRedraw()) {
-       redraw();
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -1193,9 +1254,9 @@ void MainWindow::colorrgb5()
         GLwidget::setrgb5(true);
         checkmapsflags();
         ui.infoLabel->setText(tr("Set <b>View:View:rgb5 true</b>"));
-   };
-   if (GLwidget::isRedraw()) {
-       redraw();
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -1209,9 +1270,9 @@ void MainWindow::colorhsbrgb()
         GLwidget::sethsbrgb(true);
         checkmapsflags();
         ui.infoLabel->setText(tr("Set <b>View:View:Hue Sat Brightness Map true</b>"));
-   };
-   if (GLwidget::isRedraw()) {
-       redraw();
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -1225,9 +1286,9 @@ void MainWindow::colorgplotpalette()
         GLwidget::setgplotpalette(true);
         checkmapsflags();
         ui.infoLabel->setText(tr("Set <b>View:View:gplot palette true</b>"));
-   };
-   if (GLwidget::isRedraw()) {
-       redraw();
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -1241,9 +1302,9 @@ void MainWindow::colorUSSpalettefixed()
         GLwidget::setUSSfixed(true);
         checkmapsflags();
         ui.infoLabel->setText(tr("Set <b>View:View:USS Palette fixed range true</b>"));
-   };
-   if (GLwidget::isRedraw()) {
-       redraw();
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -1257,9 +1318,9 @@ void MainWindow::colorUSSpalette()
         GLwidget::setUSSpalette(true);
         checkmapsflags();
         ui.infoLabel->setText(tr("Set <b>View:View:USS Palette true</b>"));
-   };
-   if (GLwidget::isRedraw()) {
-       redraw();
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -1273,9 +1334,9 @@ void MainWindow::colorPerceptualUniformfixed()
         GLwidget::setperceptualuniformfixed(true);
         checkmapsflags();
         ui.infoLabel->setText(tr("Set <b>View:View:Perceptually Uniform Palette fixed range true</b>"));
-   };
-   if (GLwidget::isRedraw()) {
-       redraw();
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
@@ -1289,9 +1350,9 @@ void MainWindow::colorPerceptualUniformpalette()
         GLwidget::setperceptualuniformpalette(true);
         checkmapsflags();
         ui.infoLabel->setText(tr("Set <b>View:View:Perceptually Uniform Palette true</b>"));
-   };
-   if (GLwidget::isRedraw()) {
-       redraw();
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
    };
 }
 
