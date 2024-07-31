@@ -90,7 +90,7 @@ using namespace QtConcurrent;
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
-// flag xxxxxxxx dat,fct,map,action
+// flag xxxxxxxx dat,fct,map,action used to communicate between cpp and fortran code calculation options
 // first two digits are Placido disk data fillin and/or center-node tweaks
 // dat = first binary bit 0/1 centernode tweak
 // dat = second binary bit 0/1 shift r-values tweak
