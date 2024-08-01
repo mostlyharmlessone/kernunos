@@ -4,10 +4,15 @@ CorneaCopia
 
 Have to re-implement size & color scale, incorporate values in legend
 gnuplot stacked horizontal histogram p109? for zernike instead of chart
-remove chartview
 windows and scaling: distance
 bounding box from above
 
+in /home/debeus/chartsgallery
+temperaturerecords
+
+in /home/debeus/simpletextviewer
+in mainwindow: assistant, help, shortcut key
+in assistant.cpp look at showDocumentation and substitute docs for this project in appropriate format
 
 Fixes:
 

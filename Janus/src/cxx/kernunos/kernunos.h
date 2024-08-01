@@ -61,6 +61,8 @@ class QLabel;
 class QMenu;
 QT_END_NAMESPACE
 
+class Assistant;
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -77,6 +79,7 @@ protected:
 
 private slots:
     void open();
+    void showDocumentation();
     void redraw();
     void compare();
     void zern();
@@ -139,6 +142,8 @@ private:
     void dock();
     void undock();
     QSlider *createSlider();
+
+    Assistant *assistant;
 
     GLwidget *glWidget;
     QSlider *xSlider;

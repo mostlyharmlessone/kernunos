@@ -52,12 +52,8 @@
 
 //https://community.intel.com/t5/Intel-Fortran-Compiler/How-to-access-ALLOCATABLE-4-D-Fortran-array-from-C/m-p/1478884/highlight/true
 // seems like common blocks were much easier
-//not found for some reason, need explicit location here
+//not found for some reason, might need explicit location here
 //#include "/usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include/ISO_Fortran_binding.h"
-
-//lifted from examples zoomlinechart
-#include "chart.h"   // Copyright (C) 2023 The Qt Company Ltd.
-#include "chartview.h" // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
 
 #include <QtWidgets>
 #include <QtConcurrent>
@@ -79,16 +75,18 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include "assistant.h"
 #include "gnuplot-iostream/gnuplot-iostream.h"
 
 #include "../kernunos/counter.h"
 #include "../kernunos/logc.h"
 
 using namespace QtConcurrent;
+using namespace Qt::StringLiterals;
 
 // global settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 2800;
+const unsigned int SCR_HEIGHT = 2600;
 
 // flag xxxxxxxx dat,fct,map,action used to communicate between cpp and fortran code calculation options
 // first two digits are Placido disk data fillin and/or center-node tweaks
@@ -167,7 +165,7 @@ QString *m_GLString=nullptr;
 QString glstring_global;
 
 
-MainWindow::MainWindow()
+MainWindow::MainWindow() : assistant(new Assistant)
 {
    QWidget *widget = new QWidget;
    widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -226,8 +224,8 @@ MainWindow::MainWindow()
 
     QHBoxLayout *colorHBox = new QHBoxLayout;
 
-    //colorHBox->addWidget(legendpix);
-   // colorHBox->addWidget(legend);
+    colorHBox->addWidget(ui.legendpix);
+    colorHBox->addWidget(ui.legend);
     colorGroupBox->setLayout(colorHBox);
 
    QBarSet *negative = new QBarSet("Negative");
@@ -245,12 +243,6 @@ MainWindow::MainWindow()
    series->append(positive);
    positive->setColor(QColorConstants::Blue);
 
-   // Uses zoomlinechart example Chart class
-   QChart *chart = new Chart();
-   chart->addSeries(series);
-   chart->setTitle("Corneal Aberrometry");
-   chart->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-
    QStringList aberrations = {
        "Z(4,4) Vertical Quatrafoil",
        "Z(4,2) Vertical 2nd Astig.",
@@ -266,35 +258,21 @@ MainWindow::MainWindow()
        "Z(2,-2) Oblique Astigmatism"
    };
 
-   QValueAxis *axisX = new QValueAxis();
-   QBarCategoryAxis *axisY = new QBarCategoryAxis();
-   axisY->append(aberrations);
-
-   axisX->setRange(-0.500, 0.500);
-   axisX->setTitleText("micrometers");
-
-   chart->addAxis(axisX, Qt::AlignBottom);
-   chart->addAxis(axisY, Qt::AlignRight);
-   series->attachAxis(axisX);
-   series->attachAxis(axisY);
-
-   chart->legend()->setVisible(false);
-   chart->legend()->setAlignment(Qt::AlignBottom);
-   chart->setAnimationOptions(QChart::SeriesAnimations);
-
-   // uses zoomlinechart example ChartView class
-   QChartView *chartView = new ChartView(chart);
-   chartView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-   chartView->setRenderHint(QPainter::Antialiasing);
-   chartView->setMinimumSize(200,200);   //another hard code number!
-
-
-/* if using ui, have to edit properties as below
-   slider->setRange(0, 360 * 16);
-   slider->setSingleStep(16);
-   slider->setPageStep(15 * 16);
-   slider->setTickInterval(15 * 16);
-   slider->setTickPosition(QSlider::TicksRight);*/
+   ui.xSlider->setRange(0, 360 * 16);
+   ui.xSlider->setSingleStep(16);
+   ui.xSlider->setPageStep(15 * 16);
+   ui.xSlider->setTickInterval(15 * 16);
+   ui.xSlider->setTickPosition(QSlider::TicksRight);
+   ui.ySlider->setRange(0, 360 * 16);
+   ui.ySlider->setSingleStep(16);
+   ui.ySlider->setPageStep(15 * 16);
+   ui.ySlider->setTickInterval(15 * 16);
+   ui.ySlider->setTickPosition(QSlider::TicksRight);
+   ui.zSlider->setRange(0, 360 * 16);
+   ui.zSlider->setSingleStep(16);
+   ui.zSlider->setPageStep(15 * 16);
+   ui.zSlider->setTickInterval(15 * 16);
+   ui.zSlider->setTickPosition(QSlider::TicksRight);
    connect(ui.xSlider, &QSlider::valueChanged, ui.openGLWidget_2, &GLwidget::setXRotation);
    connect(ui.openGLWidget_2, &GLwidget::xRotationChanged, ui.xSlider, &QSlider::setValue);
    connect(ui.ySlider, &QSlider::valueChanged, ui.openGLWidget_2, &GLwidget::setYRotation);
@@ -302,7 +280,6 @@ MainWindow::MainWindow()
    connect(ui.zSlider, &QSlider::valueChanged, ui.openGLWidget_2, &GLwidget::setZRotation);
    connect(ui.openGLWidget_2, &GLwidget::zRotationChanged, ui.zSlider, &QSlider::setValue);
 
-   colorHBox->addWidget(chartView);
    vlayout->addWidget(colorGroupBox);
    widget->setLayout(vlayout);
 
@@ -313,7 +290,6 @@ MainWindow::MainWindow()
    createActions();
    createMenus();
    setWindowTitle(tr("Kernunos"));
-   setMinimumSize(200, 200);
    resize(SCR_WIDTH, SCR_HEIGHT);
    update();
 
@@ -1440,6 +1416,11 @@ void MainWindow::aboutQt()
    ui.infoLabel->setText(tr("Invoked <b>Help|About Qt</b>"));
 }
 
+void MainWindow::showDocumentation()
+{
+    assistant->showDocumentation("index.html");
+}
+
 void MainWindow::createActions()
 {
    openAct = new QAction(tr("&Open..."), this);
@@ -1553,8 +1534,10 @@ void MainWindow::createActions()
    connect(aboutQtAct, &QAction::triggered, qApp, &QApplication::aboutQt);
    connect(aboutQtAct, &QAction::triggered, this, &MainWindow::aboutQt);
 
-   HelpAct = new QAction(tr("&Help"), this);
+   HelpAct = new QAction(tr("Help Contents"), this);
    HelpAct->setStatusTip(tr("Shows some help"));
+   HelpAct->setShortcut(QKeySequence::HelpContents);
+   connect(HelpAct, &QAction::triggered, this, &MainWindow::showDocumentation);
 
    AxialAct=new QAction(tr("&Axial or Sagittal Power"), this);
    AxialAct->setCheckable(true);

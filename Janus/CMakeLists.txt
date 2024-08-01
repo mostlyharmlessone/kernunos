@@ -270,10 +270,9 @@ include_directories(src/cxx/kernunos src/c/rply) # /usr/local/include/coretran)
     qt_add_executable(kernunos 
                    src/cxx/kernunos/kernunos.cpp src/cxx/kernunos/kernunos.h
                    src/cxx/kernunos/GLwidget.cpp src/cxx/kernunos/GLwidget.h
-                   src/cxx/kernunos/chart.cpp src/cxx/kernunos/chart.h
+                   src/cxx/kernunos/assistant.cpp src/cxx/kernunos/assistant.h
                    src/c/kernunos/logc.c src/c/kernunos/logc.h
                    src/c/kernunos/Ccounter.c src/c/kernunos/counter.h
-                   src/cxx/kernunos/chartview.cpp src/cxx/kernunos/chartview.h
                    src/cxx/kernunos/lioc.cpp gnuplot-iostream/gnuplot-iostream.h
                    src/cxx/kernunos/mainwindow.ui
                    src/c/kernunos/ConvertPLYtoBIN.c
