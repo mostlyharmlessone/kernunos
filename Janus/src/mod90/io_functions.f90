@@ -293,7 +293,7 @@ subroutine rcnvrte(RANAME,XXNAME,read_error)
   logical :: exists
   character(len=*), intent(in) :: RANAME,XXNAME
   character(1000) header
-  integer :: file_idx1,file_idx2
+  integer :: file_idx1,file_idx2,readerr
   integer, intent(out) :: read_error
   REAL(wp) :: ZX(16),YX(16)
   INTEGER :: I,J,ITH,unitno1,unitno2,MM,N,ierr
@@ -325,12 +325,32 @@ subroutine rcnvrte(RANAME,XXNAME,read_error)
       endif
       do I=1,MM
        if (file_idx1>0 .and. file_idx2>0) then
-        READ(unitno1,*) header,ZX(:)
-        READ(unitno2,*) header,YX(:)
+        READ(unitno1,*,iostat=readerr) header,ZX(:)
+        if (readerr .ne. 0) then
+         WRITE (*,*) 'Error on input EyeSys RA/XX files on', I,'row'
+         read_error=3
+         return
+        endif
+        READ(unitno2,*,iostat=readerr) header,YX(:)
+        if (readerr .ne. 0) then
+         WRITE (*,*) 'Error on input EyeSys RA/XX files on', I,'row'
+         read_error=3
+         return
+        endif
         ITH=I-1
        else
-        READ(unitno1,*) ITH,ZX(:)
-        READ(unitno2,*) ITH,YX(:)
+        READ(unitno1,*,iostat=readerr) ITH,ZX(:)
+        if (readerr .ne. 0) then
+         WRITE (*,*) 'Error on input EyeSys RA/XX files on', I,'row'
+         read_error=3
+         return
+        endif
+        READ(unitno2,*,iostat=readerr) ITH,YX(:)
+        if (readerr .ne. 0) then
+         WRITE (*,*) 'Error on input EyeSys RA/XX files on', I,'row'
+         read_error=3
+         return
+        endif
        endif
        do J=1,N
         EyeSys%RA(i,j)=ZX(j)

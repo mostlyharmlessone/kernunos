@@ -21,10 +21,9 @@
   integer(c_int), INTENT(INOUT) :: nE               
   real(c_float), INTENT(INOUT) :: vertices(*)
   integer(c_int), INTENT(INOUT) :: elements(*)
-  character(len=7) :: BigPlot
   character(len=8) :: LinesOfCurv
   character(len=4096) :: new_path
-  character(:),save, ALLOCATABLE :: inputfile1,inputfile2
+  character(:),save, ALLOCATABLE :: inputfile1,inputfile2,BigPlot
   character(:),save, ALLOCATABLE :: logfile
   integer ::  nblines, file_idx, file_pfx,read_error,io
   integer,allocatable :: MV(:)
@@ -144,11 +143,13 @@ if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3) then  !o
   deallocate(inputfile1)
   deallocate(inputfile2)
   deallocate(logfile)
+  deallocate(BigPlot)
  endif
  allocate(character(nblines) :: inputfile1)
  allocate(character(nblines) :: logfile)
  inputfile1=trim(new_path)
  allocate(character(nblines) :: inputfile2)
+ allocate(character(nblines) :: BigPlot)
 endif  ! mod(flag,100) == 0
 
 ! Writes ASCII PLY file
@@ -281,14 +282,17 @@ if (mod(flag,100) == 0) then
         if( file_idx == 0) then
          write(*,*) 'Not a PentaCam file'
          write(*,*) 'Unknown file type: make some test data, flag = ',flag
+         BigPlot=trim("test.PLT")
          TestData=-1; MM=360; N=16 ; NP=141
         else
 !        inputfile2=replacestr(string=inputfile1,search="ELE",substitute="CUR")
+        BigPlot=replacestr(string=inputfile1,search="ELE",substitute="PLT")
         TestData=2; MM=180; N=22; NP=141 ! PentaCam ELE
        endif
       else
 !       inputfile2=inputfile1
 !       inputfile1=replacestr(string=inputfile2,search="CUR",substitute="ELE")
+        BigPlot=replacestr(string=inputfile1,search="CUR",substitute="PLT")
        TestData=3; MM=180; N=22; NP=141 ! PentaCam CUR
       endif
       else
@@ -297,17 +301,20 @@ if (mod(flag,100) == 0) then
         file_idx=index(inputfile1, "_ELE")
         if( file_idx == 0) then
          TestData=1; MM=180; N=25   ! Atlas 900 can be 25, 9000 seems to be 22
+         BigPlot=replacestr(string=inputfile1,search="CSV",substitute="PLT")
          write(*,*) "Atlas file: ",inputfile1
         else
         write(*,*) 'Not an Atlas file'
  !       inputfile2=replacestr(string=inputfile1,search="ELE",substitute="CUR")
+        BigPlot=replacestr(string=inputfile1,search="CSV",substitute="PLT")
         TestData=4; MM=180; N=22; NP=141 ! PentaCam ELE.CSV
         endif
         else
         write(*,*) 'Not an Atlas file'
 !       inputfile2=inputfile1
 !       inputfile1=replacestr(string=inputfile2,search="CUR",substitute="ELE")
-       TestData=5; MM=180; N=22; NP=141 ! PentaCam CUR.CSV
+        BigPlot=replacestr(string=inputfile1,search="CSV",substitute="PLT")
+        TestData=5; MM=180; N=22; NP=141 ! PentaCam CUR.CSV
        endif
       endif
    else
@@ -319,6 +326,7 @@ if (mod(flag,100) == 0) then
     !   file_pfx=index(inputfile1(file_idx:file_idx+1),"XX")
       if (file_idx /= 0) then
        inputfile2=replacestr(string=inputfile1,search="XX",substitute="RA")
+       BigPlot=replacestr(string=inputfile1,search="RA",substitute="PL")
        inquire(file=trim(inputfile2), exist=exists)
        if(.NOT.exists) then
         write(*,*) 'Error: EyeSys files have to be in pairs, or file name has XX other than prefix'
@@ -331,6 +339,7 @@ if (mod(flag,100) == 0) then
        if (file_idx /= 0) then
         inputfile2=inputfile1
         inputfile1=replacestr(string=inputfile2,search="RA",substitute="XX")
+        BigPlot=replacestr(string=inputfile1,search="XX",substitute="PL")
         inquire(file=trim(inputfile1), exist=exists)
         if(.NOT.exists) then
          write(*,*) 'Error: EyeSys files have to be in pairs, or file name has RA other than prefix'
@@ -1216,8 +1225,6 @@ endif
 
 
 !gnuplot output
-
-BigPlot='BIG.CAR'
 
    call CPU_TIME(time_start)
    RadSlope=JMatrix
