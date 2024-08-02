@@ -76,6 +76,7 @@ public:
 //    static void setNormal(bool t) { m_normal = t; }
 
 protected:
+    void closeEvent(QCloseEvent *event) override;
 
 private slots:
     void open();

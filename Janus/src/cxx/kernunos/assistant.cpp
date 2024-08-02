@@ -1,6 +1,6 @@
 // Copyright (C) 2017 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
-// minimal changes from simpletextviewer
+// minimal changes from simpletextviewer exampke
 
 #include "assistant.h"
 
@@ -30,9 +30,13 @@ void Assistant::showDocumentation(const QString &page)
         return;
 
     QByteArray ba("SetSource ");
-    ba.append("qthelp://");
-
+    ba.append("qthelp://org.qt-project.examples.simpletextviewer/doc/");   //this corresponds to qhp/qhcp files
     m_process->write(ba + page.toLocal8Bit() + '\n');
+
+    std::cout << "Qt Assistant: " << (ba + page.toLocal8Bit() + '\n').toStdString() << "\n";
+
+    if (!startAssistant())
+        return;
 }
 
 static QString documentationDirectory()
@@ -44,11 +48,9 @@ static QString documentationDirectory()
     paths.append(QCoreApplication::applicationDirPath());
     paths.append(QStandardPaths::standardLocations(QStandardPaths::AppDataLocation));
     for (const auto &dir : std::as_const(paths)) {
-        const QString path = dir + "/documentation"_L1;
+        const QString path = dir + "/documentation";
 
-
-        std::cout << "Paths available for documentation: " << path.toStdString() << "\n" ;
-
+        std::cout << "Qt Assistant path to documentation: " << path.toStdString() << "\n";
 
         if (QFileInfo::exists(path))
             return path;
@@ -80,9 +82,10 @@ bool Assistant::startAssistant()
             return false;
         }
 
-        const QStringList args{"-collectionFile"_L1,
-                               collectionDirectory + "/simpletextviewer.qhc"_L1,
-                               "-enableRemoteControl"_L1};
+        const QStringList args{"-collectionFile",
+                               collectionDirectory + "/simpletextviewer.qhc",
+                               "-enableRemoteControl"};
+
 
         m_process->start(app, args);
 

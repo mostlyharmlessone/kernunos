@@ -87,6 +87,7 @@ using namespace Qt::StringLiterals;
 // global settings
 const unsigned int SCR_WIDTH = 2800;
 const unsigned int SCR_HEIGHT = 2600;
+//have to impose the above on mainwindow.ui
 
 // flag xxxxxxxx dat,fct,map,action used to communicate between cpp and fortran code calculation options
 // first two digits are Placido disk data fillin and/or center-node tweaks
@@ -292,7 +293,11 @@ MainWindow::MainWindow() : assistant(new Assistant)
    setWindowTitle(tr("Kernunos"));
    resize(SCR_WIDTH, SCR_HEIGHT);
    update();
+}
 
+void MainWindow::closeEvent(QCloseEvent *)
+{
+    delete assistant;
 }
 
 void MainWindow::SetGLString(QString& gls)
