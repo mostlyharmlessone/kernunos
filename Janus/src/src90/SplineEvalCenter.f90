@@ -2,8 +2,7 @@
 subroutine SplineEvalCenter(ii,x,y,y2,n,u,f,fp,fpp,fppp)
  USE set_precision, ONLY : wp
  USE cornea_arrays, ONLY : RadSplineCenter
- USE special_fct, ONLY : OPERATOR(.p.) !tensor summation convention
- USE spline_interfaces, ONLY : bsearch
+ USE special_fct, ONLY : bsearch, OPERATOR(.p.) !tensor summation convention
  use,intrinsic :: ieee_arithmetic
  IMPLICIT NONE
 

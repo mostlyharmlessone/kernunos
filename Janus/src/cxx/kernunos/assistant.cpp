@@ -14,7 +14,6 @@
 
 using namespace Qt::StringLiterals;
 
-//! [0]
 Assistant::~Assistant()
 {
     if (!m_process.isNull() && m_process->state() == QProcess::Running) {

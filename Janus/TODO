@@ -2,6 +2,8 @@ things to do
 
 CorneaCopia
 
+install mc
+
 Have to re-implement size & color scale, incorporate values in legend
 gnuplot stacked horizontal histogram p109? for zernike instead of chart
 windows and scaling: distance
@@ -12,7 +14,7 @@ temperaturerecords
 
 in assistant.cpp look at showDocumentation and substitute docs for this project in appropriate format
 ie use qhelpgenerator kernunos.qhcp kernunos.qhc after making the appropriate changes, need also edit the html files and rewrite the qhp file in documentation
-have to regenerate in directory as dir info is coded in sql files, also make sure source names in qhc/qhcp files match thouse in assistant.cpp
+have to regenerate in directory as dir info is coded in sql files, also make sure source names in qhc/qhcp files match those in assistant.cpp
 qhelpgenerator simpletextviewer.qhcp -o simpletextviewer.qhc
 qhelpgenerator simpletextviewer.qhp -o simpletextviewer.qch
 

@@ -5,13 +5,6 @@ module spline_interfaces
 
  subroutine AdjustRadSplineCenter
  end subroutine AdjustRadSplineCenter
-
- subroutine bsearch(r,rv,n,high,low)
-  use set_precision, only : wp
-  integer, intent(in) :: n
-  real(wp), intent(in) :: r, rv(n)
-  integer, intent(out) :: high, low
- end subroutine
       
  subroutine CubicSplineQuad(ii,iflag,rv,zv,z2v,n,r,z) !Forsythe p.90 cubic spline integration
   use set_precision, only : wp

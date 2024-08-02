@@ -3,7 +3,8 @@
  use, INTRINSIC :: iso_c_binding, ONLY : c_int
  use set_precision, only : wp
  use cornea_arrays, only : eps
- use spline_interfaces, ONLY : bsearch, SplineEval, SplineEvalCenter
+ use spline_interfaces, ONLY : SplineEval, SplineEvalCenter
+  use special_fct, ONLY : bsearch
  use,intrinsic :: ieee_arithmetic 
   integer(c_int), INTENT(IN) :: dat
   integer, INTENT(IN) :: n,jj

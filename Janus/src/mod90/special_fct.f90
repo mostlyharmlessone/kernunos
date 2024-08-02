@@ -3,6 +3,7 @@ module special_fct
 ! color functions
 ! zernike functions
 ! string replacement function
+! binary search interface
 use set_precision, ONLY : wp
 use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
 use, intrinsic ::  ieee_arithmetic
@@ -16,6 +17,17 @@ INTERFACE OPERATOR (.p.) ! binary operator summation convention/tensors
 !   a .p. b returns vector sum(i) rank 1 of a(i,j)*b(j) a,b rank 2,1
  MODULE PROCEDURE sum_of_sum_matrix_by_matrix, sum_of_vector_by_matrix, &
                   sum_of_matrix_by_vector, sum_of_vector_by_vector
+END INTERFACE
+
+INTERFACE
+
+  subroutine bsearch(r,rv,n,high,low)
+   use set_precision, only : wp
+   integer, intent(in) :: n
+   real(wp), intent(in) :: r, rv(n)
+   integer, intent(out) :: high, low
+  end subroutine
+
 END INTERFACE
 
 CONTAINS

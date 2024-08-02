@@ -55,9 +55,10 @@ endif()
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
-if(CMAKE_VERSION VERSION_LESS "3.7.0")
+
+#if(CMAKE_VERSION VERSION_LESS "3.7.0")
     set(CMAKE_INCLUDE_CURRENT_DIR ON)    
-endif()
+#endif
 
 #set(CMAKE_BUILD_TYPE RELEASE) # no debug or bounds check
 set(CMAKE_BUILD_TYPE DEBUG) #this include debugging with addition of bounds flags as specified below
@@ -132,11 +133,15 @@ link_directories(${CMAKE_SOURCE_DIR}/lib)
 #endif()
 
 # Qt
-SET(Qt5_DIR "/usr/lib/x86_64-linux-gnu/qt5")
+#SET(Qt5_DIR "/usr/lib/x86_64-linux-gnu/qt5")
 SET(Qt6_DIR "/usr/lib/x86_64-linux-gnu/qt6")
-find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets OpenGL)
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Charts OpenGLWidgets OpenGL Widgets)
-find_package(Qt6 COMPONENTS Concurrent REQUIRED)
+#find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets OpenGL)
+#find_package(Qt6 REQUIRED COMPONENTS Core Gui Charts OpenGLWidgets OpenGL Widgets LinguistTools)
+find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core Gui Charts OpenGLWidgets OpenGL Widgets LinguistTools)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Charts OpenGLWidgets OpenGL Widgets LinguistTools)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Concurrent REQUIRED)
+
+set(TS_FILES src/cxx/kernunos/kernunos_en_US.ts)
 
 #GTK4
 find_package (PkgConfig REQUIRED)
@@ -267,10 +272,14 @@ endif(WIN32)
 include_directories(src/cxx/kernunos src/c/rply) # /usr/local/include/coretran)
 
 #kernunos Qt version
-    qt_add_executable(kernunos 
+
+
+set(PROJECT_SOURCES
                    src/cxx/kernunos/kernunos.cpp src/cxx/kernunos/kernunos.h
                    src/cxx/kernunos/GLwidget.cpp src/cxx/kernunos/GLwidget.h
                    src/cxx/kernunos/assistant.cpp src/cxx/kernunos/assistant.h
+                   src/cxx/kernunos/temperaturerecordswidget.cpp src/cxx/kernunos/temperaturerecordswidget.h
+                   src/cxx/kernunos/contentwidget.cpp src/cxx/kernunos/contentwidget.h
                    src/c/kernunos/logc.c src/c/kernunos/logc.h
                    src/c/kernunos/Ccounter.c src/c/kernunos/counter.h
                    src/cxx/kernunos/lioc.cpp gnuplot-iostream/gnuplot-iostream.h
@@ -278,59 +287,70 @@ include_directories(src/cxx/kernunos src/c/rply) # /usr/local/include/coretran)
                    src/c/kernunos/ConvertPLYtoBIN.c
                    src/src90/ConvertOFFtoSTL_C.f90
                    src/src90/janus.f90 
+                   ${TS_FILES}
                    )
 
-    set_target_properties(kernunos PROPERTIES
-        WIN32_EXECUTABLE TRUE
-        MACOSX_BUNDLE TRUE
+if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+    qt_add_executable(kernunos
+    MANUAL_FINALIZATION
+    ${PROJECT_SOURCES}
+  )
+# Define target properties for Android with Qt 6 as:
+#    set_property(TARGET kernunos APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
+#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
+# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
+
+    qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
+else()
+    if(ANDROID)
+        add_library(kernunos SHARED
+            ${PROJECT_SOURCES}
         )
+# Define properties for Android with Qt 5 after find_package() calls as:
+#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
+    else()
+        add_executable(kernunos
+            ${PROJECT_SOURCES}
+        )
+    endif()
 
-    # Target for gnuplot-iostream
-    add_library(gnuplot_iostream INTERFACE)
-    target_include_directories(gnuplot_iostream INTERFACE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/>
-        $<INSTALL_INTERFACE:>)
-    target_link_libraries(gnuplot_iostream INTERFACE
-        Boost::iostreams
-        Boost::system
-        Boost::filesystem)
+    qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
+endif()
 
-    target_link_libraries(kernunos
-                   PRIVATE OpenMP::OpenMP_CXX Qt6::Concurrent
-                   gnuplot_iostream
-                   boost_iostreams
-                   boost_system
-                   boost_filesystem
-                   PUBLIC Qt6::Core Qt6::OpenGLWidgets Qt6::Gui Qt::Widgets Qt6::Charts Qt6::OpenGL
-                          assimp splia modules rply_includes ${LIBS}
-               )
 
-#if (BUILD_FOR_WIN)
-#nothing
-#else()
-#Jupiter wxWidgets version      
-#   add_executable(${PROJECT_NAME}
-#       src/cxx/Jupiter/Jupiter.cpp
-#       src/cxx/Jupiter/Jupiter.h
-#       src/src90/janus.f90 src/cxx/opengl_show.cpp
-#       src/cxx/Jupiter/mathstuff.cpp
-#       src/cxx/Jupiter/mathstuff.h
-#       src/cxx/Jupiter/camera.h
-#   )
-#   target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules
-#       rply_includes ${wxWidgets_LIBRARIES} ${LIBS})
-#endif()
-#juno commandline/glfw version
-#    add_executable(juno
-#                   src/src90/juno.f90
-#                   src/src90/janus.f90
-#                   src/cxx/opengl_show.cpp
-#                   f90getopt/f90getopt.F90)
-#    target_link_libraries(juno
-#                   PRIVATE OpenMP::OpenMP_CXX
-#                   PUBLIC splia modules rply_includes  ${LIBS})
-       
-   
+set_target_properties(kernunos PROPERTIES
+    MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
+    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    MACOSX_BUNDLE TRUE
+    WIN32_EXECUTABLE TRUE
+)
+
+# Target for gnuplot-iostream
+add_library(gnuplot_iostream INTERFACE)
+target_include_directories(gnuplot_iostream INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/>
+    $<INSTALL_INTERFACE:>)
+target_link_libraries(gnuplot_iostream INTERFACE
+    Boost::iostreams
+    Boost::system
+    Boost::filesystem)
+
+target_link_libraries(kernunos
+               PRIVATE OpenMP::OpenMP_CXX Qt6::Concurrent
+               gnuplot_iostream
+               boost_iostreams
+               boost_system
+               boost_filesystem
+               PUBLIC Qt${QT_VERSION_MAJOR}::Core
+                      Qt${QT_VERSION_MAJOR}::OpenGLWidgets
+                      Qt${QT_VERSION_MAJOR}::Gui
+                      Qt${QT_VERSION_MAJOR}::Widgets
+                      Qt${QT_VERSION_MAJOR}::Charts
+                      Qt${QT_VERSION_MAJOR}::OpenGL
+                      assimp splia modules rply_includes ${LIBS}
+           )
+
 
 if(NOT DEFINED INSTALL_EXAMPLESDIR)
     set(INSTALL_EXAMPLESDIR "/Janus/Janus")
@@ -340,5 +360,33 @@ install(TARGETS kernunos RUNTIME DESTINATION "${INSTALL_EXAMPLEDIR}"
                 BUNDLE DESTINATION "${INSTALL_EXAMPLEDIR}" 
                 LIBRARY DESTINATION "${INSTALL_EXAMPLEDIR}")
 
+if(QT_VERSION_MAJOR EQUAL 6)
+    qt_finalize_executable(kernunos)
+endif()
 
+
+            #if (BUILD_FOR_WIN)
+            #nothing
+            #else()
+            #Jupiter wxWidgets version
+            #   add_executable(${PROJECT_NAME}
+            #       src/cxx/Jupiter/Jupiter.cpp
+            #       src/cxx/Jupiter/Jupiter.h
+            #       src/src90/janus.f90 src/cxx/opengl_show.cpp
+            #       src/cxx/Jupiter/mathstuff.cpp
+            #       src/cxx/Jupiter/mathstuff.h
+            #       src/cxx/Jupiter/camera.h
+            #   )
+            #   target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX PUBLIC splia modules
+            #       rply_includes ${wxWidgets_LIBRARIES} ${LIBS})
+            #endif()
+            #juno commandline/glfw version
+            #    add_executable(juno
+            #                   src/src90/juno.f90
+            #                   src/src90/janus.f90
+            #                   src/cxx/opengl_show.cpp
+            #                   f90getopt/f90getopt.F90)
+            #    target_link_libraries(juno
+            #                   PRIVATE OpenMP::OpenMP_CXX
+            #                   PUBLIC splia modules rply_includes  ${LIBS})
 
