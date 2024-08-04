@@ -78,6 +78,9 @@
 #include "assistant.h"
 #include "gnuplot-iostream/gnuplot-iostream.h"
 
+#include "contentwidget.h"
+#include "temperaturerecordswidget.h"
+
 #include "../kernunos/counter.h"
 #include "../kernunos/logc.h"
 
@@ -293,6 +296,25 @@ MainWindow::MainWindow() : assistant(new Assistant)
    setWindowTitle(tr("Kernunos"));
    resize(SCR_WIDTH, SCR_HEIGHT);
    update();
+}
+
+void MainWindow::resizeEvent(QResizeEvent *)
+{
+    bool isHorizontal = width() >= height();
+    if (!layout() || isHorizontal != m_isHorizontal)
+        relayout(isHorizontal);
+
+    if (m_isHorizontal)
+        m_listView->setMaximumHeight(QWIDGETSIZE_MAX);
+    else
+        m_listView->setMaximumHeight(height() / 3);
+}
+
+bool MainWindow::eventFilter(QObject *object, QEvent *event)
+{
+    if (event->type() == QEvent::Resize && object == m_contentArea && m_activeWidget)
+        m_activeWidget->resize(m_contentArea->size());
+    return QObject::eventFilter(object, event);
 }
 
 void MainWindow::closeEvent(QCloseEvent *)

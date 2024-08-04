@@ -2,6 +2,7 @@
 #define KERNUNOS_H
 
 #include "GLwidget.h"
+#include "contentwidget.h"
 #include "ui_mainwindow.h"
 #include <QWidget>
 
@@ -18,7 +19,7 @@ extern char *filename;
 extern bool success;
 extern bool paintme;
 
-//how very annoying thatvthese need to be extern & global, but unfortunately cannot then be static
+//how very annoying that these need to be extern & global, but unfortunately cannot then be static
 extern int nV;
 extern int nE;
 extern std::vector<GLuint> Elements;
@@ -62,6 +63,7 @@ class QMenu;
 QT_END_NAMESPACE
 
 class Assistant;
+class ContentWidget;
 
 class MainWindow : public QMainWindow
 {
@@ -72,11 +74,11 @@ public:
     void SetGLString(QString& gls);
     void loadFile(QString& fileName, bool filepresent);
     QTimer t;
-//    static bool isNormal() { return m_normal; }
-//    static void setNormal(bool t) { m_normal = t; }
 
 protected:
     void closeEvent(QCloseEvent *event) override;
+    void resizeEvent(QResizeEvent *) override;
+    bool eventFilter(QObject *object, QEvent *event) override;
 
 private slots:
     void open();
@@ -140,8 +142,8 @@ private:
     void createMenus();
     Ui::MainWindow ui;
 
-    void dock();
-    void undock();
+//    void dock();
+//    void undock();
     QSlider *createSlider();
 
     Assistant *assistant;
@@ -150,7 +152,7 @@ private:
     QSlider *xSlider;
     QSlider *ySlider;
     QSlider *zSlider;
-    QPushButton *dockBtn;
+//    QPushButton *dockBtn;
 
     GLwidget* m_GLwidget;
     GLwidget* m_GLwidget_secondwindow;
@@ -225,6 +227,22 @@ private:
     QLabel *infoLabel;
 
     QAction *redrawAct;
+
+//  chartview stuff
+
+    enum Example {
+      TemperatureRecords
+    };
+
+    void setActiveExample(Example example);
+    void relayout(bool horizontal);
+
+    QListView *m_listView = nullptr;
+    QStringListModel *m_listModel = nullptr;
+    QWidget *m_contentArea = nullptr;
+    ContentWidget *m_activeWidget = nullptr;
+    QHash<QString, Example> m_exampleMap;
+    bool m_isHorizontal = false;
 
 };
 
