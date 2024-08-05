@@ -26,6 +26,10 @@ extern std::vector<GLfloat> Vertices;
 extern GLfloat* vertices;
 extern GLuint* elements;
 
+extern std::vector<float> ZernAndLegend;
+extern float* LegendOfZern;
+extern int nZ;
+
 // calling fortran code
 extern "C" {
 void janus_(int *flag, char *filename, GLuint *elements, GLfloat *vertices, int *nV, int *nE);

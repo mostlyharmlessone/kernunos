@@ -172,6 +172,11 @@ std::vector<GLfloat> Vertices(51840);
 GLfloat* vertices = Vertices.data();
 GLuint* elements = Elements.data();
 
+
+std::vector<float> ZernAndLegend(26+15);  //26 colors and 15 Zern
+float* LegendOfZern = ZernAndLegend.data();
+int nZ = 26+15+2;
+
 QString *m_GLString=nullptr;
 QString glstring_global;
 
@@ -189,7 +194,12 @@ MainWindow::MainWindow() : assistant(new Assistant)
    ui.infoLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
    ui.infoLabel->setAlignment(Qt::AlignCenter);
 
-   int scale = 660; //needs rescaling? 720 color longer 600 too short
+/*
+  //fortran function for color
+  colormap(x,minimum, maximum,map) result(rgbv)
+*/
+
+   int scale = 470; //needs rescaling? 720 color longer 600 too short
    QLinearGradient grBtoY(0, 0, 1, scale);
    // from rgb5color {{0,0,255},{0,255,255},{0,255,0},{255,255,0},{255,0,0}}
    QColor rgbcolor1= QColor::fromRgb(0, 0, 255, 255);
@@ -211,11 +221,35 @@ MainWindow::MainWindow() : assistant(new Assistant)
    QRect rect1(0, 0, 24, scale);
    pmp.drawRect(rect1);
 
+// ************************************ //
+//put some values here, eventually passed from janus
+
+// Legend part
+   for (int i = 1; i <= 26; ++i) {
+       int j = 50;
+       j=j-i*1.0;
+       LegendOfZern[i]=j;
+   }
+
+// Zern part
+   for (int i = 27; i <= 26+15; ++i) {
+       float j = -0.5;
+       j=j+i*0.03;
+       LegendOfZern[i]=j;
+   }
+   LegendOfZern[26+15+1]=-0.52;
+   LegendOfZern[26+15+2]=0.52;
+
+//   ********************************* //
+
+//  Min,Max Zern
+   float zmin=LegendOfZern[26+15+1];
+   float zmax=LegendOfZern[26+15+2];
+
    ui.legendpix->setPixmap(pm);
    QString legendvalues = "";
-   for (int i = 1; i <= 37; ++i) {
-     int j = 60;
-     j=j-i*1.0;
+   for (int i = 1; i <= 26; ++i) {
+     int j = LegendOfZern[i];
      std::string t = std::to_string(j);
      char const *n_char = t.c_str();
      legendvalues += n_char;
@@ -234,6 +268,22 @@ MainWindow::MainWindow() : assistant(new Assistant)
              << -0.0 << -0 << 0 << 0 << -0 << -0.1;
    *positive << 0  << .128 << 0 << 0 << 0 << 0
              << .38 << .34 << .29 << .204 << .15 << 0;
+
+   *negative << LegendOfZern[27] << 0 << -.45 << -.37 << -.25 << -0.08
+             << -0.0 << -0 << 0 << 0 << -0 << -0.1;
+   *positive << 0  << .128 << 0 << 0 << 0 << 0
+             << .38 << .34 << .29 << .204 << .15 << 0;
+
+// this may not work: double free or corruption (!prev)
+
+   for (int i = 27; i <= 26+15; ++i) {
+       if  (LegendOfZern[i] < 0) {
+       *negative << LegendOfZern[i];
+       *positive << 0;         }
+       else {
+       *positive << LegendOfZern[i];
+       *negative << 0;         }
+   }
 
    auto series = new QHorizontalStackedBarSeries;
    series->append(negative);
@@ -264,7 +314,7 @@ MainWindow::MainWindow() : assistant(new Assistant)
    axisX->append(aberrations);
    chart->addAxis(axisX, Qt::AlignLeft);
    auto axisY = new QValueAxis;
-   axisY->setRange(-.52, .52);
+   axisY->setRange(zmin,zmax);
    axisY->setTitleText("mm");
    chart->addAxis(axisY, Qt::AlignBottom);
    series->attachAxis(axisX);
