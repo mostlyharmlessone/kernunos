@@ -2,7 +2,6 @@
 #define KERNUNOS_H
 
 #include "GLwidget.h"
-#include "contentwidget.h"
 #include "ui_mainwindow.h"
 #include <QWidget>
 
@@ -77,8 +76,6 @@ public:
 
 protected:
     void closeEvent(QCloseEvent *event) override;
-    void resizeEvent(QResizeEvent *) override;
-    bool eventFilter(QObject *object, QEvent *event) override;
 
 private slots:
     void open();
@@ -142,8 +139,6 @@ private:
     void createMenus();
     Ui::MainWindow ui;
 
-//    void dock();
-//    void undock();
     QSlider *createSlider();
 
     Assistant *assistant;
@@ -152,7 +147,6 @@ private:
     QSlider *xSlider;
     QSlider *ySlider;
     QSlider *zSlider;
-//    QPushButton *dockBtn;
 
     GLwidget* m_GLwidget;
     GLwidget* m_GLwidget_secondwindow;
@@ -227,23 +221,6 @@ private:
     QLabel *infoLabel;
 
     QAction *redrawAct;
-
-//  chartview stuff
-
-    enum Example {
-      TemperatureRecords
-    };
-
-    void setActiveExample(Example example);
-    void relayout(bool horizontal);
-
-    QListView *m_listView = nullptr;
-    QStringListModel *m_listModel = nullptr;
-    QWidget *m_contentArea = nullptr;
-    ContentWidget *m_activeWidget = nullptr;
-    QHash<QString, Example> m_exampleMap;
-    bool m_isHorizontal = false;
-
 };
 
 QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)

@@ -278,8 +278,6 @@ set(PROJECT_SOURCES
                    src/cxx/kernunos/kernunos.cpp src/cxx/kernunos/kernunos.h
                    src/cxx/kernunos/GLwidget.cpp src/cxx/kernunos/GLwidget.h
                    src/cxx/kernunos/assistant.cpp src/cxx/kernunos/assistant.h
-                   src/cxx/kernunos/temperaturerecordswidget.cpp src/cxx/kernunos/temperaturerecordswidget.h
-                   src/cxx/kernunos/contentwidget.cpp src/cxx/kernunos/contentwidget.h
                    src/c/kernunos/logc.c src/c/kernunos/logc.h
                    src/c/kernunos/Ccounter.c src/c/kernunos/counter.h
                    src/cxx/kernunos/lioc.cpp gnuplot-iostream/gnuplot-iostream.h

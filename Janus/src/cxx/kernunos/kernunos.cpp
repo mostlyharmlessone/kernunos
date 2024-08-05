@@ -78,11 +78,18 @@
 #include "assistant.h"
 #include "gnuplot-iostream/gnuplot-iostream.h"
 
-#include "contentwidget.h"
-#include "temperaturerecordswidget.h"
-
 #include "../kernunos/counter.h"
 #include "../kernunos/logc.h"
+
+#include <QChartView>
+#include <QBarCategoryAxis>
+#include <QBarSeries>
+#include <QBarSet>
+#include <QChart>
+#include <QLegend>
+#include <QStackedBarSeries>
+#include <QValueAxis>
+#include "qhorizontalstackedbarseries.h"
 
 using namespace QtConcurrent;
 using namespace Qt::StringLiterals;
@@ -171,8 +178,6 @@ QString glstring_global;
 
 MainWindow::MainWindow() : assistant(new Assistant)
 {
-   QWidget *widget = new QWidget;
-   widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
    ui.setupUi(this);
    connect(ui.progressBar, &QProgressBar::valueChanged,this, &MainWindow::updateResult);
@@ -184,10 +189,8 @@ MainWindow::MainWindow() : assistant(new Assistant)
    ui.infoLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
    ui.infoLabel->setAlignment(Qt::AlignCenter);
 
-   QVBoxLayout *vlayout = new QVBoxLayout();
-
-   QGroupBox *colorGroupBox = new QGroupBox(QStringLiteral("First Window"));
-   QLinearGradient grBtoY(0, 0, 1, 600);
+   int scale = 660; //needs rescaling? 720 color longer 600 too short
+   QLinearGradient grBtoY(0, 0, 1, scale);
    // from rgb5color {{0,0,255},{0,255,255},{0,255,0},{255,255,0},{255,0,0}}
    QColor rgbcolor1= QColor::fromRgb(0, 0, 255, 255);
    grBtoY.setColorAt(1.0, rgbcolor1);
@@ -199,21 +202,18 @@ MainWindow::MainWindow() : assistant(new Assistant)
    grBtoY.setColorAt(0.0, rgbcolor4);
    QColor rgbcolor5= QColor::fromRgb(255, 0, 0, 255);
    grBtoY.setColorAt(0.0, rgbcolor5);
-   QPixmap pm(24, 600);
+   QPixmap pm(24, scale);
    QPainter pmp(&pm);
    pmp.setBrush(QBrush(grBtoY));
    pmp.setPen(Qt::NoPen);
    pmp.setRenderHint(QPainter::Antialiasing, true);
 
-   QRect rect1(0, 0, 24, 600);  //there are three 600s here that need auto resize
+   QRect rect1(0, 0, 24, scale);
    pmp.drawRect(rect1);
 
-//    QLabel *legendpix = new QLabel(widget);
-//    QLabel *legend = new QLabel(widget);
-
-    ui.legendpix->setPixmap(pm);
-    QString legendvalues = "";
-    for (int i = 1; i <= 37; ++i) {
+   ui.legendpix->setPixmap(pm);
+   QString legendvalues = "";
+   for (int i = 1; i <= 37; ++i) {
      int j = 60;
      j=j-i*1.0;
      std::string t = std::to_string(j);
@@ -222,15 +222,10 @@ MainWindow::MainWindow() : assistant(new Assistant)
      legendvalues += "\n";
     }
 
-    ui.legend->setText(legendvalues);
-    ui.legend->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    ui.legendpix->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+   ui.legend->setText(legendvalues);
+   ui.legend->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+   ui.legendpix->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    QHBoxLayout *colorHBox = new QHBoxLayout;
-
-    colorHBox->addWidget(ui.legendpix);
-    colorHBox->addWidget(ui.legend);
-    colorGroupBox->setLayout(colorHBox);
 
    QBarSet *negative = new QBarSet("Negative");
    QBarSet *positive = new QBarSet("Positive");
@@ -240,8 +235,7 @@ MainWindow::MainWindow() : assistant(new Assistant)
    *positive << 0  << .128 << 0 << 0 << 0 << 0
              << .38 << .34 << .29 << .204 << .15 << 0;
 
-   QHorizontalStackedBarSeries *series = new QHorizontalStackedBarSeries();
-
+   auto series = new QHorizontalStackedBarSeries;
    series->append(negative);
    negative->setColor(QColorConstants::Red);
    series->append(positive);
@@ -261,6 +255,27 @@ MainWindow::MainWindow() : assistant(new Assistant)
        "Z(2,0) Defocus",
        "Z(2,-2) Oblique Astigmatism"
    };
+
+   auto chart = new QChart;
+   chart->addSeries(series);
+   chart->setTitle("Zernike coefficients");
+   chart->setAnimationOptions(QChart::SeriesAnimations);
+   auto axisX = new QBarCategoryAxis;
+   axisX->append(aberrations);
+   chart->addAxis(axisX, Qt::AlignLeft);
+   auto axisY = new QValueAxis;
+   axisY->setRange(-.52, .52);
+   axisY->setTitleText("mm");
+   chart->addAxis(axisY, Qt::AlignBottom);
+   series->attachAxis(axisX);
+   series->attachAxis(axisY);
+   chart->legend()->setVisible(true);
+   chart->legend()->setAlignment(Qt::AlignBottom);
+
+   QChartView *chartview = new QChartView(chart);
+   QVBoxLayout *vlayout = new QVBoxLayout();
+   vlayout->addWidget(chartview);
+   ui.widget->setLayout(vlayout);
 
    ui.xSlider->setRange(0, 360 * 16);
    ui.xSlider->setSingleStep(16);
@@ -283,10 +298,6 @@ MainWindow::MainWindow() : assistant(new Assistant)
    connect(ui.openGLWidget_2, &GLwidget::yRotationChanged, ui.ySlider, &QSlider::setValue);
    connect(ui.zSlider, &QSlider::valueChanged, ui.openGLWidget_2, &GLwidget::setZRotation);
    connect(ui.openGLWidget_2, &GLwidget::zRotationChanged, ui.zSlider, &QSlider::setValue);
-
-   vlayout->addWidget(colorGroupBox);
-   widget->setLayout(vlayout);
-
    ui.xSlider->setValue(0 * 16);
    ui.ySlider->setValue(345 * 16);
    ui.zSlider->setValue(15 * 16);
@@ -294,28 +305,14 @@ MainWindow::MainWindow() : assistant(new Assistant)
    createActions();
    createMenus();
    setWindowTitle(tr("Kernunos"));
+
+   setMouseTracking(true);
+   qApp->setApplicationDisplayName(tr("kernunos"));
+
    resize(SCR_WIDTH, SCR_HEIGHT);
    update();
 }
 
-void MainWindow::resizeEvent(QResizeEvent *)
-{
-    bool isHorizontal = width() >= height();
-    if (!layout() || isHorizontal != m_isHorizontal)
-        relayout(isHorizontal);
-
-    if (m_isHorizontal)
-        m_listView->setMaximumHeight(QWIDGETSIZE_MAX);
-    else
-        m_listView->setMaximumHeight(height() / 3);
-}
-
-bool MainWindow::eventFilter(QObject *object, QEvent *event)
-{
-    if (event->type() == QEvent::Resize && object == m_contentArea && m_activeWidget)
-        m_activeWidget->resize(m_contentArea->size());
-    return QObject::eventFilter(object, event);
-}
 
 void MainWindow::closeEvent(QCloseEvent *)
 {
