@@ -393,7 +393,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     QSize minimumSizeHint() const override;
     QSize sizeHint() const override;
 
-    bool DataLoad(QString fileName, bool first);
+    bool DataLoad(QString fileName, bool filepresent);
     bool DataPrint(QString fileName);
 
   public slots:

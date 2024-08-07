@@ -197,120 +197,6 @@ MainWindow::MainWindow() : assistant(new Assistant)
    ui.infoLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
    ui.infoLabel->setAlignment(Qt::AlignCenter);
 
-   // ************************************ //
-   //put some values here, eventually passed from janus
-
-   // Legend part: value,rgbv
-
-   for (int i = 1; i <= 26; ++i) {
-       float j = 50.0;
-       j=j-i*1.0;
-       Legend[(i-1)*4]=j;
-       Legend[(i-1)*4+1]=255-j;
-       Legend[(i-1)*4+2]=2*j;
-       Legend[(i-1)*4+3]=255-4*j;
-   }
-
-   // Zern part, 1-12 aberration, 13,14,range
-   float j = -0.5;
-   for (int i = 1; i <= 12; ++i) {
-       j=j+i*0.03;
-       Zern[i-1]=j;
-   }
-   Zern[12]=-0.52;
-   Zern[13]=0.52;
-
-   //   ********************************* //
-
-   int scale = 600; //needs rescaling?
-   QLinearGradient grBtoY(0, 0, 1, scale);
-
-   for (int i = 1; i <= 26; ++i) {
-       QColor rgbcolor= QColor::fromRgb(Legend[(i-1)*4+1],
-                                         Legend[(i-1)*4+2],
-                                         Legend[(i-1)*4+3],
-                                         255);
-       grBtoY.setColorAt(1.0-i/26.0, rgbcolor);
-   }
-
-   QPixmap pm(24, scale);
-   QPainter pmp(&pm);
-   pmp.setBrush(QBrush(grBtoY));
-   pmp.setPen(Qt::NoPen);
-   pmp.setRenderHint(QPainter::Antialiasing, true);
-   QRect rect1(0, 0, 24, scale);
-   pmp.drawRect(rect1);
-   ui.legendpix->setPixmap(pm);
-
-//  Min,Max Zern
-   float zmin=Zern[12];
-   float zmax=Zern[13];
-
-   QString legendvalues = "";
-
-   for (int i = 1; i <= 13; ++i) {
-     float j = Legend[(i-1)*8];
-     std::string t = std::to_string(j);  //stuck with 6 digits output
-     char const *n_char = t.c_str();
-     legendvalues += n_char;
-     legendvalues += "\n";
-     legendvalues += "\n";
-    }
-
-   ui.legend->setText(legendvalues);
-   ui.legend->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-   ui.legendpix->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-
-
-   QBarSet *negative = new QBarSet("Negative");
-   QBarSet *positive = new QBarSet("Positive");
-   for (int i = 1; i <= 12; ++i) {
-       *negative << fmin(Zern[i-1],0.0);
-       *positive << fmax(Zern[i-1],0.0);
-   }
-
-   auto series = new QHorizontalStackedBarSeries;
-   series->append(negative);
-   negative->setColor(QColorConstants::Red);
-   series->append(positive);
-   positive->setColor(QColorConstants::Blue);
-
-   QStringList aberrations = {
-       "Z(4,4) Vertical Quatrafoil",
-       "Z(4,2) Vertical 2nd Astig.",
-       "Z(4,0) Spherical Aberration",
-       "Z(4,-2) Oblique 2nd Astig.",
-       "Z(4,-4) Oblique Quatrafoil",
-       "Z(3,3) Oblique Trefoil",
-       "Z(3,1) Horizontal Coma",
-       "Z(3,-1) Vertical Coma",
-       "Z(3,-3) Vertical Trefoil",
-       "Z(2,2) Vertical Astig.",
-       "Z(2,0) Defocus",
-       "Z(2,-2) Oblique Astigmatism"
-   };
-
-   auto chart = new QChart;
-   chart->addSeries(series);
-   chart->setTitle("Zernike coefficients");
-   chart->setAnimationOptions(QChart::SeriesAnimations);
-   auto axisX = new QBarCategoryAxis;
-   axisX->append(aberrations);
-   chart->addAxis(axisX, Qt::AlignLeft);
-   auto axisY = new QValueAxis;
-   axisY->setRange(zmin,zmax);
-   axisY->setTitleText("mm");
-   chart->addAxis(axisY, Qt::AlignBottom);
-   series->attachAxis(axisX);
-   series->attachAxis(axisY);
-   chart->legend()->setVisible(false);
-   chart->legend()->setAlignment(Qt::AlignBottom);
-
-   QChartView *chartview = new QChartView(chart);
-   QVBoxLayout *vlayout = new QVBoxLayout();
-   vlayout->addWidget(chartview);
-   ui.widget->setLayout(vlayout);
-
    ui.xSlider->setRange(0, 360 * 16);
    ui.xSlider->setSingleStep(16);
    ui.xSlider->setPageStep(15 * 16);
@@ -371,7 +257,7 @@ void MainWindow::open()   //multiple invocations makes a comparison
    filename = ba.data();
    ui.infoLabel->setText(tr("filename:  ")+tr(filename));
    if (!fileName.isEmpty())
-       m_GLwidget->DataLoad(fileName, false);
+       m_GLwidget->DataLoad(fileName, true);
    update();
    std::string str(filename);
    bool pentacam = str.find(".CUR")!= std::string::npos || str.find(".ELE") != std::string::npos;
@@ -394,13 +280,13 @@ void MainWindow::open()   //multiple invocations makes a comparison
 
 void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for the commandline file if any
 {
-   if (fileName.isEmpty())
-       return;
+   if (fileName.isEmpty()) return;
+
    QByteArray ba = fileName.toLocal8Bit();
    filename = ba.data();
    ui.infoLabel->setText(tr("filename:  ")+tr(filename));
    if (filepresent){
-       m_GLwidget->DataLoad(fileName, false);
+       m_GLwidget->DataLoad(fileName, true);
        std::string str(filename);
        bool pentacam = str.find(".CUR")!= std::string::npos || str.find(".ELE") != std::string::npos;
        if (pentacam) {
@@ -418,7 +304,7 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
        off2stlAct->setEnabled(true);
        importexportAct->setEnabled(true);
        zernAct->setEnabled(true);}
-   else {m_GLwidget->DataLoad(fileName, true);}  //cube
+   else {m_GLwidget->DataLoad(fileName, false);}  //cube
    update();
 }
 
@@ -1800,6 +1686,87 @@ void MainWindow::createMenus()
 void MainWindow::updateResult()
 {
    ui.progressBar->setValue(counter);
+
+ // Below re-makes legend and Zernike in case they have changed.
+
+    int scale = 680;
+    int scale2 = 30;
+    QLinearGradient grBtoY(0, 0, 1, scale);
+    for (int i = 1; i <= 26; ++i) {
+        QColor rgbcolor= QColor::fromRgb(Legend[(i-1)*4+1],
+                                          Legend[(i-1)*4+2],
+                                          Legend[(i-1)*4+3],
+                                          255);
+        grBtoY.setColorAt(1.0-i/26.0, rgbcolor);
+    }
+    QPixmap pm(scale2, scale);
+    QPainter pmp(&pm);
+    pmp.setBrush(QBrush(grBtoY));
+    pmp.setPen(Qt::NoPen);
+    pmp.setRenderHint(QPainter::Antialiasing, true);
+    QRect rect1(0, 0, scale2, scale);
+    pmp.drawRect(rect1);
+    ui.legendpix->setPixmap(pm);
+    //  Min,Max Zern
+    float zmin=Zern[12];
+    float zmax=Zern[13];
+    QString legendvalues = "";
+    for (int i = 1; i <= 13; ++i) {
+        float j = Legend[(i-1)*8];
+        std::string t = std::to_string(j);  //stuck with 6 digits output
+        char const *n_char = t.c_str();
+        legendvalues += "\n";
+        legendvalues += n_char;
+        legendvalues += "\n";
+        legendvalues += "\n";
+    }
+    ui.legend->setText(legendvalues);
+    ui.legend->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui.legendpix->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    QBarSet *negative = new QBarSet("Negative");
+    QBarSet *positive = new QBarSet("Positive");
+    for (int i = 1; i <= 12; ++i) {
+        *negative << fmin(Zern[i-1],0.0);
+        *positive << fmax(Zern[i-1],0.0);
+    }
+    auto series = new QHorizontalStackedBarSeries;
+    series->append(negative);
+    negative->setColor(QColorConstants::Red);
+    series->append(positive);
+    positive->setColor(QColorConstants::Blue);
+    QStringList aberrations = {
+        "Z(4,4) Vertical Quatrafoil",
+        "Z(4,2) Vertical 2nd Astig.",
+        "Z(4,0) Spherical Aberration",
+        "Z(4,-2) Oblique 2nd Astig.",
+        "Z(4,-4) Oblique Quatrafoil",
+        "Z(3,3) Oblique Trefoil",
+        "Z(3,1) Horizontal Coma",
+        "Z(3,-1) Vertical Coma",
+        "Z(3,-3) Vertical Trefoil",
+        "Z(2,2) Vertical Astig.",
+        "Z(2,0) Defocus",
+        "Z(2,-2) Oblique Astigmatism"
+    };
+    auto chart = new QChart;
+    chart->addSeries(series);
+    chart->setTitle("Zernike coefficients");
+    chart->setAnimationOptions(QChart::SeriesAnimations);
+    auto axisX = new QBarCategoryAxis;
+    axisX->append(aberrations);
+    chart->addAxis(axisX, Qt::AlignLeft);
+    auto axisY = new QValueAxis;
+    axisY->setRange(zmin,zmax);
+    axisY->setTitleText("mm");
+    chart->addAxis(axisY, Qt::AlignBottom);
+    series->attachAxis(axisX);
+    series->attachAxis(axisY);
+    chart->legend()->setVisible(false);
+    chart->legend()->setAlignment(Qt::AlignBottom);
+    QChartView *chartview = new QChartView(chart);
+    QVBoxLayout *vlayout = new QVBoxLayout();
+    vlayout->addWidget(chartview);
+    ui.widget->setLayout(vlayout);
 }
 
 int main(int argc, char *argv[])

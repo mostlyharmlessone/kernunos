@@ -339,7 +339,7 @@ bool GLwidget::DataPrint(QString fileName)
   return true;
 }
 
-bool GLwidget::DataLoad(QString fileName, bool first_time)  //first_time->cube
+bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cube
 {
    //  the demo cube
     int nV_cube = 72;
@@ -376,10 +376,8 @@ bool GLwidget::DataLoad(QString fileName, bool first_time)  //first_time->cube
     QByteArray ba = fileName.toLocal8Bit();
     filename = ba.data();
 //    std::cout << "filename in C++ in DataLoad: " << filename << std::endl;
-//    std::cout << "first_time: " << first_time << std::endl;
-
-
-    if (!first_time)
+//    std::cout << "filepresent: " << filepresent << std::endl;
+    if (filepresent)
      {
       // reload values to avoid seg fault if previous nV and nE are too small.. and besides, they're not static, nor can they be!
       nV=51840;
@@ -431,6 +429,27 @@ bool GLwidget::DataLoad(QString fileName, bool first_time)  //first_time->cube
       for (int i=0; i<= nE; ++i){
       elements[i]=cube_elements[i];
       }
+
+      // Legend part: value,rgbv
+
+      for (int i = 1; i <= 26; ++i) {
+          float j = 50.0;
+          j=j-i*1.0;
+          Legend[(i-1)*4]=j;
+          Legend[(i-1)*4+1]=50+4*j;
+          Legend[(i-1)*4+2]=5*j;
+          Legend[(i-1)*4+3]=255-5*j;
+      }
+
+      // Zern part, 1-12 aberration, 13,14,range
+      float j = -0.5;
+      for (int i = 1; i <= 12; ++i) {
+          j=j+i*0.03;
+          Zern[i-1]=j;
+      }
+      Zern[12]=-0.52;
+      Zern[13]=0.52;
+
      }
 
     paintme=true;
