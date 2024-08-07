@@ -26,8 +26,12 @@ extern std::vector<GLfloat> Vertices;
 extern GLfloat* vertices;
 extern GLuint* elements;
 
-extern std::vector<float> ZernAndLegend;
-extern float* LegendOfZern;
+extern std::vector<float> LegendVector;
+extern float* Legend;
+extern int nL;
+
+extern std::vector<float> ZernVector;
+extern float* Zern;
 extern int nZ;
 
 // calling fortran code
