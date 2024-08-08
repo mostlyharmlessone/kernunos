@@ -2,7 +2,9 @@ things to do
 
 CorneaCopia
 
-adjust janus to supply zernike and legend values
+adjust janus to change legend val (works great with dummy!)
+reverse dummy zern/legend change for testing in zerncompute when done
+after getting chartview to update with zern
 
 in assistant.cpp look at showDocumentation and substitute docs for this project in appropriate format
 might want to change Cmakelist.txt for the proper install directory for documentation/copy
@@ -14,6 +16,7 @@ qhelpgenerator simpletextviewer.qhp -o simpletextviewer.qch
 Fixes:
 
 try to lock actions while Zernike is computing to avoid crash ? condition on counter?
+consider adding sound to play after zernike compute, but might need option to turn off
 
 ? branch cut or other calc error with Monge Astig 
 

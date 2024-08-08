@@ -344,7 +344,29 @@ void MainWindow::zerncompute()
     QString fileName = "zern";
     QByteArray ba = fileName.toLocal8Bit();
     filename = ba.data();
-    std::thread([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);}).detach();
+//    std::thread([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);}).detach();
+//   janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);
+
+// dummy change to figure out refresh issue
+
+    for (int i = 1; i <= 26; ++i) {
+        float j = 40.0;
+        j=j-i*1.0;
+        legend[(i-1)*4]=j;
+        legend[(i-1)*4+1]=0;
+        legend[(i-1)*4+2]=5*j;
+        legend[(i-1)*4+3]=255-5*j;
+    }
+
+    // zern part, 1-12 aberration, 13,14,range
+    float j = -0.7;
+    for (int i = 1; i <= 12; ++i) {
+        j=j+i*0.02;
+        zern[i-1]=j;
+    }
+    zern[12]=-0.32;
+    zern[13]=0.32;
+
 
 
     Z44VerticalQuatrafoilAct->setEnabled(true);
@@ -1378,8 +1400,8 @@ void MainWindow::createActions()
    compareAct->setStatusTip(tr("Compare to previous file"));
    connect(compareAct, &QAction::triggered, this, &MainWindow::compare);
 
-   zernAct = new QAction(tr("&Compute zernike Coefficients"), this);
-   zernAct->setStatusTip(tr("Compute zernike coefficients and Talus maps"));
+   zernAct = new QAction(tr("&Compute Zernike Coefficients"), this);
+   zernAct->setStatusTip(tr("Compute Zernike coefficients and Talus maps"));
    zernAct->setEnabled(false);
    connect(zernAct, &QAction::triggered, this, &MainWindow::zerncompute);
 
@@ -1689,15 +1711,14 @@ void MainWindow::updateResult()
 {
    ui.progressBar->setValue(counter);
 
- // Below re-makes legend and zernike in case they have changed.
-
+ // Legend colorscale and numbers, updated
     int scale = 680;
     int scale2 = 30;
     QLinearGradient grBtoY(0, 0, 1, scale);
     for (int i = 1; i <= 26; ++i) {
         QColor rgbcolor= QColor::fromRgb(legend[(i-1)*4+1],
-                                          legend[(i-1)*4+2],
-                                          legend[(i-1)*4+3],
+                                         legend[(i-1)*4+2],
+                                         legend[(i-1)*4+3],
                                           255);
         grBtoY.setColorAt(1.0-i/26.0, rgbcolor);
     }
@@ -1709,9 +1730,6 @@ void MainWindow::updateResult()
     QRect rect1(0, 0, scale2, scale);
     pmp.drawRect(rect1);
     ui.legendpix->setPixmap(pm);
-    //  Min,Max zern
-    float zmin=zern[12];
-    float zmax=zern[13];
     QString legendvalues = "";
     for (int i = 1; i <= 13; ++i) {
         float j = legend[(i-1)*8];
@@ -1725,6 +1743,9 @@ void MainWindow::updateResult()
     ui.legend->setText(legendvalues);
     ui.legend->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui.legendpix->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    //  Zernike chart, updated
+    float zmin=zern[12];
+    float zmax=zern[13];
     QBarSet *negative = new QBarSet("Negative");
     QBarSet *positive = new QBarSet("Positive");
     for (int i = 1; i <= 12; ++i) {
@@ -1752,7 +1773,7 @@ void MainWindow::updateResult()
     };
     auto chart = new QChart;
     chart->addSeries(series);
-    chart->setTitle("zernike coefficients");
+    chart->setTitle("Zernike coefficients");
     chart->setAnimationOptions(QChart::SeriesAnimations);
     auto axisX = new QBarCategoryAxis;
     axisX->append(aberrations);
@@ -1768,7 +1789,15 @@ void MainWindow::updateResult()
     QChartView *chartview = new QChartView(chart);
     QVBoxLayout *vlayout = new QVBoxLayout();
     vlayout->addWidget(chartview);
-    ui.widget->setLayout(vlayout);
+
+// thi shows an update!s
+    std::cout << "max in updateResult: " << axisY->max() << std::endl;
+
+//    connect(axisY, &QValueAxis::rangeChanged,this, &chartview);
+    chartview->update();
+
+    ui.graphicsView->setLayout(vlayout);
+    ui.graphicsView->update();
 }
 
 int main(int argc, char *argv[])

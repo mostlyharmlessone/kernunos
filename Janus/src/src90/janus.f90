@@ -439,7 +439,7 @@ if (TestData .eq. 1) then
   if (read_error .eq. 1) then
    write(*,*) 'Possible semicolon delimited Atlas file, try sed'
    inputfile2=replacestr(string=inputfile1,search=".CSV",substitute=".TMP")
-   write(*,*) 'sed "s/;/,/g" ' // inputfile1 // ' > ' // inputfile2
+!   write(*,*) 'sed "s/;/,/g" ' // inputfile1 // ' > ' // inputfile2
    call system('sed "s/;/,/g" ' // inputfile1 // ' > ' // inputfile2, io)
    if (io > 0) then
     write (*,*) 'system command to sed failed'
@@ -463,7 +463,7 @@ if (TestData .eq. 1) then
   if (read_error .eq. 1) then
    write(*,*) 'Possible semicolon delimited Atlas file, try sed'
    inputfile2=replacestr(string=inputfile1,search=".CSV",substitute=".TMP")
-   write(*,*) 'sed "s/;/,/g" ' // inputfile1 // ' > ' // inputfile2
+!   write(*,*) 'sed "s/;/,/g" ' // inputfile1 // ' > ' // inputfile2
    call system('sed "s/;/,/g" ' // inputfile1 // ' > ' // inputfile2, io)
    if (io > 0) then
     write (*,*) 'system command to sed failed'
@@ -673,7 +673,7 @@ endif
   JMatrix%R0=0 ; JMatrix%THT0=0
 ! Generate the rings
 
-write(*,*) 'JMatrix'
+! JMatrix
   do i=1,M1                             ! every 2 degrees
    JMatrix%THT(i)=PI*(i-1)/90.0_wp
    if (MM == 360 .and. N == 16) then  ! original EyeSys RadSlope or fake data
@@ -751,8 +751,6 @@ write(*,*) 'JMatrix'
    endif
  endif
 
-
-   write(*,*) 'Z'
 !  Z
 !   if (TestData.ne.2 .and. TestData.ne.4) then   ! already has valid Z0 from cornea_arrays & ELE file NOT YET IT DOES NOT
     do i=1,M1
@@ -763,8 +761,6 @@ write(*,*) 'JMatrix'
     if (JMatrix%Z0(1) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z0(1)
 !   endif  ! TestData.eq.2 .or. TestData.eq.4
 
-
-   write(*,*) 'SAGC'
 !  SAGC
 !   if (TestData.ne.3 .and. TestData.ne.5) then  ! already has valid SAGC0 from cornea_arrays & CUR file NOT YET IT DOES NOT
 !  Reload RadSlope with SAGC & re-spline; can't compute it from surface because ill-defined at origin
@@ -798,7 +794,6 @@ write(*,*) 'JMatrix'
     if (JMatrix%SAGC0(1) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC0(1)
 !   endif   ! TestData.eq.3 .or. TestData.eq.5
 
-   write(*,*) 'INSTC'
 !  INSTC
 !  Reload RadSlope & respline
    do i=1,M1
@@ -828,7 +823,6 @@ write(*,*) 'JMatrix'
   if (JMatrix%INSTC0(1) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC0(1)
   if (JMatrix%INSTC0(1) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC0(1)
 
-  write(*,*) 'INSTC2'
 ! INSTC2
 ! Reload RadSlope & respline
   do i=1,M1
@@ -858,7 +852,6 @@ write(*,*) 'JMatrix'
   if (JMatrix%INSTC20(1) <= JMatrix%INSTC20(2)) JMatrix%INSTC20(2)=JMatrix%INSTC20(1)
   if (JMatrix%INSTC20(1) >= JMatrix%INSTC20(3)) JMatrix%INSTC20(3)=JMatrix%INSTC20(1)
 
-  write(*,*) 'MEANC'
 ! MEANC
 ! Reload RadSlope & respline
   do i=1,M1
@@ -888,7 +881,6 @@ write(*,*) 'JMatrix'
   if (JMatrix%MEANC0(1) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC0(1)
   if (JMatrix%MEANC0(1) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC0(1)
 
-  write(*,*) 'MONGEA'
 ! MONGEA
 ! Reload RadSlope & respline
   do i=1,M1
@@ -1089,6 +1081,39 @@ do i =1,M1
  end do
 end do
 
+! transfer to C++ for plot
+! find min and max of first 12 central aberrations for plot
+! 15    "Z(4,4) Vertical Quatrafoil",  Quadrafoil 0 deg
+! 13    "Z(4,2) Vertical 2nd Astig.",  4th order astigmatism 0 deg
+! 09    "Z(4,0) Spherical Aberration", Spherical Aberration
+! 04    "Z(4,-2) Oblique 2nd Astig.",  4th order astigmatism 45 deg
+! 01    "Z(4,-4) Oblique Quatrafoil",  Quadrafoil 22.5 deg
+! 14    "Z(3,3) Oblique Trefoil",      Trefoil 0 deg
+! 11    "Z(3,1) Horizontal Coma",      Coma 0 deg
+! 06    "Z(3,-1) Vertical Coma",       Coma 90 deg
+! 02    "Z(3,-3) Vertical Trefoil",    Trefoil 30 deg
+!      LOA
+! 12    "Z(2,2) Vertical Astig.",      Astigmatism 0 deg
+! 08    "Z(2,0) Defocus",              Defocus
+! 03    "Z(2,-2) Oblique Astigmatism", Astigmatism 45 deg
+zern(13)=1E30
+zern(14)=-1E30
+zern(12)=JMatrix%ZC0(1,15)
+zern(11)=JMatrix%ZC0(1,13)
+zern(10)=JMatrix%ZC0(1,9)
+zern(9)=JMatrix%ZC0(1,4)
+zern(8)=JMatrix%ZC0(1,1)
+zern(7)=JMatrix%ZC0(1,14)
+zern(6)=JMatrix%ZC0(1,11)
+zern(5)=JMatrix%ZC0(1,6)
+zern(4)=JMatrix%ZC0(1,2)
+zern(3)=JMatrix%ZC0(1,12)
+zern(2)=JMatrix%ZC0(1,8)
+zern(1)=JMatrix%ZC0(1,3)
+do k=1,12
+ if (zern(13) <= zern(k)) zern(13) = zern(k)
+ if (zern(14) >= zern(k)) zern(14) = zern(k)
+end do
 write(*,*) 'center zernike values: ',EE(1:k_max,nrhs)
 call LogC("Finished zernike"//c_null_char)
 call Ccounter(100)
