@@ -26,17 +26,17 @@ extern std::vector<GLfloat> Vertices;
 extern GLfloat* vertices;
 extern GLuint* elements;
 
-extern std::vector<float> LegendVector;
-extern float* Legend;
+extern std::vector<float> legendVector;
+extern float* legend;
 extern int nL;
 
-extern std::vector<float> ZernVector;
-extern float* Zern;
+extern std::vector<float> zernVector;
+extern float* zern;
 extern int nZ;
 
 // calling fortran code
 extern "C" {
-void janus_(int *flag, char *filename, GLuint *elements, GLfloat *vertices, int *nV, int *nE);
+void janus_(int *flag,char *filename,GLuint *elements,GLfloat *vertices,float *legend,float *zern,int *nV,int *nE,int *nL,int *nZ);
 };
 
 // calling C code
@@ -90,7 +90,7 @@ private slots:
     void showDocumentation();
     void redraw();
     void compare();
-    void zern();
+    void zerncompute();
     void ply2bin();
     void off2stl();
     void makeoff();

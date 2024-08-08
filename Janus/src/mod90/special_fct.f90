@@ -554,19 +554,19 @@ function R66(rho) result (m)
 end function R66
 
 ! if n >= m >= 0 n-m even ie mod(n-m)=0
-recursive function RZern(n,m,p)  result(f) ! radial zernike polynomial
+recursive function Rzern(n,m,p)  result(f) ! radial zernike polynomial
  REAL(wp) :: f
  INTEGER, INTENT(IN) :: n,m
  REAL(wp),INTENT(IN) :: p
  if (n < m .OR. m < 0 .OR. mod(n-m,2) /= 0) then
-  write(*,*) 'Illegal indices in Zernike',n,m
+  write(*,*) 'Illegal indices in zernike',n,m
   stop
  endif
  if ( n == m) then
   f=p**n
  else
  if (n > 4) then
-   f = ( 2*(n-1)*(2*n*(n-2)*p*p-m*m-n*(n-2))*RZern(n-2,m,p)-n*(n+m-2)*(n-m-2)*RZern(n-4,m,p))/((n+m)*(n-m)*(n-2))
+   f = ( 2*(n-1)*(2*n*(n-2)*p*p-m*m-n*(n-2))*Rzern(n-2,m,p)-n*(n+m-2)*(n-m-2)*Rzern(n-4,m,p))/((n+m)*(n-m)*(n-2))
  else
   if (n == 2 .AND. m == 0) then
    f = R20(p)
@@ -582,19 +582,19 @@ recursive function RZern(n,m,p)  result(f) ! radial zernike polynomial
   endif
  endif
  endif
-end function RZern
+end function Rzern
 
 ! if n >= 0 ABS(m) <= n
-function zern(n,m,p,phi) result(f)
+function zernfct(n,m,p,phi) result(f)
  INTEGER, INTENT(IN) :: n,m
  REAL(wp) :: f
  REAL(wp),INTENT(IN) :: p,phi
  if (m >= 0) then
-  f = RZern(n,m,p)*cos(m*phi)
+  f = Rzern(n,m,p)*cos(m*phi)
  else
-  f = RZern(n,-m,p)*sin(m*phi)
+  f = Rzern(n,-m,p)*sin(m*phi)
  endif
-end function zern
+end function zernfct
 
 end module special_fct
 

@@ -109,7 +109,7 @@ const unsigned int SCR_HEIGHT = 2600;
 
 // second two digits are the function to be plotted as colors
 // 0 = SAGC Sagittal or Axial power
-// 1-15 = Zernike coefficient talus maps
+// 1-15 = zernike coefficient talus maps
 /*
     fct   HOA
     15    "Z(4,4) Vertical Quatrafoil",  Quadrafoil 0 deg
@@ -151,7 +151,7 @@ const unsigned int SCR_HEIGHT = 2600;
 // 4 = redraw without reloading new file
 // 3 = write ASCII PLY file
 // 2 = write OFF file
-// 1 = compute Zernike coefficients/Talus maps
+// 1 = compute zernike coefficients/Talus maps
 
 int flag=500;
 int counter=0;
@@ -173,12 +173,12 @@ GLfloat* vertices = Vertices.data();
 GLuint* elements = Elements.data();
 
 int nL = 26*4;
-std::vector<float> LegendVector(nL);  //26 colors =  1 value + 3 rgbv (value,rgbv)
-float* Legend = LegendVector.data();
+std::vector<float> legendVector(nL);  //26 colors =  1 value + 3 rgbv (value,rgbv)
+float* legend = legendVector.data();
 
 int nZ = 14;
-std::vector<float> ZernVector(nZ);  //12 Zernike and min/max
-float* Zern = ZernVector.data();
+std::vector<float> zernVector(nZ);  //12 zernike and min/max
+float* zern = zernVector.data();
 
 QString *m_GLString=nullptr;
 QString glstring_global;
@@ -332,11 +332,11 @@ void MainWindow::redraw(){
     QString fileName = "redraw";
     QByteArray ba = fileName.toLocal8Bit();
     filename = ba.data();
- //   std::thread([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);}).detach();
-   janus_(&flag, filename, elements, vertices, &nV, &nE);
+ //   std::thread([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);}).detach();
+   janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);
    return;}
 
-void MainWindow::zern()
+void MainWindow::zerncompute()
 {
     flag=flag-(flag%100)+1;  // last two digits of flag=1;
     nV=51840;
@@ -344,7 +344,9 @@ void MainWindow::zern()
     QString fileName = "zern";
     QByteArray ba = fileName.toLocal8Bit();
     filename = ba.data();
-    std::thread([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);}).detach();
+    std::thread([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);}).detach();
+
+
     Z44VerticalQuatrafoilAct->setEnabled(true);
     Z42Vertical2ndAstigAct->setEnabled(true);
     Z40SphericalAberrationAct->setEnabled(true);
@@ -360,7 +362,7 @@ void MainWindow::zern()
     Z11XtiltAct->setEnabled(true);
     Z1neg1YtiltAct->setEnabled(true);
     Z00PistonAct->setEnabled(true);
-    ui.infoLabel->setText(tr("Invoked <b>Zernike</b>"));
+    ui.infoLabel->setText(tr("Invoked <b>zernike</b>"));
     return;
 }
 
@@ -1376,10 +1378,10 @@ void MainWindow::createActions()
    compareAct->setStatusTip(tr("Compare to previous file"));
    connect(compareAct, &QAction::triggered, this, &MainWindow::compare);
 
-   zernAct = new QAction(tr("&Compute Zernike Coefficients"), this);
-   zernAct->setStatusTip(tr("Compute Zernike coefficients and Talus maps"));
+   zernAct = new QAction(tr("&Compute zernike Coefficients"), this);
+   zernAct->setStatusTip(tr("Compute zernike coefficients and Talus maps"));
    zernAct->setEnabled(false);
-   connect(zernAct, &QAction::triggered, this, &MainWindow::zern);
+   connect(zernAct, &QAction::triggered, this, &MainWindow::zerncompute);
 
    ply2binAct = new QAction(tr("Binary PLY format..."), this);
    ply2binAct->setStatusTip(tr("Write a binary PLY file"));
@@ -1687,15 +1689,15 @@ void MainWindow::updateResult()
 {
    ui.progressBar->setValue(counter);
 
- // Below re-makes legend and Zernike in case they have changed.
+ // Below re-makes legend and zernike in case they have changed.
 
     int scale = 680;
     int scale2 = 30;
     QLinearGradient grBtoY(0, 0, 1, scale);
     for (int i = 1; i <= 26; ++i) {
-        QColor rgbcolor= QColor::fromRgb(Legend[(i-1)*4+1],
-                                          Legend[(i-1)*4+2],
-                                          Legend[(i-1)*4+3],
+        QColor rgbcolor= QColor::fromRgb(legend[(i-1)*4+1],
+                                          legend[(i-1)*4+2],
+                                          legend[(i-1)*4+3],
                                           255);
         grBtoY.setColorAt(1.0-i/26.0, rgbcolor);
     }
@@ -1707,12 +1709,12 @@ void MainWindow::updateResult()
     QRect rect1(0, 0, scale2, scale);
     pmp.drawRect(rect1);
     ui.legendpix->setPixmap(pm);
-    //  Min,Max Zern
-    float zmin=Zern[12];
-    float zmax=Zern[13];
+    //  Min,Max zern
+    float zmin=zern[12];
+    float zmax=zern[13];
     QString legendvalues = "";
     for (int i = 1; i <= 13; ++i) {
-        float j = Legend[(i-1)*8];
+        float j = legend[(i-1)*8];
         std::string t = std::to_string(j);  //stuck with 6 digits output
         char const *n_char = t.c_str();
         legendvalues += "\n";
@@ -1726,8 +1728,8 @@ void MainWindow::updateResult()
     QBarSet *negative = new QBarSet("Negative");
     QBarSet *positive = new QBarSet("Positive");
     for (int i = 1; i <= 12; ++i) {
-        *negative << fmin(Zern[i-1],0.0);
-        *positive << fmax(Zern[i-1],0.0);
+        *negative << fmin(zern[i-1],0.0);
+        *positive << fmax(zern[i-1],0.0);
     }
     auto series = new QHorizontalStackedBarSeries;
     series->append(negative);
@@ -1750,7 +1752,7 @@ void MainWindow::updateResult()
     };
     auto chart = new QChart;
     chart->addSeries(series);
-    chart->setTitle("Zernike coefficients");
+    chart->setTitle("zernike coefficients");
     chart->setAnimationOptions(QChart::SeriesAnimations);
     auto axisX = new QBarCategoryAxis;
     axisX->append(aberrations);

@@ -61,7 +61,7 @@ extern GLfloat* vertices;
 extern GLuint* elements;
 
 extern "C" {
-void janus_(int *flag, char *filename, GLuint *elements, GLfloat *vertices, int *nV, int *nE); // needs an underscore despite c_interface.f90 bind C declaration
+void janus_(int *flag,char *filename,GLuint *elements,GLfloat *vertices,float *legend,float *zern,int *nV,int *nE,int *nL,int *nZ); // needs an underscore despite c_interface.f90 bind C declaration
 };
 
 extern QString *m_GLString;

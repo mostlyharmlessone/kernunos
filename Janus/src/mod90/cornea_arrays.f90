@@ -44,7 +44,7 @@ MODULE cornea_arrays
    REAL (wp), ALLOCATABLE :: RC(:,:),LIOC(:,:) !last one is MM*N,4  RC is RadSplineCenter, compare to R0
    INTEGER, ALLOCATABLE :: MV(:)
    REAL (wp) :: R0,THT0,Z0(3),SAGC0(3),INSTC0(3),INSTC20(3),MEANC0(3),MONGEA0(3)
-   ! 12 up to 15 Zernike coordinates
+   ! 12 up to 15 zernike coordinates
    REAL(wp),ALLOCATABLE :: ZC(:,:,:)
    REAL(wp) :: ZC0(3,15) !origin,min,max for each
  END TYPE wpJMatrix

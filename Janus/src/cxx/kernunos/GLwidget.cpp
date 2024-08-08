@@ -331,10 +331,10 @@ bool GLwidget::DataPrint(QString fileName)
     nE=26130;
 
     if (!((flag%100) == 1)){
-      auto future1 = std::async([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);});  //everybody else gets blocking thread
+      auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);});  //everybody else gets blocking thread
       future1.get();}    
     else {
-      std::thread([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);}).detach();}  //zern gets independent thread
+      std::thread([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);}).detach();}  //zern gets independent thread
   }
   return true;
 }
@@ -396,7 +396,7 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
 
       // blocks!
       // Start the computation.
-      futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);}));
+      futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);}));
 
       // Display the dialog and start the event loop.
       dialog.exec();
@@ -407,12 +407,12 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
       qDebug() << "Canceled?" << futureWatcher.future().isCanceled();
 
     //   blocks!
-    //  std::future future1 = std::async([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);});
+    //  std::future future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);});
     //  future1.get();
 
-    //  std::thread([&]{return janus_(&flag, filename, elements, vertices, &nV, &nE);}).detach();  //no blocking thread
+    //  std::thread([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);}).detach();  //no blocking thread
 
-    //      janus_(&flag, filename, elements, vertices, &nV, &nE);
+    //      janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);
      }
     else
      {
@@ -430,25 +430,25 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
       elements[i]=cube_elements[i];
       }
 
-      // Legend part: value,rgbv
+      // legend part: value,rgbv
 
       for (int i = 1; i <= 26; ++i) {
           float j = 50.0;
           j=j-i*1.0;
-          Legend[(i-1)*4]=j;
-          Legend[(i-1)*4+1]=50+4*j;
-          Legend[(i-1)*4+2]=5*j;
-          Legend[(i-1)*4+3]=255-5*j;
+          legend[(i-1)*4]=j;
+          legend[(i-1)*4+1]=50+4*j;
+          legend[(i-1)*4+2]=5*j;
+          legend[(i-1)*4+3]=255-5*j;
       }
 
-      // Zern part, 1-12 aberration, 13,14,range
+      // zern part, 1-12 aberration, 13,14,range
       float j = -0.5;
       for (int i = 1; i <= 12; ++i) {
           j=j+i*0.03;
-          Zern[i-1]=j;
+          zern[i-1]=j;
       }
-      Zern[12]=-0.52;
-      Zern[13]=0.52;
+      zern[12]=-0.52;
+      zern[13]=0.52;
 
      }
 

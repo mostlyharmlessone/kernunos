@@ -1,4 +1,4 @@
-  subroutine Janus(flag, file_from_C, elements, vertices, nV, nE) bind(C,name='janus_')
+  subroutine Janus(flag,file_from_C,elements,vertices,legend,zern,nV,nE,nL,nZ) bind(C,name='janus_')
 ! DRIVER PROGRAM FOR SPLINE ROUTINES
   use set_precision, ONLY : wp
   use lapackinterface
@@ -21,6 +21,10 @@
   integer(c_int), INTENT(INOUT) :: nE               
   real(c_float), INTENT(INOUT) :: vertices(*)
   integer(c_int), INTENT(INOUT) :: elements(*)
+  integer(c_int), INTENT(INOUT) :: nL
+  real(c_float), INTENT(INOUT) :: legend(*)
+  integer(c_int), INTENT(INOUT) :: nZ
+  real(c_float), INTENT(INOUT) :: zern(*)
   character(len=8) :: LinesOfCurv
   character(len=4096) :: new_path
   character(:),save, ALLOCATABLE :: inputfile1,inputfile2,BigPlot
@@ -33,7 +37,7 @@
   real(wp) :: Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo
   integer :: k_max, kk_max, iflag !,LWORK
   integer(c_int) :: dat, fct, map
-  real(wp), allocatable :: ZernC(:,:), B_Matrix(:,:), rlocal(:), thtlocal(:) !,WORK(:)
+  real(wp), allocatable :: zernC(:,:), B_Matrix(:,:), rlocal(:), thtlocal(:) !,WORK(:)
   real(wp), allocatable :: XTX(:,:),EE(:,:)
   integer, allocatable :: IPIV(:)
   real(wp) :: ctr_circle_x, ctr_circle_y, R_Talus, Theta_Talus, X_global, Y_global
@@ -915,15 +919,15 @@ write(*,*) 'JMatrix'
  if (JMatrix%MONGEA0(1) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA0(1)
 ! end populating JMatrix
 
-!Zernike coefficents
+!zernike coefficents
 if (mod(flag,100) == 1) then
 call Ccounter(0)
-call LogC("Starting Zernike computation"//c_null_char)
+call LogC("Starting zernike computation"//c_null_char)
 ! relies on saved MM,N
 nrhs=(M1*N1+1)
 
   if (allocated(JMatrix%R)) then
-! Try to generate Zernike coefficients based on central elevations & lsq to Zernike polynomials
+! Try to generate zernike coefficients based on central elevations & lsq to zernike polynomials
 !  call CPU_TIME(time_start)
   time_start=omp_get_wtime()
 !  Reload RadSlope & respline
@@ -951,17 +955,17 @@ nrhs=(M1*N1+1)
     do nn=ABS(m),4
      if (mod(nn-m,2) == 0) then
       k=k+1
-!      write(*,*) 'Zernike coefficent k,n,m: ',k,nn,m  !maps kth computed Zernike coefficient to index k
+!      write(*,*) 'zernike coefficent k,n,m: ',k,nn,m  !maps kth computed zernike coefficient to index k
      endif
     end do
    end do
    k_max=k   
-   allocate (B_Matrix(k_max,kk_max),ZernC(kk_max,nrhs),rlocal(kk_max),thtlocal(kk_max),stat=ierr) ! ZernC(kk_max) to hold data though only k_max Zernike coeficients
+   allocate (B_Matrix(k_max,kk_max),zernC(kk_max,nrhs),rlocal(kk_max),thtlocal(kk_max),stat=ierr) ! zernC(kk_max) to hold data though only k_max zernike coeficients
    if (ierr /= 0) then
-!    write(*,*) 'unable to allocate memory in Zernike: ', ierr,k_max,kk_max,nrhs
+!    write(*,*) 'unable to allocate memory in zernike: ', ierr,k_max,kk_max,nrhs
     return
    endif
-   ZernC=0
+   zernC=0
 
    do ii=1,nrhs
    call Ccounter(ii/40)
@@ -1008,7 +1012,7 @@ nrhs=(M1*N1+1)
     else
      Theta_Talus=0
     endif
-    call SplineEval1Dx1D(iflag,R_Talus,Theta_Talus,ZernC(kk,ii))  ! elevation for Zernike; use coefficient vector as temporary storage
+    call SplineEval1Dx1D(iflag,R_Talus,Theta_Talus,zernC(kk,ii))  ! elevation for zernike; use coefficient vector as temporary storage
     end do
    end do
    end do  ! end ii to nrhs
@@ -1023,7 +1027,7 @@ nrhs=(M1*N1+1)
     do nn=ABS(m),4
      if (mod(nn-m,2) == 0) then
       k=k+1
-      B_Matrix(k,kk)=zern(nn,m,rlocal(kk),thtlocal(kk))  ! local cylindrical coordinates
+      B_Matrix(k,kk)=zernfct(nn,m,rlocal(kk),thtlocal(kk))  ! local cylindrical coordinates
      else
       cycle
      endif
@@ -1033,24 +1037,24 @@ nrhs=(M1*N1+1)
 
 call LogC("pre-LSQ"//c_null_char)
 
-! solve the LSQ equations for ZernC(k): solution is degree_polynomials number of coefficients;  B_Matrix(k,kk)*ZernC(k)=z(kk) 
-! Use normal equation XTX.c=X.z ie. B_Matrix(k,kk)*ZernC(k)=z(kk) or use LAPACKs dgels()
+! solve the LSQ equations for zernC(k): solution is degree_polynomials number of coefficients;  B_Matrix(k,kk)*zernC(k)=z(kk)
+! Use normal equation XTX.c=X.z ie. B_Matrix(k,kk)*zernC(k)=z(kk) or use LAPACKs dgels()
 ! only have to call this once; NRHS can be for the whole talus plot since B_Matrix is invariant.
 ! have to allocate XTX,EE,IPIV for DGESV, XTX,EE for G-J
    allocate(XTX(k_max,k_max),EE(k_max,nrhs),IPIV(k_max),stat=ierr)
    if (ierr /= 0) then
-    write(*,*) 'unable to allocate memory in Zernike for GJ '
+    write(*,*) 'unable to allocate memory in zernike for GJ '
     return
    endif
    XTX=matmul(B_matrix,Transpose(B_matrix))
-   EE=matmul(B_matrix,ZernC)  ! with a second dimension for EE
+   EE=matmul(B_matrix,zernC)  ! with a second dimension for EE
 !   call DGESV(k_max,nrhs,XTX,k_max,IPIV,EE,k_max,INFO) ! overwrites EE into solution
    call GaussJordan(k_max,nrhs,XTX,k_max,EE,k_max,INFO )  ! overwrites EE into solution
 !!  have to allocate WORK for DGELS, to use these uncomment them in declarations too
 !  LWORK = min(k_max,kk_max) + max( min(k_max,kk_max), nrhs )
 !  allocate (WORK(LWORK))! WORK is dimension LWORK
-!  call DGELS( 'T', k_max, kk_max, nrhs, B_Matrix, k_max, ZernC , kk_max, WORK, LWORK, INFO ) ! overwrites ZernC (only to k_max)
-!! if using DGELS have to replace EEwith ZernC below ie EE(1:k_max,kk) => ZernC(1:k_max,kk)
+!  call DGELS( 'T', k_max, kk_max, nrhs, B_Matrix, k_max, zernC , kk_max, WORK, LWORK, INFO ) ! overwrites zernC (only to k_max)
+!! if using DGELS have to replace EEwith zernC below ie EE(1:k_max,kk) => zernC(1:k_max,kk)
 
 call LogC("post-LSQ"//c_null_char)
 
@@ -1085,21 +1089,21 @@ do i =1,M1
  end do
 end do
 
-write(*,*) 'center Zernike values: ',EE(1:k_max,nrhs)
-call LogC("Finished Zernike"//c_null_char)
+write(*,*) 'center zernike values: ',EE(1:k_max,nrhs)
+call LogC("Finished zernike"//c_null_char)
 call Ccounter(100)
-! Done with Zernike
+! Done with zernike
 
   deallocate(XTX,EE,IPIV)  !if used above
 !  deallocate(WORK,B_Matrix)
-  deallocate(ZernC,rlocal,thtlocal)
+  deallocate(zernC,rlocal,thtlocal)
 
 !  call CPU_TIME(time_end)
   time_end=omp_get_wtime()
-  write(*,*) 'Time to compute Zernike: ',(time_end-time_start)
+  write(*,*) 'Time to compute zernike: ',(time_end-time_start)
   return
  else
-  call LogC("Have to open a file prior to computing Zernike"//c_null_char)
+  call LogC("Have to open a file prior to computing zernike"//c_null_char)
   return ! if last digits of flag==1 and not allocated do nothing
  endif
 endif  ! end of flag=1
