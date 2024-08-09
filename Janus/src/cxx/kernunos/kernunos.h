@@ -73,11 +73,13 @@ class Assistant;
 class ContentWidget;
 
 class MainWindow : public QMainWindow
+
 {
     Q_OBJECT
 
 public:
-    MainWindow();
+//    MainWindow();
+    explicit MainWindow(QMainWindow *parent = nullptr);
     void SetGLString(QString& gls);
     void loadFile(QString& fileName, bool filepresent);
     QTimer t;
@@ -104,6 +106,7 @@ private slots:
     void about();
     void aboutQt();
     void updateResult();
+    void makeChart();
     void LinesofCurvature();
     void center();
     void gnuplotsplot();
@@ -229,6 +232,7 @@ private:
     QLabel *infoLabel;
 
     QAction *redrawAct;
+
 };
 
 QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)

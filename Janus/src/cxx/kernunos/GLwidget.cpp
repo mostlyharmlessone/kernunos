@@ -429,7 +429,7 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
       for (int i=0; i<= nE; ++i){
       elements[i]=cube_elements[i];
       }
-
+      // some starting values that mean nothing
       // legend part: value,rgbv
 
       for (int i = 1; i <= 26; ++i) {
@@ -444,7 +444,7 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
       // zern part, 1-12 aberration, 13,14,range
       float j = -0.5;
       for (int i = 1; i <= 12; ++i) {
-          j=j+i*0.03;
+          j=j+i*0.02;
           zern[i-1]=j;
       }
       zern[12]=-0.52;

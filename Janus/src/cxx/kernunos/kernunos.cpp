@@ -184,9 +184,9 @@ QString *m_GLString=nullptr;
 QString glstring_global;
 
 
-MainWindow::MainWindow() : assistant(new Assistant)
-{
+MainWindow::MainWindow(QMainWindow *parent) : assistant(new Assistant)
 
+{
    ui.setupUi(this);
    connect(ui.progressBar, &QProgressBar::valueChanged,this, &MainWindow::updateResult);
    QTimer *timer = new QTimer(this);
@@ -359,13 +359,13 @@ void MainWindow::zerncompute()
     }
 
     // zern part, 1-12 aberration, 13,14,range
-    float j = -0.7;
+    float j = 0.7;
     for (int i = 1; i <= 12; ++i) {
-        j=j+i*0.02;
+        j=j-i*0.02;
         zern[i-1]=j;
     }
-    zern[12]=-0.32;
-    zern[13]=0.32;
+    zern[12]=-0.82;
+    zern[13]=0.82;
 
 
 
@@ -1743,7 +1743,23 @@ void MainWindow::updateResult()
     ui.legend->setText(legendvalues);
     ui.legend->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui.legendpix->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    //  Zernike chart, updated
+
+  //  Zernike chart, updated
+      makeChart();
+//    m_activeWidget = new TemperatureRecordsWidget(m_contentArea);
+//    m_activeWidget->load();
+//    m_activeWidget->resize(m_contentArea->size());
+//    m_activeWidget->setVisible(true);
+
+//    ui.widget->load();
+ //   ui.widget->resize(m_contentArea->size());
+      ui.widget->setVisible(true);
+
+}
+
+
+void MainWindow::makeChart()
+{
     float zmin=zern[12];
     float zmax=zern[13];
     QBarSet *negative = new QBarSet("Negative");
@@ -1789,16 +1805,16 @@ void MainWindow::updateResult()
     QChartView *chartview = new QChartView(chart);
     QVBoxLayout *vlayout = new QVBoxLayout();
     vlayout->addWidget(chartview);
-
-// thi shows an update!s
-    std::cout << "max in updateResult: " << axisY->max() << std::endl;
-
-//    connect(axisY, &QValueAxis::rangeChanged,this, &chartview);
-    chartview->update();
-
     ui.graphicsView->setLayout(vlayout);
+
+    // this shows an update in zern numbers works, but the chart is not
+    std::cout << "max in makeChart: " << axisY->max() << std::endl;
+
+    chartview->update();
+    ui.graphicsView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui.graphicsView->update();
 }
+
 
 int main(int argc, char *argv[])
 {
