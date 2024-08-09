@@ -5,6 +5,8 @@ CorneaCopia
 adjust janus to change legend val (works great with dummy!)
 reverse dummy zern/legend change for testing in zerncompute when done
 after getting chartview to update with zern
+added makeChartwidget to no avail
+added temperaturerecordswidget as control
 
 in assistant.cpp look at showDocumentation and substitute docs for this project in appropriate format
 might want to change Cmakelist.txt for the proper install directory for documentation/copy
