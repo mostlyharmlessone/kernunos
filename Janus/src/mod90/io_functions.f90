@@ -12,7 +12,7 @@ module io_functions
      character(len=*), intent(in) :: OFFNAME,STLNAME,STLBINNAME
     end subroutine
 
-    SUBROUTINE fillarray(IuseG,KX1)
+    subroutine fillarray(IuseG,KX1)
 !     COMPUTES ATLAS DATA 
 !     IuseG to select what to place in RadSlope%Zp AND/OR compute LIOC
       USE cornea_arrays, ONLY : RadSlope,AxialP,sagc2,instantp,meanp,mongea,lioc
@@ -21,9 +21,9 @@ module io_functions
       use,intrinsic :: ieee_arithmetic
       integer, intent(in) :: IuseG 
       character(len=*), intent(in) :: KX1     
-    END SUBROUTINE
+    end subroutine
 
-    SUBROUTINE Geom(flag, b, donut, powmin, powmax, elements, vertices, nV, nE)
+    subroutine Geom(flag, b, donut, powmin, powmax, elements, vertices, nV, nE)
        use cornea_arrays
        use set_precision, ONLY : wp
        use special_fct, only : rgb2, rgb5
@@ -35,7 +35,18 @@ module io_functions
        integer(c_int), INTENT(INOUT) :: elements(*)                          ! faces x 3   index 0
        real(c_float), INTENT(INOUT) :: vertices(*)                           ! vertices x 6
        integer(c_int), INTENT(INOUT) :: flag, nE, nV                         ! passed from janus to call OpenGL
-    END SUBROUTINE
+    end subroutine
+
+    subroutine makelegend(flag, powmin, powmax, legend, nL)
+     use set_precision, ONLY : wp
+     use special_fct, only : colormap
+     use, intrinsic :: iso_c_binding, ONLY : c_float,c_int
+     use, intrinsic ::  ieee_arithmetic
+     use ISO_FORTRAN_ENV, only: stdin=>input_unit     ! for the pause read(stdin,*)
+     real(wp), intent(INOUT) :: powmin,powmax
+     real(c_float), INTENT(INOUT) :: legend(*)
+     integer(c_int), INTENT(INOUT) :: flag, nL
+    end subroutine
 
     subroutine rcnvrta(KXNAME,N,read_error)
      USE set_precision, ONLY : wp
@@ -399,8 +410,6 @@ end subroutine rcnvrte
 subroutine rcnvrta_type(KXNAME,N,read_error)
 ! determine ATLAS VERSION if 900 or 9000; N=25 or 22
  use io_functions, only : get_new_fileunit
- USE set_precision, ONLY : wp
- USE cornea_arrays, ONLY : Atlas
  implicit none
  logical :: exists
  CHARACTER(80) KH1,KH2

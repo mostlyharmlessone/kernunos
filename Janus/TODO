@@ -8,6 +8,10 @@ after getting chartview to update with zern
 added makeChartwidget to no avail
 added temperaturerecordswidget as control
 
+
+! make flag control for writearray/gnuplot & lioc & writecenter
+! also needs some option for looking at placido disk tweak with ring overlap
+
 in assistant.cpp look at showDocumentation and substitute docs for this project in appropriate format
 might want to change Cmakelist.txt for the proper install directory for documentation/copy
 ie use qhelpgenerator kernunos.qhcp kernunos.qhc after making the appropriate changes, need also edit the html files and rewrite the qhp file in documentation

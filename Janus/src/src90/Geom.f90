@@ -17,7 +17,7 @@
        integer(c_int) :: ivert1,ivert2,ivert3,ivert4
        integer(c_int), INTENT(INOUT) :: elements(*)                          ! faces x 3   
        real(c_float), INTENT(INOUT) :: vertices(*)                           ! vertices x 6 
-       integer(c_int), INTENT(INOUT) :: flag, nE, nV                         ! call openGL or not
+       integer(c_int), INTENT(INOUT) :: flag, nE, nV
        logical, intent(IN) :: donut
        logical :: quad
 
@@ -28,7 +28,7 @@
        quad = .FALSE.
        if (donut .AND. quad) then
         write(*,*) 'Geom: Cannot have closed disk with quadrilaterals'
-        stop
+        return
        endif       
 !     if no missing faces
       if (donut) then

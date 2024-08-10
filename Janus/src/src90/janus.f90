@@ -1134,6 +1134,57 @@ call Ccounter(100)
 endif  ! end of flag=1
 
 
+
+! writes values in openGL friendly format to matrices for passing to C/C++
+! flag/fct determines what to write for elevation and color, just like in flag=2,3 output versions above
+   donut = .FALSE.
+   if (fct .lt. 16 .and. fct .gt. 0) then
+     powctr=JMatrix%ZC0(1,fct)
+     powmin=JMatrix%ZC0(2,fct)
+     powmax=JMatrix%ZC0(3,fct)
+   else
+   SELECT CASE (fct)
+     CASE (0)
+     powctr=JMatrix%SAGC0(1)
+     powmin=JMatrix%SAGC0(2)
+     powmax=JMatrix%SAGC0(3)
+     CASE (16)
+     powctr=JMatrix%INSTC0(1)
+     powmin=JMatrix%INSTC0(2)
+     powmax=JMatrix%INSTC0(3)
+     CASE (17)
+     powctr=JMatrix%INSTC20(1)
+     powmin=JMatrix%INSTC20(2)
+     powmax=JMatrix%INSTC20(3)
+     CASE (18)
+     powctr=JMatrix%MEANC0(1)
+     powmin=JMatrix%MEANC0(2)
+     powmax=JMatrix%MEANC0(3)
+     CASE (19)
+     powctr=JMatrix%MONGEA0(1)
+     powmin=JMatrix%MONGEA0(2)
+     powmax=JMatrix%MONGEA0(3)
+     CASE (20)
+     powctr=JMatrix%Z0(1)
+     powmin=JMatrix%Z0(2)
+     powmax=JMatrix%Z0(3)
+     CASE DEFAULT
+     powctr=JMatrix%SAGC0(1)
+     powmin=JMatrix%SAGC0(2)
+     powmax=JMatrix%SAGC0(3)
+   END SELECT
+  endif
+!   write(*,*) 'powctr,POWMIN,POWMAX',powctr,POWMIN,POWMAX
+
+  call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
+  call makelegend(flag, powmin, powmax, legend, nL)
+
+
+
+
+
+
+
 ! flag 4 and 0, as 1,2,3 have return statements
 !  use fillarray to fill DiaSlope Zp with calculated value based on IuseG, optionally generate LIOC
 !  using SplineEval1Dx1D to refill a new matrix RadSlope using f0, derivatives to get calculated powers
@@ -1205,48 +1256,7 @@ endif
 !   call execute_command_line ("gnuplot -p plotlioc.gnu &", exitstat=i)
 
 
-! writes values in openGL friendly format to matrices for passing to C/C++
-! flag/fct determines what to write for elevation and color, just like in flag=2,3 output versions above
-   donut = .FALSE.
-   if (fct .lt. 16 .and. fct .gt. 0) then
-     powctr=JMatrix%ZC0(1,fct)
-     powmin=JMatrix%ZC0(2,fct)
-     powmax=JMatrix%ZC0(3,fct)
-   else
-   SELECT CASE (fct)
-     CASE (0)
-     powctr=JMatrix%SAGC0(1)
-     powmin=JMatrix%SAGC0(2)
-     powmax=JMatrix%SAGC0(3)
-     CASE (16)
-     powctr=JMatrix%INSTC0(1)
-     powmin=JMatrix%INSTC0(2)
-     powmax=JMatrix%INSTC0(3)
-     CASE (17)
-     powctr=JMatrix%INSTC20(1)
-     powmin=JMatrix%INSTC20(2)
-     powmax=JMatrix%INSTC20(3)
-     CASE (18)
-     powctr=JMatrix%MEANC0(1)
-     powmin=JMatrix%MEANC0(2)
-     powmax=JMatrix%MEANC0(3)
-     CASE (19)
-     powctr=JMatrix%MONGEA0(1)
-     powmin=JMatrix%MONGEA0(2)
-     powmax=JMatrix%MONGEA0(3)
-     CASE (20)
-     powctr=JMatrix%Z0(1)
-     powmin=JMatrix%Z0(2)
-     powmax=JMatrix%Z0(3)
-     CASE DEFAULT
-     powctr=JMatrix%SAGC0(1)
-     powmin=JMatrix%SAGC0(2)
-     powmax=JMatrix%SAGC0(3)     
-   END SELECT
-  endif
-!   write(*,*) 'powctr,POWMIN,POWMAX',powctr,POWMIN,POWMAX
 
-  call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
 
 ! eigenvalues show shape of RadSlope without make_rings but with FillArray 7 elevations
 !  atmp=pca(2,RadSlope) 
