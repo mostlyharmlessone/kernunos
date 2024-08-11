@@ -33,7 +33,18 @@
      "',",col(10),"'",'light-red',&
      "',",col(11),"'",'red',"',",col(12),"'",'dark-red',"')"
        WRITE(unitno1,*) '@NOXTICS ; @NOYTICS'
-       WRITE(unitno1,*) 'splot ',"'",FILENAME,"'"
+       WRITE(unitno1,*) 'splot ',"'",FILENAME,"'",'notitle'
+
+
+write(*,*) 'powmin,powmax',powmin,powmax,col(1),col(12)
+
+WRITE(*,900) 'set palette defined (',col(1),"'",'purple',&
+"',",col(2),"'",'dark-blue',"',",col(3),"'",'blue',&
+"',",col(4),"'",'light-blue',"',",col(5),"'",'light-green',&
+"',",col(6),"'",'green',"',",col(7),"'",'web-green',&
+"',",col(8),"'",'yellow',"',",col(9),"'",'goldenrod',&
+"',",col(10),"'",'light-red',&
+"',",col(11),"'",'red',"',",col(12),"'",'dark-red',"')"
 
 
        RETURN

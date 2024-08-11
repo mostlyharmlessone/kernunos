@@ -44,6 +44,16 @@
 
 write(*,*) 'flag to Fortran:',flag
 write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
+!! last two digits are the program function
+!! 0 = open a file, display
+!! 99 = deallocate arrays for program closure
+!! 7 = make lioc
+!! 6 = make centers
+!! 5 = make gnuplotsplot
+!! 4 = redraw without reloading new file
+!! 3 = write ASCII PLY file
+!! 2 = write OFF file
+!! 1 = compute zernike coefficients/Talus maps
 if (mod(flag,100) /= 0) then ! changed by new file, if there are previous values from last call, these are the existing values
  !these used to be in cornea_arrays and were static==implicitly saved, now they are locally saved
  write(*,*) 'previous MM,N,TestData: ',MM,N,TestData
@@ -126,7 +136,9 @@ if (mod(flag,100) == 99) then
     return
 endif
 
-if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3) then  !only need new file name if opening a file or printing, local save of inputfile1,inputfile2,logfile
+if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3) then
+!  only need new file name if opening a file or printing, and
+!  local save of inputfile1,inputfile2,logfile
 !write(*,*) 'file from kernunos: ',file_from_C  ! this will have a lot of extra random non ASCII stuff after the file name
 !! need this because GCC11 isn't F2018 compliant with deferred length character with Bind C
 !! ie. can't do CHARACTER(*,c_char), INTENT(IN) :: file_from_C_1 with BIND(C) with GCC11
@@ -147,14 +159,116 @@ if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3) then  !o
   deallocate(inputfile1)
   deallocate(inputfile2)
   deallocate(logfile)
-  deallocate(BigPlot)
  endif
  allocate(character(nblines) :: inputfile1)
  allocate(character(nblines) :: logfile)
  inputfile1=trim(new_path)
  allocate(character(nblines) :: inputfile2)
- allocate(character(nblines) :: BigPlot)
-endif  ! mod(flag,100) == 0
+endif  ! mod(flag,100) == 0, 2, or 3
+
+
+if (mod(flag,100) .eq. 5) then  !gnuplotsplot, dont overwrite inputfile1
+ new_path = " "
+ do i=1, 4096
+    if ( file_from_C (i) == c_null_char ) then
+        exit
+    else
+        new_path (i:i) = file_from_C (i)
+    end if
+ end do
+ write(*,*) 'file from kernunos: ',trim(new_path)
+ nblines=len(trim(new_path))
+ if (allocated(BigPlot)) then
+  deallocate(BigPlot)
+ endif
+  allocate(character(nblines) :: BigPlot)
+  BigPlot=trim(new_path)
+endif
+
+if (mod(flag,100) .eq. 5 ) then
+!gnuplot output
+if (allocated(JMatrix%R)) then
+  donut = .FALSE.
+  if (fct .lt. 16 .and. fct .gt. 0) then
+    powctr=JMatrix%ZC0(1,fct)
+    powmin=JMatrix%ZC0(2,fct)
+    powmax=JMatrix%ZC0(3,fct)
+  else
+  SELECT CASE (fct)
+    CASE (0)
+    powctr=JMatrix%SAGC0(1)
+    powmin=JMatrix%SAGC0(2)
+    powmax=JMatrix%SAGC0(3)
+    CASE (16)
+    powctr=JMatrix%INSTC0(1)
+    powmin=JMatrix%INSTC0(2)
+    powmax=JMatrix%INSTC0(3)
+    CASE (17)
+    powctr=JMatrix%INSTC20(1)
+    powmin=JMatrix%INSTC20(2)
+    powmax=JMatrix%INSTC20(3)
+    CASE (18)
+    powctr=JMatrix%MEANC0(1)
+    powmin=JMatrix%MEANC0(2)
+    powmax=JMatrix%MEANC0(3)
+    CASE (19)
+    powctr=JMatrix%MONGEA0(1)
+    powmin=JMatrix%MONGEA0(2)
+    powmax=JMatrix%MONGEA0(3)
+    CASE (20)
+    powctr=JMatrix%Z0(1)
+    powmin=JMatrix%Z0(2)
+    powmax=JMatrix%Z0(3)
+    CASE DEFAULT
+    powctr=JMatrix%SAGC0(1)
+    powmin=JMatrix%SAGC0(2)
+    powmax=JMatrix%SAGC0(3)
+ END SELECT
+ endif
+endif
+
+   call CPU_TIME(time_start)
+   RadSlope=JMatrix
+   DiaSlope=RadSlope
+   DiaSlope%Zpd2 = .n. DiaSlope
+   if ( Testdata .eq. 1 ) then
+    if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+      call DiaSplineCenter(DiaSlope) ! re-spline, with center node
+    endif
+    if (btest(dat, 1)) then          ! moving each meridian to align curves
+     call AdjustRadSplineCenter     ! changes r only
+     DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+    endif
+   endif
+   call FILLARRAY(4,LinesOfCurv)
+   write(*,*) 'POWMIN,POWMAX',POWMIN,POWMAX
+   call CPU_TIME(time_end)
+   write(*,*) 'Time to make plot',i,(time_end-time_start)*1000
+
+! GENERATE PRINT FILES
+!  RadSlope=DiaSlope
+  do i=1,M1
+   do j=1,RadSlope%MV(i)
+    RadSlope%Zp(j,i)=JMatrix%SAGC(j,i)
+   end do
+  end do
+  call WRITEARRAY(RadSlope,BigPlot)  !plots RadSlope%Zp(j,i)
+
+   unitno1 = get_new_fileunit()
+   open(unitno1, file = 'plot2.gnu', action="write", iostat=ierr)
+   WRITE(unitno1,*) 'reset'
+   WRITE(unitno1,*) 'set size square'
+   WRITE(unitno1,*) 'set macros'
+   WRITE(unitno1,*) 'NOXTICS = "set format x ''''; unset xlabel"'
+   WRITE(unitno1,*) 'NOYTICS = "set format y ''''; unset ylabel"'
+   CALL PRINTGRAPH(unitno1,POWMIN,POWMAX,BigPlot)
+   WRITE(unitno1,*) 'pause mouse close'  !this allows the file to be opened by gnuplot by clicking on it without closing the window
+   CLOSE (unitno1)
+!  call execute_command_line ("gnuplot -p plot2.gnu &", exitstat=i)
+   return
+ endif ! end (mod(flag,100) .eq. 5)
+
+
 
 ! Writes ASCII PLY file
 if (mod(flag,100) == 3) then
@@ -286,17 +400,17 @@ if (mod(flag,100) == 0) then
         if( file_idx == 0) then
          write(*,*) 'Not a PentaCam file'
          write(*,*) 'Unknown file type: make some test data, flag = ',flag
-         BigPlot=trim("test.PLT")
+!         BigPlot=trim("test.PLT")
          TestData=-1; MM=360; N=16 ; NP=141
         else
 !        inputfile2=replacestr(string=inputfile1,search="ELE",substitute="CUR")
-        BigPlot=replacestr(string=inputfile1,search="ELE",substitute="PLT")
+!        BigPlot=replacestr(string=inputfile1,search="ELE",substitute="PLT")
         TestData=2; MM=180; N=22; NP=141 ! PentaCam ELE
        endif
       else
 !       inputfile2=inputfile1
 !       inputfile1=replacestr(string=inputfile2,search="CUR",substitute="ELE")
-        BigPlot=replacestr(string=inputfile1,search="CUR",substitute="PLT")
+!        BigPlot=replacestr(string=inputfile1,search="CUR",substitute="PLT")
        TestData=3; MM=180; N=22; NP=141 ! PentaCam CUR
       endif
       else
@@ -305,19 +419,19 @@ if (mod(flag,100) == 0) then
         file_idx=index(inputfile1, "_ELE")
         if( file_idx == 0) then
          TestData=1; MM=180; N=25   ! Atlas 900 can be 25, 9000 seems to be 22
-         BigPlot=replacestr(string=inputfile1,search="CSV",substitute="PLT")
+!         BigPlot=replacestr(string=inputfile1,search="CSV",substitute="PLT")
          write(*,*) "Atlas file: ",inputfile1
         else
         write(*,*) 'Not an Atlas file'
  !       inputfile2=replacestr(string=inputfile1,search="ELE",substitute="CUR")
-        BigPlot=replacestr(string=inputfile1,search="CSV",substitute="PLT")
+!        BigPlot=replacestr(string=inputfile1,search="CSV",substitute="PLT")
         TestData=4; MM=180; N=22; NP=141 ! PentaCam ELE.CSV
         endif
         else
         write(*,*) 'Not an Atlas file'
 !       inputfile2=inputfile1
 !       inputfile1=replacestr(string=inputfile2,search="CUR",substitute="ELE")
-        BigPlot=replacestr(string=inputfile1,search="CSV",substitute="PLT")
+!        BigPlot=replacestr(string=inputfile1,search="CSV",substitute="PLT")
         TestData=5; MM=180; N=22; NP=141 ! PentaCam CUR.CSV
        endif
       endif
@@ -330,7 +444,7 @@ if (mod(flag,100) == 0) then
     !   file_pfx=index(inputfile1(file_idx:file_idx+1),"XX")
       if (file_idx /= 0) then
        inputfile2=replacestr(string=inputfile1,search="XX",substitute="RA")
-       BigPlot=replacestr(string=inputfile1,search="RA",substitute="PL")
+!       BigPlot=replacestr(string=inputfile1,search="RA",substitute="PL")
        inquire(file=trim(inputfile2), exist=exists)
        if(.NOT.exists) then
         write(*,*) 'Error: EyeSys files have to be in pairs, or file name has XX other than prefix'
@@ -343,7 +457,7 @@ if (mod(flag,100) == 0) then
        if (file_idx /= 0) then
         inputfile2=inputfile1
         inputfile1=replacestr(string=inputfile2,search="RA",substitute="XX")
-        BigPlot=replacestr(string=inputfile1,search="XX",substitute="PL")
+!        BigPlot=replacestr(string=inputfile1,search="XX",substitute="PL")
         inquire(file=trim(inputfile1), exist=exists)
         if(.NOT.exists) then
          write(*,*) 'Error: EyeSys files have to be in pairs, or file name has RA other than prefix'
@@ -478,7 +592,7 @@ if (TestData .eq. 1) then
   call CPU_TIME(time_end)
   write(*,*) 'Time to read Atlas CSV file: ',(time_end-time_start)*1000
   if (read_error > 0) return
- endif  !(mod(flag,100) /= 0,99,2,3 must be 1 or 4, reload the original data
+ endif  !(mod(flag,100) /= 0,99,2,3 must be 1 or 4-7, reload the original data
  N=Power_Rings_Count
  ! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
  if (allocated(RadSlope%r)) then
@@ -489,7 +603,7 @@ if (TestData .eq. 1) then
   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
  endif
  RadSlope=Atlas
-endif
+endif ! end (TestData == 1)
 
 ! READ THE PENTACAM DATA
  if (TestData .ge. 2 .AND. TestData .le. 5) then
@@ -512,7 +626,7 @@ endif
    read_error=0
    call RCNVRTP(TestData,inputfile1,read_error)
    if (read_error > 0) return
-  endif  !(mod(flag,100) /= 0,99,2,3 must be 1 or 4, reload the original data
+  endif  !(mod(flag,100) /= 0,99,2,3 must be 1 or 4-7, reload the original data
 ! arrange the data
   Skyline=Penta
 ! convert to polar with splining; makes round rings as above with 180x22 - also already has either center value Z0(1) or SAGC0(1)
@@ -550,7 +664,7 @@ if (TestData .lt. 0) then
  endif
   if (mod(flag,100) == 0) then !read the files
    call RCNVRTT(MM,N)
-  endif  !(mod(flag,100) /= 0,99,2,3 must be 1 or 4, reload the original data  endif
+  endif  !(mod(flag,100) /= 0,99,2,3 must be 1 or 4-7, reload the original data  endif
 ! Generate the slope matrix using ZFCT
   RadSlope=EyeSys
  endif
@@ -1185,7 +1299,7 @@ endif  ! end of flag=1
 
 
 
-! flag 4 and 0, as 1,2,3 have return statements
+! flag 0 or 4 at this point as 1,2,3 have return statements
 !  use fillarray to fill DiaSlope Zp with calculated value based on IuseG, optionally generate LIOC
 !  using SplineEval1Dx1D to refill a new matrix RadSlope using f0, derivatives to get calculated powers
 
@@ -1236,6 +1350,7 @@ endif
 
 
 
+if (mod(flag,100) .eq. 6) then
 ! WriteCenter
 ! WriteCenter shows where the spline of slopes is zero, it should be close to zero for a concave center with a unique maximum
   call WriteCenter(RadSlope,'Center.dat')! biggest deviation with nSplineCenter zero slope forced at origin,
@@ -1250,62 +1365,21 @@ endif
  call WriteCenterJ(JMatrix%MONGEA0(1),JMatrix%MONGEA,'CenterMONGEA.dat')
  call WriteCenterJ(JMatrix%Z0(1),JMatrix%Z,'CenterZ.dat')
 
+endif !  (mod(flag,100) .eq. 6)
+
+
+if (mod(flag,100) .eq. 7) then
 !  Generate LIOC with vector format
    LinesOfCurv='LIOC.CAR'
    call FILLARRAY(8,LinesOfCurv)    ! don't redo bounds consider optional !  plot 'LIOC.CAR' using 1:2:3:4 with vectors
 !   call execute_command_line ("gnuplot -p plotlioc.gnu &", exitstat=i)
 
-
-
-
 ! eigenvalues show shape of RadSlope without make_rings but with FillArray 7 elevations
 !  atmp=pca(2,RadSlope) 
 !  atmp=pca(3,RadSlope)
+endif ! (mod(flag,100) .eq. 7)
 
 
-!gnuplot output
-
-   call CPU_TIME(time_start)
-   RadSlope=JMatrix
-   DiaSlope=RadSlope            
-   DiaSlope%Zpd2 = .n. DiaSlope
-   if ( Testdata .eq. 1 ) then
-    if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-      call DiaSplineCenter(DiaSlope) ! re-spline, with center node
-    endif
-    if (btest(dat, 1)) then          ! moving each meridian to align curves
-     call AdjustRadSplineCenter     ! changes r only
-     DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
-    endif
-   endif
-   call FILLARRAY(4,LinesOfCurv)
-   write(*,*) 'POWMIN,POWMAX',POWMIN,POWMAX
-   call CPU_TIME(time_end)
-   write(*,*) 'Time to make plot',i,(time_end-time_start)*1000   
-
-! GENERATE PRINT FILES
-!  RadSlope=DiaSlope
-  do i=1,M1
-   do j=1,RadSlope%MV(i)
-    RadSlope%Zp(j,i)=JMatrix%SAGC(j,i)
-   end do
-  end do
-  call WRITEARRAY(RadSlope,BigPlot)  !plots RadSlope%Zp(j,i)
-
-! put in module with printgraph and put loop in; might be able to read the max/min off each file
-! or embed in the file with a comment/header
-! can probably make the layout, number of files and file handle generic
-
-   unitno1 = get_new_fileunit()
-   open(unitno1, file = 'plot2.gnu', action="write", iostat=ierr)
-   WRITE(unitno1,*) 'reset'
-   WRITE(unitno1,*) 'set size square'
-   WRITE(unitno1,*) 'set macros'
-   WRITE(unitno1,*) 'NOXTICS = "set format x ''''; unset xlabel"' 
-   WRITE(unitno1,*) 'NOYTICS = "set format y ''''; unset ylabel"'     
-   CALL PRINTGRAPH(unitno1,POWMIN,POWMAX,BigPlot)
-   WRITE(unitno1,*) 'pause mouse close'  !this allows the file to be opened by gnuplot by clicking on it without closing the window
-   CLOSE (unitno1)
 
 !   call execute_command_line ("gnuplot -p plot2.gnu &", exitstat=i)
   call LogC("Done: janus"//c_null_char)  !has to be C and declared, not cpp

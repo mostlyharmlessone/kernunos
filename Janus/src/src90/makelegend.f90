@@ -46,7 +46,7 @@
        END SELECT
 
         do k=1,nL/4
-         pow=minimum+(maximum-minimum)*(k-1)/(nL/4-1)
+         pow=maximum-(maximum-minimum)*(k-1)/(nL/4-1)
          if (ieee_is_finite(pow)) then         
           c_rgbv=colormap(pow,minimum,maximum,map)  !0-255 scale
          else
@@ -55,8 +55,6 @@
          c_pow=real(pow,kind=4)  ! explicitly cast to kind=4 for consistent with c_float
          legend(4*k-3:4*k)=(/c_pow,c_rgbv/)
          end do
-
-
 
 
        end subroutine makelegend

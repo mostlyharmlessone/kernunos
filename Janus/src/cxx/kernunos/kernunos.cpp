@@ -148,6 +148,9 @@ const unsigned int SCR_HEIGHT = 2600;
 // last two digits are the program function
 // 0 = open a file, display
 // 99 = deallocate arrays for program closure
+// 7 = make lioc
+// 6 = make centers
+// 5 = make gnuplotsplot
 // 4 = redraw without reloading new file
 // 3 = write ASCII PLY file
 // 2 = write OFF file
@@ -626,6 +629,15 @@ void MainWindow::gnuplotsplot() {
        ui.infoLabel->setText(tr("gnuplot call failed!"));
        return;
    }
+   QTemporaryFile FILE;
+   FILE.setAutoRemove(true);  //does not do anything
+   FILE.open();
+   QString filenamelocal = FILE.fileName();
+   filenamelocal = filenamelocal.append(".plt");
+   QByteArray ba = filenamelocal.toLocal8Bit();
+   char *filename = ba.data();
+   flag=flag-(flag%100)+5;  // last two digits of flag=5;
+   m_GLwidget_secondwindow->DataPrint(filename);
 
    // would be better if calcs could be done here instead of in janus, or at least call printgraph?
    Gnuplot gp;
@@ -1720,7 +1732,7 @@ void MainWindow::updateResult()
                                          legend[(i-1)*4+2],
                                          legend[(i-1)*4+3],
                                           255);
-        grBtoY.setColorAt(1.0-i/26.0, rgbcolor);
+        grBtoY.setColorAt((i-1)/26.0, rgbcolor);
     }
     QPixmap pm(scale2, scale);
     QPainter pmp(&pm);
@@ -1732,7 +1744,7 @@ void MainWindow::updateResult()
     ui.legendpix->setPixmap(pm);
     QString legendvalues = "";
     for (int i = 1; i <= 13; ++i) {
-        float j = legend[(i-1)*8];
+        float j = floor(legend[(i-1)*8]+0.5);
         std::string t = std::to_string(j);  //stuck with 6 digits output
         char const *n_char = t.c_str();
         legendvalues += "\n";
