@@ -27,12 +27,12 @@
   real(c_float), INTENT(INOUT) :: zern(*)
   character(len=8) :: LinesOfCurv
   character(len=4096) :: new_path
-  character(:),save, ALLOCATABLE :: inputfile1,inputfile2,BigPlot
+  character(:),save, ALLOCATABLE :: inputfile1,inputfile2,BigPlot,gnu_instruct
   character(:),save, ALLOCATABLE :: logfile
   integer ::  nblines, file_idx, file_pfx,read_error,io
   integer,allocatable :: MV(:)
   real(8) :: time_start, time_end
-  real(wp) :: POWMIN,POWMAX,POWMAX2,POWCTR,POW
+  real(wp) :: POWMIN,POWMAX,POWMAX2,POWCTR,POW,P1,X1,X2,U,V,UT,VT
   logical :: donut, exists
   real(wp) :: Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo
   integer :: k_max, kk_max, iflag !,LWORK
@@ -167,7 +167,7 @@ if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3) then
 endif  ! mod(flag,100) == 0, 2, or 3
 
 
-if (mod(flag,100) .eq. 5) then  !gnuplotsplot, dont overwrite inputfile1
+if (mod(flag,100) .eq. 5 .or. mod(flag,100) .eq. 6 .or. mod(flag,100) .eq. 7) then  !gnuplot files&calls
  new_path = " "
  do i=1, 4096
     if ( file_from_C (i) == c_null_char ) then
@@ -180,14 +180,19 @@ if (mod(flag,100) .eq. 5) then  !gnuplotsplot, dont overwrite inputfile1
  nblines=len(trim(new_path))
  if (allocated(BigPlot)) then
   deallocate(BigPlot)
+  deallocate(gnu_instruct)
  endif
   allocate(character(nblines) :: BigPlot)
-  BigPlot=trim(new_path)
+  allocate(character(nblines) :: gnu_instruct)
+  gnu_instruct=trim(new_path)
+  BigPlot=replacestr(string=gnu_instruct,search="gnu",substitute="plt")
 endif
 
+! gnuplot splot output
 if (mod(flag,100) .eq. 5 ) then
-!gnuplot output
-if (allocated(JMatrix%R)) then
+
+! needs powmin & powmax
+ if (allocated(JMatrix%R)) then
   donut = .FALSE.
   if (fct .lt. 16 .and. fct .gt. 0) then
     powctr=JMatrix%ZC0(1,fct)
@@ -223,39 +228,37 @@ if (allocated(JMatrix%R)) then
     powctr=JMatrix%SAGC0(1)
     powmin=JMatrix%SAGC0(2)
     powmax=JMatrix%SAGC0(3)
- END SELECT
+  END SELECT
+  endif
  endif
-endif
-
-   call CPU_TIME(time_start)
-   RadSlope=JMatrix
-   DiaSlope=RadSlope
-   DiaSlope%Zpd2 = .n. DiaSlope
-   if ( Testdata .eq. 1 ) then
-    if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-      call DiaSplineCenter(DiaSlope) ! re-spline, with center node
-    endif
-    if (btest(dat, 1)) then          ! moving each meridian to align curves
-     call AdjustRadSplineCenter     ! changes r only
-     DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
-    endif
-   endif
-   call FILLARRAY(4,LinesOfCurv)
-   write(*,*) 'POWMIN,POWMAX',POWMIN,POWMAX
-   call CPU_TIME(time_end)
-   write(*,*) 'Time to make plot',i,(time_end-time_start)*1000
-
 ! GENERATE PRINT FILES
-!  RadSlope=DiaSlope
-  do i=1,M1
-   do j=1,RadSlope%MV(i)
-    RadSlope%Zp(j,i)=JMatrix%SAGC(j,i)
+  unitno1 = get_new_fileunit()
+  open(unitno1, file = BigPlot, action="write", iostat=ierr)
+  do i=1,MM
+   do j=1,JMatrix%MV(i)
+    X1=JMatrix%tht(i)
+    X2=JMatrix%r(j,i)
+    P1=JMatrix%SAGC(j,i)
+    IF((ABS(P1).GT.0).AND.(ABS(X2).GT.0.01)) THEN
+      WRITE(unitno1,*) ABS(X2)*COS(X1),ABS(X2)*SIN(X1),P1
+    ENDIF
    end do
+   WRITE(unitno1,*) ' '
   end do
-  call WRITEARRAY(RadSlope,BigPlot)  !plots RadSlope%Zp(j,i)
+! REPEAT FIRST ANGLE
+  i=1
+  do J=1,JMatrix%MV(i)
+   X1=JMatrix%tht(i)
+   X2=JMatrix%r(j,i)
+   P1=JMatrix%SAGC(j,i)
+   IF((P1.GT.0).AND.(ABS(X2).GT.0.01)) THEN
+    WRITE(unitno1,*) ABS(X2)*COS(X1),ABS(X2)*SIN(X1),P1
+   ENDIF
+  end do
+  CLOSE (unitno1)
 
    unitno1 = get_new_fileunit()
-   open(unitno1, file = 'plot2.gnu', action="write", iostat=ierr)
+   open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
    WRITE(unitno1,*) 'reset'
    WRITE(unitno1,*) 'set size square'
    WRITE(unitno1,*) 'set macros'
@@ -264,9 +267,92 @@ endif
    CALL PRINTGRAPH(unitno1,POWMIN,POWMAX,BigPlot)
    WRITE(unitno1,*) 'pause mouse close'  !this allows the file to be opened by gnuplot by clicking on it without closing the window
    CLOSE (unitno1)
-!  call execute_command_line ("gnuplot -p plot2.gnu &", exitstat=i)
+!  return to kernunos for gp command to use gnu_instruct (BigPlot is not needed in kernunos)
+!  call execute_command_line ("gnuplot -p " gnu_instruct " &", exitstat=i)
    return
  endif ! end (mod(flag,100) .eq. 5)
+
+
+if (mod(flag,100) .eq. 6) then
+
+! need RadSlope for WriteCenter/LIOC
+RadSlope=JMatrix
+DiaSlope=RadSlope              ! move to diagonal format
+DiaSlope%Zpd2 = .n. DiaSlope
+
+if ( Testdata .eq. 1 ) then
+ call MakeRadSplineCenter(0)     ! remakes RadSplineCenter(1,:)
+ if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+   call DiaSplineCenter(DiaSlope) ! re-spline, with center node
+ endif
+ if (btest(dat, 1)) then          ! moving each meridian to align curves
+  call AdjustRadSplineCenter     ! changes r only
+  DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+ endif
+endif
+
+! WriteCenter
+! WriteCenter shows where the spline of slopes is zero, it should be close to zero for a concave center with a unique maximum
+
+  call WriteCenter(RadSlope,BigPlot)! biggest deviation with nSplineCenter zero slope forced at origin,
+                                            ! then with zero slope forced at average (r(low)+r(high))/2.0
+                                            ! smallest deviation without nSplineCenter; view with set polar; plot 'Center.dat' with lines
+
+!   call execute_command_line ("gnuplot -p plotcenter.gnu &", exitstat=i)
+!plots spread of values at origin for each meridian from average
+
+ BigPlot=replacestr(string=gnu_instruct,search="gnu",substitute="sag")
+ call WriteCenterJ(JMatrix%SAGC0(1),JMatrix%SAGC,BigPlot)
+ BigPlot=replacestr(string=gnu_instruct,search="gnu",substitute="int")
+ call WriteCenterJ(JMatrix%INSTC0(1),JMatrix%INSTC,BigPlot)
+ BigPlot=replacestr(string=gnu_instruct,search="gnu",substitute="mea")
+ call WriteCenterJ(JMatrix%MEANC0(1),JMatrix%MEANC,BigPlot)
+ BigPlot=replacestr(string=gnu_instruct,search="gnu",substitute="mon")
+ call WriteCenterJ(JMatrix%MONGEA0(1),JMatrix%MONGEA,BigPlot)
+ BigPlot=replacestr(string=gnu_instruct,search="gnu",substitute="ele")
+ call WriteCenterJ(JMatrix%Z0(1),JMatrix%Z,BigPlot)
+
+return
+
+endif !  (mod(flag,100) .eq. 6)
+
+
+
+if (mod(flag,100) .eq. 7) then
+!  Generate LIOC with vector format
+!  'plot ' gnu_instruct ' using 1:2:3:4 with vectors'
+
+! need RadSlope for WriteCenter/LIOC
+RadSlope=JMatrix
+DiaSlope=RadSlope              ! move to diagonal format
+DiaSlope%Zpd2 = .n. DiaSlope
+
+if ( Testdata .eq. 1 ) then
+ call MakeRadSplineCenter(0)     ! remakes RadSplineCenter(1,:)
+ if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+   call DiaSplineCenter(DiaSlope) ! re-spline, with center node
+ endif
+ if (btest(dat, 1)) then          ! moving each meridian to align curves
+  call AdjustRadSplineCenter     ! changes r only
+  DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+ endif
+endif
+
+ unitno1 = get_new_fileunit()
+ open(unitno1, file=trim(gnu_instruct), action="write", iostat=ierr)
+ do I=1,MM
+  do J=1,RadSlope%MV(I)
+   X1=RadSlope%thta(i)
+   X2=RadSlope%r(j,i)
+   CALL SplineEval1Dx1D(1,X2,X1,Y,YPR,YPTHETA)
+   CALL LIOC_Fortran(X1,X2,YPR,YPTHETA,U,V,UT,VT)
+   WRITE(unitno1,*) U,V,100*UT,100*VT
+   WRITE(unitno1,*) ' '
+  end do
+  close (unitno1)
+ end do
+ return
+endif ! (mod(flag,100) .eq. 7)
 
 
 
@@ -500,7 +586,6 @@ if (mod(flag,100) == 0) then
     JMatrix1%MEANC(:,:)=JMatrix%MEANC(:,:)
     JMatrix1%MONGEA(:,:)=JMatrix%MONGEA(:,:)
     JMatrix1%RC(:,:)=JMatrix%RC(:,:)
-    JMatrix1%LIOC(:,:)=JMatrix%LIOC(:,:)
     JMatrix1%MV(:)=JMatrix%MV(:)
     JMatrix1%R0=JMatrix%R0
     JMatrix1%Z0(:)=JMatrix%Z0(:)
@@ -1295,20 +1380,6 @@ endif  ! end of flag=1
 
 
 
-
-
-
-
-! flag 0 or 4 at this point as 1,2,3 have return statements
-!  use fillarray to fill DiaSlope Zp with calculated value based on IuseG, optionally generate LIOC
-!  using SplineEval1Dx1D to refill a new matrix RadSlope using f0, derivatives to get calculated powers
-
-
-
-
-
-
-
 ! simple difference/subtraction the second time through
 if (allocated(JMatrix1%R)) then
 ! skip this for now
@@ -1328,60 +1399,11 @@ if (allocated(JMatrix1%R)) then
 endif
 
 
-! need RadSlope for WriteCenter/LIOC
-RadSlope=JMatrix
-DiaSlope=RadSlope              ! move to diagonal format
-DiaSlope%Zpd2 = .n. DiaSlope
-
-
-if ( Testdata .eq. 1 ) then
- call MakeRadSplineCenter(0)     ! remakes RadSplineCenter(1,:)
- if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-   call DiaSplineCenter(DiaSlope) ! re-spline, with center node
- endif
- if (btest(dat, 1)) then          ! moving each meridian to align curves
-  call AdjustRadSplineCenter     ! changes r only
-  DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
- endif
-endif
-
-
-
-
-
-
-if (mod(flag,100) .eq. 6) then
-! WriteCenter
-! WriteCenter shows where the spline of slopes is zero, it should be close to zero for a concave center with a unique maximum
-  call WriteCenter(RadSlope,'Center.dat')! biggest deviation with nSplineCenter zero slope forced at origin,
-                                            ! then with zero slope forced at average (r(low)+r(high))/2.0
-                                            ! smallest deviation without nSplineCenter; view with set polar; plot 'Center.dat' with lines
-
-!   call execute_command_line ("gnuplot -p plotcenter.gnu &", exitstat=i)
-!plots spread of values at origin for each meridian from average
- call WriteCenterJ(JMatrix%SAGC0(1),JMatrix%SAGC,'CenterSAGC.dat')
- call WriteCenterJ(JMatrix%INSTC0(1),JMatrix%INSTC,'CenterINSTC.dat')
- call WriteCenterJ(JMatrix%MEANC0(1),JMatrix%MEANC,'CenterMEANC.dat')
- call WriteCenterJ(JMatrix%MONGEA0(1),JMatrix%MONGEA,'CenterMONGEA.dat')
- call WriteCenterJ(JMatrix%Z0(1),JMatrix%Z,'CenterZ.dat')
-
-endif !  (mod(flag,100) .eq. 6)
-
-
-if (mod(flag,100) .eq. 7) then
-!  Generate LIOC with vector format
-   LinesOfCurv='LIOC.CAR'
-   call FILLARRAY(8,LinesOfCurv)    ! don't redo bounds consider optional !  plot 'LIOC.CAR' using 1:2:3:4 with vectors
-!   call execute_command_line ("gnuplot -p plotlioc.gnu &", exitstat=i)
-
 ! eigenvalues show shape of RadSlope without make_rings but with FillArray 7 elevations
-!  atmp=pca(2,RadSlope) 
+!  atmp=pca(2,RadSlope)
 !  atmp=pca(3,RadSlope)
-endif ! (mod(flag,100) .eq. 7)
 
 
-
-!   call execute_command_line ("gnuplot -p plot2.gnu &", exitstat=i)
   call LogC("Done: janus"//c_null_char)  !has to be C and declared, not cpp
 
   return        

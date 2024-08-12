@@ -41,7 +41,7 @@ MODULE cornea_arrays
 !  each array except for R,THT, is (N+1,MM) to include values at each ring and also at center RC==RadSplineCenter pseudo ring
 !  each matching name has the value at origin, min value and max value
    REAL (wp), ALLOCATABLE :: R(:,:),Z(:,:),THT(:),SAGC(:,:),INSTC(:,:),INSTC2(:,:),MEANC(:,:),MONGEA(:,:),YPR(:,:),YPTHETA(:,:)
-   REAL (wp), ALLOCATABLE :: RC(:,:),LIOC(:,:) !last one is MM*N,4  RC is RadSplineCenter, compare to R0
+   REAL (wp), ALLOCATABLE :: RC(:,:)  ! RC is RadSplineCenter, compare to R0
    INTEGER, ALLOCATABLE :: MV(:)
    REAL (wp) :: R0,THT0,Z0(3),SAGC0(3),INSTC0(3),INSTC20(3),MEANC0(3),MONGEA0(3)
    ! 12 up to 15 zernike coordinates
@@ -146,10 +146,10 @@ subroutine init_mat_JMatrix(MM,N,b) ! allocate common storage arrays
   TYPE(wpJMatrix) :: b
   allocate (b%R(N,MM),b%Z(N+1,MM),b%THT(MM),b%YPR(N,MM),b%YPTHETA(N,MM),b%SAGC(N+1,MM),&
             b%INSTC(N+1,MM),b%INSTC2(N+1,MM),b%MEANC(N+1,MM),b%MONGEA(N+1,MM))
-  allocate (b%MV(MM),b%RC(3,MM),b%LIOC(MM*N,4))
+  allocate (b%MV(MM),b%RC(3,MM))
   b%R(:,:)=0 ; b%Z(:,:)=0 ; b%THT(:)=0 ; b%YPR(:,:)=0 ; b%YPTHETA(:,:)=0 ; b%SAGC(:,:)=0
   b%INSTC(:,:)=0 ; b%INSTC2(:,:)=0 ; b%MEANC(:,:)=0 ; b%MONGEA(:,:)=0
-  b%MV(:)=0 ; b%RC(:,:)=0 ; b%LIOC(:,:)=0
+  b%MV(:)=0 ; b%RC(:,:)=0
   allocate (b%ZC(N+1,MM,15))
   b%ZC(:,:,:)=0
 end subroutine init_mat_JMatrix
@@ -214,7 +214,7 @@ subroutine destroy_JMatrix(JMatrix,iflag)
   INTEGER, INTENT (IN) :: iflag 
   IF (iflag==0) THEN
    deallocate (JMatrix%R,JMatrix%Z,JMatrix%THT,JMatrix%SAGC,JMatrix%INSTC,JMatrix%INSTC2,&
-              JMatrix%MEANC,JMatrix%MONGEA,JMatrix%MV,JMatrix%RC,JMatrix%LIOC,JMatrix%ZC)
+              JMatrix%MEANC,JMatrix%MONGEA,JMatrix%MV,JMatrix%RC,JMatrix%ZC)
   ENDIF
 end subroutine destroy_JMatrix
 
@@ -981,7 +981,7 @@ subroutine mongea(X1,X2,Y1XIN,Y1T,Y1XT,Y2T,Y2X,ZA)
 end subroutine mongea
 
 ! Lines of Curvature
-subroutine LIOC(X1,X2,Y1X,Y1T,UPOS,VPOS,UTPOS,VTPOS)
+subroutine LIOC_Fortran(X1,X2,Y1X,Y1T,UPOS,VPOS,UTPOS,VTPOS)
    real(wp), intent(in) :: X1,X2,Y1X,Y1T
    real(wp), intent(out) :: UPOS,VPOS,UTPOS,VTPOS      
 !  CARTESIAN TANGENT VECTOR COMPONENTS (-UTPOS,-VTPOS,1)  
@@ -1004,7 +1004,7 @@ subroutine LIOC(X1,X2,Y1X,Y1T,UPOS,VPOS,UTPOS,VTPOS)
         UTPOS=0._wp
         VTPOS=0._wp     
      endif        
-end subroutine LIOC
+end subroutine LIOC_Fortran
 
 ! instantaneous "tangential" power and mean power in terms of axial/"sagittal" power,radius and radial derivative of axial power 
  subroutine sagc2(X2,SAGC,DSAGC,TANC,ZMM)  

@@ -57,7 +57,7 @@ void Ccounter(int *inc);
 };
 
 // external cpp code
-int lioc();
+int lioc(const char *iname);
 
 extern QString *m_GLString;
 extern QString glstring_global;

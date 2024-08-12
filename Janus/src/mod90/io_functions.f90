@@ -12,17 +12,6 @@ module io_functions
      character(len=*), intent(in) :: OFFNAME,STLNAME,STLBINNAME
     end subroutine
 
-    subroutine fillarray(IuseG,KX1)
-!     COMPUTES ATLAS DATA 
-!     IuseG to select what to place in RadSlope%Zp AND/OR compute LIOC
-      USE cornea_arrays, ONLY : RadSlope,AxialP,sagc2,instantp,meanp,mongea,lioc
-      USE set_precision, ONLY : wp
-      USE spline_interfaces, ONLY : SplineEval1Dx1D
-      use,intrinsic :: ieee_arithmetic
-      integer, intent(in) :: IuseG 
-      character(len=*), intent(in) :: KX1     
-    end subroutine
-
     subroutine Geom(flag, b, donut, powmin, powmax, elements, vertices, nV, nE)
        use cornea_arrays
        use set_precision, ONLY : wp
@@ -116,13 +105,6 @@ module io_functions
      real(wp),INTENT(IN) :: a, b(:,:)
      character(len=*), intent(in) :: KXNAME
     end subroutine
-
-    SUBROUTINE WRITEARRAY(b,KXNAME)
-      USE cornea_arrays
-      USE set_precision, ONLY : wp
-      TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
-      character(len=*), intent(in) :: KXNAME 
-    END SUBROUTINE
 
     SUBROUTINE PRINTGRAPH(unitno1,POWMIN,POWMAX,FILENAME)
      use set_precision, only : wp

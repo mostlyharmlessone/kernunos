@@ -613,9 +613,18 @@ void MainWindow::makeply()
 
 void MainWindow::LinesofCurvature()
 {
-   int wrote=lioc();
+    QTemporaryFile FILE;
+    FILE.setAutoRemove(true);  //does not do anything
+    FILE.open();
+    QString filenamelocal = FILE.fileName();
+    filenamelocal = filenamelocal.append(".gnu");
+    QByteArray ba = filenamelocal.toLocal8Bit();
+    char *filename = ba.data();
+    flag=flag-(flag%100)+7;  // last two digits of flag=7;
+    m_GLwidget_secondwindow->DataPrint(filename);
+    int wrote=lioc(filename);
    if (wrote == 0) {
-       ui.infoLabel->setText(tr("gnuplot called successfully  ")); }
+       ui.infoLabel->setText(tr("gnuplot called successfully for lioc  ")); }
    else {
        ui.infoLabel->setText(tr("gnuplot call failed!"));}
 }
@@ -633,7 +642,7 @@ void MainWindow::gnuplotsplot() {
    FILE.setAutoRemove(true);  //does not do anything
    FILE.open();
    QString filenamelocal = FILE.fileName();
-   filenamelocal = filenamelocal.append(".plt");
+   filenamelocal = filenamelocal.append(".gnu");
    QByteArray ba = filenamelocal.toLocal8Bit();
    char *filename = ba.data();
    flag=flag-(flag%100)+5;  // last two digits of flag=5;
@@ -641,22 +650,19 @@ void MainWindow::gnuplotsplot() {
 
    // would be better if calcs could be done here instead of in janus, or at least call printgraph?
    Gnuplot gp;
-   gp << "load \"" << "plot2.gnu\n";           //last line c mouse pause, pauses program
+   gp << "load \"" << filename << "\n";           //last line c mouse pause, pauses program
+
 /*
  gp << "reset\n";
  gp << "set size square\n";
  gp << "set macros\n";
-
  gp << "NOXTICS = \"" << "set format x ''; unset xlabel\n" ;
  gp << "NOYTICS = \"" << "set format y ''; unset ylabel\n" ;
-
  gp << "set pm3d map impl\n";
  //needs something for the range
  gp << "set zrange[ 31.0:  51.7]\n";
  gp << "set palette defined (  31.0'purple',  33.1'dark-blue',  35.1'blue',  37.2'light-blue', 39.3'light-green',  41.3'green',  43.4'web-green',  45.5'yellow',  47.6'goldenrod',  49.6'light-red',  51.7'red',  54.0'dark-red'); @NOXTICS ; @NOYTICS\n";
-
  gp  << "splot \"" << "BIG.CAR\n";
-
 */
 
 #ifdef _WIN32
@@ -680,20 +686,56 @@ void MainWindow::center() {
        return;
    }
 
+   QTemporaryFile FILE;
+   FILE.setAutoRemove(true);  //does not do anything
+   FILE.open();
+   QString filenamelocal = FILE.fileName();
+   filenamelocal = filenamelocal.append(".gnu");
+   QByteArray ba = filenamelocal.toLocal8Bit();
+   char *filename = ba.data();
+   flag=flag-(flag%100)+6;  // last two digits of flag=6;
+   m_GLwidget_secondwindow->DataPrint(filename);
+
    // would be better if calcs could be done here instead of in janus, or at least call WriteCenter?
    Gnuplot gp;
    gp << "set polar\n";
    gp << "set term x11 0\n";
-   gp << "plot \"" << "Center.dat" << "\" using 1:2 with lines\n";
+   filenamelocal = FILE.fileName();
+   filenamelocal = filenamelocal.append(".plt");
+   ba = filenamelocal.toLocal8Bit();
+   *filename = *ba.data();
+   gp << "plot \"" << filename << "\" using 1:2 with lines\n";
    gp << "set term x11 1\n";
-   gp << "plot \"" << "CenterSAGC.dat" << "\" using 1:2 with lines\n";
+   filenamelocal = FILE.fileName();
+   filenamelocal = filenamelocal.append(".sag");
+   ba = filenamelocal.toLocal8Bit();
+   *filename = *ba.data();
+   gp << "plot \"" << filename << "\" using 1:2 with lines\n";
    gp << "set term x11 2\n";
-   gp << "plot \"" << "CenterINSTC.dat" << "\" using 1:2 with lines\n";
+   filenamelocal = FILE.fileName();
+   filenamelocal = filenamelocal.append(".int");
+   ba = filenamelocal.toLocal8Bit();
+   *filename = *ba.data();
+   gp << "plot \"" << filename << "\" using 1:2 with lines\n";
    gp << "set term x11 3\n";
-   gp << "plot \"" << "CenterMEANC.dat" << "\" using 1:2 with lines\n";
+   filenamelocal = FILE.fileName();
+   filenamelocal = filenamelocal.append(".mea");
+   ba = filenamelocal.toLocal8Bit();
+   *filename = *ba.data();
+   gp << "plot \"" << filename << "\" using 1:2 with lines\n";
+   gp << "set term x11 3\n";
+   filenamelocal = FILE.fileName();
+   filenamelocal = filenamelocal.append(".mon");
+   ba = filenamelocal.toLocal8Bit();
+   *filename = *ba.data();
+   gp << "plot \"" << filename << "\" using 1:2 with lines\n";
    gp << "set term x11 4\n";
-   gp << "plot \"" << "CenterMONGEA.dat" << "\" using 1:2 with lines\n";
-//   gp << "load \"" << "plotcenter.gnu\n";      //last line c mouse pause, pauses program
+   filenamelocal = FILE.fileName();
+   filenamelocal = filenamelocal.append(".ele");
+   ba = filenamelocal.toLocal8Bit();
+   *filename = *ba.data();
+   gp << "plot \"" << filename << "\" using 1:2 with lines\n";
+
 
 #ifdef _WIN32
    // For Windows, prompt for a keystroke before the Gnuplot object goes out of scope so that

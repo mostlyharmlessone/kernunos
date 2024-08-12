@@ -8,12 +8,13 @@ after getting chartview to update with zern
 added makeChartwidget to no avail
 added temperaturerecordswidget as control
 
+lioc display is broken
+centers only does some and needs work on titles
+also needs some option for looking at placido disk tweak with ring overlap
 
-! make flag control for writearray/gnuplot & lioc & writecenter
-! also needs some option for looking at placido disk tweak with ring overlap
 colors for gnuplot color range in kernunos dont seem to match gnuplot : infact gnuplot doesn't seem to obey the palette command 
 other than the colors the numbers are ignored other than being monotonic
-recheck in printgraph that powminand powmaxare accurate for that particular plot (ie find them again)
+recheck in printgraph that powminand powmax are accurate for that particular plot (ie find them again)
 select gnuplot fillarray based on fct ie. 4 = tanc or get rid of fillarray
 
 in assistant.cpp look at showDocumentation and substitute docs for this project in appropriate format
