@@ -188,9 +188,8 @@ if (mod(flag,100) .eq. 5 .or. mod(flag,100) .eq. 6 .or. mod(flag,100) .eq. 7) th
   BigPlot=replacestr(string=gnu_instruct,search="gnu",substitute="plt")
 endif
 
-! gnuplot splot output
 if (mod(flag,100) .eq. 5 ) then
-
+! gnuplot splot output
 ! needs powmin & powmax
  if (allocated(JMatrix%R)) then
   donut = .FALSE.
@@ -231,7 +230,7 @@ if (mod(flag,100) .eq. 5 ) then
   END SELECT
   endif
  endif
-! GENERATE PRINT FILES
+! generate data file
   unitno1 = get_new_fileunit()
   open(unitno1, file = BigPlot, action="write", iostat=ierr)
   do i=1,MM
@@ -256,7 +255,7 @@ if (mod(flag,100) .eq. 5 ) then
    ENDIF
   end do
   CLOSE (unitno1)
-
+! instruction file
    unitno1 = get_new_fileunit()
    open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
    WRITE(unitno1,*) 'reset'
@@ -274,13 +273,13 @@ if (mod(flag,100) .eq. 5 ) then
 
 
 if (mod(flag,100) .eq. 6) then
-
-! need RadSlope for WriteCenter/LIOC
+! WriteCenter
+! need RadSlope for WriteCenter
 RadSlope=JMatrix
 DiaSlope=RadSlope              ! move to diagonal format
 DiaSlope%Zpd2 = .n. DiaSlope
-
-if ( Testdata .eq. 1 ) then
+!! uncomment to restrice to Placido disk formats, ie no pentacam
+!if ( Testdata .le. 1 ) then      ! test, EyeSys or Atlas
  call MakeRadSplineCenter(0)     ! remakes RadSplineCenter(1,:)
  if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
    call DiaSplineCenter(DiaSlope) ! re-spline, with center node
@@ -289,18 +288,14 @@ if ( Testdata .eq. 1 ) then
   call AdjustRadSplineCenter     ! changes r only
   DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
  endif
-endif
+!endif
 
-! WriteCenter
 ! WriteCenter shows where the spline of slopes is zero, it should be close to zero for a concave center with a unique maximum
-
+ BigPlot=replacestr(string=gnu_instruct,search="gnu",substitute="plt")
   call WriteCenter(RadSlope,BigPlot)! biggest deviation with nSplineCenter zero slope forced at origin,
-                                            ! then with zero slope forced at average (r(low)+r(high))/2.0
+                                         ! then with zero slope forced at average (r(low)+r(high))/2.0
                                             ! smallest deviation without nSplineCenter; view with set polar; plot 'Center.dat' with lines
-
-!   call execute_command_line ("gnuplot -p plotcenter.gnu &", exitstat=i)
 !plots spread of values at origin for each meridian from average
-
  BigPlot=replacestr(string=gnu_instruct,search="gnu",substitute="sag")
  call WriteCenterJ(JMatrix%SAGC0(1),JMatrix%SAGC,BigPlot)
  BigPlot=replacestr(string=gnu_instruct,search="gnu",substitute="int")
@@ -309,25 +304,19 @@ endif
  call WriteCenterJ(JMatrix%MEANC0(1),JMatrix%MEANC,BigPlot)
  BigPlot=replacestr(string=gnu_instruct,search="gnu",substitute="mon")
  call WriteCenterJ(JMatrix%MONGEA0(1),JMatrix%MONGEA,BigPlot)
- BigPlot=replacestr(string=gnu_instruct,search="gnu",substitute="ele")
- call WriteCenterJ(JMatrix%Z0(1),JMatrix%Z,BigPlot)
-
 return
-
 endif !  (mod(flag,100) .eq. 6)
-
-
 
 if (mod(flag,100) .eq. 7) then
 !  Generate LIOC with vector format
 !  'plot ' gnu_instruct ' using 1:2:3:4 with vectors'
 
-! need RadSlope for WriteCenter/LIOC
+! need RadSlope for LIOC
 RadSlope=JMatrix
 DiaSlope=RadSlope              ! move to diagonal format
 DiaSlope%Zpd2 = .n. DiaSlope
 
-if ( Testdata .eq. 1 ) then
+!if ( Testdata .eq. 1 ) then
  call MakeRadSplineCenter(0)     ! remakes RadSplineCenter(1,:)
  if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
    call DiaSplineCenter(DiaSlope) ! re-spline, with center node
@@ -336,25 +325,23 @@ if ( Testdata .eq. 1 ) then
   call AdjustRadSplineCenter     ! changes r only
   DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
  endif
-endif
+!endif
 
  unitno1 = get_new_fileunit()
  open(unitno1, file=trim(gnu_instruct), action="write", iostat=ierr)
- do I=1,MM
-  do J=1,RadSlope%MV(I)
+ do i=1,M1
+  do j=1,RadSlope%MV(i)
    X1=RadSlope%thta(i)
    X2=RadSlope%r(j,i)
    CALL SplineEval1Dx1D(1,X2,X1,Y,YPR,YPTHETA)
    CALL LIOC_Fortran(X1,X2,YPR,YPTHETA,U,V,UT,VT)
    WRITE(unitno1,*) U,V,100*UT,100*VT
-   WRITE(unitno1,*) ' '
   end do
-  close (unitno1)
+  WRITE(unitno1,*) ' '
  end do
+ close (unitno1)
  return
 endif ! (mod(flag,100) .eq. 7)
-
-
 
 ! Writes ASCII PLY file
 if (mod(flag,100) == 3) then

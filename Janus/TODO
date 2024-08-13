@@ -8,8 +8,6 @@ after getting chartview to update with zern
 added makeChartwidget to no avail
 added temperaturerecordswidget as control
 
-lioc display is broken
-centers only does some and needs work on titles
 also needs some option for looking at placido disk tweak with ring overlap
 
 colors for gnuplot color range in kernunos dont seem to match gnuplot : infact gnuplot doesn't seem to obey the palette command 

@@ -265,7 +265,7 @@ void MainWindow::open()   //multiple invocations makes a comparison
    std::string str(filename);
    bool pentacam = str.find(".CUR")!= std::string::npos || str.find(".ELE") != std::string::npos;
    if (pentacam) {
-    centerAct->setEnabled(false);  //center deviations only for Placido
+    centerAct->setEnabled(true);  //change to false to not allow for pentacam, center deviations only for Placido
    } else{
     centerAct->setEnabled(true);
    };
@@ -617,7 +617,7 @@ void MainWindow::LinesofCurvature()
     FILE.setAutoRemove(true);  //does not do anything
     FILE.open();
     QString filenamelocal = FILE.fileName();
-    filenamelocal = filenamelocal.append(".gnu");
+    filenamelocal = filenamelocal.append(".car");
     QByteArray ba = filenamelocal.toLocal8Bit();
     char *filename = ba.data();
     flag=flag-(flag%100)+7;  // last two digits of flag=7;
@@ -697,44 +697,45 @@ void MainWindow::center() {
    m_GLwidget_secondwindow->DataPrint(filename);
 
    // would be better if calcs could be done here instead of in janus, or at least call WriteCenter?
+
    Gnuplot gp;
+   gp << "reset\n";
    gp << "set polar\n";
-   gp << "set term x11 0\n";
-   filenamelocal = FILE.fileName();
-   filenamelocal = filenamelocal.append(".plt");
-   ba = filenamelocal.toLocal8Bit();
-   *filename = *ba.data();
-   gp << "plot \"" << filename << "\" using 1:2 with lines\n";
-   gp << "set term x11 1\n";
-   filenamelocal = FILE.fileName();
-   filenamelocal = filenamelocal.append(".sag");
-   ba = filenamelocal.toLocal8Bit();
-   *filename = *ba.data();
-   gp << "plot \"" << filename << "\" using 1:2 with lines\n";
-   gp << "set term x11 2\n";
-   filenamelocal = FILE.fileName();
-   filenamelocal = filenamelocal.append(".int");
-   ba = filenamelocal.toLocal8Bit();
-   *filename = *ba.data();
-   gp << "plot \"" << filename << "\" using 1:2 with lines\n";
-   gp << "set term x11 3\n";
+
+   gp << "set term wxt 1\n";
    filenamelocal = FILE.fileName();
    filenamelocal = filenamelocal.append(".mea");
    ba = filenamelocal.toLocal8Bit();
-   *filename = *ba.data();
-   gp << "plot \"" << filename << "\" using 1:2 with lines\n";
-   gp << "set term x11 3\n";
+   filename = ba.data();
+   gp << "plot \"" << filename << "\" using 1:2 with lines title" <<'"'<< "MeanC" << '"' << "\n";
+
+   gp << "set term wxt 2\n";
    filenamelocal = FILE.fileName();
    filenamelocal = filenamelocal.append(".mon");
    ba = filenamelocal.toLocal8Bit();
-   *filename = *ba.data();
-   gp << "plot \"" << filename << "\" using 1:2 with lines\n";
-   gp << "set term x11 4\n";
+   filename = ba.data();
+   gp << "plot \"" << filename << "\" using 1:2 with lines title" <<'"'<< "MongeA" << '"' << "\n";
+
+   gp << "set term wxt 3\n";
    filenamelocal = FILE.fileName();
-   filenamelocal = filenamelocal.append(".ele");
+   filenamelocal = filenamelocal.append(".int");
    ba = filenamelocal.toLocal8Bit();
-   *filename = *ba.data();
-   gp << "plot \"" << filename << "\" using 1:2 with lines\n";
+   filename = ba.data();
+   gp << "plot \"" << filename << "\" using 1:2 with lines title" <<'"'<< "IntC" << '"' << "\n";
+
+   gp << "set term wxt 4\n";
+   filenamelocal = FILE.fileName();
+   filenamelocal = filenamelocal.append(".sag");
+   ba = filenamelocal.toLocal8Bit();
+   filename = ba.data();
+   gp << "plot \"" << filename << "\" using 1:2 with lines title" <<'"'<< "SagC" << '"' << "\n";
+
+   gp << "set term wxt 5\n";
+   filenamelocal = FILE.fileName();
+   filenamelocal = filenamelocal.append(".plt");
+   ba = filenamelocal.toLocal8Bit();
+   filename = ba.data();
+   gp << "plot \"" << filename << "\" using 1:2 with lines title" <<'"'<< "Center" << '"' << "\n";
 
 
 #ifdef _WIN32
