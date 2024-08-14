@@ -106,7 +106,6 @@ private slots:
     void about();
     void aboutQt();
     void updateResult();
-    void makeChart();
     void LinesofCurvature();
     void center();
     void gnuplotsplot();

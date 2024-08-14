@@ -2,6 +2,8 @@ things to do
 
 CorneaCopia
 
+
+ITS THE POINTER THING!
 adjust janus to change legend val (works great with dummy!)
 reverse dummy zern/legend change for testing in zerncompute when done
 after getting chartview to update with zern
@@ -10,7 +12,7 @@ added temperaturerecordswidget as control
 
 also needs some option for looking at placido disk tweak with ring overlap
 
-colors for gnuplot color range in kernunos dont seem to match gnuplot : infact gnuplot doesn't seem to obey the palette command 
+colors for gnuplot color range in kernunos dont seem to match gnuplot : in fact gnuplot doesn't seem to obey the palette command 
 other than the colors the numbers are ignored other than being monotonic
 recheck in printgraph that powminand powmax are accurate for that particular plot (ie find them again)
 select gnuplot fillarray based on fct ie. 4 = tanc or get rid of fillarray
@@ -29,7 +31,7 @@ Fixes:
 try to lock actions while Zernike is computing to avoid crash ? condition on counter?
 consider adding sound to play after zernike compute, but might need option to turn off
 
-? branch cut or other calc error with Monge Astig 
+? branch cut or other calc error with Monge Astig has to do with slopes, see lioc output!
 
 fake data:  
 zernike has problems in center ring: Obliq Astig,Oblique 2nd Astig,Obl Quad,Obl trefoil, horizontal/vert coma
@@ -38,9 +40,8 @@ sagc has ugliness in center with continuous hue not seen with standard scale
 
 tweak center part of fillin so that there's no blue/blackspot; might need error correct or average?
 
-Centerpoints all need work
-might need centerpoint version for pentacam has to incorporate center from Penta 
-restricted Placido tweaks to Atlas, can consider adding EyeSys
+centerpoints need explaining, as in why are they non-zero in writecenterj 
+might need centerpoint version for pentacam to incorporate center from Penta,as opposed to computed center average!
 
 extreme value filter for scales
 resurrect old noise reduction code?

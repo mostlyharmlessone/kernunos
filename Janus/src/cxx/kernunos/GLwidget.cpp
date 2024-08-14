@@ -447,6 +447,7 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
           j=j+i*0.02;
           zern[i-1]=j;
       }
+      zern[5]=-0.7;
       zern[12]=-0.52;
       zern[13]=0.52;
 

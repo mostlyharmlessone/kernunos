@@ -362,14 +362,40 @@ void MainWindow::zerncompute()
     }
 
     // zern part, 1-12 aberration, 13,14,range
-    float j = 0.7;
+    float j = -0.5;
     for (int i = 1; i <= 12; ++i) {
-        j=j-i*0.02;
+        j=j+i*0.02;
         zern[i-1]=j;
     }
-    zern[12]=-0.82;
-    zern[13]=0.82;
+    zern[5]=-0.7;
+    zern[12]=-1.52;
+    zern[13]=1.52;
 
+    Gnuplot gp;
+    gp << "$Data << EOD\n" <<
+
+        if (zern[0] < 0) {"Z(4,4)VerticalQuatrafoil " << zern[0] << "0xff0000" << "\n" <<}
+        else            {"Z(4,4)VerticalQuatrafoil " << zern[0] << "0x0000ff" << "\n" <<}
+
+        "Z(4,2)Vertical2ndAstig. " << zern[1] << "\n" <<
+        "Z(4,0)SphericalAberration " << zern[2] << "\n" <<
+        "Z(4,-2)Oblique2ndAstig. " << zern[3] << "\n" <<
+        "Z(4,-4)ObliqueQuatrafoil " << zern[4] << "\n" <<
+        "Z(3,3)ObliqueTrefoil " << zern[5] << "\n" <<
+        "Z(3,1)HorizontalComa " << zern[6] << "\n" <<
+        "Z(3,-1)VerticalComa " << zern[7] << "\n" <<
+        "Z(3,-3)VerticalTrefoil " << zern[8] << "\n" <<
+        "Z(2,2)VerticalAstig. " << zern[9] << "\n" <<
+        "Z(2,0)Defocus " << zern[10] << "\n" <<
+        "Z(2,-2)ObliqueAstigmatism " << zern[11] << "\n" <<
+        "EOD" << "\n";
+
+    gp << "set style fill solid\n";
+    gp << "unset key\n";
+    gp << "myBoxWidth = 0.8\n";
+    gp << "set offsets 0,0,0.5-myBoxWidth/2.,0.5\n";
+
+    gp << "plot $Data using (0.5*$2):0:(0.5*$2):(myBoxWidth/2.):($3):ytic(1) with boxxy lc rgb var\n";
 
 
     Z44VerticalQuatrafoilAct->setEnabled(true);
@@ -1799,76 +1825,10 @@ void MainWindow::updateResult()
     ui.legend->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui.legendpix->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-  //  Zernike chart, updated
-      makeChart();
-//    m_activeWidget = new TemperatureRecordsWidget(m_contentArea);
-//    m_activeWidget->load();
-//    m_activeWidget->resize(m_contentArea->size());
-//    m_activeWidget->setVisible(true);
-
-//    ui.widget->load();
- //   ui.widget->resize(m_contentArea->size());
-      ui.widget->setVisible(true);
-
 }
 
 
-void MainWindow::makeChart()
-{
-    float zmin=zern[12];
-    float zmax=zern[13];
-    QBarSet *negative = new QBarSet("Negative");
-    QBarSet *positive = new QBarSet("Positive");
-    for (int i = 1; i <= 12; ++i) {
-        *negative << fmin(zern[i-1],0.0);
-        *positive << fmax(zern[i-1],0.0);
-    }
-    auto series = new QHorizontalStackedBarSeries;
-    series->append(negative);
-    negative->setColor(QColorConstants::Red);
-    series->append(positive);
-    positive->setColor(QColorConstants::Blue);
-    QStringList aberrations = {
-        "Z(4,4) Vertical Quatrafoil",
-        "Z(4,2) Vertical 2nd Astig.",
-        "Z(4,0) Spherical Aberration",
-        "Z(4,-2) Oblique 2nd Astig.",
-        "Z(4,-4) Oblique Quatrafoil",
-        "Z(3,3) Oblique Trefoil",
-        "Z(3,1) Horizontal Coma",
-        "Z(3,-1) Vertical Coma",
-        "Z(3,-3) Vertical Trefoil",
-        "Z(2,2) Vertical Astig.",
-        "Z(2,0) Defocus",
-        "Z(2,-2) Oblique Astigmatism"
-    };
-    auto chart = new QChart;
-    chart->addSeries(series);
-    chart->setTitle("Zernike coefficients");
-    chart->setAnimationOptions(QChart::SeriesAnimations);
-    auto axisX = new QBarCategoryAxis;
-    axisX->append(aberrations);
-    chart->addAxis(axisX, Qt::AlignLeft);
-    auto axisY = new QValueAxis;
-    axisY->setRange(zmin,zmax);
-    axisY->setTitleText("mm");
-    chart->addAxis(axisY, Qt::AlignBottom);
-    series->attachAxis(axisX);
-    series->attachAxis(axisY);
-    chart->legend()->setVisible(false);
-    chart->legend()->setAlignment(Qt::AlignBottom);
-    QChartView *chartview = new QChartView(chart);
-    QVBoxLayout *vlayout = new QVBoxLayout();
-    vlayout->addWidget(chartview);
-    ui.graphicsView->setLayout(vlayout);
 
-    // this shows an update in zern numbers works, but the chart is not
-    std::cout << "max in makeChart: " << axisY->max() << std::endl;
-
-    chartview->update();
-    ui.graphicsView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    ui.graphicsView->update();
-}
 
 
 int main(int argc, char *argv[])
