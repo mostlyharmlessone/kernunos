@@ -2,6 +2,9 @@ things to do
 
 CorneaCopia
 
+"new file" isnt working any more
+giving zernike a detached thread doesn't pass the temp filename
+
 also needs some option for looking at placido disk tweak with ring overlap
 
 colors for gnuplot color range in kernunos dont seem to match gnuplot : in fact gnuplot doesn't seem to obey the palette command 
@@ -20,7 +23,9 @@ make mathematica plot output, just like ply,off etc.
 
 Fixes:
 
-try to lock actions while Zernike is computing to avoid crash ? condition on counter?
+try to lock opening another file while Zernike is computing to avoid crash ? condition on counter?
+cannot run Open
+you can run other Analyze ie center gnusplotplot, lioc, and move the picture
 consider adding sound to play after zernike compute, but might need option to turn off
 
 ? branch cut or other calc error with Monge Astig has to do with slopes, see lioc output!

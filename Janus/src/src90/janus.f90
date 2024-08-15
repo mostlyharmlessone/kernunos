@@ -167,7 +167,7 @@ if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3) then
 endif  ! mod(flag,100) == 0, 2, or 3
 
 
-if (mod(flag,100) .eq. 5 .or. mod(flag,100) .eq. 6 .or. mod(flag,100) .eq. 7 .or. mod(flag,100) .eq. 1) then  !gnuplot files&calls
+if (mod(flag,100) .eq. 5 .or. mod(flag,100) .eq. 6 .or. mod(flag,100) .eq. 7) then  !gnuplot files&calls
  new_path = " "
  do i=1, 4096
     if ( file_from_C (i) == c_null_char ) then
@@ -1098,7 +1098,7 @@ endif
 
 !zernike coefficents
 if (mod(flag,100) == 1) then
-call Ccounter(0,BigPlot//c_null_char)
+call Ccounter(0,"zernike.tmp"//c_null_char)
 call LogC("Starting zernike computation"//c_null_char)
 ! relies on saved MM,N
 nrhs=(M1*N1+1)
@@ -1145,7 +1145,7 @@ nrhs=(M1*N1+1)
    zernC=0
 
    do ii=1,nrhs
-   call Ccounter(ii/40,BigPlot//c_null_char)
+   call Ccounter(ii/40,"zernike.tmp"//c_null_char)
 !  cycle through i1 1 to MM and j1 1 to N with one point for origin at N+1
    i1=mod(ii,M1)
    j1=int(ii/M1)+1
@@ -1303,7 +1303,7 @@ write(*,*) 'center zernike values: ',EE(1:k_max,nrhs)
 call LogC("Finished zernike"//c_null_char)
 
 unitno1 = get_new_fileunit()
-open(unitno1, file = "zernik.gnu", action="write", iostat=ierr)
+open(unitno1, file = "zernike.tmp", action="write", iostat=ierr)
 
  write(unitno1,*) "$Data << EOD"
  if (zern(1) < 0) then
@@ -1386,7 +1386,7 @@ open(unitno1, file = "zernik.gnu", action="write", iostat=ierr)
  close(unitno1)
 
 !good place to call a c program to display
- call Ccounter(100,"zernik.gnu"//c_null_char)
+ call Ccounter(100,"zernike.tmp"//c_null_char)
 
 ! Done with zernike
 

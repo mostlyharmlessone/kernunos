@@ -220,9 +220,9 @@ MainWindow::MainWindow(QMainWindow *parent) : assistant(new Assistant)
    connect(ui.openGLWidget_2, &GLwidget::yRotationChanged, ui.ySlider, &QSlider::setValue);
    connect(ui.zSlider, &QSlider::valueChanged, ui.openGLWidget_2, &GLwidget::setZRotation);
    connect(ui.openGLWidget_2, &GLwidget::zRotationChanged, ui.zSlider, &QSlider::setValue);
-   ui.xSlider->setValue(180 * 16);
+   ui.xSlider->setValue(0 * 16);
    ui.ySlider->setValue(180 * 16);
-   ui.zSlider->setValue(0 * 16);
+   ui.zSlider->setValue(180 * 16);
 
    createActions();
    createMenus();
@@ -347,7 +347,7 @@ void MainWindow::zerncompute()
         ui.infoLabel->setText(tr("gnuplot call failed!"));
         return;
     }
-
+//  This doesn't work if I detach the computation thread in GLwidget::DataPrint(QString fileName)
     QTemporaryFile FILE;
     FILE.setAutoRemove(true);  //does not do anything
     FILE.open();
@@ -1823,10 +1823,6 @@ void MainWindow::updateResult()
     ui.legendpix->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
 }
-
-
-
-
 
 int main(int argc, char *argv[])
 {

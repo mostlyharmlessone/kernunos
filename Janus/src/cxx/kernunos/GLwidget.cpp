@@ -197,9 +197,8 @@ void GLwidget::cleanup()
   //deallocates Fortran arrays
   flag=flag-(flag%100)+99;  // last two digits of flag = 99;
   std::cout << "flag in cleanup: " << flag << "\n";
-  QTemporaryFile file;
-  QString fileName = file.fileName();
-  DataPrint(fileName);
+  system("cp zernike.tmp zernike.bak");
+  system("rm zernike.tmp");
   doneCurrent();
 }
 
@@ -334,11 +333,7 @@ bool GLwidget::DataPrint(QString fileName)
       auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);});  //everybody else gets blocking thread
       future1.get();}    
     else {
-
-        auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);});  //everybody else gets blocking thread
-        future1.get();}
-
-  //    std::thread([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);}).detach();}  //zern gets independent thread
+      std::thread([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);}).detach();}  //zern gets independent thread
   }
   return true;
 }
