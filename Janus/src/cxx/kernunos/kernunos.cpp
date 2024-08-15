@@ -89,7 +89,6 @@
 #include <QLegend>
 #include <QStackedBarSeries>
 #include <QValueAxis>
-#include "qhorizontalstackedbarseries.h"
 
 using namespace QtConcurrent;
 using namespace Qt::StringLiterals;
@@ -221,9 +220,9 @@ MainWindow::MainWindow(QMainWindow *parent) : assistant(new Assistant)
    connect(ui.openGLWidget_2, &GLwidget::yRotationChanged, ui.ySlider, &QSlider::setValue);
    connect(ui.zSlider, &QSlider::valueChanged, ui.openGLWidget_2, &GLwidget::setZRotation);
    connect(ui.openGLWidget_2, &GLwidget::zRotationChanged, ui.zSlider, &QSlider::setValue);
-   ui.xSlider->setValue(0 * 16);
-   ui.ySlider->setValue(345 * 16);
-   ui.zSlider->setValue(15 * 16);
+   ui.xSlider->setValue(180 * 16);
+   ui.ySlider->setValue(180 * 16);
+   ui.zSlider->setValue(0 * 16);
 
    createActions();
    createMenus();
@@ -341,43 +340,41 @@ void MainWindow::redraw(){
 
 void MainWindow::zerncompute()
 {
+    if (system(NULL)) puts ("Ok");
+    else exit (EXIT_FAILURE);
+    if(system("command -v gnuplot > /dev/null 2>&1") ){
+        std::cout << "'gnuplot' command is not available.\n";
+        ui.infoLabel->setText(tr("gnuplot call failed!"));
+        return;
+    }
+
+    QTemporaryFile FILE;
+    FILE.setAutoRemove(true);  //does not do anything
+    FILE.open();
+    QString filenamelocal = FILE.fileName();
+    filenamelocal = filenamelocal.append(".gnu");
+    QByteArray ba = filenamelocal.toLocal8Bit();
+    char *filename = ba.data();
     flag=flag-(flag%100)+1;  // last two digits of flag=1;
-    nV=51840;
-    nE=26130;
-    QString fileName = "zern";
-    QByteArray ba = fileName.toLocal8Bit();
-    filename = ba.data();
-//    std::thread([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);}).detach();
-//   janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);
+    m_GLwidget_secondwindow->DataPrint(filename);
 
-// dummy change to figure out refresh issue
 
-    for (int i = 1; i <= 26; ++i) {
-        float j = 40.0;
-        j=j-i*1.0;
-        legend[(i-1)*4]=j;
-        legend[(i-1)*4+1]=0;
-        legend[(i-1)*4+2]=5*j;
-        legend[(i-1)*4+3]=255-5*j;
-    }
+#ifdef _WIN32
+    // For Windows, prompt for a keystroke before the Gnuplot object goes out of scope so that
+    // the gnuplot window doesn't get closed.
+    std::cout << "Press enter to exit." << std::endl;
+    std::cin.get();
+#endif
 
-    // zern part, 1-12 aberration, 13,14,range
-    float j = -0.5;
-    for (int i = 1; i <= 12; ++i) {
-        j=j+i*0.02;
-        zern[i-1]=j;
-    }
-    zern[5]=-0.7;
-    zern[12]=-1.52;
-    zern[13]=1.52;
-
+/*
     Gnuplot gp;
     gp << "$Data << EOD\n" <<
 
-        if (zern[0] < 0) {"Z(4,4)VerticalQuatrafoil " << zern[0] << "0xff0000" << "\n" <<}
-        else            {"Z(4,4)VerticalQuatrafoil " << zern[0] << "0x0000ff" << "\n" <<}
 
-        "Z(4,2)Vertical2ndAstig. " << zern[1] << "\n" <<
+        if (zern[0] < 0) {"Z(4,4)VerticalQuatrafoil " << zern[0] << "0xff0000" << "\n" <<}
+    else            {"Z(4,4)VerticalQuatrafoil " << zern[0] << "0x0000ff" << "\n" <<}
+
+    "Z(4,2)Vertical2ndAstig. " << zern[1] << "\n" <<
         "Z(4,0)SphericalAberration " << zern[2] << "\n" <<
         "Z(4,-2)Oblique2ndAstig. " << zern[3] << "\n" <<
         "Z(4,-4)ObliqueQuatrafoil " << zern[4] << "\n" <<
@@ -396,7 +393,7 @@ void MainWindow::zerncompute()
     gp << "set offsets 0,0,0.5-myBoxWidth/2.,0.5\n";
 
     gp << "plot $Data using (0.5*$2):0:(0.5*$2):(myBoxWidth/2.):($3):ytic(1) with boxxy lc rgb var\n";
-
+*/
 
     Z44VerticalQuatrafoilAct->setEnabled(true);
     Z42Vertical2ndAstigAct->setEnabled(true);
@@ -676,7 +673,7 @@ void MainWindow::gnuplotsplot() {
 
    // would be better if calcs could be done here instead of in janus, or at least call printgraph?
    Gnuplot gp;
-   gp << "load \"" << filename << "\n";           //last line c mouse pause, pauses program
+   gp << "load \"" << filename << "\n";
 
 /*
  gp << "reset\n";

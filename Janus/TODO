@@ -2,14 +2,6 @@ things to do
 
 CorneaCopia
 
-
-ITS THE POINTER THING!
-adjust janus to change legend val (works great with dummy!)
-reverse dummy zern/legend change for testing in zerncompute when done
-after getting chartview to update with zern
-added makeChartwidget to no avail
-added temperaturerecordswidget as control
-
 also needs some option for looking at placido disk tweak with ring overlap
 
 colors for gnuplot color range in kernunos dont seem to match gnuplot : in fact gnuplot doesn't seem to obey the palette command 

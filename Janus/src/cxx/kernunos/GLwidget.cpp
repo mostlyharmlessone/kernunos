@@ -334,7 +334,11 @@ bool GLwidget::DataPrint(QString fileName)
       auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);});  //everybody else gets blocking thread
       future1.get();}    
     else {
-      std::thread([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);}).detach();}  //zern gets independent thread
+
+        auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);});  //everybody else gets blocking thread
+        future1.get();}
+
+  //    std::thread([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);}).detach();}  //zern gets independent thread
   }
   return true;
 }

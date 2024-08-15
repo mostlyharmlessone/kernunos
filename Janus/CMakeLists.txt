@@ -280,7 +280,9 @@ set(PROJECT_SOURCES
                    src/cxx/kernunos/assistant.cpp src/cxx/kernunos/assistant.h
                    src/c/kernunos/logc.c src/c/kernunos/logc.h
                    src/c/kernunos/Ccounter.c src/c/kernunos/counter.h
-                   src/cxx/kernunos/lioc.cpp gnuplot-iostream/gnuplot-iostream.h
+                   src/cxx/kernunos/gnuplot_lioc.cpp
+                   src/cxx/kernunos/gnuplot_zern.cpp
+                   gnuplot-iostream/gnuplot-iostream.h
                    src/cxx/kernunos/mainwindow.ui
                    src/c/kernunos/ConvertPLYtoBIN.c
                    src/src90/ConvertOFFtoSTL_C.f90

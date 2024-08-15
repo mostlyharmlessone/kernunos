@@ -167,7 +167,7 @@ if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3) then
 endif  ! mod(flag,100) == 0, 2, or 3
 
 
-if (mod(flag,100) .eq. 5 .or. mod(flag,100) .eq. 6 .or. mod(flag,100) .eq. 7) then  !gnuplot files&calls
+if (mod(flag,100) .eq. 5 .or. mod(flag,100) .eq. 6 .or. mod(flag,100) .eq. 7 .or. mod(flag,100) .eq. 1) then  !gnuplot files&calls
  new_path = " "
  do i=1, 4096
     if ( file_from_C (i) == c_null_char ) then
@@ -233,7 +233,7 @@ if (mod(flag,100) .eq. 5 ) then
 ! generate data file
   unitno1 = get_new_fileunit()
   open(unitno1, file = BigPlot, action="write", iostat=ierr)
-  do i=1,MM
+  do i=1,M1
    do j=1,JMatrix%MV(i)
     X1=JMatrix%tht(i)
     X2=JMatrix%r(j,i)
@@ -264,7 +264,6 @@ if (mod(flag,100) .eq. 5 ) then
    WRITE(unitno1,*) 'NOXTICS = "set format x ''''; unset xlabel"'
    WRITE(unitno1,*) 'NOYTICS = "set format y ''''; unset ylabel"'
    CALL PRINTGRAPH(unitno1,POWMIN,POWMAX,BigPlot)
-   WRITE(unitno1,*) 'pause mouse close'  !this allows the file to be opened by gnuplot by clicking on it without closing the window
    CLOSE (unitno1)
 !  return to kernunos for gp command to use gnu_instruct (BigPlot is not needed in kernunos)
 !  call execute_command_line ("gnuplot -p " gnu_instruct " &", exitstat=i)
@@ -457,7 +456,7 @@ endif
 
 ! last two digits of flag == 0 parse file name, assign TestData type and MM,N
 if (mod(flag,100) == 0) then
- call CCounter(0)
+ call CCounter(0,inputfile1//c_null_char)
 ! From either RA?.? or XX?.?, set inputfile1 to the XX version, inputfile1 to the RA version.
 ! For either .CUR or .ELE or _CUR.CSV or _ELE.CSV set inputfile1 to Penta file of appropriate type with TestData
 ! For CSV but not _ELE.CSV or _CUR.CSV set inputfile1 to Atlas file
@@ -1099,7 +1098,7 @@ endif
 
 !zernike coefficents
 if (mod(flag,100) == 1) then
-call Ccounter(0)
+call Ccounter(0,BigPlot//c_null_char)
 call LogC("Starting zernike computation"//c_null_char)
 ! relies on saved MM,N
 nrhs=(M1*N1+1)
@@ -1146,7 +1145,7 @@ nrhs=(M1*N1+1)
    zernC=0
 
    do ii=1,nrhs
-   call Ccounter(ii/40)
+   call Ccounter(ii/40,BigPlot//c_null_char)
 !  cycle through i1 1 to MM and j1 1 to N with one point for origin at N+1
    i1=mod(ii,M1)
    j1=int(ii/M1)+1
@@ -1302,7 +1301,93 @@ do k=1,12
 end do
 write(*,*) 'center zernike values: ',EE(1:k_max,nrhs)
 call LogC("Finished zernike"//c_null_char)
-call Ccounter(100)
+
+unitno1 = get_new_fileunit()
+open(unitno1, file = "zernik.gnu", action="write", iostat=ierr)
+
+ write(unitno1,*) "$Data << EOD"
+ if (zern(1) < 0) then
+  write(unitno1,*) "Z(4,4)VerticalQuatrafoil ", zern(1), " 0xff0000 "
+ else
+  write(unitno1,*) "Z(4,4)VerticalQuatrafoil ", zern(1), " 0x0000ff"
+ endif
+
+ if (zern(2) < 0) then
+  write(unitno1,*) "Z(4,2)Vertical2ndAstig ", zern(2), " 0xff0000 "
+ else
+  write(unitno1,*) "Z(4,2)Vertical2ndAstig ", zern(2), " 0x0000ff"
+ endif
+
+ if (zern(3) < 0) then
+  write(unitno1,*) "Z(4,0)SphericalAberration ", zern(3), " 0xff0000 "
+ else
+  write(unitno1,*) "Z(4,0)SphericalAberration ", zern(3), " 0x0000ff"
+ endif
+
+ if (zern(4) < 0) then
+  write(unitno1,*) "Z(4,-2)Oblique2ndAstig ", zern(4), " 0xff0000 "
+ else
+  write(unitno1,*) "Z(4,-2)Oblique2ndAstig ", zern(4), " 0x0000ff"
+ endif
+
+ if (zern(5) < 0) then
+  write(unitno1,*) "Z(4,-4)ObliqueQuatrafoil ", zern(5), " 0xff0000 "
+ else
+  write(unitno1,*) "Z(4,-4)ObliqueQuatrafoil ", zern(5), " 0x0000ff"
+ endif
+
+ if (zern(6) < 0) then
+  write(unitno1,*) "Z(3,3)ObliqueTrefoil ", zern(6), " 0xff0000 "
+ else
+  write(unitno1,*) "Z(3,3)ObliqueTrefoil ", zern(6), " 0x0000ff"
+ endif
+
+ if (zern(7) < 0) then
+  write(unitno1,*) "Z(3,1)HorizontalComa ", zern(7), " 0xff0000 "
+ else
+  write(unitno1,*) "Z(3,1)HorizontalComa ", zern(7), " 0x0000ff"
+ endif
+
+ if (zern(8) < 0) then
+  write(unitno1,*) "Z(3,-1)VerticalComa ", zern(8), " 0xff0000 "
+ else
+  write(unitno1,*) "Z(3,-1)VerticalComa ", zern(8), " 0x0000ff"
+ endif
+
+ if (zern(9) < 0) then
+  write(unitno1,*) "Z(3,-3)VerticalTrefoil ", zern(9), " 0xff0000 "
+ else
+  write(unitno1,*) "Z(3,-3)VerticalTrefoil ", zern(9), " 0x0000ff"
+ endif
+
+ if (zern(10) < 0) then
+  write(unitno1,*) "Z(2,2)VerticalAstig ", zern(10), " 0xff0000 "
+ else
+ write(unitno1,*) "Z(2,2)VerticalAstig ", zern(10), " 0x0000ff"
+ endif
+
+ if (zern(11) < 0) then
+  write(unitno1,*) "Z(2,0)Defocus ", zern(11), " 0xff0000 "
+ else
+  write(unitno1,*) "Z(2,0)Defocus ", zern(11), " 0x0000ff"
+ endif
+
+ if (zern(12) < 0) then
+  write(unitno1,*) "Z(2,-2)ObliqueAstigmatism ", zern(12), " 0xff0000 "
+ else
+  write(unitno1,*) "Z(2,-2)ObliqueAstigmatism ", zern(12), " 0x0000ff"
+ endif
+ write(unitno1,*)  "<< EOD"
+ write(unitno1,*) "set style fill solid";
+ write(unitno1,*) "unset key";
+ write(unitno1,*) "myBoxWidth = 0.8";
+ write(unitno1,*) "set offsets 0,0,0.5-myBoxWidth/2.,0.5";
+ write(unitno1,*) "plot $Data using (0.5*$2):0:(0.5*$2):(myBoxWidth/2.):($3):ytic(1) with boxxy lc rgb var";
+ close(unitno1)
+
+!good place to call a c program to display
+ call Ccounter(100,"zernik.gnu"//c_null_char)
+
 ! Done with zernike
 
   deallocate(XTX,EE,IPIV)  !if used above

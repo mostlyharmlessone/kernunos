@@ -43,9 +43,10 @@ USE, INTRINSIC :: iso_c_binding, ONLY : c_char,c_null_char
  CHARACTER(c_char), INTENT(IN), dimension(*) :: message
 end subroutine LogC
 
-subroutine Ccounter(inc) BIND(C,name='Ccounter')
-USE, INTRINSIC :: iso_c_binding, ONLY : c_int
+subroutine Ccounter(inc, iname) BIND(C,name='Ccounter')
+USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_char,c_null_char
  integer(c_int), INTENT(IN) :: inc
+ CHARACTER(c_char), INTENT(IN), dimension(*) :: iname
 end subroutine Ccounter
 
 END INTERFACE

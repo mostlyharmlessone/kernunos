@@ -53,7 +53,7 @@ void LogC(const char *Message);
 };
 
 extern "C" {
-void Ccounter(int *inc);
+void Ccounter (int *inc,const char *iname);
 };
 
 // external cpp code
