@@ -1304,8 +1304,8 @@ call LogC("Finished zernike"//c_null_char)
 
 unitno1 = get_new_fileunit()
 open(unitno1, file = "zernike.tmp", action="write", iostat=ierr)
-
- write(unitno1,*) "$Data << EOD"
+ write(unitno1,*) "reset session"
+ write(unitno1,'(A)') "$Data << EOD"                !no leading spaces or gnuplot vomits
  if (zern(1) < 0) then
   write(unitno1,*) "Z(4,4)VerticalQuatrafoil ", zern(1), " 0xff0000 "
  else
@@ -1377,7 +1377,7 @@ open(unitno1, file = "zernike.tmp", action="write", iostat=ierr)
  else
   write(unitno1,*) "Z(2,-2)ObliqueAstigmatism ", zern(12), " 0x0000ff"
  endif
- write(unitno1,*)  "<< EOD"
+ write(unitno1,'(A)') "EOD"
  write(unitno1,*) "set style fill solid";
  write(unitno1,*) "unset key";
  write(unitno1,*) "myBoxWidth = 0.8";

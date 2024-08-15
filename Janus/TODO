@@ -2,9 +2,6 @@ things to do
 
 CorneaCopia
 
-"new file" isnt working any more
-giving zernike a detached thread doesn't pass the temp filename
-
 also needs some option for looking at placido disk tweak with ring overlap
 
 colors for gnuplot color range in kernunos dont seem to match gnuplot : in fact gnuplot doesn't seem to obey the palette command 

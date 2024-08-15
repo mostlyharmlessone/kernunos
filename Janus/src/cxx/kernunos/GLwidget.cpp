@@ -197,7 +197,7 @@ void GLwidget::cleanup()
   //deallocates Fortran arrays
   flag=flag-(flag%100)+99;  // last two digits of flag = 99;
   std::cout << "flag in cleanup: " << flag << "\n";
-  system("cp zernike.tmp zernike.bak");
+//  system("cp zernike.tmp zernike.bak");
   system("rm zernike.tmp");
   doneCurrent();
 }
