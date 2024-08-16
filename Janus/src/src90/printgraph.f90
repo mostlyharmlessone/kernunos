@@ -24,7 +24,7 @@
        col(11)=0.90*(col(12)-col(1))+col(1)
        
        WRITE(unitno1,*) 'set pm3d map impl'
-       WRITE(unitno1,800) 'set zrange[',col(1),':',col(11),']'
+       WRITE(unitno1,800) 'set cbrange[',col(1),':',col(11),']'
        WRITE(unitno1,900) 'set palette defined (',col(1),"'",'purple',&
      "',",col(2),"'",'dark-blue',"',",col(3),"'",'blue',&
      "',",col(4),"'",'light-blue',"',",col(5),"'",'light-green',&

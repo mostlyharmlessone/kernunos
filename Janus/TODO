@@ -2,21 +2,16 @@ things to do
 
 CorneaCopia
 
-also needs some option for looking at placido disk tweak with ring overlap
 
 colors for gnuplot color range in kernunos dont seem to match gnuplot : in fact gnuplot doesn't seem to obey the palette command 
 other than the colors the numbers are ignored other than being monotonic
 recheck in printgraph that powminand powmax are accurate for that particular plot (ie find them again)
 select gnuplot fillarray based on fct ie. 4 = tanc or get rid of fillarray
 
-in assistant.cpp look at showDocumentation and substitute docs for this project in appropriate format
-might want to change Cmakelist.txt for the proper install directory for documentation/copy
-ie use qhelpgenerator kernunos.qhcp kernunos.qhc after making the appropriate changes, need also edit the html files and rewrite the qhp file in documentation
-have to regenerate in directory as dir info is coded in sql files, also make sure source names in qhc/qhcp files match those in assistant.cpp
-qhelpgenerator simpletextviewer.qhcp -o simpletextviewer.qhc
-qhelpgenerator simpletextviewer.qhp -o simpletextviewer.qch
+might want to make titles for gnuplot windows
 
-make mathematica plot output, just like ply,off etc.
+also needs some option for looking at placido disk tweak with ring overlap
+might need gnuplot interface consolidation of methods
 
 Fixes:
 
@@ -36,6 +31,15 @@ tweak center part of fillin so that there's no blue/blackspot; might need error 
 
 centerpoints need explaining, as in why are they non-zero in writecenterj 
 might need centerpoint version for pentacam to incorporate center from Penta,as opposed to computed center average!
+
+in assistant.cpp look at showDocumentation and substitute docs for this project in appropriate format
+might want to change Cmakelist.txt for the proper install directory for documentation/copy
+ie use qhelpgenerator kernunos.qhcp kernunos.qhc after making the appropriate changes, need also edit the html files and rewrite the qhp file in documentation
+have to regenerate in directory as dir info is coded in sql files, also make sure source names in qhc/qhcp files match those in assistant.cpp
+qhelpgenerator simpletextviewer.qhcp -o simpletextviewer.qhc
+qhelpgenerator simpletextviewer.qhp -o simpletextviewer.qch
+
+make mathematica plot output, just like ply,off etc.
 
 extreme value filter for scales
 resurrect old noise reduction code?
