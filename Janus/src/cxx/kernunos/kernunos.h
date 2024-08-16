@@ -108,6 +108,7 @@ private slots:
     void updateResult();
     void LinesofCurvature();
     void center();
+    void rings();
     void gnuplotsplot();
     void fctAxial();
     void fctTangential();
@@ -215,6 +216,7 @@ private:
     QAction *zernAct;
     QAction *liocAct;
     QAction *centerAct;
+    QAction *ringsAct;
     QAction *gnuplotAct;
 
     QMenu *tweaksMenu;

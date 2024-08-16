@@ -47,6 +47,7 @@ write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
 !! last two digits are the program function
 !! 0 = open a file, display
 !! 99 = deallocate arrays for program closure
+!! 8 = show circumferential ring lsqfillin/splinefillin
 !! 7 = make lioc
 !! 6 = make centers
 !! 5 = make gnuplotsplot
@@ -167,7 +168,8 @@ if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3) then
 endif  ! mod(flag,100) == 0, 2, or 3
 
 
-if (mod(flag,100) .eq. 5 .or. mod(flag,100) .eq. 6 .or. mod(flag,100) .eq. 7) then  !gnuplot files&calls
+if (mod(flag,100) .eq. 5 .or. mod(flag,100) .eq. 6 .or.&
+    mod(flag,100) .eq. 7 .or. mod(flag,100) .eq. 8 ) then  !gnuplot files&calls
  new_path = " "
  do i=1, 4096
     if ( file_from_C (i) == c_null_char ) then
@@ -771,19 +773,30 @@ if (TestData .eq. 1) then
   Atlas%AD=lsqfillin(Atlas%AD)
   Atlas%AY=lsqfillin(Atlas%AY)
  endif
+
+ ! gnuplot splot output and exit
+  if (mod(flag,100) .eq. 8 ) then
+ ! generate data file
+   unitno1 = get_new_fileunit()
+   BigPlot=replacestr(string=gnu_instruct,search="gnu",substitute="plt")
+   open(unitno1, file = BigPlot, action="write", iostat=ierr)
+ ! Look at these intersecting rings using
+ ! gnuplot 'plot 'datafile dumped with' u 1:2' do not set polar or with lines
+    do j=1,N1
+     do i=1,M1
+      write(unitno1,*) Atlas%DEG(i),Atlas%AD(i,j)
+     end do
+     write(unitno1,*) ' '
+    end do
+    CLOSE (unitno1)
+    return
+  endif ! end (mod(flag,100) .eq. 8)
+
  if (btest(dat, 4) .or. btest(dat, 3)) then
   RadSlope=Atlas
   Atlas=AtlasSave  ! restore Atlas after using it to define RadSlope
-!  Look at these intersecting rings using
-!  gnuplot 'plot 'datafile dumped with' u 1:2'  (don't set polar) first option, or splot second option
-!  do j=1,N
-!    do i=1,MM
-!     write(*,*) Atlas%DEG(i),Atlas%AP(i,j)
- !    write(*,*) Atlas%AD(i,j)*COS(PI*Atlas%DEG(i)/180.0),Atlas%AD(i,j)*SIN(PI*Atlas%DEG(i)/180.0),0
-!    end do
-!    write(*,*) ' '
-!   end do
  endif
+
 endif
 
 ! Spline RadSlope

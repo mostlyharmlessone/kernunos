@@ -199,9 +199,10 @@ void GLwidget::cleanup()
   std::cout << "flag in cleanup: " << flag << "\n";
   #ifdef _WIN32
 //  system("copy zernike.tmp zernike.bak");
-  system("del zernike.tmp");
+  system("del zernike.tmp");   //probably broken if zernike not computed, as there is no zernike.tmp file
   #endif
   #ifndef _WIN32
+  system("touch zernike.tmp");
 //  system("cp zernike.tmp zernike.bak");
   system("rm zernike.tmp");
   #endif
@@ -434,27 +435,142 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
       for (int i=0; i<= nE; ++i){
       elements[i]=cube_elements[i];
       }
-      // some starting values that mean nothing
-      // legend part: value,rgbv
+      // USS starting values
+      //
+      legend[101]=0;
+      legend[102]=0;
+      legend[103]=80;
+      legend[100]=30;
 
-      for (int i = 1; i <= 26; ++i) {
-          float j = 50.0;
-          j=j-i*1.0;
-          legend[(i-1)*4]=j;
-          legend[(i-1)*4+1]=50+4*j;
-          legend[(i-1)*4+2]=5*j;
-          legend[(i-1)*4+3]=255-5*j;
-      }
+      legend[1]=255;
+      legend[2]=238;
+      legend[3]=248;
+      legend[0]=68;
 
-      // zern part, 1-12 aberration, 13,14,range
-      float j = -0.5;
-      for (int i = 1; i <= 12; ++i) {
-          j=j+i*0.02;
-          zern[i-1]=j;
-      }
-      zern[5]=-0.7;
-      zern[12]=-0.52;
-      zern[13]=0.52;
+      legend[5]=255;
+      legend[6]=216;
+      legend[7]=226;
+      legend[4]=66;
+
+      legend[9]=255;
+      legend[10]=196;
+      legend[11]=206;
+      legend[8]=65;
+
+      legend[13]=255;
+      legend[14]=175;
+      legend[15]=186;
+      legend[12]=63;
+
+      legend[17]=255;
+      legend[18]=157;
+      legend[19]=167;
+      legend[16]=62;
+
+      legend[21]=255;
+      legend[22]=138;
+      legend[23]=148;
+      legend[20]=60;
+
+      legend[25]=255;
+      legend[26]=114;
+      legend[27]=124;
+      legend[24]=59;
+
+      legend[29]=255;
+      legend[30]=95;
+      legend[31]=105;
+      legend[28]=57;
+
+      legend[33]=255;
+      legend[34]=70;
+      legend[35]=79;
+      legend[32]=56;
+
+      legend[37]=255;
+      legend[38]=40;
+      legend[39]=50;
+      legend[36]=54;
+
+      legend[41]=255;
+      legend[42]=0;
+      legend[43]=0;
+      legend[40]=53;
+
+      legend[45]=254;
+      legend[46]=102;
+      legend[47]=0;
+      legend[44]=51;
+
+      legend[49]=252;
+      legend[50]=153;
+      legend[51]=0;
+      legend[48]=50;
+
+      legend[53]=252;
+      legend[54]=188;
+      legend[55]=0;
+      legend[52]=48;
+
+      legend[57]=254;
+      legend[58]=254;
+      legend[59]=0;
+      legend[56]=47;
+
+      legend[61]=162;
+      legend[62]=250;
+      legend[63]=58;
+      legend[60]=45;
+
+      legend[65]=79;
+      legend[66]=229;
+      legend[67]=51;
+      legend[64]=44;
+
+      legend[69]=51;
+      legend[70]=204;
+      legend[71]=51;
+      legend[68]=42;
+
+      legend[73]=32;
+      legend[74]=176;
+      legend[75]=71;
+      legend[72]=41;
+
+      legend[77]=0;
+      legend[78]=152;
+      legend[79]=102;
+      legend[76]=39;
+
+      legend[81]=0;
+      legend[82]=106;
+      legend[83]=156;
+      legend[80]=38;
+
+      legend[85]=0;
+      legend[86]=50;
+      legend[87]=204;
+      legend[84]=36;
+
+      legend[89]=0;
+      legend[90]=0;
+      legend[91]=203;
+      legend[88]=35;
+
+      legend[93]=0;
+      legend[94]=0;
+      legend[95]=153;
+      legend[92]=33;
+
+      legend[97]=0;
+      legend[98]=0;
+      legend[99]=111;
+      legend[96]=32;
+
+      legend[101]=0;
+      legend[102]=0;
+      legend[103]=80;
+      legend[100]=30;
 
      }
 

@@ -2,17 +2,10 @@ things to do
 
 CorneaCopia
 
-might want to make titles for gnuplot windows
-
-also needs some option for looking at placido disk tweak with ring overlap
-might need gnuplot interface consolidation of methods
-
-Fixes:
-
-try to lock opening another file while Zernike is computing to avoid crash ? condition on counter?
-cannot run Open
-you can run other Analyze ie center gnusplotplot, lioc, and move the picture
-consider adding sound to play after zernike compute, but might need option to turn off
+check all tweaks for this problem
+unsetting LSQ/spline fillin doesnt seem to actually unset dat according to redraw and show rings
+code in GLwidget.h line 128
+kernuons.cpp line 1293
 
 ? branch cut or other calc error with Monge Astig has to do with slopes, see lioc output!
 
@@ -20,6 +13,12 @@ fake data:
 zernike has problems in center ring: Obliq Astig,Oblique 2nd Astig,Obl Quad,Obl trefoil, horizontal/vert coma
 defocus,vert astig, vert 2nd astig, vert trefoil, vert quad spherical aberration have issue at 90/270 degrees M1/2
 sagc has ugliness in center with continuous hue not seen with standard scale
+
+
+try to lock opening another file while Zernike is computing to avoid crash ? condition on counter?
+cannot run Open
+you can run other Analyze ie center gnusplotplot, lioc, and move the picture
+consider adding sound to play after zernike compute, but might need option to turn off
 
 tweak center part of fillin so that there's no blue/blackspot; might need error correct or average?
 
@@ -38,6 +37,8 @@ make mathematica plot output, just like ply,off etc.
 extreme value filter for scales
 resurrect old noise reduction code?
 need lapack or open version of numrec fourn:  fftpack
+
+might need gnuplot interface consolidation of methods
 
 GEOM/WriteGeomPLY make extra out of range points, but need them to avoid EOF  .. fix?
 

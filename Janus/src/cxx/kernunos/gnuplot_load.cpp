@@ -1,9 +1,9 @@
 // c++ to be called by c
 
-extern "C" int gnuplot_zern(const char *iname);
+extern "C" int gnuplot_load(const char *iname);
 #include "gnuplot-iostream/gnuplot-iostream.h"
 
-int gnuplot_zern(const char *iname) {
+int gnuplot_load(const char *iname) {
 
     if (system(NULL)) puts ("Ok");
     else exit (EXIT_FAILURE);

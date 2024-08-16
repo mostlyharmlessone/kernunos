@@ -9,7 +9,7 @@
 
 void Ccounter(int *inc, const char *iname) {
         counter=(int)*inc;
-        if (counter == 100) {int wrote=gnuplot_zern(iname);
+        if (counter == 100) {int wrote=gnuplot_load(iname);
             if (wrote == 0) {
                 fprintf(stdin,"gnuplot call succeeded\n");
                 LogC("gnuplot call succeeded\n");}

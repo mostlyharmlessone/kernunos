@@ -147,6 +147,7 @@ const unsigned int SCR_HEIGHT = 2600;
 // last two digits are the program function
 // 0 = open a file, display
 // 99 = deallocate arrays for program closure
+// 8 = show circumferential ring lsqfillin/splinefillin
 // 7 = make lioc
 // 6 = make centers
 // 5 = make gnuplotsplot
@@ -265,8 +266,10 @@ void MainWindow::open()   //multiple invocations makes a comparison
    bool pentacam = str.find(".CUR")!= std::string::npos || str.find(".ELE") != std::string::npos;
    if (pentacam) {
     centerAct->setEnabled(true);  //change to false to not allow for pentacam, center deviations only for Placido
+    ringsAct->setEnabled(false);
    } else{
     centerAct->setEnabled(true);
+    ringsAct->setEnabled(true);
    };
    redrawAct->setEnabled(true);
    redrawOptionAct->setEnabled(true);
@@ -674,20 +677,6 @@ void MainWindow::gnuplotsplot() {
    // would be better if calcs could be done here instead of in janus
    Gnuplot gp;
    gp << "load \"" << filename << "\n";
-   gp << "stats \"" << filename << "using 3\n";
-
-/*
- gp << "reset\n";
- gp << "set size square\n";
- gp << "set macros\n";
- gp << "NOXTICS = \"" << "set format x ''; unset xlabel\n" ;
- gp << "NOYTICS = \"" << "set format y ''; unset ylabel\n" ;
- gp << "set pm3d map impl\n";
- //needs something for the range
- gp << "set cbrange[ 31.0:  51.7]\n";
- gp << "set palette defined (  31.0'purple',  33.1'dark-blue',  35.1'blue',  37.2'light-blue', 39.3'light-green',  41.3'green',  43.4'web-green',  45.5'yellow',  47.6'goldenrod',  49.6'light-red',  51.7'red',  54.0'dark-red'); @NOXTICS ; @NOYTICS\n";
- gp  << "splot \"" << "BIG.CAR\n";
-*/
 
 #ifdef _WIN32
    // For Windows, prompt for a keystroke before the Gnuplot object goes out of scope so that
@@ -726,35 +715,35 @@ void MainWindow::center() {
    gp << "reset\n";
    gp << "set polar\n";
 
-   gp << "set term wxt 1\n";
+   gp << "set term wxt 1 title 'MeanC' \n";
    filenamelocal = FILE.fileName();
    filenamelocal = filenamelocal.append(".mea");
    ba = filenamelocal.toLocal8Bit();
    filename = ba.data();
    gp << "plot \"" << filename << "\" using 1:2 with lines title" <<'"'<< "MeanC" << '"' << "\n";
 
-   gp << "set term wxt 2\n";
+   gp << "set term wxt 2 title 'MongeA' \n";
    filenamelocal = FILE.fileName();
    filenamelocal = filenamelocal.append(".mon");
    ba = filenamelocal.toLocal8Bit();
    filename = ba.data();
    gp << "plot \"" << filename << "\" using 1:2 with lines title" <<'"'<< "MongeA" << '"' << "\n";
 
-   gp << "set term wxt 3\n";
+   gp << "set term wxt 3 title 'IntC' \n";
    filenamelocal = FILE.fileName();
    filenamelocal = filenamelocal.append(".int");
    ba = filenamelocal.toLocal8Bit();
    filename = ba.data();
    gp << "plot \"" << filename << "\" using 1:2 with lines title" <<'"'<< "IntC" << '"' << "\n";
 
-   gp << "set term wxt 4\n";
+   gp << "set term wxt 4 title 'SagC' \n";
    filenamelocal = FILE.fileName();
    filenamelocal = filenamelocal.append(".sag");
    ba = filenamelocal.toLocal8Bit();
    filename = ba.data();
    gp << "plot \"" << filename << "\" using 1:2 with lines title" <<'"'<< "SagC" << '"' << "\n";
 
-   gp << "set term wxt 5\n";
+   gp << "set term wxt 5 title 'Center' \n";
    filenamelocal = FILE.fileName();
    filenamelocal = filenamelocal.append(".plt");
    ba = filenamelocal.toLocal8Bit();
@@ -771,6 +760,47 @@ void MainWindow::center() {
    ui.infoLabel->setText(tr("gnuplot called successfully  "));
    return;
 }
+
+void MainWindow::rings() {
+
+    if (system(NULL)) puts ("Ok");
+    else exit (EXIT_FAILURE);
+    if(system("command -v gnuplot > /dev/null 2>&1") ){
+        std::cout << "'gnuplot' command is not available.\n";
+        ui.infoLabel->setText(tr("gnuplot call failed!"));
+        return;
+    }
+
+    QTemporaryFile FILE;
+    FILE.setAutoRemove(true);  //does not do anything
+    FILE.open();
+    QString filenamelocal = FILE.fileName();
+    filenamelocal = filenamelocal.append(".gnu");
+    QByteArray ba = filenamelocal.toLocal8Bit();
+    char *filename = ba.data();
+    flag=flag-(flag%100)+8;  // last two digits of flag=8;
+    m_GLwidget_secondwindow->DataPrint(filename);
+
+    // would be better if calcs could be done here instead of in janus, or at least call WriteCenter?
+
+    Gnuplot gp;
+    gp << "reset\n";
+    gp << "set term wxt 1 title 'Rings' \n";
+    filenamelocal = FILE.fileName();
+    filenamelocal = filenamelocal.append(".plt");
+    ba = filenamelocal.toLocal8Bit();
+    filename = ba.data();
+    gp << "plot \"" << filename << "\" using 1:2 title" <<'"'<< "Rings" << '"' << "\n";
+#ifdef _WIN32
+    // For Windows, prompt for a keystroke before the Gnuplot object goes out of scope so that
+    // the gnuplot window doesn't get closed.
+    std::cout << "Press enter to exit." << std::endl;
+    std::cin.get();
+#endif
+    ui.infoLabel->setText(tr("gnuplot called successfully  "));
+    return;
+}
+
 
 void MainWindow::checkfctsflags(){
     AxialAct->setChecked(GLwidget::isAxial());
@@ -1265,10 +1295,12 @@ void MainWindow::tweakLSQfill()
    if (GLwidget::isLSQfillin()) {
         GLwidget::setLSQfillin(false);
         LSQfillinAct->setChecked(GLwidget::isLSQfillin());
+        SplinefillinAct->setChecked(GLwidget::isSplinefillin());
         ui.infoLabel->setText(tr("Set <b>Tweak:LSQ fillin false</b>"));
    } else {
         GLwidget::setSplinefillin(false);
         GLwidget::setLSQfillin(true);
+        LSQfillinAct->setChecked(GLwidget::isLSQfillin());
         SplinefillinAct->setChecked(GLwidget::isSplinefillin());
         ui.infoLabel->setText(tr("Set <b>Tweak:LSQ fillin true</b>"));
    };
@@ -1281,12 +1313,14 @@ void MainWindow::tweakSplinefill()
 {
    if (GLwidget::isSplinefillin()) {
         GLwidget::setSplinefillin(false);
+        LSQfillinAct->setChecked(GLwidget::isLSQfillin());
         SplinefillinAct->setChecked(GLwidget::isSplinefillin());
         ui.infoLabel->setText(tr("Set <b>Tweak:Spline fillin false</b>"));
    } else {
         GLwidget::setSplinefillin(true);
         GLwidget::setLSQfillin(false);
         LSQfillinAct->setChecked(GLwidget::isLSQfillin());
+        SplinefillinAct->setChecked(GLwidget::isSplinefillin());
         ui.infoLabel->setText(tr("Set <b>Tweak:Spline fillin true</b>"));
    };
    if (GLwidget::isRedraw()) {
@@ -1571,6 +1605,11 @@ void MainWindow::createActions()
    centerAct->setEnabled(false);
    connect(centerAct, &QAction::triggered, this, &MainWindow::center);
 
+   ringsAct = new QAction(tr("&Show circumferential ring lsqfillin/splinefillin (Atlas only)"), this);
+   ringsAct->setStatusTip(tr("Show circumferential ring lsqfillin/splinefillin (Atlas only"));
+   ringsAct->setEnabled(false);
+   connect(ringsAct, &QAction::triggered, this, &MainWindow::rings);
+
    gnuplotAct = new QAction(tr("&Plots with Gnuplot Splot"), this);
    gnuplotAct->setStatusTip(tr("Plots with Gnuplot Splot"));
    gnuplotAct->setEnabled(false);
@@ -1738,6 +1777,7 @@ void MainWindow::createMenus()
    analyzeMenu->addAction(zernAct);
    analyzeMenu->addAction(liocAct);
    analyzeMenu->addAction(centerAct);
+   analyzeMenu->addAction(ringsAct);
    analyzeMenu->addAction(gnuplotAct);
    functionMenu=menuBar()->addMenu(tr("&Function"));
    functionMenu->addAction(AxialAct);
@@ -1798,7 +1838,16 @@ void MainWindow::updateResult()
         QColor rgbcolor= QColor::fromRgb(legend[(i-1)*4+1],
                                          legend[(i-1)*4+2],
                                          legend[(i-1)*4+3],
-                                          255);
+                                          255);        
+/*
+    // write the values
+        std::cout << "legend[" << (i-1)*4+1 << "]=" <<
+                legend[(i-1)*4+1] << ";\n" << "legend[" << (i-1)*4+2 << "]=" <<
+            legend[(i-1)*4+2] << ";\n" << "legend[" << (i-1)*4+3 << "]=" <<
+            legend[(i-1)*4+3] << ";\n" << "legend[" <<(i-1)*4+0 << "]=" <<
+            floor(legend[(i-1)*4]+0.5) << ";\n" <<
+            std::endl;
+*/
         grBtoY.setColorAt((i-1)/26.0, rgbcolor);
     }
     QPixmap pm(scale2, scale);
