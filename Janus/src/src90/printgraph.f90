@@ -10,8 +10,8 @@
      F6.1,A,A,A,F6.1,A,A,A,F6.1,A,A,A,F6.1,A,A,A,F6.1,A,A,A,&
      F6.1,A,A,A,F6.1,A,A,A,F6.1,A,A,A) 
 
-       col(1)=FLOOR(POWMIN)
-       col(12)=FLOOR(POWMAX+4)
+       col(1)=FLOOR(POWMIN+0.5)
+       col(12)=FLOOR(POWMAX+0.5)
        col(2)=0.09*(col(12)-col(1))+col(1)
        col(3)=0.18*(col(12)-col(1))+col(1)
        col(4)=0.27*(col(12)-col(1))+col(1)
@@ -36,7 +36,7 @@
        WRITE(unitno1,*) 'splot ',"'",FILENAME,"'",'notitle'
 
 
-write(*,*) 'powmin,powmax',powmin,powmax,col(1),col(12)
+!write(*,*) 'powmin,powmax',powmin,powmax,col(1),col(12)
 
 WRITE(*,900) 'set palette defined (',col(1),"'",'purple',&
 "',",col(2),"'",'dark-blue',"',",col(3),"'",'blue',&

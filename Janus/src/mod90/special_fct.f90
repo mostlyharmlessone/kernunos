@@ -217,8 +217,8 @@ REAL (wp) :: col(12)
 !'purple','dark-blue','blue','light-blue','light-green','green','web-green','yellow','goldenrod','light-red','red'
 palette=(/'c080ff','00008b','0000ff','add8e6','90ee90','00ff00',&
          &'00c000','ffff00','ffc020','f03232','ff0000','8b0000'/)
-         col(1)=FLOOR(minimum)
-         col(12)=FLOOR(maximum+4)
+         col(1)=FLOOR(minimum+0.5)
+         col(12)=FLOOR(maximum+0.5)
          col(2)=0.09*(col(12)-col(1))+col(1)
          col(3)=0.18*(col(12)-col(1))+col(1)
          col(4)=0.27*(col(12)-col(1))+col(1)

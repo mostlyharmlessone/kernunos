@@ -671,9 +671,10 @@ void MainWindow::gnuplotsplot() {
    flag=flag-(flag%100)+5;  // last two digits of flag=5;
    m_GLwidget_secondwindow->DataPrint(filename);
 
-   // would be better if calcs could be done here instead of in janus, or at least call printgraph?
+   // would be better if calcs could be done here instead of in janus
    Gnuplot gp;
    gp << "load \"" << filename << "\n";
+   gp << "stats \"" << filename << "using 3\n";
 
 /*
  gp << "reset\n";
@@ -683,7 +684,7 @@ void MainWindow::gnuplotsplot() {
  gp << "NOYTICS = \"" << "set format y ''; unset ylabel\n" ;
  gp << "set pm3d map impl\n";
  //needs something for the range
- gp << "set zrange[ 31.0:  51.7]\n";
+ gp << "set cbrange[ 31.0:  51.7]\n";
  gp << "set palette defined (  31.0'purple',  33.1'dark-blue',  35.1'blue',  37.2'light-blue', 39.3'light-green',  41.3'green',  43.4'web-green',  45.5'yellow',  47.6'goldenrod',  49.6'light-red',  51.7'red',  54.0'dark-red'); @NOXTICS ; @NOYTICS\n";
  gp  << "splot \"" << "BIG.CAR\n";
 */

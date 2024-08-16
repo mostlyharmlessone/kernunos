@@ -2,12 +2,6 @@ things to do
 
 CorneaCopia
 
-
-colors for gnuplot color range in kernunos dont seem to match gnuplot : in fact gnuplot doesn't seem to obey the palette command 
-other than the colors the numbers are ignored other than being monotonic
-recheck in printgraph that powminand powmax are accurate for that particular plot (ie find them again)
-select gnuplot fillarray based on fct ie. 4 = tanc or get rid of fillarray
-
 might want to make titles for gnuplot windows
 
 also needs some option for looking at placido disk tweak with ring overlap
