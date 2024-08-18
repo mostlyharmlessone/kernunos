@@ -91,7 +91,6 @@
 #include <QValueAxis>
 
 using namespace QtConcurrent;
-using namespace Qt::StringLiterals;
 
 // global settings
 const unsigned int SCR_WIDTH = 2800;
@@ -1253,9 +1252,11 @@ void MainWindow::tweakcenterNode()
 {
    if (GLwidget::isCenterNode()) {
         GLwidget::setCenterNode(false);
+        centerAct->setChecked(GLwidget::isCenterNode());
         ui.infoLabel->setText(tr("Set <b>Tweak:Center Node false</b>"));
    } else {
         GLwidget::setCenterNode(true);
+        centerAct->setChecked(GLwidget::isCenterNode());
         ui.infoLabel->setText(tr("Set <b>Tweak:Center Node true</b>"));
    };
    if (GLwidget::isRedraw()) {
@@ -1267,9 +1268,11 @@ void MainWindow::tweakadjustradii()
 {
    if (GLwidget::isadjustradii()) {
         GLwidget::setadjustradii(false);
+        adjustradiiAct->setChecked(GLwidget::isadjustradii());
         ui.infoLabel->setText(tr("Set <b>Tweak:Adjust radii false</b>"));
    } else {
         GLwidget::setadjustradii(true);
+        adjustradiiAct->setChecked(GLwidget::isadjustradii());
         ui.infoLabel->setText(tr("Set <b>Tweak:Adjust radii true</b>"));
    };
    if (GLwidget::isRedraw()) {
@@ -1281,9 +1284,11 @@ void MainWindow::tweakcubic()
 {
    if (GLwidget::iscubic()) {
         GLwidget::setcubic(false);
+        cubicAct->setChecked(GLwidget::iscubic());
         ui.infoLabel->setText(tr("Set <b>Tweak:Default Trapezoidal Integration</b>"));
    } else {
         GLwidget::setcubic(true);
+        cubicAct->setChecked(GLwidget::iscubic());
         ui.infoLabel->setText(tr("Set <b>Tweak:Cubic Spline Integration</b>"));
    };
    if (GLwidget::isRedraw()) {

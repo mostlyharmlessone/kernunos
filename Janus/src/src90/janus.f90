@@ -665,7 +665,7 @@ if (TestData .eq. 1) then
   call CPU_TIME(time_end)
   write(*,*) 'Time to read Atlas CSV file: ',(time_end-time_start)*1000
   if (read_error > 0) return
- endif  !(mod(flag,100) /= 0,99,2,3 must be 1 or 4-7, reload the original data
+ endif  !(mod(flag,100) /= 0,99,2,3 assume 1 (zernike) or 4 (redraw), or 8 (show rings) reload the original data
  N=Power_Rings_Count
  ! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
  if (allocated(RadSlope%r)) then
@@ -789,6 +789,10 @@ if (TestData .eq. 1) then
      write(unitno1,*) ' '
     end do
     CLOSE (unitno1)
+    if (btest(dat, 4) .or. btest(dat, 3)) then
+     RadSlope=Atlas
+     Atlas=AtlasSave  ! restore Atlas after using it to show rings
+    endif
     return
   endif ! end (mod(flag,100) .eq. 8)
 

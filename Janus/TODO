@@ -2,11 +2,6 @@ things to do
 
 CorneaCopia
 
-check all tweaks for this problem
-unsetting LSQ/spline fillin doesnt seem to actually unset dat according to redraw and show rings
-code in GLwidget.h line 128
-kernuons.cpp line 1293
-
 ? branch cut or other calc error with Monge Astig has to do with slopes, see lioc output!
 
 fake data:  
@@ -43,7 +38,8 @@ might need gnuplot interface consolidation of methods
 GEOM/WriteGeomPLY make extra out of range points, but need them to avoid EOF  .. fix?
 
 what if index(inputfile1, "RA") has more than one value? (KERATO.GRP/RA00.x) or XX00000.XX; I only want to replace the last one.
-might need to make notes about this problem or limit replacestr   fix EyeSys file_pfx crap
+might need to make notes about this problem or limit replacestr   fix EyeSys file_pfx crap   can try /RA as alternate but wont work on root directory;
+can try one than the other before giving up
 
 Projects:
 move faq to help menu
