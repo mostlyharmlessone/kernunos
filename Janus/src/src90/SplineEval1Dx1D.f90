@@ -1,4 +1,4 @@
-      subroutine SplineEval1Dx1D(iflag,u,v,f,fr,ft,frt,frr,ftt) 
+      subroutine SplineEval1Dx1D(iflag,u,v,f,fr,ft,frt,frr,ftt)
       USE cornea_arrays, ONLY : DiaSlope, RadSlope
       USE set_precision, ONLY : wp
       USE spline_interfaces, ONLY : pspli, SplineEval, SplineEvalCenter, trapez, CubicSplineQuad
@@ -6,6 +6,7 @@
       use,intrinsic :: ieee_arithmetic
       implicit none
       integer, INTENT(IN) :: iflag     ! iflag=0 no integration; iflag=1 trapezoidal integration; iflag=2 cubic integration;
+                                       ! iflag=3 integration but flagged
       real(wp), INTENT(INOUT) :: u, v
       real(wp), INTENT(OUT),OPTIONAL ::  f,fr,ft,frt,frr,ftt
       real(wp) :: g,g0,gr,grr
@@ -36,7 +37,7 @@
           call CubicSplineQuad(j,iflag,r,z,zr2,L2,0._wp,g0)
           call CubicSplineQuad(j,iflag,r,z,zr2,L2,u,g)
          endif
-         if (mod(iflag,10) == 1) then   !trapezoidal integration
+         if (mod(iflag,10) == 1 .or. mod(iflag,10) == 3) then   !trapezoidal integration
           call trapez(j,iflag,r,z,zr2,L2,0._wp,g0)
           call trapez(j,iflag,r,z,zr2,L2,u,g)
          endif
@@ -61,6 +62,18 @@
          if (Present(ft)) then
           call pspli(thta,fTmp,MM,fttTmp)  
           call SplineEval(1,thta,fTmp,fttTmp,MM,v,f,ft)
+
+if (iflag==3) then
+!if (v .le. 0.04 .or. v .ge. 6.20) then
+if (v .ge. 6.24 .and. u .lt. -400.0 ) then
+write(*,*) u,v,ft
+do j=1,MM
+  write(*,*) thta(j),fTmp(j),fttTmp(j)
+ end do
+endif
+endif
+
+
          else          
           if (Present(f)) then
            call pspli(thta,fTmp,MM,fttTmp)

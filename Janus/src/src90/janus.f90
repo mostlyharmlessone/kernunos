@@ -334,7 +334,10 @@ DiaSlope%Zpd2 = .n. DiaSlope
   do j=1,RadSlope%MV(i)
    X1=RadSlope%thta(i)
    X2=RadSlope%r(j,i)
-   CALL SplineEval1Dx1D(1,X2,X1,Y,YPR,YPTHETA)
+!   CALL SplineEval1Dx1D(1,X2,X1,Y,YPR,YPTHETA)
+
+    CALL SplineEval1Dx1D(3,X2,X1,Y,YPR,YPTHETA)  !iflag 3 to single this call out from the rest
+
    CALL LIOC_Fortran(X1,X2,YPR,YPTHETA,U,V,UT,VT)
    WRITE(unitno1,*) U,V,100*UT,100*VT
   end do

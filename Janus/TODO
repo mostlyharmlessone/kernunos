@@ -3,6 +3,10 @@ things to do
 CorneaCopia
 
 ? branch cut or other calc error with Monge Astig has to do with slopes, see lioc output!
+modified janus 337-340 with iflag=3 version of spline1dx1d, which is only called here 
+modified spline1dx1d with iflag 3 to mimic iflag 1 but to single out for printing only in this call
+isolated call when theta=2pi and maximu radius to catch pathology (using eyesys file)
+There's a misalignment of ftmp, leading to a jump continuity and gigantic fttmp
 
 fake data:  
 zernike has problems in center ring: Obliq Astig,Oblique 2nd Astig,Obl Quad,Obl trefoil, horizontal/vert coma
@@ -29,6 +33,8 @@ qhelpgenerator simpletextviewer.qhp -o simpletextviewer.qch
 
 make mathematica plot output, just like ply,off etc.
 
+
+
 extreme value filter for scales
 resurrect old noise reduction code?
 need lapack or open version of numrec fourn:  fftpack
@@ -39,7 +45,9 @@ GEOM/WriteGeomPLY make extra out of range points, but need them to avoid EOF  ..
 
 what if index(inputfile1, "RA") has more than one value? (KERATO.GRP/RA00.x) or XX00000.XX; I only want to replace the last one.
 might need to make notes about this problem or limit replacestr   fix EyeSys file_pfx crap   can try /RA as alternate but wont work on root directory;
-can try one than the other before giving up
+can try one than the other before giving up, this issue also applies to file operations of all kinds (exporting/gnuplots) 
+if the suffix is found in the directory path name; might have to figure out how to separate path from name
+
 
 Projects:
 move faq to help menu
@@ -51,6 +59,8 @@ rotation error/fixation-> measure by quality of fit to parabola in each meridian
 a tilted parabola is less of a parabola than a translated parabola when both fit to a centered parabola model?
 
 Fit elevation with Principal component analysis, meh 
+
+analyze hoeltz sauna patient: arvo poster
 
 Adapt code in book to do LS-BICSA
 2-D splining
