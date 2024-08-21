@@ -528,7 +528,7 @@ subroutine rcnvrta(KXNAME,N,read_error)
           read(KH2,*) N
           if (N > 22) write(*,*) 'Atlas 900 file data read'
           if (N < 25) write(*,*) 'Atlas 9000 file data read'
-          write(*,*) trim(KH1),N
+!          write(*,*) trim(KH1),N
          ENDIF
         ENDIF
 

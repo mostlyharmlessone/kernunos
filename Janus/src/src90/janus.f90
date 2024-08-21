@@ -908,6 +908,11 @@ endif
     call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i),JMatrix%INSTC2(j,i))
     call MEANP(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
     call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
+
+!if (abs(JMatrix%R(j,i)) .gt. 230 .and. abs(JMatrix%R(j,i)) .lt. 280) then
+ write(*,*) JMatrix%THT(i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i)
+!endif
+
 !   find min and max
     if (JMatrix%Z(j,i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z(j,i)
     if (JMatrix%Z(j,i) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z(j,i)
@@ -922,6 +927,9 @@ endif
     if (JMatrix%MONGEA(j,i) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA(j,i)
     if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
    end do
+
+write(*,*) ' '
+
   end do !end JMatrix ring generation
 
 !  Calculate center values for everything

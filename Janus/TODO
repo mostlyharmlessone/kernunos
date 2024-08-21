@@ -2,29 +2,31 @@ things to do
 
 CorneaCopia
 
-? branch cut or other calc error with Monge Astig has to do with slopes, see lioc output!
-modified janus 337-340 with iflag=3 version of spline1dx1d, which is only called here 
-modified spline1dx1d with iflag 3 to mimic iflag 1 but to single out for printing only in this call
-isolated call when theta=2pi and maximum radius to catch pathology (using eyesys file)
-There's a misalignment of ftmp, leading to a jump continuity and gigantic fttmp
+even in fake data:
+ looking at mongea
+input to function looks good; problem output comes from PI,2PI but probably not 0
 
-jump continuity seems fixed with -u calls, doubling the time in spline1dx1d, but there's a weird compiler bug in pspli
-multiple edits in janus spline1dx1d and now pspli
-going to have to make a special pspli
-added iflag to pspli
-found out that the matrix is in fact singular..?
-spent all day with the wrong number of rhs parameter in dgesv/g-j
+both halves have a branch cut issue though small, however theyre both very small, opposite sign, added and inverted
+rearranged calculation: now only central area has an issue
+  
+zernike has problems in center ring:
+mean power has a glitch
+monge astig has a glitch at the x axis also... there's still an issue with the branch cut, barely visible on lioc on test
 
-
-
-
-fake data:  
-zernike has problems in center ring: Obliq Astig,Oblique 2nd Astig,Obl Quad,Obl trefoil, horizontal/vert coma
+Obliq Astig,Oblique 2nd Astig,Obl Quad,Obl trefoil, horizontal/vert coma
 defocus,vert astig, vert 2nd astig, vert trefoil, vert quad spherical aberration have issue at 90/270 degrees M1/2
 sagc has ugliness in center with continuous hue not seen with standard scale
 
+there are still occasional errors in hsbrgb (eg with test data)
+ Error in hsbrgb  -1.79087922E-14   773.04297584960477        773.04297584960545        14484.942912792454
 
-try to lock opening another file while Zernike is computing to avoid crash ? condition on counter?
+try going back to splineeval1dx1d and removing extra calls to splineeval, aka back to trial that spawned current branch
+also try finding a way to use only local natural splines instead of generating whole circular spline and using pspli
+
+
+enforce having to make new zernike after loading new data
+
+try to (b)lock opening another file while Zernike is computing to avoid crash ? condition on counter?
 cannot run Open
 you can run other Analyze ie center gnusplotplot, lioc, and move the picture
 consider adding sound to play after zernike compute, but might need option to turn off

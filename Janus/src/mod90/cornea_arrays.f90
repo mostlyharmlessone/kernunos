@@ -956,23 +956,19 @@ subroutine mongea(X1,X2,Y1XIN,Y1T,Y1XT,Y2T,Y2X,ZA)
      if (X2 > 0 .AND. X1 > PI) then
        Y=X2
        Y1X=Y1XIN
-       ZA1=2*Y1X*Y1T**2-2*Y1X*Y1XT*Y1T*Y+Y2X*Y1T**2*Y
-       ZA1=ZA1+Y2T*Y+Y1X**2*Y2T*Y+Y1X*Y**2+Y1X**3*Y**2+Y2X*Y**3
-       ZA1=ZA1**2/(4*(Y1T**2+Y**2+Y1X**2*Y**2)**3)
-       ZA2=Y1T**2-2*Y1XT*Y1T*Y+Y1XT**2*Y**2
-       ZA2=ZA2-Y2X*Y2T*Y**2-Y1X*Y2X*Y**3
-       ZA2=ZA2/(Y1T**2+Y**2+Y1X**2*Y**2)**2
-       ZA=ABS(ZA1+ZA2)**(-1/2.)
+       ZA1=(2*Y1X*Y1T**2-2*Y1X*Y1XT*Y1T*Y+Y2X*Y1T**2*Y+Y2T*Y+Y1X**2*Y2T*Y+Y1X*Y**2+Y1X**3*Y**2+Y2X*Y**3)
+       ZA1=((Y1T**2+Y**2+Y1X**2*Y**2)**2)*ZA1**2
+       ZA2=(4*(Y1T**2+Y**2+Y1X**2*Y**2)**3)*(Y1T**2-2*Y1XT*Y1T*Y+Y1XT**2*Y**2-Y2X*Y2T*Y**2-Y1X*Y2X*Y**3)
+       ZA=(ZA1+ZA2)/((Y1T**2+Y**2+Y1X**2*Y**2)**2)*(4*(Y1T**2+Y**2+Y1X**2*Y**2)**3)
+       ZA=ABS(ZA)**(-1/2.)
      else
        Y=-X2
        Y1X=-Y1XIN
-       ZA1=2*Y1X*Y1T**2-2*Y1X*Y1XT*Y1T*Y+Y2X*Y1T**2*Y
-       ZA1=ZA1+Y2T*Y+Y1X**2*Y2T*Y+Y1X*Y**2+Y1X**3*Y**2+Y2X*Y**3
-       ZA1=ZA1**2/(4*(Y1T**2+Y**2+Y1X**2*Y**2)**3)
-       ZA2=Y1T**2-2*Y1XT*Y1T*Y+Y1XT**2*Y**2
-       ZA2=ZA2-Y2X*Y2T*Y**2-Y1X*Y2X*Y**3
-       ZA2=ZA2/(Y1T**2+Y**2+Y1X**2*Y**2)**2
-       ZA=ABS(ZA1+ZA2)**(-1/2.)
+       ZA1=(2*Y1X*Y1T**2-2*Y1X*Y1XT*Y1T*Y+Y2X*Y1T**2*Y+Y2T*Y+Y1X**2*Y2T*Y+Y1X*Y**2+Y1X**3*Y**2+Y2X*Y**3)
+       ZA1=((Y1T**2+Y**2+Y1X**2*Y**2)**2)*ZA1**2
+       ZA2=(4*(Y1T**2+Y**2+Y1X**2*Y**2)**3)*(Y1T**2-2*Y1XT*Y1T*Y+Y1XT**2*Y**2-Y2X*Y2T*Y**2-Y1X*Y2X*Y**3)
+       ZA=(ZA1+ZA2)/((Y1T**2+Y**2+Y1X**2*Y**2)**2)*(4*(Y1T**2+Y**2+Y1X**2*Y**2)**3)
+       ZA=ABS(ZA)**(-1/2.)
      endif
      else
 !    UNDEFINED AT ORIGIN X2=0          
