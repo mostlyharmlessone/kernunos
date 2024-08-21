@@ -36,9 +36,11 @@ module spline_interfaces
 
 subroutine pspli(t,z,n,zt2)
  use set_precision, only :  wp
-  REAL(wp), intent(in) :: t(*),z(*)
-  INTEGER, intent(in) :: n
-  REAL(wp), intent(out) ::zt2(n)
+ REAL(wp), intent(in) :: t(n),z(n)
+ INTEGER, intent(in) :: n
+ REAL(wp), intent(out) ::zt2(n)
+ REAL(wp) :: PERD,error
+ REAL(wp) :: d(n),a(n),b(n),c(n)
 end subroutine
  
  subroutine SplineCenter(dat,jj,r,z,zr2,n,u)

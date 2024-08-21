@@ -334,10 +334,7 @@ DiaSlope%Zpd2 = .n. DiaSlope
   do j=1,RadSlope%MV(i)
    X1=RadSlope%thta(i)
    X2=RadSlope%r(j,i)
-!   CALL SplineEval1Dx1D(1,X2,X1,Y,YPR,YPTHETA)
-
-    CALL SplineEval1Dx1D(3,X2,X1,Y,YPR,YPTHETA)  !iflag 3 to single this call out from the rest
-
+   CALL SplineEval1Dx1D(1,X2,X1,Y,YPR,YPTHETA)
    CALL LIOC_Fortran(X1,X2,YPR,YPTHETA,U,V,UT,VT)
    WRITE(unitno1,*) U,V,100*UT,100*VT
   end do
@@ -827,13 +824,13 @@ endif
  if ( Testdata .eq. 1 ) then
   k=0 ; powmax2 = 0 ; powmax =0  ! Use these temporarily
  ! find max elevation from Atlas file
-  do i=1,MM
+  do i=1,M1
    do j=1,RadSlope%MV(i)
     if (100*Atlas%AY(i,j) > powmax) powmax=100*Atlas%AY(i,j)
     end do
    end do
  ! check spline power & elevation at knots
-   do i=1,MM
+   do i=1,M1
     do j=1,RadSlope%MV(i)
      if (i > 90) then
       call SplineEval1Dx1D(iflag,-100*Atlas%AD(i,j),PI*(i-1)/90.0_wp,Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)

@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.26)
-cmake_policy(VERSION 3.26)
+cmake_minimum_required(VERSION 3.30)
+cmake_policy(VERSION 3.30)
 set (CMAKE_Fortran_COMPILER_ID "gfortran")
 set (CMAKE_Fortran_COMPILER "gfortran")
 set (CMAKE_C_COMPILER "gcc")

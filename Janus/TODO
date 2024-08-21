@@ -5,8 +5,18 @@ CorneaCopia
 ? branch cut or other calc error with Monge Astig has to do with slopes, see lioc output!
 modified janus 337-340 with iflag=3 version of spline1dx1d, which is only called here 
 modified spline1dx1d with iflag 3 to mimic iflag 1 but to single out for printing only in this call
-isolated call when theta=2pi and maximu radius to catch pathology (using eyesys file)
+isolated call when theta=2pi and maximum radius to catch pathology (using eyesys file)
 There's a misalignment of ftmp, leading to a jump continuity and gigantic fttmp
+
+jump continuity seems fixed with -u calls, doubling the time in spline1dx1d, but there's a weird compiler bug in pspli
+multiple edits in janus spline1dx1d and now pspli
+going to have to make a special pspli
+added iflag to pspli
+found out that the matrix is in fact singular..?
+spent all day with the wrong number of rhs parameter in dgesv/g-j
+
+
+
 
 fake data:  
 zernike has problems in center ring: Obliq Astig,Oblique 2nd Astig,Obl Quad,Obl trefoil, horizontal/vert coma
@@ -33,7 +43,7 @@ qhelpgenerator simpletextviewer.qhp -o simpletextviewer.qch
 
 make mathematica plot output, just like ply,off etc.
 
-
+check 3D Viewer capabilities with other formats not just obj, try emailing it to myself
 
 extreme value filter for scales
 resurrect old noise reduction code?
@@ -42,6 +52,9 @@ need lapack or open version of numrec fourn:  fftpack
 might need gnuplot interface consolidation of methods
 
 GEOM/WriteGeomPLY make extra out of range points, but need them to avoid EOF  .. fix?
+
+1012701367 old, destry new check issued 8/19, 10 business days!
+
 
 what if index(inputfile1, "RA") has more than one value? (KERATO.GRP/RA00.x) or XX00000.XX; I only want to replace the last one.
 might need to make notes about this problem or limit replacestr   fix EyeSys file_pfx crap   can try /RA as alternate but wont work on root directory;
@@ -61,6 +74,8 @@ a tilted parabola is less of a parabola than a translated parabola when both fit
 Fit elevation with Principal component analysis, meh 
 
 analyze hoeltz sauna patient: arvo poster
+
+now that more is moved to gnuplot, consider resurrecting janus/wxWidgets version or even juno
 
 Adapt code in book to do LS-BICSA
 2-D splining
