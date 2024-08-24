@@ -2,16 +2,18 @@ things to do
 
 CorneaCopia
 
-even in fake data:
- looking at mongea
-input to function looks good; problem output comes from PI,2PI but probably not 0
+check formula for mean curvature and monge astigmatism
 
-both halves have a branch cut issue though small, however theyre both very small, opposite sign, added and inverted
-rearranged calculation: now only central area has an issue
+trying to use pspli to bridge over x-axis for meanc: for some reason crashes at ring 17/22; check max length of pspli vector in data
+quite possible only 17 rings and (lsq)splinefillin(transpose) all need sanity check on length of mvjr
+
+filter out values at y=0 to fix scale for mean
+resurrect old noise reduction code?
+need lapack or open version of numrec fourn:  fftpack
+
+even in fake data:
   
 zernike has problems in center ring:
-mean power has a glitch
-monge astig has a glitch at the x axis also... there's still an issue with the branch cut, barely visible on lioc on test
 
 Obliq Astig,Oblique 2nd Astig,Obl Quad,Obl trefoil, horizontal/vert coma
 defocus,vert astig, vert 2nd astig, vert trefoil, vert quad spherical aberration have issue at 90/270 degrees M1/2

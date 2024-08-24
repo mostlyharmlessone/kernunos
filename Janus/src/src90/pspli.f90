@@ -2,7 +2,7 @@
        use cornea_arrays, only : PI, EPS
        use set_precision, only :  wp
        USE special_fct, ONLY : OPERATOR(.p.) !tensor summation convention
-       use LapackInterface, ONLY : dctsv, dcbsv
+       use LapackInterface, ONLY : dctsv !, dgesv, GaussJordan
        use,intrinsic :: ieee_arithmetic
 
 !      PERIODIC BOUNDARY CONDITION SPLINE
@@ -11,8 +11,11 @@
        REAL(wp), intent(out) ::zt2(n)
        REAL(wp) :: PERD,error
        REAL(wp) :: d(n),a(n),b(n),c(n)
-       INTEGER :: m,j,info,ipiv(n)
+       INTEGER :: m,j,info
        logical :: IsInf 
+!       REAL(wp) :: AA(n,n)
+!       INTEGER :: ipiv(n)
+
 
        PERD=2*PI
 !      ill-conditioning with PERD close to t(n)-t(1)   

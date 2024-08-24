@@ -906,12 +906,18 @@ endif
 !  powers
     call AXIALP(JMatrix%R(j,i),YPR,YP2R2,JMatrix%SAGC(j,i))
     call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i),JMatrix%INSTC2(j,i))
-    call MEANP(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
     call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
 
-!if (abs(JMatrix%R(j,i)) .gt. 230 .and. abs(JMatrix%R(j,i)) .lt. 280) then
- write(*,*) JMatrix%THT(i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i)
-!endif
+if ( i .gt. 3 .and. i .lt. (M1-2)) then   !skip problematic values at x-axis
+    call MEANP(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
+    if (JMatrix%MEANC(j,i) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC(j,i)
+    if (JMatrix%MEANC(j,i) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC(j,i)
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! write(*,*) JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i)
+endif
+
 
 !   find min and max
     if (JMatrix%Z(j,i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z(j,i)
@@ -922,15 +928,22 @@ endif
     if (JMatrix%INSTC(j,i) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC(j,i)
     if (JMatrix%INSTC2(j,i) <= JMatrix%INSTC20(2)) JMatrix%INSTC20(2)=JMatrix%INSTC2(j,i)
     if (JMatrix%INSTC2(j,i) >= JMatrix%INSTC20(3)) JMatrix%INSTC20(3)=JMatrix%INSTC2(j,i)
-    if (JMatrix%MEANC(j,i) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC(j,i)
-    if (JMatrix%MEANC(j,i) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC(j,i)
     if (JMatrix%MONGEA(j,i) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA(j,i)
     if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
    end do
 
-write(*,*) ' '
+!write(*,*) ' '
 
   end do !end JMatrix ring generation
+
+!   Use pspli to spline over x-axis, but not central points
+write(*,*) JMatrix%MEANC(1,:)
+
+write(*,*) 'janus MEANC',  size(JMatrix%MEANC,2),size(JMatrix%MEANC,1)
+write(*,*) 'janus Meanc slice',  size(JMatrix%MEANC(1:N1,:),2),size(JMatrix%MEANC(1:N1,:),1)
+
+JMatrix%MEANC(1:N1,:)=splinefillintranspose(JMatrix%MEANC(1:N1,:))
+
 
 !  Calculate center values for everything
 !  These have MM different values of the center!
@@ -1080,16 +1093,28 @@ write(*,*) ' '
     DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
    endif
   endif
+
+
+! might need to skip points here too and pspli around them
   do i=1,M1
+if ( i .gt. 3 .and. i .lt. (M1-2)) then   !skip problematic values at x-axis
+
    if (btest(dat,0)) then
     call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%MEANC(N1+1,i))  ! center value
    else
     call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%MEANC(N1+1,i))  ! center value
    endif
+
    JMatrix%MEANC0(1)=(i*JMatrix%MEANC0(1)+JMatrix%MEANC(N1+1,i))/(i+1)      ! cumulative average
+
+!write(*,*) JMatrix%THT(i),JMatrix%R0,0,0,0,0,0,JMatrix%MEANC(N1+1,i)
+endif
   end do
-  if (JMatrix%MEANC0(1) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC0(1)
-  if (JMatrix%MEANC0(1) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC0(1)
+
+!   Use pspli to spline over x-axis
+!    JMatrix%MEANC=splinefillin(JMatrix%MEANC)
+
+
 
 ! MONGEA
 ! Reload RadSlope & respline

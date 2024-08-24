@@ -652,11 +652,13 @@ subroutine DiaSplineCenter(b)
   end do
 end subroutine DiaSplineCenter
 
+! this version is for matrices that are MxN
 function splinefillin(b) result(a)
  real(wp),INTENT(IN) :: b(:,:)
  TYPE(wpsplinevect) :: spline
  integer :: M1,N1,i,j,k
  real(wp) :: a(size(b,1),size(b,2)),tht(size(b,1)),RTEMP,Q,radianK
+! if Atlas then  size(b,2)->N and size(b,1)->M
  N1=size(b,2) !N1=N
  M1=size(b,1) !M1=MM
  a=0 ; tht=0  !initialize else the damn thing will fill with NaN
@@ -688,6 +690,49 @@ function splinefillin(b) result(a)
    end associate
    deallocate (spline%r,spline%z,spline%zp2,spline%mvjr)
 end function splinefillin
+
+! this version is for matrices that are NxM
+function splinefillintranspose(b) result(a)
+ real(wp),INTENT(IN) :: b(:,:)
+ TYPE(wpsplinevect) :: spline
+ integer :: M1,N1,i,j,k
+ real(wp) :: a(size(b,1),size(b,2)),tht(size(b,2)),RTEMP,Q,radianK
+! if JMatrix then  size(b,2)->M and size(b,1)->N
+ N1=size(b,1) !N1=N
+ M1=size(b,2) !M1=MM
+ a=0 ; tht=0  !initialize else the damn thing will fill with NaN
+ allocate (spline%r(M1),spline%z(M1),spline%zp2(M1),spline%mvjr(N1))
+ associate (t=>spline%r,z=>spline%z,zt2=>spline%zp2,mvjr=>spline%mvjr)
+  mvjr=0
+  do i=1,N1
+     do j=1,M1
+     tht(j)=PI*(j-1)/90.0_wp  ! every 2 degrees
+       Q=b(i,j)
+        if (ABS(Q) > 0.) then ! ABS is optional for AR or AP
+         mvjr(i)=mvjr(i)+1
+         t(mvjr(i))=tht(j)
+         z(mvjr(i))=Q
+        endif
+      end do
+
+write(*,*) i,size(t)
+write(*,*) t
+
+      call pspli(t,z,mvjr(i),zt2)
+      do k=1,M1
+      radianK=tht(k)
+       call SplineEval(1,t,z,zt2,mvjr(i),radianK,RTEMP)
+        if(ABS(b(i,k)-RTEMP) > EPS) then
+         if(ABS(b(i,k)) > EPS) then
+         write(*,*) 'spline error in cornea_arrays fillin',K,I,b(i,k),RTEMP
+         endif
+        endif
+        a(i,k)=RTEMP
+      end do
+   end do
+   end associate
+   deallocate (spline%r,spline%z,spline%zp2,spline%mvjr)
+end function splinefillintranspose
 
 function lsqfillin(b) result(a)
  real(wp),INTENT(IN) :: b(:,:)
@@ -926,16 +971,16 @@ subroutine meanp(X1,X2,Y1XIN,Y1T,Y1XT,Y2T,Y2X,ZMM)
    IF (X2 > 0 .AND. X1 > PI) THEN
       Y=X2
       Y1X=Y1XIN      
-      ZMM=(2*(1+Y1X**2+Y1T**2/Y**2)**(3/2.)*Y**3)
-      ZMX=-2*Y1X*Y1T**2+2*Y1X*Y1XT*Y1T*Y-Y2X*Y1T**2*Y
-      ZMX=ZMX-Y2T*Y-Y1X**2*Y2T*Y-Y1X*Y**2-Y1X**3*Y**2-Y2X*Y**3
+      ZMM=2*(1+Y1X**2+Y1T**2/Y**2)**(3/2.)
+      ZMX=-2*Y1X*Y1T**2/(Y**3)+(2*Y1X*Y1XT*Y1T-Y2T)/(Y**2)-&
+           Y2X*(Y1T/Y)**2-Y2T*(Y1X/Y)**2-(Y1X+Y1X**3)/Y-Y2X
       ZMM=-RFCT*ZMX/ZMM
    ELSE
       Y=-X2
       Y1X=-Y1XIN
-      ZMM=(2*(1+Y1X**2+Y1T**2/Y**2)**(3/2.)*Y**3)
-      ZMX=-2*Y1X*Y1T**2+2*Y1X*Y1XT*Y1T*Y-Y2X*Y1T**2*Y
-      ZMX=ZMX-Y2T*Y-Y1X**2*Y2T*Y-Y1X*Y**2-Y1X**3*Y**2-Y2X*Y**3
+      ZMM=2*(1+Y1X**2+Y1T**2/Y**2)**(3/2.)
+      ZMX=-2*Y1X*Y1T**2/(Y**3)+(2*Y1X*Y1XT*Y1T-Y2T)/(Y**2)-&
+           Y2X*(Y1T/Y)**2-Y2T*(Y1X/Y)**2-(Y1X+Y1X**3)/Y-Y2X
       ZMM=-RFCT*ZMX/ZMM
    ENDIF
    ELSE
@@ -949,26 +994,30 @@ subroutine mongea(X1,X2,Y1XIN,Y1T,Y1XT,Y2T,Y2X,ZA)
   real(wp), INTENT(IN) :: X1,X2,Y1XIN,Y1T,Y1XT,Y2T,Y2X
   real(wp), INTENT(OUT) :: ZA    
   real(wp) :: ZA1,ZA2,Y,Y1X
-! MONGE ASTIG 
+! MONGE ASTIG, plotted on log scale
 ! WATCH OUT FOR ZERO AT UMBILICAL POINTS!
 ! WHEN X2>0 X1<PI
    if (ABS(X2) > EPS) then
      if (X2 > 0 .AND. X1 > PI) then
        Y=X2
        Y1X=Y1XIN
-       ZA1=(2*Y1X*Y1T**2-2*Y1X*Y1XT*Y1T*Y+Y2X*Y1T**2*Y+Y2T*Y+Y1X**2*Y2T*Y+Y1X*Y**2+Y1X**3*Y**2+Y2X*Y**3)
-       ZA1=((Y1T**2+Y**2+Y1X**2*Y**2)**2)*ZA1**2
-       ZA2=(4*(Y1T**2+Y**2+Y1X**2*Y**2)**3)*(Y1T**2-2*Y1XT*Y1T*Y+Y1XT**2*Y**2-Y2X*Y2T*Y**2-Y1X*Y2X*Y**3)
-       ZA=(ZA1+ZA2)/((Y1T**2+Y**2+Y1X**2*Y**2)**2)*(4*(Y1T**2+Y**2+Y1X**2*Y**2)**3)
-       ZA=ABS(ZA)**(-1/2.)
+       ZA1=(2*Y1X*Y1T**2+(Y1X**2+Y2X*Y1T**2+Y2T-2*Y1X*Y1XT*Y1T*Y2T)*Y&
+                                       +(Y1X+Y1X**3)*Y**2+Y2X*Y**3)**2
+       ZA1=((Y1T**2+Y**2+(Y1X*Y)**2)**3)*ZA1
+       ZA2=((Y1T**2+Y**2+(Y1X*Y)**2)**4)*&
+            (Y1T**2-2*Y1XT*Y1T*Y+(Y1XT*Y)**2-Y2X*Y2T*Y**2-Y1X*Y2X*Y**3)
+       ZA=ABS(ZA1+4*ZA2)**(-1/2.)
+       ZA=-log(RFCT*ZA/2.)
      else
        Y=-X2
        Y1X=-Y1XIN
-       ZA1=(2*Y1X*Y1T**2-2*Y1X*Y1XT*Y1T*Y+Y2X*Y1T**2*Y+Y2T*Y+Y1X**2*Y2T*Y+Y1X*Y**2+Y1X**3*Y**2+Y2X*Y**3)
-       ZA1=((Y1T**2+Y**2+Y1X**2*Y**2)**2)*ZA1**2
-       ZA2=(4*(Y1T**2+Y**2+Y1X**2*Y**2)**3)*(Y1T**2-2*Y1XT*Y1T*Y+Y1XT**2*Y**2-Y2X*Y2T*Y**2-Y1X*Y2X*Y**3)
-       ZA=(ZA1+ZA2)/((Y1T**2+Y**2+Y1X**2*Y**2)**2)*(4*(Y1T**2+Y**2+Y1X**2*Y**2)**3)
-       ZA=ABS(ZA)**(-1/2.)
+       ZA1=(2*Y1X*Y1T**2+(Y1X**2+Y2X*Y1T**2+Y2T-2*Y1X*Y1XT*Y1T*Y2T)*Y&
+                                       +(Y1X+Y1X**3)*Y**2+Y2X*Y**3)**2
+       ZA1=((Y1T**2+Y**2+(Y1X*Y)**2)**3)*ZA1
+       ZA2=((Y1T**2+Y**2+(Y1X*Y)**2)**4)*&
+            (Y1T**2-2*Y1XT*Y1T*Y+(Y1XT*Y)**2-Y2X*Y2T*Y**2-Y1X*Y2X*Y**3)
+       ZA=ABS(ZA1+4*ZA2)**(-1/2.)
+       ZA=-log(RFCT*ZA/2.)
      endif
      else
 !    UNDEFINED AT ORIGIN X2=0          
