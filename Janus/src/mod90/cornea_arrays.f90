@@ -652,7 +652,7 @@ subroutine DiaSplineCenter(b)
   end do
 end subroutine DiaSplineCenter
 
-! this version is for matrices that are MxN
+! this version is for matrices that are MxN, ie Atlas
 function splinefillin(b) result(a)
  real(wp),INTENT(IN) :: b(:,:)
  TYPE(wpsplinevect) :: spline
@@ -675,7 +675,12 @@ function splinefillin(b) result(a)
          z(mvjr(i))=Q
         endif
       end do
-      call pspli(t,z,mvjr(i),zt2)
+!     no splining if less than half the points avaialble
+      if (mvjr(i) .gt. 90) then
+       call pspli(t,z,mvjr(i),zt2)
+      else
+       cycle
+      endif
       do k=1,M1
       radianK=tht(k)
        call SplineEval(1,t,z,zt2,mvjr(i),radianK,RTEMP)
@@ -691,7 +696,7 @@ function splinefillin(b) result(a)
    deallocate (spline%r,spline%z,spline%zp2,spline%mvjr)
 end function splinefillin
 
-! this version is for matrices that are NxM
+! this version is for matrices that are NxM, ie. JMatrix
 function splinefillintranspose(b) result(a)
  real(wp),INTENT(IN) :: b(:,:)
  TYPE(wpsplinevect) :: spline
@@ -714,11 +719,12 @@ function splinefillintranspose(b) result(a)
          z(mvjr(i))=Q
         endif
       end do
-
-write(*,*) i,size(t)
-write(*,*) t
-
-      call pspli(t,z,mvjr(i),zt2)
+!     no splining if less than half the points avaialble
+      if (mvjr(i) .gt. 90) then
+       call pspli(t,z,mvjr(i),zt2)
+       else
+        cycle
+       endif
       do k=1,M1
       radianK=tht(k)
        call SplineEval(1,t,z,zt2,mvjr(i),radianK,RTEMP)
@@ -734,6 +740,7 @@ write(*,*) t
    deallocate (spline%r,spline%z,spline%zp2,spline%mvjr)
 end function splinefillintranspose
 
+! not sure if this is safe with too few points or zero points in a ring
 function lsqfillin(b) result(a)
  real(wp),INTENT(IN) :: b(:,:)
  integer :: M1,N1,i,j,k,info,ipvt(M2)
@@ -757,7 +764,7 @@ function lsqfillin(b) result(a)
      t(k)=PI*(k-1)/90.0_wp  ! every 2 degrees
      z(k)=b(k,i)
      X(j,k)=cos((j-1)*t(k))    ! cosine series including 0 term
-    endif      
+    endif
    end do 
   end do
   XTX=matmul(X,Transpose(X))

@@ -17,18 +17,17 @@ USE cornea_arrays
 
 !     ROUND MIRES, SINGLE AXIAL POWER SPHERE    
        if (j > N) then
-        R=48.0_wp
-        A=46.0_wp
-        B=50.0_wp
+        R=60.0_wp
+        A=40.0_wp
+        B=30.0_wp
         D=0.0_wp ; X=0.0_wp
        else 
-        DIST=0.2_wp+(j-1)*0.13_wp
-!        DIST=(j-1)/(N-1.)
+        DIST=0.2_wp+(j-1)*0.25_wp
 !       ELLIPSOID WITH ASTIGMATISM Z=R-R*SQRT(1-(rCOSt/A)^2-(rSINt)/B)^2)
-        R=48.0_wp
-        A=46.0_wp
-        B=50.0_wp
-        X=DIST*A/5.
+        R=60.0_wp
+        A=40.0_wp
+        B=30.0_wp
+        X=DIST*A/4.0
         D=X
        endif 
         YP=(-(R/A**2)*COS(RadSlope%thta(i))**2-(R/B**2)*SIN(RadSlope%thta(i))**2)
@@ -65,7 +64,7 @@ USE cornea_arrays
         EyeSys%XX(i,j)=RFCT/POW
         EyeSys%RA(i,j)=DIST*100
        else
-        write(*,*) 'error in RCNVRTT'  
+        write(*,*) 'error in RCNVRTT: pow, dist',pow,dist
        endif
       endif
      end do 
