@@ -4,27 +4,18 @@ CorneaCopia
 
 check formula for mean curvature and monge astigmatism
 
-trying to use pspli to bridge over x-axis for meanc: for some reason crashes at ring 17/22; check max length of pspli vector in data
-quite possible only 17 rings and (lsq)splinefillin(transpose) all need sanity check on length of mvjr
-
-filter out values at y=0 to fix scale for mean
-resurrect old noise reduction code?
-need lapack or open version of numrec fourn:  fftpack
-
 even in fake data:
   
-zernike has problems in center ring:
+zernike has problems
+
+check input zernC values
 
 Obliq Astig,Oblique 2nd Astig,Obl Quad,Obl trefoil, horizontal/vert coma
 defocus,vert astig, vert 2nd astig, vert trefoil, vert quad spherical aberration have issue at 90/270 degrees M1/2
-sagc has ugliness in center with continuous hue not seen with standard scale
 
-there are still occasional errors in hsbrgb (eg with test data)
- Error in hsbrgb  -1.79087922E-14   773.04297584960477        773.04297584960545        14484.942912792454
 
 try going back to splineeval1dx1d and removing extra calls to splineeval, aka back to trial that spawned current branch
 also try finding a way to use only local natural splines instead of generating whole circular spline and using pspli
-
 
 enforce having to make new zernike after loading new data
 
@@ -34,6 +25,9 @@ you can run other Analyze ie center gnusplotplot, lioc, and move the picture
 consider adding sound to play after zernike compute, but might need option to turn off
 
 tweak center part of fillin so that there's no blue/blackspot; might need error correct or average?
+
+resurrect old noise reduction code?
+need lapack or open version of numrec fourn:  fftpack
 
 centerpoints need explaining, as in why are they non-zero in writecenterj 
 might need centerpoint version for pentacam to incorporate center from Penta,as opposed to computed center average!
@@ -46,6 +40,16 @@ qhelpgenerator simpletextviewer.qhcp -o simpletextviewer.qhc
 qhelpgenerator simpletextviewer.qhp -o simpletextviewer.qch
 
 make mathematica plot output, just like ply,off etc.
+consider adding dicom export.. but yuck
+https://github.com/ImagingDataCommons/idc-dicom-seg-conversions
+or dicom import then to stl, then to splining and reconstruction of slopes, etc....
+https://github.com/eidelen/DicomToMesh
+https://github.com/dave3d/dicom2stl
+https://github.com/Kolkir/dicomtostl
+https://github.com/drukasz/RTpotter
+https://github.com/mezenc3v/DicomConverter
+https://github.com/MGensheimer/mask-to-mesh/blob/master/dicom_mask_to_stl_mesh.m
+
 
 check 3D Viewer capabilities with other formats not just obj, try emailing it to myself
 

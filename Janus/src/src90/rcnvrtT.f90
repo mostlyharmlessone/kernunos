@@ -2,31 +2,29 @@ subroutine RCNVRTT(MM,N)
 
 USE set_precision, ONLY : wp
 USE cornea_arrays
-
- INTEGER :: i,j
- INTEGER, INTENT(IN) :: MM,N
- REAL(wp) :: DIST,R,A,B,X,YP,POW,D,YT,YZ
+use,intrinsic :: ieee_arithmetic
+INTEGER :: i,j
+INTEGER, INTENT(IN) :: MM,N
+REAL(wp) :: DIST,R,A,B,X,YP,POW,D,YT,YZ
+logical :: IsInf
 
 ! fake EyeSys
-
   RadSlope%MV=0.0_wp
   do i=1,MM
     EyeSys%DEG(i)=i-1
     RadSlope%thta(i)=PI*EyeSys%DEG(i)/180.0_wp
-    do j=1,N+1     
-
-!     ROUND MIRES, SINGLE AXIAL POWER SPHERE    
+    do j=1,N+1        
        if (j > N) then
         R=60.0_wp
-        A=40.0_wp
-        B=30.0_wp
+        A=50.0_wp
+        B=40.0_wp
         D=0.0_wp ; X=0.0_wp
        else 
         DIST=0.2_wp+(j-1)*0.25_wp
 !       ELLIPSOID WITH ASTIGMATISM Z=R-R*SQRT(1-(rCOSt/A)^2-(rSINt)/B)^2)
         R=60.0_wp
-        A=40.0_wp
-        B=30.0_wp
+        A=50.0_wp
+        B=40.0_wp
         X=DIST*A/4.0
         D=X
        endif 
@@ -58,13 +56,14 @@ USE cornea_arrays
         POW=ABS(D/YP)*SQRT(1+YP**2)
       endif
       if (j > N) then
-      else            
-       if (POW > 0 .AND. DIST > 0) then   ! should always be true
+      else
+      IsInf=ieee_is_finite(POW)
+      if(IsInf) then
         RadSlope%MV(i)=RadSlope%MV(i)+1             
         EyeSys%XX(i,j)=RFCT/POW
         EyeSys%RA(i,j)=DIST*100
        else
-        write(*,*) 'error in RCNVRTT: pow, dist',pow,dist
+        cycle
        endif
       endif
      end do 

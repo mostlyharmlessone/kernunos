@@ -928,7 +928,7 @@ endif
    end do
   end do !end JMatrix ring generation
 
-! Use pspli to spline over x-axis, but not central points
+! Use pspli to spline over x-axis, but not central points, don't bother with min and max again
   JMatrix%MEANC(1:N1,:)=splinefillintranspose(JMatrix%MEANC(1:N1,:))
 
 !  Calculate center values for everything
@@ -1214,10 +1214,27 @@ nrhs=(M1*N1+1)
     else
      Theta_Talus=0
     endif
+
+if (Theta_Talus .gt. PI) then
+ R_Talus = -R_Talus
+endif
     call SplineEval1Dx1D(iflag,R_Talus,Theta_Talus,zernC(kk,ii))  ! elevation for zernike; use coefficient vector as temporary storage
+
+! problem here is that R_Talus has to be in u-space with negatives when Theta_Talus > Pi
+write(*,*) kk,ii,R_Talus,Theta_Talus,zernC(kk,ii)
+
+
     end do
+
+write(*,*) ' '
+
    end do
+
+write(*,*) ' '
+
    end do  ! end ii to nrhs
+
+stop
 
    RadSlope=JMatrix                      ! restore RadSlope
 
