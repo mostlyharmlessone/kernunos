@@ -900,6 +900,12 @@ endif
       call SplineEval1Dx1D(0,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
      endif
     endif
+
+
+!write(*,*) JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i)
+!call SplineEval1Dx1D(iflag,30.939996559620091_wp,3.1375525645804716_wp,JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
+!write(*,*) 30.939996559620091_wp,3.1375525645804716_wp,JMatrix%Z(j,i)
+
 !  save for vertex normals
     JMatrix%YPR(j,i)=YPR
     JMatrix%YPTHETA(j,i)=YPTHETA
@@ -930,6 +936,9 @@ endif
 
 ! Use pspli to spline over x-axis, but not central points, don't bother with min and max again
   JMatrix%MEANC(1:N1,:)=splinefillintranspose(JMatrix%MEANC(1:N1,:))
+
+call SplineEval1Dx1D(iflag,30.939996559620091_wp,3.1375525645804716_wp,p1)
+write(*,*) 'p1 at line 941 janus: ',p1
 
 !  Calculate center values for everything
 !  These have MM different values of the center!
@@ -969,6 +978,9 @@ endif
     if (JMatrix%Z0(1) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z0(1)
     if (JMatrix%Z0(1) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z0(1)
 !   endif  ! TestData.eq.2 .or. TestData.eq.4
+
+call SplineEval1Dx1D(iflag,30.939996559620091_wp,3.1375525645804716_wp,p1)
+write(*,*) 'p1 at line 983 janus: ',p1
 
 !  SAGC
 !   if (TestData.ne.3 .and. TestData.ne.5) then  ! already has valid SAGC0 from cornea_arrays & CUR file NOT YET IT DOES NOT
@@ -1132,23 +1144,24 @@ nrhs=(M1*N1+1)
 ! Try to generate zernike coefficients based on central elevations & lsq to zernike polynomials
 !  call CPU_TIME(time_start)
   time_start=omp_get_wtime()
-!  Reload RadSlope & respline
-   do i=1,M1
-    do j=1,RadSlope%MV(i)
-     RadSlope%Zp(j,i)=JMatrix%Z(j,i)
-    end do
-   end do
-   DiaSlope=RadSlope              ! move to diagonal format
-   DiaSlope%Zpd2 = .n. DiaSlope
-   if ( Testdata .eq. 1 ) then
-    if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-      call DiaSplineCenter(DiaSlope) ! re-spline, with center node
-    endif
-    if (btest(dat, 1)) then          ! moving each meridian to align curves
-     call AdjustRadSplineCenter     ! changes r only
-     DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
-    endif
-   endif
+  RadSlope=JMatrix
+  DiaSlope=RadSlope              ! move to diagonal format
+  DiaSlope%Zpd2 = .n. DiaSlope
+
+if ( Testdata .eq. 1 ) then
+  call MakeRadSplineCenter(0)     ! remakes RadSplineCenter(1,:)
+  if (btest(dat, 0) ) then        ! use nsplineCenter to force zero slope at origin,
+   call DiaSplineCenter(DiaSlope) ! re-spline, with center node
+                                  ! changes spline but requires SplineEvalCenter
+                                  ! remakes RadSplineCenter(2,:) and RadSplineCenter(3,:)
+  endif
+  call MakeRadSplineCenter(dat)        ! this relies on JMatrix, not the original data in RadSlope from the file
+!  Should I do this again? and for each one?
+  if (btest(dat, 1)) then         ! moving each meridian to align curves
+   call AdjustRadSplineCenter     ! changes r only
+   DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+  endif
+endif
 
 ! allocate working matrices
    kk_max=5*12
@@ -1181,8 +1194,8 @@ nrhs=(M1*N1+1)
 
 !  center of local geometry
    if (ii .LT. nrhs) then
-    ctr_circle_x=JMatrix%R(j1,i1)*cos(JMatrix%THT(i1))
-    ctr_circle_y=JMatrix%R(j1,i1)*sin(JMatrix%THT(i1))
+    ctr_circle_x=(4+abs(JMatrix%R(j1,i1)))*cos(JMatrix%THT(i1))
+    ctr_circle_y=(4+abs(JMatrix%R(j1,i1)))*sin(JMatrix%THT(i1))
    else ! last one is origin
     ctr_circle_x=0.0
     ctr_circle_y=0.0
@@ -1223,6 +1236,9 @@ endif
 ! problem here is that R_Talus has to be in u-space with negatives when Theta_Talus > Pi
 write(*,*) kk,ii,R_Talus,Theta_Talus,zernC(kk,ii)
 
+if (zernC(kk,ii) .lt. 0) then
+ stop
+ endif
 
     end do
 
@@ -1234,7 +1250,6 @@ write(*,*) ' '
 
    end do  ! end ii to nrhs
 
-stop
 
    RadSlope=JMatrix                      ! restore RadSlope
 

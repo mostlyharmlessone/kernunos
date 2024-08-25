@@ -7,12 +7,8 @@ check formula for mean curvature and monge astigmatism
 even in fake data:
   
 zernike has problems
-
-check input zernC values
-
-Obliq Astig,Oblique 2nd Astig,Obl Quad,Obl trefoil, horizontal/vert coma
-defocus,vert astig, vert 2nd astig, vert trefoil, vert quad spherical aberration have issue at 90/270 degrees M1/2
-
+checking input zernC values
+now there's an issue at 90 and 270
 
 try going back to splineeval1dx1d and removing extra calls to splineeval, aka back to trial that spawned current branch
 also try finding a way to use only local natural splines instead of generating whole circular spline and using pspli
@@ -38,6 +34,8 @@ ie use qhelpgenerator kernunos.qhcp kernunos.qhc after making the appropriate ch
 have to regenerate in directory as dir info is coded in sql files, also make sure source names in qhc/qhcp files match those in assistant.cpp
 qhelpgenerator simpletextviewer.qhcp -o simpletextviewer.qhc
 qhelpgenerator simpletextviewer.qhp -o simpletextviewer.qch
+
+http://support.phorcides.com/documentation/
 
 make mathematica plot output, just like ply,off etc.
 consider adding dicom export.. but yuck
