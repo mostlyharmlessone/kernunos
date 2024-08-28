@@ -10,7 +10,7 @@
   use c_interfaces, ONLY : LogC, Ccounter, ConvertPLYtoBIN
   use omp_lib
   IMPLICIT NONE
-  integer :: i, j, k, ii, kk, m, nn, i1, j1, ierr, info, nrhs
+  integer :: i, j, k, ii, jj, kk, m, nn, i1, j1, ierr, info, nrhs
   integer,save :: MM, N ,M1, N1, Power_Rings_Count
   integer,save :: TestData             ! TestData: -1=test, 0=EyeSys, 1=Atlas, (2-5)=Penta
   integer,save :: NP                        ! PentaCam=141
@@ -35,12 +35,12 @@
   real(wp) :: POWMIN,POWMAX,POWMAX2,POWCTR,POW,P1,X1,X2,U,V,UT,VT
   logical :: donut, exists
   real(wp) :: Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo
-  integer :: k_max, kk_max, iflag !,LWORK
+  integer :: k_max, kk_max, iflag, LWORK
   integer(c_int) :: dat, fct, map
-  real(wp), allocatable :: zernC(:,:), B_Matrix(:,:), rlocal(:), thtlocal(:) !,WORK(:)
+  real(wp), allocatable :: zernC(:,:), B_Matrix(:,:), rlocal(:), thtlocal(:), WORK(:)
   real(wp), allocatable :: XTX(:,:),EE(:,:)
   integer, allocatable :: IPIV(:)
-  real(wp) :: ctr_circle_x, ctr_circle_y, R_Talus, Theta_Talus, X_global, Y_global
+  real(wp) :: ctr_circle_x, ctr_circle_y, R_global, Theta_global, X_global, Y_global
 
 write(*,*) 'flag to Fortran:',flag
 write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
@@ -54,7 +54,7 @@ write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
 !! 4 = redraw without reloading new file
 !! 3 = write ASCII PLY file
 !! 2 = write OFF file
-!! 1 = compute zernike coefficients/Talus maps
+!! 1 = compute zernike coefficients/maps
 if (mod(flag,100) /= 0) then ! changed by new file, if there are previous values from last call, these are the existing values
  !these used to be in cornea_arrays and were static==implicitly saved, now they are locally saved
  write(*,*) 'previous MM,N,TestData: ',MM,N,TestData
@@ -901,11 +901,6 @@ endif
      endif
     endif
 
-
-!write(*,*) JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i)
-!call SplineEval1Dx1D(iflag,30.939996559620091_wp,3.1375525645804716_wp,JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
-!write(*,*) 30.939996559620091_wp,3.1375525645804716_wp,JMatrix%Z(j,i)
-
 !  save for vertex normals
     JMatrix%YPR(j,i)=YPR
     JMatrix%YPTHETA(j,i)=YPTHETA
@@ -936,9 +931,6 @@ endif
 
 ! Use pspli to spline over x-axis, but not central points, don't bother with min and max again
   JMatrix%MEANC(1:N1,:)=splinefillintranspose(JMatrix%MEANC(1:N1,:))
-
-call SplineEval1Dx1D(iflag,30.939996559620091_wp,3.1375525645804716_wp,p1)
-write(*,*) 'p1 at line 941 janus: ',p1
 
 !  Calculate center values for everything
 !  These have MM different values of the center!
@@ -978,9 +970,6 @@ write(*,*) 'p1 at line 941 janus: ',p1
     if (JMatrix%Z0(1) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z0(1)
     if (JMatrix%Z0(1) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z0(1)
 !   endif  ! TestData.eq.2 .or. TestData.eq.4
-
-call SplineEval1Dx1D(iflag,30.939996559620091_wp,3.1375525645804716_wp,p1)
-write(*,*) 'p1 at line 983 janus: ',p1
 
 !  SAGC
 !   if (TestData.ne.3 .and. TestData.ne.5) then  ! already has valid SAGC0 from cornea_arrays & CUR file NOT YET IT DOES NOT
@@ -1184,7 +1173,7 @@ endif
 
    do ii=1,nrhs
    call Ccounter(ii/40,"zernike.tmp"//c_null_char)
-!  cycle through i1 1 to MM and j1 1 to N with one point for origin at N+1
+!  cycle through i1 1 to MM and j1 4 to N-3 with one point for origin at nrhs
    i1=mod(ii,M1)
    j1=int(ii/M1)+1
    if (i1 .eq. 0) then
@@ -1192,10 +1181,20 @@ endif
     j1=j1-1
    endif
 
-!  center of local geometry
-   if (ii .LT. nrhs) then
-    ctr_circle_x=(4+abs(JMatrix%R(j1,i1)))*cos(JMatrix%THT(i1))
-    ctr_circle_y=(4+abs(JMatrix%R(j1,i1)))*sin(JMatrix%THT(i1))
+!  center of local geometry is ctr_circle_x, ctr_circle_y, add 4 to stay outside center, sub 4 to stay inside edge
+   if (ii .lt. nrhs ) then
+    if (j1 .eq. 1) then
+     ctr_circle_x=(4+abs(JMatrix%R(j1,i1)))*cos(JMatrix%THT(i1))
+     ctr_circle_y=(4+abs(JMatrix%R(j1,i1)))*sin(JMatrix%THT(i1))
+    endif
+    if (j1 .ge. JMatrix%MV(i1)) then
+     ctr_circle_x=(-4+abs(JMatrix%R(j1,i1)))*cos(JMatrix%THT(i1))
+     ctr_circle_y=(-4+abs(JMatrix%R(j1,i1)))*sin(JMatrix%THT(i1))
+    endif
+    if (j1 .gt. 1 .and. j1 .lt. JMatrix%MV(i1)) then
+     ctr_circle_x=(abs(JMatrix%R(j1,i1)))*cos(JMatrix%THT(i1))
+     ctr_circle_y=(abs(JMatrix%R(j1,i1)))*sin(JMatrix%THT(i1))
+    endif
    else ! last one is origin
     ctr_circle_x=0.0
     ctr_circle_y=0.0
@@ -1208,50 +1207,45 @@ endif
     rlocal(kk)=(i-1)/4.0  ! r goes from 0 to 1
     thtlocal(kk)=2*PI*(j-1)/12  ! tht from 0 to 2*Pi without overlap
 !   global cylindrical coordinates
-    Y_global=(rlocal(kk)*sin(thtlocal(kk))-ctr_circle_y)
-    X_global=(rlocal(kk)*cos(thtlocal(kk))-ctr_circle_x)
-    R_Talus=sqrt(X_global*X_global+Y_global*Y_global)
+    X_global=(ctr_circle_x-rlocal(kk)*cos(thtlocal(kk)))
+    Y_global=(ctr_circle_y-rlocal(kk)*sin(thtlocal(kk)))
+    R_global=sqrt(X_global*X_global+Y_global*Y_global)
     if (ABS(X_global) > EPS .AND. ABS(Y_global) > EPS) then
      if (X_global > 0 .AND. Y_global > 0 ) then
-      Theta_Talus=ATan(Y_global/X_global)
+      Theta_global=ATan(Y_global/X_global)
      endif
      if (X_global < 0 .AND. Y_global > 0 ) then
-      Theta_Talus=ATan(Y_global/X_global)+PI
+      Theta_global=ATan(Y_global/X_global)+PI
      endif
      if (X_global < 0 .AND. Y_global < 0 ) then
-      Theta_Talus=ATan(Y_global/X_global)+PI
+      Theta_global=ATan(Y_global/X_global)+PI
      endif
      if (X_global > 0 .AND. Y_global < 0 ) then
-      Theta_Talus=ATan(Y_global/X_global)+2*PI
+      Theta_global=ATan(Y_global/X_global)+2*PI
      endif
     else
-     Theta_Talus=0
+     if (ABS(X_global) <= EPS .AND. ABS(Y_global) > EPS) then
+      if (Y_global > 0) then
+       Theta_global=PI/2
+      else
+       Theta_global=3*PI/2
+      endif
+     endif
+     if (ABS(X_global) > EPS .AND. ABS(Y_global) <= EPS) then
+      if (X_global > 0) then
+       Theta_global=0
+      else
+       Theta_global=PI
+      endif
+     endif
     endif
-
-if (Theta_Talus .gt. PI) then
- R_Talus = -R_Talus
-endif
-    call SplineEval1Dx1D(iflag,R_Talus,Theta_Talus,zernC(kk,ii))  ! elevation for zernike; use coefficient vector as temporary storage
-
-! problem here is that R_Talus has to be in u-space with negatives when Theta_Talus > Pi
-write(*,*) kk,ii,R_Talus,Theta_Talus,zernC(kk,ii)
-
-if (zernC(kk,ii) .lt. 0) then
- stop
- endif
-
+    if (Theta_global .gt. PI) then
+     R_global = -R_global
+    endif
+     call SplineEval1Dx1D(iflag,R_global,Theta_global,zernC(kk,ii))
     end do
-
-write(*,*) ' '
-
-   end do
-
-write(*,*) ' '
-
-   end do  ! end ii to nrhs
-
-
-   RadSlope=JMatrix                      ! restore RadSlope
+   end do   
+  end do  ! end ii to nrhs
 
 ! generate the Zpolynomial degree_polynomial values for each point, makes a matrix degree_polynomials x length_data
 ! if n >= 0 ABS(m) <= n  & mod(n-m,2) = 0
@@ -1273,42 +1267,67 @@ call LogC("pre-LSQ"//c_null_char)
 
 ! solve the LSQ equations for zernC(k): solution is degree_polynomials number of coefficients;  B_Matrix(k,kk)*zernC(k)=z(kk)
 ! Use normal equation XTX.c=X.z ie. B_Matrix(k,kk)*zernC(k)=z(kk) or use LAPACKs dgels()
-! only have to call this once; NRHS can be for the whole talus plot since B_Matrix is invariant.
+! only have to call this once; NRHS can be for the whole plot since B_Matrix is invariant.
 ! have to allocate XTX,EE,IPIV for DGESV, XTX,EE for G-J
-   allocate(XTX(k_max,k_max),EE(k_max,nrhs),IPIV(k_max),stat=ierr)
-   if (ierr /= 0) then
-    write(*,*) 'unable to allocate memory in zernike for GJ '
-    return
-   endif
-   XTX=matmul(B_matrix,Transpose(B_matrix))
-   EE=matmul(B_matrix,zernC)  ! with a second dimension for EE
+!   allocate(XTX(k_max,k_max),EE(k_max,nrhs),IPIV(k_max),stat=ierr)
+!   if (ierr /= 0) then
+!    write(*,*) 'unable to allocate memory in zernike for GJ '
+!    return
+!   endif
+!   XTX=matmul(B_matrix,Transpose(B_matrix))
+!   EE=matmul(B_matrix,zernC)  ! with a second dimension for EE
 !   call DGESV(k_max,nrhs,XTX,k_max,IPIV,EE,k_max,INFO) ! overwrites EE into solution
-   call GaussJordan(k_max,nrhs,XTX,k_max,EE,k_max,INFO )  ! overwrites EE into solution
+!   call GaussJordan(k_max,nrhs,XTX,k_max,EE,k_max,INFO )  ! overwrites EE into solution
 !!  have to allocate WORK for DGELS, to use these uncomment them in declarations too
-!  LWORK = min(k_max,kk_max) + max( min(k_max,kk_max), nrhs )
-!  allocate (WORK(LWORK))! WORK is dimension LWORK
-!  call DGELS( 'T', k_max, kk_max, nrhs, B_Matrix, k_max, zernC , kk_max, WORK, LWORK, INFO ) ! overwrites zernC (only to k_max)
-!! if using DGELS have to replace EEwith zernC below ie EE(1:k_max,kk) => zernC(1:k_max,kk)
+  LWORK = min(k_max,kk_max) + max( min(k_max,kk_max), nrhs )
+  allocate (WORK(LWORK),stat=ierr) ! WORK is dimension LWORK
+  if (ierr /= 0) then
+   write(*,*) 'unable to allocate memory in zernike for WORK '
+   return
+  endif
+  call DGELS( 'T', k_max, kk_max, nrhs, B_Matrix, k_max, zernC , kk_max, WORK, LWORK, INFO ) ! overwrites zernC (only to k_max)
+!! if not using DGELS have to replace zernC below with EE ie  zernC(1:k_max,kk) => EE(1:k_max,kk) as in commented lines
 
 call LogC("post-LSQ"//c_null_char)
 
 !$OMP PARALLEL DO PRIVATE(i1,j1,i,j,kk)
 do kk=1,nrhs
-!  cycle through i1 1 to MM and j1 1 to N with one point for origin at N+1
-i1=mod(kk,M1)
-j1=int(kk/M1)+1
-if (i1 .eq. 0) then
- i1=M1
- j1=j1-1
-endif
-  JMatrix%ZC(j1,i1,1:k_max)=EE(1:k_max,kk)
+! cycle through i1 1 to MM and j1 1 to N with one point for origin at N+1
+  i1=mod(kk,M1)
+  j1=int(kk/M1)+1
+  if (i1 .eq. 0) then
+   i1=M1
+   j1=j1-1
+  endif
+!  JMatrix%ZC(j1,i1,1:k_max)=1000*EE(1:k_max,kk)
+  JMatrix%ZC(j1,i1,1:k_max)=1000*zernC(1:k_max,kk)
 end do
 !$OMP END PARALLEL DO
 
-! center values
-do k=1,15
- JMatrix%ZC0(1,:)=EE(1:k_max,nrhs)
+! zero out the values near the x-axis
+do i=1,M1                             ! every 2 degrees
+ do j=1,JMatrix%MV(i)
+  k=3 ! skip these problematic values at x-axis
+  if ( (i .gt. (1+k) .and. i .lt. (M1/2-k)) .or. (i .lt. (M1-k)  .and. i .gt. (M1/2+k)) ) then
+!  keep the computed value
+  else
+  do kk = 1,15
+   JMatrix%ZC(j,i,kk)=0
+  end do
+  endif
+ end do
 end do
+! Use pspli to spline over x-axis
+do kk = 1,15
+ JMatrix%ZC(:,:,kk)=splinefillintranspose(JMatrix%ZC(:,:,kk))
+end do
+
+! center values are the last values at nrhs
+do k=1,15
+! JMatrix%ZC0(1,k)=1000*EE(k,nrhs)
+ JMatrix%ZC0(1,k)=1000*zernC(k,nrhs)
+end do
+
 ! find min and max
 JMatrix%ZC0(2,:)=1E30
 JMatrix%ZC0(3,:)=-1E30
@@ -1356,7 +1375,8 @@ do k=1,12
  if (zern(13) <= zern(k)) zern(13) = zern(k)
  if (zern(14) >= zern(k)) zern(14) = zern(k)
 end do
-write(*,*) 'center zernike values: ',EE(1:k_max,nrhs)
+!write(*,*) 'center zernike values: ',EE(1:k_max,nrhs)
+write(*,*) 'center zernike values: ',zernC(1:k_max,nrhs)
 call LogC("Finished zernike"//c_null_char)
 
 unitno1 = get_new_fileunit()
@@ -1447,8 +1467,8 @@ open(unitno1, file = "zernike.tmp", action="write", iostat=ierr)
 
 ! Done with zernike
 
-  deallocate(XTX,EE,IPIV)  !if used above
-!  deallocate(WORK,B_Matrix)
+!  deallocate(XTX,EE,IPIV)  !if used above
+  deallocate(WORK,B_Matrix)
   deallocate(zernC,rlocal,thtlocal)
 
 !  call CPU_TIME(time_end)

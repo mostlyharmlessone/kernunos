@@ -107,7 +107,7 @@ const unsigned int SCR_HEIGHT = 2600;
 
 // second two digits are the function to be plotted as colors
 // 0 = SAGC Sagittal or Axial power
-// 1-15 = zernike coefficient talus maps
+// 1-15 = zernike coefficient maps
 /*
     fct   HOA
     15    "Z(4,4) Vertical Quatrafoil",  Quadrafoil 0 deg
@@ -153,7 +153,7 @@ const unsigned int SCR_HEIGHT = 2600;
 // 4 = redraw without reloading new file
 // 3 = write ASCII PLY file
 // 2 = write OFF file
-// 1 = compute zernike coefficients/Talus maps
+// 1 = compute zernike coefficients/maps
 
 int flag=500;
 int counter=0;
@@ -1519,7 +1519,7 @@ void MainWindow::createActions()
    connect(compareAct, &QAction::triggered, this, &MainWindow::compare);
 
    zernAct = new QAction(tr("&Compute Zernike Coefficients"), this);
-   zernAct->setStatusTip(tr("Compute Zernike coefficients and Talus maps"));
+   zernAct->setStatusTip(tr("Compute Zernike coefficients and maps"));
    zernAct->setEnabled(false);
    connect(zernAct, &QAction::triggered, this, &MainWindow::zerncompute);
 

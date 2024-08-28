@@ -4,25 +4,27 @@ CorneaCopia
 
 check formula for mean curvature and monge astigmatism
 
-even in fake data:
-  
-zernike has problems
-checking input zernC values
-now there's an issue at 90 and 270
 
+even in fake data: problems computing zernike near boundaries of data, try to stay within rings
+?throw out afterwards, just like x-axis points but without replacement, if necessary replace with radial spline
+
+h0/g0 z-tweak: does it affect real data meanc/mongea?
+yt/r slope/curvature map
 try going back to splineeval1dx1d and removing extra calls to splineeval, aka back to trial that spawned current branch
 also try finding a way to use only local natural splines instead of generating whole circular spline and using pspli
 
-enforce having to make new zernike after loading new data
+
+enforce, or have a warning having to make new zernike after loading new data, also if tweaks changed
 
 try to (b)lock opening another file while Zernike is computing to avoid crash ? condition on counter?
 cannot run Open
 you can run other Analyze ie center gnusplotplot, lioc, and move the picture
+probably can run kernunos but not jansu?
 consider adding sound to play after zernike compute, but might need option to turn off
 
 tweak center part of fillin so that there's no blue/blackspot; might need error correct or average?
 
-resurrect old noise reduction code?
+resurrect old noise reduction code to help out mongeastig and meanc for real data?
 need lapack or open version of numrec fourn:  fftpack
 
 centerpoints need explaining, as in why are they non-zero in writecenterj 
@@ -34,11 +36,10 @@ ie use qhelpgenerator kernunos.qhcp kernunos.qhc after making the appropriate ch
 have to regenerate in directory as dir info is coded in sql files, also make sure source names in qhc/qhcp files match those in assistant.cpp
 qhelpgenerator simpletextviewer.qhcp -o simpletextviewer.qhc
 qhelpgenerator simpletextviewer.qhp -o simpletextviewer.qch
-
-http://support.phorcides.com/documentation/
+make html files with abricotine export
 
 make mathematica plot output, just like ply,off etc.
-consider adding dicom export.. but yuck
+consider adding dicom export.. but yuck its like sending records by fax machine, or taking a screenshot
 https://github.com/ImagingDataCommons/idc-dicom-seg-conversions
 or dicom import then to stl, then to splining and reconstruction of slopes, etc....
 https://github.com/eidelen/DicomToMesh

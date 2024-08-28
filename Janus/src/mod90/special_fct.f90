@@ -252,7 +252,7 @@ function hsbrgb(x,minimum, maximum) result(rgbv)
  INTEGER :: stat
  INTEGER(int16) :: rgbv(3) ! rgbv={r,g,b}
     stat = 0
-    hue = 360*(x-minimum) / (maximum - minimum)
+    hue = 360*(maximum - x) / (maximum - minimum)
     sat=100.0 ; bright=100.0
     call jucolor('hsv',hue,sat,bright,'rgb',rr,gg,bb,stat)
     if (stat.ne.0) then
