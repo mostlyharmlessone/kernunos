@@ -32,13 +32,13 @@
   integer ::  nblines, file_idx, file_pfx,read_error,io
   integer,allocatable :: MV(:)
   real(8) :: time_start, time_end
-  real(wp) :: POWMIN,POWMAX,POWMAX2,POWCTR,POW,P1,X1,X2,U,V,UT,VT
+  real(wp) :: POWMIN,POWMAX,POWMAX2,POWCTR,POW,P1,X1,X2,U,V
   logical :: donut, exists
   real(wp) :: Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo
   integer :: k_max, kk_max, iflag, LWORK
   integer(c_int) :: dat, fct, map
   real(wp), allocatable :: zernC(:,:), B_Matrix(:,:), rlocal(:), thtlocal(:), WORK(:)
-  real(wp), allocatable :: XTX(:,:),EE(:,:)
+  real(wp), allocatable :: XTX(:,:),EE(:,:),UT(:,:),VT(:,:)
   integer, allocatable :: IPIV(:)
   real(wp) :: ctr_circle_x, ctr_circle_y, R_global, Theta_global, X_global, Y_global
 
@@ -316,7 +316,6 @@ if (mod(flag,100) .eq. 7) then
 RadSlope=JMatrix
 DiaSlope=RadSlope              ! move to diagonal format
 DiaSlope%Zpd2 = .n. DiaSlope
-
 !if ( Testdata .eq. 1 ) then
  call MakeRadSplineCenter(0)     ! remakes RadSplineCenter(1,:)
  if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
@@ -327,20 +326,36 @@ DiaSlope%Zpd2 = .n. DiaSlope
   DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
  endif
 !endif
-
+ allocate(UT(N1,M1),VT(N1,M1))
+ UT=0 ; VT=0
+ do i=1,M1
+  do j=1,RadSlope%MV(i)
+   k=3 ! skip this many problematic values at x-axis
+   if ( (i .gt. (1+k) .and. i .lt. (M1/2-k)) .or. (i .lt. (M1-k)  .and. i .gt. (M1/2+k))) then
+    CALL LIOC_Fortran(RadSlope%thta(i),RadSlope%r(j,i),JMatrix%YPR(j,i),JMatrix%YPTHETA(j,i),UT(j,i),VT(j,i))
+   endif
+   end do
+ end do
+! Use pspli to spline over x-axis because X2 goes to 0 when X1 is 0 or PI
+ UT(:,:)=splinefillintranspose(UT(:,:))
+ VT(:,:)=splinefillintranspose(VT(:,:))
  unitno1 = get_new_fileunit()
  open(unitno1, file=trim(gnu_instruct), action="write", iostat=ierr)
  do i=1,M1
   do j=1,RadSlope%MV(i)
-   X1=RadSlope%thta(i)
-   X2=RadSlope%r(j,i)
-   CALL SplineEval1Dx1D(1,X2,X1,Y,YPR,YPTHETA)
-   CALL LIOC_Fortran(X1,X2,YPR,YPTHETA,U,V,UT,VT)
-   WRITE(unitno1,*) U,V,100*UT,100*VT
+   if (RadSlope%r(j,i) > 0) then
+     U=RadSlope%r(j,i)*COS(RadSlope%thta(i))
+     V=RadSlope%r(j,i)*SIN(RadSlope%thta(i))
+   else
+     U=-RadSlope%r(j,i)*COS(RadSlope%thta(i))
+     V=-RadSlope%r(j,i)*SIN(RadSlope%thta(i))
+   endif
+   WRITE(unitno1,*) U,V,100*UT(j,i),100*VT(j,i)
   end do
   WRITE(unitno1,*) ' '
  end do
  close (unitno1)
+ deallocate(UT,VT)
  return
 endif ! (mod(flag,100) .eq. 7)
 

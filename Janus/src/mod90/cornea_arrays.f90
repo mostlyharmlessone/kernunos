@@ -1033,26 +1033,24 @@ subroutine mongea(X1,X2,Y1XIN,Y1T,Y1XT,Y2T,Y2X,ZA)
 end subroutine mongea
 
 ! Lines of Curvature
-subroutine LIOC_Fortran(X1,X2,Y1X,Y1T,UPOS,VPOS,UTPOS,VTPOS)
+subroutine LIOC_Fortran(X1,X2,Y1X,Y1T,UTPOS,VTPOS)
    real(wp), intent(in) :: X1,X2,Y1X,Y1T
-   real(wp), intent(out) :: UPOS,VPOS,UTPOS,VTPOS      
+   real(wp), intent(inout) :: UTPOS,VTPOS !,UPOS,VPOS
 !  CARTESIAN TANGENT VECTOR COMPONENTS (-UTPOS,-VTPOS,1)  
    if (ABS(X2) > EPS) then
      if (X2 > 0) then     
-        UPOS=X2*COS(X1)
-        VPOS=X2*SIN(X1)
+!        UPOS=X2*COS(X1)
+!        VPOS=X2*SIN(X1)
         UTPOS=Y1X*COS(X1)-Y1T*SIN(X1)/X2
         VTPOS=Y1X*SIN(X1)+Y1T*COS(X1)/X2 
      else
-        UPOS=-X2*COS(X1)
-        VPOS=-X2*SIN(X1)
+!        UPOS=-X2*COS(X1)
+!        VPOS=-X2*SIN(X1)
         UTPOS=-Y1X*COS(X1)+Y1T*SIN(X1)/X2
         VTPOS=-Y1X*SIN(X1)-Y1T*COS(X1)/X2         
      endif
      else
 !    UNDEFINED AT ORIGIN X2=0          
-        UPOS=0._wp
-        VPOS=0._wp
         UTPOS=0._wp
         VTPOS=0._wp     
      endif        

@@ -29,37 +29,31 @@
         L=j+MM/2
         thta(L)=RadSlope%thta(L)
 
-        if (mod(iflag,10) == 0) then     ! no integration
+        if (mod(iflag,10) == 0) then                  ! no integration
          if (((iflag-mod(iflag,10))/10) == 0) then    ! no central node
-          call SplineEval(0,r,z,zr2,L2,u,g,gr,grr)  !first parameter = 0 nonperiodic
-          call SplineEval(0,r,z,zr2,L2,-u,h,hr,hrr)  !first parameter = 0 nonperiodic
+          call SplineEval(0,r,z,zr2,L2,u,g,gr,grr)    ! first parameter = 0 nonperiodic
          endif
-         if (((iflag-mod(iflag,10))/10) == 1) then    !non-periodic center node radial spline
+         if (((iflag-mod(iflag,10))/10) == 1) then    ! non-periodic center node radial spline
           call SplineEvalCenter(j,r,z,zr2,L2,u,g,gr,grr)
-          call SplineEvalCenter(j,r,z,zr2,L2,-u,h,hr,hrr)
          endif
          fTmp(j)=g
-         fTmp(L)=h
         else  !iflag=1 or 2
          call SplineEval(0,r,z,zr2,L2,u,gr,grr)
-         call SplineEval(0,r,z,zr2,L2,u,hr,hrr)
-         if (mod(iflag,10) == 2) then     !cubic integration
+         if (mod(iflag,10) == 2) then                  ! cubic integration
           call CubicSplineQuad(j,iflag,r,z,zr2,L2,0._wp,g0)
           call CubicSplineQuad(j,iflag,r,z,zr2,L2,u,g)
-          call CubicSplineQuad(j,iflag,r,z,zr2,L2,-u,h)
          endif
-         if (mod(iflag,10) == 1) then   !trapezoidal integration
+         if (mod(iflag,10) == 1) then                  ! trapezoidal integration
           call trapez(j,iflag,r,z,zr2,L2,0._wp,g0)
           call trapez(j,iflag,r,z,zr2,L2,u,g)
-          call trapez(j,iflag,r,z,zr2,L2,-u,h)
          endif         
          fTmp(j)=g-g0
-         fTmp(L)=h-g0
         endif      
         frTmp(j)=gr
         frrTmp(j)=grr 
-        frTmp(L)=hr
-        frrTmp(L)=hrr
+        fTmp(L)=fTmp(j)
+        frTmp(L)=frTmp(j)
+        frrTmp(L)=frrTmp(j)
       end do
 
 !       FIRST CALL FOR PERIODIC SPLINE OF f0, fttTmp is d2Y/dTHETA2

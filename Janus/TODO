@@ -4,11 +4,12 @@ CorneaCopia
 
 check formula for mean curvature and monge astigmatism
 
+plots with gnuplot splot are only has fixed scale for sagc?
 
 even in fake data: problems computing zernike near boundaries of data, try to stay within rings
 ?throw out afterwards, just like x-axis points but without replacement, if necessary replace with radial spline
+in general is a plotting with outlier point problem
 
-h0/g0 z-tweak: does it affect real data meanc/mongea?
 yt/r slope/curvature map
 try going back to splineeval1dx1d and removing extra calls to splineeval, aka back to trial that spawned current branch
 also try finding a way to use only local natural splines instead of generating whole circular spline and using pspli
@@ -19,7 +20,7 @@ enforce, or have a warning having to make new zernike after loading new data, al
 try to (b)lock opening another file while Zernike is computing to avoid crash ? condition on counter?
 cannot run Open
 you can run other Analyze ie center gnusplotplot, lioc, and move the picture
-probably can run kernunos but not jansu?
+probably can run kernunos but not janus?
 consider adding sound to play after zernike compute, but might need option to turn off
 
 tweak center part of fillin so that there's no blue/blackspot; might need error correct or average?
@@ -37,6 +38,7 @@ have to regenerate in directory as dir info is coded in sql files, also make sur
 qhelpgenerator simpletextviewer.qhcp -o simpletextviewer.qhc
 qhelpgenerator simpletextviewer.qhp -o simpletextviewer.qch
 make html files with abricotine export
+move faq to help menu: notes from spline.odt into help/faq OR add docs in pdf to main release files after some edits
 
 make mathematica plot output, just like ply,off etc.
 consider adding dicom export.. but yuck its like sending records by fax machine, or taking a screenshot
@@ -68,11 +70,6 @@ might need to make notes about this problem or limit replacestr   fix EyeSys fil
 can try one than the other before giving up, this issue also applies to file operations of all kinds (exporting/gnuplots) 
 if the suffix is found in the directory path name; might have to figure out how to separate path from name
 
-
-Projects:
-move faq to help menu
-notes from spline.odt into help/faq OR add docs in pdf to main release files after some edits
-
 decentration in test data
 
 rotation error/fixation-> measure by quality of fit to parabola in each meridian
@@ -88,11 +85,6 @@ Adapt code in book to do LS-BICSA
 2-D splining
 Border trimming for PentaCam is draconian, but reliable; 
 to better convert xy to polar splines need 2-D splining
-
-Get new data files:
-get u12 keratograph (same as pentacam?) file and start bin->ASC with different assumptions, like uint32 or uint16
-can try rply.c code as starter; use hexdump to look at bin.ply as well as U12
-assuming 180  x  22 rings for the oculus keratograph
 
 Optimizing:
 1)valgrind/profiling can also try helegrind for cyclic 4 way slow down
