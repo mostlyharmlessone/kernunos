@@ -1035,25 +1035,19 @@ end subroutine mongea
 ! Lines of Curvature
 subroutine LIOC_Fortran(X1,X2,Y1X,Y1T,UTPOS,VTPOS)
    real(wp), intent(in) :: X1,X2,Y1X,Y1T
-   real(wp), intent(inout) :: UTPOS,VTPOS !,UPOS,VPOS
+   real(wp), intent(inout) :: UTPOS,VTPOS
 !  CARTESIAN TANGENT VECTOR COMPONENTS (-UTPOS,-VTPOS,1)  
-   if (ABS(X2) > EPS) then
+   if (ABS(X2) > EPS) then  ! and ill conditioned even farther than that
      if (X2 > 0) then     
-!        UPOS=X2*COS(X1)
-!        VPOS=X2*SIN(X1)
-        UTPOS=Y1X*COS(X1)-Y1T*SIN(X1)/X2
-        VTPOS=Y1X*SIN(X1)+Y1T*COS(X1)/X2 
+      UTPOS=Y1X*COS(X1)-Y1T*SIN(X1)/X2
+      VTPOS=Y1X*SIN(X1)+Y1T*COS(X1)/X2
      else
-!        UPOS=-X2*COS(X1)
-!        VPOS=-X2*SIN(X1)
-        UTPOS=-Y1X*COS(X1)+Y1T*SIN(X1)/X2
-        VTPOS=-Y1X*SIN(X1)-Y1T*COS(X1)/X2         
+      UTPOS=-Y1X*COS(X1)+Y1T*SIN(X1)/X2
+      VTPOS=-Y1X*SIN(X1)-Y1T*COS(X1)/X2
      endif
-     else
-!    UNDEFINED AT ORIGIN X2=0          
-        UTPOS=0._wp
-        VTPOS=0._wp     
-     endif        
+   else
+    write(*,*) 'Warning ill conditioned attempt at UT,VT'
+   endif
 end subroutine LIOC_Fortran
 
 ! instantaneous "tangential" power and mean power in terms of axial/"sagittal" power,radius and radial derivative of axial power 

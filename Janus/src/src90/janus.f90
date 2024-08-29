@@ -915,37 +915,51 @@ endif
       call SplineEval1Dx1D(0,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
      endif
     endif
-
-!  save for vertex normals
+!  save for vertex normals and for LIOC
     JMatrix%YPR(j,i)=YPR
-    JMatrix%YPTHETA(j,i)=YPTHETA
 !  powers
     call AXIALP(JMatrix%R(j,i),YPR,YP2R2,JMatrix%SAGC(j,i))
-    call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i),JMatrix%INSTC2(j,i))
-    call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
-
-    k=3 ! skip this many problematic values at x-axis
+!    call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
+    if (M1 .eq. 360) then
+     k=8 ! skip this many problematic values at x-axis
+    else
+     k=4  ! fewer because every 2 degrees
+    endif
     if ( (i .gt. (1+k) .and. i .lt. (M1/2-k)) .or. (i .lt. (M1-k)  .and. i .gt. (M1/2+k))) then
+     JMatrix%YPTHETA(j,i)=YPTHETA  !  save for vertex normals and for LIOC
+     call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i),JMatrix%INSTC2(j,i))
+     call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
      call MEANP(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
      if (JMatrix%MEANC(j,i) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC(j,i)
      if (JMatrix%MEANC(j,i) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC(j,i)
+     if (JMatrix%INSTC(j,i) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC(j,i)
+     if (JMatrix%INSTC(j,i) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC(j,i)
+     if (JMatrix%INSTC2(j,i) <= JMatrix%INSTC20(2)) JMatrix%INSTC20(2)=JMatrix%INSTC2(j,i)
+     if (JMatrix%INSTC2(j,i) >= JMatrix%INSTC20(3)) JMatrix%INSTC20(3)=JMatrix%INSTC2(j,i)
+     if (JMatrix%MONGEA(j,i) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA(j,i)
+     if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
     endif
 !   find min and max
     if (JMatrix%Z(j,i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z(j,i)
     if (JMatrix%Z(j,i) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z(j,i)
     if (JMatrix%SAGC(j,i) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC(j,i)
     if (JMatrix%SAGC(j,i) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC(j,i)
-    if (JMatrix%INSTC(j,i) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC(j,i)
-    if (JMatrix%INSTC(j,i) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC(j,i)
-    if (JMatrix%INSTC2(j,i) <= JMatrix%INSTC20(2)) JMatrix%INSTC20(2)=JMatrix%INSTC2(j,i)
-    if (JMatrix%INSTC2(j,i) >= JMatrix%INSTC20(3)) JMatrix%INSTC20(3)=JMatrix%INSTC2(j,i)
-    if (JMatrix%MONGEA(j,i) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA(j,i)
-    if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
    end do
   end do !end JMatrix ring generation
 
 ! Use pspli to spline over x-axis, but not central points, don't bother with min and max again
   JMatrix%MEANC(1:N1,:)=splinefillintranspose(JMatrix%MEANC(1:N1,:))
+  JMatrix%YPTHETA(1:N1,:)=splinefillintranspose(JMatrix%YPTHETA(1:N1,:))
+  JMatrix%MONGEA(1:N1,:)=splinefillintranspose(JMatrix%MONGEA(1:N1,:))
+  JMatrix%INSTC(1:N1,:)=splinefillintranspose(JMatrix%INSTC(1:N1,:))
+  JMatrix%INSTC2(1:N1,:)=splinefillintranspose(JMatrix%INSTC2(1:N1,:))
+
+write(*,*) 'janus 956'
+  do i=1,M1
+   do j=1,JMatrix%MV(i)
+write(*,*) abs(JMatrix%R(j,i)),JMatrix%THT(i),JMatrix%YPTHETA(j,i)/abs(JMatrix%R(j,i))
+end do
+end do
 
 !  Calculate center values for everything
 !  These have MM different values of the center!
