@@ -834,6 +834,8 @@ if (TestData .eq. 1) then
 
 endif
 
+  if (mod(flag,100) .ne. 9 ) then
+
 ! Spline RadSlope
   DiaSlope=RadSlope              ! move to diagonal format
   DiaSlope%Zpd2 = .n. DiaSlope   ! spline across center without tweaks
@@ -1197,6 +1199,8 @@ endif
  if (JMatrix%MONGEA0(1) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA0(1)
 ! end populating JMatrix
 
+endif !mod(flag,100) /= 9
+
 !zernike coefficents
 if (mod(flag,100) == 1) then
  call Ccounter(0,"zernike.tmp"//c_null_char)
@@ -1434,6 +1438,7 @@ deallocate(zernC,rlocal,thtlocal)
  endif
 endif  ! end of flag=1
 
+
 ! plot Zernike central coefficients with gnuplot
 if (mod(flag,100) == 1 .or. mod(flag,100) == 9) then
 ! transfer to C++ for plot
@@ -1466,10 +1471,11 @@ zern(12)=JMatrix%ZC0(1,3)
 zern(13)=1E30
 zern(14)=-1E30
 do k=1,12
- if (zern(13) <= zern(k)) zern(13) = zern(k)
- if (zern(14) >= zern(k)) zern(14) = zern(k)
+ if (zern(13) >= zern(k)) zern(13) = zern(k)
+ if (zern(14) <= zern(k)) zern(14) = zern(k)
 end do
-
+! only make a plot if there's data
+if (ABS(zern(13)-zern(14)) > EPS) then
 unitno1 = get_new_fileunit()
 open(unitno1, file = "zernike.tmp", action="write", iostat=ierr)
  write(unitno1,*) "reset session"
@@ -1554,8 +1560,11 @@ open(unitno1, file = "zernike.tmp", action="write", iostat=ierr)
  close(unitno1)
 
 !good place to call a c program to display
-call Ccounter(100,"zernike.tmp"//c_null_char)
+ call Ccounter(100,"zernike.tmp"//c_null_char)
 
+else
+ call LogC("No Zernike data found"//c_null_char)
+endif
  return
 endif
 

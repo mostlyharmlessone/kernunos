@@ -6,7 +6,7 @@ check formula for mean curvature and monge astigmatism
 
 plots with gnuplot splot are only has fixed scale for sagc?
 
-incorporate oblique and reading zernike from some atlas into readme/faq
+incorporate "oblique power" and reading zernike from some atlas files into readme/faq
 
 even in fake data: problems computing zernike near boundaries of data, try to stay within rings
 ?throw out afterwards, just like x-axis points but without replacement, if necessary replace with radial spline
