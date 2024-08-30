@@ -451,14 +451,14 @@ subroutine rcnvrta(KXNAME,N,read_error)
 ! ATLAS VERSION
  use io_functions, only : get_new_fileunit
  USE set_precision, ONLY : wp
- USE cornea_arrays, ONLY : Atlas
+ USE cornea_arrays, ONLY : Atlas, JMatrix
  implicit none
  logical :: exists
  CHARACTER(80) KH1,KH2,KH3
  character(len=*), intent(in) :: KXNAME
  integer, intent(out) :: N, read_error
  INTEGER :: K,I,J,io,ITH,JTH,unitno,MM,ierr
- REAL(wp) :: R,DIST,Y,POW
+ REAL(wp) :: R,DIST,Y,POW,Z
  MM=180
  ! its assumed at this point that the AR data is always N=22
  N=22
@@ -521,17 +521,6 @@ subroutine rcnvrta(KXNAME,N,read_error)
          ENDIF
         ENDIF
 
-!       redefines N for data read if necessary
-        IF (KH1.EQ.'#End_Table') THEN
-         READ(unitno,*,END=100,IOSTAT=io) KH1,KH2
-         IF (KH1.EQ.'Power_Rings_Count') THEN
-          read(KH2,*) N
-          if (N > 22) write(*,*) 'Atlas 900 file data read'
-          if (N < 25) write(*,*) 'Atlas 9000 file data read'
-!          write(*,*) trim(KH1),N
-         ENDIF
-        ENDIF
-
         IF (KH1.EQ.'Ring') THEN
          IF (KH2.EQ.'Point'.AND.KH3.EQ.'Distance(MM)') THEN       
 !         DATA READ POWER
@@ -541,12 +530,12 @@ subroutine rcnvrta(KXNAME,N,read_error)
 !          DISTANCE OR RADIUS? ABOVE FOR EACH RING
            READ(unitno,*,END=100,IOSTAT=io) ITH,JTH,DIST,Y,POW,KH1,KH2
 !          SHOULD ALWAYS BE TRUE: ITH.EQ.(J-1) & JTH.NE.(I-1)
-           IF (ITH.NE.(J-1)) then
+           if (ITH.NE.(J-1)) then
             WRITE(*,*) 'ATLAS POWER READ ERROR'
             read_error=5
             goto 100
            endif
-           IF (JTH.NE.(I-1)) then
+           if (JTH.NE.(I-1)) then
             WRITE(*,*) 'ATLAS POWER POINT=THETA/2 READ ERROR'
             read_error=6
             goto 100
@@ -557,6 +546,45 @@ subroutine rcnvrta(KXNAME,N,read_error)
             Atlas%AP(JTH+1,ITH+1)=POW
            end do 
           end do           
+         ENDIF
+        ENDIF
+
+        IF (KH1.EQ.'#End_Table') THEN
+         READ(unitno,*,END=100,IOSTAT=io) KH1,KH2,ITH
+         IF (KH1.EQ.'Zernike') THEN
+          WRITE(*,*) 'Zernike coefficients present, order',ITH
+          if (ITH .eq. 7) JTH=35
+          if (ITH .eq. 6) JTH=27
+          if (ITH .eq. 5) JTH=20
+          if (ITH .eq. 4) JTH=14
+          if (ITH .eq. 3) JTH=9
+          if (ITH .eq. 2) JTH=5
+          if (ITH .eq. 1) JTH=2
+          if (ITH .eq. 0) JTH=0
+          READ(unitno,*,END=100,IOSTAT=io) KH1,KH2,KH3,Z
+          WRITE(*,*) 'Zernike Fit Zone',Z
+          READ(unitno,*,END=100,IOSTAT=io) KH1,KH2
+          READ(unitno,*,END=100,IOSTAT=io) KH1,I,Z
+          JMatrix%ZC0(1,7)=Z
+          DO K=1,JTH
+           READ(unitno,*,END=100,IOSTAT=io) KH1,I,J,Z
+!          only store the 4th order Zernikes at this point for display, uncomment to write all to log
+!           WRITE(*,*) trim(KH1),I,J,Z
+           if (I .eq. 1 .and. J .eq. 1 ) JMatrix%ZC0(1,10)=Z
+           if (I .eq. 1 .and. J .eq. -1 ) JMatrix%ZC0(1,5)=Z
+           if (I .eq. 2 .and. J .eq. -2 ) JMatrix%ZC0(1,3)=Z
+           if (I .eq. 2 .and. J .eq. 0 ) JMatrix%ZC0(1,8)=Z
+           if (I .eq. 2 .and. J .eq. 2 ) JMatrix%ZC0(1,12)=Z
+           if (I .eq. 3 .and. J .eq. -3 ) JMatrix%ZC0(1,2)=Z
+           if (I .eq. 3 .and. J .eq. -1 ) JMatrix%ZC0(1,6)=Z
+           if (I .eq. 3 .and. J .eq. 1 ) JMatrix%ZC0(1,11)=Z
+           if (I .eq. 3 .and. J .eq. 3 ) JMatrix%ZC0(1,14)=Z
+           if (I .eq. 4 .and. J .eq. -4 ) JMatrix%ZC0(1,1)=Z
+           if (I .eq. 4 .and. J .eq. -2 ) JMatrix%ZC0(1,4)=Z
+           if (I .eq. 4 .and. J .eq. 0 ) JMatrix%ZC0(1,9)=Z
+           if (I .eq. 4 .and. J .eq. 2 ) JMatrix%ZC0(1,13)=Z
+           if (I .eq. 4 .and. J .eq. 4 ) JMatrix%ZC0(1,15)=Z
+          END DO
          ENDIF
         ENDIF
        

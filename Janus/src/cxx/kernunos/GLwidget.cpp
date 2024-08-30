@@ -132,6 +132,7 @@ bool GLwidget::m_LSQfillin = false;
 bool GLwidget::m_Splinefillin = false;
 
 bool GLwidget::m_Axial = true;
+bool GLwidget::m_Oblique = false;
 bool GLwidget::m_Tangential = false;
 bool GLwidget::m_Instantaneous = false;
 bool GLwidget::m_Mean = false;

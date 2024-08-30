@@ -40,10 +40,10 @@ MODULE cornea_arrays
 !  Computed results: R is from make rings or Penta version; need to declare one of each of these for each data set for comparison
 !  each array except for R,THT, is (N+1,MM) to include values at each ring and also at center RC==RadSplineCenter pseudo ring
 !  each matching name has the value at origin, min value and max value
-   REAL (wp), ALLOCATABLE :: R(:,:),Z(:,:),THT(:),SAGC(:,:),INSTC(:,:),INSTC2(:,:),MEANC(:,:),MONGEA(:,:),YPR(:,:),YPTHETA(:,:)
-   REAL (wp), ALLOCATABLE :: RC(:,:)  ! RC is RadSplineCenter, compare to R0
+   REAL (wp), ALLOCATABLE :: R(:,:),Z(:,:),THT(:),SAGC(:,:),INSTC(:,:),INSTC2(:,:),MEANC(:,:),MONGEA(:,:),OBSC(:,:)
+   REAL (wp), ALLOCATABLE :: RC(:,:),YPR(:,:),YPTHETA(:,:)  ! RC is RadSplineCenter, compare to R0
    INTEGER, ALLOCATABLE :: MV(:)
-   REAL (wp) :: R0,THT0,Z0(3),SAGC0(3),INSTC0(3),INSTC20(3),MEANC0(3),MONGEA0(3)
+   REAL (wp) :: R0,THT0,Z0(3),SAGC0(3),INSTC0(3),INSTC20(3),MEANC0(3),MONGEA0(3),OBSC0(3)
    ! 12 up to 15 zernike coordinates
    REAL(wp),ALLOCATABLE :: ZC(:,:,:)
    REAL(wp) :: ZC0(3,15) !origin,min,max for each
@@ -146,9 +146,9 @@ subroutine init_mat_JMatrix(MM,N,b) ! allocate common storage arrays
   TYPE(wpJMatrix) :: b
   allocate (b%R(N,MM),b%Z(N+1,MM),b%THT(MM),b%YPR(N,MM),b%YPTHETA(N,MM),b%SAGC(N+1,MM),&
             b%INSTC(N+1,MM),b%INSTC2(N+1,MM),b%MEANC(N+1,MM),b%MONGEA(N+1,MM))
-  allocate (b%MV(MM),b%RC(3,MM))
+  allocate (b%MV(MM),b%RC(3,MM),b%OBSC(N+1,MM))
   b%R(:,:)=0 ; b%Z(:,:)=0 ; b%THT(:)=0 ; b%YPR(:,:)=0 ; b%YPTHETA(:,:)=0 ; b%SAGC(:,:)=0
-  b%INSTC(:,:)=0 ; b%INSTC2(:,:)=0 ; b%MEANC(:,:)=0 ; b%MONGEA(:,:)=0
+  b%INSTC(:,:)=0 ; b%INSTC2(:,:)=0 ; b%MEANC(:,:)=0 ; b%MONGEA(:,:)=0 ;  b%OBSC(:,:)=0
   b%MV(:)=0 ; b%RC(:,:)=0
   allocate (b%ZC(N+1,MM,15))
   b%ZC(:,:,:)=0
@@ -676,7 +676,7 @@ function splinefillin(b) result(a)
         endif
       end do
 !     no splining if less than half the points avaialble
-      if (mvjr(i) .gt. 90) then
+      if (mvjr(i) .gt. (M1/2)) then
        call pspli(t,z,mvjr(i),zt2)
       else
        cycle
@@ -720,7 +720,7 @@ function splinefillintranspose(b) result(a)
         endif
       end do
 !     no splining if less than half the points avaialble
-      if (mvjr(i) .gt. 90) then
+      if (mvjr(i) .gt. (M1/2)) then
        call pspli(t,z,mvjr(i),zt2)
        else
         cycle

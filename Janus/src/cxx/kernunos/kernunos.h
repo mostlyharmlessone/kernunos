@@ -93,6 +93,7 @@ private slots:
     void redraw();
     void compare();
     void zerncompute();
+    void showzern();
     void ply2bin();
     void off2stl();
     void makeoff();
@@ -111,6 +112,7 @@ private slots:
     void rings();
     void gnuplotsplot();
     void fctAxial();
+    void fctOblique();
     void fctTangential();
     void fctInstantaneous();
     void fctMean();
@@ -164,6 +166,7 @@ private:
 
     QMenu *functionMenu;
     QAction *AxialAct;
+    QAction *ObliqueAct;
     QAction *TangentialAct;
     QAction *InstantaneousAct;
     QAction *MeanAct;
@@ -214,6 +217,7 @@ private:
 
     QMenu *analyzeMenu;
     QAction *zernAct;
+    QAction *ShowZernAct;
     QAction *liocAct;
     QAction *centerAct;
     QAction *ringsAct;

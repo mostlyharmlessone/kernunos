@@ -45,8 +45,8 @@
 write(*,*) 'flag to Fortran:',flag
 write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
 !! last two digits are the program function
-!! 0 = open a file, display
 !! 99 = deallocate arrays for program closure
+!! 9 = show zernike coefficients
 !! 8 = show circumferential ring lsqfillin/splinefillin
 !! 7 = make lioc
 !! 6 = make centers
@@ -55,6 +55,7 @@ write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
 !! 3 = write ASCII PLY file
 !! 2 = write OFF file
 !! 1 = compute zernike coefficients/maps
+!! 0 = open a file, display
 if (mod(flag,100) /= 0) then ! changed by new file, if there are previous values from last call, these are the existing values
  !these used to be in cornea_arrays and were static==implicitly saved, now they are locally saved
  write(*,*) 'previous MM,N,TestData: ',MM,N,TestData
@@ -225,6 +226,10 @@ if (mod(flag,100) .eq. 5 ) then
     powctr=JMatrix%Z0(1)
     powmin=JMatrix%Z0(2)
     powmax=JMatrix%Z0(3)
+    CASE (21)
+    powctr=JMatrix%OBSC0(1)
+    powmin=JMatrix%OBSC0(2)
+    powmax=JMatrix%OBSC0(3)
     CASE DEFAULT
     powctr=JMatrix%SAGC0(1)
     powmin=JMatrix%SAGC0(2)
@@ -398,6 +403,10 @@ file_idx=index(inputfile1, ".ply")
     powctr=JMatrix%Z0(1)
     powmin=JMatrix%Z0(2)
     powmax=JMatrix%Z0(3)
+    CASE (21)
+    powctr=JMatrix%OBSC0(1)
+    powmin=JMatrix%OBSC0(2)
+    powmax=JMatrix%OBSC0(3)
     CASE DEFAULT
     powctr=JMatrix%SAGC0(1)
     powmin=JMatrix%SAGC0(2)
@@ -454,6 +463,10 @@ file_idx=index(inputfile1, ".off")
     powctr=JMatrix%Z0(1)
     powmin=JMatrix%Z0(2)
     powmax=JMatrix%Z0(3)
+    CASE (21)
+    powctr=JMatrix%OBSC0(1)
+    powmin=JMatrix%OBSC0(2)
+    powmax=JMatrix%OBSC0(3)
     CASE DEFAULT
     powctr=JMatrix%SAGC0(1)
     powmin=JMatrix%SAGC0(2)
@@ -594,10 +607,13 @@ if (mod(flag,100) == 0) then
     JMatrix1%Z0(:)=JMatrix%Z0(:)
     JMatrix1%THT0=JMatrix%THT0
     JMatrix1%SAGC0(:)=JMatrix%SAGC0(:)
+    JMatrix1%OBSC0(:)=JMatrix%OBSC0(:)
     JMatrix1%INSTC0(:)=JMatrix%INSTC0(:)
     JMatrix1%INSTC20(:)=JMatrix%INSTC20(:)
     JMatrix1%MEANC0(:)=JMatrix%MEANC0(:)
     JMatrix1%MONGEA0(:)=JMatrix%MONGEA0(:)
+    JMatrix1%ZC0(:,:)=JMatrix%ZC0(:,:)
+    JMatrix1%ZC(:,:,:)=JMatrix%ZC(:,:,:)
   else
      write(*,*) 'allocating JMatrix'
      call init_mat_JMatrix(M1,N1,JMatrix)
@@ -882,6 +898,7 @@ endif
   rBi=0.05*rBo
 !  min and max bounds
   JMatrix%SAGC0(2)=1E30   ;  JMatrix%SAGC0(3)=-1E30 ; JMatrix%SAGC0(1)=0
+  JMatrix%OBSC0(2)=1E30   ;  JMatrix%OBSC0(3)=-1E30 ; JMatrix%OBSC0(1)=0
   JMatrix%Z0(2)=1E30      ;  JMatrix%Z0(3)=-1E30 ;    JMatrix%Z0(3)=0
   JMatrix%INSTC0(2)=1E30  ;  JMatrix%INSTC0(3)=-1E30 ; JMatrix%INSTC0(1)=0
   JMatrix%INSTC20(2)=1E30 ;  JMatrix%INSTC20(3)=-1E30 ; JMatrix%INSTC20(1)=0
@@ -919,7 +936,7 @@ endif
     JMatrix%YPR(j,i)=YPR
 !  powers
     call AXIALP(JMatrix%R(j,i),YPR,YP2R2,JMatrix%SAGC(j,i))
-!    call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
+    call AXIALP(JMatrix%R(j,i),YPTHETA/JMatrix%R(j,i),YP2THETA/JMatrix%R(j,i),JMatrix%OBSC(j,i))
     if (M1 .eq. 360) then
      k=8 ! skip this many problematic values at x-axis
     else
@@ -938,12 +955,15 @@ endif
      if (JMatrix%INSTC2(j,i) >= JMatrix%INSTC20(3)) JMatrix%INSTC20(3)=JMatrix%INSTC2(j,i)
      if (JMatrix%MONGEA(j,i) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA(j,i)
      if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
+
     endif
 !   find min and max
     if (JMatrix%Z(j,i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z(j,i)
     if (JMatrix%Z(j,i) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z(j,i)
     if (JMatrix%SAGC(j,i) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC(j,i)
     if (JMatrix%SAGC(j,i) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC(j,i)
+    if (JMatrix%OBSC(j,i) <= JMatrix%OBSC0(2)) JMatrix%OBSC0(2)=JMatrix%OBSC(j,i)
+    if (JMatrix%OBSC(j,i) >= JMatrix%OBSC0(3)) JMatrix%OBSC0(3)=JMatrix%OBSC(j,i)
    end do
   end do !end JMatrix ring generation
 
@@ -953,13 +973,7 @@ endif
   JMatrix%MONGEA(1:N1,:)=splinefillintranspose(JMatrix%MONGEA(1:N1,:))
   JMatrix%INSTC(1:N1,:)=splinefillintranspose(JMatrix%INSTC(1:N1,:))
   JMatrix%INSTC2(1:N1,:)=splinefillintranspose(JMatrix%INSTC2(1:N1,:))
-
-write(*,*) 'janus 956'
-  do i=1,M1
-   do j=1,JMatrix%MV(i)
-write(*,*) abs(JMatrix%R(j,i)),JMatrix%THT(i),JMatrix%YPTHETA(j,i)/abs(JMatrix%R(j,i))
-end do
-end do
+!  JMatrix%OBSC(1:N1,:)=splinefillintranspose(JMatrix%OBSC(1:N1,:))
 
 !  Calculate center values for everything
 !  These have MM different values of the center!
@@ -1032,6 +1046,38 @@ end do
     if (JMatrix%SAGC0(1) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC0(1)
     if (JMatrix%SAGC0(1) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC0(1)
 !   endif   ! TestData.eq.3 .or. TestData.eq.5
+
+!  OBSC
+!  Reload RadSlope with SAGC & re-spline; can't compute it from surface because ill-defined at origin
+    do i=1,M1
+     do j=1,RadSlope%MV(i)
+      RadSlope%Zp(j,i)=JMatrix%OBSC(j,i)
+     end do
+    end do
+    DiaSlope=RadSlope              ! move to diagonal format
+    DiaSlope%Zpd2 = .n. DiaSlope
+
+    if ( Testdata .eq. 1 ) then
+     if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+       call DiaSplineCenter(DiaSlope) ! re-spline, with center node
+     endif
+     if (btest(dat, 1)) then          ! moving each meridian to align curves
+      call AdjustRadSplineCenter     ! changes r only
+      DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+     endif
+    endif
+
+    do i=1,M1
+     if (btest(dat,0)) then
+      call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%OBSC(N1+1,i))  ! center value
+     else
+      call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%OBSC(N1+1,i))  ! center value
+     endif
+     JMatrix%OBSC0(1)=(i*JMatrix%OBSC0(1)+JMatrix%OBSC(N1+1,i))/(i+1)      ! cumulative average
+    end do
+    if (JMatrix%OBSC0(1) <= JMatrix%OBSC0(2)) JMatrix%OBSC0(2)=JMatrix%OBSC0(1)
+    if (JMatrix%OBSC0(1) >= JMatrix%OBSC0(3)) JMatrix%OBSC0(3)=JMatrix%OBSC0(1)
+!   endif
 
 !  INSTC
 !  Reload RadSlope & respline
@@ -1153,10 +1199,10 @@ end do
 
 !zernike coefficents
 if (mod(flag,100) == 1) then
-call Ccounter(0,"zernike.tmp"//c_null_char)
-call LogC("Starting zernike computation"//c_null_char)
+ call Ccounter(0,"zernike.tmp"//c_null_char)
+ call LogC("Starting zernike computation"//c_null_char)
 ! relies on saved MM,N
-nrhs=(M1*N1+1)
+ nrhs=(M1*N1+1)
 
   if (allocated(JMatrix%R)) then
 ! Try to generate zernike coefficients based on central elevations & lsq to zernike polynomials
@@ -1371,6 +1417,25 @@ do i =1,M1
  end do
 end do
 
+!write(*,*) 'center zernike values: ',EE(1:k_max,nrhs)
+write(*,*) 'center zernike values: ',zernC(1:k_max,nrhs)
+call LogC("Finished zernike"//c_null_char)
+
+! deallocate(XTX,EE,IPIV)  !if used above
+deallocate(WORK,B_Matrix)
+deallocate(zernC,rlocal,thtlocal)
+
+!  call CPU_TIME(time_end)
+  time_end=omp_get_wtime()
+ write(*,*) 'Time to compute zernike: ',(time_end-time_start)
+ else
+ call LogC("Have to open a file prior to computing zernike"//c_null_char)
+ return ! if last digits of flag==1 and not allocated do nothing
+ endif
+endif  ! end of flag=1
+
+! plot Zernike central coefficients with gnuplot
+if (mod(flag,100) == 1 .or. mod(flag,100) == 9) then
 ! transfer to C++ for plot
 ! find min and max of first 12 central aberrations for plot
 ! 15    "Z(4,4) Vertical Quatrafoil",  Quadrafoil 0 deg
@@ -1386,27 +1451,24 @@ end do
 ! 12    "Z(2,2) Vertical Astig.",      Astigmatism 0 deg
 ! 08    "Z(2,0) Defocus",              Defocus
 ! 03    "Z(2,-2) Oblique Astigmatism", Astigmatism 45 deg
+zern(1)=JMatrix%ZC0(1,15)
+zern(2)=JMatrix%ZC0(1,13)
+zern(3)=JMatrix%ZC0(1,9)
+zern(4)=JMatrix%ZC0(1,4)
+zern(5)=JMatrix%ZC0(1,1)
+zern(6)=JMatrix%ZC0(1,14)
+zern(7)=JMatrix%ZC0(1,11)
+zern(8)=JMatrix%ZC0(1,6)
+zern(9)=JMatrix%ZC0(1,2)
+zern(10)=JMatrix%ZC0(1,12)
+zern(11)=JMatrix%ZC0(1,8)
+zern(12)=JMatrix%ZC0(1,3)
 zern(13)=1E30
 zern(14)=-1E30
-zern(12)=JMatrix%ZC0(1,15)
-zern(11)=JMatrix%ZC0(1,13)
-zern(10)=JMatrix%ZC0(1,9)
-zern(9)=JMatrix%ZC0(1,4)
-zern(8)=JMatrix%ZC0(1,1)
-zern(7)=JMatrix%ZC0(1,14)
-zern(6)=JMatrix%ZC0(1,11)
-zern(5)=JMatrix%ZC0(1,6)
-zern(4)=JMatrix%ZC0(1,2)
-zern(3)=JMatrix%ZC0(1,12)
-zern(2)=JMatrix%ZC0(1,8)
-zern(1)=JMatrix%ZC0(1,3)
 do k=1,12
  if (zern(13) <= zern(k)) zern(13) = zern(k)
  if (zern(14) >= zern(k)) zern(14) = zern(k)
 end do
-!write(*,*) 'center zernike values: ',EE(1:k_max,nrhs)
-write(*,*) 'center zernike values: ',zernC(1:k_max,nrhs)
-call LogC("Finished zernike"//c_null_char)
 
 unitno1 = get_new_fileunit()
 open(unitno1, file = "zernike.tmp", action="write", iostat=ierr)
@@ -1492,25 +1554,10 @@ open(unitno1, file = "zernike.tmp", action="write", iostat=ierr)
  close(unitno1)
 
 !good place to call a c program to display
- call Ccounter(100,"zernike.tmp"//c_null_char)
+call Ccounter(100,"zernike.tmp"//c_null_char)
 
-! Done with zernike
-
-!  deallocate(XTX,EE,IPIV)  !if used above
-  deallocate(WORK,B_Matrix)
-  deallocate(zernC,rlocal,thtlocal)
-
-!  call CPU_TIME(time_end)
-  time_end=omp_get_wtime()
-  write(*,*) 'Time to compute zernike: ',(time_end-time_start)
-  return
- else
-  call LogC("Have to open a file prior to computing zernike"//c_null_char)
-  return ! if last digits of flag==1 and not allocated do nothing
- endif
-endif  ! end of flag=1
-
-
+ return
+endif
 
 ! writes values in openGL friendly format to matrices for passing to C/C++
 ! flag/fct determines what to write for elevation and color, just like in flag=2,3 output versions above
@@ -1545,6 +1592,10 @@ endif  ! end of flag=1
      powctr=JMatrix%Z0(1)
      powmin=JMatrix%Z0(2)
      powmax=JMatrix%Z0(3)
+     CASE (21)
+     powctr=JMatrix%OBSC0(1)
+     powmin=JMatrix%OBSC0(2)
+     powmax=JMatrix%OBSC0(3)
      CASE DEFAULT
      powctr=JMatrix%SAGC0(1)
      powmin=JMatrix%SAGC0(2)
@@ -1569,6 +1620,7 @@ if (allocated(JMatrix1%R)) then
   JMatrix%MONGEA(:,:)=ABS(JMatrix1%MONGEA(:,:)-JMatrix%MONGEA(:,:))
   JMatrix%Z0(:)=ABS(JMatrix1%Z0(:)-JMatrix%Z0(:))
   JMatrix%SAGC0(:)=ABS(JMatrix1%SAGC0(:)-JMatrix%SAGC0(:))
+  JMatrix%OBSC0(:)=ABS(JMatrix1%OBSC0(:)-JMatrix%OBSC0(:))
   JMatrix%INSTC0(:)=ABS(JMatrix1%INSTC0(:)-JMatrix%INSTC0(:))
   JMatrix%INSTC20(:)=ABS(JMatrix1%INSTC20(:)-JMatrix%INSTC20(:))
   JMatrix%MEANC0(:)=ABS(JMatrix1%MEANC0(:)-JMatrix%MEANC0(:))

@@ -140,6 +140,8 @@
               pow=b%MONGEA0(1)
            CASE (20)
               pow=b%Z0(1)
+           CASE (21)
+              pow=b%OBSC0(1)
            CASE DEFAULT
               pow=b%SAGC0(1)
         END SELECT
@@ -179,6 +181,8 @@
                pow=b%MONGEA(j,i)
             CASE (20)
                pow=b%Z(j,i)
+            CASE (21)
+               pow=b%OBSC(j,i)
             CASE DEFAULT
                pow=b%SAGC(j,i)
          END SELECT

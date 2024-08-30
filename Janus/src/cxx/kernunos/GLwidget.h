@@ -149,6 +149,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
 
     static void setAllfctfalse(){
       m_Axial = false;
+      m_Oblique = false;
       m_Tangential = false;
       m_Instantaneous = false;
       m_Mean = false;
@@ -189,6 +190,13 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
       setAllfctfalse();
       m_Axial = t;}
 
+    static bool isOblique() { return m_Oblique; }
+    static void setOblique(bool t) {
+      int fct=((flag-(flag%10000))/10000)%100 ;
+      flag=flag+10000*(21-fct); // 21 sets to Oblique
+      setAllfctfalse();
+      m_Oblique = t;}
+
     static bool isTangential() { return m_Tangential; }
     static void setTangential(bool t) { 
       int fct=((flag-(flag%10000))/10000)%100 ;
@@ -202,7 +210,6 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
       flag=flag+10000*(17-fct); // 17 sets to Tangential
       setAllfctfalse();
       m_Instantaneous = t;}
-
 
     static bool isMean() { return m_Mean; }
     static void setMean(bool t) {
@@ -225,7 +232,6 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
       setAllfctfalse();
       m_Elevation = t;}
 
-
     static bool isZ44() { return Z44VerticalQuatrafoil; }
     static void setZ44(bool t) {
       int fct=((flag-(flag%10000))/10000)%100 ;
@@ -233,14 +239,12 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
       setAllfctfalse();
       Z44VerticalQuatrafoil = t;}
 
-
     static bool isZ42() { return Z42Vertical2ndAstig; }
     static void setZ42(bool t) {
       int fct=((flag-(flag%10000))/10000)%100 ;
       flag=flag+10000*(13-fct); // 13 sets to VerticalQuad
       setAllfctfalse();
       Z42Vertical2ndAstig = t;}
-
 
     static bool isZ40() { return Z40SphericalAberration; }
     static void setZ40(bool t) {
@@ -460,6 +464,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     static bool m_Splinefillin;
 
     static bool m_Axial;
+    static bool m_Oblique;
     static bool m_Tangential;
     static bool m_Instantaneous;
     static bool m_Mean;

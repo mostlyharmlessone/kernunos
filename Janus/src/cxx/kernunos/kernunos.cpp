@@ -262,13 +262,20 @@ void MainWindow::open()   //multiple invocations makes a comparison
        m_GLwidget->DataLoad(fileName, true);
    update();
    std::string str(filename);
-   bool pentacam = str.find(".CUR")!= std::string::npos || str.find(".ELE") != std::string::npos;
+   bool pentacam =  str.find(".CUR")!= std::string::npos || str.find(".ELE") != std::string::npos ||
+                    str.find("_CUR")!= std::string::npos || str.find("_ELE") != std::string::npos;
    if (pentacam) {
     centerAct->setEnabled(true);  //change to false to not allow for pentacam, center deviations only for Placido
     ringsAct->setEnabled(false);
    } else{
     centerAct->setEnabled(true);
     ringsAct->setEnabled(true);
+   };
+   bool atlas = str.find(".CSV")!= std::string::npos;
+   if (atlas && !pentacam) {              //CSV but not _ELE.CSV and _CUR.CSV
+      ShowZernAct->setEnabled(true);
+   } else{
+      ShowZernAct->setEnabled(false);
    };
    redrawAct->setEnabled(true);
    redrawOptionAct->setEnabled(true);
@@ -292,11 +299,20 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
    if (filepresent){
        m_GLwidget->DataLoad(fileName, true);
        std::string str(filename);
-       bool pentacam = str.find(".CUR")!= std::string::npos || str.find(".ELE") != std::string::npos;
+       bool pentacam =  str.find(".CUR")!= std::string::npos || str.find(".ELE") != std::string::npos ||
+                       str.find("_CUR")!= std::string::npos || str.find("_ELE") != std::string::npos;
        if (pentacam) {
-           centerAct->setEnabled(false);
+           centerAct->setEnabled(true);  //change to false to not allow for pentacam, center deviations only for Placido
+           ringsAct->setEnabled(false);
        } else{
            centerAct->setEnabled(true);
+           ringsAct->setEnabled(true);
+       };
+       bool atlas = str.find(".CSV")!= std::string::npos;
+       if (atlas && !pentacam) {              //CSV but not _ELE.CSV and _CUR.CSV
+           ShowZernAct->setEnabled(true);
+       } else{
+           ShowZernAct->setEnabled(false);
        };
        redrawAct->setEnabled(true);
        redrawOptionAct->setEnabled(true);
@@ -368,35 +384,6 @@ void MainWindow::zerncompute()
     std::cin.get();
 #endif
 
-/*
-    Gnuplot gp;
-    gp << "$Data << EOD\n" <<
-
-
-        if (zern[0] < 0) {"Z(4,4)VerticalQuatrafoil " << zern[0] << "0xff0000" << "\n" <<}
-    else            {"Z(4,4)VerticalQuatrafoil " << zern[0] << "0x0000ff" << "\n" <<}
-
-    "Z(4,2)Vertical2ndAstig. " << zern[1] << "\n" <<
-        "Z(4,0)SphericalAberration " << zern[2] << "\n" <<
-        "Z(4,-2)Oblique2ndAstig. " << zern[3] << "\n" <<
-        "Z(4,-4)ObliqueQuatrafoil " << zern[4] << "\n" <<
-        "Z(3,3)ObliqueTrefoil " << zern[5] << "\n" <<
-        "Z(3,1)HorizontalComa " << zern[6] << "\n" <<
-        "Z(3,-1)VerticalComa " << zern[7] << "\n" <<
-        "Z(3,-3)VerticalTrefoil " << zern[8] << "\n" <<
-        "Z(2,2)VerticalAstig. " << zern[9] << "\n" <<
-        "Z(2,0)Defocus " << zern[10] << "\n" <<
-        "Z(2,-2)ObliqueAstigmatism " << zern[11] << "\n" <<
-        "EOD" << "\n";
-
-    gp << "set style fill solid\n";
-    gp << "unset key\n";
-    gp << "myBoxWidth = 0.8\n";
-    gp << "set offsets 0,0,0.5-myBoxWidth/2.,0.5\n";
-
-    gp << "plot $Data using (0.5*$2):0:(0.5*$2):(myBoxWidth/2.):($3):ytic(1) with boxxy lc rgb var\n";
-*/
-
     Z44VerticalQuatrafoilAct->setEnabled(true);
     Z42Vertical2ndAstigAct->setEnabled(true);
     Z40SphericalAberrationAct->setEnabled(true);
@@ -412,7 +399,39 @@ void MainWindow::zerncompute()
     Z11XtiltAct->setEnabled(true);
     Z1neg1YtiltAct->setEnabled(true);
     Z00PistonAct->setEnabled(true);
+    ShowZernAct->setEnabled(true);
     ui.infoLabel->setText(tr("Invoked <b>zernike</b>"));
+    return;
+}
+
+void MainWindow::showzern()
+{
+    if (system(NULL)) puts ("Ok");
+    else exit (EXIT_FAILURE);
+    if(system("command -v gnuplot > /dev/null 2>&1") ){
+        std::cout << "'gnuplot' command is not available.\n";
+        ui.infoLabel->setText(tr("gnuplot call failed!"));
+        return;
+    }
+    //  This doesn't work if I detach the computation thread in GLwidget::DataPrint(QString fileName)
+    QTemporaryFile FILE;
+    FILE.setAutoRemove(true);  //does not do anything
+    FILE.open();
+    QString filenamelocal = FILE.fileName();
+    filenamelocal = filenamelocal.append(".gnu");
+    QByteArray ba = filenamelocal.toLocal8Bit();
+    char *filename = ba.data();
+    flag=flag-(flag%100)+9;  // last two digits of flag=1;
+    m_GLwidget_secondwindow->DataPrint(filename);
+
+
+#ifdef _WIN32
+    // For Windows, prompt for a keystroke before the Gnuplot object goes out of scope so that
+    // the gnuplot window doesn't get closed.
+    std::cout << "Press enter to exit." << std::endl;
+    std::cin.get();
+#endif
+    ui.infoLabel->setText(tr("Invoked <b>Show Zernike</b>"));
     return;
 }
 
@@ -803,6 +822,7 @@ void MainWindow::rings() {
 
 void MainWindow::checkfctsflags(){
     AxialAct->setChecked(GLwidget::isAxial());
+    ObliqueAct->setChecked(GLwidget::isOblique());
     TangentialAct->setChecked(GLwidget::isTangential());
     InstantaneousAct->setChecked(GLwidget::isInstantaneous());
     MeanAct->setChecked(GLwidget::isMean());
@@ -887,6 +907,25 @@ void MainWindow::fctAxial()
         };
    };
 }
+
+void MainWindow::fctOblique()
+{
+    if (GLwidget::isOblique()) {
+        GLwidget::setOblique(false);
+        GLwidget::setAxial(true);
+        AxialAct->setChecked(GLwidget::isAxial());
+        ui.infoLabel->setText(tr("Set <b>View:Oblique false, reset to Axial</b>"));
+    } else {
+        GLwidget::setAllfctfalse();
+        GLwidget::setOblique(true);
+        checkfctsflags();
+        ui.infoLabel->setText(tr("Set <b>View:Oblique true</b>"));
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
+    };
+}
+
 
 void MainWindow::fctTangential()
 {
@@ -1523,6 +1562,11 @@ void MainWindow::createActions()
    zernAct->setEnabled(false);
    connect(zernAct, &QAction::triggered, this, &MainWindow::zerncompute);
 
+   ShowZernAct = new QAction(tr("&Show Zernike Coefficients"), this);
+   ShowZernAct->setStatusTip(tr("Show Zernike coefficients and maps"));
+   ShowZernAct->setEnabled(false);
+   connect(ShowZernAct, &QAction::triggered, this, &MainWindow::showzern);
+
    ply2binAct = new QAction(tr("Binary PLY format..."), this);
    ply2binAct->setStatusTip(tr("Write a binary PLY file"));
    ply2binAct->setEnabled(false);
@@ -1634,6 +1678,10 @@ void MainWindow::createActions()
    AxialAct->setCheckable(true);
    connect(AxialAct, &QAction::triggered, this, &MainWindow::fctAxial);
    AxialAct->setChecked(GLwidget::isAxial());  //needs this here to check initially because it is the default
+
+   ObliqueAct=new QAction(tr("&Oblique Power, explicitly non-meridional"), this);
+   ObliqueAct->setCheckable(true);
+   connect(ObliqueAct, &QAction::triggered, this, &MainWindow::fctOblique);
 
    TangentialAct=new QAction(tr("&Tangential Power, meridional calculation only"), this);
    TangentialAct->setCheckable(true);
@@ -1780,12 +1828,14 @@ void MainWindow::createMenus()
    menuBar()->addAction(redrawAct);
    analyzeMenu = menuBar()->addMenu(tr("&Analyze"));
    analyzeMenu->addAction(zernAct);
+   analyzeMenu->addAction(ShowZernAct);
    analyzeMenu->addAction(liocAct);
    analyzeMenu->addAction(centerAct);
    analyzeMenu->addAction(ringsAct);
    analyzeMenu->addAction(gnuplotAct);
    functionMenu=menuBar()->addMenu(tr("&Function"));
    functionMenu->addAction(AxialAct);
+   functionMenu->addAction(ObliqueAct);
    functionMenu->addAction(TangentialAct);
    functionMenu->addAction(InstantaneousAct);
    functionMenu->addAction(MeanAct);

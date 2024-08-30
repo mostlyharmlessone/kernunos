@@ -6,14 +6,14 @@ check formula for mean curvature and monge astigmatism
 
 plots with gnuplot splot are only has fixed scale for sagc?
 
+incorporate oblique and reading zernike from some atlas into readme/faq
+
 even in fake data: problems computing zernike near boundaries of data, try to stay within rings
 ?throw out afterwards, just like x-axis points but without replacement, if necessary replace with radial spline
 in general is a plotting with outlier point problem
 
-yt/r slope/curvature map
 try going back to splineeval1dx1d and removing extra calls to splineeval, aka back to trial that spawned current branch
 also try finding a way to use only local natural splines instead of generating whole circular spline and using pspli
-
 
 enforce, or have a warning having to make new zernike after loading new data, also if tweaks changed
 
