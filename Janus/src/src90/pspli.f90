@@ -10,12 +10,9 @@
        INTEGER, intent(in) :: n
        REAL(wp), intent(out) ::zt2(n)
        REAL(wp) :: PERD,error
-       REAL(wp) :: d(n),a(n),b(n),c(n)
-       INTEGER :: m,j,info
+       REAL(wp) :: d(n),a(n),b(n),c(n) !,AA(n,n)
+       INTEGER :: m,j,info !,ipiv(n)
        logical :: IsInf 
-!       REAL(wp) :: AA(n,n)
-!       INTEGER :: ipiv(n)
-
 
        PERD=2*PI
 !      ill-conditioning with PERD close to t(n)-t(1)   
@@ -75,8 +72,8 @@
        IsInf=ieee_is_finite(error)
 
        if(.not.IsInf) then
-        write(*,*) 'Warning from pspli',m,n,t(1),t(m),ABS(t(1)-t(m)+PERD)
-        return
+        write(*,*) 'Warning from pspli',m,n,t(1),t(m),ABS(t(1)-t(m)+PERD),ieee_is_finite(z .p. z)
+        stop
        endif
        
        end subroutine pspli

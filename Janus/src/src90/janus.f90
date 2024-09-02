@@ -227,9 +227,9 @@ if (mod(flag,100) .eq. 5 ) then
     powmin=JMatrix%Z0(2)
     powmax=JMatrix%Z0(3)
     CASE (21)
-    powctr=JMatrix%OBSC0(1)
-    powmin=JMatrix%OBSC0(2)
-    powmax=JMatrix%OBSC0(3)
+    powctr=JMatrix%Warp0(1)
+    powmin=JMatrix%Warp0(2)
+    powmax=JMatrix%Warp0(3)
     CASE DEFAULT
     powctr=JMatrix%SAGC0(1)
     powmin=JMatrix%SAGC0(2)
@@ -316,34 +316,13 @@ endif !  (mod(flag,100) .eq. 6)
 if (mod(flag,100) .eq. 7) then
 !  Generate LIOC with vector format
 !  'plot ' gnu_instruct ' using 1:2:3:4 with vectors'
-
-! need RadSlope for LIOC
-RadSlope=JMatrix
-DiaSlope=RadSlope              ! move to diagonal format
-DiaSlope%Zpd2 = .n. DiaSlope
-!if ( Testdata .eq. 1 ) then
- call MakeRadSplineCenter(0)     ! remakes RadSplineCenter(1,:)
- if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-   call DiaSplineCenter(DiaSlope) ! re-spline, with center node
- endif
- if (btest(dat, 1)) then          ! moving each meridian to align curves
-  call AdjustRadSplineCenter     ! changes r only
-  DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
- endif
-!endif
  allocate(UT(N1,M1),VT(N1,M1))
  UT=0 ; VT=0
  do i=1,M1
   do j=1,RadSlope%MV(i)
-   k=3 ! skip this many problematic values at x-axis
-   if ( (i .gt. (1+k) .and. i .lt. (M1/2-k)) .or. (i .lt. (M1-k)  .and. i .gt. (M1/2+k))) then
     CALL LIOC_Fortran(RadSlope%thta(i),RadSlope%r(j,i),JMatrix%YPR(j,i),JMatrix%YPTHETA(j,i),UT(j,i),VT(j,i))
-   endif
    end do
  end do
-! Use pspli to spline over x-axis because X2 goes to 0 when X1 is 0 or PI
- UT(:,:)=splinefillintranspose(UT(:,:))
- VT(:,:)=splinefillintranspose(VT(:,:))
  unitno1 = get_new_fileunit()
  open(unitno1, file=trim(gnu_instruct), action="write", iostat=ierr)
  do i=1,M1
@@ -404,9 +383,9 @@ file_idx=index(inputfile1, ".ply")
     powmin=JMatrix%Z0(2)
     powmax=JMatrix%Z0(3)
     CASE (21)
-    powctr=JMatrix%OBSC0(1)
-    powmin=JMatrix%OBSC0(2)
-    powmax=JMatrix%OBSC0(3)
+    powctr=JMatrix%Warp0(1)
+    powmin=JMatrix%Warp0(2)
+    powmax=JMatrix%Warp0(3)
     CASE DEFAULT
     powctr=JMatrix%SAGC0(1)
     powmin=JMatrix%SAGC0(2)
@@ -464,9 +443,9 @@ file_idx=index(inputfile1, ".off")
     powmin=JMatrix%Z0(2)
     powmax=JMatrix%Z0(3)
     CASE (21)
-    powctr=JMatrix%OBSC0(1)
-    powmin=JMatrix%OBSC0(2)
-    powmax=JMatrix%OBSC0(3)
+    powctr=JMatrix%Warp0(1)
+    powmin=JMatrix%Warp0(2)
+    powmax=JMatrix%Warp0(3)
     CASE DEFAULT
     powctr=JMatrix%SAGC0(1)
     powmin=JMatrix%SAGC0(2)
@@ -607,7 +586,7 @@ if (mod(flag,100) == 0) then
     JMatrix1%Z0(:)=JMatrix%Z0(:)
     JMatrix1%THT0=JMatrix%THT0
     JMatrix1%SAGC0(:)=JMatrix%SAGC0(:)
-    JMatrix1%OBSC0(:)=JMatrix%OBSC0(:)
+    JMatrix1%Warp0(:)=JMatrix%Warp0(:)
     JMatrix1%INSTC0(:)=JMatrix%INSTC0(:)
     JMatrix1%INSTC20(:)=JMatrix%INSTC20(:)
     JMatrix1%MEANC0(:)=JMatrix%MEANC0(:)
@@ -834,11 +813,11 @@ if (TestData .eq. 1) then
 
 endif
 
-  if (mod(flag,100) .ne. 9 ) then
-
+! skip all this if we're just displaying zernike coefficients again
+if (mod(flag,100) .ne. 9 ) then
 ! Spline RadSlope
-  DiaSlope=RadSlope              ! move to diagonal format
-  DiaSlope%Zpd2 = .n. DiaSlope   ! spline across center without tweaks
+   DiaSlope=RadSlope              ! move to diagonal format
+   DiaSlope%Zpd2 = .n. DiaSlope   ! spline across center without tweaks
 
  if ( Testdata .eq. 1 ) then
   call MakeRadSplineCenter(0)    ! capture the spline center deviations from unmodified RadSlope
@@ -900,7 +879,7 @@ endif
   rBi=0.05*rBo
 !  min and max bounds
   JMatrix%SAGC0(2)=1E30   ;  JMatrix%SAGC0(3)=-1E30 ; JMatrix%SAGC0(1)=0
-  JMatrix%OBSC0(2)=1E30   ;  JMatrix%OBSC0(3)=-1E30 ; JMatrix%OBSC0(1)=0
+  JMatrix%Warp0(2)=1E30   ;  JMatrix%Warp0(3)=-1E30 ; JMatrix%Warp0(1)=0
   JMatrix%Z0(2)=1E30      ;  JMatrix%Z0(3)=-1E30 ;    JMatrix%Z0(3)=0
   JMatrix%INSTC0(2)=1E30  ;  JMatrix%INSTC0(3)=-1E30 ; JMatrix%INSTC0(1)=0
   JMatrix%INSTC20(2)=1E30 ;  JMatrix%INSTC20(3)=-1E30 ; JMatrix%INSTC20(1)=0
@@ -915,7 +894,7 @@ endif
    if (MM == 360 .and. N == 16) then  ! original EyeSys RadSlope or fake data
     JMatrix%MV(i)=MIN(RadSlope%MV(2*i),RadSlope%MV(2*i-1))  ! close to real boundary
    else  ! MM==180
-    JMatrix%MV(i)=min(RadSlope%MV(i),N1)  ! if N=25
+    JMatrix%MV(i)=min(RadSlope%MV(i),N1)  ! if N=25 don't do more than 22
    endif
    do j=1,JMatrix%MV(i)                             ! does not include center point
     if (i > (M1/2) ) then
@@ -938,7 +917,18 @@ endif
     JMatrix%YPR(j,i)=YPR
 !  powers
     call AXIALP(JMatrix%R(j,i),YPR,YP2R2,JMatrix%SAGC(j,i))
-    call AXIALP(JMatrix%R(j,i),YPTHETA/JMatrix%R(j,i),YP2THETA/JMatrix%R(j,i),JMatrix%OBSC(j,i))
+    call AXIALP(JMatrix%R(j,i),YPTHETA/abs(JMatrix%R(j,i)),YP2THETA/abs(JMatrix%R(j,i)),JMatrix%Warp(j,i))
+
+if ( j .eq. 17) then
+!if (abs(JMatrix%R(j,i)) .gt. 440) then
+
+!write(*,*) abs(JMatrix%R(j,i))*cos(JMatrix%THT(i)),abs(JMatrix%R(j,i))*sin(JMatrix%THT(i)),JMatrix%Z(j,i)
+!write(*,*) JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA
+
+!write(*,*) abs(JMatrix%R(j,i))*cos(JMatrix%THT(i)),abs(JMatrix%R(j,i))*sin(JMatrix%THT(i)),YPTHETA/abs(JMatrix%R(j,i)),YP2THETA/abs(JMatrix%R(j,i)),JMatrix%THT(i)
+
+endif
+
     if (M1 .eq. 360) then
      k=8 ! skip this many problematic values at x-axis
     else
@@ -964,9 +954,12 @@ endif
     if (JMatrix%Z(j,i) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z(j,i)
     if (JMatrix%SAGC(j,i) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC(j,i)
     if (JMatrix%SAGC(j,i) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC(j,i)
-    if (JMatrix%OBSC(j,i) <= JMatrix%OBSC0(2)) JMatrix%OBSC0(2)=JMatrix%OBSC(j,i)
-    if (JMatrix%OBSC(j,i) >= JMatrix%OBSC0(3)) JMatrix%OBSC0(3)=JMatrix%OBSC(j,i)
+    if (JMatrix%Warp(j,i) <= JMatrix%Warp0(2)) JMatrix%Warp0(2)=JMatrix%Warp(j,i)
+    if (JMatrix%Warp(j,i) >= JMatrix%Warp0(3)) JMatrix%Warp0(3)=JMatrix%Warp(j,i)
    end do
+
+!write(*,*) ' '
+
   end do !end JMatrix ring generation
 
 ! Use pspli to spline over x-axis, but not central points, don't bother with min and max again
@@ -975,7 +968,7 @@ endif
   JMatrix%MONGEA(1:N1,:)=splinefillintranspose(JMatrix%MONGEA(1:N1,:))
   JMatrix%INSTC(1:N1,:)=splinefillintranspose(JMatrix%INSTC(1:N1,:))
   JMatrix%INSTC2(1:N1,:)=splinefillintranspose(JMatrix%INSTC2(1:N1,:))
-!  JMatrix%OBSC(1:N1,:)=splinefillintranspose(JMatrix%OBSC(1:N1,:))
+!  JMatrix%Warp(1:N1,:)=splinefillintranspose(JMatrix%Warp(1:N1,:))
 
 !  Calculate center values for everything
 !  These have MM different values of the center!
@@ -1049,11 +1042,11 @@ endif
     if (JMatrix%SAGC0(1) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC0(1)
 !   endif   ! TestData.eq.3 .or. TestData.eq.5
 
-!  OBSC
+!  Warp
 !  Reload RadSlope with SAGC & re-spline; can't compute it from surface because ill-defined at origin
     do i=1,M1
      do j=1,RadSlope%MV(i)
-      RadSlope%Zp(j,i)=JMatrix%OBSC(j,i)
+      RadSlope%Zp(j,i)=JMatrix%Warp(j,i)
      end do
     end do
     DiaSlope=RadSlope              ! move to diagonal format
@@ -1071,14 +1064,14 @@ endif
 
     do i=1,M1
      if (btest(dat,0)) then
-      call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%OBSC(N1+1,i))  ! center value
+      call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%Warp(N1+1,i))  ! center value
      else
-      call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%OBSC(N1+1,i))  ! center value
+      call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%Warp(N1+1,i))  ! center value
      endif
-     JMatrix%OBSC0(1)=(i*JMatrix%OBSC0(1)+JMatrix%OBSC(N1+1,i))/(i+1)      ! cumulative average
+     JMatrix%Warp0(1)=(i*JMatrix%Warp0(1)+JMatrix%Warp(N1+1,i))/(i+1)      ! cumulative average
     end do
-    if (JMatrix%OBSC0(1) <= JMatrix%OBSC0(2)) JMatrix%OBSC0(2)=JMatrix%OBSC0(1)
-    if (JMatrix%OBSC0(1) >= JMatrix%OBSC0(3)) JMatrix%OBSC0(3)=JMatrix%OBSC0(1)
+    if (JMatrix%Warp0(1) <= JMatrix%Warp0(2)) JMatrix%Warp0(2)=JMatrix%Warp0(1)
+    if (JMatrix%Warp0(1) >= JMatrix%Warp0(3)) JMatrix%Warp0(3)=JMatrix%Warp0(1)
 !   endif
 
 !  INSTC
@@ -1602,9 +1595,9 @@ endif
      powmin=JMatrix%Z0(2)
      powmax=JMatrix%Z0(3)
      CASE (21)
-     powctr=JMatrix%OBSC0(1)
-     powmin=JMatrix%OBSC0(2)
-     powmax=JMatrix%OBSC0(3)
+     powctr=JMatrix%Warp0(1)
+     powmin=JMatrix%Warp0(2)
+     powmax=JMatrix%Warp0(3)
      CASE DEFAULT
      powctr=JMatrix%SAGC0(1)
      powmin=JMatrix%SAGC0(2)
@@ -1615,7 +1608,6 @@ endif
 
   call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
   call makelegend(flag, powmin, powmax, legend, nL)
-
 
 
 ! simple difference/subtraction the second time through
@@ -1629,7 +1621,7 @@ if (allocated(JMatrix1%R)) then
   JMatrix%MONGEA(:,:)=ABS(JMatrix1%MONGEA(:,:)-JMatrix%MONGEA(:,:))
   JMatrix%Z0(:)=ABS(JMatrix1%Z0(:)-JMatrix%Z0(:))
   JMatrix%SAGC0(:)=ABS(JMatrix1%SAGC0(:)-JMatrix%SAGC0(:))
-  JMatrix%OBSC0(:)=ABS(JMatrix1%OBSC0(:)-JMatrix%OBSC0(:))
+  JMatrix%Warp0(:)=ABS(JMatrix1%Warp0(:)-JMatrix%Warp0(:))
   JMatrix%INSTC0(:)=ABS(JMatrix1%INSTC0(:)-JMatrix%INSTC0(:))
   JMatrix%INSTC20(:)=ABS(JMatrix1%INSTC20(:)-JMatrix%INSTC20(:))
   JMatrix%MEANC0(:)=ABS(JMatrix1%MEANC0(:)-JMatrix%MEANC0(:))

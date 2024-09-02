@@ -1679,7 +1679,7 @@ void MainWindow::createActions()
    connect(AxialAct, &QAction::triggered, this, &MainWindow::fctAxial);
    AxialAct->setChecked(GLwidget::isAxial());  //needs this here to check initially because it is the default
 
-   ObliqueAct=new QAction(tr("&Oblique Power, explicitly non-meridional"), this);
+   ObliqueAct=new QAction(tr("&Warp or Oblique Power, explicitly non-meridional"), this);
    ObliqueAct->setCheckable(true);
    connect(ObliqueAct, &QAction::triggered, this, &MainWindow::fctOblique);
 

@@ -141,7 +141,7 @@
            CASE (20)
               pow=b%Z0(1)
            CASE (21)
-              pow=b%OBSC0(1)
+              pow=b%Warp0(1)
            CASE DEFAULT
               pow=b%SAGC0(1)
         END SELECT
@@ -182,7 +182,7 @@
             CASE (20)
                pow=b%Z(j,i)
             CASE (21)
-               pow=b%OBSC(j,i)
+               pow=b%Warp(j,i)
             CASE DEFAULT
                pow=b%SAGC(j,i)
          END SELECT

@@ -5,7 +5,6 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
  USE special_fct, ONLY : bsearch, OPERATOR(.p.) !tensor summation convention
  use,intrinsic :: ieee_arithmetic
  IMPLICIT NONE
-
 ! !1-D version
 ! shamelessly adapted from Computer Methods for Mathematical Computations Forsythe et al. 1977
 ! http://www.pdas.com/fmmdownload.html : SUBROUTINE Seval3Single(u,x,y,b,c,d,f,fp,fpp,fppp)
@@ -28,7 +27,6 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
   REAL(wp) :: dr,PERD,A,B,C,D,dA,dB,dC,dD
   REAL(wp), DIMENSION(2) :: AB,CD,dAB,dCD,z,z2
   logical :: IsInf
-
 
   PERD=2*PI ! period of spline if applicable
   call bsearch(u,x,n,i1,i) ! binary search

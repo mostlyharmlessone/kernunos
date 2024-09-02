@@ -1,8 +1,8 @@
       subroutine SplineEval1Dx1D(iflag,u,v,f,fr,ft,frt,frr,ftt)
-      USE cornea_arrays, ONLY : DiaSlope, RadSlope, PI
+      USE cornea_arrays, ONLY : DiaSlope, RadSlope, PI, EPS
       USE set_precision, ONLY : wp
       USE spline_interfaces, ONLY : pspli, SplineEval, SplineEvalCenter, trapez, CubicSplineQuad
-      USE special_fct, ONLY : OPERATOR(.p.) !tensor summation convention      
+      USE special_fct, ONLY : bsearch, OPERATOR(.p.)
       use,intrinsic :: ieee_arithmetic
       implicit none
       integer, INTENT(IN) :: iflag     ! iflag=0 no integration; iflag=1 trapezoidal integration; iflag=2 cubic integration;
@@ -13,7 +13,7 @@
       real(wp) :: fTmp(size(RadSlope%r,2)),frTmp(size(RadSlope%r,2)),frrTmp(size(RadSlope%r,2))
       real(wp) :: thta(size(RadSlope%r,2)),fttTmp(size(RadSlope%r,2)),frttTmp(size(RadSlope%r,2)),frrttTmp(size(RadSlope%r,2))
       real(wp) :: r(2*size(RadSlope%r,1)),z(2*size(RadSlope%r,1)),zr2(2*size(RadSlope%r,1))
-      integer :: L2,j,L,MM,N
+      integer :: L2,j,L,MM,N,i,i1
       logical :: IsInf
 
       MM=size(RadSlope%r,2)
@@ -28,7 +28,6 @@
 !       odd as it seems, each angle j is also angle L since we're on a diagonal
         L=j+MM/2
         thta(L)=RadSlope%thta(L)
-
         if (mod(iflag,10) == 0) then                  ! no integration
          if (((iflag-mod(iflag,10))/10) == 0) then    ! no central node
           call SplineEval(0,r,z,zr2,L2,u,g,gr,grr)    ! first parameter = 0 nonperiodic
@@ -56,10 +55,49 @@
         frrTmp(L)=frrTmp(j)
       end do
 
+
+
+! why is this continuous when the map is not and vice-versa ? u vs -u?
+!if (abs(u) .lt.440 .and. abs(u) .gt. 400 ) then ! for fake or 400 or 440 test.cur
+!write(*,*) u
+!do j=1,MM
+! write(*,*) thta(j),fTmp(j),frTmp(j),frrTmp(j)
+!end do
+!stop
+!endif
+
+! We spline around the points in order to generate the angular spline derivatives; the actual function point
+! and radial derivatives were already generated above as long as v is a knot, which it should always be.
+
 !       FIRST CALL FOR PERIODIC SPLINE OF f0, fttTmp is d2Y/dTHETA2
         if (Present(ftt)) then
          call pspli(thta,fTmp,MM,fttTmp)
          call SplineEval(1,thta,fTmp,fttTmp,MM,v,f,ft,ftt) !first parameter = 1 periodic
+
+! f should be fTmp(i) since it is a knot point
+! clearly SplineEval handles j1=180 properly
+! this happens at j=179, j1=180 and negative u and in fact that is the issue, not ftmp
+! this is never an issue with MM=360 eyesys & test only the 180x22 files is this a every two degree issue?
+! it is not even the gap
+call bsearch(v,thta,MM,i1,i)
+!if (abs(ftmp(j)-f) .gt. eps) then
+!if (abs(thta(i)-v) .gt. eps) then
+if ( u .lt. 0 .and. i1 .eq. 180) then  ! this version is only wrong 1/2 the time, what's the difference?
+! the u values are slightly different ... as a group, not individually
+! v on the lower end whn correct as is ok, v is only wrong never as i1
+
+
+write(*,*) u,j,i,i1,thta(i),thta(i1),v,ftmp(i),ftmp(i1),f
+
+!do j=1,MM
+!! write(*,*) thta(j),fTmp(j),frTmp(j),frrTmp(j)
+!end do
+!stop
+
+
+
+endif
+
         else
          if (Present(ft)) then
           call pspli(thta,fTmp,MM,fttTmp)
