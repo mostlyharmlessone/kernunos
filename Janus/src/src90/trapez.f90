@@ -11,17 +11,22 @@ subroutine trapez(ii,iflag,rv,zv,z2v,n,r,z)
    integer :: i, high, low
    call bsearch(r,rv,n,high,low)
 !  TRAPEZOIDAL RULE, UNEVEN STEPS     
-   TRAP=0      
-   do i=2,low
-    TRAP=TRAP+(rv(i)-rv(i-1))*(zv(i-1)+zv(i))/2.
-   end do
-   if ((iflag-mod(iflag,10))/10 == 0) then
-    call SplineEval(0,rv,zv,z2v,n,r,z)
+   TRAP=0
+   if (low .lt. high) then ! else we have r=rv(high)
+    do i=2,low
+     TRAP=TRAP+(rv(i)-rv(i-1))*(zv(i-1)+zv(i))/2.
+    end do
+    if ((iflag-mod(iflag,10))/10 == 0) then
+     call SplineEval(0,rv,zv,z2v,n,r,z)
+    endif
+    if ((iflag-mod(iflag,10))/10 == 1) then ! using center-node spline
+     call SplineEvalCenter(ii,rv,zv,z2v,n,r,z)
+    endif
+    TRAP=TRAP+(r-rv(low))*(z+zv(low))/2.
+   else
+    do i=2,high
+     TRAP=TRAP+(rv(i)-rv(i-1))*(zv(i-1)+zv(i))/2.
+    end do
    endif
-   if ((iflag-mod(iflag,10))/10 == 1) then ! using center-node spline
-    call SplineEvalCenter(ii,rv,zv,z2v,n,r,z)
-   endif
-   TRAP=TRAP+(r-rv(low))*(z+zv(low))/2.
-   z=TRAP  
-
+   z=TRAP
 end subroutine trapez       

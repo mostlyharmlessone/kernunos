@@ -4,6 +4,15 @@ CorneaCopia
 
 I've re-isolated the theta slope discontinuity error again
 
+bsearch needs to resolve knot location ie .ge. or .le. consistently despite round errors
+with new sanity check of when r == r(n) interval is n,1 _ELE.CSV files all have a discontiuity in the upper half; its the effect of cyclic bsearch
+means that ever call to bsearch needs to understand this cyclic behavior
+
+first round of implementing changes has errors in _ele.csv and atlas
+temporarily removed behavior
+
+
+
 check formula for mean curvature and monge astigmatism
 
 plots with gnuplot splot are only has fixed scale for sagc?
@@ -66,9 +75,6 @@ might need gnuplot interface consolidation of methods
 
 GEOM/WriteGeomPLY make extra out of range points, but need them to avoid EOF  .. fix?
 
-1012701367 old, destry new check issued 8/19, 10 business days!
-
-
 what if index(inputfile1, "RA") has more than one value? (KERATO.GRP/RA00.x) or XX00000.XX; I only want to replace the last one.
 might need to make notes about this problem or limit replacestr   fix EyeSys file_pfx crap   can try /RA as alternate but wont work on root directory;
 can try one than the other before giving up, this issue also applies to file operations of all kinds (exporting/gnuplots) 
@@ -97,6 +103,10 @@ Optimizing:
 MSYS2 for Windows app build etc
 https://wiki.wxwidgets.org/Cross-Compiling_Under_Linux
 https://github.com/Zeranoe/mingw-w64-build
+
+empower check should arrive by end of September 22+7 days from 3rd, trackable mail.
+check review ref number 14269703 
+phone log review for unit number ref number 14269840
 
 Investigate:
 Passing an assumed-shape array or array pointer to an explicit-shape array can slow run-time performance. https://www.cita.utoronto.ca/~merz/intel_f10b/main_for/mergedProjects/optaps_for/fortran/optaps_prg_arrs_f.htm

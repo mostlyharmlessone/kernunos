@@ -13,9 +13,12 @@
   real(wp) :: g,gr,grr,slopeh,slopel
   integer :: high, low, j
 
-! bracket the origin between r values ange their indices
+! bracket the origin between r values and get their indices
   call bsearch(0.0_wp,r,n,high,low)
- 
+  if (low .gt. high) then ! 0.0 should never be r(n)
+   write(*,*) 'Unexplained error in SplineCenter'
+   stop
+  endif
 ! Newton's method is quick and clean 
   if (z(high)*z(low) <= 0) then   ! the origin is between a positive and negative z-value; if z is the slope then the root is a minmax of the curve
   j=0                             ! otherwise we are picking a point where z is zero instead of a minmax

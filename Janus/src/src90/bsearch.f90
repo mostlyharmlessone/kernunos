@@ -1,6 +1,8 @@
 ! binary search for r in rv
 subroutine bsearch(r,rv,n,high,low)
  use set_precision, only : wp
+ use cornea_arrays, only : eps
+ implicit none
 integer, intent(in) :: n
 real(wp), intent(in) :: r, rv(n)
 integer, intent(out) :: high, low
@@ -45,6 +47,11 @@ integer m
     end do
    endif 
   endif
+ endif
+! sanity check if r .eq. r(n) in cyclic
+ if (abs(r-rv(n)) .le. eps) then
+!  low=n
+!  high=1
  endif
 return
 end subroutine bsearch        

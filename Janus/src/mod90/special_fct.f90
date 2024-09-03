@@ -144,13 +144,13 @@ palette=reshape((/&
 8,29,88/),shape(palette))
 call bsearch(x,col,9,high,low)
 !Uncomment these and comment out the linear interpolation if you want to be confined to 9 classes with pixellation
-!!if ( (col(high)-x) .lt. (x-col(low)) ) then
+!!if ( abs(col(high)-x) .lt. abs(x-col(low)) ) then
 !! rgbv(:)=palette(:,high)
 !!else
 !! rgbv(:)=palette(:,low)
 !!endif
 ! linear interpolation in rgb space
-rgbv(:)=((x-col(low))*palette(:,high)+(col(high)-x)*palette(:,low))/(col(high)-col(low))
+ rgbv(:)=abs(8.0*((x-col(low))*palette(:,high)+(col(high)-x)*palette(:,low))/(maximum-minimum))
 end function PerceptuallyUniformPalette
 
 ! fixed discrete diopteric palette: The Uniform Standard Scale
@@ -201,7 +201,7 @@ palette=reshape((/&
 0, 0, 80/),shape(palette))
 call bsearch(x,col,26,high,low)
 ! linear interpolation in rgb space
-rgbv(:)=((x-col(low))*palette(:,high)+(col(high)-x)*palette(:,low))/(col(high)-col(low))
+rgbv(:)=abs(25*((x-col(low))*palette(:,high)+(col(high)-x)*palette(:,low))/(maximum-minimum))
 end function USSpalette
 
 ! makes a noncontinuous/discrete interval 12 color palette similar to the one in printgraph using gnuplot/splot
@@ -231,7 +231,7 @@ palette=(/'c080ff','00008b','0000ff','add8e6','90ee90','00ff00',&
          col(11)=0.90*(col(12)-col(1))+col(1)
 call bsearch(x,col,12,high,low)
 ! this is why it looks pixellated, no interpolation
-if ( (col(high)-x) .lt. (x-col(low)) ) then
+if ( abs(col(high)-x) .lt. abs(x-col(low)) ) then
  tempH=palette(high)
 else
  tempH=palette(low)

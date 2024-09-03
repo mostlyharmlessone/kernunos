@@ -34,7 +34,7 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
   A=(x(i1)-u)/dr ; dA=-1/dr
   B=(u-x(i))/dr ; dB=1/dr
   ! FOR PERIODIC SPLINES PERIOD 2*PI  
-   if ((A*B) < 0) then  !redefine A,B,i,i1
+   if ((A*B) < 0 .or. (i1 .lt. i)) then  !redefine A,B,i,i1
     if (KP == 1) then    
 !    Interpolation across gap with KP=1 , periodic spline 
      i=N
@@ -58,9 +58,12 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
   z(2)=y(i1)
   z2(1)=y2(i)
   z2(2)=y2(i1)  
-   if ((A*B) < 0) then 
+   if ((A*B) < 0) then
     if (KP /= 1) then  !  natural spline extrapolation z2=0 outside spline 
      z2=0._wp
+     if (i1 .lt. i) then ! u = x(n)
+      A = 1 ; B= 0 ; dAB(1)=-1/(x(n)-x(n-1)) ; dAB(2)=1/(x(n)-x(n-1))
+     endif
      if (KP == 2) then
       if (Present(f)) f = 0
       if (Present(fp)) fp = 0

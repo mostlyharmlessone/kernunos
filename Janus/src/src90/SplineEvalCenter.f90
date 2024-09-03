@@ -32,6 +32,10 @@ subroutine SplineEvalCenter(ii,x,y,y2,n,u,f,fp,fpp,fppp)
    allocate(xx(n+1),yy(n+1),yy2(n+1))
 !  find center
    call bsearch(0.0_wp,x,n,high,low)
+   if (low .gt. high ) then ! 0.0 == x(n)
+    write(*,*) 'Unexpected error in SplineEvalCenter'
+    stop
+   endif
    do i=1,low
     xx(i)=x(i)
     yy(i)=y(i)
@@ -60,6 +64,9 @@ subroutine SplineEvalCenter(ii,x,y,y2,n,u,f,fp,fpp,fppp)
     z2(2)=yy2(i1)
     if ((A*B) < 0) then !  natural spline extrapolation z2=0 outside spline
       z2=0._wp
+      if (i .gt. i1 ) then ! u == x(n)
+       A = 1 ; B= 0 ; dAB(1)=-1/(x(n)-x(n-1)) ; dAB(2)=1/(x(n)-x(n-1))
+      endif
     endif
     if (A < 0 .and. B < 0) then
      write (*,*) 'Unexpected input in SplineEvalCenter',xx(i1),u,xx(i)

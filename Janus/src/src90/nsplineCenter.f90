@@ -36,6 +36,10 @@
 
 ! find center
   call bsearch(0.0_wp,r,n,high,low)
+  if (low .gt. high) then ! 0.0 == r(n)
+   write(*,*) 'Unexpected error in nsplineCenter'
+   stop
+  endif
   do i=1,low
    rr(i)=r(i)
    zz(i)=z(i)
