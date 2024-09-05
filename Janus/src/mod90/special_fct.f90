@@ -150,7 +150,11 @@ call bsearch(x,col,9,high,low)
 !! rgbv(:)=palette(:,low)
 !!endif
 ! linear interpolation in rgb space
- rgbv(:)=abs(8.0*((x-col(low))*palette(:,high)+(col(high)-x)*palette(:,low))/(maximum-minimum))
+ if (high .ne. low) then
+  rgbv(:)=abs(8.0*((x-col(low))*palette(:,high)+(col(high)-x)*palette(:,low))/(maximum-minimum))
+ else
+  rgbv(:)=palette(:,low)
+ endif
 end function PerceptuallyUniformPalette
 
 ! fixed discrete diopteric palette: The Uniform Standard Scale
@@ -201,7 +205,11 @@ palette=reshape((/&
 0, 0, 80/),shape(palette))
 call bsearch(x,col,26,high,low)
 ! linear interpolation in rgb space
-rgbv(:)=abs(25*((x-col(low))*palette(:,high)+(col(high)-x)*palette(:,low))/(maximum-minimum))
+ if (high .ne. low) then
+  rgbv(:)=abs(25*((x-col(low))*palette(:,high)+(col(high)-x)*palette(:,low))/(maximum-minimum))
+ else
+  rgbv(:)=palette(:,low)
+ endif
 end function USSpalette
 
 ! makes a noncontinuous/discrete interval 12 color palette similar to the one in printgraph using gnuplot/splot

@@ -15,7 +15,7 @@
 
 ! bracket the origin between r values and get their indices
   call bsearch(0.0_wp,r,n,high,low)
-  if (low .gt. high) then ! 0.0 should never be r(n)
+  if (low .eq. high) then ! 0.0 should never be a value or knot of r
    write(*,*) 'Unexplained error in SplineCenter'
    stop
   endif

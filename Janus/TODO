@@ -10,6 +10,7 @@ means that ever call to bsearch needs to understand this cyclic behavior
 
 first round of implementing changes has errors in _ele.csv and atlas
 temporarily removed behavior
+redid bsearch and knot beh
 
 
 
@@ -66,6 +67,9 @@ https://github.com/MGensheimer/mask-to-mesh/blob/master/dicom_mask_to_stl_mesh.m
 
 
 check 3D Viewer capabilities with other formats not just obj, try emailing it to myself
+fbx obj stl ply    import only:?gltf glb 3mf 
+assimp "Failed to compute tangents; need UV data in channel0"; try finding where UV data belongs in a ply file,
+
 
 extreme value filter for scales
 resurrect old noise reduction code?

@@ -638,7 +638,7 @@ function DiaSpline(b) result(a)
  M1=size(b%rd,2) !M1=MM/2
   a=0  !initialize else the damn thing will fill with NaN
   do i=1,M1 
-   call nspline(b%rd(:,i),b%Zpd(:,i),b%L2(i),a(:,i)) 
+   call nspline(b%rd(:,i),b%Zpd(:,i),b%L2(i),a(:,i))
   end do
 end function DiaSpline
 

@@ -48,10 +48,12 @@ integer m
    endif 
   endif
  endif
-! sanity check if r .eq. r(n) in cyclic
- if (abs(r-rv(n)) .le. eps) then
-!  low=n
-!  high=1
+! sanity check if r .eq. a knot, then not in an interval
+ if (abs(r-rv(high)) .le. eps) then
+  low=high
+  endif
+ if (abs(r-rv(low)) .le. eps) then
+  high=low
  endif
 return
 end subroutine bsearch        

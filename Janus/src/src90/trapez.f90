@@ -12,7 +12,7 @@ subroutine trapez(ii,iflag,rv,zv,z2v,n,r,z)
    call bsearch(r,rv,n,high,low)
 !  TRAPEZOIDAL RULE, UNEVEN STEPS     
    TRAP=0
-   if (low .lt. high) then ! else we have r=rv(high)
+   if (low .ne. high) then ! not on a knot
     do i=2,low
      TRAP=TRAP+(rv(i)-rv(i-1))*(zv(i-1)+zv(i))/2.
     end do

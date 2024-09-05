@@ -54,7 +54,9 @@
    f= dot_product(z2,z2)
    IsNaN=ieee_is_NaN(f)
    If(IsNaN) then
-    write(*,*) 'Warning from nspline: NaN terms probable duplicate r; ',r(1:n)
+    write(*,*) 'Warning from nspline: NaN terms, check r and z; '
+    write(*,*) r(1:n)
+    write(*,*) z(1:n)
     return
    endif
  

@@ -32,7 +32,7 @@ subroutine SplineEvalCenter(ii,x,y,y2,n,u,f,fp,fpp,fppp)
    allocate(xx(n+1),yy(n+1),yy2(n+1))
 !  find center
    call bsearch(0.0_wp,x,n,high,low)
-   if (low .gt. high ) then ! 0.0 == x(n)
+   if (low .eq. high ) then ! 0.0 == x(n)
     write(*,*) 'Unexpected error in SplineEvalCenter'
     stop
    endif
@@ -51,6 +51,13 @@ subroutine SplineEvalCenter(ii,x,y,y2,n,u,f,fp,fpp,fppp)
     yy2(i+1)=y2(i)
    end do
     call bsearch(u,xx,n+1,i1,i) ! binary search
+    if (i1 .eq. i) then ! if on the knot
+     if (i .ne. n) then  ! last knot for non-cyclic spline
+      i1=i+1
+     else
+      i1=n ; i=n-1
+     endif
+    endif
     dr=xx(i1)-xx(i)
     A=(xx(i1)-u)/dr ; dA=-1/dr
     B=(u-xx(i))/dr ; dB=1/dr
@@ -64,9 +71,6 @@ subroutine SplineEvalCenter(ii,x,y,y2,n,u,f,fp,fpp,fppp)
     z2(2)=yy2(i1)
     if ((A*B) < 0) then !  natural spline extrapolation z2=0 outside spline
       z2=0._wp
-      if (i .gt. i1 ) then ! u == x(n)
-       A = 1 ; B= 0 ; dAB(1)=-1/(x(n)-x(n-1)) ; dAB(2)=1/(x(n)-x(n-1))
-      endif
     endif
     if (A < 0 .and. B < 0) then
      write (*,*) 'Unexpected input in SplineEvalCenter',xx(i1),u,xx(i)

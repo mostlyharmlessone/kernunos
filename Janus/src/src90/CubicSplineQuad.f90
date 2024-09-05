@@ -12,7 +12,7 @@ subroutine CubicSplineQuad(ii,iflag,rv,zv,z2v,n,r,z)
    call bsearch(r,rv,n,high,low)
 !  from Forsythe p.90
    QUAD=0
-   if (low .lt. high) then ! else we have r=rv(high)
+   if (low .ne. high) then ! else we are at a knot
     do i=2,low
      QUAD=QUAD+(rv(i)-rv(i-1))*(zv(i-1)+zv(i))/2.
      QUAD=QUAD-3*(rv(i)-rv(i-1))**3*(z2v(i-1)+z2v(i))/2.
