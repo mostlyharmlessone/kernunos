@@ -74,10 +74,10 @@
 IsInf=ieee_is_finite(ft)
 If(.not.IsInf .and. abs(u) .gt. 400) then
  write(*,*) 'Error in Spline1dx1d',iflag,u,v
- do j=1,MM
-  write(*,*) thta(j),fTmp(j),frTmp(j),frrTmp(j)
- end do
- stop
+! do j=1,MM
+!  write(*,*) thta(j),fTmp(j),frTmp(j),frrTmp(j)
+! end do
+! stop
 endif
 
 

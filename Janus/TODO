@@ -4,15 +4,7 @@ CorneaCopia
 
 I've re-isolated the theta slope discontinuity error again
 
-bsearch needs to resolve knot location ie .ge. or .le. consistently despite round errors
-with new sanity check of when r == r(n) interval is n,1 _ELE.CSV files all have a discontiuity in the upper half; its the effect of cyclic bsearch
-means that ever call to bsearch needs to understand this cyclic behavior
-
-first round of implementing changes has errors in _ele.csv and atlas
-temporarily removed behavior
-redid bsearch and knot beh
-
-
+add glb/gltf/3mf export for trial of 3D Viewer; also try importing binary stl to see if that works better than ply importer
 
 check formula for mean curvature and monge astigmatism
 
@@ -67,9 +59,80 @@ https://github.com/MGensheimer/mask-to-mesh/blob/master/dicom_mask_to_stl_mesh.m
 
 
 check 3D Viewer capabilities with other formats not just obj, try emailing it to myself
-fbx obj stl ply    import only:?gltf glb 3mf 
+fbx obj stl ply    import only:? gltf glb 3mf (10,12),(11,13) 19
 assimp "Failed to compute tangents; need UV data in channel0"; try finding where UV data belongs in a ply file,
-
+Import id: 0 x
+Import id: 1 obj
+Import id: 2 amf
+Import id: 3 3ds prj
+Import id: 4 md3
+Import id: 5 md2
+Import id: 6 ply
+Import id: 7 mdl
+Import id: 8 ase ask
+Import id: 9 hmp
+Import id: 10 smd vta
+Import id: 11 mdc
+Import id: 12 md5mesh md5camera md5anim
+Import id: 13 stl
+Import id: 14 lwo lxo
+Import id: 15 dxf
+Import id: 16 enff nff
+Import id: 17 raw
+Import id: 18 sib
+Import id: 19 off
+Import id: 20 ac acc ac3d
+Import id: 21 bvh
+Import id: 22 xml irrmesh
+Import id: 23 irr xml
+Import id: 24 q3o q3s
+Import id: 25 b3d
+Import id: 26 dae xml zae
+Import id: 27 ter
+Import id: 28 csm
+Import id: 29 3d uc
+Import id: 30 lws mot
+Import id: 31 mesh mesh.xml
+Import id: 32 ogex
+Import id: 33 ms3d
+Import id: 34 cob scn
+Import id: 35 blend
+Import id: 36 bsp pk3
+Import id: 37 ndo
+Import id: 38 ifc ifczip step stp
+Import id: 39 xgl zgl
+Import id: 40 fbx
+Import id: 41 assbin
+Import id: 42 gltf glb
+Import id: 43 gltf glb vrm
+Import id: 44 3mf
+Import id: 45 x3d x3db
+Import id: 46 pmx
+Import id: 47 iqm
+Import ID: 26
+import ID count: 22
+Export id: 0 collada
+Export id: 1 x
+Export id: 2 stp
+Export id: 3 obj
+Export id: 4 objnomtl
+Export id: 5 stl
+Export id: 6 stlb
+Export id: 7 ply
+Export id: 8 plyb
+Export id: 9 3ds
+Export id: 10 gltf2
+Export id: 11 glb2
+Export id: 12 gltf
+Export id: 13 glb
+Export id: 14 assbin
+Export id: 15 assxml
+Export id: 16 x3d
+Export id: 17 fbx
+Export id: 18 fbxa
+Export id: 19 3mf
+Export id: 20 pbrt
+Export id: 21 assjson
 
 extreme value filter for scales
 resurrect old noise reduction code?

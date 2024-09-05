@@ -525,20 +525,20 @@ void MainWindow::importexport()
    uint countin = Importer.GetImporterCount();
    do {
        iformat = Importer.GetImporterInfo(i);
-       std::cout << "id: "<< i << " " << iformat->mFileExtensions << "\n";
+       std::cout << "Import id: "<< i << " " << iformat->mFileExtensions << "\n";
        i++;
    } while (i < countin);
-*/
-   //std::cout << "ID: "<< ID << "\n";
+   */
+   std::cout << "Import ID: "<< ID << "\n";
    iformat = Importer.GetImporterInfo(ID);
    uint count = Exporter.GetExportFormatCount();
-   // std::cout << "count: "<< count << "\n";
+//   std::cout << "import ID count: "<< count << "\n";
    i = 0 ;
    do {
        format = Exporter.GetExportFormatDescription(i);
-    //   std::cout << "id: "<< i << " " << format->id << "\n";
+ //      std::cout << "Export id: "<< i << " " << format->id << "\n";
        if (iformat->mFileExtensions == format->id){
-            //        std::cout << "ID is " << i << "\n";
+            std::cout << "Export ID is " << i << "\n";
             Exporter.Export(aiscene, format->id , filenameout, 0);
             std::cout << "Wrote " << filenameout << "\n";
        }
