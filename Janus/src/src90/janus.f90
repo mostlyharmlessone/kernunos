@@ -907,9 +907,15 @@ if (mod(flag,100) .ne. 9 ) then
     if (TestData.ne.2 .and. TestData.ne.4) then  ! slope based data, integrate based on iflag with or without cubic/trapez or center point or not for values
      call SplineEval1Dx1D(iflag,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
 
+
+
+
 if (i .eq. M1) then
-write(*,*) "janus 911",JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA
+!write(*,*) "janus 911",JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA
 endif
+
+
+
 
     else  !TestData.eq.2 .or. TestData.eq.4  ! ELE and ELE.CSV files use elevation, no integration, center point or not
      if (btest(dat,0)) then
@@ -924,9 +930,12 @@ endif
     call AXIALP(JMatrix%R(j,i),YPR,YP2R2,JMatrix%SAGC(j,i))
     call AXIALP(JMatrix%R(j,i),YPTHETA/abs(JMatrix%R(j,i)),YP2THETA/abs(JMatrix%R(j,i)),JMatrix%Warp(j,i))
 
+
+
+
 ! here yptheta is NaN but curiously yp2theta is finite (though garbage)
 if (i == M1) then
-write(*,*) "janus 929",JMatrix%R(j,i),YPTHETA,YP2THETA
+!write(*,*) "janus 929",JMatrix%R(j,i),YPTHETA,YP2THETA
 endif
 
 if ( j .eq. 17) then
@@ -935,7 +944,7 @@ if ( j .eq. 17) then
 
 !if (abs(JMatrix%R(j,i)) .gt. 440) then
 !write(*,*) abs(JMatrix%R(j,i))*cos(JMatrix%THT(i)),abs(JMatrix%R(j,i))*sin(JMatrix%THT(i)),JMatrix%Z(j,i)
-!write(*,*) JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA
+write(*,*) JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,JMatrix%R(j,i)
 
 !write(*,*) abs(JMatrix%R(j,i))*cos(JMatrix%THT(i)),abs(JMatrix%R(j,i))*sin(JMatrix%THT(i)),YPTHETA/abs(JMatrix%R(j,i)),YP2THETA/abs(JMatrix%R(j,i)),JMatrix%THT(i)
 

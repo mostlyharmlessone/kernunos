@@ -458,6 +458,9 @@ void MainWindow::importexport()
        "Autodesk FBX .fbx (*.fbx) ;; "
        "Wavefront Object .obj (*.obj) ;; "
        "Collada .dae (*.dae) ;; "
+       "3D Manufacturing Consortium .3mf (*.3mf) ;; "
+       "GL binary .glb (*.glb) ;; "
+       "GL Transmission Format .gltf (*.gltf) ;; "
        "Discreet 3DS .3ds (*.3ds) )";
    QString fileName = QFileDialog::getSaveFileName(this,"Write Assimp exports", "", filter);
    if (fileName.isEmpty())
@@ -474,7 +477,9 @@ void MainWindow::importexport()
    const aiImporterDesc *iformat = nullptr;
    const aiExportFormatDesc *format;
    // Check and validate the specified model file extension.
-   // only obj,dae,ascii ply,binary and ascii stl,3ds,x and fbx verified to work from ply. Colors are not always preserved eg. stl
+   // only obj,dae,ascii ply,binary and ascii stl,3ds,x and fbx verified to be importable
+   // in meshlab using ply as import file
+   // Colors are not always preserved eg. stl
    // this is a special case that precedes the valid extension test
    std::string extstring = extension;
    std::string binarystl = ".stlb";
@@ -485,6 +490,34 @@ void MainWindow::importexport()
        if (!aiscene) {
             printf("Error parsing '%s': '%s'\n", filename, Importer.GetErrorString()); }
        format = Exporter.GetExportFormatDescription(6);
+       Exporter.Export(aiscene, format->id , filenameout, 0);
+       std::cout << "Wrote " << filenameout << "\n";
+       return;
+   }
+   // this is a special case that precedes the valid extension test
+   extstring = extension;
+   std::string binarygl = ".glb";
+   if (extstring == binarygl) {
+       //because glb is ambiguously recognized together with gltf
+       std::cout << "\tReading file using ASSIMP" << std::endl;
+       const aiScene *aiscene = Importer.ReadFile(filename, aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
+       if (!aiscene) {
+           printf("Error parsing '%s': '%s'\n", filename, Importer.GetErrorString()); }
+       format = Exporter.GetExportFormatDescription(11); // 13 or 11(glb2) 13 not accepted by meshlab
+       Exporter.Export(aiscene, format->id , filenameout, 0);
+       std::cout << "Wrote " << filenameout << "\n";
+       return;
+   }
+   // this is a special case that precedes the valid extension test
+   extstring = extension;
+   std::string asciigl = ".gltf";
+   if (extstring == asciigl) {
+       //because glb is ambiguously recognized together with gltf
+       std::cout << "\tReading file using ASSIMP" << std::endl;
+       const aiScene *aiscene = Importer.ReadFile(filename, aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
+       if (!aiscene) {
+           printf("Error parsing '%s': '%s'\n", filename, Importer.GetErrorString()); }
+       format = Exporter.GetExportFormatDescription(10);  // 12 or 10(gltf2) 12 not accepted by meshlab
        Exporter.Export(aiscene, format->id , filenameout, 0);
        std::cout << "Wrote " << filenameout << "\n";
        return;
@@ -545,18 +578,26 @@ void MainWindow::importexport()
        i++;
    } while (i < count);
    // special cases that have mismatched import and export descriptions
-   if (ID == 26) {  // dae or collada
-       format = Exporter.GetExportFormatDescription(0);
+   // the import ID is used in order to identify the format from the extension
+   // even though I am always actually importing PLY,
+   // otherwise have to manually check the extension as with stlb/gltf/glb above prior to the extension test
+   if (ID == 26) {  // dae or collada import ID = 26
+       format = Exporter.GetExportFormatDescription(0);  // export ID = 0
        Exporter.Export(aiscene, format->id , filenameout, 0);
        std::cout << "Wrote " << filenameout << "\n";
    }
-   if (ID == 45) {  //x3d
-       format = Exporter.GetExportFormatDescription(16);
+   if (ID == 45) {  //x3d import ID =45
+       format = Exporter.GetExportFormatDescription(16);  //export ID = 16
        Exporter.Export(aiscene, format->id , filenameout, 0);
        std::cout << "Wrote " << filenameout << "\n";
    }
-   if (ID == 3) { //3ds
-       format = Exporter.GetExportFormatDescription(9);
+   if (ID == 44) { //3mf import ID = 44
+       format = Exporter.GetExportFormatDescription(19);  //export OD = 19
+       Exporter.Export(aiscene, format->id , filenameout, 0);
+       std::cout << "Wrote " << filenameout << "\n";
+   }
+   if (ID == 3) { //3ds import ID =3
+       format = Exporter.GetExportFormatDescription(9); //export ID = 9
        Exporter.Export(aiscene, format->id , filenameout, 0);
        std::cout << "Wrote " << filenameout << "\n";
    }
