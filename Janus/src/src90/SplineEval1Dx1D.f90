@@ -1,4 +1,4 @@
-      subroutine SplineEval1Dx1D(iflag,u,v,f,fr,ft,frt,frr,ftt)
+      subroutine SplineEval1Dx1D(iflag,u,v,f,fr,frr,ft,frt,ftt)
       USE cornea_arrays, ONLY : DiaSlope, RadSlope, PI, EPS
       USE set_precision, ONLY : wp
       USE spline_interfaces, ONLY : pspli, SplineEval, SplineEvalCenter, trapez, CubicSplineQuad
@@ -19,6 +19,50 @@
       MM=size(RadSlope%r,2)
       N=size(RadSlope%r,1)
 
+      if(.not.Present(ft)) then                     ! if only f,fr,frr, no need for theta derivatives
+       call bsearch(v,RadSlope%thta,MM,i1,j)         ! find the radial
+       if ((abs(RadSlope%thta(j))-v) .le. eps) then  ! and if on a theta knot
+!       odd as it seems, each angle j is repeated since we're on a diagonal
+        if (j .gt. MM/2) j=j-MM/2
+        L2=DiaSlope%L2(j)
+        thta(j)=RadSlope%thta(j)
+        r=DiaSlope%rd(1:2*N,j)
+        z=DiaSlope%Zpd(1:2*N,j)
+        zr2=DiaSlope%Zpd2(1:2*N,j)
+        if (mod(iflag,10) == 0) then                  ! no integration
+         if (((iflag-mod(iflag,10))/10) == 0) then    ! no central node
+          call SplineEval(0,r,z,zr2,L2,u,g,gr,grr)    ! first parameter = 0 nonperiodic
+         endif
+         if (((iflag-mod(iflag,10))/10) == 1) then    ! non-periodic center node radial spline
+          call SplineEvalCenter(j,r,z,zr2,L2,u,g,gr,grr)
+         endif
+         fTmp(j)=g
+        else  !iflag=1 or 2
+         call SplineEval(0,r,z,zr2,L2,u,gr,grr)
+         if (mod(iflag,10) == 2) then                  ! cubic integration
+          call CubicSplineQuad(j,iflag,r,z,zr2,L2,0._wp,g0)
+          call CubicSplineQuad(j,iflag,r,z,zr2,L2,u,g)
+         endif
+         if (mod(iflag,10) == 1) then                  ! trapezoidal integration
+          call trapez(j,iflag,r,z,zr2,L2,0._wp,g0)
+          call trapez(j,iflag,r,z,zr2,L2,u,g)
+         endif
+         fTmp(j)=g-g0
+        endif
+        if (Present(f)) then
+         f=fTmp(j)
+        endif
+        if (Present(fr)) then
+         fr=gr
+        endif
+        if (Present(frr)) then
+         frr=grr
+        endif
+        return
+       endif
+      endif
+
+!     generate all the radials at u for circumferential splining if ft,frt or ftt needed
       do j=1,MM/2
         L2=DiaSlope%L2(j)
         thta(j)=RadSlope%thta(j)
@@ -57,20 +101,15 @@
 
 
 
-! why is this continuous when the map is not and vice-versa ? u vs -u?
-!if (abs(u) .lt.440 .and. abs(u) .gt. 400 ) then ! for fake or 400 or 440 test.cur
-!write(*,*) u
-!do j=1,MM
-! write(*,*) thta(j),fTmp(j),frTmp(j),frrTmp(j)
-!end do
-!stop
-!endif
 
 !       FIRST CALL FOR PERIODIC SPLINE OF f0, fttTmp is d2Y/dTHETA2
         if (Present(ftt)) then
          call pspli(thta,fTmp,MM,fttTmp)
          call SplineEval(1,thta,fTmp,fttTmp,MM,v,f,ft,ftt) !first parameter = 1 periodic
 
+
+
+! why is this continuous when the map is not and vice-versa ? u vs -u?
 IsInf=ieee_is_finite(ft)
 If(.not.IsInf .and. abs(u) .gt. 400) then
  write(*,*) 'Error in Spline1dx1d',iflag,u,v
@@ -79,7 +118,6 @@ If(.not.IsInf .and. abs(u) .gt. 400) then
 ! end do
 ! stop
 endif
-
 
         else
          if (Present(ft)) then
@@ -104,15 +142,33 @@ endif
          call pspli(thta,frTmp,MM,frttTmp)
          call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr,frt)
         else 
-         if (Present(fr)) then
-          call pspli(thta,frTmp,MM,frttTmp)
-          call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr)
-         endif 
+         if (Present(fr)) then         
+         ! We spline around the points in order to generate the angular spline derivatives; the actual function point
+         ! and radial derivatives were already generated above as long as v is a knot, which it should always be.
+          call bsearch(v,thta,MM,i1,i)
+          if (abs(thta(i)-v) .le. eps) then  ! if only f is requested, skip the splining at knots
+           fr=frTmp(i)
+          else
+           call pspli(thta,frTmp,MM,frttTmp)
+           call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr)
+          endif
+         endif
         endif
 !       THIRD CALL FOR PERIODIC SPLINE OF frr (d2f/dR2), frrttTmp is d4Y/dR2dTHETA2	
         if (Present(frr)) then
-         call pspli(thta,frrTmp,MM,frrttTmp)
-         call SplineEval(1,thta,frrTmp,frrttTmp,MM,v,frr)
+        ! We spline around the points in order to generate the angular spline derivatives; the actual function point
+        ! and radial derivatives were already generated above as long as v is a knot, which it should always be.
+         call bsearch(v,thta,MM,i1,i)
+         if (abs(thta(i)-v) .le. eps) then  ! if only f is requested, skip the splining at knots
+          frr=frrTmp(i)
+         else
+          call pspli(thta,frrTmp,MM,frrttTmp)
+          call SplineEval(1,thta,frrTmp,frrttTmp,MM,v,frr)
+         endif
+        endif
+
+        if (abs(h-f) .gt. eps ) then
+         write(*,*) h,f,hr,fr,hrr,frr
         endif
 
         RETURN

@@ -78,7 +78,7 @@ subroutine SplineEvalCenter(ii,x,y,y2,n,u,f,fp,fpp,fppp)
  REAL(wp),INTENT(OUT),OPTIONAL :: f,fp,fpp,fppp ! function, 1st,2nd,3rd deriv
 end subroutine
 
- subroutine SplineEval1Dx1D(iflag,u,v,f,fr,ft,frt,frr,ftt) 
+ subroutine SplineEval1Dx1D(iflag,u,v,f,fr,frr,ft,frt,ftt)
   use set_precision, ONLY : wp
   use,intrinsic :: ieee_arithmetic
   integer, INTENT(IN) :: iflag     ! iflag=0 no integration

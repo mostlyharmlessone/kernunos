@@ -845,10 +845,10 @@ if (mod(flag,100) .ne. 9 ) then
    do i=1,M1
     do j=1,RadSlope%MV(i)
      if (i > 90) then
-      call SplineEval1Dx1D(iflag,-100*Atlas%AD(i,j),PI*(i-1)/90.0_wp,Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
+      call SplineEval1Dx1D(iflag,-100*Atlas%AD(i,j),PI*(i-1)/90.0_wp,Y,YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
       call AXIALP(-100*Atlas%AD(i,j),YPR,YP2R2,pow)
      else
-      call SplineEval1Dx1D(iflag,100*Atlas%AD(i,j),PI*(i-1)/90.0_wp,Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
+      call SplineEval1Dx1D(iflag,100*Atlas%AD(i,j),PI*(i-1)/90.0_wp,Y,YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
       call AXIALP(100*Atlas%AD(i,j),YPR,YP2R2,pow)
      endif
 !   skip missing elevation points to compute (cumulative) average error
@@ -905,7 +905,7 @@ if (mod(flag,100) .ne. 9 ) then
 ! populate JMatrix rings, not the centers
 ! elevations
     if (TestData.ne.2 .and. TestData.ne.4) then  ! slope based data, integrate based on iflag with or without cubic/trapez or center point or not for values
-     call SplineEval1Dx1D(iflag,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
+     call SplineEval1Dx1D(iflag,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
 
 
 
@@ -919,9 +919,9 @@ endif
 
     else  !TestData.eq.2 .or. TestData.eq.4  ! ELE and ELE.CSV files use elevation, no integration, center point or not
      if (btest(dat,0)) then
-      call SplineEval1Dx1D(10,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
+      call SplineEval1Dx1D(10,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
      else
-      call SplineEval1Dx1D(0,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA)
+      call SplineEval1Dx1D(0,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
      endif
     endif
 !  save for vertex normals and for LIOC
@@ -940,7 +940,7 @@ endif
 
 if ( j .eq. 17) then
 
-! this generates the continuous map from desite the non continuous fTmp in SplineEval1Dx1D
+! this generates the continuous map despite the non continuous fTmp in SplineEval1Dx1D
 
 !if (abs(JMatrix%R(j,i)) .gt. 440) then
 !write(*,*) abs(JMatrix%R(j,i))*cos(JMatrix%THT(i)),abs(JMatrix%R(j,i))*sin(JMatrix%THT(i)),JMatrix%Z(j,i)
