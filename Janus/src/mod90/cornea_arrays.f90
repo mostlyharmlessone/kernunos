@@ -675,7 +675,7 @@ function splinefillin(b) result(a)
          z(mvjr(i))=Q
         endif
       end do
-!     no splining if less than half the points avaialble
+!     no splining if less than half the points available
       if (mvjr(i) .gt. (M1/2)) then
        call pspli(t,z,mvjr(i),zt2)
       else
@@ -719,7 +719,7 @@ function splinefillintranspose(b) result(a)
          z(mvjr(i))=Q
         endif
       end do
-!     no splining if less than half the points avaialble
+!     no splining if less than half the points available
       if (mvjr(i) .gt. (M1/2)) then
        call pspli(t,z,mvjr(i),zt2)
        else
@@ -943,7 +943,7 @@ end subroutine ZFCT
 subroutine AXIALP(X2,Y1X,Y2X,SAGC)
  real(wp), INTENT(IN) :: X2,Y1X,Y2X
  real(wp), INTENT(OUT) :: SAGC
- if (ABS(X2) < 20) then 
+ if (ABS(X2) < EPS) then
 ! UNDEFINED AT ORIGIN X2=0, LIMIT IS RFCT*Y2X             
   SAGC=RFCT*Y2X
  else

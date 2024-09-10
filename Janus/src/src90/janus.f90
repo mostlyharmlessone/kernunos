@@ -32,7 +32,7 @@
   integer ::  nblines, file_idx, file_pfx,read_error,io
   integer,allocatable :: MV(:)
   real(8) :: time_start, time_end
-  real(wp) :: POWMIN,POWMAX,POWMAX2,POWCTR,POW,P1,X1,X2,U,V
+  real(wp) :: POWMIN,POWMAX,POWMAX2,POWCTR,POW,P1,X1,X2,U,V,Z,z1,z2,z3,z4
   logical :: donut, exists
   real(wp) :: Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo
   integer :: k_max, kk_max, iflag, LWORK
@@ -810,7 +810,6 @@ if (TestData .eq. 1) then
   RadSlope=Atlas
   Atlas=AtlasSave  ! restore Atlas after using it to define RadSlope
  endif
-
 endif
 
 ! skip all this if we're just displaying zernike coefficients again
@@ -844,13 +843,8 @@ if (mod(flag,100) .ne. 9 ) then
  ! check spline power & elevation at knots
    do i=1,M1
     do j=1,RadSlope%MV(i)
-     if (i > 90) then
-      call SplineEval1Dx1D(iflag,-100*Atlas%AD(i,j),PI*(i-1)/90.0_wp,Y,YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
-      call AXIALP(-100*Atlas%AD(i,j),YPR,YP2R2,pow)
-     else
-      call SplineEval1Dx1D(iflag,100*Atlas%AD(i,j),PI*(i-1)/90.0_wp,Y,YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
-      call AXIALP(100*Atlas%AD(i,j),YPR,YP2R2,pow)
-     endif
+     call SplineEval1Dx1D(iflag,100*Atlas%AD(i,j),PI*(i-1)/90.0_wp,Y,YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
+     call AXIALP(ABS(100*Atlas%AD(i,j)),ABS(YPR),YP2R2,pow)
 !   skip missing elevation points to compute (cumulative) average error
     if (Atlas%AY(i,j) > 0) then
       k=k+1
@@ -897,26 +891,11 @@ if (mod(flag,100) .ne. 9 ) then
     JMatrix%MV(i)=min(RadSlope%MV(i),N1)  ! if N=25 don't do more than 22
    endif
    do j=1,JMatrix%MV(i)                             ! does not include center point
-    if (i > (M1/2) ) then
-     JMatrix%R(j,i)=N1*100*((1-j)*(rBo-rBi)/(N1-1)-rBi)/(1.*N)  !scaled to compensate for 16 vs 22 or 25 rings
-    else
-     JMatrix%R(j,i)=N1*100*((j-1)*(rBo-rBi)/(N1-1)+rBi)/(1.*N)
-    endif
+    JMatrix%R(j,i)=N1*100*(rBi+(j-1)*(rBo-rBi)/(N1-1))/(1.*N)  !scaled to compensate for 16 vs 22 or 25 rings
 ! populate JMatrix rings, not the centers
 ! elevations
     if (TestData.ne.2 .and. TestData.ne.4) then  ! slope based data, integrate based on iflag with or without cubic/trapez or center point or not for values
      call SplineEval1Dx1D(iflag,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
-
-
-
-
-if (i .eq. M1) then
-!write(*,*) "janus 911",JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA
-endif
-
-
-
-
     else  !TestData.eq.2 .or. TestData.eq.4  ! ELE and ELE.CSV files use elevation, no integration, center point or not
      if (btest(dat,0)) then
       call SplineEval1Dx1D(10,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
@@ -926,51 +905,21 @@ endif
     endif
 !  save for vertex normals and for LIOC
     JMatrix%YPR(j,i)=YPR
+    JMatrix%YPTHETA(j,i)=YPTHETA
 !  powers
-    call AXIALP(JMatrix%R(j,i),YPR,YP2R2,JMatrix%SAGC(j,i))
+    call AXIALP(JMatrix%R(j,i),ABS(YPR),YP2R2,JMatrix%SAGC(j,i))
     call AXIALP(JMatrix%R(j,i),YPTHETA/abs(JMatrix%R(j,i)),YP2THETA/abs(JMatrix%R(j,i)),JMatrix%Warp(j,i))
-
-
-
-
-! here yptheta is NaN but curiously yp2theta is finite (though garbage)
-if (i == M1) then
-!write(*,*) "janus 929",JMatrix%R(j,i),YPTHETA,YP2THETA
-endif
-
-if ( j .eq. 17) then
-
-! this generates the continuous map despite the non continuous fTmp in SplineEval1Dx1D
-
-!if (abs(JMatrix%R(j,i)) .gt. 440) then
-!write(*,*) abs(JMatrix%R(j,i))*cos(JMatrix%THT(i)),abs(JMatrix%R(j,i))*sin(JMatrix%THT(i)),JMatrix%Z(j,i)
-write(*,*) JMatrix%THT(i),JMatrix%Z(j,i),YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,JMatrix%R(j,i)
-
-!write(*,*) abs(JMatrix%R(j,i))*cos(JMatrix%THT(i)),abs(JMatrix%R(j,i))*sin(JMatrix%THT(i)),YPTHETA/abs(JMatrix%R(j,i)),YP2THETA/abs(JMatrix%R(j,i)),JMatrix%THT(i)
-
-endif
-
-    if (M1 .eq. 360) then
-     k=8 ! skip this many problematic values at x-axis
-    else
-     k=4  ! fewer because every 2 degrees
-    endif
-    if ( (i .gt. (1+k) .and. i .lt. (M1/2-k)) .or. (i .lt. (M1-k)  .and. i .gt. (M1/2+k))) then
-     JMatrix%YPTHETA(j,i)=YPTHETA  !  save for vertex normals and for LIOC
-     call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i),JMatrix%INSTC2(j,i))
-     call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
-     call MEANP(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
-     if (JMatrix%MEANC(j,i) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC(j,i)
-     if (JMatrix%MEANC(j,i) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC(j,i)
-     if (JMatrix%INSTC(j,i) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC(j,i)
-     if (JMatrix%INSTC(j,i) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC(j,i)
-     if (JMatrix%INSTC2(j,i) <= JMatrix%INSTC20(2)) JMatrix%INSTC20(2)=JMatrix%INSTC2(j,i)
-     if (JMatrix%INSTC2(j,i) >= JMatrix%INSTC20(3)) JMatrix%INSTC20(3)=JMatrix%INSTC2(j,i)
-     if (JMatrix%MONGEA(j,i) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA(j,i)
-     if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
-
-    endif
-!   find min and max
+    call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i),JMatrix%INSTC2(j,i))
+    call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),ABS(YPR),YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
+    call MEANP(JMatrix%THT(i),JMatrix%R(j,i),ABS(YPR),YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
+    if (JMatrix%MEANC(j,i) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC(j,i)
+    if (JMatrix%MEANC(j,i) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC(j,i)
+    if (JMatrix%INSTC(j,i) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC(j,i)
+    if (JMatrix%INSTC(j,i) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC(j,i)
+    if (JMatrix%INSTC2(j,i) <= JMatrix%INSTC20(2)) JMatrix%INSTC20(2)=JMatrix%INSTC2(j,i)
+    if (JMatrix%INSTC2(j,i) >= JMatrix%INSTC20(3)) JMatrix%INSTC20(3)=JMatrix%INSTC2(j,i)
+    if (JMatrix%MONGEA(j,i) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA(j,i)
+    if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
     if (JMatrix%Z(j,i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z(j,i)
     if (JMatrix%Z(j,i) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z(j,i)
     if (JMatrix%SAGC(j,i) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC(j,i)
@@ -978,18 +927,7 @@ endif
     if (JMatrix%Warp(j,i) <= JMatrix%Warp0(2)) JMatrix%Warp0(2)=JMatrix%Warp(j,i)
     if (JMatrix%Warp(j,i) >= JMatrix%Warp0(3)) JMatrix%Warp0(3)=JMatrix%Warp(j,i)
    end do
-
-!write(*,*) ' '
-
   end do !end JMatrix ring generation
-
-! Use pspli to spline over x-axis, but not central points, don't bother with min and max again
-  JMatrix%MEANC(1:N1,:)=splinefillintranspose(JMatrix%MEANC(1:N1,:))
-  JMatrix%YPTHETA(1:N1,:)=splinefillintranspose(JMatrix%YPTHETA(1:N1,:))
-  JMatrix%MONGEA(1:N1,:)=splinefillintranspose(JMatrix%MONGEA(1:N1,:))
-  JMatrix%INSTC(1:N1,:)=splinefillintranspose(JMatrix%INSTC(1:N1,:))
-  JMatrix%INSTC2(1:N1,:)=splinefillintranspose(JMatrix%INSTC2(1:N1,:))
-!  JMatrix%Warp(1:N1,:)=splinefillintranspose(JMatrix%Warp(1:N1,:))
 
 !  Calculate center values for everything
 !  These have MM different values of the center!
@@ -1019,12 +957,15 @@ endif
     DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
    endif
  endif
-
 !  Z
 !   if (TestData.ne.2 .and. TestData.ne.4) then   ! already has valid Z0 from cornea_arrays & ELE file NOT YET IT DOES NOT
     do i=1,M1
      call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%Z(N1+1,i))  !center value of elevation; needs integration from slopes
-     JMatrix%Z0(1)=(i*JMatrix%Z0(1)+JMatrix%Z(N1+1,i))/(i+1)      ! cumulative average
+     if (i .eq. 1) then
+      JMatrix%Z0(1)=JMatrix%Z(N1+1,1)
+     else
+      JMatrix%Z0(1)=(i*JMatrix%Z0(1)+JMatrix%Z(N1+1,i))/(i+1)      ! cumulative average
+     endif
     end do
     if (JMatrix%Z0(1) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z0(1)
     if (JMatrix%Z0(1) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z0(1)
@@ -1050,14 +991,17 @@ endif
       DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
      endif
     endif
-
     do i=1,M1
      if (btest(dat,0)) then
       call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%SAGC(N1+1,i))  ! center value
      else
       call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%SAGC(N1+1,i))  ! center value
      endif
-     JMatrix%SAGC0(1)=(i*JMatrix%SAGC0(1)+JMatrix%SAGC(N1+1,i))/(i+1)      ! cumulative average
+     if (i .eq. 1) then
+      JMatrix%SAGC0(1)=JMatrix%SAGC(N1+1,1)
+     else
+      JMatrix%SAGC0(1)=(i*JMatrix%SAGC0(1)+JMatrix%SAGC(N1+1,i))/(i+1)      ! cumulative average
+     endif
     end do
     if (JMatrix%SAGC0(1) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC0(1)
     if (JMatrix%SAGC0(1) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC0(1)
@@ -1068,9 +1012,6 @@ endif
     do i=1,M1
      do j=1,RadSlope%MV(i)
       RadSlope%Zp(j,i)=JMatrix%Warp(j,i)
-if (i == M1) then
-write(*,*) "in janus warp",j,JMatrix%Warp(j,i)
-endif
      end do
     end do
     DiaSlope=RadSlope              ! move to diagonal format
@@ -1092,7 +1033,11 @@ endif
      else
       call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%Warp(N1+1,i))  ! center value
      endif
+     if (i .eq. 1) then
+      JMatrix%Warp0(1)=JMatrix%Warp(N1+1,1)
+     else
      JMatrix%Warp0(1)=(i*JMatrix%Warp0(1)+JMatrix%Warp(N1+1,i))/(i+1)      ! cumulative average
+     endif
     end do
     if (JMatrix%Warp0(1) <= JMatrix%Warp0(2)) JMatrix%Warp0(2)=JMatrix%Warp0(1)
     if (JMatrix%Warp0(1) >= JMatrix%Warp0(3)) JMatrix%Warp0(3)=JMatrix%Warp0(1)
@@ -1122,7 +1067,11 @@ endif
     else
      call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC(N1+1,i))  ! center value
    endif
-   JMatrix%INSTC0(1)=(i*JMatrix%INSTC0(1)+JMatrix%INSTC(N1+1,i))/(i+1)      ! cumulative average
+   if (i .eq. 1) then
+    JMatrix%INSTC0(1)=JMatrix%INSTC(N1+1,1)
+   else
+    JMatrix%INSTC0(1)=(i*JMatrix%INSTC0(1)+JMatrix%INSTC(N1+1,i))/(i+1)      ! cumulative average
+   endif
   end do
   if (JMatrix%INSTC0(1) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC0(1)
   if (JMatrix%INSTC0(1) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC0(1)
@@ -1151,7 +1100,11 @@ endif
    else
     call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC2(N1+1,i))  ! center value
    endif
-   JMatrix%INSTC20(1)=(i*JMatrix%INSTC20(1)+JMatrix%INSTC2(N1+1,i))/(i+1)      ! cumulative average
+   if (i .eq. 1) then
+    JMatrix%INSTC20(1)=JMatrix%INSTC2(N1+1,1)
+   else
+    JMatrix%INSTC20(1)=(i*JMatrix%INSTC20(1)+JMatrix%INSTC2(N1+1,i))/(i+1)      ! cumulative average
+   endif
   end do
   if (JMatrix%INSTC20(1) <= JMatrix%INSTC20(2)) JMatrix%INSTC20(2)=JMatrix%INSTC20(1)
   if (JMatrix%INSTC20(1) >= JMatrix%INSTC20(3)) JMatrix%INSTC20(3)=JMatrix%INSTC20(1)
@@ -1180,7 +1133,11 @@ endif
    else
     call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%MEANC(N1+1,i))  ! center value
    endif
-   JMatrix%MEANC0(1)=(i*JMatrix%MEANC0(1)+JMatrix%MEANC(N1+1,i))/(i+1)      ! cumulative average
+   if (i .eq. 1) then
+    JMatrix%MEANC0(1)=JMatrix%MEANC(N1+1,1)
+   else
+    JMatrix%MEANC0(1)=(i*JMatrix%MEANC0(1)+JMatrix%MEANC(N1+1,i))/(i+1)      ! cumulative average
+   endif
   end do
   if (JMatrix%MEANC0(1) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC0(1)
   if (JMatrix%MEANC0(1) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC0(1)
@@ -1210,7 +1167,11 @@ endif
    else
     call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%MONGEA(N1+1,i))  ! center value
   endif
-  JMatrix%MONGEA0(1)=(i*JMatrix%MONGEA0(1)+JMatrix%MONGEA(N1+1,i))/(i+1)      ! cumulative average
+  if (i .eq. 1) then
+   JMatrix%MONGEA0(1)=JMatrix%MONGEA(N1+1,1)
+  else
+   JMatrix%MONGEA0(1)=(i*JMatrix%MONGEA0(1)+JMatrix%MONGEA(N1+1,i))/(i+1)      ! cumulative average
+  endif
  end do
  if (JMatrix%MONGEA0(1) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA0(1)
  if (JMatrix%MONGEA0(1) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA0(1)

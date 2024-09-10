@@ -3,7 +3,7 @@
   IMPLICIT NONE
   
   INTEGER, PARAMETER :: wp = KIND(0.0D0) ! working precision
-! Copyright (c) 2021   Anthony M de Beus              
+! Copyright (c) 2021   Anthony M de Beus
 !          Arguments copied and modified from -- LAPACK routine (version 3.1) --
 !          Univ. of Tennessee, Univ. of California Berkeley and NAG Ltd..
 !          November 2006

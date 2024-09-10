@@ -2,9 +2,11 @@ things to do
 
 CorneaCopia
 
-I've re-isolated the theta slope discontinuity error again
+fixed theta discontinuty, though there is a residual question regarding the sign of R, and YPR, so using ABS() when calling MEAN/MONGE/AXIAL
+ 
+have a recurrent issue regarding all pentacam conversions ? change in bsearch? nspline?
 
-see gnuplot of inside.log
+atlas spline error for TEST_BAD_OD.CSV
 
 check formula for mean curvature and monge astigmatism
 

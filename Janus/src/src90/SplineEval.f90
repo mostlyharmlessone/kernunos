@@ -46,8 +46,8 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
    B=0 ; A=1
   else                   ! normal sequence
    dr=x(i1)-x(i)
-   A=(x(i1)-u)/dr ; dA=-1/dr
-   B=(u-x(i))/dr ; dB=1/dr
+   A=(x(i1)-u)/dr
+   B=(u-x(i))/dr
   ! FOR PERIODIC SPLINES PERIOD 2*PI
    if ((A*B) < 0) then  !redefine A,B,i,i1
     if (KP == 1) then
@@ -66,6 +66,7 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
     end if
    endif
   endif
+  dA=-1/dr ; ; dB=1/dr
   C=dr*dr*(A**3-A)/6; dC=dr*dr*dA*(3*A**2-1)/6
   D=dr*dr*(B**3-B)/6; dD=dr*dr*dB*(3*B**2-1)/6
   AB(1)=A ; AB(2)=B ; dAB(1)=dA ; dAB(2)=dB
@@ -94,9 +95,11 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
 !  3rd deriv 
    if (Present(fppp)) fppp = (dAB.p.z2) ! fppp=(y2(i1)-y2(i))/dr   
 
-   IsInf=ieee_is_finite(f)
+   if (Present(f)) IsInf=ieee_is_finite(f)
+   if (Present(fp)) IsInf=ieee_is_finite(f) .and. ieee_is_finite(fp)
    If(.not.IsInf) then
-    write(*,*) 'Error in SplineEval',KP,u,n,i1,i,z,z2
+    write(*,*) 'Error in SplineEval',KP,u,n,i1,i,z,z2,dr
+    write(*,*) AB,CD,dAB,dCD
     return
    endif
                            
