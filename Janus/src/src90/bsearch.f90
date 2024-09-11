@@ -13,6 +13,12 @@ integer m
   write(*,*) 'FATAL Error in bsearch, n < 1',n
   stop
  endif
+ ! degenerate case
+ if (n .eq. 1) then
+  high = 1 ; low = 1
+  write(*,*) 'Warning: degenerate bsearch',r,rv
+  return
+ endif
  if ( rv(n) > rv(1) ) then  ! forward ordered vector, lowest to highest
   if (r > rv(n)) then
    low=n-1
@@ -48,7 +54,20 @@ integer m
    endif 
   endif
  endif
-! sanity check if r .eq. a knot, then not in an interval
+! sanity check
+ if (high .le. 0 .or. low .le. 0) then
+  write(*,*) 'low error in bsearch',low,high,n,m
+  write(*,*) r
+  write(*,*) rv
+  stop
+ endif
+ if (high .gt. n .or. low .gt. n) then
+  write(*,*) 'high error in bsearch',low,high,n,m
+  write(*,*) r
+  write(*,*) rv
+  stop
+ endif
+! check if r .eq. a knot, then not in an interval
  if (abs(r-rv(high)) .le. eps) then
   low=high
   endif

@@ -656,8 +656,11 @@ if (TestData .eq. 1) then
   endif  
   read_error=0
   call RCNVRTA(inputfile2,N,read_error)
-  call system('rm ' // inputfile2, io)
-  if (io > 0) write (*,*) 'system command to remove tmp file failed'
+  file_idx=index(inputfile2, ".TMP")
+  if (file_idx .ne. 0) then
+   call system('rm ' // inputfile2, io)
+   if (io > 0) write (*,*) 'system command to remove tmp file failed'
+  endif
   call CPU_TIME(time_end)
   write(*,*) 'Time to read Atlas CSV file: ',(time_end-time_start)*1000
   if (read_error > 0) return

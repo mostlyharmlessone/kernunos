@@ -18,13 +18,13 @@
 ! boundary conditions for natural spline   
   z2(1)=0.      
   z2(n)=0  
-  if ( n == 2 ) then 
+  if ( n == 2 ) then
+   write(*,*) "Warning degenerate nspline",r,z
    return  ! degenerate case  
   else 
     allocate (a(n-2),b(n-2),c(n-2),d(n-2),zz2(n-2))
   endif  
   a=0  ;  b=0  ;   c=0  ;  d=0
-
 ! spline equation at internal knots
     do i=2,n-1
      a(i-1)=(r(i)-r(i-1))/6.0
@@ -52,7 +52,7 @@
    end do 
 
    f= dot_product(z2,z2)
-   IsNaN=ieee_is_NaN(f)
+   IsNaN=ieee_is_NaN(f) .or. ieee_is_NaN(dot_product(r,r)) .or. ieee_is_NaN(dot_product(z,z))
    If(IsNaN) then
     write(*,*) 'Warning from nspline: NaN terms, check r and z; '
     write(*,*) r(1:n)

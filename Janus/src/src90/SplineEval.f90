@@ -1,7 +1,7 @@
 ! no center point version, periodic/natural/optional radial extrapolation
 subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
  USE set_precision, ONLY : wp
- USE cornea_arrays, ONLY : PI
+ USE cornea_arrays, ONLY : PI, eps
  USE special_fct, ONLY : bsearch, OPERATOR(.p.) !tensor summation convention
  use,intrinsic :: ieee_arithmetic
  IMPLICIT NONE
@@ -16,7 +16,7 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
 
 !  for extrapolation:  if u<x(1), i=1 is used;if u>x(n), i=n is used 
 
-  INTEGER, INTENT(IN) :: KP ! periodic KP=1 vs natural spline flag KP=0
+  INTEGER, INTENT(IN) :: KP ! periodic KP=1 vs natural spline flag KP=0 KP=2 no extrapolation
   INTEGER, INTENT(IN) :: n ! vector input length
   REAL(wp),INTENT(IN) :: u ! abscissa at which the spline is to be evaluated
   REAL(wp),INTENT(IN) :: x(n) ! abscissas of knots
@@ -29,21 +29,31 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
   logical :: IsInf
 
   PERD=2*PI ! period of spline if applicable
+  if (n .eq. 1) then  ! degenerate case
+   write(*,*) 'Warning: degenerate SplineEval'
+   if (Present(f)) f=y(n)
+   if (Present(fp)) fp=0
+   if (Present(fpp)) fpp=y2(n)
+   if (Present(fppp)) fppp=0
+   return
+  endif
   call bsearch(u,x,n,i1,i) ! binary search
-  if (i1 .eq. i) then
+  if (i1 .eq. i) then  
    if (i .ne. n) then
     i1=i+1
-   else
+    dr=x(i1)-x(i)
+    B=0 ; A=1
+   else   
     if (KP .ne. 1) then
-     i1=n ; i=n-1
+     i1=n ; i=n-1 ! should be usual default with floor
+     dr=x(i1)-x(i)
+     B=0 ; A=1
     else
-     i1=1 ; i=n  !catches the terminal knot in the forward interval
-    endif
-   endif
-  endif
-  if (i .gt. i1) then    ! if on the terminal knot
-   dr=x(i1)-x(i)+PERD
-   B=0 ; A=1
+     i1=1 ; i=n  !catches the terminal knot in the forward interval, KP = 1
+     dr=x(i1)-x(i)+PERD
+     B=0 ; A=1
+    endif    
+   endif   
   else                   ! normal sequence
    dr=x(i1)-x(i)
    A=(x(i1)-u)/dr
@@ -75,9 +85,31 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
   z(2)=y(i1)
   z2(1)=y2(i)
   z2(2)=y2(i1)
+
   if ((A*B) < 0) then
    if (KP /= 1) then  !  natural spline extrapolation z2=0 outside spline
     z2=0._wp
+    if (KP .eq. 2) then
+     if (Present(f)) f=0
+     if (Present(fp)) fp=0
+     if (Present(fpp)) fpp=0
+     if (Present(fppp)) fppp=0
+
+     if (u .le. x(n) .and. u .ge. x(1)) then
+
+if (abs(u-x(i1)) .le. eps) then
+ write(*,*) 'wtf 1',u,x(i1),i,i1 ; stop
+ endif
+if (abs(u-x(i)) .le. eps) then
+ write(*,*) 'wtf 2',u,x(i),i,i1 ; stop
+endif
+
+
+     stop
+     endif
+
+     return
+    endif
    end if
   end if
   if (A < 0 .and. B < 0) then

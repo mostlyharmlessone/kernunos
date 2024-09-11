@@ -381,7 +381,7 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
       z2(1:L2)=Skyline%z2DAT(k,1:L2)
 !     f is value at u, fTmp is a new 1:(Skyline%rows) column of values at u
       call SplineEval(0,x(1:L2),z(1:L2),z2(1:L2),L2,u,f)   ! first parameter = 0 nonperiodic
-      call SplineEval(2,x(1:L2),z(1:L2),z2(1:L2),L2,u,check)   ! first parameter = 0 nonperiodic
+      call SplineEval(2,x(1:L2),z(1:L2),z2(1:L2),L2,u,check)   ! first parameter = 2 extrapolation check
       if (check == 0) firstcheck=firstcheck+1 ! how much extrapolation
       fTmp(k)=f
      end do
@@ -393,7 +393,6 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
      call nspline(y(1:L2),fTmp(1:L2),L2,f2Tmp(1:L2))             ! spline in Y
      call SplineEval(0,y(1:L2),fTmp(1:L2),f2Tmp(1:L2),L2,v,DAT)  ! first parameter = 0 nonperiodic
      call SplineEval(2,y(1:L2),fTmp(1:L2),f2Tmp(1:L2),L2,v,secondcheck)  ! first parameter = 2 extrapolation check
-
      if (j > N1) then
       JMatrix%R0=0 ; JMatrix%THT0=0
       if (ABS(DAT) > 0) then
@@ -404,7 +403,7 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
 !   boundary check here
      xx=u*(NP-1)/14.0 ; yy=v*(NP-1)/14.0
      if (Penta%DAT(1+(NP-1)/2+sign(floor(ABS(xx)),floor(xx)),&
-                &1+(NP-1)/2+sign(floor(ABS(yy)),floor(yy))) >= 0) then  ! test for >0 is why Penta needed here
+                &1+(NP-1)/2+sign(floor(ABS(yy)),floor(yy))) > 0) then  ! test for >0 is why Penta needed here
       if (firstcheck < 70 .and. secondcheck /= 0) then ! better extrapolation check; the 70 here is arbitrary, 40 is getting too low
 !       write(*,*) firstcheck,secondcheck,Penta%DAT(1+(NP-1)/2+sign(floor(ABS(xx)),floor(xx)),&
 !       &1+(NP-1)/2+sign(floor(ABS(yy)),floor(yy)))
@@ -415,13 +414,15 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
        endif
        JMatrix%Z(j,i)=RadSlope%Z(j,i)   !only for elevations, put in RadSlope%Zp(j,i) in janus
       else  ! outside boundary
-       if (r(j) < rmin) rmin=r(j)
+       if (r(j) < rmin) then
+        rmin=r(j)
+       endif
       endif
      endif
     endif
    end do !j to N1
   end do !i to M1
-!  write(*,*) 'rmin from RadSlope_eq_Skyline',rmin
+  write(*,*) 'rmin from RadSlope_eq_Skyline',rmin,rBo,rBi,N1
 !  write(*,*) imv(:)
 ! trim down imv for r > rmin
   do i=1,M1
