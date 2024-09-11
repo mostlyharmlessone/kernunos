@@ -398,6 +398,7 @@ subroutine rcnvrta_type(KXNAME,N,read_error)
  character(len=*), intent(in) :: KXNAME
  integer, intent(out) :: N, read_error
  INTEGER :: K,io,unitno,ierr
+ read_error = 0
  inquire(file=trim(KXNAME), exist=exists)
  if (exists) then
   unitno = get_new_fileunit()
@@ -459,6 +460,7 @@ subroutine rcnvrta(KXNAME,N,read_error)
  integer, intent(out) :: N, read_error
  INTEGER :: K,I,J,io,ITH,JTH,unitno,MM,ierr
  REAL(wp) :: R,DIST,Y,POW,Z
+ read_error = 0
  MM=180
  ! its assumed at this point that the AR data is always N=22
  N=22

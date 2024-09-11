@@ -633,6 +633,7 @@ if (TestData .eq. 1) then
   call CPU_TIME(time_start)
  ! determine the type, prior to allocating Atlas
   call RCNVRTA_type(inputfile1,Power_Rings_Count,read_error)
+  inputfile2=inputfile1
   if (read_error .eq. 1) then
    write(*,*) 'Possible semicolon delimited Atlas file, try sed'
    inputfile2=replacestr(string=inputfile1,search=".CSV",substitute=".TMP")
@@ -644,38 +645,23 @@ if (TestData .eq. 1) then
    else
     call RCNVRTA_type(inputfile2, Power_Rings_Count, read_error)
     if (read_error > 0) write (*,*) 'temp Atlas file read error, probably not because semicolon delimited'
-    call system('rm ' // inputfile2, io)
-    if (io > 0) write (*,*) 'system command to remove tmp file failed'
    endif
-  endif
+  endif 
   N=Power_Rings_Count
   if(.not.allocated(Atlas%AR)) then
    call init_mat_Atlas(MM,N,Atlas)
   else
    Atlas=0
    call init_mat_Atlas(MM,N,Atlas)
-  endif
+  endif  
   read_error=0
-  call RCNVRTA(inputfile1,N,read_error)
-  if (read_error .eq. 1) then
-   write(*,*) 'Possible semicolon delimited Atlas file, try sed'
-   inputfile2=replacestr(string=inputfile1,search=".CSV",substitute=".TMP")
-!   write(*,*) 'sed "s/;/,/g" ' // inputfile1 // ' > ' // inputfile2
-   call system('sed "s/;/,/g" ' // inputfile1 // ' > ' // inputfile2, io)
-   if (io > 0) then
-    write (*,*) 'system command to sed failed'
-    write (*,*) 'Consider using your text editor to search/replace all semicolons with commas in',inputfile1
-   else
-    call RCNVRTA(inputfile2, N, read_error)
-    if (read_error > 0) write (*,*) 'temp Atlas file read error, probably not because semicolon delimited'
-    call system('rm ' // inputfile2, io)
-    if (io > 0) write (*,*) 'system command to remove tmp file failed'
-   endif
-  endif
+  call RCNVRTA(inputfile2,N,read_error)
+  call system('rm ' // inputfile2, io)
+  if (io > 0) write (*,*) 'system command to remove tmp file failed'
   call CPU_TIME(time_end)
   write(*,*) 'Time to read Atlas CSV file: ',(time_end-time_start)*1000
   if (read_error > 0) return
- endif  !(mod(flag,100) /= 0,99,2,3 assume 1 (zernike) or 4 (redraw), or 8 (show rings) reload the original data
+ endif  !(mod(flag,100) /= 0,99,2,3 assume 1 (zernike) or 4 (redraw), or 8 (show rings) reload the original data 
  N=Power_Rings_Count
  ! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
  if (allocated(RadSlope%r)) then
@@ -910,16 +896,21 @@ if (mod(flag,100) .ne. 9 ) then
     call AXIALP(JMatrix%R(j,i),ABS(YPR),YP2R2,JMatrix%SAGC(j,i))
     call AXIALP(JMatrix%R(j,i),YPTHETA/abs(JMatrix%R(j,i)),YP2THETA/abs(JMatrix%R(j,i)),JMatrix%Warp(j,i))
     call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i),JMatrix%INSTC2(j,i))
-    call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),ABS(YPR),YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
     call MEANP(JMatrix%THT(i),JMatrix%R(j,i),ABS(YPR),YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
-    if (JMatrix%MEANC(j,i) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC(j,i)
-    if (JMatrix%MEANC(j,i) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC(j,i)
+    call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),ABS(YPR),YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
+!    if (M1 .eq. 360) then
+!     k=8 ! skip this many problematic values at x-axis
+!    else
+!     k=4  ! fewer because every 2 degrees
+!    endif
+!    if ( (i .gt. (1+k) .and. i .lt. (M1/2-k)) .or. (i .lt. (M1-k)  .and. i .gt. (M1/2+k))) then
+!     call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),ABS(YPR),YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
+!     call MEANP(JMatrix%THT(i),JMatrix%R(j,i),ABS(YPR),YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
+!    endif
     if (JMatrix%INSTC(j,i) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC(j,i)
     if (JMatrix%INSTC(j,i) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC(j,i)
     if (JMatrix%INSTC2(j,i) <= JMatrix%INSTC20(2)) JMatrix%INSTC20(2)=JMatrix%INSTC2(j,i)
     if (JMatrix%INSTC2(j,i) >= JMatrix%INSTC20(3)) JMatrix%INSTC20(3)=JMatrix%INSTC2(j,i)
-    if (JMatrix%MONGEA(j,i) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA(j,i)
-    if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
     if (JMatrix%Z(j,i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z(j,i)
     if (JMatrix%Z(j,i) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z(j,i)
     if (JMatrix%SAGC(j,i) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC(j,i)
@@ -928,6 +919,17 @@ if (mod(flag,100) .ne. 9 ) then
     if (JMatrix%Warp(j,i) >= JMatrix%Warp0(3)) JMatrix%Warp0(3)=JMatrix%Warp(j,i)
    end do
   end do !end JMatrix ring generation
+! spline over problematic limits at x-axis
+!  JMatrix%MEANC=splinefillintranspose(JMatrix%MEANC)
+!  JMatrix%MONGEA=splinefillintranspose(JMatrix%MONGEA)
+  do i=1,M1
+   do j=1,JMatrix%MV(i)
+    if (JMatrix%MEANC(j,i) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC(j,i)
+    if (JMatrix%MEANC(j,i) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC(j,i)
+    if (JMatrix%MONGEA(j,i) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA(j,i)
+    if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
+   end do
+  end do
 
 !  Calculate center values for everything
 !  These have MM different values of the center!

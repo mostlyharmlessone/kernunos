@@ -1,16 +1,15 @@
 things to do
 
 CorneaCopia
-
-fixed theta discontinuty, though there is a residual question regarding the sign of R, and YPR, so using ABS() when calling MEAN/MONGE/AXIAL
  
 have a recurrent issue regarding all pentacam conversions ? change in bsearch? nspline?
 
-atlas spline error for TEST_BAD_OD.CSV
-
-check formula for mean curvature and monge astigmatism
+check formula for mean curvature and monge astigmatism and possibly make limit friendlier version with limit added on exponential 
 
 plots with gnuplot splot are only has fixed scale for sagc?
+
+make cartesiangrid display option; convert polar to grid, display pentacam directly
+makde 3D option for all functions, with scale Z value max and min
 
 incorporate "warp/oblique power" and reading zernike from some atlas files into readme/faq
 probably needs a whole section on corneal topography and "powers" with math definitions
