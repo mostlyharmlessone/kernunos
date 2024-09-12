@@ -47,7 +47,7 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
     if (KP .ne. 1) then
      i1=n ; i=n-1 ! should be usual default with floor
      dr=x(i1)-x(i)
-     B=0 ; A=1
+     B=1 ; A=0    ! terminal knot natural spline
     else
      i1=1 ; i=n  !catches the terminal knot in the forward interval, KP = 1
      dr=x(i1)-x(i)+PERD
