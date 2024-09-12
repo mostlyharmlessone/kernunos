@@ -2,20 +2,21 @@ things to do
 
 CorneaCopia
  
-have a recurrent issue regarding all pentacam elevation conversions 
-.ele.csv has ? out of range value in center
+have an issue regarding all pentacam elevation conversions 
+.ele.csv and .ele are wrong!
 
 test.cur, test.ele are matched
 test_cur.csv test_ele.csv are matched
 but not test.cur and test_cur.csv (differernt patients)
-
+when elevation fixed, can check if corresponding other file is there to make a consistency check
 
 check formula for mean curvature and monge astigmatism and possibly make limit friendlier version with limit added on exponential 
 
 plots with gnuplot splot are only has fixed scale for sagc?
 
 make cartesiangrid display option; convert polar to grid, display pentacam directly
-makde 3D option for all functions, with scale Z value max and min
+make 3D option for all functions, with scale Z value max and min
+this will affect Geom,WriteGeomPLY/OFF
 
 incorporate "warp/oblique power" and reading zernike from some atlas files into readme/faq
 probably needs a whole section on corneal topography and "powers" with math definitions
@@ -71,12 +72,10 @@ need lapack or open version of numrec fourn:  fftpack
 
 might need gnuplot interface consolidation of methods
 
-GEOM/WriteGeomPLY make extra out of range points, but need them to avoid EOF  .. fix?
-
-what if index(inputfile1, "RA") has more than one value? (KERATO.GRP/RA00.x) or XX00000.XX; I only want to replace the last one.
-might need to make notes about this problem or limit replacestr   fix EyeSys file_pfx crap   can try /RA as alternate but wont work on root directory;
-can try one than the other before giving up, this issue also applies to file operations of all kinds (exporting/gnuplots) 
-if the suffix is found in the directory path name; might have to figure out how to separate path from name
+GEOM/WriteGeomPLY/WriteGeomOFF make extra out of range points (unreferenced vertices).. fix?
+have to recount all the zero vertices, renumber them and reassign faces, ouch, perhaps as an export option, need a separate routine to clean vertices
+meshlab can remove them; also if generating a ply with Assimp, there aren't any, they're already cleaned up
+stl has none
 
 decentration in test data
 
@@ -86,6 +85,8 @@ a tilted parabola is less of a parabola than a translated parabola when both fit
 Fit elevation with Principal component analysis, meh 
 
 analyze fowler sauna patient: arvo poster
+
+QFileDialog messages in kernunos.cpp are in an unnoticeable font at the top of the Window...
 
 now that more is moved to gnuplot, consider resurrecting janus/wxWidgets version or even juno
 

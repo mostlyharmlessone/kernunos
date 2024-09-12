@@ -452,7 +452,7 @@ void MainWindow::importexport()
    QString filter =
        "Stanford Polygon Library ASCII .ply (*.ply) ;; "
        "Stereolithography .stl (*.stl) ;; "
-       "Stereolithography binary .stlb (*.stlb) ;; "
+       "Stereolithography binary without color .stlb (*.stlb) ;; "
        "Extensible 3D .x3d (*.x3d) ;; "
        "Direct3D XFile .x (*.x) ;; "
        "Autodesk FBX .fbx (*.fbx) ;; "
@@ -643,8 +643,8 @@ void MainWindow::ply2bin()
 
 void MainWindow::off2stl()
 {
-   QString filter = "STL *.stl  (*.stl) ;; Binary *.bin.stl (*.bin.stl)";
-   QString fileName = QFileDialog::getSaveFileName(this,"Write to an ASCII STL or Binary STL file", "", filter);
+   QString filter = "STL *.stl  (*.stl) ;; Binary with color *.bin.stl (*.bin.stl)";
+   QString fileName = QFileDialog::getSaveFileName(this,"Write to an ASCII STL or Binary (with color) STL file", "", filter);
    if (fileName.isEmpty())
       return;
    QByteArray ba = fileName.toLocal8Bit();

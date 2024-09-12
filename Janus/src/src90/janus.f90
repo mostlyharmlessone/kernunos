@@ -188,7 +188,7 @@ if (mod(flag,100) .eq. 5 .or. mod(flag,100) .eq. 6 .or.&
   allocate(character(nblines) :: BigPlot)
   allocate(character(nblines) :: gnu_instruct)
   gnu_instruct=trim(new_path)
-  BigPlot=replacestr(string=gnu_instruct,search="gnu",substitute="plt")
+  BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".plt")
 endif
 
 if (mod(flag,100) .eq. 5 ) then
@@ -297,18 +297,18 @@ DiaSlope%Zpd2 = .n. DiaSlope
 !endif
 
 ! WriteCenter shows where the spline of slopes is zero, it should be close to zero for a concave center with a unique maximum
- BigPlot=replacestr(string=gnu_instruct,search="gnu",substitute="plt")
+ BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".plt")
   call WriteCenter(RadSlope,BigPlot)! biggest deviation with nSplineCenter zero slope forced at origin,
                                          ! then with zero slope forced at average (r(low)+r(high))/2.0
                                             ! smallest deviation without nSplineCenter; view with set polar; plot 'Center.dat' with lines
 !plots spread of values at origin for each meridian from average
- BigPlot=replacestr(string=gnu_instruct,search="gnu",substitute="sag")
+ BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".sag")
  call WriteCenterJ(JMatrix%SAGC0(1),JMatrix%SAGC,BigPlot)
- BigPlot=replacestr(string=gnu_instruct,search="gnu",substitute="int")
+ BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".int")
  call WriteCenterJ(JMatrix%INSTC0(1),JMatrix%INSTC,BigPlot)
- BigPlot=replacestr(string=gnu_instruct,search="gnu",substitute="mea")
+ BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".mea")
  call WriteCenterJ(JMatrix%MEANC0(1),JMatrix%MEANC,BigPlot)
- BigPlot=replacestr(string=gnu_instruct,search="gnu",substitute="mon")
+ BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".mon")
  call WriteCenterJ(JMatrix%MONGEA0(1),JMatrix%MONGEA,BigPlot)
 return
 endif !  (mod(flag,100) .eq. 6)
@@ -481,17 +481,14 @@ if (mod(flag,100) == 0) then
         if( file_idx == 0) then
          write(*,*) 'Not a PentaCam file'
          write(*,*) 'Unknown file type: make some test data, flag = ',flag
-!         BigPlot=trim("test.PLT")
          TestData=-1; MM=360; N=16 ; NP=141
         else
-!        inputfile2=replacestr(string=inputfile1,search="ELE",substitute="CUR")
-!        BigPlot=replacestr(string=inputfile1,search="ELE",substitute="PLT")
+!        inputfile2=replacestr(string=inputfile1,search=".ELE",substitute=".CUR")
         TestData=2; MM=180; N=22; NP=141 ! PentaCam ELE
        endif
       else
 !       inputfile2=inputfile1
-!       inputfile1=replacestr(string=inputfile2,search="CUR",substitute="ELE")
-!        BigPlot=replacestr(string=inputfile1,search="CUR",substitute="PLT")
+!       inputfile1=replacestr(string=inputfile2,search=".CUR",substitute=".ELE")
        TestData=3; MM=180; N=22; NP=141 ! PentaCam CUR
       endif
       else
@@ -500,19 +497,16 @@ if (mod(flag,100) == 0) then
         file_idx=index(inputfile1, "_ELE")
         if( file_idx == 0) then
          TestData=1; MM=180; N=25   ! Atlas 900 can be 25, 9000 seems to be 22
-!         BigPlot=replacestr(string=inputfile1,search="CSV",substitute="PLT")
          write(*,*) "Atlas file: ",inputfile1
         else
         write(*,*) 'Not an Atlas file'
- !       inputfile2=replacestr(string=inputfile1,search="ELE",substitute="CUR")
-!        BigPlot=replacestr(string=inputfile1,search="CSV",substitute="PLT")
+ !       inputfile2=replacestr(string=inputfile1,search="_ELE.CSV",substitute="_CUR.CSV")
         TestData=4; MM=180; N=22; NP=141 ! PentaCam ELE.CSV
         endif
         else
         write(*,*) 'Not an Atlas file'
 !       inputfile2=inputfile1
-!       inputfile1=replacestr(string=inputfile2,search="CUR",substitute="ELE")
-!        BigPlot=replacestr(string=inputfile1,search="CSV",substitute="PLT")
+!       inputfile1=replacestr(string=inputfile2,search="_CUR.CSV",substitute="_ELE.CSV")
         TestData=5; MM=180; N=22; NP=141 ! PentaCam CUR.CSV
        endif
       endif
@@ -530,7 +524,7 @@ if (mod(flag,100) == 0) then
         inquire(file=trim(inputfile2), exist=exists)
         if(.NOT.exists) then
          write(*,*) 'Error: EyeSys files have to be in pairs, or file name has XX other than prefix'
-         write(*,*) 'No corresponding',inputfile2,'for',inputfile1
+         write(*,*) 'No corresponding',inputfile2,'for',inputfile1,'found'
          return
         endif
        endif
@@ -548,7 +542,7 @@ if (mod(flag,100) == 0) then
          inquire(file=trim(inputfile1), exist=exists)
          if(.NOT.exists) then
           write(*,*) 'Error: EyeSys files have to be in pairs, or file name has RA other than prefix'
-          write(*,*) 'No corresponding',inputfile1,'for',inputfile2
+          write(*,*) 'No corresponding',inputfile1,'for',inputfile2,'found'
           return
          endif
         endif
@@ -784,7 +778,7 @@ if (TestData .eq. 1) then
   if (mod(flag,100) .eq. 8 ) then
  ! generate data file
    unitno1 = get_new_fileunit()
-   BigPlot=replacestr(string=gnu_instruct,search="gnu",substitute="plt")
+   BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".plt")
    open(unitno1, file = BigPlot, action="write", iostat=ierr)
  ! Look at these intersecting rings using
  ! gnuplot 'plot 'datafile dumped with' u 1:2' do not set polar or with lines
