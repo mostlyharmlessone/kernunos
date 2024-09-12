@@ -518,32 +518,39 @@ if (mod(flag,100) == 0) then
       endif
    else
 !  EyeSys
-      write(*,*) 'prefix is found at index: ',file_idx,"length: ",len(inputfile1)
-      write(*,*) 'prefix:',inputfile1(file_idx:file_idx+1)
-      write(*,*) 'inputfile1: ',inputfile1
-       file_idx=index(inputfile1, "XX")  !index(inputfile1, "XX", back)
-    !   file_pfx=index(inputfile1(file_idx:file_idx+1),"XX")
+      file_idx=index(inputfile1, "XX")  !index(inputfile1, "XX", back)
       if (file_idx /= 0) then
+       write(*,*) 'prefix is found at index: ',file_idx,"length: ",len(inputfile1)
+       write(*,*) 'prefix:',inputfile1(file_idx:file_idx+1)
+       write(*,*) 'inputfile1: ',inputfile1
        inputfile2=replacestr(string=inputfile1,search="XX",substitute="RA")
-!       BigPlot=replacestr(string=inputfile1,search="RA",substitute="PL")
        inquire(file=trim(inputfile2), exist=exists)
        if(.NOT.exists) then
-        write(*,*) 'Error: EyeSys files have to be in pairs, or file name has XX other than prefix'
-        write(*,*) 'No corresponding',inputfile2,'for',inputfile1
-        return
+        inputfile2=replacestr(string=inputfile1,search="/XX",substitute="/RA")
+        inquire(file=trim(inputfile2), exist=exists)
+        if(.NOT.exists) then
+         write(*,*) 'Error: EyeSys files have to be in pairs, or file name has XX other than prefix'
+         write(*,*) 'No corresponding',inputfile2,'for',inputfile1
+         return
+        endif
        endif
       else
        file_idx=index(inputfile1, "RA") !index(inputfile1, "RA", back)
-!       file_pfx=index(inputfile1(file_idx:file_idx+1),"RA")
        if (file_idx /= 0) then
+        write(*,*) 'prefix is found at index: ',file_idx,"length: ",len(inputfile1)
+        write(*,*) 'prefix:',inputfile1(file_idx:file_idx+1)
+        write(*,*) 'inputfile1: ',inputfile1
         inputfile2=inputfile1
         inputfile1=replacestr(string=inputfile2,search="RA",substitute="XX")
-!        BigPlot=replacestr(string=inputfile1,search="XX",substitute="PL")
         inquire(file=trim(inputfile1), exist=exists)
         if(.NOT.exists) then
-         write(*,*) 'Error: EyeSys files have to be in pairs, or file name has RA other than prefix'
-         write(*,*) 'No corresponding',inputfile1,'for',inputfile2
-         return
+         inputfile1=replacestr(string=inputfile2,search="/RA",substitute="/XX")
+         inquire(file=trim(inputfile1), exist=exists)
+         if(.NOT.exists) then
+          write(*,*) 'Error: EyeSys files have to be in pairs, or file name has RA other than prefix'
+          write(*,*) 'No corresponding',inputfile1,'for',inputfile2
+          return
+         endif
         endif
        else
         write(*,*) 'Error parsing EyeSys file name'
@@ -1011,6 +1018,14 @@ if (mod(flag,100) .ne. 9 ) then
     if (JMatrix%SAGC0(1) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC0(1)
     if (JMatrix%SAGC0(1) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC0(1)
 !   endif   ! TestData.eq.3 .or. TestData.eq.5
+
+!do i=1,M1
+! do j=1,RadSlope%MV(i)
+!  write(*,*) abs(JMatrix%R(j,i))*cos(JMatrix%THT(i)),abs(JMatrix%R(j,i))*sin(JMatrix%THT(i)),JMatrix%SAGC(j,i)
+! end do
+! write(*,*) 0,0,JMatrix%SAGC(N1+1,i)
+!end do
+
 
 !  Warp
 !  Reload RadSlope with SAGC & re-spline; can't compute it from surface because ill-defined at origin

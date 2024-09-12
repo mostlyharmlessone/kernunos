@@ -422,7 +422,7 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
     endif
    end do !j to N1
   end do !i to M1
-  write(*,*) 'rmin from RadSlope_eq_Skyline',rmin,rBo,rBi,N1
+  write(*,*) 'rmin from RadSlope_eq_Skyline',rmin
 !  write(*,*) imv(:)
 ! trim down imv for r > rmin
   do i=1,M1
@@ -944,7 +944,7 @@ end subroutine ZFCT
 subroutine AXIALP(X2,Y1X,Y2X,SAGC)
  real(wp), INTENT(IN) :: X2,Y1X,Y2X
  real(wp), INTENT(OUT) :: SAGC
- if (ABS(X2) < EPS) then
+ if (ABS(X2) < eps) then
 ! UNDEFINED AT ORIGIN X2=0, LIMIT IS RFCT*Y2X             
   SAGC=RFCT*Y2X
  else

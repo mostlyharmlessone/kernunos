@@ -155,6 +155,15 @@ call bsearch(x,col,9,high,low)
  else
   rgbv(:)=palette(:,low)
  endif
+ ! need these if fixed range
+  if (fixedrange) then
+   if (x .lt. minimum) then
+    rgbv(:)=(/255,255,255/)
+   endif
+   if (x .gt. maximum) then
+    rgbv(:)=(/0,0,0/)
+   endif
+  endif
 end function PerceptuallyUniformPalette
 
 ! fixed discrete diopteric palette: The Uniform Standard Scale
@@ -209,6 +218,15 @@ call bsearch(x,col,26,high,low)
   rgbv(:)=abs(25*((x-col(low))*palette(:,high)+(col(high)-x)*palette(:,low))/(maximum-minimum))
  else
   rgbv(:)=palette(:,low)
+ endif
+! need these if fixed range
+ if (fixedrange) then
+  if (x .lt. minimum) then
+   rgbv(:)=(/255,255,255/)
+  endif
+  if (x .gt. maximum) then
+   rgbv(:)=(/0,0,0/)
+  endif
  endif
 end function USSpalette
 

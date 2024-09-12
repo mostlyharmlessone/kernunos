@@ -2,8 +2,13 @@ things to do
 
 CorneaCopia
  
-have a recurrent issue regarding all pentacam conversions 
+have a recurrent issue regarding all pentacam elevation conversions 
 .ele.csv has ? out of range value in center
+
+test.cur, test.ele are matched
+test_cur.csv test_ele.csv are matched
+but not test.cur and test_cur.csv (differernt patients)
+
 
 check formula for mean curvature and monge astigmatism and possibly make limit friendlier version with limit added on exponential 
 
@@ -80,7 +85,7 @@ a tilted parabola is less of a parabola than a translated parabola when both fit
 
 Fit elevation with Principal component analysis, meh 
 
-analyze hoeltz sauna patient: arvo poster
+analyze fowler sauna patient: arvo poster
 
 now that more is moved to gnuplot, consider resurrecting janus/wxWidgets version or even juno
 
