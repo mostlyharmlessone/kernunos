@@ -100,6 +100,10 @@ INTERFACE OPERATOR (.n.) ! unary operator
 ! .n. TypeDiaSlopeMatrix populates the matrix with second radial derivatives of z
  MODULE PROCEDURE DiaSpline ! uses nspline.f90
 END INTERFACE 
+INTERFACE OPERATOR (.nc.) ! unary operator
+! .n. TypeDiaSlopeMatrix populates the matrix with second radial derivatives of z
+ MODULE PROCEDURE DiaSplineCenter ! uses nspline.f90
+END INTERFACE
 
 ! declaring common global data arrays
  real(wp), allocatable :: RadSplineCenter(:,:)
@@ -410,7 +414,7 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
        imv(i)=imv(i)+1
        if (ABS(DAT) > 0 ) then
         RadSlope%Z(j,i)=ABS(DAT)/10.0              ! if DAT is elevation
-        CALL ZFCT(M1,i,100.0*ABS(r(j)),100.0*ABS(DAT),RadSlope%r(j,i),RadSlope%Zp(j,i))  !only for DAT is curvature/SAGC
+        CALL ZFCT(M1,i,100.0*ABS(r(j)),100.0*ABS(DAT),RadSlope%R(j,i),RadSlope%Zp(j,i))  !only for DAT is curvature/SAGC
        endif
        JMatrix%Z(j,i)=RadSlope%Z(j,i)   !only for elevations, put in RadSlope%Zp(j,i) in janus
       else  ! outside boundary
@@ -631,6 +635,7 @@ subroutine RadSlope_eq_DiaSlope(RadSlope,DiaSlope)
  end ASSOCIATE   
 end subroutine RadSlope_eq_DiaSlope
 
+! spline b%rd(:,i),b%Zpd(:,i)
 function DiaSpline(b) result(a) 
  TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b
  integer :: M1,N1,i
@@ -643,15 +648,17 @@ function DiaSpline(b) result(a)
   end do
 end function DiaSpline
 
-subroutine DiaSplineCenter(b)
- TYPE(wpDiaSlopeMatrix) :: b
+function DiaSplineCenter(b) result(a)
+ TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b
+ real(wp) :: a(size(b%rd,1),size(b%rd,2))
  integer :: M1,N1,i
  N1=size(b%rd,1) !N1=2*N*M
  M1=size(b%rd,2) !M1=MM/2
+ a=0
   do i=1,M1 
-   call nsplineCenter(i,b%rd(:,i),b%Zpd(:,i),b%L2(i),b%Zpd2(:,i))
+   call nsplineCenter(i,b%rd(:,i),b%Zpd(:,i),b%L2(i),a(:,i))
   end do
-end subroutine DiaSplineCenter
+end function DiaSplineCenter
 
 ! this version is for matrices that are MxN, ie Atlas
 function splinefillin(b) result(a)
