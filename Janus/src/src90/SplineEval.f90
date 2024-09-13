@@ -85,7 +85,6 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
   z(2)=y(i1)
   z2(1)=y2(i)
   z2(2)=y2(i1)
-
   if ((A*B) < 0) then
    if (KP /= 1) then  !  natural spline extrapolation z2=0 outside spline
     z2=0._wp
@@ -94,20 +93,6 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
      if (Present(fp)) fp=0
      if (Present(fpp)) fpp=0
      if (Present(fppp)) fppp=0
-
-     if (u .le. x(n) .and. u .ge. x(1)) then
-
-if (abs(u-x(i1)) .le. eps) then
- write(*,*) 'wtf 1',u,x(i1),i,i1 ; stop
- endif
-if (abs(u-x(i)) .le. eps) then
- write(*,*) 'wtf 2',u,x(i),i,i1 ; stop
-endif
-
-
-     stop
-     endif
-
      return
     endif
    end if

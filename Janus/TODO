@@ -3,7 +3,16 @@ things to do
 CorneaCopia
  
 have an issue regarding all pentacam elevation conversions 
-.ele.csv and .ele are wrong!
+.ele.csv and .ele are wrong!   
+
+in cornea_arrays
+skyline_test shows I can't reproduce the grid accurately without spline errors
+spline_test == skyline_test, but 50% slower
+
+need a check in Spline_test to check that I'm on a knot and why I'm not getting back DAT=PentaDAT
+
+janus shows splining Z from ele data doesn't reproduce either with identical coordinates along x-axis
+
 
 test.cur, test.ele are matched
 test_cur.csv test_ele.csv are matched

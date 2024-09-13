@@ -716,6 +716,44 @@ endif ! end (TestData == 1)
    end do
   endif
   JMatrix%Z(:,:) = 0 ; JMatrix%Z0(:) = 0
+
+
+!!!!!!!!!!to check skyline (only) uncomment things here
+if (TestData.eq.2 .or. TestData.eq.4) then
+call CPU_TIME(time_start)
+call Spline_Test(Penta)
+call CPU_TIME(time_end)
+!write(*,*) 'Time for Splinetest: ',(time_end-time_start)*1000
+write(*,*) ' '
+write(*,*) ' '
+
+call CPU_TIME(time_start)
+call Skyline_Test(Skyline, Penta)
+call CPU_TIME(time_end)
+!write(*,*) 'Time for Skylinetest: ',(time_end-time_start)*1000
+write(*,*) ' '
+write(*,*) ' '
+
+
+! NB (i,j) fits better than (i,j), so probably not that
+do i=1,NP
+ do j=1,NP
+  if (Penta%DAT(i,j)/10. .ne. 0.0) then
+   if (i .eq. 71) then
+    write(*,*) 700-((i-1)*1400)/(NP-1.0),700-((j-1)*1400)/(NP-1.0),Penta%DAT(i,j)/10.
+   endif
+  endif
+ end do
+end do
+
+write(*,*) ' '
+write(*,*) ' '
+
+stop  ! if only want to compare skyline grid spline with Penta
+
+endif
+!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
  endif
 
 ! OR GENERATE Fake EyeSys data
@@ -890,11 +928,12 @@ if (mod(flag,100) .ne. 9 ) then
       call SplineEval1Dx1D(10,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
      else
 
-write(*,*) 'before Z',  JMatrix%Z(j,i)
+! write(*,*) 'before Z',  RadSlope%Zp(j,i) here is loaded with elevations
+ if (abs(cos(JMatrix%THT(i))) < eps) then
+ write(*,*) abs(JMatrix%R(j,i))*cos(JMatrix%THT(i)),abs(JMatrix%R(j,i))*sin(JMatrix%THT(i)),RadSlope%Zp(j,i)
+endif
 
       call SplineEval1Dx1D(0,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
-
-write(*,*) 'after Z',  JMatrix%Z(j,i)
 
      endif
     endif
@@ -983,6 +1022,18 @@ write(*,*) 'after Z',  JMatrix%Z(j,i)
     if (JMatrix%Z0(1) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z0(1)
 !   endif  ! TestData.eq.2 .or. TestData.eq.4
 
+write(*,*) ' '
+write(*,*) ' '
+do i=1,M1
+ do j=1,RadSlope%MV(i)
+ if (abs(cos(JMatrix%THT(i))) < eps) then
+  write(*,*) abs(JMatrix%R(j,i))*cos(JMatrix%THT(i)),abs(JMatrix%R(j,i))*sin(JMatrix%THT(i)),JMatrix%Z(j,i)
+ endif
+ end do
+! write(*,*) 0,0,JMatrix%SAGC(N1+1,i)
+end do
+
+
 !  SAGC
 !   if (TestData.ne.3 .and. TestData.ne.5) then  ! already has valid SAGC0 from cornea_arrays & CUR file NOT YET IT DOES NOT
 !  Reload RadSlope with SAGC & re-spline; can't compute it from surface because ill-defined at origin
@@ -1018,14 +1069,6 @@ write(*,*) 'after Z',  JMatrix%Z(j,i)
     if (JMatrix%SAGC0(1) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC0(1)
     if (JMatrix%SAGC0(1) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC0(1)
 !   endif   ! TestData.eq.3 .or. TestData.eq.5
-
-!do i=1,M1
-! do j=1,RadSlope%MV(i)
-!  write(*,*) abs(JMatrix%R(j,i))*cos(JMatrix%THT(i)),abs(JMatrix%R(j,i))*sin(JMatrix%THT(i)),JMatrix%SAGC(j,i)
-! end do
-! write(*,*) 0,0,JMatrix%SAGC(N1+1,i)
-!end do
-
 
 !  Warp
 !  Reload RadSlope with SAGC & re-spline; can't compute it from surface because ill-defined at origin
