@@ -716,44 +716,34 @@ endif ! end (TestData == 1)
    end do
   endif
   JMatrix%Z(:,:) = 0 ; JMatrix%Z0(:) = 0
-
-
-!!!!!!!!!!to check skyline (only) uncomment things here
-if (TestData.eq.2 .or. TestData.eq.4) then
-call CPU_TIME(time_start)
-call Spline_Test(Penta)
-call CPU_TIME(time_end)
-!write(*,*) 'Time for Splinetest: ',(time_end-time_start)*1000
-write(*,*) ' '
-write(*,*) ' '
-
-call CPU_TIME(time_start)
-call Skyline_Test(Skyline, Penta)
-call CPU_TIME(time_end)
-!write(*,*) 'Time for Skylinetest: ',(time_end-time_start)*1000
-write(*,*) ' '
-write(*,*) ' '
-
-
-! NB (i,j) fits better than (i,j), so probably not that
-do i=1,NP
- do j=1,NP
-  if (Penta%DAT(i,j)/10. .ne. 0.0) then
-   if (i .eq. 71) then
-    write(*,*) 700-((i-1)*1400)/(NP-1.0),700-((j-1)*1400)/(NP-1.0),Penta%DAT(i,j)/10.
-   endif
-  endif
- end do
-end do
-
-write(*,*) ' '
-write(*,*) ' '
-
-stop  ! if only want to compare skyline grid spline with Penta
-
-endif
-!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+!!!!!!!!!!to check skyline and spline routines
+!if (TestData.eq.2 .or. TestData.eq.4) then
+! call CPU_TIME(time_start)
+! call Spline_Test(Penta)
+! call CPU_TIME(time_end)
+! write(*,*) 'Time for Spline test: ',(time_end-time_start)*1000
+! write(*,*) ' '
+! write(*,*) ' '
+! call CPU_TIME(time_start)
+! call Skyline_Test(Skyline, Penta)
+! call CPU_TIME(time_end)
+! write(*,*) 'Time for Skyline test: ',(time_end-time_start)*1000
+! write(*,*) ' '
+! write(*,*) ' '
+! NB to match the results of the tests above, j .eq 71 not i, and switch i,j... oh and its inverted too..
+! do i=1,NP
+!  do j=1,NP
+!   if (j .eq. 71) then
+!    if (Penta%DAT(NP-i+1,j)/10. .ne. 0) then
+!     write(*,*) 700-((j-1)*1400)/(NP-1.0),700-((i-1)*1400)/(NP-1.0),Penta%DAT(NP-i+1,j)/10. ! matches tests
+!     write(*,*) 700-((j-1)*1400)/(NP-1.0),700-((i-1)*1400)/(NP-1.0),Penta%DAT(i,j)/10. ! matches Z(j,i)
+!    endif
+!   endif
+!  end do
+! end do
+! write(*,*) ' '
+! write(*,*) ' '
+!endif
  endif
 
 ! OR GENERATE Fake EyeSys data
@@ -920,17 +910,17 @@ if (mod(flag,100) .ne. 9 ) then
     if (TestData.ne.2 .and. TestData.ne.4) then  ! slope based data, integrate based on iflag with or without cubic/trapez or center point or not for values
      call SplineEval1Dx1D(iflag,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
     else  !TestData.eq.2 .or. TestData.eq.4  ! ELE and ELE.CSV files use elevation, no integration, center point or not
-
-!!!!!this is the only nontrivial use of no integration SplineEval1Dx1D, the others all use R=0
-! elevation maps are smooth, its in the derivative plots that the mischief shows
-
      if (btest(dat,0)) then
       call SplineEval1Dx1D(10,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
      else
 
+! oddly these don't match
 ! write(*,*) 'before Z',  RadSlope%Zp(j,i) here is loaded with elevations
+  if (abs(JMatrix%Z(j,i)) > eps) then
+   write(*,*) 'error,should all be zero'
+  endif
  if (abs(cos(JMatrix%THT(i))) < eps) then
- write(*,*) abs(JMatrix%R(j,i))*cos(JMatrix%THT(i)),abs(JMatrix%R(j,i))*sin(JMatrix%THT(i)),RadSlope%Zp(j,i)
+  write(*,*) abs(JMatrix%R(j,i))*cos(JMatrix%THT(i)),abs(JMatrix%R(j,i))*sin(JMatrix%THT(i)),RadSlope%Zp(j,i)
 endif
 
       call SplineEval1Dx1D(0,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
@@ -1022,6 +1012,9 @@ endif
     if (JMatrix%Z0(1) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z0(1)
 !   endif  ! TestData.eq.2 .or. TestData.eq.4
 
+
+
+!!!!!!!these match Penta
 write(*,*) ' '
 write(*,*) ' '
 do i=1,M1
@@ -1030,7 +1023,6 @@ do i=1,M1
   write(*,*) abs(JMatrix%R(j,i))*cos(JMatrix%THT(i)),abs(JMatrix%R(j,i))*sin(JMatrix%THT(i)),JMatrix%Z(j,i)
  endif
  end do
-! write(*,*) 0,0,JMatrix%SAGC(N1+1,i)
 end do
 
 

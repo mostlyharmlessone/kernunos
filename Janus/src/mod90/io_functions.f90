@@ -235,13 +235,13 @@ subroutine rcnvrtp(TestData,filename,read_error)
                  if (TestData.eq.5) then !this works with getArg for _CUR.CSV
                   line=somecharacter
                   do i=1,NP
-                   Penta%DAT(k,i) = getArg(i)
+                   Penta%DAT(k,i) = getArg(i+1)
                   end do
                   endif
                   if (TestData.eq.4) then !this works with getArg for _ELE.CSV
                    line=somecharacter
                    do i=1,NP
-                    Penta%DAT(k,i) = 100000*getArg(i)
+                    Penta%DAT(k,i) = 100000*getArg(i+1)
                    end do
                   endif
 !               if (k == 76) then

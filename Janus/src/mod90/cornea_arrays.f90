@@ -410,8 +410,6 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
      if (Penta%DAT(1+(NP-1)/2+sign(floor(ABS(xx)),floor(xx)),&
                 &1+(NP-1)/2+sign(floor(ABS(yy)),floor(yy))) > 0) then  ! test for >0 is why Penta needed here
       if (firstcheck < 70 .and. secondcheck /= 0) then ! better extrapolation check; the 70 here is arbitrary, 40 is getting too low
-!       write(*,*) firstcheck,secondcheck,Penta%DAT(1+(NP-1)/2+sign(floor(ABS(xx)),floor(xx)),&
-!       &1+(NP-1)/2+sign(floor(ABS(yy)),floor(yy)))
        imv(i)=imv(i)+1
        if (ABS(DAT) > 0 ) then
         RadSlope%Z(j,i)=ABS(DAT)/10.0              ! if DAT is elevation
@@ -486,14 +484,9 @@ subroutine Skyline_Test(Skyline, Penta)      ! tests splining on Penta with Skyl
      if (Penta%DAT(1+(NP-1)/2+sign(floor(ABS(xx)),floor(xx)),&
                 &1+(NP-1)/2+sign(floor(ABS(yy)),floor(yy))) > 0) then  ! test for >0 is why Penta needed here
       if (firstcheck < 70 .and. secondcheck /= 0) then ! better extrapolation check; the 70 here is arbitrary, 40 is getting too low
-!       write(*,*) firstcheck,secondcheck,Penta%DAT(1+(NP-1)/2+sign(floor(ABS(xx)),floor(xx)),&
-!       &1+(NP-1)/2+sign(floor(ABS(yy)),floor(yy)))
-!       imv(i)=imv(i)+1
-        if (ABS(DAT)/10. > 0) then
-         if (i .eq. 71) then
+         if (i .eq. 71) then ! this is the 71st column, not row, and inverted with respect to v
           write(*,*) 700-((i-1)*1400)/(NP-1.0),700-((j-1)*1400)/(NP-1.0),ABS(DAT)/10.
          endif
-        endif
       endif
      endif
    end do !j to N1
@@ -536,7 +529,7 @@ subroutine Spline_Test(Penta)      ! tests splining on Penta without borders
       if (check == 0) firstcheck=firstcheck+1 ! how much extrapolation
       fTmp(k)=f
      end do
-     ! done generating new row of x's
+     ! done generating new row of values at u
      ! y(:) is always the same here, no skyline
      ! DAT should be absolutely the same as Penta, since we're computing on knots
      call nspline(y(:),fTmp(:),NP,f2Tmp(:))             ! spline in y using fTmp (which here are just x
@@ -547,14 +540,9 @@ subroutine Spline_Test(Penta)      ! tests splining on Penta without borders
      if (Penta%DAT(1+(NP-1)/2+sign(floor(ABS(xx)),floor(xx)),&
                 &1+(NP-1)/2+sign(floor(ABS(yy)),floor(yy))) > 0) then  ! test for >0 is why Penta needed here
       if (firstcheck < 70 .and. secondcheck /= 0) then ! better extrapolation check; the 70 here is arbitrary, 40 is getting too low
-!       write(*,*) firstcheck,secondcheck,Penta%DAT(1+(NP-1)/2+sign(floor(ABS(xx)),floor(xx)),&
-!       &1+(NP-1)/2+sign(floor(ABS(yy)),floor(yy)))
-!       imv(i)=imv(i)+1
-        if (ABS(DAT)/10. > 0) then
-         if (i .eq. 71) then
-          write(*,*) 700-((i-1)*1400)/(NP-1.0),700-((j-1)*1400)/(NP-1.0),ABS(DAT)/10.
+         if (i .eq. 71) then  !this is the 71st column, not row, and inverted with respect to v
+         write(*,*) 700-((i-1)*1400)/(NP-1.0),700-((j-1)*1400)/(NP-1.0),ABS(DAT)/10.
          endif
-        endif
       endif
      endif
    end do !j to np

@@ -6,18 +6,14 @@ have an issue regarding all pentacam elevation conversions
 .ele.csv and .ele are wrong!   
 
 in cornea_arrays
-skyline_test shows I can't reproduce the grid accurately without spline errors
-spline_test == skyline_test, but 50% slower
 
-need a check in Spline_test to check that I'm on a knot and why I'm not getting back DAT=PentaDAT
+in ele.csv
+Z(j,i) matches Penta but Zp does not 
 
-janus shows splining Z from ele data doesn't reproduce either with identical coordinates along x-axis
+ele.csv and cur.csv have the same orientation, but .cur/.ele are upside down and inside out
+magnification does not match, or is Atlas magnification off?
+comparing with Atlas orientation: _cur/_ele.csv are correct
 
-
-test.cur, test.ele are matched
-test_cur.csv test_ele.csv are matched
-but not test.cur and test_cur.csv (differernt patients)
-when elevation fixed, can check if corresponding other file is there to make a consistency check
 
 check formula for mean curvature and monge astigmatism and possibly make limit friendlier version with limit added on exponential 
 
