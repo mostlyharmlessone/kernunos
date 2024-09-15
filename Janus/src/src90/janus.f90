@@ -27,7 +27,7 @@
   real(c_float), INTENT(INOUT) :: zern(*)
   character(len=8) :: LinesOfCurv
   character(len=4096) :: new_path
-  character(:),save, ALLOCATABLE :: inputfile1,inputfile2,BigPlot,gnu_instruct
+  character(:),save, ALLOCATABLE :: inputfile1,inputfile2,inputfile3,BigPlot,gnu_instruct
   character(:),save, ALLOCATABLE :: logfile
   integer ::  nblines, file_idx, file_pfx,read_error,io
   integer,allocatable :: MV(:)
@@ -160,12 +160,14 @@ if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3) then
  if (allocated(inputfile1)) then
   deallocate(inputfile1)
   deallocate(inputfile2)
+  deallocate(inputfile3)
   deallocate(logfile)
  endif
  allocate(character(nblines) :: inputfile1)
  allocate(character(nblines) :: logfile)
  inputfile1=trim(new_path)
  allocate(character(nblines) :: inputfile2)
+ allocate(character(nblines) :: inputfile3)
 endif  ! mod(flag,100) == 0, 2, or 3
 
 
@@ -518,9 +520,11 @@ if (mod(flag,100) == 0) then
        write(*,*) 'prefix:',inputfile1(file_idx:file_idx+1)
        write(*,*) 'inputfile1: ',inputfile1
        inputfile2=replacestr(string=inputfile1,search="XX",substitute="RA")
+       inputfile3=replacestr(string=inputfile1,search="XX",substitute="PU")
        inquire(file=trim(inputfile2), exist=exists)
        if(.NOT.exists) then
         inputfile2=replacestr(string=inputfile1,search="/XX",substitute="/RA")
+        inputfile3=replacestr(string=inputfile1,search="/XX",substitute="/PU")
         inquire(file=trim(inputfile2), exist=exists)
         if(.NOT.exists) then
          write(*,*) 'Error: EyeSys files have to be in pairs, or file name has XX other than prefix'
@@ -536,9 +540,11 @@ if (mod(flag,100) == 0) then
         write(*,*) 'inputfile1: ',inputfile1
         inputfile2=inputfile1
         inputfile1=replacestr(string=inputfile2,search="RA",substitute="XX")
+        inputfile3=replacestr(string=inputfile2,search="RA",substitute="PU")
         inquire(file=trim(inputfile1), exist=exists)
         if(.NOT.exists) then
          inputfile1=replacestr(string=inputfile2,search="/RA",substitute="/XX")
+         inputfile3=replacestr(string=inputfile2,search="/RA",substitute="/PU")
          inquire(file=trim(inputfile1), exist=exists)
          if(.NOT.exists) then
           write(*,*) 'Error: EyeSys files have to be in pairs, or file name has RA other than prefix'
@@ -551,8 +557,13 @@ if (mod(flag,100) == 0) then
         return
        endif
       endif
-    TestData=0 ; MM=360; N=16   ! EyeSys
-    write(*,*) "EyeSys files: ",inputfile1," ",inputfile2
+     TestData=0 ; MM=360; N=16   ! EyeSys
+     inquire(file=trim(inputfile3), exist=exists)
+     if(.NOT.exists) then
+      write(*,*) "EyeSys files: ",inputfile1," ",inputfile2
+     else
+      write(*,*) "EyeSys files: ",inputfile1," ",inputfile2," ",inputfile3
+     endif
     endif
  endif ! (mod(flag,100) == 0) parsing the file name,assigning TestData type and MM,N
 
@@ -617,6 +628,12 @@ if (TestData .eq. 0) then
 ! XX????? ARE THE AXIAL DIST. RX???? ARE THE MIRE RADII  
    call CPU_TIME(time_start)
    read_error=0
+   inquire(file=trim(inputfile3), exist=exists)
+   if(.NOT.exists) then
+    call RCNVRTE(inputfile2,inputfile1,read_error)
+   else
+    write(*,*) "EyeSys files: ",inputfile1," ",inputfile2," ",inputfile3
+   endif
    call RCNVRTE(inputfile2,inputfile1,read_error)
    call CPU_TIME(time_end)
    write(*,*) 'Time to read EyeSys files: ',(time_end-time_start)*1000
@@ -913,18 +930,7 @@ if (mod(flag,100) .ne. 9 ) then
      if (btest(dat,0)) then
       call SplineEval1Dx1D(10,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
      else
-
-! oddly these don't match
-! write(*,*) 'before Z',  RadSlope%Zp(j,i) here is loaded with elevations
-  if (abs(JMatrix%Z(j,i)) > eps) then
-   write(*,*) 'error,should all be zero'
-  endif
- if (abs(cos(JMatrix%THT(i))) < eps) then
-  write(*,*) abs(JMatrix%R(j,i))*cos(JMatrix%THT(i)),abs(JMatrix%R(j,i))*sin(JMatrix%THT(i)),RadSlope%Zp(j,i)
-endif
-
       call SplineEval1Dx1D(0,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
-
      endif
     endif
 !  save for vertex normals and for LIOC
@@ -1011,20 +1017,6 @@ endif
     if (JMatrix%Z0(1) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z0(1)
     if (JMatrix%Z0(1) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z0(1)
 !   endif  ! TestData.eq.2 .or. TestData.eq.4
-
-
-
-!!!!!!!these match Penta
-write(*,*) ' '
-write(*,*) ' '
-do i=1,M1
- do j=1,RadSlope%MV(i)
- if (abs(cos(JMatrix%THT(i))) < eps) then
-  write(*,*) abs(JMatrix%R(j,i))*cos(JMatrix%THT(i)),abs(JMatrix%R(j,i))*sin(JMatrix%THT(i)),JMatrix%Z(j,i)
- endif
- end do
-end do
-
 
 !  SAGC
 !   if (TestData.ne.3 .and. TestData.ne.5) then  ! already has valid SAGC0 from cornea_arrays & CUR file NOT YET IT DOES NOT

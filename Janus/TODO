@@ -1,20 +1,9 @@
 things to do
 
 CorneaCopia
+
+incoroporated check for PU file; import it and see if I can do anything with it: needs RNVRTE and a EyeSys data container MM long
  
-have an issue regarding all pentacam elevation conversions 
-.ele.csv and .ele are wrong!   
-
-in cornea_arrays
-
-in ele.csv
-Z(j,i) matches Penta but Zp does not 
-
-ele.csv and cur.csv have the same orientation, but .cur/.ele are upside down and inside out
-magnification does not match, or is Atlas magnification off?
-comparing with Atlas orientation: _cur/_ele.csv are correct
-
-
 check formula for mean curvature and monge astigmatism and possibly make limit friendlier version with limit added on exponential 
 
 plots with gnuplot splot are only has fixed scale for sagc?

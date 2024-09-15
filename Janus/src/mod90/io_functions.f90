@@ -161,6 +161,7 @@ end module io_functions
 subroutine rcnvrtp(TestData,filename,read_error)
 ! PENTACAM VERSION FOR ALL
  use io_functions, only : get_new_fileunit,getArg,line
+ use set_precision, ONLY : wp
  use cornea_arrays, ONLY : Penta
  implicit none
  character(len=*), intent(in) :: filename
@@ -173,6 +174,7 @@ subroutine rcnvrtp(TestData,filename,read_error)
  character(len=2) :: iter2
  character(len=3) :: iter3
  character(len=1000) :: somecharacter
+ real(wp) :: temp(141,141)
  NP=141
     inquire(file=trim(filename), exist=exists)
     if (exists) then
@@ -273,6 +275,15 @@ subroutine rcnvrtp(TestData,filename,read_error)
      print*, "Error -- cannot find PentaCam file: ", trim(filename)
      read_error=4
      return
+   endif
+   if (TestData .le. 3) then !.CUR/.ELE need to be flipped
+   temp=Penta%DAT
+    do i=1,NP
+     do k=1,NP
+      Penta%DAT(i,k)=temp(NP-i+1,k)
+      Penta%DAT(NP-i+1,k)=temp(i,k)
+     end do
+    end do
    endif
 end subroutine rcnvrtp
 
