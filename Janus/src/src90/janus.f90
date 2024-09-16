@@ -630,11 +630,10 @@ if (TestData .eq. 0) then
    read_error=0
    inquire(file=trim(inputfile3), exist=exists)
    if(.NOT.exists) then
-    call RCNVRTE(inputfile2,inputfile1,read_error)
+    call RCNVRTE(read_error,inputfile2,inputfile1)
    else
-    write(*,*) "EyeSys files: ",inputfile1," ",inputfile2," ",inputfile3
+    call RCNVRTE(read_error,inputfile2,inputfile1,inputfile3)
    endif
-   call RCNVRTE(inputfile2,inputfile1,read_error)
    call CPU_TIME(time_end)
    write(*,*) 'Time to read EyeSys files: ',(time_end-time_start)*1000
    if (read_error > 0) return

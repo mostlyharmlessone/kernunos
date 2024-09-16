@@ -2,7 +2,15 @@ things to do
 
 CorneaCopia
 
-incoroporated check for PU file; import it and see if I can do anything with it: needs RNVRTE and a EyeSys data container MM long
+incorporated check/read for EyeSys%PU(MM) and Pupil_Center(2)
+incorporated check/read for Atlas%PU(MM,2) and Pupil_Center(2)
+incorporated check/read for Penta%PU(256,2) and Pupil_Center(2)
+not used yet 
+
+it is pupil radius; perhaps can be displayed as a black circle
+
+read .CUR if available for .ELE _CUR.CSV for _ELE.CSV for integration check, or cross purpose also
+
  
 check formula for mean curvature and monge astigmatism and possibly make limit friendlier version with limit added on exponential 
 

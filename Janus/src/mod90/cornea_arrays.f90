@@ -21,8 +21,9 @@ MODULE cornea_arrays
  
  TYPE wpEyeSysMatrix
 !  RA, XX are undocumented but assumed to compute to powers and radii using Zfct, there are 360 rows
-   REAL (wp), ALLOCATABLE :: RA(:,:), XX(:,:)
+   REAL (wp), ALLOCATABLE :: RA(:,:), XX(:,:),PU(:)
    INTEGER, ALLOCATABLE :: DEG(:)
+   REAL (wp) :: Pupil_Center(2)
  END TYPE wpEyeSysMatrix
  
  TYPE wpRadSlopeMatrix
@@ -33,7 +34,8 @@ MODULE cornea_arrays
  
  TYPE wpAtlasMatrix
 !  AR radius (polar coord), AD "distance?",AP is axial(sagittal) power in diopters ,AY elevation, DEG polar coord
-   REAL (wp), ALLOCATABLE :: AR(:,:),AD(:,:),AP(:,:),AY(:,:),DEG(:)
+   REAL (wp), ALLOCATABLE :: AR(:,:),AD(:,:),AP(:,:),AY(:,:),DEG(:),PU(:,:)
+   REAL (wp) :: Pupil_Center(2)
  END TYPE wpAtlasMatrix
 
  TYPE wpJMatrix
@@ -51,7 +53,8 @@ MODULE cornea_arrays
 
  TYPE wpPentaMatrix
 !  DAT is sagittal/axial curvature or elevation in mm, on 141x141 grid of -7.00 mm to +7.00 mm, no data=-1 or 0
-   REAL (wp), ALLOCATABLE :: DAT(:,:)
+   REAL (wp), ALLOCATABLE :: DAT(:,:),PU(:,:)
+   REAL (wp) :: Pupil_Center(2)
  END TYPE wpPentaMatrix
 
  TYPE wpSkyline
@@ -124,12 +127,12 @@ subroutine init_mat_Penta(NP,Penta,Skyline) ! allocate PentaCam arrays
   CHARACTER :: ERR_MSG
   TYPE(wpPentaMatrix) :: Penta 
   TYPE(wpSkyline) :: Skyline  
-  allocate (Penta%DAT(NP,NP), STAT=ERROR, ERRMSG=ERR_MSG)
+  allocate (Penta%DAT(NP,NP),Penta%PU(256,2), STAT=ERROR, ERRMSG=ERR_MSG)
   if (ERROR .NE. 0) then 
    write(*,*) 'Allocation error: ',ERROR,ERR_MSG
    return
   endif 
-  Penta%DAT(:,:)=0
+  Penta%DAT(:,:)=0 ; Penta%PU(:,:)=0
   allocate (Skyline%DAT(NP,NP),Skyline%x(NP,NP),&
             Skyline%z2DAT(NP,NP),Skyline%L2x(NP),Skyline%L2y(NP),&
             Skyline%index_col(NP), STAT=ERROR, ERRMSG=ERR_MSG)
@@ -161,8 +164,9 @@ end subroutine init_mat_JMatrix
 subroutine init_mat_EyeSys(MM,N,EyeSys) ! allocate EyeSys arrays
   INTEGER, INTENT(IN) :: MM,N
   TYPE(wpEyeSysMatrix) :: EyeSys
-  allocate (EyeSys%RA(MM,N),EyeSys%XX(MM,N),EyeSys%DEG(MM))
-  EyeSys%RA(:,:)=0 ; EyeSys%XX(:,:)=0 ; EyeSys%DEG(:)=0
+  allocate (EyeSys%RA(MM,N),EyeSys%XX(MM,N),EyeSys%PU(MM),EyeSys%DEG(MM))
+  EyeSys%RA(:,:)=0 ; EyeSys%XX(:,:)=0 ; EyeSys%PU(:)=0
+  EyeSys%DEG(:)=0 ; EyeSys%Pupil_Center=0
 end subroutine init_mat_EyeSys
 
 subroutine init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter) ! allocate common arrays
@@ -190,9 +194,9 @@ subroutine init_mat_Atlas(MM,N,Atlas) ! allocate common arrays
   INTEGER, INTENT(IN) :: MM,N
   TYPE(wpAtlasMatrix) :: Atlas
   allocate (Atlas%AR(MM,N),Atlas%AD(MM,N),Atlas%AP(MM,N),&
-            Atlas%AY(MM,N),Atlas%DEG(MM))
-  Atlas%AR(:,:)=0 ; Atlas%AD(:,:)=0 ; Atlas%AP(:,:)=0
-  Atlas%AY(:,:)=0 ; Atlas%DEG(:)=0
+            Atlas%AY(MM,N),Atlas%DEG(MM),Atlas%PU(MM,2))
+  Atlas%AR(:,:)=0 ; Atlas%AD(:,:)=0 ; Atlas%AP(:,:)=0 ; Atlas%PU(:,:)=0
+  Atlas%AY(:,:)=0 ; Atlas%DEG(:)=0 ; Atlas%Pupil_Center=0
 end subroutine init_mat_Atlas
 
 ! Type()=0 deallocates storage
@@ -201,7 +205,7 @@ subroutine destroy_EyeSys(EyeSys,iflag)
   TYPE(wpEyeSysMatrix), INTENT(INOUT) :: EyeSys
   INTEGER, INTENT (IN) :: iflag 
   IF (iflag==0) THEN
-   deallocate (EyeSys%RA,EyeSys%XX,EyeSys%DEG)
+   deallocate (EyeSys%RA,EyeSys%XX,EyeSys%PU,EyeSys%DEG)
   ENDIF
 end subroutine destroy_EyeSys
 
@@ -209,7 +213,7 @@ subroutine destroy_Atlas(Atlas,iflag)
   TYPE(wpAtlasMatrix), INTENT(INOUT) :: Atlas
   INTEGER, INTENT (IN) :: iflag 
   IF (iflag==0) THEN
-   deallocate (Atlas%AR,Atlas%AD,Atlas%AP,Atlas%AY,Atlas%DEG)
+   deallocate (Atlas%AR,Atlas%AD,Atlas%AP,Atlas%AY,Atlas%DEG,Atlas%PU)
   ENDIF
 end subroutine destroy_Atlas
 
@@ -244,7 +248,7 @@ subroutine destroy_Penta(Penta,iflag)
   TYPE(wpPentaMatrix), INTENT(INOUT) :: Penta
   INTEGER, INTENT (IN) :: iflag 
   IF (iflag==0) THEN
-  deallocate (Penta%DAT)
+  deallocate (Penta%DAT,Penta%PU)
   ENDIF
 end subroutine destroy_Penta
 

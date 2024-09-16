@@ -51,10 +51,11 @@ module io_functions
      integer, intent(out) :: N, read_error
     end subroutine
 
-    subroutine rcnvrte(RANAME,XXNAME,read_error)
+    subroutine rcnvrte(read_error,RANAME,XXNAME,PUNAME)
      USE set_precision, ONLY : wp
      USE cornea_arrays, ONLY : EyeSys
      character(len=*), intent(in) :: RANAME,XXNAME
+     character(len=*), intent(in), optional :: PUNAME
      integer, intent(out) :: read_error
     end subroutine
 
@@ -163,17 +164,18 @@ subroutine rcnvrtp(TestData,filename,read_error)
  use io_functions, only : get_new_fileunit,getArg,line
  use set_precision, ONLY : wp
  use cornea_arrays, ONLY : Penta
+ use special_fct, ONLY : replacestr
  implicit none
  character(len=*), intent(in) :: filename
  integer, intent(in) :: TestData
  integer, intent(out) :: read_error
- integer :: unitno1,ierr,readerr,i,k,NP,read_front
+ integer :: unitno1,ierr,readerr,i,k,NP,read_front,meridians
  logical :: exists
  character(len=7) :: matrixchar
  character(len=1) :: iter1,equal
  character(len=2) :: iter2
  character(len=3) :: iter3
- character(len=1000) :: somecharacter
+ character(len=1000) :: somecharacter,someline
  real(wp) :: temp(141,141)
  NP=141
     inquire(file=trim(filename), exist=exists)
@@ -250,6 +252,47 @@ subroutine rcnvrtp(TestData,filename,read_error)
 !                write(*,*) Penta%DAT(k,:)
 !               endif
                endif  
+
+               if (somecharacter.eq.'[PUPIL]'.and.(TestData .ge. 4)) then  !_CUR.CSV or _ELE.CSV
+                 read(unitno1,*,iostat=readerr) someline
+                 read(unitno1,*,iostat=readerr) someline
+                 somecharacter=replacestr(string=someline,search=";",substitute=",")
+                 read(somecharacter,*,iostat=readerr) someline,Penta%Pupil_Center(1)
+                 read(unitno1,*,iostat=readerr) someline
+                 somecharacter=replacestr(string=someline,search=";",substitute=",")
+                 read(somecharacter,*,iostat=readerr) someline,Penta%Pupil_Center(2)
+                 read(unitno1,*,iostat=readerr) someline
+                 read(unitno1,*,iostat=readerr) someline
+                 do k=1,256
+                  read(unitno1,*,iostat=readerr) someline
+                  somecharacter=replacestr(string=someline,search=";",substitute=",")
+                  read(somecharacter,*,iostat=readerr) Penta%PU(k,1),Penta%PU(k,2)
+                 end do
+               endif
+
+               if (somecharacter.eq.'[PUPIL]'.and.(TestData .le. 3)) then  !.CUR or .ELE
+                 read(unitno1,*,iostat=readerr) someline
+                 read(unitno1,*,iostat=readerr) someline
+                 somecharacter=replacestr(string=someline,search="=",substitute=", ")
+                 read(somecharacter,*,iostat=readerr) someline,Penta%Pupil_Center(1)
+                 read(unitno1,*,iostat=readerr) someline
+                 somecharacter=replacestr(string=someline,search="=",substitute=", ")
+                 read(somecharacter,*,iostat=readerr) someline,Penta%Pupil_Center(2)
+                 read(unitno1,*,iostat=readerr) someline
+                 somecharacter=replacestr(string=someline,search="=",substitute=", ")
+                 read(somecharacter,*,iostat=readerr) someline,meridians
+                 if (size(Penta%PU,1) .ne. meridians) then
+                  write(*,*) 'Size mismatch in pupil meridians, 256 expected'
+                 else
+                 read(unitno1,*,iostat=readerr) someline
+                 somecharacter=replacestr(string=someline,search="=",substitute=", ")
+                 read(somecharacter,*,iostat=readerr) someline,Penta%PU(:,1)
+                 read(unitno1,*,iostat=readerr) someline
+                 somecharacter=replacestr(string=someline,search="=",substitute=", ")
+                 read(somecharacter,*,iostat=readerr) someline,Penta%PU(:,2)
+                 endif
+               endif
+
              else
 !                  write(*,*) 'Read ',k-1,' rows from ',trim(filename)
 !                  do k=1,NP
@@ -287,20 +330,21 @@ subroutine rcnvrtp(TestData,filename,read_error)
    endif
 end subroutine rcnvrtp
 
-
-subroutine rcnvrte(RANAME,XXNAME,read_error)
+subroutine rcnvrte(read_error,RANAME,XXNAME,PUNAME)
 ! EYESYS VERSION
-  use io_functions, only : get_new_fileunit
+  USE io_functions, ONLY : get_new_fileunit
   USE set_precision, ONLY : wp
   USE cornea_arrays, ONLY : EyeSys
+  USE special_fct, ONLY : replacestr
   implicit none
   logical :: exists
   character(len=*), intent(in) :: RANAME,XXNAME
-  character(1000) header
-  integer :: file_idx1,file_idx2,readerr
+  character(len=*), intent(in), optional :: PUNAME
+  character(1000) header,header_space
+  integer :: file_idx1,file_idx2,file_idx3,readerr
   integer, intent(out) :: read_error
-  REAL(wp) :: ZX(16),YX(16)
-  INTEGER :: I,J,ITH,unitno1,unitno2,MM,N,ierr
+  REAL(wp) :: ZX(16),YX(16),PX,CX,CY
+  INTEGER :: I,J,ITH,unitno1,unitno2,unitno3,MM,N,ierr
   MM=360
   N=16
   inquire(file=trim(RANAME), exist=exists)
@@ -315,15 +359,15 @@ subroutine rcnvrte(RANAME,XXNAME,read_error)
      if (ierr .eq. 0) then
       READ (unitno1,*) header
       file_idx1=index(trim(header),"|")
-      if (file_idx1>0) then
+      if (file_idx1 > 0) then
        write(*,*) 'RA EyeSys header detected: ',trim(header)
       endif
       READ (unitno2,*) header
       file_idx2=index(trim(header),"|")
-      if (file_idx2>0) then
+      if (file_idx2 > 0) then
        write(*,*) 'XX EyeSys header detected: ',trim(header)
       else
-       write(*,*) 'No EyeSys header detected, assuming data only'
+       write(*,*) 'No XX/RA EyeSys headers detected, assuming data only'
        REWIND(unitno1)
        REWIND(unitno2)
       endif
@@ -345,13 +389,13 @@ subroutine rcnvrte(RANAME,XXNAME,read_error)
        else
         READ(unitno1,*,iostat=readerr) ITH,ZX(:)
         if (readerr .ne. 0) then
-         WRITE (*,*) 'Error on input EyeSys RA/XX files on', I,'row'
+         WRITE (*,*) 'Error on headerless input EyeSys RA/XX files on', I,'row'
          read_error=3
          return
         endif
         READ(unitno2,*,iostat=readerr) ITH,YX(:)
         if (readerr .ne. 0) then
-         WRITE (*,*) 'Error on input EyeSys RA/XX files on', I,'row'
+         WRITE (*,*) 'Error on headerless input EyeSys RA/XX files on', I,'row'
          read_error=3
          return
         endif
@@ -378,6 +422,51 @@ subroutine rcnvrte(RANAME,XXNAME,read_error)
       end do 
       CLOSE (unitno1)
       CLOSE (unitno2)
+      if (Present(PUNAME)) then
+       inquire(file=trim(PUNAME), exist=exists)
+       if (exists) then
+        unitno3 = get_new_fileunit()
+        open(unitno3, file=trim(PUNAME), action="read", iostat=ierr)
+        if (ierr .eq. 0) then
+         READ (unitno3,*) header
+         file_idx3=index(trim(header),"|")
+         if (file_idx3 > 0) then
+          write(*,*) 'PU EyeSys header detected: ',trim(header)
+          READ (unitno3,*) CX,CY ! next line has two numbers
+         else
+          write(*,*) 'No PU EyeSys header detected, assuming data only'
+!         assuming a headerless PU file exists,it probably has two numbers to skip, no REWIND
+         endif
+        do I=1,MM
+         if (file_idx3 > 0) then
+          READ(unitno3,*,iostat=readerr) header
+          header_space=replacestr(string=header,search=":",substitute=": ")
+          READ(header_space,*,iostat=readerr) header,PX
+          if (readerr .ne. 0) then
+           WRITE (*,*) 'Error on input EyeSys PU file on', I,'row'
+           read_error=7
+           return
+          endif
+         else
+!         headerless, assuming comma delimited
+          READ(unitno3,*,iostat=readerr) ITH,PX
+          if (readerr .ne. 0) then
+           WRITE (*,*) 'Error on input headerless EyeSys PU file on', I,'row'
+           read_error=8
+           return
+          endif
+         endif
+         EyeSys%PU(i)=PX
+         end do
+         EyeSys%Pupil_Center(1)=CX ; EyeSys%Pupil_Center(1)=CY
+         CLOSE (unitno3)
+        endif
+       else
+        print*, "Error ", ierr ," attempting to open file ", trim(PUNAME)
+        read_error=9
+        return
+       endif
+      endif
       else
          print*, "Error ", ierr ," attempting to open file ", trim(XXNAME)
          read_error=3
@@ -560,6 +649,25 @@ subroutine rcnvrta(KXNAME,N,read_error)
            end do 
           end do           
          ENDIF
+        ENDIF
+
+        IF (KH1.EQ.'Pupil_Data_Point') THEN
+         READ(unitno,*,END=100,IOSTAT=io) KH1,Atlas%Pupil_Center(1)
+         READ(unitno,*,END=100,IOSTAT=io) KH1,Atlas%Pupil_Center(2)
+         READ(unitno,*,END=100,IOSTAT=io) KH1
+         READ(unitno,*,END=100,IOSTAT=io) KH1
+         READ(unitno,*,END=100,IOSTAT=io) KH1
+         READ(unitno,*,END=100,IOSTAT=io) KH1
+         READ(unitno,*,END=100,IOSTAT=io) KH1
+         READ(unitno,*,END=100,IOSTAT=io) KH1
+         DO I=1,MM
+          READ(unitno,*,END=100,IOSTAT=io) ITH,Atlas%PU(I,1),Atlas%PU(I,2)
+          if (ITH.NE.(I-1)) then
+           WRITE(*,*) 'ATLAS PUPIL READ ERROR'
+           read_error=7
+           goto 100
+          endif
+         END DO
         ENDIF
 
         IF (KH1.EQ.'#End_Table') THEN
