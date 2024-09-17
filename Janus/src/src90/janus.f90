@@ -142,7 +142,7 @@ endif
 if (mod(flag,100) == 0 .or. mod(flag,100) == 10 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3) then
 !  only need new file name if opening a file or printing, and
 !  local save of inputfile1,inputfile2,logfile
-!write(*,*) 'file from kernunos: ',file_from_C  ! this will have a lot of extra random non ASCII stuff after the file name
+!  write(*,*) 'file from kernunos: ',file_from_C  ! this will have a lot of extra random non ASCII stuff after the file name
 !! need this because GCC11 isn't F2018 compliant with deferred length character with Bind C
 !! ie. can't do CHARACTER(*,c_char), INTENT(IN) :: file_from_C_1 with BIND(C) with GCC11
 !! declaring character(len=12), dimension(:), allocatable :: args with args(1) works too, but limited in length
@@ -168,7 +168,7 @@ if (mod(flag,100) == 0 .or. mod(flag,100) == 10 .or. mod(flag,100) == 2 .or. mod
  inputfile1=trim(new_path)
  allocate(character(nblines) :: inputfile2)
  allocate(character(nblines) :: inputfile3)
-endif  ! mod(flag,100) == 0, 2, or 3
+endif  ! mod(flag,100) == 0, 10, 2, or 3
 
 
 if (mod(flag,100) .eq. 5 .or. mod(flag,100) .eq. 6 .or.&
@@ -466,11 +466,12 @@ endif
 endif
 
 ! last two digits of flag == 0 parse file name, assign TestData type and MM,N
-if (mod(flag,100) == 0) then
+if (mod(flag,100) == 0 .or. mod(flag,100) == 10) then
  call CCounter(0,inputfile1//c_null_char)
 ! From either RA?.? or XX?.?, set inputfile1 to the XX version, inputfile2 to the RA version, inputfile3 to the PU version,
-! For either .CUR or .ELE or _CUR.CSV or _ELE.CSV set inputfile2 to Penta file of appropriate type with TestData
-!
+! For PentaCam
+! set inputfile1 for _ELE.CSV or .ELE,
+! set inputfile2 for _CUR.CSV or .CUR
 ! For CSV but not _ELE.CSV or _CUR.CSV set inputfile1 to Atlas file
  file_idx=index(inputfile1, "RA")+index(inputfile1, "XX")
    if( file_idx == 0)then
@@ -484,7 +485,7 @@ if (mod(flag,100) == 0) then
          TestData=-1; MM=360; N=16 ; NP=141
         else
         inputfile2=replacestr(string=inputfile1,search=".ELE",substitute=".CUR")
-        write(*,*) "PentaCam .ELE file",inputfile2
+        write(*,*) "PentaCam .ELE file",inputfile1
         inquire(file=trim(inputfile2), exist=exists)
         if(exists) then
          write(*,*) "Matching .CUR file found"
@@ -510,7 +511,7 @@ if (mod(flag,100) == 0) then
          write(*,*) "Atlas file: ",inputfile1
         else
          inputfile2=replacestr(string=inputfile1,search="_ELE.CSV",substitute="_CUR.CSV")
-         write(*,*) "PentaCam _ELE.CSV file",inputfile2
+         write(*,*) "PentaCam _ELE.CSV file: ",inputfile1
          inquire(file=trim(inputfile2), exist=exists)
          if(exists) then
           write(*,*) "Matching _CUR.CSV file found"
@@ -520,7 +521,7 @@ if (mod(flag,100) == 0) then
         else
          inputfile2=inputfile1
          inputfile1=replacestr(string=inputfile2,search="_CUR.CSV",substitute="_ELE.CSV")
-         write(*,*) "PentaCam _CUR.CSV file",inputfile2
+         write(*,*) "PentaCam _CUR.CSV file: ",inputfile2
          inquire(file=trim(inputfile1), exist=exists)
          if(exists) then
           write(*,*) "Matching _ELE.CSV file found"
@@ -597,12 +598,12 @@ if (mod(flag,100) == 0) then
       write(*,*) "EyeSys files: ",inputfile1," ",inputfile2," ",inputfile3
      endif
     endif
- endif ! (mod(flag,100) == 0) parsing the file name,assigning TestData type and MM,N
+ endif ! (mod(flag,100) == 0 or 10) parsing the file name,assigning TestData type and MM,N
 
 
 ! allocate JMatrix needed for file import
 !  JMatrix is 180x22 to make importing from Atlas easier.
-!  M1,N1 ot avoid overwriting MM,N at this point
+!  M1,N1 avoid overwriting MM,N at this point
    M1=180
    N1=22
    if (allocated(JMatrix%R)) then
@@ -620,6 +621,7 @@ if (mod(flag,100) == 0) then
     JMatrix1%YPTHETA(:,:)=JMatrix%YPTHETA(:,:)
     JMatrix1%THT(:)=JMatrix%THT(:)
     JMatrix1%SAGC(:,:)=JMatrix%SAGC(:,:)
+    JMatrix1%Warp(:,:)=JMatrix%Warp(:,:)
     JMatrix1%INSTC(:,:)=JMatrix%INSTC(:,:)
     JMatrix1%INSTC2(:,:)=JMatrix%INSTC2(:,:)
     JMatrix1%MEANC(:,:)=JMatrix%MEANC(:,:)
@@ -655,7 +657,7 @@ if (TestData .eq. 0) then
  if(.not.allocated(EyeSys%RA)) then
   call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
  endif
- if (mod(flag,100) == 0) then !read the files
+ if (mod(flag,100) == 0 .or. mod(flag,100) == 10) then !read the files
 ! READ THE EYESYS DATA
 ! XX????? ARE THE AXIAL DIST. RX???? ARE THE MIRE RADII  
    call CPU_TIME(time_start)
@@ -677,7 +679,7 @@ endif
 ! READ THE ATLAS DATA
 if (TestData .eq. 1) then
  MM=180
- if (mod(flag,100) == 0) then !read the files
+ if (mod(flag,100) == 0 .or. mod(flag,100) == 10) then !read the files
   read_error=0
   call CPU_TIME(time_start)
  ! determine the type, prior to allocating Atlas
@@ -741,11 +743,15 @@ endif ! end (TestData == 1)
   if(.not.allocated(Penta%DAT)) then
    call init_mat_Penta(NP,Penta,Skyline)   !allocate the PentaCam matices
   endif
-! ELE are elevations CUR are "sagittal" curvatures in a 141x141 -7 to 7 mm square -1 is no data
+! ELE are elevations, CUR are "sagittal" curvatures in a 141x141 -7 to 7 mm square -1 is no data
 ! _ELE.CSV or _CUR.CSV versions have less text but use semicolons (;) instead of -1
-  if (mod(flag,100) == 0) then ! read the files
+  if (mod(flag,100) == 0 .or. mod(flag,100) == 10) then ! read the files
    read_error=0
-   call RCNVRTP(TestData,inputfile1,read_error)
+   if (TestData .eq. 3 .or. TestData .eq. 5) then
+   call RCNVRTP(TestData,inputfile2,read_error)  !curvatures
+   else
+   call RCNVRTP(TestData,inputfile1,read_error)  !elevations TestData .eq. 2 .or. TestData .eq. 4
+   endif
    if (read_error > 0) return
   endif  !(mod(flag,100) /= 0,99,2,3 must be 1 or 4-7, reload the original data
 ! arrange the data
@@ -808,9 +814,9 @@ if (TestData .lt. 0) then
  if(.not.allocated(EyeSys%RA)) then
   call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
  endif
-  if (mod(flag,100) == 0) then !read the files
+  if (mod(flag,100) == 0 .or. mod(flag,100) == 10) then !read the files
    call RCNVRTT(MM,N)
-  endif  !(mod(flag,100) /= 0,99,2,3 must be 1 or 4-7, reload the original data  endif
+  endif
 ! Generate the slope matrix using ZFCT
   RadSlope=EyeSys
  endif
@@ -1495,6 +1501,62 @@ deallocate(zernC,rlocal,thtlocal)
  endif
 endif  ! end of flag=1
 
+! simple difference/subtraction the second time through with compare
+! currently does not actually work with ZC since there's no compare option with flag=1
+if (allocated(JMatrix1%R)) then
+ if (mod(flag,100) == 10) then
+  JMatrix%SAGC(:,:)=ABS(JMatrix1%SAGC(:,:)-JMatrix%SAGC(:,:))
+  JMatrix%Warp(:,:)=ABS(JMatrix1%Warp(:,:)-JMatrix%Warp(:,:))
+  JMatrix%INSTC(:,:)=ABS(JMatrix1%INSTC(:,:)-JMatrix%INSTC(:,:))
+  JMatrix%INSTC2(:,:)=ABS(JMatrix1%INSTC2(:,:)-JMatrix%INSTC2(:,:))
+  JMatrix%MEANC(:,:)=ABS(JMatrix1%MEANC(:,:)-JMatrix%MEANC(:,:))
+  JMatrix%MONGEA(:,:)=ABS(JMatrix1%MONGEA(:,:)-JMatrix%MONGEA(:,:))
+  JMatrix%SAGC0(:)=ABS(JMatrix1%SAGC0(:)-JMatrix%SAGC0(:))
+  JMatrix%Warp0(:)=ABS(JMatrix1%Warp0(:)-JMatrix%Warp0(:))
+  JMatrix%INSTC0(:)=ABS(JMatrix1%INSTC0(:)-JMatrix%INSTC0(:))
+  JMatrix%INSTC20(:)=ABS(JMatrix1%INSTC20(:)-JMatrix%INSTC20(:))
+  JMatrix%MEANC0(:)=ABS(JMatrix1%MEANC0(:)-JMatrix%MEANC0(:))
+  JMatrix%MONGEA0(:)=ABS(JMatrix1%MONGEA0(:)-JMatrix%MONGEA0(:))
+  JMatrix%ZC(:,:,:)=ABS(JMatrix1%ZC(:,:,:)-JMatrix%ZC(:,:,:))
+  JMatrix%ZC0(:,:)=ABS(JMatrix1%ZC0(:,:)-JMatrix%ZC0(:,:))
+
+! have to re-do min/max
+ JMatrix%SAGC0(2)=1E30   ;  JMatrix%SAGC0(3)=-1E30
+ JMatrix%Warp0(2)=1E30   ;  JMatrix%Warp0(3)=-1E30
+ JMatrix%Z0(2)=1E30      ;  JMatrix%Z0(3)=-1E30
+ JMatrix%INSTC0(2)=1E30  ;  JMatrix%INSTC0(3)=-1E30
+ JMatrix%INSTC20(2)=1E30 ;  JMatrix%INSTC20(3)=-1E30
+ JMatrix%MEANC0(2)=1E30  ;  JMatrix%MEANC0(3)=-1E30
+ JMatrix%MONGEA0(2)=1E30 ;  JMatrix%MONGEA0(3)=-1E30
+ JMatrix%ZC0(2,:)=1E30   ;  JMatrix%ZC0(3,:)=-1E30
+do i=1,M1
+ JMatrix%MV(i)=min(JMatrix%MV(i),JMatrix1%MV(i))
+ do j=1,JMatrix%MV(i)
+   if (JMatrix%INSTC(j,i) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC(j,i)
+   if (JMatrix%INSTC(j,i) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC(j,i)
+   if (JMatrix%INSTC2(j,i) <= JMatrix%INSTC20(2)) JMatrix%INSTC20(2)=JMatrix%INSTC2(j,i)
+   if (JMatrix%INSTC2(j,i) >= JMatrix%INSTC20(3)) JMatrix%INSTC20(3)=JMatrix%INSTC2(j,i)
+   if (JMatrix%Z(j,i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z(j,i)
+   if (JMatrix%Z(j,i) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z(j,i)
+   if (JMatrix%SAGC(j,i) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC(j,i)
+   if (JMatrix%SAGC(j,i) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC(j,i)
+   if (JMatrix%Warp(j,i) <= JMatrix%Warp0(2)) JMatrix%Warp0(2)=JMatrix%Warp(j,i)
+   if (JMatrix%Warp(j,i) >= JMatrix%Warp0(3)) JMatrix%Warp0(3)=JMatrix%Warp(j,i)
+   if (JMatrix%MEANC(j,i) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC(j,i)
+   if (JMatrix%MEANC(j,i) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC(j,i)
+   if (JMatrix%MONGEA(j,i) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA(j,i)
+   if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
+   do k = 1,15
+    if (JMatrix%ZC(j,i,k) <= JMatrix%ZC0(2,k)) JMatrix%ZC0(2,k)=JMatrix%ZC(j,i,k)
+    if (JMatrix%ZC(j,i,k) >= JMatrix%ZC0(3,k)) JMatrix%ZC0(3,k)=JMatrix%ZC(j,i,k)
+    if (JMatrix%ZC0(1,k) <= JMatrix%ZC0(2,k)) JMatrix%ZC0(2,k)=JMatrix%ZC0(1,k)
+    if (JMatrix%ZC0(1,k) >= JMatrix%ZC0(3,k)) JMatrix%ZC0(3,k)=JMatrix%ZC0(1,k)
+   end do
+ end do
+end do
+
+ endif
+endif
 
 ! plot Zernike central coefficients with gnuplot
 if (mod(flag,100) == 1 .or. mod(flag,100) == 9) then
@@ -1668,30 +1730,10 @@ endif
      powmax=JMatrix%SAGC0(3)
    END SELECT
   endif
-!   write(*,*) 'powctr,POWMIN,POWMAX',powctr,POWMIN,POWMAX
 
   call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
   call makelegend(flag, powmin, powmax, legend, nL)
 
-
-! simple difference/subtraction the second time through
-if (allocated(JMatrix1%R)) then
-! skip this for now
- if (.false.) then
-  JMatrix%SAGC(:,:)=ABS(JMatrix1%SAGC(:,:)-JMatrix%SAGC(:,:))
-  JMatrix%INSTC(:,:)=ABS(JMatrix1%INSTC(:,:)-JMatrix%INSTC(:,:))
-  JMatrix%INSTC2(:,:)=ABS(JMatrix1%INSTC2(:,:)-JMatrix%INSTC2(:,:))
-  JMatrix%MEANC(:,:)=ABS(JMatrix1%MEANC(:,:)-JMatrix%MEANC(:,:))
-  JMatrix%MONGEA(:,:)=ABS(JMatrix1%MONGEA(:,:)-JMatrix%MONGEA(:,:))
-  JMatrix%Z0(:)=ABS(JMatrix1%Z0(:)-JMatrix%Z0(:))
-  JMatrix%SAGC0(:)=ABS(JMatrix1%SAGC0(:)-JMatrix%SAGC0(:))
-  JMatrix%Warp0(:)=ABS(JMatrix1%Warp0(:)-JMatrix%Warp0(:))
-  JMatrix%INSTC0(:)=ABS(JMatrix1%INSTC0(:)-JMatrix%INSTC0(:))
-  JMatrix%INSTC20(:)=ABS(JMatrix1%INSTC20(:)-JMatrix%INSTC20(:))
-  JMatrix%MEANC0(:)=ABS(JMatrix1%MEANC0(:)-JMatrix%MEANC0(:))
-  JMatrix%MONGEA0(:)=ABS(JMatrix1%MONGEA0(:)-JMatrix%MONGEA0(:))
- endif
-endif
 
 
 ! eigenvalues show shape of RadSlope without make_rings but with FillArray 7 elevations
