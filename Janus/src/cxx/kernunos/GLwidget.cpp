@@ -362,7 +362,6 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
          50.0f, -50.0f,  50.0f,  0.76f, -0.76f,  0.76f, 1.0f, 0.0f, 1.0f,    // Bottom-right & Pink?
         -50.0f, -50.0f,  50.0f, -0.76f, -0.76f,  0.76f, 0.0f, 0.0f, 0.0f     // Bottom-left & Black
     };
-
     // 12 triangles = 6 faces with 2 triangles per face
     GLuint cube_elements[] = {
                   0, 1, 2,
@@ -378,12 +377,8 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
                   1, 5, 6,
                   6, 2, 1
               };
-
-
     QByteArray ba = fileName.toLocal8Bit();
     filename = ba.data();
-//    std::cout << "filename in C++ in DataLoad: " << filename << std::endl;
-//    std::cout << "filepresent: " << filepresent << std::endl;
     if (filepresent)
      {
       // reload values to avoid seg fault if previous nV and nE are too small.. and besides, they're not static, nor can they be!
@@ -404,22 +399,11 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
       // blocks!
       // Start the computation.
       futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);}));
-
       // Display the dialog and start the event loop.
       dialog.exec();
-
       futureWatcher.waitForFinished();
-
       // Query the future to check if was canceled.
       qDebug() << "Canceled?" << futureWatcher.future().isCanceled();
-
-    //   blocks!
-    //  std::future future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);});
-    //  future1.get();
-
-    //  std::thread([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);}).detach();  //no blocking thread
-
-    //      janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);
      }
     else
      {

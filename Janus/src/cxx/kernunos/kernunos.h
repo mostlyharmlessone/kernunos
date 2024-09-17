@@ -162,7 +162,6 @@ private:
     QSlider *zSlider;
 
     GLwidget* m_GLwidget;
-    GLwidget* m_GLwidget_secondwindow;
 
     QMenu *functionMenu;
     QAction *AxialAct;

@@ -32,7 +32,7 @@
   integer ::  nblines, file_idx, file_pfx,read_error,io
   integer,allocatable :: MV(:)
   real(8) :: time_start, time_end
-  real(wp) :: POWMIN,POWMAX,POWMAX2,POWCTR,POW,P1,X1,X2,U,V,Z,z1,z2,z3,z4
+  real(wp) :: POWMIN,POWMAX,POWMAX2,POWCTR,POW,P1,X1,X2,U,V,Z
   logical :: donut, exists
   real(wp) :: Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo
   integer :: k_max, kk_max, iflag, LWORK
@@ -46,6 +46,7 @@ write(*,*) 'flag to Fortran:',flag
 write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
 !! last two digits are the program function
 !! 99 = deallocate arrays for program closure
+!! 10 = compare
 !! 9 = show zernike coefficients
 !! 8 = show circumferential ring lsqfillin/splinefillin
 !! 7 = make lioc
@@ -138,7 +139,7 @@ if (mod(flag,100) == 99) then
     return
 endif
 
-if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3) then
+if (mod(flag,100) == 0 .or. mod(flag,100) == 10 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3) then
 !  only need new file name if opening a file or printing, and
 !  local save of inputfile1,inputfile2,logfile
 !write(*,*) 'file from kernunos: ',file_from_C  ! this will have a lot of extra random non ASCII stuff after the file name
@@ -154,8 +155,7 @@ if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3) then
             new_path (i:i) = file_from_C (i)
         end if
     end do
-
- write(*,*) 'file from kernunos: ',trim(new_path)
+! write(*,*) 'file from kernunos: ',trim(new_path)
  nblines=len(trim(new_path))
  if (allocated(inputfile1)) then
   deallocate(inputfile1)
@@ -468,29 +468,37 @@ endif
 ! last two digits of flag == 0 parse file name, assign TestData type and MM,N
 if (mod(flag,100) == 0) then
  call CCounter(0,inputfile1//c_null_char)
-! From either RA?.? or XX?.?, set inputfile1 to the XX version, inputfile1 to the RA version.
-! For either .CUR or .ELE or _CUR.CSV or _ELE.CSV set inputfile1 to Penta file of appropriate type with TestData
+! From either RA?.? or XX?.?, set inputfile1 to the XX version, inputfile2 to the RA version, inputfile3 to the PU version,
+! For either .CUR or .ELE or _CUR.CSV or _ELE.CSV set inputfile2 to Penta file of appropriate type with TestData
+!
 ! For CSV but not _ELE.CSV or _CUR.CSV set inputfile1 to Atlas file
  file_idx=index(inputfile1, "RA")+index(inputfile1, "XX")
    if( file_idx == 0)then
-      write(*,*) 'Not an EyeSys file'
       file_idx=index(inputfile1, ".CSV")
       if( file_idx == 0) then
-       write(*,*) 'Not an Atlas file'
        file_idx=index(inputfile1, ".CUR")
        if( file_idx == 0) then
         file_idx=index(inputfile1, ".ELE")
         if( file_idx == 0) then
-         write(*,*) 'Not a PentaCam file'
          write(*,*) 'Unknown file type: make some test data, flag = ',flag
          TestData=-1; MM=360; N=16 ; NP=141
         else
-!        inputfile2=replacestr(string=inputfile1,search=".ELE",substitute=".CUR")
+        inputfile2=replacestr(string=inputfile1,search=".ELE",substitute=".CUR")
+        write(*,*) "PentaCam .ELE file",inputfile2
+        inquire(file=trim(inputfile2), exist=exists)
+        if(exists) then
+         write(*,*) "Matching .CUR file found"
+        endif
         TestData=2; MM=180; N=22; NP=141 ! PentaCam ELE
        endif
       else
-!       inputfile2=inputfile1
-!       inputfile1=replacestr(string=inputfile2,search=".CUR",substitute=".ELE")
+       inputfile2=inputfile1
+       inputfile1=replacestr(string=inputfile2,search=".CUR",substitute=".ELE")
+       write(*,*) "PentaCam .CUR file: ",inputfile2
+       inquire(file=trim(inputfile1), exist=exists)
+       if(exists) then
+        write(*,*) "Matching .ELE file found"
+       endif
        TestData=3; MM=180; N=22; NP=141 ! PentaCam CUR
       endif
       else
@@ -501,30 +509,46 @@ if (mod(flag,100) == 0) then
          TestData=1; MM=180; N=25   ! Atlas 900 can be 25, 9000 seems to be 22
          write(*,*) "Atlas file: ",inputfile1
         else
-        write(*,*) 'Not an Atlas file'
- !       inputfile2=replacestr(string=inputfile1,search="_ELE.CSV",substitute="_CUR.CSV")
-        TestData=4; MM=180; N=22; NP=141 ! PentaCam ELE.CSV
+         inputfile2=replacestr(string=inputfile1,search="_ELE.CSV",substitute="_CUR.CSV")
+         write(*,*) "PentaCam _ELE.CSV file",inputfile2
+         inquire(file=trim(inputfile2), exist=exists)
+         if(exists) then
+          write(*,*) "Matching _CUR.CSV file found"
+         endif
+         TestData=4; MM=180; N=22; NP=141 ! PentaCam ELE.CSV
         endif
         else
-        write(*,*) 'Not an Atlas file'
-!       inputfile2=inputfile1
-!       inputfile1=replacestr(string=inputfile2,search="_CUR.CSV",substitute="_ELE.CSV")
-        TestData=5; MM=180; N=22; NP=141 ! PentaCam CUR.CSV
+         inputfile2=inputfile1
+         inputfile1=replacestr(string=inputfile2,search="_CUR.CSV",substitute="_ELE.CSV")
+         write(*,*) "PentaCam _CUR.CSV file",inputfile2
+         inquire(file=trim(inputfile1), exist=exists)
+         if(exists) then
+          write(*,*) "Matching _ELE.CSV file found"
+         endif
+         TestData=5; MM=180; N=22; NP=141 ! PentaCam CUR.CSV
        endif
       endif
    else
 !  EyeSys
       file_idx=index(inputfile1, "XX")  !index(inputfile1, "XX", back)
       if (file_idx /= 0) then
-       write(*,*) 'prefix is found at index: ',file_idx,"length: ",len(inputfile1)
-       write(*,*) 'prefix:',inputfile1(file_idx:file_idx+1)
-       write(*,*) 'inputfile1: ',inputfile1
+!       write(*,*) 'prefix is found at index: ',file_idx,"length: ",len(inputfile1)
+!       write(*,*) 'prefix:',inputfile1(file_idx:file_idx+1)
+       write(*,*) 'EyeSys XX file: ',inputfile1
        inputfile2=replacestr(string=inputfile1,search="XX",substitute="RA")
        inputfile3=replacestr(string=inputfile1,search="XX",substitute="PU")
+       inquire(file=trim(inputfile3), exist=exists)
+       if(exists) then
+        write(*,*) "Matching EyeSys PU file found"
+       endif
        inquire(file=trim(inputfile2), exist=exists)
        if(.NOT.exists) then
         inputfile2=replacestr(string=inputfile1,search="/XX",substitute="/RA")
         inputfile3=replacestr(string=inputfile1,search="/XX",substitute="/PU")
+        inquire(file=trim(inputfile3), exist=exists)
+        if(exists) then
+         write(*,*) "Matching EyeSys PU file found"
+        endif
         inquire(file=trim(inputfile2), exist=exists)
         if(.NOT.exists) then
          write(*,*) 'Error: EyeSys files have to be in pairs, or file name has XX other than prefix'
@@ -535,16 +559,24 @@ if (mod(flag,100) == 0) then
       else
        file_idx=index(inputfile1, "RA") !index(inputfile1, "RA", back)
        if (file_idx /= 0) then
-        write(*,*) 'prefix is found at index: ',file_idx,"length: ",len(inputfile1)
-        write(*,*) 'prefix:',inputfile1(file_idx:file_idx+1)
-        write(*,*) 'inputfile1: ',inputfile1
+!        write(*,*) 'prefix is found at index: ',file_idx,"length: ",len(inputfile1)
+!        write(*,*) 'prefix:',inputfile1(file_idx:file_idx+1)
+        write(*,*) 'EyeSys RA file: ',inputfile1
         inputfile2=inputfile1
         inputfile1=replacestr(string=inputfile2,search="RA",substitute="XX")
         inputfile3=replacestr(string=inputfile2,search="RA",substitute="PU")
+        inquire(file=trim(inputfile3), exist=exists)
+        if(exists) then
+         write(*,*) "Matching EyeSys PU file found"
+        endif
         inquire(file=trim(inputfile1), exist=exists)
         if(.NOT.exists) then
          inputfile1=replacestr(string=inputfile2,search="/RA",substitute="/XX")
          inputfile3=replacestr(string=inputfile2,search="/RA",substitute="/PU")
+         inquire(file=trim(inputfile3), exist=exists)
+         if(exists) then
+          write(*,*) "Matching EyeSys PU file found"
+         endif
          inquire(file=trim(inputfile1), exist=exists)
          if(.NOT.exists) then
           write(*,*) 'Error: EyeSys files have to be in pairs, or file name has RA other than prefix'
@@ -1002,6 +1034,7 @@ if (mod(flag,100) .ne. 9 ) then
     DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
    endif
  endif
+
 !  Z
 !   if (TestData.ne.2 .and. TestData.ne.4) then   ! already has valid Z0 from cornea_arrays & ELE file NOT YET IT DOES NOT
 !   notice that we didn't load Z into Zp and then use iflag=10, and 0

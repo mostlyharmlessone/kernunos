@@ -133,6 +133,7 @@ const unsigned int SCR_HEIGHT = 2600;
 // 18 = MEANC Monge Mean Curvature, in diopters
 // 19 = MONGEA Monge Astigmatism
 // 20 = Z Elevation
+// 21 = Oblique power or Warp
 // third two are colormap to use
 // default is USS with fixed range
 // 1 = rgb2 discrete heatmap with linear interpolation based on 2 colors
@@ -328,10 +329,9 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
    update();
 }
 
-void MainWindow::compare()    //right now this doesn't do anything but direct output to second_window (which means nothing as there's only one buffer) and make a cube.
+void MainWindow::compare()    //right now this doesn't do anything
 {
-   ui.infoLabel->setText(tr("Invoked <b>File|Compare</b>"));
-
+    flag=flag-(flag%100)+10;  // last two digits of flag=10
     // note that the Atlas CSV filter is non-specific and will include all CSV files
     QString filter = "PentaCam (*.CUR *.ELE *_CUR.CSV *_ELE.CSV);;EyeSys (RA*.* XX*.*);;Atlas (*.CSV) ;; All (*)";
     QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
@@ -341,7 +341,7 @@ void MainWindow::compare()    //right now this doesn't do anything but direct ou
    const char *filename = ba.data();
    ui.infoLabel->setText(tr("filename:  ")+tr(filename));
    if (!fileName.isEmpty())
-       m_GLwidget_secondwindow->DataLoad(fileName,true);  //cube
+       m_GLwidget->DataLoad(fileName,true);
    update();
 }
 
@@ -374,7 +374,7 @@ void MainWindow::zerncompute()
     QByteArray ba = filenamelocal.toLocal8Bit();
     char *filename = ba.data();
     flag=flag-(flag%100)+1;  // last two digits of flag=1;
-    m_GLwidget_secondwindow->DataPrint(filename);
+    m_GLwidget->DataPrint(filename);
 
 
 #ifdef _WIN32
@@ -422,7 +422,7 @@ void MainWindow::showzern()
     QByteArray ba = filenamelocal.toLocal8Bit();
     char *filename = ba.data();
     flag=flag-(flag%100)+9;  // last two digits of flag=1;
-    m_GLwidget_secondwindow->DataPrint(filename);
+    m_GLwidget->DataPrint(filename);
 
 
 #ifdef _WIN32
@@ -447,7 +447,7 @@ void MainWindow::importexport()
     const char *filename = ba.data();
     // generate temp ply file
     flag=flag-(flag%100)+3;  // last two digits of flag=3;
-    m_GLwidget_secondwindow->DataPrint(filename);
+    m_GLwidget->DataPrint(filename);
     // get output file name and type
    QString filter =
        "Stanford Polygon Library ASCII .ply (*.ply) ;; "
@@ -631,7 +631,7 @@ void MainWindow::ply2bin()
     ba = filenamelocal.toLocal8Bit();
     const char *filename = ba.data();
     flag=flag-(flag%100)+3;  // last two digits of flag=3;
-       m_GLwidget_secondwindow->DataPrint(filename);
+       m_GLwidget->DataPrint(filename);
     // from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY; MIT licence, included source in tree
     int wrote=ConvertPLYtoBIN(filename,filenameout);
     if (wrote == 0) {
@@ -664,7 +664,7 @@ void MainWindow::off2stl()
    ba = filenamelocal.toLocal8Bit();
    char *filename = ba.data();
    flag=flag-(flag%100)+2;  // last two digits of flag=2;
-   m_GLwidget_secondwindow->DataPrint(filename);
+   m_GLwidget->DataPrint(filename);
    ConvertOFFtoSTL_C_(filename,filenameout);
    ui.infoLabel->setText(tr("Wrote  ")+tr(filenameout));
    FILE.remove();    //doesnt do anything
@@ -679,7 +679,7 @@ void MainWindow::makeoff()
    QByteArray ba = fileName.toLocal8Bit();
    char *filenameout = ba.data();
    flag=flag-(flag%100)+2;  // last two digits of flag=2;
-   m_GLwidget_secondwindow->DataPrint(filenameout);
+   m_GLwidget->DataPrint(filenameout);
    ui.infoLabel->setText(tr("Wrote  ")+tr(filenameout));
 }
 
@@ -692,7 +692,7 @@ void MainWindow::makeply()
    QByteArray ba = fileName.toLocal8Bit();
    char *filenameout = ba.data();
    flag=flag-(flag%100)+3;  // last two digits of flag=3;
-   m_GLwidget_secondwindow->DataPrint(filenameout);
+   m_GLwidget->DataPrint(filenameout);
    ui.infoLabel->setText(tr("Wrote  ")+tr(filenameout));
 }
 
@@ -706,7 +706,7 @@ void MainWindow::LinesofCurvature()
     QByteArray ba = filenamelocal.toLocal8Bit();
     char *filename = ba.data();
     flag=flag-(flag%100)+7;  // last two digits of flag=7;
-    m_GLwidget_secondwindow->DataPrint(filename);
+    m_GLwidget->DataPrint(filename);
     int wrote=lioc(filename);
    if (wrote == 0) {
        ui.infoLabel->setText(tr("gnuplot called successfully for lioc  ")); }
@@ -731,7 +731,7 @@ void MainWindow::gnuplotsplot() {
    QByteArray ba = filenamelocal.toLocal8Bit();
    char *filename = ba.data();
    flag=flag-(flag%100)+5;  // last two digits of flag=5;
-   m_GLwidget_secondwindow->DataPrint(filename);
+   m_GLwidget->DataPrint(filename);
 
    // would be better if calcs could be done here instead of in janus
    Gnuplot gp;
@@ -766,7 +766,7 @@ void MainWindow::center() {
    QByteArray ba = filenamelocal.toLocal8Bit();
    char *filename = ba.data();
    flag=flag-(flag%100)+6;  // last two digits of flag=6;
-   m_GLwidget_secondwindow->DataPrint(filename);
+   m_GLwidget->DataPrint(filename);
 
    // would be better if calcs could be done here instead of in janus, or at least call WriteCenter?
 
@@ -838,7 +838,7 @@ void MainWindow::rings() {
     QByteArray ba = filenamelocal.toLocal8Bit();
     char *filename = ba.data();
     flag=flag-(flag%100)+8;  // last two digits of flag=8;
-    m_GLwidget_secondwindow->DataPrint(filename);
+    m_GLwidget->DataPrint(filename);
 
     // would be better if calcs could be done here instead of in janus, or at least call WriteCenter?
 

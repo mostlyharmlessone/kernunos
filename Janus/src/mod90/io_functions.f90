@@ -253,7 +253,7 @@ subroutine rcnvrtp(TestData,filename,read_error)
 !               endif
                endif  
 
-               if (somecharacter.eq.'[PUPIL]'.and.(TestData .ge. 4)) then  !_CUR.CSV or _ELE.CSV
+               if (somecharacter.eq.'[PUPIL]'.and.(TestData .ge. 4)) then  ! _CUR.CSV or _ELE.CSV
                  read(unitno1,*,iostat=readerr) someline
                  read(unitno1,*,iostat=readerr) someline
                  somecharacter=replacestr(string=someline,search=";",substitute=",")
@@ -270,7 +270,7 @@ subroutine rcnvrtp(TestData,filename,read_error)
                  end do
                endif
 
-               if (somecharacter.eq.'[PUPIL]'.and.(TestData .le. 3)) then  !.CUR or .ELE
+               if (somecharacter.eq.'[PUPIL]'.and.(TestData .le. 3)) then  ! .CUR or .ELE
                  read(unitno1,*,iostat=readerr) someline
                  read(unitno1,*,iostat=readerr) someline
                  somecharacter=replacestr(string=someline,search="=",substitute=", ")
