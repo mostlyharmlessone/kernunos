@@ -59,6 +59,10 @@ extern std::vector<GLuint> Elements;
 extern std::vector<GLfloat> Vertices;
 extern GLfloat* vertices;
 extern GLuint* elements;
+extern std::vector<GLuint> Elements2;
+extern std::vector<GLfloat> Vertices2;
+extern GLfloat* vertices2;
+extern GLuint* elements2;
 
 extern "C" {
 void janus_(int *flag,char *filename,GLuint *elements,GLfloat *vertices,float *legend,float *zern,int *nV,int *nE,int *nL,int *nZ); // needs an underscore despite c_interface.f90 bind C declaration
@@ -434,10 +438,10 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     QOpenGLShaderProgram *shaderNormalProgram = nullptr;
     QMatrix4x4 projectionMatrix;
     QMatrix4x4 mViewMatrix;
-    bool LoadSurfaceToBuffer(int nV, int nE, GLfloat *vertices, GLuint *elements);
+    bool LoadSurfaceToBuffer(int nV, int nE, GLuint vertexbuffer,  GLuint elementbuffer, GLfloat *vertices, GLuint *elements);
 
-    GLuint elementbuffer;
-    GLuint vertexbuffer;
+    GLuint elementbuffers[2];
+    GLuint vertexbuffers[2];
     int timerID;
 
     void setupVertexAttribs();
@@ -450,6 +454,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     int m_projMatrixLoc = 0;
     int m_viewMatrixLoc = 0;
     int m_lightPosLoc = 0;
+    int m_alphaLoc = 0;
     QMatrix4x4 m_camera;
     QMatrix4x4 m_world;
     static bool m_transparent;

@@ -25,6 +25,10 @@ extern std::vector<GLuint> Elements;
 extern std::vector<GLfloat> Vertices;
 extern GLfloat* vertices;
 extern GLuint* elements;
+extern std::vector<GLuint> Elements2;
+extern std::vector<GLfloat> Vertices2;
+extern GLfloat* vertices2;
+extern GLuint* elements2;
 
 extern std::vector<float> legendVector;
 extern float* legend;

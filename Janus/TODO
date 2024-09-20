@@ -2,16 +2,30 @@ things to do
 
 CorneaCopia
 
+incorporated 2nd buffer, holding initial cube
+
 incorporated check/read for EyeSys%PU(MM) and Pupil_Center(2)
 incorporated check/read for Atlas%PU(MM,2) and Pupil_Center(2)
 incorporated check/read for Penta%PU(256,2) and Pupil_Center(2)
 not used yet 
 
+make 3D option for all functions, with scale Z value max and min
+this will affect Geom,WriteGeomPLY/OFF
+
 it is pupil radius; perhaps can be displayed as a black circle
 
-read .CUR if available for .ELE _CUR.CSV for _ELE.CSV for integration check, or cross purpose also
+make cartesian grid display option; convert polar to grid, display pentacam directly
 
 need a automated yet adjustable comparision method between graphs for option "compare" 
+transparency vs wireframe as option for overlay
+//      wireframe         
+         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+//regular         
+         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+
+
+read .CUR if available for .ELE, _CUR.CSV for _ELE.CSV for integration check, or cross purpose also
 
 decentration accomplished with penta data off by one in getArg(); make it (i) or (i+2) to decenter and generate fake astigmatism: 
 Is this reversable with tweaks, and/or can we also fake decentration with reverse tweaks?
@@ -20,9 +34,7 @@ check formula for mean curvature and monge astigmatism and possibly make limit f
 
 plots with gnuplot splot are only has fixed scale for sagc?
 
-make cartesian grid display option; convert polar to grid, display pentacam directly
-make 3D option for all functions, with scale Z value max and min
-this will affect Geom,WriteGeomPLY/OFF
+
 
 incorporate "warp/oblique power" and reading zernike from some atlas files into readme/faq
 probably needs a whole section on corneal topography and "powers" with math definitions
@@ -31,10 +43,6 @@ http://github.com/zserge/beep or get fancy with .ogg
 
 ability to turn stdoutput logging on/off
 change most writes to kernunos log writes
-
-even in fake data: problems computing zernike near boundaries of data, try to stay within rings
-?throw out afterwards, just like x-axis points but without replacement, if necessary replace with radial spline
-in general is a plotting with outlier point problem
 
 try going back to splineeval1dx1d and removing extra calls to splineeval, aka back to trial that spawned current branch
 also try finding a way to use only local natural splines instead of generating whole circular spline and using pspli
@@ -47,10 +55,9 @@ you can run other Analyze ie center gnusplotplot, lioc, and move the picture
 probably can run kernunos but not janus?
 consider adding sound to play after zernike compute, but might need option to turn off
 
-tweak center part of fillin so that there's no blue/blackspot; might need error correct or average?
-
 resurrect old noise reduction code to help out mongeastig and meanc for real data?
 need lapack or open version of numrec fourn:  fftpack
+extreme value filter for scales
 
 centerpoints need explaining, as in why are they non-zero in writecenterj 
 might need centerpoint version for pentacam to incorporate center from Penta,as opposed to computed center average!
@@ -75,12 +82,6 @@ https://github.com/Kolkir/dicomtostl
 https://github.com/drukasz/RTpotter
 https://github.com/mezenc3v/DicomConverter
 https://github.com/MGensheimer/mask-to-mesh/blob/master/dicom_mask_to_stl_mesh.m
-
-extreme value filter for scales
-resurrect old noise reduction code?
-need lapack or open version of numrec fourn:  fftpack
-
-might need gnuplot interface consolidation of methods
 
 GEOM/WriteGeomPLY/WriteGeomOFF make extra out of range points (unreferenced vertices).. fix?
 have to recount all the zero vertices, renumber them and reassign faces, ouch, perhaps as an export option, need a separate routine to clean vertices

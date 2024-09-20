@@ -91,15 +91,10 @@ static const GLchar* fragmentColor = R"glsl(
     #version 330 core
     out vec4 fragColor;
     in vec3 outColor;
-    in vec3 vert;
-    in vec3 vertNormal;
-    uniform vec3 lightPos;
+    uniform vec4 alpha;
     void main()
     {
-      vec3 L = normalize(lightPos - vert);
-      float NL = max(dot(normalize(vertNormal), L), 0.0);
-      vec3 col = clamp(outColor * 0.2 + outColor * 0.8 * NL, 0.0, 1.0);
-      fragColor = vec4(outColor, 1.0);   //doesn't chnage the color based on normals
+      fragColor = vec4(outColor, 0.0) + alpha;
     }
 )glsl";
 
@@ -118,6 +113,7 @@ static const GLchar* fragmentColorNormal = R"glsl(
       fragColor = vec4(col, 1.0);
     }
 )glsl";
+
 
 // defaults
 bool GLwidget::m_transparent = false;
@@ -186,8 +182,10 @@ void GLwidget::cleanup()
   if (shaderProgram == nullptr)
             return;
   makeCurrent();
-  glDeleteBuffers(1, &vertexbuffer);
-  glDeleteBuffers(1,&elementbuffer);
+  glDeleteBuffers(1, &vertexbuffers[0]);
+  glDeleteBuffers(1,&elementbuffers[0]);
+  glDeleteBuffers(1, &vertexbuffers[1]);
+  glDeleteBuffers(1,&elementbuffers[1]);
   killTimer(timerID);
   delete shaderProgram;
   shaderProgram = nullptr;
@@ -229,9 +227,8 @@ void GLwidget::initializeGL()
 
   glClearColor(0.2f, 0.3f, 0.3f, m_transparent ? 0 : 1);
 
-  // Enable depth test
+  // Enable depth test; Accept fragment if it is closer to the camera than the former one
   glEnable(GL_DEPTH_TEST);
-  // Accept fragment if it is closer to the camera than the former one
   glDepthFunc(GL_LESS);
 
   shaderProgram = new QOpenGLShaderProgram;
@@ -288,9 +285,11 @@ void GLwidget::initializeGL()
   m_viewMatrixLoc = shaderProgram->uniformLocation("mMVP");
   m_projMatrixLoc = shaderProgram->uniformLocation("projectionMatrix");
   m_lightPosLoc = shaderProgram->uniformLocation("lightPos");
+  m_alphaLoc = shaderProgram->uniformLocation("alpha");
 
   // Light position is fixed
   shaderProgram->setUniformValue(m_lightPosLoc, QVector3D(0, 0, 1000));
+  shaderProgram->setUniformValue(m_alphaLoc, QVector4D(0,0,0,1.0));
   shaderProgram->release();
 
   //set light/normal shader program up
@@ -321,10 +320,12 @@ void GLwidget::initializeGL()
   shaderGeoProgram->setUniformValue(m_lightPosLoc, QVector3D(0, 0, 1000));
   shaderGeoProgram->release();
 
-  // Create a Vertex Buffer Object
-  glGenBuffers(1, &vertexbuffer);
-  // Create an element array
-  glGenBuffers(1, &elementbuffer);
+  // Create buffers
+  for (int i=0; i <= 1; i++)
+  {
+  glGenBuffers(1, &vertexbuffers[i]);
+  glGenBuffers(1, &elementbuffers[i]);
+  }
 }
 
 bool GLwidget::DataPrint(QString fileName)
@@ -416,9 +417,11 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
       // and void*_builtin_memcpy(void*,const void*,long unsigned int) reading 292 bytes froma region of size 288 (or 148 from 144 in the elements loop)
       for (int i=0; i<= nV; ++i){
       vertices[i]=cube_vertices[i];
+      vertices2[i]=cube_vertices[i];
       }
       for (int i=0; i<= nE; ++i){
       elements[i]=cube_elements[i];
+      elements2[i]=cube_elements[i];
       }
       // USS starting values
       //
@@ -565,7 +568,7 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
 }
 
 
-bool GLwidget::LoadSurfaceToBuffer(int nV, int nE, GLfloat* vertices, GLuint* elements)
+bool GLwidget::LoadSurfaceToBuffer(int nV, int nE, GLuint vertexbuffer, GLuint elementbuffer, GLfloat* vertices, GLuint* elements)
 {
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
     GLint data_size_in_bytes = sizeof(GLfloat)*nV;                              // 4-bytes per float x number of vertices
@@ -613,22 +616,41 @@ void GLwidget::paintGL(void)
 {
     if ( !success ) return;  //not until shaders are built
     if ( !paintme ) return;  //not until nV, nE, vertices, elements are loaded
-//     if ( !loaded ) return;  //not until nV, nE, vertices, elements are loaded
-    if (!LoadSurfaceToBuffer(nV, nE, vertices, elements)) return;
 
     // Clear the screen
+    if(!m_normal) {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);   //incompatible with normals
+        //glBlendFunc(GL_ONE, GL_ONE);
+        glBlendEquation(GL_FUNC_ADD);
+        //glBlendEquation(GL_FUNC_SUBTRACT);
+    } else{ glDisable(GL_BLEND);}
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    for (int i=0; i <= 1; i++)
+    {
  // Bind buffers
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffers[i]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffers[i]);
+    //kludgy
+    m_world.setToIdentity();
+    QMatrix4x4 mMVP;
+    QVector4D m_alpha = QVector4D(0,0,0,0.5);
+    if (i == 0){
+    if (!LoadSurfaceToBuffer(nV, nE, vertexbuffers[i], elementbuffers[i], vertices, elements)) return;
     m_world.setToIdentity();
     m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
     m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
     m_world.rotate(m_zRot / 16.0f, 0, 0, 1);
-    QMatrix4x4 mMVP =  mViewMatrix  * m_world;
-
+    mMVP =  mViewMatrix  * m_world;
+    }else{
+    if (!LoadSurfaceToBuffer(nV, nE, vertexbuffers[i], elementbuffers[i], vertices2, elements2)) return;
+    mMVP.setToIdentity();
+    mMVP.scale(QVector3D(0.005,0.005,0.005));
+    mMVP.translate(QVector3D(0,0,-1000));
+    m_alpha = QVector4D(0,0,0,1.0);
+    }
     // Use shader or shaderNormal
     if (m_lighting) {
     shaderNormalProgram->bind();
@@ -644,6 +666,7 @@ void GLwidget::paintGL(void)
     // Send our transformation to the currently bound shader,
     // in the "mMVP" uniform
     shaderProgram->setUniformValue(m_viewMatrixLoc, mMVP);
+    shaderProgram->setUniformValue(m_alphaLoc, m_alpha);
     shaderProgram->setUniformValue(m_projMatrixLoc, projectionMatrix);
     glDrawElements(GL_TRIANGLES, nE, GL_UNSIGNED_INT, 0);
     // Unbind shader
@@ -656,14 +679,16 @@ void GLwidget::paintGL(void)
     // in the "mMVP" uniform
     shaderGeoProgram->setUniformValue(m_viewMatrixLoc, mMVP);
     shaderGeoProgram->setUniformValue(m_projMatrixLoc, projectionMatrix);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, nE);  //nV?
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, nE);
     // Unbind shader
     shaderGeoProgram->release();
     };
 
     // Unbind buffers
-    glBindBuffer(vertexbuffer,0);
-    glBindBuffer(elementbuffer,0);
+    glBindBuffer(vertexbuffers[i],0);
+    glBindBuffer(elementbuffers[i],0);
+    }
+
 }
 
 // refreshes the window

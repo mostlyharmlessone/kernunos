@@ -174,6 +174,10 @@ std::vector<GLuint> Elements(26130);
 std::vector<GLfloat> Vertices(51840);
 GLfloat* vertices = Vertices.data();
 GLuint* elements = Elements.data();
+std::vector<GLuint> Elements2(26130);
+std::vector<GLfloat> Vertices2(51840);
+GLfloat* vertices2 = Vertices2.data();
+GLuint* elements2 = Elements2.data();
 
 int nL = 26*4;
 std::vector<float> legendVector(nL);  //26 colors =  1 value + 3 rgbv (value,rgbv)
