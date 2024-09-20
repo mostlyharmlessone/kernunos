@@ -223,14 +223,13 @@ void GLwidget::initializeGL()
   sglVer += reinterpret_cast<const char *>(GLvendor);
   sglVer += "\nRenderer: ";
   sglVer += reinterpret_cast<const char *>(GLrenderer);
-  m_parent->SetGLString(sglVer);
 
   glClearColor(0.2f, 0.3f, 0.3f, m_transparent ? 0 : 1);
-
   // Enable depth test; Accept fragment if it is closer to the camera than the former one
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
 
+  m_parent->SetGLString(sglVer);
   shaderProgram = new QOpenGLShaderProgram;
   shaderGeoProgram = new QOpenGLShaderProgram;
   shaderNormalProgram = new QOpenGLShaderProgram;
@@ -265,7 +264,6 @@ void GLwidget::initializeGL()
     std::cout << "DID NOT compile fragment shader" << std::endl;
     QWidget::close();
    }
-
   // proper distance & scale for cube
   mViewMatrix.setToIdentity();
   mViewMatrix.scale(QVector3D(0.005,0.005,0.005));
@@ -399,7 +397,11 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
 
       // blocks!
       // Start the computation.
+      if ((flag%100) == 10) {
+      futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements2,vertices2,legend,zern,&nV,&nE,&nL,&nZ);}));
+      } else {
       futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);}));
+      }
       // Display the dialog and start the event loop.
       dialog.exec();
       futureWatcher.waitForFinished();
@@ -417,11 +419,11 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
       // and void*_builtin_memcpy(void*,const void*,long unsigned int) reading 292 bytes froma region of size 288 (or 148 from 144 in the elements loop)
       for (int i=0; i<= nV; ++i){
       vertices[i]=cube_vertices[i];
-      vertices2[i]=cube_vertices[i];
+     // vertices2[i]=cube_vertices[i];
       }
       for (int i=0; i<= nE; ++i){
       elements[i]=cube_elements[i];
-      elements2[i]=cube_elements[i];
+     // elements2[i]=cube_elements[i];
       }
       // USS starting values
       //
@@ -561,9 +563,7 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
       legend[100]=30;
 
      }
-
     paintme=true;
-
   return true;
 }
 
@@ -617,16 +617,21 @@ void GLwidget::paintGL(void)
     if ( !success ) return;  //not until shaders are built
     if ( !paintme ) return;  //not until nV, nE, vertices, elements are loaded
 
-    // Clear the screen
+    // Clear the screen    
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     if(!m_normal) {
         glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);   //incompatible with normals
-        //glBlendFunc(GL_ONE, GL_ONE);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);   //incompatible with showing normals
+        //glBlendFunc(GL_ONE, GL_ONE);                      //this is relative to self and background but not the other object
         glBlendEquation(GL_FUNC_ADD);
         //glBlendEquation(GL_FUNC_SUBTRACT);
     } else{ glDisable(GL_BLEND);}
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //wireframe
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    //regular
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     for (int i=0; i <= 1; i++)
     {
@@ -638,24 +643,22 @@ void GLwidget::paintGL(void)
     QMatrix4x4 mMVP;
     QVector4D m_alpha = QVector4D(0,0,0,0.5);
     if (i == 0){
-    if (!LoadSurfaceToBuffer(nV, nE, vertexbuffers[i], elementbuffers[i], vertices, elements)) return;
-    m_world.setToIdentity();
-    m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
-    m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
-    m_world.rotate(m_zRot / 16.0f, 0, 0, 1);
-    mMVP =  mViewMatrix  * m_world;
-    }else{
-    if (!LoadSurfaceToBuffer(nV, nE, vertexbuffers[i], elementbuffers[i], vertices2, elements2)) return;
-    mMVP.setToIdentity();
-    mMVP.scale(QVector3D(0.005,0.005,0.005));
-    mMVP.translate(QVector3D(0,0,-1000));
-    m_alpha = QVector4D(0,0,0,1.0);
+     if (!LoadSurfaceToBuffer(nV, nE, vertexbuffers[i], elementbuffers[i], vertices2, elements2)) return;
+     mMVP.setToIdentity();
+     mMVP.scale(QVector3D(0.005,0.005,0.005));
+     mMVP.translate(QVector3D(0,0,-1000));
+     m_alpha = QVector4D(0,0,0,1.0);
+    } else {
+     if (!LoadSurfaceToBuffer(nV, nE, vertexbuffers[i], elementbuffers[i], vertices, elements)) return;
+     m_world.setToIdentity();
+     m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
+     m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
+     m_world.rotate(m_zRot / 16.0f, 0, 0, 1);
+     mMVP =  mViewMatrix  * m_world;
     }
     // Use shader or shaderNormal
     if (m_lighting) {
     shaderNormalProgram->bind();
-    // Send our transformation to the currently bound shader,
-    // in the "mMVP" uniform
     shaderNormalProgram->setUniformValue(m_viewMatrixLoc, mMVP);
     shaderNormalProgram->setUniformValue(m_projMatrixLoc, projectionMatrix);
     glDrawElements(GL_TRIANGLES, nE, GL_UNSIGNED_INT, 0);
@@ -663,9 +666,8 @@ void GLwidget::paintGL(void)
     shaderNormalProgram->release();
     } else {
     shaderProgram->bind();
-    // Send our transformation to the currently bound shader,
-    // in the "mMVP" uniform
     shaderProgram->setUniformValue(m_viewMatrixLoc, mMVP);
+    //only the regular shader has the adjustable transparency for one buffer
     shaderProgram->setUniformValue(m_alphaLoc, m_alpha);
     shaderProgram->setUniformValue(m_projMatrixLoc, projectionMatrix);
     glDrawElements(GL_TRIANGLES, nE, GL_UNSIGNED_INT, 0);
@@ -675,8 +677,6 @@ void GLwidget::paintGL(void)
     // draw normals here
     if (m_normal) {
     shaderGeoProgram->bind();
-    // Send our transformation to the currently bound shader,
-    // in the "mMVP" uniform
     shaderGeoProgram->setUniformValue(m_viewMatrixLoc, mMVP);
     shaderGeoProgram->setUniformValue(m_projMatrixLoc, projectionMatrix);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, nE);

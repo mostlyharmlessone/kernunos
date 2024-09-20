@@ -2,7 +2,14 @@ things to do
 
 CorneaCopia
 
+need a automated yet adjustable comparision method between graphs for option "compare" 
+transparency vs wireframe as option for overlay
 incorporated 2nd buffer, holding initial cube
+
+issues: have to set "compare" buffer prior to open, and if you change it, you have to do it twice,
+ReDraw affects only the last thing loaded; so if you opn, then, compare and redraw-> it affects open, and compare is still white
+
+make a third buffer for pupil
 
 incorporated check/read for EyeSys%PU(MM) and Pupil_Center(2)
 incorporated check/read for Atlas%PU(MM,2) and Pupil_Center(2)
@@ -15,15 +22,6 @@ this will affect Geom,WriteGeomPLY/OFF
 it is pupil radius; perhaps can be displayed as a black circle
 
 make cartesian grid display option; convert polar to grid, display pentacam directly
-
-need a automated yet adjustable comparision method between graphs for option "compare" 
-transparency vs wireframe as option for overlay
-//      wireframe         
-         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-//regular         
-         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-
 
 read .CUR if available for .ELE, _CUR.CSV for _ELE.CSV for integration check, or cross purpose also
 
