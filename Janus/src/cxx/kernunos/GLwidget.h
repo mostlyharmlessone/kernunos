@@ -64,8 +64,16 @@ extern std::vector<GLfloat> Vertices2;
 extern GLfloat* vertices2;
 extern GLuint* elements2;
 
+extern int pupil_nV;
+extern int pupil_nE;
+extern std::vector<GLuint> pupil_Elements;
+extern std::vector<GLfloat> pupil_Vertices;
+extern GLfloat* pupil_vertices;
+extern GLuint* pupil_elements;
+
 extern "C" {
-void janus_(int *flag,char *filename,GLuint *elements,GLfloat *vertices,float *legend,float *zern,int *nV,int *nE,int *nL,int *nZ); // needs an underscore despite c_interface.f90 bind C declaration
+void janus_(int *flag,char *filename,GLuint *elements,GLfloat *vertices,float *legend,float *zern,int *nV,int *nE,int *nL,int *nZ,GLuint *pupil_elements,GLfloat *pupil_vertices,int *pupil_nV, int *pupil_nE);
+// needs an underscore despite c_interface.f90 bind C declaration
 };
 
 extern QString *m_GLString;
@@ -440,8 +448,8 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     QMatrix4x4 mViewMatrix;
     bool LoadSurfaceToBuffer(int nV, int nE, GLuint vertexbuffer,  GLuint elementbuffer, GLfloat *vertices, GLuint *elements);
 
-    GLuint elementbuffers[2];
-    GLuint vertexbuffers[2];
+    GLuint elementbuffers[3];
+    GLuint vertexbuffers[3];
     int timerID;
 
     void setupVertexAttribs();

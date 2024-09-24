@@ -37,6 +37,18 @@ module io_functions
      integer(c_int), INTENT(INOUT) :: flag, nL
     end subroutine
 
+    subroutine Pupil(b, dist, pupil_elements, pupil_vertices, pupil_nV, pupil_nE)
+    use cornea_arrays, ONLY : wpJMatrix
+    use set_precision, ONLY : wp
+    use, intrinsic :: iso_c_binding, ONLY : c_float,c_int
+    use, intrinsic ::  ieee_arithmetic
+    use ISO_FORTRAN_ENV, only: stdin=>input_unit     ! for the pause read(stdin,*)
+    TYPE(wpJMatrix),INTENT(IN) :: b
+    integer(c_int), INTENT(INOUT) :: pupil_elements(*)                          ! faces x 3
+    real(c_float), INTENT(INOUT) :: pupil_vertices(*), dist                     ! vertices x 6
+    integer(c_int), INTENT(INOUT) :: pupil_nE, pupil_nV
+    end subroutine
+
     subroutine rcnvrta(KXNAME,N,read_error)
      USE set_precision, ONLY : wp
      USE cornea_arrays, ONLY : Atlas, PI
@@ -239,7 +251,7 @@ subroutine rcnvrtp(TestData,filename,read_error)
                  if (TestData.eq.5) then !this works with getArg for _CUR.CSV
                   line=somecharacter
                   do i=1,NP
-                   Penta%DAT(k,i) = getArg(i+1)
+                   Penta%DAT(k,i) = getArg(i+1)   !can change to i or i+2 to simulate decentering here and below
                   end do
                   endif
                   if (TestData.eq.4) then !this works with getArg for _ELE.CSV
@@ -252,59 +264,64 @@ subroutine rcnvrtp(TestData,filename,read_error)
 !                write(*,*) Penta%DAT(k,:)
 !               endif
                endif  
-
-               if (somecharacter.eq.'[PUPIL]'.and.(TestData .ge. 4)) then  ! _CUR.CSV or _ELE.CSV
-                 read(unitno1,*,iostat=readerr) someline
-                 read(unitno1,*,iostat=readerr) someline
-                 somecharacter=replacestr(string=someline,search=";",substitute=",")
-                 read(somecharacter,*,iostat=readerr) someline,Penta%Pupil_Center(1)
-                 read(unitno1,*,iostat=readerr) someline
-                 somecharacter=replacestr(string=someline,search=";",substitute=",")
-                 read(somecharacter,*,iostat=readerr) someline,Penta%Pupil_Center(2)
-                 read(unitno1,*,iostat=readerr) someline
-                 read(unitno1,*,iostat=readerr) someline
-                 do k=1,256
-                  read(unitno1,*,iostat=readerr) someline
-                  somecharacter=replacestr(string=someline,search=";",substitute=",")
-                  read(somecharacter,*,iostat=readerr) Penta%PU(k,1),Penta%PU(k,2)
-                 end do
-               endif
-
-               if (somecharacter.eq.'[PUPIL]'.and.(TestData .le. 3)) then  ! .CUR or .ELE
-                 read(unitno1,*,iostat=readerr) someline
-                 read(unitno1,*,iostat=readerr) someline
-                 somecharacter=replacestr(string=someline,search="=",substitute=", ")
-                 read(somecharacter,*,iostat=readerr) someline,Penta%Pupil_Center(1)
-                 read(unitno1,*,iostat=readerr) someline
-                 somecharacter=replacestr(string=someline,search="=",substitute=", ")
-                 read(somecharacter,*,iostat=readerr) someline,Penta%Pupil_Center(2)
-                 read(unitno1,*,iostat=readerr) someline
-                 somecharacter=replacestr(string=someline,search="=",substitute=", ")
-                 read(somecharacter,*,iostat=readerr) someline,meridians
-                 if (size(Penta%PU,1) .ne. meridians) then
-                  write(*,*) 'Size mismatch in pupil meridians, 256 expected'
-                 else
-                 read(unitno1,*,iostat=readerr) someline
-                 somecharacter=replacestr(string=someline,search="=",substitute=", ")
-                 read(somecharacter,*,iostat=readerr) someline,Penta%PU(:,1)
-                 read(unitno1,*,iostat=readerr) someline
-                 somecharacter=replacestr(string=someline,search="=",substitute=", ")
-                 read(somecharacter,*,iostat=readerr) someline,Penta%PU(:,2)
-                 endif
-               endif
-
              else
 !                  write(*,*) 'Read ',k-1,' rows from ',trim(filename)
 !                  do k=1,NP
 !                   write (*,*) 'Matrix ',k-1,'= ',Penta%DAT(:,k)
 !                  end do
-               exit  ! End of data         
-             endif        
+!             End of cornea data
+             endif
+
+             if (somecharacter(1:7).eq.'[PUPIL]') then
+              if (TestData .ge. 4) then  ! _CUR.CSV or _ELE.CSV
+               write(*,*) 'Found pupil data in Penta _CUR.CSV or _ELE.CSV'
+               read(unitno1, '(A)', iostat=readerr) someline
+               read(unitno1, '(A)', iostat=readerr) someline
+               somecharacter=replacestr(string=someline,search=";",substitute=",")
+               read(somecharacter,*,iostat=readerr) someline,Penta%Pupil_Center(1)
+               read(unitno1, '(A)', iostat=readerr) someline
+               somecharacter=replacestr(string=someline,search=";",substitute=",")
+               read(somecharacter,*,iostat=readerr) someline,Penta%Pupil_Center(2)
+               read(unitno1, '(A)', iostat=readerr) someline
+               read(unitno1, '(A)', iostat=readerr) someline
+               do k=1,256
+                read(unitno1, '(A)', iostat=readerr) someline
+                somecharacter=replacestr(string=someline,search=";",substitute=",")
+                read(somecharacter,*,iostat=readerr) Penta%PU(k,1),Penta%PU(k,2)
+               end do
+              endif
+             else
+              if (TestData .le. 3) then  ! .CUR or .ELE
+               write(*,*) 'Found pupil data in Penta .CUR or .ELE'
+               read(unitno1, '(A)', iostat=readerr) someline
+               read(unitno1, '(A)', iostat=readerr) someline
+               somecharacter=replacestr(string=someline,search="=",substitute=", ")
+               read(somecharacter,*,iostat=readerr) someline,Penta%Pupil_Center(1)
+               read(unitno1, '(A)', iostat=readerr) someline
+               somecharacter=replacestr(string=someline,search="=",substitute=", ")
+               read(somecharacter,*,iostat=readerr) someline,Penta%Pupil_Center(2)
+               read(unitno1, '(A)', iostat=readerr) someline
+               somecharacter=replacestr(string=someline,search="=",substitute=", ")
+               read(somecharacter,*,iostat=readerr) someline,meridians
+               if (size(Penta%PU,1) .ne. meridians) then
+                write(*,*) 'Size mismatch in pupil meridians, 256 expected'
+               else
+               read(unitno1, '(A)', iostat=readerr) someline
+                somecharacter=replacestr(string=someline,search="=",substitute=", ")
+                read(somecharacter,*,iostat=readerr) someline,Penta%PU(:,1)
+               read(unitno1, '(A)', iostat=readerr) someline
+                somecharacter=replacestr(string=someline,search="=",substitute=", ")
+                read(somecharacter,*,iostat=readerr) someline,Penta%PU(:,2)
+               endif
+              endif
+             endif
+            if (somecharacter(1:4).eq.'HWTW' .or. somecharacter(1:4).eq.'CRC3') exit  ! End of data
+
            end do 
            endif
-         else                       
+         else
            exit  !EOF
-         endif        
+         endif
       end do  
       close(unitno1) 
 !     First column is invalid for _CUR.CSV and _ELE.CSV files, does no harm for .ELE and .CUR
@@ -494,7 +511,7 @@ subroutine rcnvrta_type(KXNAME,N,read_error)
  use io_functions, only : get_new_fileunit
  implicit none
  logical :: exists
- CHARACTER(80) KH1,KH2
+ CHARACTER(80) KH1,KH2,KH3
  character(len=*), intent(in) :: KXNAME
  integer, intent(out) :: N, read_error
  INTEGER :: K,io,unitno,ierr
@@ -573,7 +590,7 @@ subroutine rcnvrta(KXNAME,N,read_error)
     K=0
     DO 
        K=K+1        
-       READ(unitno,*,END=100,IOSTAT=io) KH1
+       READ(unitno,'(A)',END=100,IOSTAT=io) KH1
         IF(io.GT.0) THEN
          WRITE(*,*) 'I/O ERROR ON INPUT ATLAS FILE',io, 'line',K  !possibly it's the first semicolon, try sed in janus
          read_error=1
@@ -581,7 +598,7 @@ subroutine rcnvrta(KXNAME,N,read_error)
         ENDIF
 
         IF (K .eq. 1) THEN
-         IF (KH1.EQ.'#ATLAS')THEN
+         IF (KH1(1:6).EQ.'#ATLAS')THEN
           WRITE(*,*) 'Atlas header read'
          else
           WRITE(*,*) 'ERROR - Could not read Atlas header'
@@ -651,28 +668,39 @@ subroutine rcnvrta(KXNAME,N,read_error)
          ENDIF
         ENDIF
 
-        IF (KH1.EQ.'Pupil_Data_Point') THEN
-         READ(unitno,*,END=100,IOSTAT=io) KH1,Atlas%Pupil_Center(1)
-         READ(unitno,*,END=100,IOSTAT=io) KH1,Atlas%Pupil_Center(2)
-         READ(unitno,*,END=100,IOSTAT=io) KH1
-         READ(unitno,*,END=100,IOSTAT=io) KH1
-         READ(unitno,*,END=100,IOSTAT=io) KH1
-         READ(unitno,*,END=100,IOSTAT=io) KH1
-         READ(unitno,*,END=100,IOSTAT=io) KH1
-         READ(unitno,*,END=100,IOSTAT=io) KH1
-         DO I=1,MM
-          READ(unitno,*,END=100,IOSTAT=io) ITH,Atlas%PU(I,1),Atlas%PU(I,2)
-          if (ITH.NE.(I-1)) then
-           WRITE(*,*) 'ATLAS PUPIL READ ERROR'
-           read_error=7
-           goto 100
-          endif
-         END DO
+        IF (KH1.EQ.'#End_Table') THEN
+         READ(unitno,*,END=100,IOSTAT=io) KH2,ITH
+         IF (KH2 .eq. "Pupil_Data_Point") THEN
+          write(*,*) 'Found Atlas Pupil data'
+          READ(unitno,*,IOSTAT=io) KH1,Atlas%Pupil_Center(1)
+          READ(unitno,*,IOSTAT=io) KH1,Atlas%Pupil_Center(2)
+          write(*,*) "Pupil Center",Atlas%Pupil_Center(:)
+          READ(unitno,'(A)',END=100,IOSTAT=io) KH1
+          READ(unitno,'(A)',END=100,IOSTAT=io) KH1
+          READ(unitno,'(A)',END=100,IOSTAT=io) KH1
+          READ(unitno,'(A)',END=100,IOSTAT=io) KH1
+          READ(unitno,'(A)',END=100,IOSTAT=io) KH1
+          READ(unitno,'(A)',END=100,IOSTAT=io) KH1
+          DO I=1,MM
+           READ(unitno,*,END=100,IOSTAT=io) ITH,Atlas%PU(I,1),Atlas%PU(I,2)
+           if (ITH.NE.(I-1)) then
+            WRITE(*,*) 'ATLAS PUPIL READ ERROR'
+            read_error=7
+            goto 100
+           endif
+          END DO
+         ENDIF
         ENDIF
 
         IF (KH1.EQ.'#End_Table') THEN
-         READ(unitno,*,END=100,IOSTAT=io) KH1,KH2,ITH
-         IF (KH1.EQ.'Zernike') THEN
+         BACKSPACE 1
+         READ(unitno,*,IOSTAT=io) KH1,KH2,ITH
+         IF (KH1(1:7) .EQ. 'Zernike') THEN
+          if (ITH .lt. 0 .or. ITH .gt. 7) then
+           WRITE(*,*) 'ZERNIKE READ ERROR'
+           read_error=9
+           goto 100
+          endif
           WRITE(*,*) 'Zernike coefficients present, order',ITH
           if (ITH .eq. 7) JTH=35
           if (ITH .eq. 6) JTH=27
@@ -683,14 +711,14 @@ subroutine rcnvrta(KXNAME,N,read_error)
           if (ITH .eq. 1) JTH=2
           if (ITH .eq. 0) JTH=0
           READ(unitno,*,END=100,IOSTAT=io) KH1,KH2,KH3,Z
-          WRITE(*,*) 'Zernike Fit Zone',Z
+!          WRITE(*,*) 'Zernike Fit Zone',Z
           READ(unitno,*,END=100,IOSTAT=io) KH1,KH2
           READ(unitno,*,END=100,IOSTAT=io) KH1,I,Z
           JMatrix%ZC0(1,7)=Z
           DO K=1,JTH
            READ(unitno,*,END=100,IOSTAT=io) KH1,I,J,Z
 !          only store the 4th order Zernikes at this point for display, uncomment to write all to log
-!           WRITE(*,*) trim(KH1),I,J,Z
+!          WRITE(*,*) trim(KH1),I,J,Z
            if (I .eq. 1 .and. J .eq. 1 ) JMatrix%ZC0(1,10)=Z
            if (I .eq. 1 .and. J .eq. -1 ) JMatrix%ZC0(1,5)=Z
            if (I .eq. 2 .and. J .eq. -2 ) JMatrix%ZC0(1,3)=Z

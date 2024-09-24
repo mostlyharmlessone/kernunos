@@ -319,7 +319,7 @@ void GLwidget::initializeGL()
   shaderGeoProgram->release();
 
   // Create buffers
-  for (int i=0; i <= 1; i++)
+  for (int i=0; i <= 2; i++)
   {
   glGenBuffers(1, &vertexbuffers[i]);
   glGenBuffers(1, &elementbuffers[i]);
@@ -337,10 +337,10 @@ bool GLwidget::DataPrint(QString fileName)
     nE=26130;
 
     if (!((flag%100) == 1)){
-      auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);});  //everybody else gets blocking thread
+      auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});  //everybody else gets blocking thread
       future1.get();}    
     else {
-      std::thread([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);}).detach();}  //zern gets independent thread
+      std::thread([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);}).detach();}  //zern gets independent thread
   }
   return true;
 }
@@ -398,9 +398,9 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
       // blocks!
       // Start the computation.
       if ((flag%100) == 10) {
-      futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements2,vertices2,legend,zern,&nV,&nE,&nL,&nZ);}));
+      futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);}));
       } else {
-      futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);}));
+      futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);}));
       }
       // Display the dialog and start the event loop.
       dialog.exec();
@@ -633,7 +633,7 @@ void GLwidget::paintGL(void)
     //regular
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    for (int i=0; i <= 1; i++)
+    for (int i=0; i <= 2; i++)
     {
  // Bind buffers
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffers[i]);
@@ -642,13 +642,14 @@ void GLwidget::paintGL(void)
     m_world.setToIdentity();
     QMatrix4x4 mMVP;
     QVector4D m_alpha = QVector4D(0,0,0,0.5);
-    if (i == 0){
+    if (i == 1) {
      if (!LoadSurfaceToBuffer(nV, nE, vertexbuffers[i], elementbuffers[i], vertices2, elements2)) return;
      mMVP.setToIdentity();
      mMVP.scale(QVector3D(0.005,0.005,0.005));
      mMVP.translate(QVector3D(0,0,-1000));
      m_alpha = QVector4D(0,0,0,1.0);
-    } else {
+    }
+    if (i == 2) {
      if (!LoadSurfaceToBuffer(nV, nE, vertexbuffers[i], elementbuffers[i], vertices, elements)) return;
      m_world.setToIdentity();
      m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
@@ -656,6 +657,26 @@ void GLwidget::paintGL(void)
      m_world.rotate(m_zRot / 16.0f, 0, 0, 1);
      mMVP =  mViewMatrix  * m_world;
     }
+
+    if (i == 0) {
+     if(!LoadSurfaceToBuffer(pupil_nV, pupil_nE, vertexbuffers[i], elementbuffers[i], pupil_vertices, pupil_elements)) return;
+     m_world.setToIdentity();
+     m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
+     m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
+     m_world.rotate(m_zRot / 16.0f, 0, 0, 1);
+     mMVP =  mViewMatrix  * m_world;
+     m_alpha = QVector4D(0,0,0,1.0);
+     shaderProgram->bind();
+     shaderProgram->setUniformValue(m_viewMatrixLoc, mMVP);
+     //only the regular shader has the adjustable transparency for one buffer
+     shaderProgram->setUniformValue(m_alphaLoc, m_alpha);
+     shaderProgram->setUniformValue(m_projMatrixLoc, projectionMatrix);
+     glDrawElements(GL_TRIANGLES, pupil_nE, GL_UNSIGNED_INT, 0);
+     // Unbind shader
+     shaderProgram->release();
+    }
+
+    if (i > 0) {
     // Use shader or shaderNormal
     if (m_lighting) {
     shaderNormalProgram->bind();
@@ -687,6 +708,7 @@ void GLwidget::paintGL(void)
     // Unbind buffers
     glBindBuffer(vertexbuffers[i],0);
     glBindBuffer(elementbuffers[i],0);
+    }
     }
 
 }

@@ -25,7 +25,7 @@
        quad = .FALSE.
        if (donut .AND. quad) then
         write(*,*) 'WriteGeom: Cannot have closed disk with quadrilaterals'
-        stop
+        return
        endif
 !      RGB colors can follow after list of faces       
 !      255 0 0 #red

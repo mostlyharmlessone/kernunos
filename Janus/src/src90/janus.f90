@@ -1,4 +1,4 @@
-  subroutine Janus(flag,file_from_C,elements,vertices,legend,zern,nV,nE,nL,nZ) bind(C,name='janus_')
+  subroutine Janus(flag,file_from_C,elements,vertices,legend,zern,nV,nE,nL,nZ,pupil_elements,pupil_vertices,pupil_nV,pupil_nE) bind(C,name='janus_')
 ! DRIVER PROGRAM FOR SPLINE ROUTINES
   use set_precision, ONLY : wp
   use lapackinterface
@@ -21,10 +21,15 @@
   integer(c_int), INTENT(INOUT) :: nE               
   real(c_float), INTENT(INOUT) :: vertices(*)
   integer(c_int), INTENT(INOUT) :: elements(*)
+  integer(c_int), INTENT(INOUT) :: pupil_nV
+  integer(c_int), INTENT(INOUT) :: pupil_nE
+  real(c_float), INTENT(INOUT) :: pupil_vertices(*)
+  integer(c_int), INTENT(INOUT) :: pupil_elements(*)
   integer(c_int), INTENT(INOUT) :: nL
   real(c_float), INTENT(INOUT) :: legend(*)
   integer(c_int), INTENT(INOUT) :: nZ
   real(c_float), INTENT(INOUT) :: zern(*)
+  real(c_float) :: dist
   character(len=8) :: LinesOfCurv
   character(len=4096) :: new_path
   character(:),save, ALLOCATABLE :: inputfile1,inputfile2,inputfile3,BigPlot,gnu_instruct
@@ -616,6 +621,7 @@ if (mod(flag,100) == 0 .or. mod(flag,100) == 10) then
     endif
     ! always store the last JMatrix in JMatrix1
     JMatrix1%R(:,:)=JMatrix%R(:,:)
+    JMatrix1%PU(:)=JMatrix%PU(:)
     JMatrix1%Z(:,:)=JMatrix%Z(:,:)
     JMatrix1%YPR(:,:)=JMatrix%YPR(:,:)
     JMatrix1%YPTHETA(:,:)=JMatrix%YPTHETA(:,:)
@@ -667,6 +673,11 @@ if (TestData .eq. 0) then
     call RCNVRTE(read_error,inputfile2,inputfile1)
    else
     call RCNVRTE(read_error,inputfile2,inputfile1,inputfile3)
+!   pupil conversion if any
+    JMatrix%Pupil_Center=EyeSys%Pupil_Center
+    do i=1,MM/2
+     JMatrix%PU(i)=(EyeSys%PU(2*i-1)+EyeSys%PU(2*i))/200.
+    end do
    endif
    call CPU_TIME(time_end)
    write(*,*) 'Time to read EyeSys files: ',(time_end-time_start)*1000
@@ -674,6 +685,7 @@ if (TestData .eq. 0) then
   endif  !(mod(flag,100) /= 0,99,2,3 must be 1 or 4, reload the original data
 ! Generate the slope matrix using ZFCT
   RadSlope=EyeSys
+
 endif
 
 ! READ THE ATLAS DATA
@@ -726,6 +738,13 @@ if (TestData .eq. 1) then
   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
  endif
  RadSlope=Atlas
+ ! pupil conversion
+  JMatrix%Pupil_Center=Atlas%Pupil_Center
+  do i=1,MM
+   X1=Atlas%PU(i,1)-Atlas%Pupil_Center(1)
+   X2=Atlas%PU(i,2)-Atlas%Pupil_Center(2)
+   JMatrix%PU(i)=sqrt(X1*X1+X2*X2)*100
+  end do
 endif ! end (TestData == 1)
 
 ! READ THE PENTACAM DATA
@@ -770,6 +789,14 @@ endif ! end (TestData == 1)
    end do
   endif
   JMatrix%Z(:,:) = 0 ; JMatrix%Z0(:) = 0
+  ! pupil conversion, could do whole circular spline here
+   JMatrix%Pupil_Center=Penta%Pupil_Center
+   do i=1,MM
+    j=floor(1.+(i-1)*255/179.0)
+    X1=Penta%PU(j,1)-Penta%Pupil_Center(1)
+    X2=Penta%PU(j,2)-Penta%Pupil_Center(2)
+    JMatrix%PU(i)=sqrt(X1*X1+X2*X2)/100
+   end do
 !!!!!!!!!!to check skyline and spline routines
 !if (TestData.eq.2 .or. TestData.eq.4) then
 ! call CPU_TIME(time_start)
@@ -927,6 +954,35 @@ if (mod(flag,100) .ne. 9 ) then
    write(*,*) 'Atlas avg abs elevation percent error : ',(100*powmax2/k)/powmax
  endif
 
+! copied from atlas above, needs work
+! Penta consistency check and computation of elevation by power vs elevation in file if both available
+if ( .false. ) then
+ k=0 ; powmax2 = 0 ; powmax =0  ! Use these temporarily
+! find max elevation from Atlas file
+ do i=1,M1
+  do j=1,RadSlope%MV(i)
+   if (100*Atlas%AY(i,j) > powmax) powmax=100*Atlas%AY(i,j)
+   end do
+  end do
+! check spline power & elevation at knots
+  do i=1,M1
+   do j=1,RadSlope%MV(i)
+    call SplineEval1Dx1D(iflag,100*Atlas%AD(i,j),PI*(i-1)/90.0_wp,Y,YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
+    call AXIALP(ABS(100*Atlas%AD(i,j)),ABS(YPR),YP2R2,pow)
+!   skip missing elevation points to compute (cumulative) average error
+   if (Atlas%AY(i,j) > 0) then
+     k=k+1
+     powmax2=powmax2+ABS(Y-powmax+100*Atlas%AY(i,j))
+    endif
+!   checks that power at knots is correct at knts
+    if (ABS(Atlas%AP(i,j)-pow) > EPS .and. (Atlas%AP(i,j) .gt. 0) .and. (Atlas%AD(i,j) .gt. 0) .and. (Atlas%AY(i,j) .gt. 0) .AND. (Atlas%AR(i,j) > 0)) then
+     write(*,*) 'Atlas power spline error in janus: ',j,i,Atlas%AP(i,j),pow
+    endif
+   end do
+  end do
+  write(*,*) 'Atlas avg abs elevation percent error : ',(100*powmax2/k)/powmax
+endif
+
 ! Make JMatrix
 !  make round rings and if needed convert 360x16 or 180x25 to 180x22
 ! donut
@@ -1026,6 +1082,7 @@ if (mod(flag,100) .ne. 9 ) then
    DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope
 
+! this stanza is only for elevations (and therefore for input to zernike also)
  if ( Testdata .eq. 1 ) then
    call MakeRadSplineCenter(0)     ! remakes RadSplineCenter(1,:)
    if (btest(dat, 0) ) then        ! use nsplineCenter to force zero slope at origin,
@@ -1067,15 +1124,6 @@ if (mod(flag,100) .ne. 9 ) then
     DiaSlope=RadSlope              ! move to diagonal format
     DiaSlope%Zpd2 = .n. DiaSlope
 
-    if ( Testdata .eq. 1 ) then
-     if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-      DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
-     endif
-     if (btest(dat, 1)) then          ! moving each meridian to align curves
-      call AdjustRadSplineCenter     ! changes r only
-      DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
-     endif
-    endif
     do i=1,M1
      if (btest(dat,0)) then
       call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%SAGC(N1+1,i))  ! center value
@@ -1102,16 +1150,6 @@ if (mod(flag,100) .ne. 9 ) then
     DiaSlope=RadSlope              ! move to diagonal format
     DiaSlope%Zpd2 = .n. DiaSlope
 
-    if ( Testdata .eq. 1 ) then
-     if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-      DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
-     endif
-     if (btest(dat, 1)) then          ! moving each meridian to align curves
-      call AdjustRadSplineCenter     ! changes r only
-      DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
-     endif
-    endif
-
     do i=1,M1
      if (btest(dat,0)) then
       call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%Warp(N1+1,i))  ! center value
@@ -1137,15 +1175,7 @@ if (mod(flag,100) .ne. 9 ) then
    end do
    DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope
-   if ( Testdata .eq. 1 ) then
-    if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-     DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
-    endif
-    if (btest(dat, 1)) then          ! moving each meridian to align curves
-     call AdjustRadSplineCenter     ! changes r only
-     DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
-    endif
-   endif
+
    do i=1,M1
     if (btest(dat,0)) then
      call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC(N1+1,i))  ! center value
@@ -1170,15 +1200,7 @@ if (mod(flag,100) .ne. 9 ) then
   end do
   DiaSlope=RadSlope              ! move to diagonal format
   DiaSlope%Zpd2 = .n. DiaSlope
-  if ( Testdata .eq. 1 ) then
-   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-    DiaSlope%Zpd2 = .nc. DiaSlope  ! re-spline, with center node
-   endif
-   if (btest(dat, 1)) then          ! moving each meridian to align curves
-    call AdjustRadSplineCenter     ! changes r only
-    DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
-   endif
-  endif
+
   do i=1,M1
    if (btest(dat,0)) then
     call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC2(N1+1,i))  ! center value
@@ -1203,15 +1225,7 @@ if (mod(flag,100) .ne. 9 ) then
   end do
   DiaSlope=RadSlope              ! move to diagonal format
   DiaSlope%Zpd2 = .n. DiaSlope
-  if ( Testdata .eq. 1 ) then
-   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-    DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
-   endif
-   if (btest(dat, 1)) then          ! moving each meridian to align curves
-    call AdjustRadSplineCenter     ! changes r only
-    DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
-   endif
-  endif
+
   do i=1,M1
    if (btest(dat,0)) then
     call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%MEANC(N1+1,i))  ! center value
@@ -1237,15 +1251,7 @@ if (mod(flag,100) .ne. 9 ) then
   end do
   DiaSlope=RadSlope              ! move to diagonal format
   DiaSlope%Zpd2 = .n. DiaSlope
-  if ( Testdata .eq. 1 ) then
-   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-    DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
-   endif
-   if (btest(dat, 1)) then          ! moving each meridian to align curves
-    call AdjustRadSplineCenter     ! changes r only
-    DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
-   endif
-  endif
+
   do i=1,M1
    if (btest(dat,0)) then
     call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%MONGEA(N1+1,i))  ! center value
@@ -1287,7 +1293,6 @@ if ( Testdata .eq. 1 ) then
                                   ! remakes RadSplineCenter(2,:) and RadSplineCenter(3,:)
   endif
   call MakeRadSplineCenter(dat)        ! this relies on JMatrix, not the original data in RadSlope from the file
-!  Should I do this again? and for each one?
   if (btest(dat, 1)) then         ! moving each meridian to align curves
    call AdjustRadSplineCenter     ! changes r only
    DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
@@ -1731,9 +1736,11 @@ endif
    END SELECT
   endif
 
+  dist = -JMatrix%Z0(3)
+! generate buffer data
   call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
+  call Pupil(JMatrix, dist, pupil_elements, pupil_vertices, pupil_nV, pupil_nE)
   call makelegend(flag, powmin, powmax, legend, nL)
-
 
 
 ! eigenvalues show shape of RadSlope without make_rings but with FillArray 7 elevations

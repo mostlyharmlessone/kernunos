@@ -168,6 +168,7 @@ bool success=false;
 bool paintme = false;
 
 //how very Fortran that these need to be static & global
+// data vectors for corneal images
 int nV;
 int nE;
 std::vector<GLuint> Elements(26130);
@@ -179,10 +180,21 @@ std::vector<GLfloat> Vertices2(51840);
 GLfloat* vertices2 = Vertices2.data();
 GLuint* elements2 = Elements2.data();
 
+// data vectors for pupil images
+int pupil_nV = 1629;
+int pupil_nE = 940;
+std::vector<GLuint> pupil_Elements(940);
+std::vector<GLfloat> pupil_Vertices(1629);
+GLfloat* pupil_vertices = pupil_Vertices.data();
+GLuint* pupil_elements = pupil_Elements.data();
+
+
+// data vector for legend value & colors
 int nL = 26*4;
 std::vector<float> legendVector(nL);  //26 colors =  1 value + 3 rgbv (value,rgbv)
 float* legend = legendVector.data();
 
+// data vector for zernike graph
 int nZ = 14;
 std::vector<float> zernVector(nZ);  //12 zernike and min/max
 float* zern = zernVector.data();
@@ -357,7 +369,7 @@ void MainWindow::redraw(){
     QByteArray ba = fileName.toLocal8Bit();
     filename = ba.data();
  //   std::thread([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);}).detach();
-   janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);
+   janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);
    return;}
 
 void MainWindow::zerncompute()

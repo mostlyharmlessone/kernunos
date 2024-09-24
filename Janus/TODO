@@ -2,28 +2,29 @@ things to do
 
 CorneaCopia
 
+double check all numbers
+pupil only works for eyesys and atlas, but I'm not sure about the scale for EyeSys
+
+workin on penta, the mistaek shows up best in .ELE/.CUR because of the meridian message, need error codes in both
+
 need a automated yet adjustable comparision method between graphs for option "compare" 
-transparency vs wireframe as option for overlay
-incorporated 2nd buffer, holding initial cube
+read .CUR if available for .ELE, _CUR.CSV for _ELE.CSV for integration check, or cross purpose also: made starter copy of spline consistenct section
 
-issues: have to set "compare" buffer prior to open, and if you change it, you have to do it twice,
-ReDraw affects only the last thing loaded; so if you opn, then, compare and redraw-> it affects open, and compare is still white
+issues: 
+use a dat in flag to allow loading and comparing in second buffer with default color choice withou affecting JMatrix
+should allow redraw for either buffer
+needs a switch for show pupil on/off; can even be a simple dist? adjustment?
 
-make a third buffer for pupil
+compare needs a relative color by default because compare subtracts with JMatrix1
 
-incorporated check/read for EyeSys%PU(MM) and Pupil_Center(2)
-incorporated check/read for Atlas%PU(MM,2) and Pupil_Center(2)
-incorporated check/read for Penta%PU(256,2) and Pupil_Center(2)
-not used yet 
+
 
 make 3D option for all functions, with scale Z value max and min
 this will affect Geom,WriteGeomPLY/OFF
-
 it is pupil radius; perhaps can be displayed as a black circle
 
 make cartesian grid display option; convert polar to grid, display pentacam directly
-
-read .CUR if available for .ELE, _CUR.CSV for _ELE.CSV for integration check, or cross purpose also
+transparency vs wireframe as option for overlay
 
 decentration accomplished with penta data off by one in getArg(); make it (i) or (i+2) to decenter and generate fake astigmatism: 
 Is this reversable with tweaks, and/or can we also fake decentration with reverse tweaks?
@@ -83,6 +84,7 @@ https://github.com/MGensheimer/mask-to-mesh/blob/master/dicom_mask_to_stl_mesh.m
 
 GEOM/WriteGeomPLY/WriteGeomOFF make extra out of range points (unreferenced vertices).. fix?
 have to recount all the zero vertices, renumber them and reassign faces, ouch, perhaps as an export option, need a separate routine to clean vertices
+consider writegeomPLY/OFF that uses elements/vertices to avoid duplication of code
 meshlab can remove them; also if generating a ply with Assimp, there aren't any, they're already cleaned up
 stl has none
 
