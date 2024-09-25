@@ -5,15 +5,16 @@ CorneaCopia
 double check all numbers
 pupil only works for eyesys and atlas, but I'm not sure about the scale for EyeSys
 
-workin on penta, the mistaek shows up best in .ELE/.CUR because of the meridian message, need error codes in both
+workin on penta, the mistake shows up best in .ELE/.CUR because of the meridian message, need error codes in both
 
 need a automated yet adjustable comparision method between graphs for option "compare" 
 read .CUR if available for .ELE, _CUR.CSV for _ELE.CSV for integration check, or cross purpose also: made starter copy of spline consistenct section
 
 issues: 
-use a dat in flag to allow loading and comparing in second buffer with default color choice withou affecting JMatrix
+use a dat in flag to allow loading and comparing in second buffer with default color choice without affecting JMatrix
 should allow redraw for either buffer
 needs a switch for show pupil on/off; can even be a simple dist? adjustment?
+pupil registration needing only rotation 
 
 compare needs a relative color by default because compare subtracts with JMatrix1
 
@@ -21,7 +22,6 @@ compare needs a relative color by default because compare subtracts with JMatrix
 
 make 3D option for all functions, with scale Z value max and min
 this will affect Geom,WriteGeomPLY/OFF
-it is pupil radius; perhaps can be displayed as a black circle
 
 make cartesian grid display option; convert polar to grid, display pentacam directly
 transparency vs wireframe as option for overlay
@@ -29,14 +29,12 @@ transparency vs wireframe as option for overlay
 decentration accomplished with penta data off by one in getArg(); make it (i) or (i+2) to decenter and generate fake astigmatism: 
 Is this reversable with tweaks, and/or can we also fake decentration with reverse tweaks?
 
-check formula for mean curvature and monge astigmatism and possibly make limit friendlier version with limit added on exponential 
-
 plots with gnuplot splot are only has fixed scale for sagc?
 
-
-
-incorporate "warp/oblique power" and reading zernike from some atlas files into readme/faq
+incorporate "warp/oblique power" and reading zernike and pupils from some files into readme/faq
 probably needs a whole section on corneal topography and "powers" with math definitions
+check formula for mean curvature and monge astigmatism and possibly make limit friendlier version with limit added on exponential 
+check in isis/m with mathematica; generate print friendly Latex export TexForm
 
 http://github.com/zserge/beep or get fancy with .ogg
 

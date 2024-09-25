@@ -182,8 +182,8 @@ GLuint* elements2 = Elements2.data();
 
 // data vectors for pupil images
 int pupil_nV = 1629;
-int pupil_nE = 940;
-std::vector<GLuint> pupil_Elements(940);
+int pupil_nE = 540;
+std::vector<GLuint> pupil_Elements(540);
 std::vector<GLfloat> pupil_Vertices(1629);
 GLfloat* pupil_vertices = pupil_Vertices.data();
 GLuint* pupil_elements = pupil_Elements.data();

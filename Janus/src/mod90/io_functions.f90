@@ -195,14 +195,13 @@ subroutine rcnvrtp(TestData,filename,read_error)
      unitno1 = get_new_fileunit()
      open(unitno1, file=trim(filename), action="read", iostat=ierr)
      if (ierr .eq. 0) then
-     read_front=0
-     i=0
-     Penta%DAT(:,:)=0   ! zero out data matrix
-     do
-      i=i+1
-      read(unitno1, '(A)', iostat=readerr) somecharacter
+      read_front=0
+      i=0
+      Penta%DAT(:,:)=0   ! zero out data matrix
+      do
+       i=i+1
+       read(unitno1, '(A)', iostat=readerr) somecharacter
          if (readerr .eq. 0) then
-
           if (somecharacter.eq.'[SYSTEM]'.and.(i.eq.1)) then   !testdata 2 or 3
            if (TestData .eq. 2 .or. TestData .eq. 3) then
              write(*,*) 'Read PentaCam CUR/ELE header'
@@ -230,20 +229,20 @@ subroutine rcnvrtp(TestData,filename,read_error)
             k=0 ; read_front=1   ! only read the front elevations or curvatures
            do
             k=k+1
-           if (TestData.eq.4 .or. TestData.eq.5) then
+            if (TestData.eq.4 .or. TestData.eq.5) then
              read(unitno1,'(A)',iostat=readerr) somecharacter
-           endif
-           if (TestData.eq.2 .or. TestData.eq.3) then
-            if (k <= 10 ) then
-             read(unitno1,'(A,A,A,A)',iostat=readerr) matrixchar,iter1,equal,somecharacter
             endif
-            if (k <= 100 .AND. k > 10 ) then           
+            if (TestData.eq.2 .or. TestData.eq.3) then
+             if (k <= 10 ) then
+              read(unitno1,'(A,A,A,A)',iostat=readerr) matrixchar,iter1,equal,somecharacter
+             endif
+             if (k <= 100 .AND. k > 10 ) then
                read(unitno1,'(A,A,A,A)',iostat=readerr) matrixchar,iter2,equal,somecharacter  
-            endif
-            if ( k > 100 .AND. k <= NP ) then
+             endif
+             if ( k > 100 .AND. k <= NP ) then
                read(unitno1,'(A,A,A,A)',iostat=readerr) matrixchar,iter3,equal,somecharacter
+             endif
             endif
-           endif
             if (k <= NP ) then
                if (readerr .eq. 0) then  ! reads till end of data matches
                  read (somecharacter,*,iostat=readerr) (Penta%DAT(k,i),i=1,NP) !somecharacter read from file above, works for comma-delimited
@@ -253,84 +252,88 @@ subroutine rcnvrtp(TestData,filename,read_error)
                   do i=1,NP
                    Penta%DAT(k,i) = getArg(i+1)   !can change to i or i+2 to simulate decentering here and below
                   end do
-                  endif
-                  if (TestData.eq.4) then !this works with getArg for _ELE.CSV
+                 endif
+                 if (TestData.eq.4) then !this works with getArg for _ELE.CSV
                    line=somecharacter
                    do i=1,NP
                     Penta%DAT(k,i) = 100000*getArg(i+1)
                    end do
-                  endif
+                 endif
 !               if (k == 76) then
 !                write(*,*) Penta%DAT(k,:)
 !               endif
                endif  
-             else
-!                  write(*,*) 'Read ',k-1,' rows from ',trim(filename)
-!                  do k=1,NP
-!                   write (*,*) 'Matrix ',k-1,'= ',Penta%DAT(:,k)
-!                  end do
-!             End of cornea data
-             endif
+            else
+!              write(*,*) 'Read ',k-1,' rows from ',trim(filename)
+!               do k=1,NP
+!                write (*,*) 'Matrix ',k-1,'= ',Penta%DAT(:,k)
+!               end do
+             exit     ! End of cornea data, k=NP
+            endif
+           end do
+          endif
 
-             if (somecharacter(1:7).eq.'[PUPIL]') then
-              if (TestData .ge. 4) then  ! _CUR.CSV or _ELE.CSV
-               write(*,*) 'Found pupil data in Penta _CUR.CSV or _ELE.CSV'
-               read(unitno1, '(A)', iostat=readerr) someline
-               read(unitno1, '(A)', iostat=readerr) someline
-               somecharacter=replacestr(string=someline,search=";",substitute=",")
-               read(somecharacter,*,iostat=readerr) someline,Penta%Pupil_Center(1)
-               read(unitno1, '(A)', iostat=readerr) someline
-               somecharacter=replacestr(string=someline,search=";",substitute=",")
-               read(somecharacter,*,iostat=readerr) someline,Penta%Pupil_Center(2)
-               read(unitno1, '(A)', iostat=readerr) someline
-               read(unitno1, '(A)', iostat=readerr) someline
-               do k=1,256
-                read(unitno1, '(A)', iostat=readerr) someline
-                somecharacter=replacestr(string=someline,search=";",substitute=",")
-                read(somecharacter,*,iostat=readerr) Penta%PU(k,1),Penta%PU(k,2)
-               end do
-              endif
-             else
-              if (TestData .le. 3) then  ! .CUR or .ELE
-               write(*,*) 'Found pupil data in Penta .CUR or .ELE'
-               read(unitno1, '(A)', iostat=readerr) someline
-               read(unitno1, '(A)', iostat=readerr) someline
-               somecharacter=replacestr(string=someline,search="=",substitute=", ")
-               read(somecharacter,*,iostat=readerr) someline,Penta%Pupil_Center(1)
-               read(unitno1, '(A)', iostat=readerr) someline
-               somecharacter=replacestr(string=someline,search="=",substitute=", ")
-               read(somecharacter,*,iostat=readerr) someline,Penta%Pupil_Center(2)
-               read(unitno1, '(A)', iostat=readerr) someline
-               somecharacter=replacestr(string=someline,search="=",substitute=", ")
-               read(somecharacter,*,iostat=readerr) someline,meridians
-               if (size(Penta%PU,1) .ne. meridians) then
-                write(*,*) 'Size mismatch in pupil meridians, 256 expected'
-               else
-               read(unitno1, '(A)', iostat=readerr) someline
-                somecharacter=replacestr(string=someline,search="=",substitute=", ")
-                read(somecharacter,*,iostat=readerr) someline,Penta%PU(:,1)
-               read(unitno1, '(A)', iostat=readerr) someline
-                somecharacter=replacestr(string=someline,search="=",substitute=", ")
-                read(somecharacter,*,iostat=readerr) someline,Penta%PU(:,2)
-               endif
-              endif
-             endif
-            if (somecharacter(1:4).eq.'HWTW' .or. somecharacter(1:4).eq.'CRC3') exit  ! End of data
 
-           end do 
+          if (somecharacter(1:7).eq.'[PUPIL]') then
+           if (TestData .ge. 4) then  ! _CUR.CSV or _ELE.CSV
+            write(*,*) 'Found pupil data in Penta _CUR.CSV or _ELE.CSV'
+            read(unitno1, '(A)', iostat=readerr) someline
+            read(unitno1, '(A)', iostat=readerr) someline
+            somecharacter=replacestr(string=someline,search=";",substitute=",")
+            read(somecharacter,*,iostat=readerr) someline,Penta%Pupil_Center(1)
+            read(unitno1, '(A)', iostat=readerr) someline
+            somecharacter=replacestr(string=someline,search=";",substitute=",")
+            read(somecharacter,*,iostat=readerr) someline,Penta%Pupil_Center(2)
+            read(unitno1, '(A)', iostat=readerr) someline
+            read(unitno1, '(A)', iostat=readerr) someline
+            do k=1,256
+             read(unitno1, '(A)', iostat=readerr) someline
+             somecharacter=replacestr(string=someline,search=";",substitute=",")
+             read(somecharacter,*,iostat=readerr) Penta%PU(k,1),Penta%PU(k,2)
+            end do
            endif
+           if (TestData .le. 3) then  ! .CUR or .ELE
+            write(*,*) 'Found pupil data in Penta .CUR or .ELE'
+            read(unitno1, '(A)', iostat=readerr) someline
+            read(unitno1, '(A)', iostat=readerr) someline
+            somecharacter=replacestr(string=someline,search="=",substitute=", ")
+            read(somecharacter,*,iostat=readerr) someline,Penta%Pupil_Center(1)
+            read(unitno1, '(A)', iostat=readerr) someline
+            somecharacter=replacestr(string=someline,search="=",substitute=", ")
+            read(somecharacter,*,iostat=readerr) someline,Penta%Pupil_Center(2)
+            read(unitno1, '(A)', iostat=readerr) someline
+            somecharacter=replacestr(string=someline,search="=",substitute=", ")
+            read(somecharacter,*,iostat=readerr) someline,meridians
+            if (size(Penta%PU,1) .ne. meridians) then
+             write(*,*) 'Size mismatch in pupil meridians, 256 expected'
+             stop
+            else
+            read(unitno1, '(A)', iostat=readerr) someline
+             somecharacter=replacestr(string=someline,search="=",substitute=", ")
+             read(somecharacter,*,iostat=readerr) someline,Penta%PU(:,1)
+            read(unitno1, '(A)', iostat=readerr) someline
+             somecharacter=replacestr(string=someline,search="=",substitute=", ")
+             read(somecharacter,*,iostat=readerr) someline,Penta%PU(:,2)
+            endif
+           endif
+          endif
+         if (somecharacter(1:4).eq.'HWTW' .or. somecharacter(1:4).eq.'CRC3') exit  ! End of data
+!        write(*,*) Penta%Pupil_Center(:)
+!        do k=1,256
+!         write(*,*) Penta%PU(k,1),Penta%PU(k,2)
+!        end do
          else
-           exit  !EOF
+           exit  !EOF this doesn't work if you never leave k do loop above
          endif
       end do  
       close(unitno1) 
 !     First column is invalid for _CUR.CSV and _ELE.CSV files, does no harm for .ELE and .CUR
       Penta%DAT(:,1)=0
-      else
+     else
          print*, "Error ", ierr ," attempting to open file ", trim(filename)
          read_error=3
         return
-    endif
+     endif
     else
      print*, "Error -- cannot find PentaCam file: ", trim(filename)
      read_error=4

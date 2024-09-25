@@ -674,9 +674,9 @@ if (TestData .eq. 0) then
    else
     call RCNVRTE(read_error,inputfile2,inputfile1,inputfile3)
 !   pupil conversion if any
-    JMatrix%Pupil_Center=EyeSys%Pupil_Center
+    JMatrix%Pupil_Center=EyeSys%Pupil_Center/10.
     do i=1,MM/2
-     JMatrix%PU(i)=(EyeSys%PU(2*i-1)+EyeSys%PU(2*i))/200.
+     JMatrix%PU(i)=(EyeSys%PU(2*i-1)+EyeSys%PU(2*i))/40.  !2x2x10 average,diameter->radius,factor of 10
     end do
    endif
    call CPU_TIME(time_end)
@@ -739,7 +739,7 @@ if (TestData .eq. 1) then
  endif
  RadSlope=Atlas
  ! pupil conversion
-  JMatrix%Pupil_Center=Atlas%Pupil_Center
+  JMatrix%Pupil_Center=Atlas%Pupil_Center*100
   do i=1,MM
    X1=Atlas%PU(i,1)-Atlas%Pupil_Center(1)
    X2=Atlas%PU(i,2)-Atlas%Pupil_Center(2)
@@ -790,12 +790,12 @@ endif ! end (TestData == 1)
   endif
   JMatrix%Z(:,:) = 0 ; JMatrix%Z0(:) = 0
   ! pupil conversion, could do whole circular spline here
-   JMatrix%Pupil_Center=Penta%Pupil_Center
+   JMatrix%Pupil_Center=Penta%Pupil_Center/10.
    do i=1,MM
     j=floor(1.+(i-1)*255/179.0)
     X1=Penta%PU(j,1)-Penta%Pupil_Center(1)
     X2=Penta%PU(j,2)-Penta%Pupil_Center(2)
-    JMatrix%PU(i)=sqrt(X1*X1+X2*X2)/100
+    JMatrix%PU(i)=sqrt(X1*X1+X2*X2)/10.
    end do
 !!!!!!!!!!to check skyline and spline routines
 !if (TestData.eq.2 .or. TestData.eq.4) then
@@ -1736,12 +1736,11 @@ endif
    END SELECT
   endif
 
-  dist = -JMatrix%Z0(3)
+  dist = -2*JMatrix%Z0(3)
 ! generate buffer data
   call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
   call Pupil(JMatrix, dist, pupil_elements, pupil_vertices, pupil_nV, pupil_nE)
   call makelegend(flag, powmin, powmax, legend, nL)
-
 
 ! eigenvalues show shape of RadSlope without make_rings but with FillArray 7 elevations
 !  atmp=pca(2,RadSlope)

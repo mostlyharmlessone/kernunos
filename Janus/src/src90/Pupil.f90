@@ -6,6 +6,7 @@
        use, intrinsic :: iso_c_binding, ONLY : c_float,c_int
        use, intrinsic ::  ieee_arithmetic
        use ISO_FORTRAN_ENV, only: stdin=>input_unit     ! for the pause read(stdin,*)
+       IMPLICIT NONE
        TYPE(wpJMatrix),INTENT(IN) :: b
        integer(c_int), INTENT(INOUT) :: pupil_elements(*)                          ! faces x 3
        real(c_float), INTENT(INOUT) :: pupil_vertices(*), dist                     ! vertices x 6
