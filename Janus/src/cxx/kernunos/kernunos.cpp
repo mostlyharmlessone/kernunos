@@ -948,6 +948,18 @@ void MainWindow::normal()
    };
 }
 
+void MainWindow::pupil()
+{
+    if (GLwidget::isPupil()) {
+        GLwidget::setPupil(false);
+        ui.infoLabel->setText(tr("Set <b>View:Pupil false</b>"));
+    } else {
+        GLwidget::setPupil(true);
+        ui.infoLabel->setText(tr("Set <b>View:Pupil true</b>"));
+    };
+}
+
+
 void MainWindow::fctAxial()
 {
    if (GLwidget::isAxial()) {
@@ -1376,6 +1388,39 @@ void MainWindow::tweakadjustradii()
    };
 }
 
+
+void MainWindow::tweakdecenter()
+{
+    if (GLwidget::isdecenter()) {
+        GLwidget::setdecenter(false);
+        decenterAct->setChecked(GLwidget::isdecenter());
+        ui.infoLabel->setText(tr("Set <b>Tweak:DeCenter false</b>"));
+    } else {
+        GLwidget::setdecenter(true);
+        decenterAct->setChecked(GLwidget::isdecenter());
+        ui.infoLabel->setText(tr("Set <b>Tweak:DeCenter true</b>"));
+    };
+    if (GLwidget::isRedraw()) {
+        redraw();
+    };
+}
+
+void MainWindow::tweakpupilregister()
+{
+    if (GLwidget::ispupilregister()) {
+        GLwidget::setpupilregister(false);
+        pupilregisterAct->setChecked(GLwidget::isadjustradii());
+        ui.infoLabel->setText(tr("Set <b>Tweak:Pupil Align/Register false</b>"));
+    } else {
+        GLwidget::setpupilregister(true);
+        pupilregisterAct->setChecked(GLwidget::ispupilregister());
+        ui.infoLabel->setText(tr("Set <b>Tweak:Pupil Align/Register true</b>"));
+    };
+    if (GLwidget::isRedraw()) {
+        redraw();
+    };
+}
+
 void MainWindow::tweakcubic()
 {
    if (GLwidget::iscubic()) {
@@ -1681,6 +1726,19 @@ void MainWindow::createActions()
    normalAct->setCheckable(true);
    normalAct->setChecked(GLwidget::isNormal()); //need this because can control from commandline
 
+   pupilAct = new QAction(tr("&Show Pupil"), this);
+   pupilAct->setStatusTip(tr("Show pupil data if any"));
+   connect(pupilAct, &QAction::triggered, this, &MainWindow::pupil);
+   pupilAct->setCheckable(true);
+
+   pupilregisterAct = new QAction(tr("&Recenter according to pupil data "), this);
+   connect(pupilregisterAct, &QAction::triggered, this, &MainWindow::tweakpupilregister);
+   pupilregisterAct->setCheckable(true);
+
+   decenterAct = new QAction(tr("&Decenter image"), this);
+   connect(decenterAct, &QAction::triggered, this, &MainWindow::tweakdecenter);
+   decenterAct->setCheckable(true);
+
    centernodeAct=new QAction(tr("&Create center node to force MinMax at origin"), this);
    centernodeAct->setCheckable(true);
    connect(centernodeAct, &QAction::triggered, this, &MainWindow::tweakcenterNode);
@@ -1926,12 +1984,15 @@ void MainWindow::createMenus()
    viewMenu->addAction(redrawOptionAct);
    viewMenu->addAction(lightAct);
    viewMenu->addAction(normalAct);
+   viewMenu->addAction(pupilAct);
    tweaksMenu = menuBar()->addMenu(tr("&Placido data tweaks"));
    tweaksMenu->addAction(centernodeAct);
    tweaksMenu->addAction(adjustradiiAct);
    tweaksMenu->addAction(cubicAct);
    tweaksMenu->addAction(SplinefillinAct);
    tweaksMenu->addAction(LSQfillinAct);
+   tweaksMenu->addAction(decenterAct);
+   tweaksMenu->addAction(pupilregisterAct);
    helpMenu = menuBar()->addMenu(tr("&About"));
    helpMenu->addAction(HelpAct);
    helpMenu->addAction(aboutAct);

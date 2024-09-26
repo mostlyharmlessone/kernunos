@@ -181,7 +181,7 @@ subroutine rcnvrtp(TestData,filename,read_error)
  character(len=*), intent(in) :: filename
  integer, intent(in) :: TestData
  integer, intent(out) :: read_error
- integer :: unitno1,ierr,readerr,i,k,NP,read_front,meridians
+ integer :: unitno1,ierr,readerr,i,k,NP,read_front,meridians,file_idx
  logical :: exists
  character(len=7) :: matrixchar
  character(len=1) :: iter1,equal
@@ -273,7 +273,6 @@ subroutine rcnvrtp(TestData,filename,read_error)
            end do
           endif
 
-
           if (somecharacter(1:7).eq.'[PUPIL]') then
            if (TestData .ge. 4) then  ! _CUR.CSV or _ELE.CSV
             write(*,*) 'Found pupil data in Penta _CUR.CSV or _ELE.CSV'
@@ -288,6 +287,18 @@ subroutine rcnvrtp(TestData,filename,read_error)
             read(unitno1, '(A)', iostat=readerr) someline
             do k=1,256
              read(unitno1, '(A)', iostat=readerr) someline
+             if (readerr .ne. 0) then
+              write(*,*) 'Read Error in [PUPIL]'
+              read_error = 10
+              return
+             endif
+             file_idx = 0
+             file_idx=index(someline, ";")
+             if (file_idx .eq. 0) then
+              write(*,*) 'Error reading pupil data'
+              read_error = 10
+              return
+             endif
              somecharacter=replacestr(string=someline,search=";",substitute=",")
              read(somecharacter,*,iostat=readerr) Penta%PU(k,1),Penta%PU(k,2)
             end do
@@ -306,7 +317,8 @@ subroutine rcnvrtp(TestData,filename,read_error)
             read(somecharacter,*,iostat=readerr) someline,meridians
             if (size(Penta%PU,1) .ne. meridians) then
              write(*,*) 'Size mismatch in pupil meridians, 256 expected'
-             stop
+             read_error = 10
+             return
             else
             read(unitno1, '(A)', iostat=readerr) someline
              somecharacter=replacestr(string=someline,search="=",substitute=", ")
@@ -317,15 +329,17 @@ subroutine rcnvrtp(TestData,filename,read_error)
             endif
            endif
           endif
-         if (somecharacter(1:4).eq.'HWTW' .or. somecharacter(1:4).eq.'CRC3') exit  ! End of data
-!        write(*,*) Penta%Pupil_Center(:)
-!        do k=1,256
-!         write(*,*) Penta%PU(k,1),Penta%PU(k,2)
-!        end do
+          if (somecharacter(1:4).eq.'HWTW' .or. somecharacter(1:4).eq.'CRC3') exit  ! End of data
          else
            exit  !EOF this doesn't work if you never leave k do loop above
          endif
       end do  
+
+write(*,*) Penta%Pupil_Center(:)
+do k=1,256
+write(*,*) Penta%PU(k,1),Penta%PU(k,2)
+end do
+
       close(unitno1) 
 !     First column is invalid for _CUR.CSV and _ELE.CSV files, does no harm for .ELE and .CUR
       Penta%DAT(:,1)=0

@@ -119,6 +119,7 @@ static const GLchar* fragmentColorNormal = R"glsl(
 bool GLwidget::m_transparent = false;
 bool GLwidget::m_normal = false;
 bool GLwidget::m_lighting = false;
+bool GLwidget::m_pupilshow = false;
 bool GLwidget::m_redraw = false;
 
 bool GLwidget::m_centerNode = false;
@@ -126,6 +127,8 @@ bool GLwidget::m_adjustradii = false;
 bool GLwidget::m_cubic = false;
 bool GLwidget::m_LSQfillin = false;
 bool GLwidget::m_Splinefillin = false;
+bool GLwidget::m_pupilregister = false;
+bool GLwidget::m_decenter = false;
 
 bool GLwidget::m_Axial = true;
 bool GLwidget::m_Oblique = false;

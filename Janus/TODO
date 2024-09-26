@@ -2,10 +2,8 @@ things to do
 
 CorneaCopia
 
-double check all numbers
-pupil only works for eyesys and atlas, but I'm not sure about the scale for EyeSys
-
-workin on penta, the mistake shows up best in .ELE/.CUR because of the meridian message, need error codes in both
+built framework for show pupil, pupil registration and decenter
+but none actually do anything yet
 
 need a automated yet adjustable comparision method between graphs for option "compare" 
 read .CUR if available for .ELE, _CUR.CSV for _ELE.CSV for integration check, or cross purpose also: made starter copy of spline consistenct section
@@ -13,7 +11,7 @@ read .CUR if available for .ELE, _CUR.CSV for _ELE.CSV for integration check, or
 issues: 
 use a dat in flag to allow loading and comparing in second buffer with default color choice without affecting JMatrix
 should allow redraw for either buffer
-needs a switch for show pupil on/off; can even be a simple dist? adjustment?
+needs a switch for show pupil on/off
 pupil registration needing only rotation 
 
 compare needs a relative color by default because compare subtracts with JMatrix1

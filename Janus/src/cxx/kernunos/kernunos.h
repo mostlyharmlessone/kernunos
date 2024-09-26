@@ -116,6 +116,7 @@ private slots:
     void checkmapsflags();
     void checkfctsflags();
     void light();
+    void pupil();
     void redrawOption();
     void about();
     void aboutQt();
@@ -146,6 +147,8 @@ private slots:
     void fctZ11();
     void fctZ1neg1();
     void fctZ00();
+    void tweakpupilregister();
+    void tweakdecenter();
     void tweakcenterNode();
     void tweakadjustradii();
     void tweakcubic();
@@ -226,6 +229,7 @@ private:
     QAction *redrawOptionAct;
     QAction *lightAct;
     QAction *normalAct;
+    QAction *pupilAct;
 
     QMenu *analyzeMenu;
     QAction *zernAct;
@@ -241,6 +245,8 @@ private:
     QAction *cubicAct;
     QAction *LSQfillinAct;
     QAction *SplinefillinAct;
+    QAction *decenterAct;
+    QAction *pupilregisterAct;
 
     QMenu *helpMenu;
     QAction *aboutAct;

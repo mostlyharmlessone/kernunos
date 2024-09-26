@@ -797,35 +797,8 @@ endif ! end (TestData == 1)
     X2=Penta%PU(j,2)-Penta%Pupil_Center(2)
     JMatrix%PU(i)=sqrt(X1*X1+X2*X2)/10.
    end do
-!!!!!!!!!!to check skyline and spline routines
-!if (TestData.eq.2 .or. TestData.eq.4) then
-! call CPU_TIME(time_start)
-! call Spline_Test(Penta)
-! call CPU_TIME(time_end)
-! write(*,*) 'Time for Spline test: ',(time_end-time_start)*1000
-! write(*,*) ' '
-! write(*,*) ' '
-! call CPU_TIME(time_start)
-! call Skyline_Test(Skyline, Penta)
-! call CPU_TIME(time_end)
-! write(*,*) 'Time for Skyline test: ',(time_end-time_start)*1000
-! write(*,*) ' '
-! write(*,*) ' '
-! NB to match the results of the tests above, j .eq 71 not i, and switch i,j... oh and its inverted too..
-! do i=1,NP
-!  do j=1,NP
-!   if (j .eq. 71) then
-!    if (Penta%DAT(NP-i+1,j)/10. .ne. 0) then
-!     write(*,*) 700-((j-1)*1400)/(NP-1.0),700-((i-1)*1400)/(NP-1.0),Penta%DAT(NP-i+1,j)/10. ! matches tests
-!     write(*,*) 700-((j-1)*1400)/(NP-1.0),700-((i-1)*1400)/(NP-1.0),Penta%DAT(i,j)/10. ! matches Z(j,i)
-!    endif
-!   endif
-!  end do
-! end do
-! write(*,*) ' '
-! write(*,*) ' '
-!endif
  endif
+
 
 ! OR GENERATE Fake EyeSys data
 if (TestData .lt. 0) then

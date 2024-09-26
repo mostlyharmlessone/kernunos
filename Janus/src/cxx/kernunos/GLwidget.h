@@ -109,8 +109,17 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     static bool isLight() { return m_lighting; }
     static void setLight(bool t) { m_lighting = t; }
 
+    static bool isPupil() { return m_pupilshow; }
+    static void setPupil(bool t) { m_pupilshow = t; }
+
+    static bool ispupilregister() { return m_pupilregister; }
+    static void setpupilregister(bool t) { m_pupilregister = t; }
+
     static bool isRedraw() { return m_redraw; }
     static void setRedraw(bool t) { m_redraw = t; }
+
+    static bool isdecenter() { return m_decenter; }
+    static void setdecenter(bool t) { m_decenter = t; }
 
     static bool isCenterNode() { return m_centerNode; }
     static void setCenterNode(bool t) { m_centerNode = t;
@@ -468,6 +477,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     static bool m_transparent;
     static bool m_normal;
     static bool m_lighting;
+    static bool m_pupilshow;
     static bool m_redraw;
 
     static bool m_centerNode;
@@ -475,6 +485,8 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     static bool m_cubic;
     static bool m_LSQfillin;
     static bool m_Splinefillin;
+    static bool m_decenter;
+    static bool m_pupilregister;
 
     static bool m_Axial;
     static bool m_Oblique;
