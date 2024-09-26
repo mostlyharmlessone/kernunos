@@ -2,20 +2,22 @@ things to do
 
 CorneaCopia
 
-built framework for show pupil, pupil registration and decenter
-but none actually do anything yet
+built framework for pupil registration and decenter
+but neither actually does anything yet
+
+made a third cornea element/vertex/buffer
 
 need a automated yet adjustable comparision method between graphs for option "compare" 
-read .CUR if available for .ELE, _CUR.CSV for _ELE.CSV for integration check, or cross purpose also: made starter copy of spline consistenct section
+suggest matching .CUR if available for .ELE, _CUR.CSV for _ELE.CSV for integration check 
 
 issues: 
 use a dat in flag to allow loading and comparing in second buffer with default color choice without affecting JMatrix
 should allow redraw for either buffer
-needs a switch for show pupil on/off
 pupil registration needing only rotation 
 
 compare needs a relative color by default because compare subtracts with JMatrix1
 
+right now multiple janus calls are not efficient or coordinated...and legend needs multiplying/coordinating, with one for the plots and the second for the comparison
 
 
 make 3D option for all functions, with scale Z value max and min

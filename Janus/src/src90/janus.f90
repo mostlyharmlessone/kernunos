@@ -521,7 +521,7 @@ if (mod(flag,100) == 0 .or. mod(flag,100) == 10) then
          if(exists) then
           write(*,*) "Matching _CUR.CSV file found"
          endif
-         TestData=4; MM=180; N=22; NP=141 ! PentaCam ELE.CSV
+         TestData=4; MM=180; N=22; NP=141 ! PentaCam _ELE.CSV
         endif
         else
          inputfile2=inputfile1
@@ -531,7 +531,7 @@ if (mod(flag,100) == 0 .or. mod(flag,100) == 10) then
          if(exists) then
           write(*,*) "Matching _ELE.CSV file found"
          endif
-         TestData=5; MM=180; N=22; NP=141 ! PentaCam CUR.CSV
+         TestData=5; MM=180; N=22; NP=141 ! PentaCam _CUR.CSV
        endif
       endif
    else
@@ -926,35 +926,6 @@ if (mod(flag,100) .ne. 9 ) then
    end do
    write(*,*) 'Atlas avg abs elevation percent error : ',(100*powmax2/k)/powmax
  endif
-
-! copied from atlas above, needs work
-! Penta consistency check and computation of elevation by power vs elevation in file if both available
-if ( .false. ) then
- k=0 ; powmax2 = 0 ; powmax =0  ! Use these temporarily
-! find max elevation from Atlas file
- do i=1,M1
-  do j=1,RadSlope%MV(i)
-   if (100*Atlas%AY(i,j) > powmax) powmax=100*Atlas%AY(i,j)
-   end do
-  end do
-! check spline power & elevation at knots
-  do i=1,M1
-   do j=1,RadSlope%MV(i)
-    call SplineEval1Dx1D(iflag,100*Atlas%AD(i,j),PI*(i-1)/90.0_wp,Y,YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
-    call AXIALP(ABS(100*Atlas%AD(i,j)),ABS(YPR),YP2R2,pow)
-!   skip missing elevation points to compute (cumulative) average error
-   if (Atlas%AY(i,j) > 0) then
-     k=k+1
-     powmax2=powmax2+ABS(Y-powmax+100*Atlas%AY(i,j))
-    endif
-!   checks that power at knots is correct at knts
-    if (ABS(Atlas%AP(i,j)-pow) > EPS .and. (Atlas%AP(i,j) .gt. 0) .and. (Atlas%AD(i,j) .gt. 0) .and. (Atlas%AY(i,j) .gt. 0) .AND. (Atlas%AR(i,j) > 0)) then
-     write(*,*) 'Atlas power spline error in janus: ',j,i,Atlas%AP(i,j),pow
-    endif
-   end do
-  end do
-  write(*,*) 'Atlas avg abs elevation percent error : ',(100*powmax2/k)/powmax
-endif
 
 ! Make JMatrix
 !  make round rings and if needed convert 360x16 or 180x25 to 180x22

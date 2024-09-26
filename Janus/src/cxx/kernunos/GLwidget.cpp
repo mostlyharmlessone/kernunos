@@ -185,10 +185,11 @@ void GLwidget::cleanup()
   if (shaderProgram == nullptr)
             return;
   makeCurrent();
-  glDeleteBuffers(1, &vertexbuffers[0]);
-  glDeleteBuffers(1,&elementbuffers[0]);
-  glDeleteBuffers(1, &vertexbuffers[1]);
-  glDeleteBuffers(1,&elementbuffers[1]);
+  for (int i=0; i <= 3; i++)
+  {
+    glDeleteBuffers(1, &vertexbuffers[i]);
+    glDeleteBuffers(1,&elementbuffers[i]);
+  }
   killTimer(timerID);
   delete shaderProgram;
   shaderProgram = nullptr;
@@ -322,7 +323,7 @@ void GLwidget::initializeGL()
   shaderGeoProgram->release();
 
   // Create buffers
-  for (int i=0; i <= 2; i++)
+  for (int i=0; i <= 3; i++)
   {
   glGenBuffers(1, &vertexbuffers[i]);
   glGenBuffers(1, &elementbuffers[i]);
@@ -401,9 +402,10 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
       // blocks!
       // Start the computation.
       if ((flag%100) == 10) {
-      futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);}));
+       janus_(&flag,filename,elements2,vertices2,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);
+       futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements3,vertices3,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);}));
       } else {
-      futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);}));
+       futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);}));
       }
       // Display the dialog and start the event loop.
       dialog.exec();
@@ -636,32 +638,39 @@ void GLwidget::paintGL(void)
     //regular
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    for (int i=0; i <= 2; i++)
+    for (int i=0; i <= 3; i++)
     {
  // Bind buffers
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffers[i]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffers[i]);
     //kludgy
-    m_world.setToIdentity();
     QMatrix4x4 mMVP;
-    QVector4D m_alpha = QVector4D(0,0,0,0.5);
+    QVector4D m_alpha;
+    if (i == 2) {
+     if (!LoadSurfaceToBuffer(nV, nE, vertexbuffers[i], elementbuffers[i], vertices3, elements3)) return;
+     mMVP.setToIdentity();
+     mMVP.scale(QVector3D(0.005,0.005,0.005));
+     mMVP.translate(QVector3D(700,0,-1000));
+     m_alpha = QVector4D(0,0,0,1.0);
+    }
     if (i == 1) {
      if (!LoadSurfaceToBuffer(nV, nE, vertexbuffers[i], elementbuffers[i], vertices2, elements2)) return;
      mMVP.setToIdentity();
      mMVP.scale(QVector3D(0.005,0.005,0.005));
-     mMVP.translate(QVector3D(0,0,-1000));
+     mMVP.translate(QVector3D(-700,0,-1000));
      m_alpha = QVector4D(0,0,0,1.0);
     }
-    if (i == 2) {
+    if (i == 3) {
      if (!LoadSurfaceToBuffer(nV, nE, vertexbuffers[i], elementbuffers[i], vertices, elements)) return;
      m_world.setToIdentity();
      m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
      m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
      m_world.rotate(m_zRot / 16.0f, 0, 0, 1);
      mMVP =  mViewMatrix  * m_world;
+     m_alpha = QVector4D(0,0,0,0.5);
     }
 
-    if (i == 0) {
+    if (i == 0 && m_pupilshow) {
      if(!LoadSurfaceToBuffer(pupil_nV, pupil_nE, vertexbuffers[i], elementbuffers[i], pupil_vertices, pupil_elements)) return;
      m_world.setToIdentity();
      m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
@@ -812,12 +821,12 @@ void GLwidget::mouseMoveEvent(QMouseEvent *e)
 
 QSize GLwidget::minimumSizeHint() const
 {
-   return QSize(50, 50);
+   return QSize(500, 250);
 }
 
 QSize GLwidget::sizeHint() const
 {
-   return QSize(400, 400);
+   return QSize(SCR_WIDTH, SCR_HEIGHT);
 }
 
 static void qNormalizeAngle(int &angle)

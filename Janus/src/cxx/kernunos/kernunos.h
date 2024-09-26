@@ -29,6 +29,10 @@ extern std::vector<GLuint> Elements2;
 extern std::vector<GLfloat> Vertices2;
 extern GLfloat* vertices2;
 extern GLuint* elements2;
+extern std::vector<GLuint> Elements3;
+extern std::vector<GLfloat> Vertices3;
+extern GLfloat* vertices3;
+extern GLuint* elements3;
 
 extern int pupil_nV;
 extern int pupil_nE;

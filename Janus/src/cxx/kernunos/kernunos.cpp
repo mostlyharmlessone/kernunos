@@ -93,9 +93,8 @@
 using namespace QtConcurrent;
 
 // global settings
-const unsigned int SCR_WIDTH = 2800;
-const unsigned int SCR_HEIGHT = 2600;
-//have to impose the above on mainwindow.ui
+const unsigned int SCR_WIDTH = 1600;
+const unsigned int SCR_HEIGHT = 400;
 
 // flag xxxxxxxx dat,fct,map,action used to communicate between cpp and fortran code calculation options
 // first two digits are Placido disk data fillin and/or center-node tweaks
@@ -179,6 +178,10 @@ std::vector<GLuint> Elements2(26130);
 std::vector<GLfloat> Vertices2(51840);
 GLfloat* vertices2 = Vertices2.data();
 GLuint* elements2 = Elements2.data();
+std::vector<GLuint> Elements3(26130);
+std::vector<GLfloat> Vertices3(51840);
+GLfloat* vertices3 = Vertices3.data();
+GLuint* elements3 = Elements3.data();
 
 // data vectors for pupil images
 int pupil_nV = 1629;

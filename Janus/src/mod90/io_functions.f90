@@ -334,12 +334,6 @@ subroutine rcnvrtp(TestData,filename,read_error)
            exit  !EOF this doesn't work if you never leave k do loop above
          endif
       end do  
-
-write(*,*) Penta%Pupil_Center(:)
-do k=1,256
-write(*,*) Penta%PU(k,1),Penta%PU(k,2)
-end do
-
       close(unitno1) 
 !     First column is invalid for _CUR.CSV and _ELE.CSV files, does no harm for .ELE and .CUR
       Penta%DAT(:,1)=0
