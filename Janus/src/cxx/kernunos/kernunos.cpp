@@ -348,7 +348,7 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
    update();
 }
 
-void MainWindow::compare()    //right now this doesn't do anything
+void MainWindow::compare()
 {
     flag=flag-(flag%100)+10;  // last two digits of flag=10
     // note that the Atlas CSV filter is non-specific and will include all CSV files

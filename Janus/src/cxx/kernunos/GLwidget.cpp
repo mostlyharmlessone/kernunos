@@ -402,8 +402,7 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
       // blocks!
       // Start the computation.
       if ((flag%100) == 10) {
-       janus_(&flag,filename,elements2,vertices2,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);
-       futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements3,vertices3,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);}));
+       futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements2,vertices2,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);}));
       } else {
        futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);}));
       }

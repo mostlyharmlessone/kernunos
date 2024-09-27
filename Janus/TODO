@@ -2,22 +2,23 @@ things to do
 
 CorneaCopia
 
-built framework for pupil registration and decenter
+need a dialog box or two
+use a dat or a flag option to control janus in each step
+compare:  set baseline->fixed image JMatrix->store to JMatrix1, do not change pupil buffer
+          set compare-> central current Jmatrix, prev in JMatrix1
+                        optionally suggest matching .CUR if available for .ELE, _CUR.CSV for _ELE.CSV                        
+          run compare-> select pupil registration (on/off) and rotation in degrees (rotate current image (now in JMatrix) clockwise)
+                        compute difference WITHOUT changing either JMatrix/1 if neither option above, or apply changes only to JMatrix and then compute difference
+                        has to change color to a no fixed scale for comparison; have to pick a fct to compare; do not change pupil buffer
+
+dialog box
+redraw: only affects central image; do not change JMatrix1
+redraw comparison, pick a different color and function for compare (third buffer); basically re-runs last step of compare
+
+built framework for pupil registration and decenter; both involve moving elevation data points, either, 
+then resplining on that basis, just like an ELE file, in fact, for an ELE/ELE.CSV file, adjust the data before the firt spline
 but neither actually does anything yet
-
-made a third cornea element/vertex/buffer
-
-need a automated yet adjustable comparision method between graphs for option "compare" 
-suggest matching .CUR if available for .ELE, _CUR.CSV for _ELE.CSV for integration check 
-
-issues: 
-use a dat in flag to allow loading and comparing in second buffer with default color choice without affecting JMatrix
-should allow redraw for either buffer
-pupil registration needing only rotation 
-
-compare needs a relative color by default because compare subtracts with JMatrix1
-
-right now multiple janus calls are not efficient or coordinated...and legend needs multiplying/coordinating, with one for the plots and the second for the comparison
+decenter needs a dialog box for the amount and direction needs inputdialog get float x 2
 
 
 make 3D option for all functions, with scale Z value max and min
@@ -47,6 +48,11 @@ also try finding a way to use only local natural splines instead of generating w
 enforce, or have a warning having to make new zernike after loading new data, also if tweaks changed
 
 try to (b)lock opening another file while Zernike is computing to avoid crash ? condition on counter?
+
+
+
+
+
 cannot run Open
 you can run other Analyze ie center gnusplotplot, lioc, and move the picture
 probably can run kernunos but not janus?
