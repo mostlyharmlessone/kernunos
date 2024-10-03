@@ -49,6 +49,13 @@ extern std::vector<float> zernVector;
 extern float* zern;
 extern int nZ;
 
+extern std::vector<float> legendVector2;
+extern float* legend2;
+
+extern std::vector<float> zernVector2;
+extern float* zern2;
+
+
 // calling fortran code
 
 extern "C" {

@@ -110,7 +110,7 @@ END INTERFACE
 
 ! declaring common global data arrays
  real(wp), allocatable :: RadSplineCenter(:,:)
- TYPE(wpJMatrix) :: JMatrix,JMatrix1
+ TYPE(wpJMatrix) :: JMatrix,JMatrix1,JMatrix2
  TYPE(wpEyeSysMatrix) :: EyeSys
  TYPE(wpRadSlopeMatrix) :: RadSlope
  TYPE(wpAtlasMatrix) :: Atlas

@@ -424,7 +424,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     QSize sizeHint() const override;
 
     bool DataLoad(QString fileName, bool filepresent);
-    bool DataPrint(QString fileName);
+    bool Swap();
 
   public slots:
 
@@ -462,8 +462,8 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     QMatrix4x4 mViewMatrix;
     bool LoadSurfaceToBuffer(int nV, int nE, GLuint vertexbuffer,  GLuint elementbuffer, GLfloat *vertices, GLuint *elements);
 
-    GLuint elementbuffers[3];
-    GLuint vertexbuffers[3];
+    GLuint elementbuffers[4];
+    GLuint vertexbuffers[4];
     int timerID;
 
     void setupVertexAttribs();

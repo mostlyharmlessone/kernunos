@@ -185,11 +185,8 @@ void GLwidget::cleanup()
   if (shaderProgram == nullptr)
             return;
   makeCurrent();
-  for (int i=0; i <= 3; i++)
-  {
-    glDeleteBuffers(1, &vertexbuffers[i]);
-    glDeleteBuffers(1,&elementbuffers[i]);
-  }
+  glDeleteBuffers(4,vertexbuffers);
+  glDeleteBuffers(4,elementbuffers);
   killTimer(timerID);
   delete shaderProgram;
   shaderProgram = nullptr;
@@ -197,6 +194,7 @@ void GLwidget::cleanup()
   shaderGeoProgram = nullptr;
   delete shaderNormalProgram;
   shaderNormalProgram = nullptr;
+  m_vao.destroy();
   //deallocates Fortran arrays
   flag=flag-(flag%100)+99;  // last two digits of flag = 99;
   std::cout << "flag in cleanup: " << flag << "\n";
@@ -232,6 +230,13 @@ void GLwidget::initializeGL()
   // Enable depth test; Accept fragment if it is closer to the camera than the former one
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
+
+  m_vao.create();
+  m_vao.bind();
+
+  // Create buffers
+  glGenBuffers(4, vertexbuffers);
+  glGenBuffers(4, elementbuffers);
 
   m_parent->SetGLString(sglVer);
   shaderProgram = new QOpenGLShaderProgram;
@@ -322,64 +327,35 @@ void GLwidget::initializeGL()
   shaderGeoProgram->setUniformValue(m_lightPosLoc, QVector3D(0, 0, 1000));
   shaderGeoProgram->release();
 
-  // Create buffers
-  for (int i=0; i <= 3; i++)
-  {
-  glGenBuffers(1, &vertexbuffers[i]);
-  glGenBuffers(1, &elementbuffers[i]);
-  }
+  m_vao.release();
+
 }
 
-bool GLwidget::DataPrint(QString fileName)
+bool GLwidget::Swap()
 {
-  QByteArray ba = fileName.toLocal8Bit();
-  filename = ba.data();
-
-  if (!((flag%100) == 0)){
-    // reload values to avoid seg fault if previous nV and nE are too small.. and besides, they're not static!
-    nV=51840;
-    nE=26130;
-
-    if (!((flag%100) == 1)){
-      auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});  //everybody else gets blocking thread
-      future1.get();}    
-    else {
-      std::thread([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);}).detach();}  //zern gets independent thread
-  }
+    for (int i=0; i < nV; ++i){
+        vertices3[i]=vertices2[i];
+    }
+    for (int i=0; i< nE; ++i){
+        elements3[i]=elements2[i];
+    }
+    for (int i=0; i < nV; ++i){
+        vertices2[i]=vertices[i];
+    }
+    for (int i=0; i< nE; ++i){
+        elements2[i]=elements[i];
+    }
+    for (int i=0; i < nV; ++i){
+        vertices[i]=vertices3[i];
+    }
+    for (int i=0; i< nE; ++i){
+        elements[i]=elements3[i];
+    }
   return true;
 }
 
 bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cube
 {
-   //  the demo cube
-    int nV_cube = 72;
-    int nE_cube = 36;
-
-    GLfloat cube_vertices[] = {
-        -50.0f,  50.0f, -50.0f, -0.76f,  0.76f, -0.76f, 1.0f, 0.0f, 0.0f,  // Top-left & Red (x,y,z,nx,ny,nz,r,g,b)
-         50.0f,  50.0f, -50.0f,  0.76f,  0.76f, -0.76f, 0.0f, 1.0f, 0.0f,    // Top-right & Green
-         50.0f, -50.0f, -50.0f,  0.76f, -0.76f, -0.76f, 0.0f, 0.0f, 1.0f,    // Bottom-right & Blue
-        -50.0f, -50.0f, -50.0f, -0.76f, -0.76f, -0.76f, 1.0f, 1.0f, 1.0f,   // Bottom-left & White
-        -50.0f,  50.0f,  50.0f, -0.76f,  0.76f,  0.76f, 1.0f, 1.0f, 0.0f,   // Top-left & Orange?
-         50.0f,  50.0f,  50.0f,  0.76f,  0.76f,  0.76f, 0.0f, 1.0f, 1.0f,   // Top-right & Yellow?
-         50.0f, -50.0f,  50.0f,  0.76f, -0.76f,  0.76f, 1.0f, 0.0f, 1.0f,    // Bottom-right & Pink?
-        -50.0f, -50.0f,  50.0f, -0.76f, -0.76f,  0.76f, 0.0f, 0.0f, 0.0f     // Bottom-left & Black
-    };
-    // 12 triangles = 6 faces with 2 triangles per face
-    GLuint cube_elements[] = {
-                  0, 1, 2,
-                  2, 3, 0,
-                  4, 5, 6,
-                  6, 7, 4,
-                  0, 4, 5,
-                  5, 1, 0,
-                  3, 7, 6,
-                  6, 2, 3,
-                  0, 4, 7,
-                  7, 3, 0,
-                  1, 5, 6,
-                  6, 2, 1
-              };
     QByteArray ba = fileName.toLocal8Bit();
     filename = ba.data();
     if (filepresent)
@@ -401,19 +377,58 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
 
       // blocks!
       // Start the computation.
-      if ((flag%100) == 10) {
-       futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements2,vertices2,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);}));
-      } else {
-       futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);}));
+      paintme=false;
+      if ((flag%100) == 10){
+          auto future1 = std::async([&]{return janus_(&flag,filename,elements3,vertices3,legend2,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});
+          future1.get();}
+      else {
+
+          for (int i=0; i < nV; ++i){
+              vertices2[i]=vertices[i];
+          }
+          for (int i=0; i< nE; ++i){
+              elements2[i]=elements[i];
+          }
+          futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);}));
+          // Display the dialog and start the event loop.
+          dialog.exec();
+          futureWatcher.waitForFinished();
+          // Query the future to check if was canceled.
+          qDebug() << "Canceled?" << futureWatcher.future().isCanceled();
+          paintme=true;
       }
-      // Display the dialog and start the event loop.
-      dialog.exec();
-      futureWatcher.waitForFinished();
-      // Query the future to check if was canceled.
-      qDebug() << "Canceled?" << futureWatcher.future().isCanceled();
-     }
+    }
     else
-     {
+    {
+        //  the demo cube
+        int nV_cube = 72;
+        int nE_cube = 36;
+
+        GLfloat cube_vertices[] = {
+           -50.0f,  50.0f, -50.0f, -0.76f,  0.76f, -0.76f, 1.0f, 0.0f, 0.0f,   // Top-left & Red (x,y,z,nx,ny,nz,r,g,b)
+            50.0f,  50.0f, -50.0f,  0.76f,  0.76f, -0.76f, 0.0f, 1.0f, 0.0f,   // Top-right & Green
+            50.0f, -50.0f, -50.0f,  0.76f, -0.76f, -0.76f, 0.0f, 0.0f, 1.0f,   // Bottom-right & Blue
+           -50.0f, -50.0f, -50.0f, -0.76f, -0.76f, -0.76f, 1.0f, 1.0f, 1.0f,   // Bottom-left & White
+           -50.0f,  50.0f,  50.0f, -0.76f,  0.76f,  0.76f, 1.0f, 1.0f, 0.0f,   // Top-left & Orange?
+            50.0f,  50.0f,  50.0f,  0.76f,  0.76f,  0.76f, 0.0f, 1.0f, 1.0f,   // Top-right & Yellow?
+            50.0f, -50.0f,  50.0f,  0.76f, -0.76f,  0.76f, 1.0f, 0.0f, 1.0f,   // Bottom-right & Pink?
+           -50.0f, -50.0f,  50.0f, -0.76f, -0.76f,  0.76f, 0.0f, 0.0f, 0.0f    // Bottom-left & Black
+        };
+        // 12 triangles = 6 faces with 2 triangles per face
+        GLuint cube_elements[] = {
+            0, 1, 2,
+            2, 3, 0,
+            4, 5, 6,
+            6, 7, 4,
+            0, 4, 5,
+            5, 1, 0,
+            3, 7, 6,
+            6, 2, 3,
+            0, 4, 7,
+            7, 3, 0,
+            1, 5, 6,
+            6, 2, 1
+        };
       nV=nV_cube;
       nE=nE_cube;
       //arrays have to be assigned this way vertices=cube_vertices only works in the same scope
@@ -421,11 +436,11 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
       // however in non-DEBUG compilation the program fails to load data without error or crash and has the following warnings
       // warning: iteration 72 (36 in the elements loop) invokes undefined behavior [-Waggressive-loop-optimizations]
       // and void*_builtin_memcpy(void*,const void*,long unsigned int) reading 292 bytes froma region of size 288 (or 148 from 144 in the elements loop)
-      for (int i=0; i<= nV; ++i){
+      for (int i=0; i< nV; ++i){
       vertices[i]=cube_vertices[i];
      // vertices2[i]=cube_vertices[i];
       }
-      for (int i=0; i<= nE; ++i){
+      for (int i=0; i< nE; ++i){
       elements[i]=cube_elements[i];
      // elements2[i]=cube_elements[i];
       }
@@ -566,6 +581,10 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
       legend[103]=80;
       legend[100]=30;
 
+      //this is very much not the same as legend2=legend as it would be in fortran
+      for (int i=0; i< nL; ++i){
+          legend2[i]=legend[i];       //
+      }
      }
     paintme=true;
   return true;
@@ -577,7 +596,6 @@ bool GLwidget::LoadSurfaceToBuffer(int nV, int nE, GLuint vertexbuffer, GLuint e
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
     GLint data_size_in_bytes = sizeof(GLfloat)*nV;                              // 4-bytes per float x number of vertices
     glBufferData(GL_ARRAY_BUFFER, data_size_in_bytes, vertices, GL_STATIC_DRAW);
-
     GLint size = 0;
     glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
      if(data_size_in_bytes != size)
@@ -586,11 +604,11 @@ bool GLwidget::LoadSurfaceToBuffer(int nV, int nE, GLuint vertexbuffer, GLuint e
        std::cout << "Error in vertices buffer: " << data_size_in_bytes << ", " << size << std::endl;
        return false;
       }
+     if (!glIsBuffer(vertexbuffer)) return false;
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
     data_size_in_bytes = sizeof(GLuint)*nE;                // 4-bytes per int x number of elements
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, data_size_in_bytes, elements, GL_STATIC_DRAW);
-
     size = 0;
     glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
      if(data_size_in_bytes != size)
@@ -599,6 +617,7 @@ bool GLwidget::LoadSurfaceToBuffer(int nV, int nE, GLuint vertexbuffer, GLuint e
         std::cout << "Error in element buffer: " << data_size_in_bytes << ", " << size << std::endl;
         return false;
        }
+     if (!glIsBuffer(elementbuffer)) return false;
 
     // positions, colors and normals all stored as floats: 9 * sizeof(GLfloat) = 3 x 3 floats
     // vertex position
@@ -612,7 +631,11 @@ bool GLwidget::LoadSurfaceToBuffer(int nV, int nE, GLuint vertexbuffer, GLuint e
     // color attribute
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), reinterpret_cast<void *>(6 * sizeof(GLfloat)));
-                                                           // offset 6 because colors start after 3 positions + 3 normals
+                                                          // offset 6 because colors start after 3 positions + 3 normals
+    // Unbind buffer
+    glBindBuffer(vertexbuffer,0);
+    glBindBuffer(elementbuffer,0);
+
     return true;
 }
 
@@ -637,91 +660,95 @@ void GLwidget::paintGL(void)
     //regular
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+    m_vao.bind();
+
     for (int i=0; i <= 3; i++)
     {
- // Bind buffers
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffers[i]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertexbuffers[i]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffers[i]);
     //kludgy
     QMatrix4x4 mMVP;
     QVector4D m_alpha;
-    if (i == 2) {
-     if (!LoadSurfaceToBuffer(nV, nE, vertexbuffers[i], elementbuffers[i], vertices3, elements3)) return;
-     mMVP.setToIdentity();
-     mMVP.scale(QVector3D(0.005,0.005,0.005));
-     mMVP.translate(QVector3D(700,0,-1000));
-     m_alpha = QVector4D(0,0,0,1.0);
-    }
     if (i == 1) {
-     if (!LoadSurfaceToBuffer(nV, nE, vertexbuffers[i], elementbuffers[i], vertices2, elements2)) return;
-     mMVP.setToIdentity();
-     mMVP.scale(QVector3D(0.005,0.005,0.005));
-     mMVP.translate(QVector3D(-700,0,-1000));
-     m_alpha = QVector4D(0,0,0,1.0);
+        if (!LoadSurfaceToBuffer(nV, nE, vertexbuffers[i], elementbuffers[i], vertices2, elements2)) return;
+        mMVP.setToIdentity();
+        mMVP.scale(QVector3D(0.005,0.005,0.005));
+        mMVP.translate(QVector3D(-700,0,-1000));
+        m_alpha = QVector4D(0,0,0,1.0);
     }
+
+    if (i == 2) {
+        if (!LoadSurfaceToBuffer(nV, nE, vertexbuffers[i], elementbuffers[i], vertices3, elements3)) return;
+        mMVP.setToIdentity();
+        mMVP.scale(QVector3D(0.005,0.005,0.005));
+        mMVP.translate(QVector3D(700,0,-1000));
+        m_alpha = QVector4D(0,0,0,1.0);
+    }
+
     if (i == 3) {
-     if (!LoadSurfaceToBuffer(nV, nE, vertexbuffers[i], elementbuffers[i], vertices, elements)) return;
-     m_world.setToIdentity();
-     m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
-     m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
-     m_world.rotate(m_zRot / 16.0f, 0, 0, 1);
-     mMVP =  mViewMatrix  * m_world;
-     m_alpha = QVector4D(0,0,0,0.5);
+        if (!LoadSurfaceToBuffer(nV, nE, vertexbuffers[i], elementbuffers[i], vertices, elements)) return;
+        m_world.setToIdentity();
+        m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
+        m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
+        m_world.rotate(m_zRot / 16.0f, 0, 0, 1);
+        mMVP =  mViewMatrix  * m_world;
+        m_alpha = QVector4D(0,0,0,0.5);
     }
 
     if (i == 0 && m_pupilshow) {
-     if(!LoadSurfaceToBuffer(pupil_nV, pupil_nE, vertexbuffers[i], elementbuffers[i], pupil_vertices, pupil_elements)) return;
-     m_world.setToIdentity();
-     m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
-     m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
-     m_world.rotate(m_zRot / 16.0f, 0, 0, 1);
-     mMVP =  mViewMatrix  * m_world;
-     m_alpha = QVector4D(0,0,0,1.0);
-     shaderProgram->bind();
-     shaderProgram->setUniformValue(m_viewMatrixLoc, mMVP);
-     //only the regular shader has the adjustable transparency for one buffer
-     shaderProgram->setUniformValue(m_alphaLoc, m_alpha);
-     shaderProgram->setUniformValue(m_projMatrixLoc, projectionMatrix);
-     glDrawElements(GL_TRIANGLES, pupil_nE, GL_UNSIGNED_INT, 0);
-     // Unbind shader
-     shaderProgram->release();
+        if(!LoadSurfaceToBuffer(pupil_nV, pupil_nE, vertexbuffers[i], elementbuffers[i], pupil_vertices, pupil_elements)) return;
+        m_world.setToIdentity();
+        m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
+        m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
+        m_world.rotate(m_zRot / 16.0f, 0, 0, 1);
+        mMVP =  mViewMatrix  * m_world;
+        m_alpha = QVector4D(0,0,0,1.0);
+        shaderProgram->bind();
+        shaderProgram->setUniformValue(m_viewMatrixLoc, mMVP);
+        //only the regular shader has the adjustable transparency for one buffer
+        shaderProgram->setUniformValue(m_alphaLoc, m_alpha);
+        shaderProgram->setUniformValue(m_projMatrixLoc, projectionMatrix);
+        glDrawElements(GL_TRIANGLES, pupil_nE, GL_UNSIGNED_INT, 0);
+        // Unbind shader
+        shaderProgram->release();
     }
 
     if (i > 0) {
-    // Use shader or shaderNormal
-    if (m_lighting) {
-    shaderNormalProgram->bind();
-    shaderNormalProgram->setUniformValue(m_viewMatrixLoc, mMVP);
-    shaderNormalProgram->setUniformValue(m_projMatrixLoc, projectionMatrix);
-    glDrawElements(GL_TRIANGLES, nE, GL_UNSIGNED_INT, 0);
-    // Unbind shader
-    shaderNormalProgram->release();
-    } else {
-    shaderProgram->bind();
-    shaderProgram->setUniformValue(m_viewMatrixLoc, mMVP);
-    //only the regular shader has the adjustable transparency for one buffer
-    shaderProgram->setUniformValue(m_alphaLoc, m_alpha);
-    shaderProgram->setUniformValue(m_projMatrixLoc, projectionMatrix);
-    glDrawElements(GL_TRIANGLES, nE, GL_UNSIGNED_INT, 0);
-    // Unbind shader
-    shaderProgram->release();
-    };
-    // draw normals here
-    if (m_normal) {
-    shaderGeoProgram->bind();
-    shaderGeoProgram->setUniformValue(m_viewMatrixLoc, mMVP);
-    shaderGeoProgram->setUniformValue(m_projMatrixLoc, projectionMatrix);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, nE);
-    // Unbind shader
-    shaderGeoProgram->release();
-    };
+        // Use shader or shaderNormal
+        if (m_lighting) {
+            shaderNormalProgram->bind();
+            shaderNormalProgram->setUniformValue(m_viewMatrixLoc, mMVP);
+            shaderNormalProgram->setUniformValue(m_projMatrixLoc, projectionMatrix);
+            glDrawElements(GL_TRIANGLES, nE, GL_UNSIGNED_INT, 0);
+            // Unbind shader
+            shaderNormalProgram->release();
+        } else {
+            shaderProgram->bind();
+            shaderProgram->setUniformValue(m_viewMatrixLoc, mMVP);
+            //only the regular shader has the adjustable transparency for one buffer
+            shaderProgram->setUniformValue(m_alphaLoc, m_alpha);
+            shaderProgram->setUniformValue(m_projMatrixLoc, projectionMatrix);
+            glDrawElements(GL_TRIANGLES, nE, GL_UNSIGNED_INT, 0);
+            // Unbind shader
+            shaderProgram->release();
+        };
+        // draw normals here
+        if (m_normal) {
+            shaderGeoProgram->bind();
+            shaderGeoProgram->setUniformValue(m_viewMatrixLoc, mMVP);
+            shaderGeoProgram->setUniformValue(m_projMatrixLoc, projectionMatrix);
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, nE);
+            // Unbind shader
+            shaderGeoProgram->release();
+        };
 
     // Unbind buffers
     glBindBuffer(vertexbuffers[i],0);
     glBindBuffer(elementbuffers[i],0);
     }
-    }
 
+    m_vao.release();
+    }
 }
 
 // refreshes the window

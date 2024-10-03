@@ -102,7 +102,6 @@ else
   iflag=1
  endif
 endif
-write(*,*) 'iflag for SplineEval1Dx1D:',iflag
 
 ! mod(flag,100) == 99 Deallocate
 if (mod(flag,100) == 99) then
@@ -111,6 +110,9 @@ if (mod(flag,100) == 99) then
     endif
     if (allocated(JMatrix1%R)) then
      JMatrix1=0
+    endif
+    if (allocated(JMatrix2%R)) then
+     JMatrix2=0
     endif
     if (allocated(DiaSlope%rd)) then
      DiaSlope=0
@@ -144,7 +146,7 @@ if (mod(flag,100) == 99) then
     return
 endif
 
-if (mod(flag,100) == 0 .or. mod(flag,100) == 10 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3) then
+if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3) then
 !  only need new file name if opening a file or printing, and
 !  local save of inputfile1,inputfile2,logfile
 !  write(*,*) 'file from kernunos: ',file_from_C  ! this will have a lot of extra random non ASCII stuff after the file name
@@ -470,8 +472,132 @@ else
 endif
 endif
 
+! simple difference/subtraction with compare
+! currently does not actually work with ZC since there's no compare option with flag=1
+if (mod(flag,100) == 10) then
+ if (allocated(JMatrix2%R)) then
+! use geometry from current JMatrix to populate
+  JMatrix2%R(:,:)=JMatrix%R(:,:) ! might have zeroes if smaller, but should be caught by MV below
+  JMatrix2%THT(:)=JMatrix%THT(:)
+  JMatrix2%R0=JMatrix%R0
+  JMatrix2%THT0=JMatrix%THT0
+
+  JMatrix2%Z(:,:)=ABS(JMatrix1%Z(:,:)-JMatrix%Z(:,:))
+  JMatrix2%SAGC(:,:)=ABS(JMatrix1%SAGC(:,:)-JMatrix%SAGC(:,:))
+  JMatrix2%Warp(:,:)=ABS(JMatrix1%Warp(:,:)-JMatrix%Warp(:,:))
+  JMatrix2%INSTC(:,:)=ABS(JMatrix1%INSTC(:,:)-JMatrix%INSTC(:,:))
+  JMatrix2%INSTC2(:,:)=ABS(JMatrix1%INSTC2(:,:)-JMatrix%INSTC2(:,:))
+  JMatrix2%MEANC(:,:)=ABS(JMatrix1%MEANC(:,:)-JMatrix%MEANC(:,:))
+  JMatrix2%MONGEA(:,:)=ABS(JMatrix1%MONGEA(:,:)-JMatrix%MONGEA(:,:))
+  JMatrix2%SAGC0(:)=ABS(JMatrix1%SAGC0(:)-JMatrix%SAGC0(:))
+  JMatrix2%Z0(:)=ABS(JMatrix1%Z0(:)-JMatrix%Z0(:))
+  JMatrix2%Warp0(:)=ABS(JMatrix1%Warp0(:)-JMatrix%Warp0(:))
+  JMatrix2%INSTC0(:)=ABS(JMatrix1%INSTC0(:)-JMatrix%INSTC0(:))
+  JMatrix2%INSTC20(:)=ABS(JMatrix1%INSTC20(:)-JMatrix%INSTC20(:))
+  JMatrix2%MEANC0(:)=ABS(JMatrix1%MEANC0(:)-JMatrix%MEANC0(:))
+  JMatrix2%MONGEA0(:)=ABS(JMatrix1%MONGEA0(:)-JMatrix%MONGEA0(:))
+  JMatrix2%ZC(:,:,:)=ABS(JMatrix1%ZC(:,:,:)-JMatrix%ZC(:,:,:))
+  JMatrix2%ZC0(:,:)=ABS(JMatrix1%ZC0(:,:)-JMatrix%ZC0(:,:))
+
+! have to re-do min/max
+ JMatrix2%SAGC0(2)=1E30   ;  JMatrix2%SAGC0(3)=-1E30
+ JMatrix2%Warp0(2)=1E30   ;  JMatrix2%Warp0(3)=-1E30
+ JMatrix2%Z0(2)=1E30      ;  JMatrix2%Z0(3)=-1E30
+ JMatrix2%INSTC0(2)=1E30  ;  JMatrix2%INSTC0(3)=-1E30
+ JMatrix2%INSTC20(2)=1E30 ;  JMatrix2%INSTC20(3)=-1E30
+ JMatrix2%MEANC0(2)=1E30  ;  JMatrix2%MEANC0(3)=-1E30
+ JMatrix2%MONGEA0(2)=1E30 ;  JMatrix2%MONGEA0(3)=-1E30
+ JMatrix2%ZC0(2,:)=1E30   ;  JMatrix2%ZC0(3,:)=-1E30
+do i=1,M1
+ JMatrix2%MV(i)=min(JMatrix%MV(i),JMatrix1%MV(i))
+ do j=1,JMatrix2%MV(i)
+   if (JMatrix2%INSTC(j,i) <= JMatrix2%INSTC0(2)) JMatrix2%INSTC0(2)=JMatrix2%INSTC(j,i)
+   if (JMatrix2%INSTC(j,i) >= JMatrix2%INSTC0(3)) JMatrix2%INSTC0(3)=JMatrix2%INSTC(j,i)
+   if (JMatrix2%INSTC2(j,i) <= JMatrix2%INSTC20(2)) JMatrix2%INSTC20(2)=JMatrix2%INSTC2(j,i)
+   if (JMatrix2%INSTC2(j,i) >= JMatrix2%INSTC20(3)) JMatrix2%INSTC20(3)=JMatrix2%INSTC2(j,i)
+   if (JMatrix2%Z(j,i) <= JMatrix2%Z0(2)) JMatrix2%Z0(2)=JMatrix2%Z(j,i)
+   if (JMatrix2%Z(j,i) >= JMatrix2%Z0(3)) JMatrix2%Z0(3)=JMatrix2%Z(j,i)
+   if (JMatrix2%SAGC(j,i) <= JMatrix2%SAGC0(2)) JMatrix2%SAGC0(2)=JMatrix2%SAGC(j,i)
+   if (JMatrix2%SAGC(j,i) >= JMatrix2%SAGC0(3)) JMatrix2%SAGC0(3)=JMatrix2%SAGC(j,i)
+   if (JMatrix2%Warp(j,i) <= JMatrix2%Warp0(2)) JMatrix2%Warp0(2)=JMatrix2%Warp(j,i)
+   if (JMatrix2%Warp(j,i) >= JMatrix2%Warp0(3)) JMatrix2%Warp0(3)=JMatrix2%Warp(j,i)
+   if (JMatrix2%MEANC(j,i) <= JMatrix2%MEANC0(2)) JMatrix2%MEANC0(2)=JMatrix2%MEANC(j,i)
+   if (JMatrix2%MEANC(j,i) >= JMatrix2%MEANC0(3)) JMatrix2%MEANC0(3)=JMatrix2%MEANC(j,i)
+   if (JMatrix2%MONGEA(j,i) <= JMatrix2%MONGEA0(2)) JMatrix2%MONGEA0(2)=JMatrix2%MONGEA(j,i)
+   if (JMatrix2%MONGEA(j,i) >= JMatrix2%MONGEA0(3)) JMatrix2%MONGEA0(3)=JMatrix2%MONGEA(j,i)
+   do k = 1,15
+    if (JMatrix2%ZC(j,i,k) <= JMatrix2%ZC0(2,k)) JMatrix2%ZC0(2,k)=JMatrix2%ZC(j,i,k)
+    if (JMatrix2%ZC(j,i,k) >= JMatrix2%ZC0(3,k)) JMatrix2%ZC0(3,k)=JMatrix2%ZC(j,i,k)
+    if (JMatrix2%ZC0(1,k) <= JMatrix2%ZC0(2,k)) JMatrix2%ZC0(2,k)=JMatrix2%ZC0(1,k)
+    if (JMatrix2%ZC0(1,k) >= JMatrix2%ZC0(3,k)) JMatrix2%ZC0(3,k)=JMatrix2%ZC0(1,k)
+   end do
+ end do
+end do
+
+! writes values in openGL friendly format to matrices for passing to C/C++
+! flag/fct determines what to write for elevation and color, just like in flag=2,3 output versions above
+   donut = .FALSE.
+   if (fct .lt. 16 .and. fct .gt. 0) then
+     powctr=JMatrix2%ZC0(1,fct)
+     powmin=JMatrix2%ZC0(2,fct)
+     powmax=JMatrix2%ZC0(3,fct)
+   else
+   SELECT CASE (fct)
+     CASE (0)
+     powctr=JMatrix2%SAGC0(1)
+     powmin=JMatrix2%SAGC0(2)
+     powmax=JMatrix2%SAGC0(3)
+     CASE (16)
+     powctr=JMatrix2%INSTC0(1)
+     powmin=JMatrix2%INSTC0(2)
+     powmax=JMatrix2%INSTC0(3)
+     CASE (17)
+     powctr=JMatrix2%INSTC20(1)
+     powmin=JMatrix2%INSTC20(2)
+     powmax=JMatrix2%INSTC20(3)
+     CASE (18)
+     powctr=JMatrix2%MEANC0(1)
+     powmin=JMatrix2%MEANC0(2)
+     powmax=JMatrix2%MEANC0(3)
+     CASE (19)
+     powctr=JMatrix2%MONGEA0(1)
+     powmin=JMatrix2%MONGEA0(2)
+     powmax=JMatrix2%MONGEA0(3)
+     CASE (20)
+     powctr=JMatrix2%Z0(1)
+     powmin=JMatrix2%Z0(2)
+     powmax=JMatrix2%Z0(3)
+     CASE (21)
+     powctr=JMatrix2%Warp0(1)
+     powmin=JMatrix2%Warp0(2)
+     powmax=JMatrix2%Warp0(3)
+     CASE DEFAULT
+     powctr=JMatrix2%SAGC0(1)
+     powmin=JMatrix2%SAGC0(2)
+     powmax=JMatrix2%SAGC0(3)
+   END SELECT
+  endif
+
+  call Geom(flag, JMatrix2, donut, powmin, powmax, elements, vertices, nV, nE)
+  call makelegend(flag, powmin, powmax, legend, nL)
+
+write(*,*) "fortran 10"
+do i=7,17
+ write(*,*) vertices(i)
+end do
+write(*,*) JMatrix%SAGC(7:17,17)
+write(*,*) JMatrix1%SAGC(7:17,17)
+write(*,*) JMatrix2%SAGC(7:17,17)
+
+ return
+ else
+  write(*,*) "Needs two scans for compare"
+  return
+ endif
+endif
+
 ! last two digits of flag == 0 parse file name, assign TestData type and MM,N
-if (mod(flag,100) == 0 .or. mod(flag,100) == 10) then
+if (mod(flag,100) == 0) then
  call CCounter(0,inputfile1//c_null_char)
 ! From either RA?.? or XX?.?, set inputfile1 to the XX version, inputfile2 to the RA version, inputfile3 to the PU version,
 ! For PentaCam
@@ -603,7 +729,7 @@ if (mod(flag,100) == 0 .or. mod(flag,100) == 10) then
       write(*,*) "EyeSys files: ",inputfile1," ",inputfile2," ",inputfile3
      endif
     endif
- endif ! (mod(flag,100) == 0 or 10) parsing the file name,assigning TestData type and MM,N
+ endif ! (mod(flag,100) == 0) parsing the file name,assigning TestData type and MM,N
 
 
 ! allocate JMatrix needed for file import
@@ -619,32 +745,39 @@ if (mod(flag,100) == 0 .or. mod(flag,100) == 10) then
      write(*,*) 'allocating JMatrix1'
      call init_mat_JMatrix(M1,N1,JMatrix1)
     endif
-    ! always store the last JMatrix in JMatrix1
-    JMatrix1%R(:,:)=JMatrix%R(:,:)
-    JMatrix1%PU(:)=JMatrix%PU(:)
-    JMatrix1%Z(:,:)=JMatrix%Z(:,:)
-    JMatrix1%YPR(:,:)=JMatrix%YPR(:,:)
-    JMatrix1%YPTHETA(:,:)=JMatrix%YPTHETA(:,:)
-    JMatrix1%THT(:)=JMatrix%THT(:)
-    JMatrix1%SAGC(:,:)=JMatrix%SAGC(:,:)
-    JMatrix1%Warp(:,:)=JMatrix%Warp(:,:)
-    JMatrix1%INSTC(:,:)=JMatrix%INSTC(:,:)
-    JMatrix1%INSTC2(:,:)=JMatrix%INSTC2(:,:)
-    JMatrix1%MEANC(:,:)=JMatrix%MEANC(:,:)
-    JMatrix1%MONGEA(:,:)=JMatrix%MONGEA(:,:)
-    JMatrix1%RC(:,:)=JMatrix%RC(:,:)
-    JMatrix1%MV(:)=JMatrix%MV(:)
-    JMatrix1%R0=JMatrix%R0
-    JMatrix1%Z0(:)=JMatrix%Z0(:)
-    JMatrix1%THT0=JMatrix%THT0
-    JMatrix1%SAGC0(:)=JMatrix%SAGC0(:)
-    JMatrix1%Warp0(:)=JMatrix%Warp0(:)
-    JMatrix1%INSTC0(:)=JMatrix%INSTC0(:)
-    JMatrix1%INSTC20(:)=JMatrix%INSTC20(:)
-    JMatrix1%MEANC0(:)=JMatrix%MEANC0(:)
-    JMatrix1%MONGEA0(:)=JMatrix%MONGEA0(:)
-    JMatrix1%ZC0(:,:)=JMatrix%ZC0(:,:)
-    JMatrix1%ZC(:,:,:)=JMatrix%ZC(:,:,:)
+    if (allocated(JMatrix2%R)) then
+     write(*,*) 'JMatrix2 allocated'
+    else
+     write(*,*) 'allocating JMatrix2'
+     call init_mat_JMatrix(M1,N1,JMatrix2)
+    endif
+    if (mod(flag,100) /= 10) then
+     JMatrix1%R(:,:)=JMatrix%R(:,:)
+     JMatrix1%PU(:)=JMatrix%PU(:)
+     JMatrix1%Z(:,:)=JMatrix%Z(:,:)     
+     JMatrix1%YPR(:,:)=JMatrix%YPR(:,:)
+     JMatrix1%YPTHETA(:,:)=JMatrix%YPTHETA(:,:)
+     JMatrix1%THT(:)=JMatrix%THT(:)
+     JMatrix1%SAGC(:,:)=JMatrix%SAGC(:,:)
+     JMatrix1%Warp(:,:)=JMatrix%Warp(:,:)
+     JMatrix1%INSTC(:,:)=JMatrix%INSTC(:,:)
+     JMatrix1%INSTC2(:,:)=JMatrix%INSTC2(:,:)
+     JMatrix1%MEANC(:,:)=JMatrix%MEANC(:,:)
+     JMatrix1%MONGEA(:,:)=JMatrix%MONGEA(:,:)
+     JMatrix1%RC(:,:)=JMatrix%RC(:,:)
+     JMatrix1%MV(:)=JMatrix%MV(:)
+     JMatrix1%R0=JMatrix%R0
+     JMatrix1%Z0(:)=JMatrix%Z0(:)
+     JMatrix1%THT0=JMatrix%THT0
+     JMatrix1%SAGC0(:)=JMatrix%SAGC0(:)
+     JMatrix1%Warp0(:)=JMatrix%Warp0(:)
+     JMatrix1%INSTC0(:)=JMatrix%INSTC0(:)
+     JMatrix1%INSTC20(:)=JMatrix%INSTC20(:)
+     JMatrix1%MEANC0(:)=JMatrix%MEANC0(:)
+     JMatrix1%MONGEA0(:)=JMatrix%MONGEA0(:)
+     JMatrix1%ZC0(:,:)=JMatrix%ZC0(:,:)
+     JMatrix1%ZC(:,:,:)=JMatrix%ZC(:,:,:)
+    endif
   else
      write(*,*) 'allocating JMatrix'
      call init_mat_JMatrix(M1,N1,JMatrix)
@@ -663,7 +796,7 @@ if (TestData .eq. 0) then
  if(.not.allocated(EyeSys%RA)) then
   call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
  endif
- if (mod(flag,100) == 0 .or. mod(flag,100) == 10) then !read the files
+ if (mod(flag,100) == 0) then !read the files
 ! READ THE EYESYS DATA
 ! XX????? ARE THE AXIAL DIST. RX???? ARE THE MIRE RADII  
    call CPU_TIME(time_start)
@@ -685,13 +818,12 @@ if (TestData .eq. 0) then
   endif  !(mod(flag,100) /= 0,99,2,3 must be 1 or 4, reload the original data
 ! Generate the slope matrix using ZFCT
   RadSlope=EyeSys
-
 endif
 
 ! READ THE ATLAS DATA
 if (TestData .eq. 1) then
  MM=180
- if (mod(flag,100) == 0 .or. mod(flag,100) == 10) then !read the files
+ if (mod(flag,100) == 0) then !read the files
   read_error=0
   call CPU_TIME(time_start)
  ! determine the type, prior to allocating Atlas
@@ -764,7 +896,7 @@ endif ! end (TestData == 1)
   endif
 ! ELE are elevations, CUR are "sagittal" curvatures in a 141x141 -7 to 7 mm square -1 is no data
 ! _ELE.CSV or _CUR.CSV versions have less text but use semicolons (;) instead of -1
-  if (mod(flag,100) == 0 .or. mod(flag,100) == 10) then ! read the files
+  if (mod(flag,100) == 0) then ! read the files
    read_error=0
    if (TestData .eq. 3 .or. TestData .eq. 5) then
    call RCNVRTP(TestData,inputfile2,read_error)  !curvatures
@@ -814,7 +946,7 @@ if (TestData .lt. 0) then
  if(.not.allocated(EyeSys%RA)) then
   call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
  endif
-  if (mod(flag,100) == 0 .or. mod(flag,100) == 10) then !read the files
+  if (mod(flag,100) == 0) then !read the files
    call RCNVRTT(MM,N)
   endif
 ! Generate the slope matrix using ZFCT
@@ -1450,62 +1582,6 @@ deallocate(zernC,rlocal,thtlocal)
  endif
 endif  ! end of flag=1
 
-! simple difference/subtraction the second time through with compare
-! currently does not actually work with ZC since there's no compare option with flag=1
-if (allocated(JMatrix1%R)) then
- if (mod(flag,100) == 10) then
-  JMatrix%SAGC(:,:)=ABS(JMatrix1%SAGC(:,:)-JMatrix%SAGC(:,:))
-  JMatrix%Warp(:,:)=ABS(JMatrix1%Warp(:,:)-JMatrix%Warp(:,:))
-  JMatrix%INSTC(:,:)=ABS(JMatrix1%INSTC(:,:)-JMatrix%INSTC(:,:))
-  JMatrix%INSTC2(:,:)=ABS(JMatrix1%INSTC2(:,:)-JMatrix%INSTC2(:,:))
-  JMatrix%MEANC(:,:)=ABS(JMatrix1%MEANC(:,:)-JMatrix%MEANC(:,:))
-  JMatrix%MONGEA(:,:)=ABS(JMatrix1%MONGEA(:,:)-JMatrix%MONGEA(:,:))
-  JMatrix%SAGC0(:)=ABS(JMatrix1%SAGC0(:)-JMatrix%SAGC0(:))
-  JMatrix%Warp0(:)=ABS(JMatrix1%Warp0(:)-JMatrix%Warp0(:))
-  JMatrix%INSTC0(:)=ABS(JMatrix1%INSTC0(:)-JMatrix%INSTC0(:))
-  JMatrix%INSTC20(:)=ABS(JMatrix1%INSTC20(:)-JMatrix%INSTC20(:))
-  JMatrix%MEANC0(:)=ABS(JMatrix1%MEANC0(:)-JMatrix%MEANC0(:))
-  JMatrix%MONGEA0(:)=ABS(JMatrix1%MONGEA0(:)-JMatrix%MONGEA0(:))
-  JMatrix%ZC(:,:,:)=ABS(JMatrix1%ZC(:,:,:)-JMatrix%ZC(:,:,:))
-  JMatrix%ZC0(:,:)=ABS(JMatrix1%ZC0(:,:)-JMatrix%ZC0(:,:))
-
-! have to re-do min/max
- JMatrix%SAGC0(2)=1E30   ;  JMatrix%SAGC0(3)=-1E30
- JMatrix%Warp0(2)=1E30   ;  JMatrix%Warp0(3)=-1E30
- JMatrix%Z0(2)=1E30      ;  JMatrix%Z0(3)=-1E30
- JMatrix%INSTC0(2)=1E30  ;  JMatrix%INSTC0(3)=-1E30
- JMatrix%INSTC20(2)=1E30 ;  JMatrix%INSTC20(3)=-1E30
- JMatrix%MEANC0(2)=1E30  ;  JMatrix%MEANC0(3)=-1E30
- JMatrix%MONGEA0(2)=1E30 ;  JMatrix%MONGEA0(3)=-1E30
- JMatrix%ZC0(2,:)=1E30   ;  JMatrix%ZC0(3,:)=-1E30
-do i=1,M1
- JMatrix%MV(i)=min(JMatrix%MV(i),JMatrix1%MV(i))
- do j=1,JMatrix%MV(i)
-   if (JMatrix%INSTC(j,i) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC(j,i)
-   if (JMatrix%INSTC(j,i) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC(j,i)
-   if (JMatrix%INSTC2(j,i) <= JMatrix%INSTC20(2)) JMatrix%INSTC20(2)=JMatrix%INSTC2(j,i)
-   if (JMatrix%INSTC2(j,i) >= JMatrix%INSTC20(3)) JMatrix%INSTC20(3)=JMatrix%INSTC2(j,i)
-   if (JMatrix%Z(j,i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z(j,i)
-   if (JMatrix%Z(j,i) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z(j,i)
-   if (JMatrix%SAGC(j,i) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC(j,i)
-   if (JMatrix%SAGC(j,i) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC(j,i)
-   if (JMatrix%Warp(j,i) <= JMatrix%Warp0(2)) JMatrix%Warp0(2)=JMatrix%Warp(j,i)
-   if (JMatrix%Warp(j,i) >= JMatrix%Warp0(3)) JMatrix%Warp0(3)=JMatrix%Warp(j,i)
-   if (JMatrix%MEANC(j,i) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC(j,i)
-   if (JMatrix%MEANC(j,i) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC(j,i)
-   if (JMatrix%MONGEA(j,i) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA(j,i)
-   if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
-   do k = 1,15
-    if (JMatrix%ZC(j,i,k) <= JMatrix%ZC0(2,k)) JMatrix%ZC0(2,k)=JMatrix%ZC(j,i,k)
-    if (JMatrix%ZC(j,i,k) >= JMatrix%ZC0(3,k)) JMatrix%ZC0(3,k)=JMatrix%ZC(j,i,k)
-    if (JMatrix%ZC0(1,k) <= JMatrix%ZC0(2,k)) JMatrix%ZC0(2,k)=JMatrix%ZC0(1,k)
-    if (JMatrix%ZC0(1,k) >= JMatrix%ZC0(3,k)) JMatrix%ZC0(3,k)=JMatrix%ZC0(1,k)
-   end do
- end do
-end do
-
- endif
-endif
 
 ! plot Zernike central coefficients with gnuplot
 if (mod(flag,100) == 1 .or. mod(flag,100) == 9) then
@@ -1682,15 +1758,21 @@ endif
 
   dist = -2*JMatrix%Z0(3)
 ! generate buffer data
+
   call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
   call Pupil(JMatrix, dist, pupil_elements, pupil_vertices, pupil_nV, pupil_nE)
   call makelegend(flag, powmin, powmax, legend, nL)
+
+write(*,*) "fortran"
+do i=7,17
+ write(*,*) vertices(i)
+end do
 
 ! eigenvalues show shape of RadSlope without make_rings but with FillArray 7 elevations
 !  atmp=pca(2,RadSlope)
 !  atmp=pca(3,RadSlope)
 
-
+  write(*,*) "Done: janus"
   call LogC("Done: janus"//c_null_char)  !has to be C and declared, not cpp
 
   return        

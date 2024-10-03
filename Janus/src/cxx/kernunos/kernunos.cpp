@@ -93,8 +93,8 @@
 using namespace QtConcurrent;
 
 // global settings
-const unsigned int SCR_WIDTH = 1600;
-const unsigned int SCR_HEIGHT = 400;
+const unsigned int SCR_WIDTH = 1800;
+const unsigned int SCR_HEIGHT = 600;
 
 // flag xxxxxxxx dat,fct,map,action used to communicate between cpp and fortran code calculation options
 // first two digits are Placido disk data fillin and/or center-node tweaks
@@ -168,8 +168,8 @@ bool paintme = false;
 
 //how very Fortran that these need to be static & global
 // data vectors for corneal images
-int nV;
-int nE;
+int nV=51840;
+int nE=26130;
 std::vector<GLuint> Elements(26130);
 std::vector<GLfloat> Vertices(51840);
 GLfloat* vertices = Vertices.data();
@@ -201,6 +201,14 @@ float* legend = legendVector.data();
 int nZ = 14;
 std::vector<float> zernVector(nZ);  //12 zernike and min/max
 float* zern = zernVector.data();
+
+// data vector for legend value & colors
+std::vector<float> legendVector2(nL);  //26 colors =  1 value + 3 rgbv (value,rgbv)
+float* legend2 = legendVector2.data();
+
+// data vector for zernike graph
+std::vector<float> zernVector2(nZ);  //12 zernike and min/max
+float* zern2 = zernVector2.data();
 
 QString *m_GLString=nullptr;
 QString glstring_global;
@@ -351,17 +359,19 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
 void MainWindow::compare()
 {
     flag=flag-(flag%100)+10;  // last two digits of flag=10
-    // note that the Atlas CSV filter is non-specific and will include all CSV files
-    QString filter = "PentaCam (*.CUR *.ELE *_CUR.CSV *_ELE.CSV);;EyeSys (RA*.* XX*.*);;Atlas (*.CSV) ;; All (*)";
-    QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
-   if (fileName.isEmpty())
-       return;
-   QByteArray ba = fileName.toLocal8Bit();
-   const char *filename = ba.data();
-   ui.infoLabel->setText(tr("filename:  ")+tr(filename));
-   if (!fileName.isEmpty())
-       m_GLwidget->DataLoad(fileName,true);
-   update();
+//  for now set compare TO hsbrgb
+    int map=(flag-(flag%100))/100%100 ;
+    GLwidget::setAllmapsfalse();
+    GLwidget::sethsbrgb(true);
+    checkmapsflags();
+
+    QString fileName="compare";
+    m_GLwidget->DataLoad(fileName,true);
+
+//  for now restore FROM hsbrgb
+    flag=flag+100*(map-3) ;  //restore flag but doesn't reset map
+    checkmapsflags();
+    update();
 }
 
 void MainWindow::redraw(){
@@ -384,17 +394,15 @@ void MainWindow::zerncompute()
         ui.infoLabel->setText(tr("gnuplot call failed!"));
         return;
     }
-//  This doesn't work if I detach the computation thread in GLwidget::DataPrint(QString fileName)
     QTemporaryFile FILE;
-    FILE.setAutoRemove(true);  //does not do anything
+    FILE.setAutoRemove(true);
     FILE.open();
     QString filenamelocal = FILE.fileName();
     filenamelocal = filenamelocal.append(".gnu");
     QByteArray ba = filenamelocal.toLocal8Bit();
-    char *filename = ba.data();
+    filename = ba.data();
     flag=flag-(flag%100)+1;  // last two digits of flag=1;
-    m_GLwidget->DataPrint(filename);
-
+    std::thread([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);}).detach();
 
 #ifdef _WIN32
     // For Windows, prompt for a keystroke before the Gnuplot object goes out of scope so that
@@ -432,17 +440,16 @@ void MainWindow::showzern()
         ui.infoLabel->setText(tr("gnuplot call failed!"));
         return;
     }
-    //  This doesn't work if I detach the computation thread in GLwidget::DataPrint(QString fileName)
     QTemporaryFile FILE;
-    FILE.setAutoRemove(true);  //does not do anything
+    FILE.setAutoRemove(true);
     FILE.open();
     QString filenamelocal = FILE.fileName();
     filenamelocal = filenamelocal.append(".gnu");
     QByteArray ba = filenamelocal.toLocal8Bit();
-    char *filename = ba.data();
+    filename = ba.data();
     flag=flag-(flag%100)+9;  // last two digits of flag=1;
-    m_GLwidget->DataPrint(filename);
-
+    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});
+    future1.get();
 
 #ifdef _WIN32
     // For Windows, prompt for a keystroke before the Gnuplot object goes out of scope so that
@@ -463,10 +470,11 @@ void MainWindow::importexport()
     QString filenamelocal = FILE.fileName();
     filenamelocal = filenamelocal.append(".ply");
     QByteArray ba = filenamelocal.toLocal8Bit();
-    const char *filename = ba.data();
+    filename = ba.data();
     // generate temp ply file
     flag=flag-(flag%100)+3;  // last two digits of flag=3;
-    m_GLwidget->DataPrint(filename);
+    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});
+    future1.get();
     // get output file name and type
    QString filter =
        "Stanford Polygon Library ASCII .ply (*.ply) ;; "
@@ -634,7 +642,7 @@ void MainWindow::ply2bin()
     if (fileName.isEmpty())
       return;
     QByteArray ba = fileName.toLocal8Bit();
-    const char *filenameout = ba.data();
+    char *filenameout = ba.data();
     //make temporary PLY file
     /*  //without Qt
     std::string filenamelocal = std::tmpnam(nullptr);
@@ -648,9 +656,10 @@ void MainWindow::ply2bin()
     QString filenamelocal = FILE.fileName();
     filenamelocal = filenamelocal.append(".ply");
     ba = filenamelocal.toLocal8Bit();
-    const char *filename = ba.data();
+    filename = ba.data();
     flag=flag-(flag%100)+3;  // last two digits of flag=3;
-       m_GLwidget->DataPrint(filename);
+    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});
+    future1.get();
     // from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY; MIT licence, included source in tree
     int wrote=ConvertPLYtoBIN(filename,filenameout);
     if (wrote == 0) {
@@ -681,9 +690,10 @@ void MainWindow::off2stl()
    QString filenamelocal = FILE.fileName();
    filenamelocal = filenamelocal.append(".off");
    ba = filenamelocal.toLocal8Bit();
-   char *filename = ba.data();
+   filename = ba.data();
    flag=flag-(flag%100)+2;  // last two digits of flag=2;
-   m_GLwidget->DataPrint(filename);
+   auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});
+   future1.get();
    ConvertOFFtoSTL_C_(filename,filenameout);
    ui.infoLabel->setText(tr("Wrote  ")+tr(filenameout));
    FILE.remove();    //doesnt do anything
@@ -696,10 +706,11 @@ void MainWindow::makeoff()
    if (fileName.isEmpty())
       return;
    QByteArray ba = fileName.toLocal8Bit();
-   char *filenameout = ba.data();
+   filename = ba.data();
    flag=flag-(flag%100)+2;  // last two digits of flag=2;
-   m_GLwidget->DataPrint(filenameout);
-   ui.infoLabel->setText(tr("Wrote  ")+tr(filenameout));
+   auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});
+   future1.get();
+   ui.infoLabel->setText(tr("Wrote  ")+tr(filename));
 }
 
 void MainWindow::makeply()
@@ -709,10 +720,11 @@ void MainWindow::makeply()
    if (fileName.isEmpty())
       return;
    QByteArray ba = fileName.toLocal8Bit();
-   char *filenameout = ba.data();
+   filename = ba.data();
    flag=flag-(flag%100)+3;  // last two digits of flag=3;
-   m_GLwidget->DataPrint(filenameout);
-   ui.infoLabel->setText(tr("Wrote  ")+tr(filenameout));
+   auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});
+   future1.get();
+   ui.infoLabel->setText(tr("Wrote  ")+tr(filename));
 }
 
 void MainWindow::LinesofCurvature()
@@ -723,9 +735,10 @@ void MainWindow::LinesofCurvature()
     QString filenamelocal = FILE.fileName();
     filenamelocal = filenamelocal.append(".car");
     QByteArray ba = filenamelocal.toLocal8Bit();
-    char *filename = ba.data();
+    filename = ba.data();
     flag=flag-(flag%100)+7;  // last two digits of flag=7;
-    m_GLwidget->DataPrint(filename);
+    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});
+    future1.get();
     int wrote=lioc(filename);
    if (wrote == 0) {
        ui.infoLabel->setText(tr("gnuplot called successfully for lioc  ")); }
@@ -748,10 +761,10 @@ void MainWindow::gnuplotsplot() {
    QString filenamelocal = FILE.fileName();
    filenamelocal = filenamelocal.append(".gnu");
    QByteArray ba = filenamelocal.toLocal8Bit();
-   char *filename = ba.data();
+   filename = ba.data();
    flag=flag-(flag%100)+5;  // last two digits of flag=5;
-   m_GLwidget->DataPrint(filename);
-
+   auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});
+   future1.get();
    // would be better if calcs could be done here instead of in janus
    Gnuplot gp;
    gp << "load \"" << filename << "\n";
@@ -783,10 +796,10 @@ void MainWindow::center() {
    QString filenamelocal = FILE.fileName();
    filenamelocal = filenamelocal.append(".gnu");
    QByteArray ba = filenamelocal.toLocal8Bit();
-   char *filename = ba.data();
+   filename = ba.data();
    flag=flag-(flag%100)+6;  // last two digits of flag=6;
-   m_GLwidget->DataPrint(filename);
-
+   auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});
+   future1.get();
    // would be better if calcs could be done here instead of in janus, or at least call WriteCenter?
 
    Gnuplot gp;
@@ -855,10 +868,10 @@ void MainWindow::rings() {
     QString filenamelocal = FILE.fileName();
     filenamelocal = filenamelocal.append(".gnu");
     QByteArray ba = filenamelocal.toLocal8Bit();
-    char *filename = ba.data();
+    filename = ba.data();
     flag=flag-(flag%100)+8;  // last two digits of flag=8;
-    m_GLwidget->DataPrint(filename);
-
+    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});
+    future1.get();
     // would be better if calcs could be done here instead of in janus, or at least call WriteCenter?
 
     Gnuplot gp;
@@ -2010,21 +2023,28 @@ void MainWindow::updateResult()
     int scale = 680;
     int scale2 = 30;
     QLinearGradient grBtoY(0, 0, 1, scale);
+    QLinearGradient grBtoY2(0, 0, 1, scale);
     for (int i = 1; i <= 26; ++i) {
-        QColor rgbcolor= QColor::fromRgb(legend[(i-1)*4+1],
+        QColor rgbcolor = QColor::fromRgb(legend[(i-1)*4+1],
                                          legend[(i-1)*4+2],
                                          legend[(i-1)*4+3],
-                                          255);        
+                                          255);
+        QColor rgbcolor2 = QColor::fromRgb(legend2[(i-1)*4+1],
+                                          legend2[(i-1)*4+2],
+                                          legend2[(i-1)*4+3],
+                                          255);
 /*
     // write the values
         std::cout << "legend[" << (i-1)*4+1 << "]=" <<
-                legend[(i-1)*4+1] << ";\n" << "legend[" << (i-1)*4+2 << "]=" <<
-            legend[(i-1)*4+2] << ";\n" << "legend[" << (i-1)*4+3 << "]=" <<
-            legend[(i-1)*4+3] << ";\n" << "legend[" <<(i-1)*4+0 << "]=" <<
-            floor(legend[(i-1)*4]+0.5) << ";\n" <<
+                legend2[(i-1)*4+1] << ";\n" << "legend[" << (i-1)*4+2 << "]=" <<
+            legend2[(i-1)*4+2] << ";\n" << "legend[" << (i-1)*4+3 << "]=" <<
+            legend2[(i-1)*4+3] << ";\n" << "legend[" <<(i-1)*4+0 << "]=" <<
+            floor(legend2[(i-1)*4]+0.5) << ";\n" <<
             std::endl;
 */
+
         grBtoY.setColorAt((i-1)/26.0, rgbcolor);
+        grBtoY2.setColorAt((i-1)/26.0, rgbcolor2);
     }
     QPixmap pm(scale2, scale);
     QPainter pmp(&pm);
@@ -2034,6 +2054,13 @@ void MainWindow::updateResult()
     QRect rect1(0, 0, scale2, scale);
     pmp.drawRect(rect1);
     ui.legendpix->setPixmap(pm);
+    QPixmap pm2(scale2, scale);
+    QPainter pmp2(&pm2);
+    pmp2.setBrush(QBrush(grBtoY2));
+    pmp2.setPen(Qt::NoPen);
+    pmp2.setRenderHint(QPainter::Antialiasing, true);
+    pmp2.drawRect(rect1);
+    ui.legendpix_2->setPixmap(pm2);
     QString legendvalues = "";
     for (int i = 1; i <= 13; ++i) {
         float j = floor(legend[(i-1)*8]+0.5);
@@ -2044,9 +2071,22 @@ void MainWindow::updateResult()
         legendvalues += "\n";
         legendvalues += "\n";
     }
+    QString legendvalues2 = "";
+    for (int i = 1; i <= 13; ++i) {
+        float j = floor(legend2[(i-1)*8]+0.5);
+        std::string t2 = std::to_string(j);  //stuck with 6 digits output
+        char const *n_char2 = t2.c_str();
+        legendvalues2 += "\n";
+        legendvalues2 += n_char2;
+        legendvalues2 += "\n";
+        legendvalues2 += "\n";
+    }
     ui.legend->setText(legendvalues);
     ui.legend->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui.legendpix->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui.legend_2->setText(legendvalues2);
+    ui.legend_2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui.legendpix_2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
 }
 
