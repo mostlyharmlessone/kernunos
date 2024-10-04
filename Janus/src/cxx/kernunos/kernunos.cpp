@@ -170,24 +170,24 @@ bool paintme = false;
 // data vectors for corneal images
 int nV=51840;
 int nE=26130;
-std::vector<GLuint> Elements(26130);
-std::vector<GLfloat> Vertices(51840);
+std::vector<GLuint> Elements(nE);
+std::vector<GLfloat> Vertices(nV);
 GLfloat* vertices = Vertices.data();
 GLuint* elements = Elements.data();
-std::vector<GLuint> Elements2(26130);
-std::vector<GLfloat> Vertices2(51840);
+std::vector<GLuint> Elements2(nE);
+std::vector<GLfloat> Vertices2(nV);
 GLfloat* vertices2 = Vertices2.data();
 GLuint* elements2 = Elements2.data();
-std::vector<GLuint> Elements3(26130);
-std::vector<GLfloat> Vertices3(51840);
+std::vector<GLuint> Elements3(nE);
+std::vector<GLfloat> Vertices3(nV);
 GLfloat* vertices3 = Vertices3.data();
 GLuint* elements3 = Elements3.data();
 
 // data vectors for pupil images
 int pupil_nV = 1629;
 int pupil_nE = 540;
-std::vector<GLuint> pupil_Elements(540);
-std::vector<GLfloat> pupil_Vertices(1629);
+std::vector<GLuint> pupil_Elements(pupil_nE);
+std::vector<GLfloat> pupil_Vertices(pupil_nV);
 GLfloat* pupil_vertices = pupil_Vertices.data();
 GLuint* pupil_elements = pupil_Elements.data();
 
@@ -381,8 +381,39 @@ void MainWindow::redraw(){
     QString fileName = "redraw";
     QByteArray ba = fileName.toLocal8Bit();
     filename = ba.data();
- //   std::thread([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ);}).detach();
+
+   // this doesn't fix rendering problems; in fact they get reinstated
    janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);
+
+   // is this some weird c++ pointer thing
+    // this alone fixes the vertices/elements buffer when it has a pie cut from loading another buffer
+    for (int i=0; i < nV; ++i){
+        vertices3[i]=vertices3[i];
+        vertices2[i]=vertices2[i];
+        vertices[i]=vertices[i];
+    }
+    for (int i=0; i< nE; ++i){
+        elements3[i]=elements3[i];
+        elements2[i]=elements2[i];
+        elements[i]=elements[i];
+    }
+
+    // doesn't fix pupil problem
+    for (int i=0; i < pupil_nV; ++i){
+        pupil_vertices[i]=pupil_vertices[i];
+    }
+    for (int i=0; i< pupil_nE; ++i){
+        pupil_elements[i]=pupil_elements[i];
+    }
+
+    // this does zero out the pupil
+    for (int i=0; i < pupil_nV; ++i){
+        pupil_vertices[i]=0;
+    }
+    for (int i=0; i< pupil_nE; ++i){
+        pupil_elements[i]=0;
+    }
+
    return;}
 
 void MainWindow::zerncompute()

@@ -62,10 +62,6 @@ write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
 !! 2 = write OFF file
 !! 1 = compute zernike coefficients/maps
 !! 0 = open a file, display
-if (mod(flag,100) /= 0) then ! changed by new file, if there are previous values from last call, these are the existing values
- !these used to be in cornea_arrays and were static==implicitly saved, now they are locally saved
- write(*,*) 'previous MM,N,TestData: ',MM,N,TestData
-endif
 dat=(flag-mod(flag,1000000))/1000000 ! first two digits
 write(*,*) 'dat to Fortran:',dat
 write(*,*) 'tweaks(dat) to Fortran:',btest(dat, 0),btest(dat, 1),btest(dat, 2),btest(dat, 3),btest(dat, 4)
@@ -534,8 +530,6 @@ do i=1,M1
  end do
 end do
 
-! writes values in openGL friendly format to matrices for passing to C/C++
-! flag/fct determines what to write for elevation and color, just like in flag=2,3 output versions above
    donut = .FALSE.
    if (fct .lt. 16 .and. fct .gt. 0) then
      powctr=JMatrix2%ZC0(1,fct)
@@ -578,16 +572,10 @@ end do
    END SELECT
   endif
 
+  elements(1:nE)=0
+  vertices(1:nV)=0
   call Geom(flag, JMatrix2, donut, powmin, powmax, elements, vertices, nV, nE)
   call makelegend(flag, powmin, powmax, legend, nL)
-
-write(*,*) "fortran 10"
-do i=7,17
- write(*,*) vertices(i)
-end do
-write(*,*) JMatrix%SAGC(7:17,17)
-write(*,*) JMatrix1%SAGC(7:17,17)
-write(*,*) JMatrix2%SAGC(7:17,17)
 
  return
  else
@@ -859,6 +847,13 @@ if (TestData .eq. 1) then
   call CPU_TIME(time_end)
   write(*,*) 'Time to read Atlas CSV file: ',(time_end-time_start)*1000
   if (read_error > 0) return
+  ! pupil conversion
+   JMatrix%Pupil_Center=Atlas%Pupil_Center*100
+   do i=1,MM
+    X1=Atlas%PU(i,1)-Atlas%Pupil_Center(1)
+    X2=Atlas%PU(i,2)-Atlas%Pupil_Center(2)
+    JMatrix%PU(i)=sqrt(X1*X1+X2*X2)*100
+   end do
  endif  !(mod(flag,100) /= 0,99,2,3 assume 1 (zernike) or 4 (redraw), or 8 (show rings) reload the original data 
  N=Power_Rings_Count
  ! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
@@ -870,13 +865,6 @@ if (TestData .eq. 1) then
   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
  endif
  RadSlope=Atlas
- ! pupil conversion
-  JMatrix%Pupil_Center=Atlas%Pupil_Center*100
-  do i=1,MM
-   X1=Atlas%PU(i,1)-Atlas%Pupil_Center(1)
-   X2=Atlas%PU(i,2)-Atlas%Pupil_Center(2)
-   JMatrix%PU(i)=sqrt(X1*X1+X2*X2)*100
-  end do
 endif ! end (TestData == 1)
 
 ! READ THE PENTACAM DATA
@@ -904,6 +892,14 @@ endif ! end (TestData == 1)
    call RCNVRTP(TestData,inputfile1,read_error)  !elevations TestData .eq. 2 .or. TestData .eq. 4
    endif
    if (read_error > 0) return
+   ! pupil conversion, could do whole circular spline here
+    JMatrix%Pupil_Center=Penta%Pupil_Center/10.
+    do i=1,MM
+     j=floor(1.+(i-1)*255/179.0)
+     X1=Penta%PU(j,1)-Penta%Pupil_Center(1)
+     X2=Penta%PU(j,2)-Penta%Pupil_Center(2)
+     JMatrix%PU(i)=sqrt(X1*X1+X2*X2)/10.
+    end do
   endif  !(mod(flag,100) /= 0,99,2,3 must be 1 or 4-7, reload the original data
 ! arrange the data
   Skyline=Penta
@@ -921,14 +917,6 @@ endif ! end (TestData == 1)
    end do
   endif
   JMatrix%Z(:,:) = 0 ; JMatrix%Z0(:) = 0
-  ! pupil conversion, could do whole circular spline here
-   JMatrix%Pupil_Center=Penta%Pupil_Center/10.
-   do i=1,MM
-    j=floor(1.+(i-1)*255/179.0)
-    X1=Penta%PU(j,1)-Penta%Pupil_Center(1)
-    X2=Penta%PU(j,2)-Penta%Pupil_Center(2)
-    JMatrix%PU(i)=sqrt(X1*X1+X2*X2)/10.
-   end do
  endif
 
 
@@ -1758,15 +1746,13 @@ endif
 
   dist = -2*JMatrix%Z0(3)
 ! generate buffer data
-
+  pupil_elements(1:pupil_nE)=0
+  pupil_vertices(1:pupil_nV)=0
+  elements(1:nE)=0
+  vertices(1:nV)=0
   call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
   call Pupil(JMatrix, dist, pupil_elements, pupil_vertices, pupil_nV, pupil_nE)
   call makelegend(flag, powmin, powmax, legend, nL)
-
-write(*,*) "fortran"
-do i=7,17
- write(*,*) vertices(i)
-end do
 
 ! eigenvalues show shape of RadSlope without make_rings but with FillArray 7 elevations
 !  atmp=pca(2,RadSlope)

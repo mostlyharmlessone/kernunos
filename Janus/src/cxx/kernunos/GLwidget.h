@@ -26,6 +26,9 @@
 #include <QOpenGLWidget>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLFunctions>
+#include <QOpenGLExtraFunctions>
+#include <QOpenGLDebugMessage>
+#include <QOpenGLDebugLogger>
 #include <QOpenGLTexture>
 #include <QKeyEvent>
 #include <QTime>
@@ -84,6 +87,21 @@ void janus_(int *flag,char *filename,GLuint *elements,GLfloat *vertices,float *l
 extern QString *m_GLString;
 extern QString glstring_global;
 
+/*
+void GLAPIENTRY
+MessageCallback( GLenum source,
+                GLenum type,
+                GLuint id,
+                GLenum severity,
+                GLsizei length,
+                const GLchar* message,
+                const void* userParam )
+{
+    fprintf( stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+            ( type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ),
+            type, severity, message );
+}
+*/
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -468,6 +486,8 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
 
     void setupVertexAttribs();
 
+    void checkGLError();
+
     int m_xRot = 0;
     int m_yRot = 0;
     int m_zRot = 0;
@@ -529,3 +549,4 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
 
 
 #endif // GLWIDGET_H
+

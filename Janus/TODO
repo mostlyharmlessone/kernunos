@@ -2,14 +2,14 @@ things to do
 
 CorneaCopia
 
-screwed up buffers, but is that a janus problem? working on assignment in JMatrix with compare
-redraw does not fix the problem
+screwed up buffers, working on assignment in JMatrix with compare
+reassignment fixes it->why?
 
-write a swapbuffer program? to swap primary and secondary compare
-repurpose/rename DataPrint and substitute direct calls to janus 
+pupil buffer is a separate issue: it comes from janus? 
+tried to fix by moving pupil definition into open only
+will have to dump pupil vertex values
 
-make a "CRC" check on the buffer and pupil buffer to check for changes
-
+rotation of side figures no perspective, ?use normals noperspective in shader might need another whole shader program
 
 need a dialog box or two
 use a dat or a flag option to control janus in each step
@@ -40,7 +40,7 @@ make cartesian grid display option; convert polar to grid, display pentacam dire
 transparency vs wireframe as option for overlay
 
 decentration accomplished with penta data off by one in getArg(); make it (i) or (i+2) to decenter and generate fake astigmatism: 
-Is this reversable with tweaks, and/or can we also fake decentration with reverse tweaks?
+Is this reversible with tweaks, and/or can we also fake decentration with reverse tweaks?
 
 plots with gnuplot splot are only has fixed scale for sagc?
 

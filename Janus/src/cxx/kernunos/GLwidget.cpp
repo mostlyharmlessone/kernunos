@@ -180,6 +180,14 @@ GLwidget::~GLwidget()
   cleanup();
 }
 
+void GLwidget::checkGLError()
+{
+    GLenum err;
+    while(((err = glGetError()) != GL_NO_ERROR)){
+            std::cout << err << std::endl;
+        }
+}
+
 void GLwidget::cleanup()
 {
   if (shaderProgram == nullptr)
@@ -225,6 +233,28 @@ void GLwidget::initializeGL()
   sglVer += reinterpret_cast<const char *>(GLvendor);
   sglVer += "\nRenderer: ";
   sglVer += reinterpret_cast<const char *>(GLrenderer);
+
+  // all this below to track OpenGl errors becasuse Qt doesnt have glDebugMessageCallback
+  QSurfaceFormat format;
+  format.setMajorVersion(4);
+  format.setMinorVersion(5);
+  format.setProfile(QSurfaceFormat::CoreProfile);
+  format.setOption(QSurfaceFormat::DebugContext);
+  QOpenGLContext *context = new QOpenGLContext;
+  context->setFormat(format);
+  context->create();
+
+  QOpenGLContext *ctx = QOpenGLContext::currentContext();
+  QOpenGLDebugLogger *logger = new QOpenGLDebugLogger(this);
+  logger->initialize();
+  ctx->hasExtension(QByteArrayLiteral("GL_KHR_debug"));
+  const QList<QOpenGLDebugMessage> messages = logger->loggedMessages();
+  for (const QOpenGLDebugMessage &message : messages)
+  qDebug() << message;
+  qDebug() << "You started kernunos from a commandline";  //this only shows up if starting from a commandline
+
+  glEnable              ( GL_DEBUG_OUTPUT );
+//  glDebugMessageCallback( MessageCallback, 0 );   //weird that Qt can't seem to find glDebugMessageCallback and defining MessageCallback in header leads to linking error
 
   glClearColor(0.2f, 0.3f, 0.3f, m_transparent ? 0 : 1);
   // Enable depth test; Accept fragment if it is closer to the camera than the former one
@@ -389,6 +419,7 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
           for (int i=0; i< nE; ++i){
               elements2[i]=elements[i];
           }
+
           futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);}));
           // Display the dialog and start the event loop.
           dialog.exec();
@@ -632,6 +663,9 @@ bool GLwidget::LoadSurfaceToBuffer(int nV, int nE, GLuint vertexbuffer, GLuint e
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), reinterpret_cast<void *>(6 * sizeof(GLfloat)));
                                                           // offset 6 because colors start after 3 positions + 3 normals
+
+//    checkGLError();
+
     // Unbind buffer
     glBindBuffer(vertexbuffer,0);
     glBindBuffer(elementbuffer,0);
@@ -650,7 +684,6 @@ void GLwidget::paintGL(void)
     if(!m_normal) {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);   //incompatible with showing normals
-        //glBlendFunc(GL_ONE, GL_ONE);                      //this is relative to self and background but not the other object
         glBlendEquation(GL_FUNC_ADD);
         //glBlendEquation(GL_FUNC_SUBTRACT);
     } else{ glDisable(GL_BLEND);}
@@ -772,7 +805,7 @@ void GLwidget::keyPressEvent(QKeyEvent *e)
      exit(0);
     break;
     case Qt::Key_M:  /*  M Key */
-     mViewMatrix.scale(QVector3D(0.01,0.01,0.01));
+     mViewMatrix.scale(QVector3D(0.02,0.02,0.02));
      update();
     break;
     case Qt::Key_N:  /*  N Key */
@@ -892,5 +925,6 @@ void GLwidget::setZRotation(int angle)
        update();
    }
 }
+
 
 
