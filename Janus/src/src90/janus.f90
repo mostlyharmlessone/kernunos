@@ -739,7 +739,8 @@ if (mod(flag,100) == 0) then
     endif
     if (mod(flag,100) /= 10) then
      JMatrix1%R(:,:)=JMatrix%R(:,:)
-     JMatrix1%PU(:)=JMatrix%PU(:)
+!     JMatrix1%PU(:)=JMatrix%PU(:)
+!     JMatrix1%Pupil_Center(:)=JMatrix%Pupil_Center(:)
      JMatrix1%Z(:,:)=JMatrix%Z(:,:)     
      JMatrix1%YPR(:,:)=JMatrix%YPR(:,:)
      JMatrix1%YPTHETA(:,:)=JMatrix%YPTHETA(:,:)

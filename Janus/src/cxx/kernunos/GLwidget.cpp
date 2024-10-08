@@ -392,11 +392,6 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
     filename = ba.data();
     if (filepresent)
      {
-      // reload values to avoid seg fault if previous nV and nE are too small.. and besides, they're not static, nor can they be!
-      for (int i=0; i < 3; ++i){
-          nV[i]=51840;
-          nE[i]=26130;}
-
       // Create a progress dialog.
       QProgressDialog dialog;
       dialog.setLabelText(QString("Loading the data..."));
@@ -412,17 +407,17 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
       // Start the computation.
       paintme=false;
       if ((flag%100) == 10){
-          auto future1 = std::async([&]{return janus_(&flag,filename,elements3,vertices3,legend2,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});
+          auto future1 = std::async([&]{return janus_(&flag,filename,elements3,vertices3,legend2,zern,&nV[2],&nE[2],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});
           future1.get();}
       else {
 
-          for (int i=0; i < nV[0]; ++i){
+          nV[1]=nV[0]; nE[1]=nE[0];
+          for (int i=0; i < nV[1]; ++i){
               vertices2[i]=vertices[i];
           }
-          for (int i=0; i< nE[0]; ++i){
+          for (int i=0; i< nE[1]; ++i){
               elements2[i]=elements[i];
           }
-          nV[1]=nV[0]; nE[1]=nE[0];
 
           futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);}));
           // Display the dialog and start the event loop.
@@ -481,11 +476,6 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
       }
       // USS starting values
       //
-      legend[101]=0;
-      legend[102]=0;
-      legend[103]=80;
-      legend[100]=30;
-
       legend[1]=255;
       legend[2]=238;
       legend[3]=248;
