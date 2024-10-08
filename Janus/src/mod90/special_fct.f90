@@ -4,7 +4,7 @@ module special_fct
 ! zernike functions
 ! string replacement function
 ! binary search interface
-use set_precision, ONLY : wp
+use set_precision, ONLY : wp, sk, int2d, int3d
 use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
 use, intrinsic ::  ieee_arithmetic
 use M_color, only : jucolor
@@ -132,7 +132,7 @@ endif
 do i=1,9
  col(i)=maximum-((i-1)/8.0)*(maximum-minimum)
 end do
-palette=reshape((/&
+palette=int(reshape((/&
 255,255,217,&
 237,248,177,&
 199,233,180,&
@@ -141,7 +141,7 @@ palette=reshape((/&
 29,145,192,&
 34,94,168,&
 37,52,148,&
-8,29,88/),shape(palette))
+8,29,88/),shape(palette)),kind=int3d)
 call bsearch(x,col,9,high,low)
 !Uncomment these and comment out the linear interpolation if you want to be confined to 9 classes with pixellation
 !!if ( abs(col(high)-x) .lt. abs(x-col(low)) ) then
@@ -151,17 +151,17 @@ call bsearch(x,col,9,high,low)
 !!endif
 ! linear interpolation in rgb space
  if (high .ne. low) then
-  rgbv(:)=abs(8.0*((x-col(low))*palette(:,high)+(col(high)-x)*palette(:,low))/(maximum-minimum))
+  rgbv(:)=int(abs(8.0*((x-col(low))*palette(:,high)+(col(high)-x)*palette(:,low))/(maximum-minimum)),kind=int3d)
  else
-  rgbv(:)=palette(:,low)
+  rgbv(:)=int(palette(:,low),kind=int3d)
  endif
  ! need these if fixed range
   if (fixedrange) then
    if (x .lt. minimum) then
-    rgbv(:)=(/255,255,255/)
+    rgbv(:)=int((/255,255,255/),kind=int3d)
    endif
    if (x .gt. maximum) then
-    rgbv(:)=(/0,0,0/)
+    rgbv(:)=int((/0,0,0/),kind=int3d)
    endif
   endif
 end function PerceptuallyUniformPalette
@@ -215,17 +215,17 @@ palette=reshape((/&
 call bsearch(x,col,26,high,low)
 ! linear interpolation in rgb space
  if (high .ne. low) then
-  rgbv(:)=abs(25*((x-col(low))*palette(:,high)+(col(high)-x)*palette(:,low))/(maximum-minimum))
+  rgbv(:)=int(abs(25*((x-col(low))*palette(:,high)+(col(high)-x)*palette(:,low))/(maximum-minimum)),kind=int3d)
  else
-  rgbv(:)=palette(:,low)
+  rgbv(:)=int(palette(:,low),kind=int3d)
  endif
 ! need these if fixed range
  if (fixedrange) then
   if (x .lt. minimum) then
-   rgbv(:)=(/255,255,255/)
+   rgbv(:)=int((/255,255,255/),kind=int3d)
   endif
   if (x .gt. maximum) then
-   rgbv(:)=(/0,0,0/)
+   rgbv(:)=int((/0,0,0/),kind=int3d)
   endif
  endif
 end function USSpalette
@@ -278,16 +278,16 @@ function hsbrgb(x,minimum, maximum) result(rgbv)
  INTEGER :: stat
  INTEGER(int16) :: rgbv(3) ! rgbv={r,g,b}
     stat = 0
-    hue = 360*(maximum - x) / (maximum - minimum)
+    hue = real(360*(maximum - x) / (maximum - minimum),kind=sk)
     sat=100.0 ; bright=100.0
     call jucolor('hsv',hue,sat,bright,'rgb',rr,gg,bb,stat)
     if (stat.ne.0) then
-     rgbv=(/255,255,255/)  ! out of range or error = white
+     rgbv=int((/255,255,255/),kind=int3d)  ! out of range or error = white
      write (*,*) 'Error in hsbrgb', hue,x,minimum,maximum
     endif
-    rgbv(1) = min(255,int(2.55*rr))
-    rgbv(2) = min(255,int(2.55*gg))
-    rgbv(3) = min(255,int(2.55*bb)) 
+    rgbv(1) = int(min(255,int(2.55*rr)),kind=int3d)
+    rgbv(2) = int(min(255,int(2.55*gg)),kind=int3d)
+    rgbv(3) = int(min(255,int(2.55*bb)),kind=int3d)
 end function hsbrgb
 
 ! convert values to rgb 2 color (red to blue) heatmap
@@ -340,8 +340,8 @@ function rgb5(x,minimum, maximum) result(rgbv)
      idx1 = nc ; idx2 = nc                ! accounts for an input >=1
     else
      ratio = ratio * (nc-1)                  
-     idx1  = floor(ratio)+1                   ! Desired color will be after this index.
-     idx2  = idx1+1                           ! ... and before this index (inclusive).
+     idx1  = int(floor(ratio)+1,kind=int3d)                   ! Desired color will be after this index.
+     idx2  = int(idx1+1,kind=int3d)                           ! ... and before this index (inclusive).
      fract = ratio - real(idx1)+1            ! Distance between the two indexes (0-1).
     endif
    endif
@@ -350,9 +350,9 @@ function rgb5(x,minimum, maximum) result(rgbv)
     write(*,*) 'x,min,max,ratio: ',x,minimum,maximum,ratio
    endif
   
-   rgbv(1) = (color(1,idx2) - color(1,idx1))*fract + color(1,idx1)
-   rgbv(2) = (color(2,idx2) - color(2,idx1))*fract + color(2,idx1)
-   rgbv(3) = (color(3,idx2) - color(3,idx1))*fract + color(3,idx1)
+   rgbv(1) = int((color(1,idx2) - color(1,idx1))*fract + color(1,idx1),kind=int3d)
+   rgbv(2) = int((color(2,idx2) - color(2,idx1))*fract + color(2,idx1),kind=int3d)
+   rgbv(3) = int((color(3,idx2) - color(3,idx1))*fract + color(3,idx1),kind=int3d)
   else
    rgbv=(/255_int16,255_int16,255_int16/)  ! out of range = white
   endif
@@ -370,10 +370,10 @@ function rgb2attr(rgbv) result(attr)
 !    bit 15 is 1 if the color is valid, or 0 if the color is not valid (as with normal STL files).
 !    attr= b'0000001100000001'   ! 00000 01100 00000 1 == blue 0, green 12, red 0, valid
  ! attr=0 
-  red =  rgbv(1)/8 
-  green = rgbv(2)/8 
-  blue =  rgbv(3)/8 
-  attr=blue + 32*green + 1024*red ! packs the bits according to the scheme above
+  red = int(rgbv(1)/8,kind=int2d)
+  green = int(rgbv(2)/8,kind=int2d)
+  blue =  int(rgbv(3)/8,kind=int2d)
+  attr=int(blue + 32*green + 1024*red, kind=int3d) ! packs the bits according to the scheme above
   attr=ibset(attr,15) ! sets position 15 to 1
 !  write(*,*) rgbv
 !  write(*,*) red,green,blue

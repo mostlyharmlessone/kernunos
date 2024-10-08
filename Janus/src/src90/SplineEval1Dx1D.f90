@@ -1,5 +1,5 @@
       subroutine SplineEval1Dx1D(iflag,u,v,f,fr,frr,ft,frt,ftt)
-      USE cornea_arrays, ONLY : DiaSlope, RadSlope, PI, EPS
+      USE cornea_arrays, ONLY : DiaSlope, RadSlope, eps
       USE set_precision, ONLY : wp
       USE spline_interfaces, ONLY : pspli, SplineEval, SplineEvalCenter, trapez, CubicSplineQuad
       USE special_fct, ONLY : bsearch, OPERATOR(.p.)
@@ -8,12 +8,12 @@
       integer, INTENT(IN) :: iflag     ! iflag=0 no integration; iflag=1 trapezoidal integration; iflag=2 cubic integration;
       real(wp), INTENT(IN) :: u, v
       real(wp), INTENT(OUT),OPTIONAL ::  f,fr,ft,frt,frr,ftt
-      real(wp) :: g,g0,gr,grr,h,hr,hrr,error,usignd
+      real(wp) :: g,g0,gr,grr,h,hr,hrr,usignd !,error
       real(wp) :: fTmp(size(RadSlope%r,2)),frTmp(size(RadSlope%r,2)),frrTmp(size(RadSlope%r,2))
       real(wp) :: thta(size(RadSlope%r,2)),fttTmp(size(RadSlope%r,2)),frttTmp(size(RadSlope%r,2)),frrttTmp(size(RadSlope%r,2))
       real(wp) :: r(2*size(RadSlope%r,1)),z(2*size(RadSlope%r,1)),zr2(2*size(RadSlope%r,1))
       integer :: L2,j,L,MM,N,i,i1
-      logical :: IsInf
+!      logical :: IsInf
 
       MM=size(RadSlope%r,2)
       N=size(RadSlope%r,1)

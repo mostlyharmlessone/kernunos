@@ -1,6 +1,6 @@
 MODULE cornea_arrays
 ! defines arrays and functions ued for corneal topography
- USE set_precision, ONLY : wp
+ USE set_precision, ONLY : wp, sk, int3d
  USE LapackInterface, ONLY : dgetrf, dgetrs, dgesv, dsyev
  USE spline_interfaces 
  USE special_fct
@@ -433,7 +433,7 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
 !  write(*,*) imv(:)
 ! trim down imv for r > rmin
   do i=1,M1
-   if ((imv(i)-1)*(rBo-rBi)/(N1-1)+rBi .gt. rmin) imv(i)=1+(N1-1)*(rmin-rBi)/(rBo-rBi)
+   if ((imv(i)-1)*(rBo-rBi)/(N1-1)+rBi .gt. rmin) imv(i)=int(1+(N1-1)*(rmin-rBi)/(rBo-rBi))
   end do
   RadSlope%MV(:)=imv(:)  ! save boundary
 end subroutine RadSlope_eq_Skyline

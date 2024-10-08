@@ -1,7 +1,7 @@
 ! no center point version, periodic/natural/optional radial extrapolation
 subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
  USE set_precision, ONLY : wp
- USE cornea_arrays, ONLY : PI, eps
+ USE cornea_arrays, ONLY : PI
  USE special_fct, ONLY : bsearch, OPERATOR(.p.) !tensor summation convention
  use,intrinsic :: ieee_arithmetic
  IMPLICIT NONE

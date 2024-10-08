@@ -14,12 +14,10 @@
        real(wp) :: X1,X2,X3
        real(wp) :: vert1,vert2,vert3
        real(c_float) :: c_vert(3),c_rgbv(3),c_norm(3)
-       integer :: i,j,k,M1,verts
+       integer :: i,k,M1
        integer(c_int) :: ivert1,ivert2,ivert3
 
-
        M1=size(b%r,2)
-
        c_rgbv = (/0,0,0/)
        c_norm = (/0,0,1/)
 

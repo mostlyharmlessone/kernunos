@@ -1,6 +1,6 @@
-  subroutine Janus(flag,file_from_C,elements,vertices,legend,zern,nV,nE,nL,nZ,pupil_elements,pupil_vertices,pupil_nV,pupil_nE) bind(C,name='janus_')
+  subroutine Janus(flag,file_from_C,elements,vertices,legend,zern,nV,nE,nL,pupil_elements,pupil_vertices,pupil_nV,pupil_nE) bind(C,name='janus_')
 ! DRIVER PROGRAM FOR SPLINE ROUTINES
-  use set_precision, ONLY : wp
+  use set_precision, ONLY : wp, sk
   use lapackinterface
   use cornea_arrays
   use special_fct
@@ -10,7 +10,7 @@
   use c_interfaces, ONLY : LogC, Ccounter, ConvertPLYtoBIN
   use omp_lib
   IMPLICIT NONE
-  integer :: i, j, k, ii, jj, kk, m, nn, i1, j1, ierr, info, nrhs
+  integer :: i, j, k, ii, kk, m, nn, i1, j1, ierr, info, nrhs
   integer,save :: MM, N ,M1, N1, Power_Rings_Count
   integer,save :: TestData             ! TestData: -1=test, 0=EyeSys, 1=Atlas, (2-5)=Penta
   integer,save :: NP                        ! PentaCam=141
@@ -27,24 +27,22 @@
   integer(c_int), INTENT(INOUT) :: pupil_elements(*)
   integer(c_int), INTENT(INOUT) :: nL
   real(c_float), INTENT(INOUT) :: legend(*)
-  integer(c_int), INTENT(INOUT) :: nZ
   real(c_float), INTENT(INOUT) :: zern(*)
   real(c_float) :: dist
-  character(len=8) :: LinesOfCurv
   character(len=4096) :: new_path
   character(:),save, ALLOCATABLE :: inputfile1,inputfile2,inputfile3,BigPlot,gnu_instruct
   character(:),save, ALLOCATABLE :: logfile
-  integer ::  nblines, file_idx, file_pfx,read_error,io
+  integer ::  nblines, file_idx,read_error,io
   integer,allocatable :: MV(:)
   real(8) :: time_start, time_end
-  real(wp) :: POWMIN,POWMAX,POWMAX2,POWCTR,POW,P1,X1,X2,U,V,Z
+  real(wp) :: POWMIN,POWMAX,POWMAX2,POWCTR,POW,P1,X1,X2,U,V
   logical :: donut, exists
   real(wp) :: Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo
   integer :: k_max, kk_max, iflag, LWORK
   integer(c_int) :: dat, fct, map
   real(wp), allocatable :: zernC(:,:), B_Matrix(:,:), rlocal(:), thtlocal(:), WORK(:)
-  real(wp), allocatable :: XTX(:,:),EE(:,:),UT(:,:),VT(:,:)
-  integer, allocatable :: IPIV(:)
+  real(wp), allocatable :: UT(:,:),VT(:,:) !,XTX(:,:),EE(:,:)
+!  integer, allocatable :: IPIV(:)
   real(wp) :: ctr_circle_x, ctr_circle_y, R_global, Theta_global, X_global, Y_global
 
 write(*,*) 'flag to Fortran:',flag
@@ -1588,18 +1586,18 @@ if (mod(flag,100) == 1 .or. mod(flag,100) == 9) then
 ! 12    "Z(2,2) Vertical Astig.",      Astigmatism 0 deg
 ! 08    "Z(2,0) Defocus",              Defocus
 ! 03    "Z(2,-2) Oblique Astigmatism", Astigmatism 45 deg
-zern(1)=JMatrix%ZC0(1,15)
-zern(2)=JMatrix%ZC0(1,13)
-zern(3)=JMatrix%ZC0(1,9)
-zern(4)=JMatrix%ZC0(1,4)
-zern(5)=JMatrix%ZC0(1,1)
-zern(6)=JMatrix%ZC0(1,14)
-zern(7)=JMatrix%ZC0(1,11)
-zern(8)=JMatrix%ZC0(1,6)
-zern(9)=JMatrix%ZC0(1,2)
-zern(10)=JMatrix%ZC0(1,12)
-zern(11)=JMatrix%ZC0(1,8)
-zern(12)=JMatrix%ZC0(1,3)
+zern(1)=real(JMatrix%ZC0(1,15),kind=sk)
+zern(2)=real(JMatrix%ZC0(1,13),kind=sk)
+zern(3)=real(JMatrix%ZC0(1,9),kind=sk)
+zern(4)=real(JMatrix%ZC0(1,4),kind=sk)
+zern(5)=real(JMatrix%ZC0(1,1),kind=sk)
+zern(6)=real(JMatrix%ZC0(1,14),kind=sk)
+zern(7)=real(JMatrix%ZC0(1,11),kind=sk)
+zern(8)=real(JMatrix%ZC0(1,6),kind=sk)
+zern(9)=real(JMatrix%ZC0(1,2),kind=sk)
+zern(10)=real(JMatrix%ZC0(1,12),kind=sk)
+zern(11)=real(JMatrix%ZC0(1,8),kind=sk)
+zern(12)=real(JMatrix%ZC0(1,3),kind=sk)
 zern(13)=1E30
 zern(14)=-1E30
 do k=1,12
@@ -1744,16 +1742,13 @@ endif
    END SELECT
   endif
 
-  dist = -2*JMatrix%Z0(3)
+  dist = real(-2*JMatrix%Z0(3),kind=sk)
 ! generate buffer data
   pupil_elements(1:pupil_nE)=0
   pupil_vertices(1:pupil_nV)=0
-  elements(1:nE)=0
-  vertices(1:nV)=0
   call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
   call Pupil(JMatrix, dist, pupil_elements, pupil_vertices, pupil_nV, pupil_nE)
   call makelegend(flag, powmin, powmax, legend, nL)
-
 ! eigenvalues show shape of RadSlope without make_rings but with FillArray 7 elevations
 !  atmp=pca(2,RadSlope)
 !  atmp=pca(3,RadSlope)

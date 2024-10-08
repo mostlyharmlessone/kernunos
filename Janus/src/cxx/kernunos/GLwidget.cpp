@@ -363,6 +363,7 @@ void GLwidget::initializeGL()
 
 bool GLwidget::Swap()
 {
+/*
     for (int i=0; i < nV; ++i){
         vertices3[i]=vertices2[i];
     }
@@ -381,6 +382,7 @@ bool GLwidget::Swap()
     for (int i=0; i< nE; ++i){
         elements[i]=elements3[i];
     }
+*/
   return true;
 }
 
@@ -391,8 +393,9 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
     if (filepresent)
      {
       // reload values to avoid seg fault if previous nV and nE are too small.. and besides, they're not static, nor can they be!
-      nV=51840;
-      nE=26130;
+      for (int i=0; i < 3; ++i){
+          nV[i]=51840;
+          nE[i]=26130;}
 
       // Create a progress dialog.
       QProgressDialog dialog;
@@ -409,18 +412,19 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
       // Start the computation.
       paintme=false;
       if ((flag%100) == 10){
-          auto future1 = std::async([&]{return janus_(&flag,filename,elements3,vertices3,legend2,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});
+          auto future1 = std::async([&]{return janus_(&flag,filename,elements3,vertices3,legend2,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});
           future1.get();}
       else {
 
-          for (int i=0; i < nV; ++i){
+          for (int i=0; i < nV[0]; ++i){
               vertices2[i]=vertices[i];
           }
-          for (int i=0; i< nE; ++i){
+          for (int i=0; i< nE[0]; ++i){
               elements2[i]=elements[i];
           }
+          nV[1]=nV[0]; nE[1]=nE[0];
 
-          futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);}));
+          futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);}));
           // Display the dialog and start the event loop.
           dialog.exec();
           futureWatcher.waitForFinished();
@@ -460,18 +464,18 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
             1, 5, 6,
             6, 2, 1
         };
-      nV=nV_cube;
-      nE=nE_cube;
+      nV[0]=nV_cube;
+      nE[0]=nE_cube;
       //arrays have to be assigned this way vertices=cube_vertices only works in the same scope
       //fortran array handling seems a lot more consistently intuitive, to say nothing of the whole static idiocy in c++
       // however in non-DEBUG compilation the program fails to load data without error or crash and has the following warnings
       // warning: iteration 72 (36 in the elements loop) invokes undefined behavior [-Waggressive-loop-optimizations]
       // and void*_builtin_memcpy(void*,const void*,long unsigned int) reading 292 bytes froma region of size 288 (or 148 from 144 in the elements loop)
-      for (int i=0; i< nV; ++i){
+      for (int i=0; i< nV[0]; ++i){
       vertices[i]=cube_vertices[i];
      // vertices2[i]=cube_vertices[i];
       }
-      for (int i=0; i< nE; ++i){
+      for (int i=0; i< nE[0]; ++i){
       elements[i]=cube_elements[i];
      // elements2[i]=cube_elements[i];
       }
@@ -703,23 +707,7 @@ void GLwidget::paintGL(void)
     QMatrix4x4 mMVP;
     QVector4D m_alpha;
     if (i == 1) {
-        if (!LoadSurfaceToBuffer(nV, nE, vertexbuffers[i], elementbuffers[i], vertices2, elements2)) return;
-        mMVP.setToIdentity();
-        mMVP.scale(QVector3D(0.005,0.005,0.005));
-        mMVP.translate(QVector3D(-700,0,-1000));
-        m_alpha = QVector4D(0,0,0,1.0);
-    }
-
-    if (i == 2) {
-        if (!LoadSurfaceToBuffer(nV, nE, vertexbuffers[i], elementbuffers[i], vertices3, elements3)) return;
-        mMVP.setToIdentity();
-        mMVP.scale(QVector3D(0.005,0.005,0.005));
-        mMVP.translate(QVector3D(700,0,-1000));
-        m_alpha = QVector4D(0,0,0,1.0);
-    }
-
-    if (i == 3) {
-        if (!LoadSurfaceToBuffer(nV, nE, vertexbuffers[i], elementbuffers[i], vertices, elements)) return;
+        if (!LoadSurfaceToBuffer(nV[i-1], nE[i-1], vertexbuffers[i], elementbuffers[i], vertices, elements)) return;
         m_world.setToIdentity();
         m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
         m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
@@ -727,7 +715,20 @@ void GLwidget::paintGL(void)
         mMVP =  mViewMatrix  * m_world;
         m_alpha = QVector4D(0,0,0,0.5);
     }
-
+    if (i == 2) {
+        if (!LoadSurfaceToBuffer(nV[i-1], nE[i-1], vertexbuffers[i], elementbuffers[i], vertices2, elements2)) return;
+        mMVP.setToIdentity();
+        mMVP.scale(QVector3D(0.005,0.005,0.005));
+        mMVP.translate(QVector3D(-700,0,-1000));
+        m_alpha = QVector4D(0,0,0,1.0);
+    }
+    if (i == 3) {
+        if (!LoadSurfaceToBuffer(nV[i-1], nE[i-1], vertexbuffers[i], elementbuffers[i], vertices3, elements3)) return;
+        mMVP.setToIdentity();
+        mMVP.scale(QVector3D(0.005,0.005,0.005));
+        mMVP.translate(QVector3D(700,0,-1000));
+        m_alpha = QVector4D(0,0,0,1.0);
+    }
     if (i == 0 && m_pupilshow) {
         if(!LoadSurfaceToBuffer(pupil_nV, pupil_nE, vertexbuffers[i], elementbuffers[i], pupil_vertices, pupil_elements)) return;
         m_world.setToIdentity();
@@ -752,7 +753,7 @@ void GLwidget::paintGL(void)
             shaderNormalProgram->bind();
             shaderNormalProgram->setUniformValue(m_viewMatrixLoc, mMVP);
             shaderNormalProgram->setUniformValue(m_projMatrixLoc, projectionMatrix);
-            glDrawElements(GL_TRIANGLES, nE, GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, nE[i-1], GL_UNSIGNED_INT, 0);
             // Unbind shader
             shaderNormalProgram->release();
         } else {
@@ -761,7 +762,7 @@ void GLwidget::paintGL(void)
             //only the regular shader has the adjustable transparency for one buffer
             shaderProgram->setUniformValue(m_alphaLoc, m_alpha);
             shaderProgram->setUniformValue(m_projMatrixLoc, projectionMatrix);
-            glDrawElements(GL_TRIANGLES, nE, GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, nE[i-1], GL_UNSIGNED_INT, 0);
             // Unbind shader
             shaderProgram->release();
         };
@@ -770,7 +771,7 @@ void GLwidget::paintGL(void)
             shaderGeoProgram->bind();
             shaderGeoProgram->setUniformValue(m_viewMatrixLoc, mMVP);
             shaderGeoProgram->setUniformValue(m_projMatrixLoc, projectionMatrix);
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, nE);
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, nE[i-1]);
             // Unbind shader
             shaderGeoProgram->release();
         };

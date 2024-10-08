@@ -522,7 +522,7 @@ subroutine rcnvrta_type(KXNAME,N,read_error)
  use io_functions, only : get_new_fileunit
  implicit none
  logical :: exists
- CHARACTER(80) KH1,KH2,KH3
+ CHARACTER(80) KH1,KH2
  character(len=*), intent(in) :: KXNAME
  integer, intent(out) :: N, read_error
  INTEGER :: K,io,unitno,ierr

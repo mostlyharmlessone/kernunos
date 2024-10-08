@@ -14,6 +14,8 @@
 !     INTEGER, PARAMETER :: dkind = SELECTED_REAL_KIND(p=15, r=307)
       INTEGER, PARAMETER :: skind = KIND(0.0E0)
       INTEGER, PARAMETER :: dkind = KIND(0.0D0)
+      INTEGER, PARAMETER :: int2d = SELECTED_INT_KIND(2)
+      INTEGER, PARAMETER :: int3d = SELECTED_INT_KIND(3)
 ! The next statement is required to run the codes
 ! associated with Chapter 10 on IEEE arithmetic.
 ! This is non-standard and may not be available.
@@ -22,10 +24,7 @@
 !     INTEGER, PARAMETER:: qkind = ...
 ! Set the precision for the whole package
       INTEGER, PARAMETER :: wp = dkind
-! To change the default package precision to single precision change
-! the parameter assignment to wp above to
-!     INTEGER, PARAMETER :: wp = skind
-! and recompile the complete package.
+      INTEGER, PARAMETER :: sk = skind
 
 !-----------------------------------------------------------
 ! For the non-standard quadruple precision:

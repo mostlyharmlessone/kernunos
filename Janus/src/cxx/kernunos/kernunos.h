@@ -19,8 +19,8 @@ extern bool success;
 extern bool paintme;
 
 //how very annoying that these need to be extern & global, but unfortunately cannot then be static
-extern int nV;
-extern int nE;
+extern int nV[3];
+extern int nE[3];
 extern std::vector<GLuint> Elements;
 extern std::vector<GLfloat> Vertices;
 extern GLfloat* vertices;
@@ -59,7 +59,7 @@ extern float* zern2;
 // calling fortran code
 
 extern "C" {
-void janus_(int *flag,char *filename,GLuint *elements,GLfloat *vertices,float *legend,float *zern,int *nV,int *nE,int *nL,int *nZ,GLuint *pupil_elements,GLfloat *pupil_vertices,int *pupil_nV, int *pupil_nE);
+void janus_(int *flag,char *filename,GLuint *elements,GLfloat *vertices,float *legend,float *zern,int *nV,int *nE,int *nL,GLuint *pupil_elements,GLfloat *pupil_vertices,int *pupil_nV, int *pupil_nE);
 // needs an underscore despite c_interface.f90 bind C declaration
 };
 
