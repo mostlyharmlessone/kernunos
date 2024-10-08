@@ -347,7 +347,6 @@ target_link_libraries(kernunos
                       Qt${QT_VERSION_MAJOR}::OpenGLWidgets
                       Qt${QT_VERSION_MAJOR}::Gui
                       Qt${QT_VERSION_MAJOR}::Widgets
-                      Qt${QT_VERSION_MAJOR}::Charts
                       Qt${QT_VERSION_MAJOR}::OpenGL
                       assimp splia modules rply_includes ${LIBS}
            )

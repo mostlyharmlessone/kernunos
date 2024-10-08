@@ -94,7 +94,7 @@ class QMenu;
 QT_END_NAMESPACE
 
 class Assistant;
-class ContentWidget;
+// class ContentWidget;
 
 class MainWindow : public QMainWindow
 

@@ -81,14 +81,6 @@
 #include "../kernunos/counter.h"
 #include "../kernunos/logc.h"
 
-#include <QChartView>
-#include <QBarCategoryAxis>
-#include <QBarSeries>
-#include <QBarSet>
-#include <QChart>
-#include <QLegend>
-#include <QStackedBarSeries>
-#include <QValueAxis>
 
 using namespace QtConcurrent;
 
@@ -383,16 +375,16 @@ void MainWindow::redraw(){
     filename = ba.data();
 
    // this doesn't fix rendering problems; in fact they get reinstated
-   janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);
+   //janus_(&flag,filename,elements,vertices,legend,zern,&nV,&nE,&nL,&nZ,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);
 
    // is this some weird c++ pointer thing
     // this alone fixes the vertices/elements buffer when it has a pie cut from loading another buffer
-    for (int i=0; i < nV; ++i){
+    for (int i=0; i < 1; ++i){
         vertices3[i]=vertices3[i];
         vertices2[i]=vertices2[i];
         vertices[i]=vertices[i];
     }
-    for (int i=0; i< nE; ++i){
+    for (int i=0; i< 1; ++i){
         elements3[i]=elements3[i];
         elements2[i]=elements2[i];
         elements[i]=elements[i];
