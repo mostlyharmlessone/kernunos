@@ -780,14 +780,17 @@ if (TestData .eq. 0) then
  else
   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
  endif
- if(.not.allocated(EyeSys%RA)) then
-  call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
- endif
  if (mod(flag,100) == 0) then !read the files
 ! READ THE EYESYS DATA
 ! XX????? ARE THE AXIAL DIST. RX???? ARE THE MIRE RADII  
    call CPU_TIME(time_start)
    read_error=0
+   if(.not.allocated(EyeSys%RA)) then
+    call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
+   else
+    EyeSys = 0
+    call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
+   endif
    inquire(file=trim(inputfile3), exist=exists)
    if(.NOT.exists) then
     call RCNVRTE(read_error,inputfile2,inputfile1)
@@ -878,12 +881,15 @@ endif ! end (TestData == 1)
   else
    call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
   endif
-  if(.not.allocated(Penta%DAT)) then
-   call init_mat_Penta(NP,Penta,Skyline)   !allocate the PentaCam matices
-  endif
 ! ELE are elevations, CUR are "sagittal" curvatures in a 141x141 -7 to 7 mm square -1 is no data
 ! _ELE.CSV or _CUR.CSV versions have less text but use semicolons (;) instead of -1
   if (mod(flag,100) == 0) then ! read the files
+  if(.not.allocated(Penta%DAT)) then
+   call init_mat_Penta(NP,Penta,Skyline)   !allocate the PentaCam matices
+  else
+   Penta=0 ; Skyline=0
+   call init_mat_Penta(NP,Penta,Skyline)   !allocate the PentaCam matices
+  endif
    read_error=0
    if (TestData .eq. 3 .or. TestData .eq. 5) then
    call RCNVRTP(TestData,inputfile2,read_error)  !curvatures

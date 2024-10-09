@@ -2,17 +2,10 @@ things to do
 
 CorneaCopia
 
-screwed up buffers, working on assignment in JMatrix with compare
-reassignment fixes it->why?
-
-pupil buffer is a separate issue: it comes from janus? 
-tried to fix by moving pupil definition into open only
-will have to dump pupil vertex values
-
 rotation of side figures no perspective, ?use normals noperspective in shader might need another whole shader program
 
 need a dialog box or two
-use a dat or a flag option to control janus in each step
+
 to compare:  set baseline->fixed image JMatrix->store to JMatrix1, do not change pupil buffer                        run open
              set compare-> central current Jmatrix, prev in JMatrix1                              
                            optionally suggest matching .CUR if available for .ELE, _CUR.CSV for _ELE.CSV             run open again; should put prev in fixed buffer
@@ -28,7 +21,7 @@ redraw: only affects central image; do not change JMatrix1
 redraw comparison, pick a different color and function for compare (third buffer); basically re-runs last step of compare
 
 built framework for pupil registration and decenter; both involve moving elevation data points, either, 
-then resplining on that basis, just like an ELE file, in fact, for an ELE/ELE.CSV file, adjust the data before the firt spline
+then resplining on that basis, just like an ELE file, in fact, for an ELE/ELE.CSV file, adjust the data before the first spline
 but neither actually does anything yet
 decenter needs a dialog box for the amount and direction needs inputdialog get float x 2
 
@@ -88,21 +81,6 @@ move faq to help menu: notes from spline.odt into help/faq OR add docs in pdf to
 
 need a 2-D picture output other than gnuplot version
 make mathematica plot output, just like ply,off etc.
-consider adding dicom export.. but yuck its like sending records by fax machine, or taking a screenshot
-https://github.com/ImagingDataCommons/idc-dicom-seg-conversions
-or dicom import then to stl, then to splining and reconstruction of slopes, etc....
-https://github.com/eidelen/DicomToMesh
-https://github.com/dave3d/dicom2stl
-https://github.com/Kolkir/dicomtostl
-https://github.com/drukasz/RTpotter
-https://github.com/mezenc3v/DicomConverter
-https://github.com/MGensheimer/mask-to-mesh/blob/master/dicom_mask_to_stl_mesh.m
-
-GEOM/WriteGeomPLY/WriteGeomOFF make extra out of range points (unreferenced vertices).. fix?
-have to recount all the zero vertices, renumber them and reassign faces, ouch, perhaps as an export option, need a separate routine to clean vertices
-consider writegeomPLY/OFF that uses elements/vertices to avoid duplication of code
-meshlab can remove them; also if generating a ply with Assimp, there aren't any, they're already cleaned up
-stl has none
 
 Fit elevation with Principal component analysis, meh 
 
@@ -114,8 +92,6 @@ now that more is moved to gnuplot, consider resurrecting janus/wxWidgets version
 
 Adapt code in book to do LS-BICSA
 2-D splining
-Border trimming for PentaCam is draconian, but reliable; 
-to better convert xy to polar splines need 2-D splining
 
 Optimizing:
 1)valgrind/profiling can also try helegrind for cyclic 4 way slow down
@@ -124,10 +100,6 @@ Optimizing:
 MSYS2 for Windows app build etc
 https://wiki.wxwidgets.org/Cross-Compiling_Under_Linux
 https://github.com/Zeranoe/mingw-w64-build
-
-empower check should arrive by end of September 22+7 days from 3rd, trackable mail.
-check review ref number 14269703 
-phone log review for unit number ref number 14269840
 
 Investigate:
 Passing an assumed-shape array or array pointer to an explicit-shape array can slow run-time performance. https://www.cita.utoronto.ca/~merz/intel_f10b/main_for/mergedProjects/optaps_for/fortran/optaps_prg_arrs_f.htm
