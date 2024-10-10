@@ -91,6 +91,8 @@ class QAction;
 class QActionGroup;
 class QLabel;
 class QMenu;
+class QCheckBox;
+class QErrorMessage;
 QT_END_NAMESPACE
 
 class Assistant;
@@ -114,6 +116,7 @@ protected:
 private slots:
     void open();
     void showDocumentation();
+    void addComments();
     void redraw();
     void compare();
     void zerncompute();
@@ -267,6 +270,10 @@ private:
 
     QAction *redrawAct;
 
+    QLabel *multiLineTextLabel;
+    QLabel *questionLabel;
+    QLabel *doubleLabel;
+    QErrorMessage *errorMessageDialog;
 };
 
 QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)

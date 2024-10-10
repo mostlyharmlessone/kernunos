@@ -63,9 +63,9 @@ write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
 dat=(flag-mod(flag,1000000))/1000000 ! first two digits
 write(*,*) 'dat to Fortran:',dat
 write(*,*) 'tweaks(dat) to Fortran:',btest(dat, 0),btest(dat, 1),btest(dat, 2),btest(dat, 3),btest(dat, 4)
-fct=mod(((flag-mod(flag,10000))/10000),100)
+fct=mod(((flag-mod(flag,10000))/10000),100) ! second two digits, color map functions
 write(*,*) 'fct to Fortran:',fct
-map=mod((flag-mod(flag,100))/100,100)
+map=mod((flag-mod(flag,100))/100,100)  ! last two digits are tweaks
 write(*,*) 'color(map) to Fortran:',map
 ! dat = first binary bit 0/1 centernode tweak ie btest(dat,0) = .true.
 ! dat = second binary bit 0/1 shift r-values tweak ie btest(dat,1) = .true.
@@ -73,6 +73,8 @@ write(*,*) 'color(map) to Fortran:',map
 ! dat = third binary bit 0/1 cubic spline integration (=1)(ie btest(dat,2) = .true.) vs trapezoidal rule (default = 0)
 ! dat =fourth binary bit 0/1 fillin2 cannot be combined with splinefillin ie btest(dat,3) = .true.
 ! dat =fifth binary bit 0/1 splinefillin cannot be combined with lsqfillin ie btest(dat,4) = .true.
+! dat = sixth binary bit 0/1 decenter tweak ie btest(dat,5) = .true.
+! dat = seventh binary bit 0/1 pupilregister tweak ie btest(dat,6) = .true.
 
 ! iflag passing of dat to SplineEval1Dx1D centernode splines and integration of splines
 ! first digit iflag-mod(iflag,10))/10

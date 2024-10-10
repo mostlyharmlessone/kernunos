@@ -205,7 +205,6 @@ float* zern2 = zernVector2.data();
 QString *m_GLString=nullptr;
 QString glstring_global;
 
-
 MainWindow::MainWindow(QMainWindow *parent) : assistant(new Assistant)
 
 {
@@ -251,10 +250,28 @@ MainWindow::MainWindow(QMainWindow *parent) : assistant(new Assistant)
    setMouseTracking(true);
    qApp->setApplicationDisplayName(tr("kernunos"));
 
+   int frameStyle = QFrame::Sunken | QFrame::Panel;
+   errorMessageDialog = new QErrorMessage(this);
+   multiLineTextLabel = new QLabel;
+   multiLineTextLabel->setFrameStyle(frameStyle);
+   doubleLabel = new QLabel;
+   doubleLabel->setFrameStyle(frameStyle);
+   questionLabel = new QLabel;
+   questionLabel->setFrameStyle(frameStyle);
+
    resize(SCR_WIDTH, SCR_HEIGHT);
    update();
 }
 
+
+void MainWindow::addComments()
+{
+    bool ok;
+    QString text = QInputDialog::getMultiLineText(this, tr("Add Comments"),
+                                                  tr("Comments:"), "Add comments here", &ok);
+    if (ok && !text.isEmpty())
+        multiLineTextLabel->setText(text);
+}
 
 void MainWindow::closeEvent(QCloseEvent *)
 {
@@ -297,6 +314,7 @@ void MainWindow::open()   //multiple invocations makes a comparison
    } else{
       ShowZernAct->setEnabled(false);
    };
+   compareAct->setEnabled(true);
    redrawAct->setEnabled(true);
    redrawOptionAct->setEnabled(true);
    gnuplotAct->setEnabled(true);
@@ -334,6 +352,7 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
        } else{
            ShowZernAct->setEnabled(false);
        };
+       compareAct->setEnabled(true);
        redrawAct->setEnabled(true);
        redrawOptionAct->setEnabled(true);
        gnuplotAct->setEnabled(true);
@@ -351,7 +370,42 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
 void MainWindow::compare()
 {
     flag=flag-(flag%100)+10;  // last two digits of flag=10
-//  for now set compare TO hsbrgb
+
+    QMessageBox msgBox(QMessageBox::Question, tr("QMessageBox::question()"),
+                       tr("Would you like to enter a rotation in degrees"), { }, this);
+    msgBox.setInformativeText(tr("The comparison is made with or without pupil alignment/registration " \
+                                 "and then rotation counterclockwise around that center in degrees\n " \
+                                 "Enter a number if you wish to rotate the image"));
+    msgBox.addButton(QMessageBox::Yes);
+    msgBox.addButton(QMessageBox::No);
+    msgBox.addButton(QMessageBox::Cancel);
+    int reply = msgBox.exec();
+    double degrees;
+    if (reply == QMessageBox::Yes){
+        ui.infoLabel->setText(tr("Yes"));
+
+        bool ok;
+        degrees = QInputDialog::getDouble(this, tr("Input rotation "),
+                                                 tr("Degrees:"), 0.0, 0, 360, 2, &ok,
+                                                 Qt::WindowFlags(), 1);
+        if (ok)
+            doubleLabel->setText(QString("$%1").arg(degrees));
+
+    }
+    else if (reply == QMessageBox::No){
+        ui.infoLabel->setText(tr("No"));
+        degrees = 0.0;
+        doubleLabel->setText(QString("$%1").arg(degrees));
+    }
+    else {
+        ui.infoLabel->setText(tr("Cancel"));
+        return;
+    }
+
+//    std::cout << "degrees " << degrees << std::endl;
+//    errorMessageDialog->showMessage(QString("%1").arg(degrees));
+
+//  for now set compare TO hsbrgb   
     int map=(flag-(flag%100))/100%100 ;
     GLwidget::setAllmapsfalse();
     GLwidget::sethsbrgb(true);
@@ -359,6 +413,8 @@ void MainWindow::compare()
 
     QString fileName="compare";
     m_GLwidget->DataLoad(fileName,true);
+
+//    errorMessageDialog->showMessage(tr("we made an error"));
 
 //  for now restore FROM hsbrgb
     flag=flag+100*(map-3) ;  //restore flag but doesn't reset map
@@ -1665,6 +1721,7 @@ void MainWindow::createActions()
 
    compareAct = new QAction(tr("&Compare..."), this);
    compareAct->setStatusTip(tr("Compare to previous file"));
+   compareAct->setEnabled(false);
    connect(compareAct, &QAction::triggered, this, &MainWindow::compare);
 
    zernAct = new QAction(tr("&Compute Zernike Coefficients"), this);

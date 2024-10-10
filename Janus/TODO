@@ -2,9 +2,11 @@ things to do
 
 CorneaCopia
 
+ele/ele.csv have a central computational issue
+
 rotation of side figures no perspective, ?use normals noperspective in shader might need another whole shader program
 
-need a dialog box or two
+
 
 to compare:  set baseline->fixed image JMatrix->store to JMatrix1, do not change pupil buffer                        run open
              set compare-> central current Jmatrix, prev in JMatrix1                              
@@ -15,9 +17,10 @@ to compare:  set baseline->fixed image JMatrix->store to JMatrix1, do not change
                         compute difference WITHOUT changing either JMatrix/1 if neither option above, or apply changes only to JMatrix and then compute difference
                         has to change color to a no fixed scale for comparison; have to pick a fct and a relative color scale to compare; do not change pupil buffer
 
+dialog box needs to activate pupilregister? and use degrees, right now they set unused dat
 
-dialog box
-redraw: only affects central image; do not change JMatrix1
+redraw: only affects central image; does not change JMatrix1 or vertices2/elements2; running compare here compares the original with the tweak
+
 redraw comparison, pick a different color and function for compare (third buffer); basically re-runs last step of compare
 
 built framework for pupil registration and decenter; both involve moving elevation data points, either, 

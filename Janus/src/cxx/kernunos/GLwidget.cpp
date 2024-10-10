@@ -709,14 +709,14 @@ void GLwidget::paintGL(void)
         if (!LoadSurfaceToBuffer(nV[i-1], nE[i-1], vertexbuffers[i], elementbuffers[i], vertices2, elements2)) return;
         mMVP.setToIdentity();
         mMVP.scale(QVector3D(0.005,0.005,0.005));
-        mMVP.translate(QVector3D(-700,0,-1000));
+        mMVP.translate(QVector3D(-900,0,-1000));
         m_alpha = QVector4D(0,0,0,1.0);
     }
     if (i == 3) {
         if (!LoadSurfaceToBuffer(nV[i-1], nE[i-1], vertexbuffers[i], elementbuffers[i], vertices3, elements3)) return;
         mMVP.setToIdentity();
         mMVP.scale(QVector3D(0.005,0.005,0.005));
-        mMVP.translate(QVector3D(700,0,-1000));
+        mMVP.translate(QVector3D(900,0,-1000));
         m_alpha = QVector4D(0,0,0,1.0);
     }
     if (i == 0 && m_pupilshow) {

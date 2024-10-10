@@ -135,14 +135,8 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     static bool isPupil() { return m_pupilshow; }
     static void setPupil(bool t) { m_pupilshow = t; }
 
-    static bool ispupilregister() { return m_pupilregister; }
-    static void setpupilregister(bool t) { m_pupilregister = t; }
-
     static bool isRedraw() { return m_redraw; }
     static void setRedraw(bool t) { m_redraw = t; }
-
-    static bool isdecenter() { return m_decenter; }
-    static void setdecenter(bool t) { m_decenter = t; }
 
     static bool isCenterNode() { return m_centerNode; }
     static void setCenterNode(bool t) { m_centerNode = t;
@@ -162,7 +156,6 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     static void setcubic(bool t) { m_cubic = t;
       int dat=(flag-(flag%1000000))/1000000;
       if(t) {dat |= 1UL << 2;} else { dat &= ~(1UL << 2);}  //set/unset 2st ie. third bit
-      // m_adjustradii =(dat >> 2) & 1U;  should agree with m_cubic = t;
       flag=1000000*dat+(flag%1000000); }
 
     // these two are mutually exclusive but can both be false
@@ -188,8 +181,20 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
              m_LSQfillin = false;}
       else { dat &= ~(1UL << 4);
              m_Splinefillin = false;}  //set/unset 4rd ie. fifth bit
-      // m_adjustradii =(dat >> 4) & 1U;  should agree with m_Splinefillin = t;
+      // m_Splinefillin =(dat >> 4) & 1U;  should agree with m_Splinefillin = t;
       flag=1000000*dat+(flag%1000000); }
+
+    static bool isdecenter() { return m_decenter; }
+    static void setdecenter(bool t) { m_decenter = t;
+        int dat=(flag-(flag%1000000))/1000000;
+        if(t) {dat |= 1UL << 5;} else { dat &= ~(1UL << 5);}  //set/unset 5th ie. sixth bit
+        flag=1000000*dat+(flag%1000000);}
+
+    static bool ispupilregister() { return m_pupilregister; }
+    static void setpupilregister(bool t) { m_pupilregister = t;
+        int dat=(flag-(flag%1000000))/1000000;
+        if(t) {dat |= 1UL << 6;} else { dat &= ~(1UL << 6);}  //set/unset 6th ie. seventh bit
+        flag=1000000*dat+(flag%1000000);}
 
     static void setAllfctfalse(){
       m_Axial = false;
