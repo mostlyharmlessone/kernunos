@@ -422,12 +422,18 @@ void MainWindow::compare()
     msgBox.addButton(QMessageBox::Yes);
     msgBox.addButton(QMessageBox::No);
     msgBox.addButton(QMessageBox::Cancel);
-    int pupilvalue = 0;
+    int pupilvalue;
+    if (GLwidget::ispupilregister()){pupilvalue = 1;}
+    if (!GLwidget::ispupilregister()){pupilvalue = 0;}
+
+        std::cout << "compare in MainWindow1  " << pupilvalue <<" "<< GLwidget::ispupilregister() << std::endl;
+
     QSpacerItem *horizontalspacer = new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
     QGridLayout *layout =(QGridLayout*)msgBox.layout();
     layout->addItem(horizontalspacer,layout->rowCount(),0,1,layout->columnCount());
     compareDialogOptionsWidget = new DialogOptionsWidget;
     compareDialogOptionsWidget->addCheckBox(tr("Pupil Registration"), pupilvalue);
+    pupilvalue=compareDialogOptionsWidget->value();
     layout->addWidget(compareDialogOptionsWidget);
     int reply = msgBox.exec();
     int degrees;
@@ -440,8 +446,8 @@ void MainWindow::compare()
         degrees = QInputDialog::getInt(this, tr("Rotation "),
                                                  tr("Degrees:"), degrees, 0, 360, 2, &ok,
                                                  Qt::WindowFlags());
-        if (ok)
-            degreeLabel->setText(QString("$%1").arg(degrees));
+        if (ok){
+            degreeLabel->setText(QString("$%1").arg(degrees));}
     }
     else if (reply == QMessageBox::No){
 //        ui.infoLabel->setText(tr("No"));
@@ -457,9 +463,13 @@ void MainWindow::compare()
     GLwidget::sethsbrgb(true);
     checkmapsflags();
 
-    QString fileName="compare";
-//  need to pass pupilvalue and degrees with pupilregister
+    if (pupilvalue == 1){GLwidget::setpupilregister(true);}
+    if (pupilvalue == 0){GLwidget::setpupilregister(false);}
 
+    std::cout << "compare in MainWindow2 " << pupilvalue <<" "<< GLwidget::ispupilregister() << std::endl;
+
+
+    QString fileName=QString("%1").arg(degrees);  //pass the degrees with the filename
     m_GLwidget->DataLoad(fileName,true);
 
 //    errorMessageDialog->showMessage(tr("we made an error"));

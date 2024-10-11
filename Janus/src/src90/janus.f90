@@ -38,7 +38,7 @@
   real(wp) :: POWMIN,POWMAX,POWMAX2,POWCTR,POW,P1,X1,X2,U,V
   logical :: donut, exists
   real(wp) :: Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo
-  integer :: k_max, kk_max, iflag, LWORK
+  integer :: k_max, kk_max, iflag, LWORK, rotationdegrees
   integer(c_int) :: dat, fct, map
   real(wp), allocatable :: zernC(:,:), B_Matrix(:,:), rlocal(:), thtlocal(:), WORK(:)
   real(wp), allocatable :: UT(:,:),VT(:,:) !,XTX(:,:),EE(:,:)
@@ -143,7 +143,7 @@ if (mod(flag,100) == 99) then
 endif
 
 if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3) then
-!  only need new file name if opening a file or printing, and
+!  only need new file name if opening a file or printing, or compare for degree information and
 !  local save of inputfile1,inputfile2,logfile
 !  write(*,*) 'file from kernunos: ',file_from_C  ! this will have a lot of extra random non ASCII stuff after the file name
 !! need this because GCC11 isn't F2018 compliant with deferred length character with Bind C
@@ -194,6 +194,23 @@ if (mod(flag,100) .eq. 5 .or. mod(flag,100) .eq. 6 .or.&
   allocate(character(nblines) :: gnu_instruct)
   gnu_instruct=trim(new_path)
   BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".plt")
+endif
+
+if (mod(flag,100) .eq. 10  ) then  !compare with btest(dat,6) = .true. or .false.
+ new_path = " "
+ do i=1, 4096
+    if ( file_from_C (i) == c_null_char ) then
+        exit
+    else
+        new_path (i:i) = file_from_C (i)
+    end if
+ end do
+ write(*,*) 'file from kernunos: ',trim(new_path)
+ new_path=trim(new_path)
+ read(new_path,*) rotationdegrees
+
+ write(*,*) "compare rotation, pupilregister: ",rotationdegrees,btest(dat,6)
+
 endif
 
 if (mod(flag,100) .eq. 5 ) then

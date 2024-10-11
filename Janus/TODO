@@ -2,11 +2,14 @@ things to do
 
 CorneaCopia
 
+
+work on pupil check registration; doesn't seem to do what you think; possible copy over code from menu?
+
 ele/ele.csv have a central computational issue
 
-rotation of side figures no perspective, ?use normals noperspective in shader might need another whole shader program
+rotation of side figures no perspective; more magnification but greater distance?
 
-
+dialog box needs to activate pupilregister? and use degrees, right now they set unused dat
 
 to compare:  set baseline->fixed image JMatrix->store to JMatrix1, do not change pupil buffer                        run open
              set compare-> central current Jmatrix, prev in JMatrix1                              
@@ -17,7 +20,7 @@ to compare:  set baseline->fixed image JMatrix->store to JMatrix1, do not change
                         compute difference WITHOUT changing either JMatrix/1 if neither option above, or apply changes only to JMatrix and then compute difference
                         has to change color to a no fixed scale for comparison; have to pick a fct and a relative color scale to compare; do not change pupil buffer
 
-dialog box needs to activate pupilregister? and use degrees, right now they set unused dat
+
 
 redraw: only affects central image; does not change JMatrix1 or vertices2/elements2; running compare here compares the original with the tweak
 
