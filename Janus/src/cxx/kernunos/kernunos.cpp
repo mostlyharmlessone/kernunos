@@ -205,6 +205,52 @@ float* zern2 = zernVector2.data();
 QString *m_GLString=nullptr;
 QString glstring_global;
 
+class DialogOptionsWidget : public QGroupBox
+{
+public:
+    explicit DialogOptionsWidget(QWidget *parent = nullptr);
+
+    void addCheckBox(const QString &text, int value);
+    void addSpacer();
+    int value() const;
+
+private:
+    typedef QPair<QCheckBox *, int> CheckBoxEntry;
+    QVBoxLayout *layout;
+    QList<CheckBoxEntry> checkBoxEntries;
+};
+
+DialogOptionsWidget::DialogOptionsWidget(QWidget *parent) :
+    QGroupBox(parent) , layout(new QVBoxLayout)
+{
+    setTitle(MainWindow::tr("Options"));
+    setLayout(layout);
+}
+
+void DialogOptionsWidget::addCheckBox(const QString &text, int value)
+{
+    QCheckBox *checkBox = new QCheckBox(text);
+    layout->addWidget(checkBox);
+    checkBoxEntries.append(CheckBoxEntry(checkBox, value));
+}
+
+void DialogOptionsWidget::addSpacer()
+{
+    layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
+}
+
+int DialogOptionsWidget::value() const
+{
+    int result = 0;
+    for (const CheckBoxEntry &checkboxEntry : std::as_const(checkBoxEntries)) {
+        if (checkboxEntry.first->isChecked())
+            result |= checkboxEntry.second;
+    }
+    return result;
+}
+
+
+
 MainWindow::MainWindow(QMainWindow *parent) : assistant(new Assistant)
 
 {
@@ -254,8 +300,8 @@ MainWindow::MainWindow(QMainWindow *parent) : assistant(new Assistant)
    errorMessageDialog = new QErrorMessage(this);
    multiLineTextLabel = new QLabel;
    multiLineTextLabel->setFrameStyle(frameStyle);
-   doubleLabel = new QLabel;
-   doubleLabel->setFrameStyle(frameStyle);
+   degreeLabel = new QLabel;
+   degreeLabel->setFrameStyle(frameStyle);
    questionLabel = new QLabel;
    questionLabel->setFrameStyle(frameStyle);
 
@@ -369,41 +415,41 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
 
 void MainWindow::compare()
 {
-    flag=flag-(flag%100)+10;  // last two digits of flag=10
-
-    QMessageBox msgBox(QMessageBox::Question, tr("QMessageBox::question()"),
-                       tr("Would you like to enter a rotation in degrees"), { }, this);
+    QMessageBox msgBox(QMessageBox::Question, tr("Compare"),
+                       tr("Would you like to change the current rotation in degrees"), { }, this);
     msgBox.setInformativeText(tr("The comparison is made with or without pupil alignment/registration " \
-                                 "and then rotation counterclockwise around that center in degrees\n " \
-                                 "Enter a number if you wish to rotate the image"));
+                                 "and then rotation counterclockwise around that center in degrees." ));
     msgBox.addButton(QMessageBox::Yes);
     msgBox.addButton(QMessageBox::No);
     msgBox.addButton(QMessageBox::Cancel);
+    int pupilvalue = 0;
+    QSpacerItem *horizontalspacer = new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    QGridLayout *layout =(QGridLayout*)msgBox.layout();
+    layout->addItem(horizontalspacer,layout->rowCount(),0,1,layout->columnCount());
+    compareDialogOptionsWidget = new DialogOptionsWidget;
+    compareDialogOptionsWidget->addCheckBox(tr("Pupil Registration"), pupilvalue);
+    layout->addWidget(compareDialogOptionsWidget);
     int reply = msgBox.exec();
-    double degrees;
+    int degrees;
+    degrees=ui.zSlider->value();
+    degrees=degrees / 16;
+
     if (reply == QMessageBox::Yes){
-        ui.infoLabel->setText(tr("Yes"));
-
+//        ui.infoLabel->setText(tr("Yes"));
         bool ok;
-        degrees = QInputDialog::getDouble(this, tr("Input rotation "),
-                                                 tr("Degrees:"), 0.0, 0, 360, 2, &ok,
-                                                 Qt::WindowFlags(), 1);
+        degrees = QInputDialog::getInt(this, tr("Rotation "),
+                                                 tr("Degrees:"), degrees, 0, 360, 2, &ok,
+                                                 Qt::WindowFlags());
         if (ok)
-            doubleLabel->setText(QString("$%1").arg(degrees));
-
+            degreeLabel->setText(QString("$%1").arg(degrees));
     }
     else if (reply == QMessageBox::No){
-        ui.infoLabel->setText(tr("No"));
-        degrees = 0.0;
-        doubleLabel->setText(QString("$%1").arg(degrees));
+//        ui.infoLabel->setText(tr("No"));
     }
-    else {
-        ui.infoLabel->setText(tr("Cancel"));
-        return;
-    }
+    if (!(reply == QMessageBox::Cancel)){
 
-//    std::cout << "degrees " << degrees << std::endl;
-//    errorMessageDialog->showMessage(QString("%1").arg(degrees));
+    ui.zSlider->setValue(degrees * 16);
+    flag=flag-(flag%100)+10;  // last two digits of flag=10
 
 //  for now set compare TO hsbrgb   
     int map=(flag-(flag%100))/100%100 ;
@@ -412,6 +458,8 @@ void MainWindow::compare()
     checkmapsflags();
 
     QString fileName="compare";
+//  need to pass pupilvalue and degrees with pupilregister
+
     m_GLwidget->DataLoad(fileName,true);
 
 //    errorMessageDialog->showMessage(tr("we made an error"));
@@ -419,7 +467,11 @@ void MainWindow::compare()
 //  for now restore FROM hsbrgb
     flag=flag+100*(map-3) ;  //restore flag but doesn't reset map
     checkmapsflags();
-    update();
+    update();}
+    else {
+//        ui.infoLabel->setText(tr("Cancel"));
+        return;
+    }
 }
 
 void MainWindow::redraw(){
@@ -428,7 +480,6 @@ void MainWindow::redraw(){
     QByteArray ba = fileName.toLocal8Bit();
     filename = ba.data();
 
-   // this doesn't fix rendering problems; in fact they get reinstated
    janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);
 
    return;}

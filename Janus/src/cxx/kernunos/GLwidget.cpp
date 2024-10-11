@@ -2,6 +2,7 @@
 #include "kernunos.h"
 #include "qtconcurrentrun.h"
 
+
 static const GLchar* vertexSource = R"glsl(
     #version 330 core
     in vec3 position;   // the position variable has attribute position 0

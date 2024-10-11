@@ -96,7 +96,7 @@ class QErrorMessage;
 QT_END_NAMESPACE
 
 class Assistant;
-// class ContentWidget;
+class DialogOptionsWidget;
 
 class MainWindow : public QMainWindow
 
@@ -272,8 +272,10 @@ private:
 
     QLabel *multiLineTextLabel;
     QLabel *questionLabel;
-    QLabel *doubleLabel;
+    QLabel *degreeLabel;
     QErrorMessage *errorMessageDialog;
+    DialogOptionsWidget *compareDialogOptionsWidget;
+
 };
 
 QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)
