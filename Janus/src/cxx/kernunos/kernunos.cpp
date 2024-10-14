@@ -93,9 +93,10 @@ const unsigned int SCR_HEIGHT = 600;
 // dat = first binary bit 0/1 centernode tweak
 // dat = second binary bit 0/1 shift r-values tweak
 // dat = third binary bit 0/1 cubic spline integration (=1) vs trapezoidal rule (default = 0) integration of slopes for elevation
-// dat =fourth binary bit 0/1 fillin2 cannot be combined with splinefillin
-// dat =fifth binary bit 0/1 splinefillin cannot be combined with lsqfillin
-
+// dat = fourth binary bit 0/1 fillin2 cannot be combined with splinefillin
+// dat = fifth binary bit 0/1 splinefillin cannot be combined with lsqfillin
+// dat = sixth binary bit 0/1 decenter tweak
+// dat = seventh binary bit 0/1 pupilregister tweak
 // second two digits are the function to be plotted as colors
 // 0 = SAGC Sagittal or Axial power
 // 1-15 = zernike coefficient maps
@@ -149,16 +150,11 @@ const unsigned int SCR_HEIGHT = 600;
 
 int flag=500;
 int counter=0;
-
-//https://stackoverflow.com/questions/16296284/workaround-for-blocking-async
-// was const char *filename and not global
-
 char *filename;
-
 bool success=false;
 bool paintme = false;
 
-//how very Fortran that these need to be static & global
+//how very old Fortran that these need to be static & global
 // data vectors for corneal images
 int nV[3];
 int nE[3];
@@ -250,7 +246,6 @@ int DialogOptionsWidget::value() const
 }
 
 
-
 MainWindow::MainWindow(QMainWindow *parent) : assistant(new Assistant)
 
 {
@@ -279,6 +274,10 @@ MainWindow::MainWindow(QMainWindow *parent) : assistant(new Assistant)
    ui.zSlider->setPageStep(15 * 16);
    ui.zSlider->setTickInterval(15 * 16);
    ui.zSlider->setTickPosition(QSlider::TicksRight);
+   ui.horizontalSlider->setRange(0,100);
+   ui.horizontalSlider->setValue(100);
+   connect(ui.horizontalSlider, &QSlider::valueChanged, ui.openGLWidget_2, &GLwidget::settransparency);
+   connect(ui.openGLWidget_2, &GLwidget::transparencyChanged, ui.horizontalSlider, &QSlider::setValue);
    connect(ui.xSlider, &QSlider::valueChanged, ui.openGLWidget_2, &GLwidget::setXRotation);
    connect(ui.openGLWidget_2, &GLwidget::xRotationChanged, ui.xSlider, &QSlider::setValue);
    connect(ui.ySlider, &QSlider::valueChanged, ui.openGLWidget_2, &GLwidget::setYRotation);
@@ -302,13 +301,14 @@ MainWindow::MainWindow(QMainWindow *parent) : assistant(new Assistant)
    multiLineTextLabel->setFrameStyle(frameStyle);
    degreeLabel = new QLabel;
    degreeLabel->setFrameStyle(frameStyle);
-   questionLabel = new QLabel;
-   questionLabel->setFrameStyle(frameStyle);
 
    resize(SCR_WIDTH, SCR_HEIGHT);
    update();
 }
 
+//    example usage
+//    errorMessageDialog->showMessage(tr("we made an error"));
+//   addComments();
 
 void MainWindow::addComments()
 {
@@ -422,18 +422,14 @@ void MainWindow::compare()
     msgBox.addButton(QMessageBox::Yes);
     msgBox.addButton(QMessageBox::No);
     msgBox.addButton(QMessageBox::Cancel);
-    int pupilvalue;
-    if (GLwidget::ispupilregister()){pupilvalue = 1;}
-    if (!GLwidget::ispupilregister()){pupilvalue = 0;}
-
-        std::cout << "compare in MainWindow1  " << pupilvalue <<" "<< GLwidget::ispupilregister() << std::endl;
+    int pupilvalue = 1;
 
     QSpacerItem *horizontalspacer = new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
     QGridLayout *layout =(QGridLayout*)msgBox.layout();
     layout->addItem(horizontalspacer,layout->rowCount(),0,1,layout->columnCount());
     compareDialogOptionsWidget = new DialogOptionsWidget;
     compareDialogOptionsWidget->addCheckBox(tr("Pupil Registration"), pupilvalue);
-    pupilvalue=compareDialogOptionsWidget->value();
+
     layout->addWidget(compareDialogOptionsWidget);
     int reply = msgBox.exec();
     int degrees;
@@ -444,7 +440,7 @@ void MainWindow::compare()
 //        ui.infoLabel->setText(tr("Yes"));
         bool ok;
         degrees = QInputDialog::getInt(this, tr("Rotation "),
-                                                 tr("Degrees:"), degrees, 0, 360, 2, &ok,
+                                                 tr("Degrees:"), degrees, 0, 360, 1, &ok,
                                                  Qt::WindowFlags());
         if (ok){
             degreeLabel->setText(QString("$%1").arg(degrees));}
@@ -463,16 +459,11 @@ void MainWindow::compare()
     GLwidget::sethsbrgb(true);
     checkmapsflags();
 
-    if (pupilvalue == 1){GLwidget::setpupilregister(true);}
-    if (pupilvalue == 0){GLwidget::setpupilregister(false);}
-
-    std::cout << "compare in MainWindow2 " << pupilvalue <<" "<< GLwidget::ispupilregister() << std::endl;
-
+    if (compareDialogOptionsWidget->value()){GLwidget::setpupilregister(true);}
+    else {GLwidget::setpupilregister(false);}
 
     QString fileName=QString("%1").arg(degrees);  //pass the degrees with the filename
     m_GLwidget->DataLoad(fileName,true);
-
-//    errorMessageDialog->showMessage(tr("we made an error"));
 
 //  for now restore FROM hsbrgb
     flag=flag+100*(map-3) ;  //restore flag but doesn't reset map
@@ -1530,22 +1521,6 @@ void MainWindow::tweakdecenter()
     };
 }
 
-void MainWindow::tweakpupilregister()
-{
-    if (GLwidget::ispupilregister()) {
-        GLwidget::setpupilregister(false);
-        pupilregisterAct->setChecked(GLwidget::isadjustradii());
-        ui.infoLabel->setText(tr("Set <b>Tweak:Pupil Align/Register false</b>"));
-    } else {
-        GLwidget::setpupilregister(true);
-        pupilregisterAct->setChecked(GLwidget::ispupilregister());
-        ui.infoLabel->setText(tr("Set <b>Tweak:Pupil Align/Register true</b>"));
-    };
-    if (GLwidget::isRedraw()) {
-        redraw();
-    };
-}
-
 void MainWindow::tweakcubic()
 {
    if (GLwidget::iscubic()) {
@@ -1857,10 +1832,6 @@ void MainWindow::createActions()
    connect(pupilAct, &QAction::triggered, this, &MainWindow::pupil);
    pupilAct->setCheckable(true);
 
-   pupilregisterAct = new QAction(tr("&Recenter according to pupil data "), this);
-   connect(pupilregisterAct, &QAction::triggered, this, &MainWindow::tweakpupilregister);
-   pupilregisterAct->setCheckable(true);
-
    decenterAct = new QAction(tr("&Decenter image"), this);
    connect(decenterAct, &QAction::triggered, this, &MainWindow::tweakdecenter);
    decenterAct->setCheckable(true);
@@ -2118,7 +2089,6 @@ void MainWindow::createMenus()
    tweaksMenu->addAction(SplinefillinAct);
    tweaksMenu->addAction(LSQfillinAct);
    tweaksMenu->addAction(decenterAct);
-   tweaksMenu->addAction(pupilregisterAct);
    helpMenu = menuBar()->addMenu(tr("&About"));
    helpMenu->addAction(HelpAct);
    helpMenu->addAction(aboutAct);

@@ -454,6 +454,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     void setXRotation(int angle);
     void setYRotation(int angle);
     void setZRotation(int angle);
+    void settransparency(int percent);
     void cleanup();
 
 
@@ -462,6 +463,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     void xRotationChanged(int angle);
     void yRotationChanged(int angle);
     void zRotationChanged(int angle);
+    void transparencyChanged(int percent);
 
 
   protected:
@@ -496,6 +498,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     int m_xRot = 0;
     int m_yRot = 0;
     int m_zRot = 0;
+    float m_alpha_value=1.0;
     QPoint m_lastPos;
     QOpenGLVertexArrayObject m_vao;
     int m_projMatrixLoc = 0;

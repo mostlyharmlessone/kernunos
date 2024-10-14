@@ -690,7 +690,8 @@ void GLwidget::paintGL(void)
 
     m_vao.bind();
 
-    for (int i=0; i <= 3; i++)
+    // do them in this order for transparencecy overlay
+    for (int i=4; i > 0 ; i--)
     {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertexbuffers[i]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffers[i]);
@@ -699,12 +700,13 @@ void GLwidget::paintGL(void)
     QVector4D m_alpha;
     if (i == 1) {
         if (!LoadSurfaceToBuffer(nV[i-1], nE[i-1], vertexbuffers[i], elementbuffers[i], vertices, elements)) return;
+//        if (!LoadSurfaceToBuffer(nV[0], nE[0], vertexbuffers[1], elementbuffers[1], vertices, elements)) return;
         m_world.setToIdentity();
         m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
         m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
         m_world.rotate(m_zRot / 16.0f, 0, 0, 1);
         mMVP =  mViewMatrix  * m_world;
-        m_alpha = QVector4D(0,0,0,0.5);
+        m_alpha = QVector4D(0,0,0,m_alpha_value);
     }
     if (i == 2) {
         if (!LoadSurfaceToBuffer(nV[i-1], nE[i-1], vertexbuffers[i], elementbuffers[i], vertices2, elements2)) return;
@@ -715,13 +717,14 @@ void GLwidget::paintGL(void)
     }
     if (i == 3) {
         if (!LoadSurfaceToBuffer(nV[i-1], nE[i-1], vertexbuffers[i], elementbuffers[i], vertices3, elements3)) return;
+//        if (!LoadSurfaceToBuffer(nV[2], nE[2], vertexbuffers[3], elementbuffers[3], vertices3, elements3)) return;
         mMVP.setToIdentity();
         mMVP.scale(QVector3D(0.005,0.005,0.005));
         mMVP.translate(QVector3D(900,0,-1000));
         m_alpha = QVector4D(0,0,0,1.0);
     }
-    if (i == 0 && m_pupilshow) {
-        if(!LoadSurfaceToBuffer(pupil_nV, pupil_nE, vertexbuffers[i], elementbuffers[i], pupil_vertices, pupil_elements)) return;
+    if (i == 4 && m_pupilshow) {
+        if(!LoadSurfaceToBuffer(pupil_nV, pupil_nE, vertexbuffers[i-4], elementbuffers[i-4], pupil_vertices, pupil_elements)) return;
         m_world.setToIdentity();
         m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
         m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
@@ -918,5 +921,14 @@ void GLwidget::setZRotation(int angle)
    }
 }
 
+void GLwidget::settransparency(int percent)
+{
+    float percent_fract=percent/100.0;
+    if (percent_fract != m_alpha_value) {
+        m_alpha_value = percent_fract;
+        emit transparencyChanged(percent);
+        update();
+    }
+}
 
 

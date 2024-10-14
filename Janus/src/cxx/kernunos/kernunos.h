@@ -161,7 +161,6 @@ private slots:
     void fctZ11();
     void fctZ1neg1();
     void fctZ00();
-    void tweakpupilregister();
     void tweakdecenter();
     void tweakcenterNode();
     void tweakadjustradii();
@@ -260,7 +259,6 @@ private:
     QAction *LSQfillinAct;
     QAction *SplinefillinAct;
     QAction *decenterAct;
-    QAction *pupilregisterAct;
 
     QMenu *helpMenu;
     QAction *aboutAct;
@@ -271,7 +269,6 @@ private:
     QAction *redrawAct;
 
     QLabel *multiLineTextLabel;
-    QLabel *questionLabel;
     QLabel *degreeLabel;
     QErrorMessage *errorMessageDialog;
     DialogOptionsWidget *compareDialogOptionsWidget;

@@ -1,5 +1,5 @@
   subroutine Janus(flag,file_from_C,elements,vertices,legend,zern,nV,nE,nL,pupil_elements,pupil_vertices,pupil_nV,pupil_nE) bind(C,name='janus_')
-! DRIVER PROGRAM FOR SPLINE ROUTINES
+! back end for calculations
   use set_precision, ONLY : wp, sk
   use lapackinterface
   use cornea_arrays
@@ -13,7 +13,7 @@
   integer :: i, j, k, ii, kk, m, nn, i1, j1, ierr, info, nrhs
   integer,save :: MM, N ,M1, N1, Power_Rings_Count
   integer,save :: TestData             ! TestData: -1=test, 0=EyeSys, 1=Atlas, (2-5)=Penta
-  integer,save :: NP                        ! PentaCam=141
+  integer,save :: NP                   ! PentaCam=141
   integer :: unitno1
   character(c_char), INTENT(IN), DIMENSION(4096) :: file_from_C
   integer(c_int), INTENT(INOUT) :: flag

@@ -2,44 +2,26 @@ things to do
 
 CorneaCopia
 
-
-work on pupil check registration; doesn't seem to do what you think; possible copy over code from menu?
+in janus,implement pupil registration and rotation in compare instead of straight subtraction
 
 ele/ele.csv have a central computational issue
 
 rotation of side figures no perspective; more magnification but greater distance?
 
-dialog box needs to activate pupilregister? and use degrees, right now they set unused dat
-
-to compare:  set baseline->fixed image JMatrix->store to JMatrix1, do not change pupil buffer                        run open
-             set compare-> central current Jmatrix, prev in JMatrix1                              
-                           optionally suggest matching .CUR if available for .ELE, _CUR.CSV for _ELE.CSV             run open again; should put prev in fixed buffer
-
-                      
-          run compare-> select pupil registration (on/off) and rotation in degrees (rotate current image (now in JMatrix) clockwise)
-                        compute difference WITHOUT changing either JMatrix/1 if neither option above, or apply changes only to JMatrix and then compute difference
-                        has to change color to a no fixed scale for comparison; have to pick a fct and a relative color scale to compare; do not change pupil buffer
-
-
-
 redraw: only affects central image; does not change JMatrix1 or vertices2/elements2; running compare here compares the original with the tweak
 
 redraw comparison, pick a different color and function for compare (third buffer); basically re-runs last step of compare
 
-built framework for pupil registration and decenter; both involve moving elevation data points, either, 
+built framework for decenter; both involve moving elevation data points, either, 
 then resplining on that basis, just like an ELE file, in fact, for an ELE/ELE.CSV file, adjust the data before the first spline
-but neither actually does anything yet
 decenter needs a dialog box for the amount and direction needs inputdialog get float x 2
-
+decentration accomplished with penta data off by one in getArg(); make it (i) or (i+2) to decenter and generate fake astigmatism: 
+Is this reversible with tweaks, and/or can we also fake decentration with reverse tweaks?
 
 make 3D option for all functions, with scale Z value max and min
 this will affect Geom,WriteGeomPLY/OFF
 
 make cartesian grid display option; convert polar to grid, display pentacam directly
-transparency vs wireframe as option for overlay
-
-decentration accomplished with penta data off by one in getArg(); make it (i) or (i+2) to decenter and generate fake astigmatism: 
-Is this reversible with tweaks, and/or can we also fake decentration with reverse tweaks?
 
 plots with gnuplot splot are only has fixed scale for sagc?
 
@@ -48,26 +30,20 @@ probably needs a whole section on corneal topography and "powers" with math defi
 check formula for mean curvature and monge astigmatism and possibly make limit friendlier version with limit added on exponential 
 check in isis/m with mathematica; generate print friendly Latex export TexForm
 
-http://github.com/zserge/beep or get fancy with .ogg
-
 ability to turn stdoutput logging on/off
 change most writes to kernunos log writes
+addcomments():
+erroMessageDialog
 
 try going back to splineeval1dx1d and removing extra calls to splineeval, aka back to trial that spawned current branch
 also try finding a way to use only local natural splines instead of generating whole circular spline and using pspli
 
 enforce, or have a warning having to make new zernike after loading new data, also if tweaks changed
 
-try to (b)lock opening another file while Zernike is computing to avoid crash ? condition on counter?
-
-
-
-
-
-cannot run Open
+try to (b)lock opening another file while Zernike is computing to avoid crash ? condition on counter? cannot run Open
 you can run other Analyze ie center gnusplotplot, lioc, and move the picture
 probably can run kernunos but not janus?
-consider adding sound to play after zernike compute, but might need option to turn off
+consider adding sound to play after zernike compute, but might need option to turn off http://github.com/zserge/beep or get fancy with .ogg
 
 resurrect old noise reduction code to help out mongeastig and meanc for real data?
 need lapack or open version of numrec fourn:  fftpack
