@@ -6,8 +6,6 @@ in janus,implement pupil registration and rotation in compare instead of straigh
 
 ele/ele.csv have a central computational issue
 
-rotation of side figures no perspective; more magnification but greater distance?
-
 redraw: only affects central image; does not change JMatrix1 or vertices2/elements2; running compare here compares the original with the tweak
 
 redraw comparison, pick a different color and function for compare (third buffer); basically re-runs last step of compare

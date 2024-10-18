@@ -196,7 +196,7 @@ if (mod(flag,100) .eq. 5 .or. mod(flag,100) .eq. 6 .or.&
   BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".plt")
 endif
 
-if (mod(flag,100) .eq. 10  ) then  !compare with btest(dat,6) = .true. or .false.
+if (mod(flag,100) .eq. 10  ) then  ! compare with btest(dat,6) = .true. or .false.
  new_path = " "
  do i=1, 4096
     if ( file_from_C (i) == c_null_char ) then
@@ -208,9 +208,7 @@ if (mod(flag,100) .eq. 10  ) then  !compare with btest(dat,6) = .true. or .false
  write(*,*) 'file from kernunos: ',trim(new_path)
  new_path=trim(new_path)
  read(new_path,*) rotationdegrees
-
  write(*,*) "compare rotation, pupilregister: ",rotationdegrees,btest(dat,6)
-
 endif
 
 if (mod(flag,100) .eq. 5 ) then
@@ -486,7 +484,7 @@ endif
 endif
 
 ! simple difference/subtraction with compare
-! currently does not actually work with ZC since there's no compare option with flag=1
+! currently does not actually work with ZC since there's no compare option with flag=1?
 if (mod(flag,100) == 10) then
  if (allocated(JMatrix2%R)) then
 ! use geometry from current JMatrix to populate
@@ -495,6 +493,33 @@ if (mod(flag,100) == 10) then
   JMatrix2%R0=JMatrix%R0
   JMatrix2%THT0=JMatrix%THT0
 
+! if no pupil registration and rotationdegrees is even, then there's a shortcut
+! made rotationdegrees even in kernunos so mod(rotationdegrees,2) .eq. 0 always true.
+if (.not.btest(dat,6)) then
+ write(*,*) "compare without pupil: ", rotationdegrees, .not.btest(dat,6)
+ rotationdegrees=135+rotationdegrees/4  ! makes 180 no rotation without risk of negative indices
+
+! not the correct formula
+stop
+
+
+
+
+ if (rotationdegrees .ne. 0) then
+  do i=1,M1
+   j = mod(i + rotationdegrees,180)
+   if (j .eq. 0) j = 180
+   JMatrix2%MV(i)=min(JMatrix%MV(i),JMatrix1%MV(j))
+   JMatrix2%Z(:,i)=ABS(JMatrix1%Z(:,i)-JMatrix%Z(:,j))
+   JMatrix2%SAGC(:,i)=ABS(JMatrix1%SAGC(:,i)-JMatrix%SAGC(:,j))
+   JMatrix2%Warp(:,i)=ABS(JMatrix1%Warp(:,i)-JMatrix%Warp(:,j))
+   JMatrix2%INSTC(:,i)=ABS(JMatrix1%INSTC(:,i)-JMatrix%INSTC(:,j))
+   JMatrix2%INSTC2(:,i)=ABS(JMatrix1%INSTC2(:,i)-JMatrix%INSTC2(:,j))
+   JMatrix2%MEANC(:,i)=ABS(JMatrix1%MEANC(:,i)-JMatrix%MEANC(:,j))
+   JMatrix2%MONGEA(:,i)=ABS(JMatrix1%MONGEA(:,i)-JMatrix%MONGEA(:,j))
+   JMatrix2%ZC(:,i,:)=ABS(JMatrix1%ZC(:,i,:)-JMatrix%ZC(:,j,:))
+  end do
+ else
   JMatrix2%Z(:,:)=ABS(JMatrix1%Z(:,:)-JMatrix%Z(:,:))
   JMatrix2%SAGC(:,:)=ABS(JMatrix1%SAGC(:,:)-JMatrix%SAGC(:,:))
   JMatrix2%Warp(:,:)=ABS(JMatrix1%Warp(:,:)-JMatrix%Warp(:,:))
@@ -502,16 +527,17 @@ if (mod(flag,100) == 10) then
   JMatrix2%INSTC2(:,:)=ABS(JMatrix1%INSTC2(:,:)-JMatrix%INSTC2(:,:))
   JMatrix2%MEANC(:,:)=ABS(JMatrix1%MEANC(:,:)-JMatrix%MEANC(:,:))
   JMatrix2%MONGEA(:,:)=ABS(JMatrix1%MONGEA(:,:)-JMatrix%MONGEA(:,:))
-  JMatrix2%SAGC0(:)=ABS(JMatrix1%SAGC0(:)-JMatrix%SAGC0(:))
-  JMatrix2%Z0(:)=ABS(JMatrix1%Z0(:)-JMatrix%Z0(:))
-  JMatrix2%Warp0(:)=ABS(JMatrix1%Warp0(:)-JMatrix%Warp0(:))
-  JMatrix2%INSTC0(:)=ABS(JMatrix1%INSTC0(:)-JMatrix%INSTC0(:))
-  JMatrix2%INSTC20(:)=ABS(JMatrix1%INSTC20(:)-JMatrix%INSTC20(:))
-  JMatrix2%MEANC0(:)=ABS(JMatrix1%MEANC0(:)-JMatrix%MEANC0(:))
-  JMatrix2%MONGEA0(:)=ABS(JMatrix1%MONGEA0(:)-JMatrix%MONGEA0(:))
-  JMatrix2%ZC(:,:,:)=ABS(JMatrix1%ZC(:,:,:)-JMatrix%ZC(:,:,:))
-  JMatrix2%ZC0(:,:)=ABS(JMatrix1%ZC0(:,:)-JMatrix%ZC0(:,:))
-
+ endif
+ JMatrix2%SAGC0(:)=ABS(JMatrix1%SAGC0(:)-JMatrix%SAGC0(:))
+ JMatrix2%Z0(:)=ABS(JMatrix1%Z0(:)-JMatrix%Z0(:))
+ JMatrix2%Warp0(:)=ABS(JMatrix1%Warp0(:)-JMatrix%Warp0(:))
+ JMatrix2%INSTC0(:)=ABS(JMatrix1%INSTC0(:)-JMatrix%INSTC0(:))
+ JMatrix2%INSTC20(:)=ABS(JMatrix1%INSTC20(:)-JMatrix%INSTC20(:))
+ JMatrix2%MEANC0(:)=ABS(JMatrix1%MEANC0(:)-JMatrix%MEANC0(:))
+ JMatrix2%MONGEA0(:)=ABS(JMatrix1%MONGEA0(:)-JMatrix%MONGEA0(:))
+ JMatrix2%ZC(:,:,:)=ABS(JMatrix1%ZC(:,:,:)-JMatrix%ZC(:,:,:))
+ JMatrix2%ZC0(:,:)=ABS(JMatrix1%ZC0(:,:)-JMatrix%ZC0(:,:))
+endif
 ! have to re-do min/max
  JMatrix2%SAGC0(2)=1E30   ;  JMatrix2%SAGC0(3)=-1E30
  JMatrix2%Warp0(2)=1E30   ;  JMatrix2%Warp0(3)=-1E30
@@ -521,8 +547,28 @@ if (mod(flag,100) == 10) then
  JMatrix2%MEANC0(2)=1E30  ;  JMatrix2%MEANC0(3)=-1E30
  JMatrix2%MONGEA0(2)=1E30 ;  JMatrix2%MONGEA0(3)=-1E30
  JMatrix2%ZC0(2,:)=1E30   ;  JMatrix2%ZC0(3,:)=-1E30
+ if (JMatrix2%INSTC0(1) <= JMatrix2%INSTC0(2)) JMatrix2%INSTC0(2)=JMatrix2%INSTC0(1)
+ if (JMatrix2%INSTC0(1) >= JMatrix2%INSTC0(3)) JMatrix2%INSTC0(3)=JMatrix2%INSTC0(1)
+ if (JMatrix2%INSTC20(1) <= JMatrix2%INSTC20(2)) JMatrix2%INSTC20(2)=JMatrix2%INSTC20(1)
+ if (JMatrix2%INSTC20(1) >= JMatrix2%INSTC20(3)) JMatrix2%INSTC20(3)=JMatrix2%INSTC20(1)
+ if (JMatrix2%Z0(1) <= JMatrix2%Z0(2)) JMatrix2%Z0(2)=JMatrix2%Z0(1)
+ if (JMatrix2%Z0(1) >= JMatrix2%Z0(3)) JMatrix2%Z0(3)=JMatrix2%Z0(1)
+ if (JMatrix2%SAGC0(1) <= JMatrix2%SAGC0(2)) JMatrix2%SAGC0(2)=JMatrix2%SAGC0(1)
+ if (JMatrix2%SAGC0(1) >= JMatrix2%SAGC0(3)) JMatrix2%SAGC0(3)=JMatrix2%SAGC0(1)
+ if (JMatrix2%Warp0(1) <= JMatrix2%Warp0(2)) JMatrix2%Warp0(2)=JMatrix2%Warp0(1)
+ if (JMatrix2%Warp0(1) >= JMatrix2%Warp0(3)) JMatrix2%Warp0(3)=JMatrix2%Warp0(1)
+ if (JMatrix2%MEANC0(1) <= JMatrix2%MEANC0(2)) JMatrix2%MEANC0(2)=JMatrix2%MEANC0(1)
+ if (JMatrix2%MEANC0(1) >= JMatrix2%MEANC0(3)) JMatrix2%MEANC0(3)=JMatrix2%MEANC0(1)
+ if (JMatrix2%MONGEA0(1) <= JMatrix2%MONGEA0(2)) JMatrix2%MONGEA0(2)=JMatrix2%MONGEA0(1)
+ if (JMatrix2%MONGEA0(1) >= JMatrix2%MONGEA0(3)) JMatrix2%MONGEA0(3)=JMatrix2%MONGEA0(1)
+ do k = 1,15
+  if (JMatrix2%ZC0(1,k) <= JMatrix2%ZC0(2,k)) JMatrix2%ZC0(2,k)=JMatrix2%ZC0(1,k)
+  if (JMatrix2%ZC0(1,k) >= JMatrix2%ZC0(3,k)) JMatrix2%ZC0(3,k)=JMatrix2%ZC0(1,k)
+ end do
 do i=1,M1
- JMatrix2%MV(i)=min(JMatrix%MV(i),JMatrix1%MV(i))
+ if (rotationdegrees .eq. 0) then
+  JMatrix2%MV(i)=min(JMatrix%MV(i),JMatrix1%MV(i))
+ endif
  do j=1,JMatrix2%MV(i)
    if (JMatrix2%INSTC(j,i) <= JMatrix2%INSTC0(2)) JMatrix2%INSTC0(2)=JMatrix2%INSTC(j,i)
    if (JMatrix2%INSTC(j,i) >= JMatrix2%INSTC0(3)) JMatrix2%INSTC0(3)=JMatrix2%INSTC(j,i)
@@ -541,8 +587,6 @@ do i=1,M1
    do k = 1,15
     if (JMatrix2%ZC(j,i,k) <= JMatrix2%ZC0(2,k)) JMatrix2%ZC0(2,k)=JMatrix2%ZC(j,i,k)
     if (JMatrix2%ZC(j,i,k) >= JMatrix2%ZC0(3,k)) JMatrix2%ZC0(3,k)=JMatrix2%ZC(j,i,k)
-    if (JMatrix2%ZC0(1,k) <= JMatrix2%ZC0(2,k)) JMatrix2%ZC0(2,k)=JMatrix2%ZC0(1,k)
-    if (JMatrix2%ZC0(1,k) >= JMatrix2%ZC0(3,k)) JMatrix2%ZC0(3,k)=JMatrix2%ZC0(1,k)
    end do
  end do
 end do

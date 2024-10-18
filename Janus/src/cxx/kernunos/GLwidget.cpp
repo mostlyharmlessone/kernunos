@@ -306,8 +306,8 @@ void GLwidget::initializeGL()
    }
   // proper distance & scale for cube
   mViewMatrix.setToIdentity();
-  mViewMatrix.scale(QVector3D(0.005,0.005,0.005));
-  mViewMatrix.translate(QVector3D(0,0,-1000));
+  mViewMatrix.scale(scale*QVector3D(1.0,1.0,1.0)/10000.0);
+  mViewMatrix.translate(QVector3D(0,0,-position));
 
   //link the programs
   shaderProgram->link();
@@ -326,7 +326,7 @@ void GLwidget::initializeGL()
   m_alphaLoc = shaderProgram->uniformLocation("alpha");
 
   // Light position is fixed
-  shaderProgram->setUniformValue(m_lightPosLoc, QVector3D(0, 0, 1000));
+  shaderProgram->setUniformValue(m_lightPosLoc, QVector3D(0, 0, lightdist));
   shaderProgram->setUniformValue(m_alphaLoc, QVector4D(0,0,0,1.0));
   shaderProgram->release();
 
@@ -341,7 +341,7 @@ void GLwidget::initializeGL()
   m_lightPosLoc = shaderNormalProgram->uniformLocation("lightPos");
 
   // Light position is fixed
-  shaderNormalProgram->setUniformValue(m_lightPosLoc, QVector3D(0, 0, 1000));
+  shaderNormalProgram->setUniformValue(m_lightPosLoc, QVector3D(0, 0, lightdist));
   shaderNormalProgram->release();
 
   // Now for the normals
@@ -355,7 +355,7 @@ void GLwidget::initializeGL()
   m_lightPosLoc = shaderGeoProgram->uniformLocation("lightPos");
 
   // Light position is fixed
-  shaderGeoProgram->setUniformValue(m_lightPosLoc, QVector3D(0, 0, 1000));
+  shaderGeoProgram->setUniformValue(m_lightPosLoc, QVector3D(0, 0, lightdist));
   shaderGeoProgram->release();
 
   m_vao.release();
@@ -690,7 +690,7 @@ void GLwidget::paintGL(void)
 
     m_vao.bind();
 
-    // do them in this order for transparencecy overlay
+    // do them in this order for transparency overlay
     for (int i=4; i > 0 ; i--)
     {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertexbuffers[i]);
@@ -700,7 +700,6 @@ void GLwidget::paintGL(void)
     QVector4D m_alpha;
     if (i == 1) {
         if (!LoadSurfaceToBuffer(nV[i-1], nE[i-1], vertexbuffers[i], elementbuffers[i], vertices, elements)) return;
-//        if (!LoadSurfaceToBuffer(nV[0], nE[0], vertexbuffers[1], elementbuffers[1], vertices, elements)) return;
         m_world.setToIdentity();
         m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
         m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
@@ -711,16 +710,15 @@ void GLwidget::paintGL(void)
     if (i == 2) {
         if (!LoadSurfaceToBuffer(nV[i-1], nE[i-1], vertexbuffers[i], elementbuffers[i], vertices2, elements2)) return;
         mMVP.setToIdentity();
-        mMVP.scale(QVector3D(0.005,0.005,0.005));
-        mMVP.translate(QVector3D(-900,0,-1000));
+        mMVP.scale(scale*QVector3D(1.0,1.0,1.0)/10000.0);
+        mMVP.translate(QVector3D(-900,0,-position));
         m_alpha = QVector4D(0,0,0,1.0);
     }
     if (i == 3) {
         if (!LoadSurfaceToBuffer(nV[i-1], nE[i-1], vertexbuffers[i], elementbuffers[i], vertices3, elements3)) return;
-//        if (!LoadSurfaceToBuffer(nV[2], nE[2], vertexbuffers[3], elementbuffers[3], vertices3, elements3)) return;
         mMVP.setToIdentity();
-        mMVP.scale(QVector3D(0.005,0.005,0.005));
-        mMVP.translate(QVector3D(900,0,-1000));
+        mMVP.scale(scale*QVector3D(1.0,1.0,1.0)/10000.0);
+        mMVP.translate(QVector3D(900,0,-position));
         m_alpha = QVector4D(0,0,0,1.0);
     }
     if (i == 4 && m_pupilshow) {
@@ -769,12 +767,10 @@ void GLwidget::paintGL(void)
             // Unbind shader
             shaderGeoProgram->release();
         };
-
     // Unbind buffers
     glBindBuffer(vertexbuffers[i],0);
     glBindBuffer(elementbuffers[i],0);
     }
-
     m_vao.release();
     }
 }
@@ -788,7 +784,7 @@ void GLwidget::timerEvent(QTimerEvent*)
 void GLwidget::resizeGL(int w, int h)
 {
   projectionMatrix.setToIdentity();
-  projectionMatrix.perspective(45.0f, GLfloat(w) / h, 0.01f, 100.0f);
+  projectionMatrix.perspective(5.0f, GLfloat(w) / h, 0.01f, 20000.0f);  // I really don't want to have the side images appear too tilted away from the center
   update();
 }
 
@@ -800,35 +796,35 @@ void GLwidget::keyPressEvent(QKeyEvent *e)
      exit(0);
     break;
     case Qt::Key_M:  /*  M Key */
-     mViewMatrix.scale(QVector3D(0.02,0.02,0.02));
+     mViewMatrix.scale(0.7*QVector3D(1.0,1.0,1.0)/scale);
      update();
     break;
     case Qt::Key_N:  /*  N Key */
-     mViewMatrix.scale(QVector3D(50,50,50));
+     mViewMatrix.scale(QVector3D(1.0,1.0,1.0)*scale);
      update();
     break;    
     case Qt::Key_Q:  /*  Q Key */
-     mViewMatrix.translate(50*QVector3D(0,0,-0.1));
+     mViewMatrix.translate(scale*QVector3D(0,0,-0.1));
      update();
       break;
   case Qt::Key_S:  /*  S Key */
-     mViewMatrix.translate(50*QVector3D(0,0,0.1));
+     mViewMatrix.translate(scale*QVector3D(0,0,0.1));
      update();
       break;
   case Qt::Key_W:  /*  W Key */
-     mViewMatrix.translate(50*QVector3D(0,0.1,0));
+     mViewMatrix.translate(scale*QVector3D(0,0.1,0));
      update();
       break;
   case Qt::Key_X:  /*  X Key */
-     mViewMatrix.translate(50*QVector3D(0,-0.1,0));
+     mViewMatrix.translate(scale*QVector3D(0,-0.1,0));
      update();
       break;
   case Qt::Key_A:  /*  A Key */
-     mViewMatrix.translate(50*QVector3D(-0.1,0,0));
+     mViewMatrix.translate(scale*QVector3D(-0.1,0,0));
      update();
       break;
   case Qt::Key_D:  /*  D Key */
-     mViewMatrix.translate(50*QVector3D(0.1,0,0));
+     mViewMatrix.translate(scale*QVector3D(0.1,0,0));
      update();
       break;
     default:
@@ -842,11 +838,11 @@ void GLwidget::wheelEvent(QWheelEvent *e)
     QPoint numPixels = e->pixelDelta();
 
          if (numPixels.y() > 0) {
-         mViewMatrix.translate(500*QVector3D(0,0,-0.1));
+         mViewMatrix.translate(scale*QVector3D(0,0,-1.0));
          update();
          }
          else {
-         mViewMatrix.translate(500*QVector3D(0,0,0.1));
+         mViewMatrix.translate(scale*QVector3D(0,0,1.0));
          update();
          }
     e->accept();

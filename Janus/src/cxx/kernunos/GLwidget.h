@@ -507,6 +507,10 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     int m_alphaLoc = 0;
     QMatrix4x4 m_camera;
     QMatrix4x4 m_world;
+    int scale = 50;
+    int lightdist = 9000;
+    int position = 9000;
+
     static bool m_transparent;
     static bool m_normal;
     static bool m_lighting;

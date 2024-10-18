@@ -440,7 +440,7 @@ void MainWindow::compare()
 //        ui.infoLabel->setText(tr("Yes"));
         bool ok;
         degrees = QInputDialog::getInt(this, tr("Rotation "),
-                                                 tr("Degrees:"), degrees, 0, 360, 1, &ok,
+                                                 tr("Degrees:"), degrees, 0, 360, 2, &ok,
                                                  Qt::WindowFlags());
         if (ok){
             degreeLabel->setText(QString("$%1").arg(degrees));}
@@ -466,7 +466,7 @@ void MainWindow::compare()
     m_GLwidget->DataLoad(fileName,true);
 
 //  for now restore FROM hsbrgb
-    flag=flag+100*(map-3) ;  //restore flag but doesn't reset map
+    flag=flag+100*(map-3);
     checkmapsflags();
     update();}
     else {
@@ -879,7 +879,6 @@ void MainWindow::gnuplotsplot() {
    return;
 }
 
-
 void MainWindow::center() {
 
    if (system(NULL)) puts ("Ok");
@@ -889,7 +888,6 @@ void MainWindow::center() {
        ui.infoLabel->setText(tr("gnuplot call failed!"));
        return;
    }
-
    QTemporaryFile FILE;
    FILE.setAutoRemove(true);  //does not do anything
    FILE.open();
@@ -961,7 +959,6 @@ void MainWindow::rings() {
         ui.infoLabel->setText(tr("gnuplot call failed!"));
         return;
     }
-
     QTemporaryFile FILE;
     FILE.setAutoRemove(true);  //does not do anything
     FILE.open();
