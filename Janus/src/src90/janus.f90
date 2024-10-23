@@ -43,7 +43,7 @@
   real(wp), allocatable :: zernC(:,:), B_Matrix(:,:), rlocal(:), thtlocal(:), WORK(:)
   real(wp), allocatable :: UT(:,:),VT(:,:) !,XTX(:,:),EE(:,:)
 !  integer, allocatable :: IPIV(:)
-  real(wp) :: ctr_circle_x, ctr_circle_y, R_global, Theta_global, X_global, Y_global
+  real(wp) :: ctr_circle_x, ctr_circle_y, R_global, Theta_global
 
 write(*,*) 'flag to Fortran:',flag
 write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
@@ -216,46 +216,7 @@ if (mod(flag,100) .eq. 5 ) then
 ! needs powmin & powmax
  if (allocated(JMatrix%R)) then
   donut = .FALSE.
-  if (fct .lt. 16 .and. fct .gt. 0) then
-    powctr=JMatrix%ZC0(1,fct)
-    powmin=JMatrix%ZC0(2,fct)
-    powmax=JMatrix%ZC0(3,fct)
-  else
-  SELECT CASE (fct)
-    CASE (0)
-    powctr=JMatrix%SAGC0(1)
-    powmin=JMatrix%SAGC0(2)
-    powmax=JMatrix%SAGC0(3)
-    CASE (16)
-    powctr=JMatrix%INSTC0(1)
-    powmin=JMatrix%INSTC0(2)
-    powmax=JMatrix%INSTC0(3)
-    CASE (17)
-    powctr=JMatrix%INSTC20(1)
-    powmin=JMatrix%INSTC20(2)
-    powmax=JMatrix%INSTC20(3)
-    CASE (18)
-    powctr=JMatrix%MEANC0(1)
-    powmin=JMatrix%MEANC0(2)
-    powmax=JMatrix%MEANC0(3)
-    CASE (19)
-    powctr=JMatrix%MONGEA0(1)
-    powmin=JMatrix%MONGEA0(2)
-    powmax=JMatrix%MONGEA0(3)
-    CASE (20)
-    powctr=JMatrix%Z0(1)
-    powmin=JMatrix%Z0(2)
-    powmax=JMatrix%Z0(3)
-    CASE (21)
-    powctr=JMatrix%Warp0(1)
-    powmin=JMatrix%Warp0(2)
-    powmax=JMatrix%Warp0(3)
-    CASE DEFAULT
-    powctr=JMatrix%SAGC0(1)
-    powmin=JMatrix%SAGC0(2)
-    powmax=JMatrix%SAGC0(3)
-  END SELECT
-  endif
+  call selectfunction(0,JMatrix,fct,powctr,powmin,powmax)
  endif
 ! generate data file
   unitno1 = get_new_fileunit()
@@ -372,46 +333,7 @@ file_idx=index(inputfile1, ".ply")
    return
   else
   donut = .FALSE.
-  if (fct .lt. 16 .and. fct .gt. 0) then
-    powctr=JMatrix%ZC0(1,fct)
-    powmin=JMatrix%ZC0(2,fct)
-    powmax=JMatrix%ZC0(3,fct)
-  else
-  SELECT CASE (fct)
-    CASE (0)
-    powctr=JMatrix%SAGC0(1)
-    powmin=JMatrix%SAGC0(2)
-    powmax=JMatrix%SAGC0(3)
-    CASE (16)
-    powctr=JMatrix%INSTC0(1)
-    powmin=JMatrix%INSTC0(2)
-    powmax=JMatrix%INSTC0(3)
-    CASE (17)
-    powctr=JMatrix%INSTC20(1)
-    powmin=JMatrix%INSTC20(2)
-    powmax=JMatrix%INSTC20(3)
-    CASE (18)
-    powctr=JMatrix%MEANC0(1)
-    powmin=JMatrix%MEANC0(2)
-    powmax=JMatrix%MEANC0(3)
-    CASE (19)
-    powctr=JMatrix%MONGEA0(1)
-    powmin=JMatrix%MONGEA0(2)
-    powmax=JMatrix%MONGEA0(3)
-    CASE (20)
-    powctr=JMatrix%Z0(1)
-    powmin=JMatrix%Z0(2)
-    powmax=JMatrix%Z0(3)
-    CASE (21)
-    powctr=JMatrix%Warp0(1)
-    powmin=JMatrix%Warp0(2)
-    powmax=JMatrix%Warp0(3)
-    CASE DEFAULT
-    powctr=JMatrix%SAGC0(1)
-    powmin=JMatrix%SAGC0(2)
-    powmax=JMatrix%SAGC0(3)
- END SELECT
- endif
+  call selectfunction(0,JMatrix,fct,powctr,powmin,powmax)
   write(*,*) 'powctr,POWMIN,POWMAX',powctr,POWMIN,POWMAX
   call WriteGeomPLY(flag,JMatrix,donut,powmin,powmax,inputfile1)
   write(*,*) 'Wrote ply file...',inputfile1
@@ -432,46 +354,7 @@ file_idx=index(inputfile1, ".off")
    return
   else
   donut = .FALSE.
-  if (fct .lt. 16 .and. fct .gt. 0) then
-    powctr=JMatrix%ZC0(1,fct)
-    powmin=JMatrix%ZC0(2,fct)
-    powmax=JMatrix%ZC0(3,fct)
-  else
-  SELECT CASE (fct)
-    CASE (0)
-    powctr=JMatrix%SAGC0(1)
-    powmin=JMatrix%SAGC0(2)
-    powmax=JMatrix%SAGC0(3)
-    CASE (16)
-    powctr=JMatrix%INSTC0(1)
-    powmin=JMatrix%INSTC0(2)
-    powmax=JMatrix%INSTC0(3)
-    CASE (17)
-    powctr=JMatrix%INSTC20(1)
-    powmin=JMatrix%INSTC20(2)
-    powmax=JMatrix%INSTC20(3)
-    CASE (18)
-    powctr=JMatrix%MEANC0(1)
-    powmin=JMatrix%MEANC0(2)
-    powmax=JMatrix%MEANC0(3)
-    CASE (19)
-    powctr=JMatrix%MONGEA0(1)
-    powmin=JMatrix%MONGEA0(2)
-    powmax=JMatrix%MONGEA0(3)
-    CASE (20)
-    powctr=JMatrix%Z0(1)
-    powmin=JMatrix%Z0(2)
-    powmax=JMatrix%Z0(3)
-    CASE (21)
-    powctr=JMatrix%Warp0(1)
-    powmin=JMatrix%Warp0(2)
-    powmax=JMatrix%Warp0(3)
-    CASE DEFAULT
-    powctr=JMatrix%SAGC0(1)
-    powmin=JMatrix%SAGC0(2)
-    powmax=JMatrix%SAGC0(3)
- END SELECT
- endif
+  call selectfunction(0,JMatrix,fct,powctr,powmin,powmax)
   write(*,*) 'powctr,POWMIN,POWMAX',powctr,POWMIN,POWMAX
   call WriteGeomOFF(flag,JMatrix,donut,powmin,powmax,inputfile1)
   write(*,*) 'Wrote off file...',inputfile1
@@ -484,7 +367,6 @@ endif
 endif
 
 ! simple difference/subtraction with compare
-! currently does not actually work with ZC since there's no compare option with flag=1?
 if (mod(flag,100) == 10) then
  if (allocated(JMatrix2%R)) then
 ! use geometry from current JMatrix to populate
@@ -493,23 +375,16 @@ if (mod(flag,100) == 10) then
   JMatrix2%R0=JMatrix%R0
   JMatrix2%THT0=JMatrix%THT0
 
-! if no pupil registration and rotationdegrees is even, then there's a shortcut
+! if no pupil registration and rotationdegrees is even, then there's a shortcut not requiring resplining
 ! made rotationdegrees even in kernunos so mod(rotationdegrees,2) .eq. 0 always true.
 if (.not.btest(dat,6)) then
  write(*,*) "compare without pupil: ", rotationdegrees, .not.btest(dat,6)
- rotationdegrees=135+rotationdegrees/4  ! makes 180 no rotation without risk of negative indices
-
-! not the correct formula
-stop
-
-
-
-
+ rotationdegrees=mod(270-rotationdegrees/2,180) ! makes 180 no rotation without risk of negative indices
  if (rotationdegrees .ne. 0) then
   do i=1,M1
    j = mod(i + rotationdegrees,180)
    if (j .eq. 0) j = 180
-   JMatrix2%MV(i)=min(JMatrix%MV(i),JMatrix1%MV(j))
+   JMatrix2%MV(i)=min(JMatrix%MV(i),JMatrix1%MV(i))
    JMatrix2%Z(:,i)=ABS(JMatrix1%Z(:,i)-JMatrix%Z(:,j))
    JMatrix2%SAGC(:,i)=ABS(JMatrix1%SAGC(:,i)-JMatrix%SAGC(:,j))
    JMatrix2%Warp(:,i)=ABS(JMatrix1%Warp(:,i)-JMatrix%Warp(:,j))
@@ -537,6 +412,23 @@ stop
  JMatrix2%MONGEA0(:)=ABS(JMatrix1%MONGEA0(:)-JMatrix%MONGEA0(:))
  JMatrix2%ZC(:,:,:)=ABS(JMatrix1%ZC(:,:,:)-JMatrix%ZC(:,:,:))
  JMatrix2%ZC0(:,:)=ABS(JMatrix1%ZC0(:,:)-JMatrix%ZC0(:,:))
+else ! pupil registration
+
+ ctr_circle_x=JMatrix1%Pupil_Center(1)-JMatrix%Pupil_Center(1)
+ ctr_circle_y=JMatrix1%Pupil_Center(2)-JMatrix%Pupil_Center(2)
+ ! decenter the rings
+ do i=1,M1
+  do j=1,JMatrix%MV(i)
+   call PolarTranslate(ctr_circle_x,ctr_circle_y,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%R(j,i),JMatrix%THT(i)
+!  populate new JMatrix out of current one
+! run compare as above
+  end do
+ end do
+
+!  remake whole thing, or just one function that we're looking at aka with something like selectfunction(b,fct,powctr,powmin,powmax)
+!  when re-doing center
+
+
 endif
 ! have to re-do min/max
  JMatrix2%SAGC0(2)=1E30   ;  JMatrix2%SAGC0(3)=-1E30
@@ -591,47 +483,11 @@ do i=1,M1
  end do
 end do
 
-   donut = .FALSE.
-   if (fct .lt. 16 .and. fct .gt. 0) then
-     powctr=JMatrix2%ZC0(1,fct)
-     powmin=JMatrix2%ZC0(2,fct)
-     powmax=JMatrix2%ZC0(3,fct)
-   else
-   SELECT CASE (fct)
-     CASE (0)
-     powctr=JMatrix2%SAGC0(1)
-     powmin=JMatrix2%SAGC0(2)
-     powmax=JMatrix2%SAGC0(3)
-     CASE (16)
-     powctr=JMatrix2%INSTC0(1)
-     powmin=JMatrix2%INSTC0(2)
-     powmax=JMatrix2%INSTC0(3)
-     CASE (17)
-     powctr=JMatrix2%INSTC20(1)
-     powmin=JMatrix2%INSTC20(2)
-     powmax=JMatrix2%INSTC20(3)
-     CASE (18)
-     powctr=JMatrix2%MEANC0(1)
-     powmin=JMatrix2%MEANC0(2)
-     powmax=JMatrix2%MEANC0(3)
-     CASE (19)
-     powctr=JMatrix2%MONGEA0(1)
-     powmin=JMatrix2%MONGEA0(2)
-     powmax=JMatrix2%MONGEA0(3)
-     CASE (20)
-     powctr=JMatrix2%Z0(1)
-     powmin=JMatrix2%Z0(2)
-     powmax=JMatrix2%Z0(3)
-     CASE (21)
-     powctr=JMatrix2%Warp0(1)
-     powmin=JMatrix2%Warp0(2)
-     powmax=JMatrix2%Warp0(3)
-     CASE DEFAULT
-     powctr=JMatrix2%SAGC0(1)
-     powmin=JMatrix2%SAGC0(2)
-     powmax=JMatrix2%SAGC0(3)
-   END SELECT
-  endif
+  donut = .FALSE.
+  RadSlope=JMatrix
+  call selectfunction(1,JMatrix,fct,powctr,powmin,powmax)
+
+
 
   elements(1:nE)=0
   vertices(1:nV)=0
@@ -802,8 +658,8 @@ if (mod(flag,100) == 0) then
     endif
     if (mod(flag,100) /= 10) then
      JMatrix1%R(:,:)=JMatrix%R(:,:)
-!     JMatrix1%PU(:)=JMatrix%PU(:)
-!     JMatrix1%Pupil_Center(:)=JMatrix%Pupil_Center(:)
+     JMatrix1%PU(:)=JMatrix%PU(:)
+     JMatrix1%Pupil_Center(:)=JMatrix%Pupil_Center(:)
      JMatrix1%Z(:,:)=JMatrix%Z(:,:)     
      JMatrix1%YPR(:,:)=JMatrix%YPR(:,:)
      JMatrix1%YPTHETA(:,:)=JMatrix%YPTHETA(:,:)
@@ -1202,7 +1058,6 @@ if (mod(flag,100) .ne. 9 ) then
 
 !  Calculate center values for everything
 !  These have MM different values of the center!
-!  Reset these has no more need for EyeSys/ATLAS/PentaCam RadSlope
    RadSlope=0
    DiaSlope=0
    deallocate(RadSplineCenter)
@@ -1231,8 +1086,7 @@ if (mod(flag,100) .ne. 9 ) then
  endif
 
 !  Z
-!   if (TestData.ne.2 .and. TestData.ne.4) then   ! already has valid Z0 from cornea_arrays & ELE file NOT YET IT DOES NOT
-!   notice that we didn't load Z into Zp and then use iflag=10, and 0
+!   notice that we didn't load Z into Zp and then use iflag=10, and 0, though it should be the same
     do i=1,M1
      call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%Z(N1+1,i))  !center value of elevation; needs integration from slopes
      if (i .eq. 1) then
@@ -1242,11 +1096,9 @@ if (mod(flag,100) .ne. 9 ) then
      endif
     end do
     if (JMatrix%Z0(1) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z0(1)
-    if (JMatrix%Z0(1) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z0(1)
-!   endif  ! TestData.eq.2 .or. TestData.eq.4
+    if (JMatrix%Z0(1) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z0(1)  
 
 !  SAGC
-!   if (TestData.ne.3 .and. TestData.ne.5) then  ! already has valid SAGC0 from cornea_arrays & CUR file NOT YET IT DOES NOT
 !  Reload RadSlope with SAGC & re-spline; can't compute it from surface because ill-defined at origin
     do i=1,M1
      do j=1,RadSlope%MV(i)
@@ -1269,8 +1121,7 @@ if (mod(flag,100) .ne. 9 ) then
      endif
     end do
     if (JMatrix%SAGC0(1) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC0(1)
-    if (JMatrix%SAGC0(1) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC0(1)
-!   endif   ! TestData.eq.3 .or. TestData.eq.5
+    if (JMatrix%SAGC0(1) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC0(1)  
 
 !  Warp
 !  Reload RadSlope with SAGC & re-spline; can't compute it from surface because ill-defined at origin
@@ -1484,44 +1335,9 @@ endif
     kk=kk+1
 !   local cylindrical coordinates
     rlocal(kk)=(i-1)/4.0  ! r goes from 0 to 1
-    thtlocal(kk)=2*PI*(j-1)/12  ! tht from 0 to 2*Pi without overlap
-!   global cylindrical coordinates
-    X_global=(ctr_circle_x-rlocal(kk)*cos(thtlocal(kk)))
-    Y_global=(ctr_circle_y-rlocal(kk)*sin(thtlocal(kk)))
-    R_global=sqrt(X_global*X_global+Y_global*Y_global)
-    if (ABS(X_global) > EPS .AND. ABS(Y_global) > EPS) then
-     if (X_global > 0 .AND. Y_global > 0 ) then
-      Theta_global=ATan(Y_global/X_global)
-     endif
-     if (X_global < 0 .AND. Y_global > 0 ) then
-      Theta_global=ATan(Y_global/X_global)+PI
-     endif
-     if (X_global < 0 .AND. Y_global < 0 ) then
-      Theta_global=ATan(Y_global/X_global)+PI
-     endif
-     if (X_global > 0 .AND. Y_global < 0 ) then
-      Theta_global=ATan(Y_global/X_global)+2*PI
-     endif
-    else
-     if (ABS(X_global) <= EPS .AND. ABS(Y_global) > EPS) then
-      if (Y_global > 0) then
-       Theta_global=PI/2
-      else
-       Theta_global=3*PI/2
-      endif
-     endif
-     if (ABS(X_global) > EPS .AND. ABS(Y_global) <= EPS) then
-      if (X_global > 0) then
-       Theta_global=0
-      else
-       Theta_global=PI
-      endif
-     endif
-    endif
-    if (Theta_global .gt. PI) then
-     R_global = -R_global
-    endif
-     call SplineEval1Dx1D(iflag,R_global,Theta_global,zernC(kk,ii))
+    thtlocal(kk)=2*PI*(j-1)/12  ! tht from 0 to 2*Pi without overlap    
+    call PolarTranslate(ctr_circle_x,ctr_circle_y,rlocal(kk),thtlocal(kk),R_global,Theta_global)
+    call SplineEval1Dx1D(iflag,R_global,Theta_global,zernC(kk,ii))
     end do
    end do   
   end do  ! end ii to nrhs
@@ -1771,46 +1587,7 @@ endif
 ! writes values in openGL friendly format to matrices for passing to C/C++
 ! flag/fct determines what to write for elevation and color, just like in flag=2,3 output versions above
    donut = .FALSE.
-   if (fct .lt. 16 .and. fct .gt. 0) then
-     powctr=JMatrix%ZC0(1,fct)
-     powmin=JMatrix%ZC0(2,fct)
-     powmax=JMatrix%ZC0(3,fct)
-   else
-   SELECT CASE (fct)
-     CASE (0)
-     powctr=JMatrix%SAGC0(1)
-     powmin=JMatrix%SAGC0(2)
-     powmax=JMatrix%SAGC0(3)
-     CASE (16)
-     powctr=JMatrix%INSTC0(1)
-     powmin=JMatrix%INSTC0(2)
-     powmax=JMatrix%INSTC0(3)
-     CASE (17)
-     powctr=JMatrix%INSTC20(1)
-     powmin=JMatrix%INSTC20(2)
-     powmax=JMatrix%INSTC20(3)
-     CASE (18)
-     powctr=JMatrix%MEANC0(1)
-     powmin=JMatrix%MEANC0(2)
-     powmax=JMatrix%MEANC0(3)
-     CASE (19)
-     powctr=JMatrix%MONGEA0(1)
-     powmin=JMatrix%MONGEA0(2)
-     powmax=JMatrix%MONGEA0(3)
-     CASE (20)
-     powctr=JMatrix%Z0(1)
-     powmin=JMatrix%Z0(2)
-     powmax=JMatrix%Z0(3)
-     CASE (21)
-     powctr=JMatrix%Warp0(1)
-     powmin=JMatrix%Warp0(2)
-     powmax=JMatrix%Warp0(3)
-     CASE DEFAULT
-     powctr=JMatrix%SAGC0(1)
-     powmin=JMatrix%SAGC0(2)
-     powmax=JMatrix%SAGC0(3)
-   END SELECT
-  endif
+   call selectfunction(0,JMatrix,fct,powctr,powmin,powmax)
 
   dist = real(-2*JMatrix%Z0(3),kind=sk)
 ! generate buffer data

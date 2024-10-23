@@ -3,8 +3,8 @@ MODULE cornea_arrays
  USE set_precision, ONLY : wp, sk, int3d
  USE LapackInterface, ONLY : dgetrf, dgetrs, dgesv, dsyev
  USE spline_interfaces 
- USE special_fct
  use, intrinsic ::  ieee_arithmetic
+ use, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
 !      USE spline_interfaces, ONLY : SplineEval, trapez, CubicSplineQuad, SplineCenter
 !      USE special_fct, ONLY : OPERATOR(.p.) ! tensor summation convention 
  REAL(wp), PARAMETER :: PI=3.1415926535897932384626433832795_wp
@@ -924,8 +924,7 @@ function pca(M3,b) result(a)
    endif
    write(*,*) 'The eigenvalues W from pca in cornea_arrays: ',SQRT(W)
  endif
-          	 	
-end function pca
+ end function pca
 
 !! corneal calculation subroutines
 
@@ -1068,6 +1067,71 @@ end subroutine LIOC_Fortran
   TANC=SAGC+X2*DSAGC
   ZMM=0.5_wp*(SAGC+TANC)
   end subroutine sagc2
+
+!! select function
+subroutine selectfunction(flag,b,fct,powctr,powmin,powmax)
+implicit none
+integer(c_int), intent(in) :: fct
+integer,intent(in) :: flag
+real (wp), intent(out) :: powctr,powmin,powmax
+TYPE(wpJMatrix), INTENT(INOUT) :: b
+if (fct .lt. 16 .and. fct .gt. 0) then
+  powctr=b%ZC0(1,fct)
+  powmin=b%ZC0(2,fct)
+  powmax=b%ZC0(3,fct)
+else
+SELECT CASE (fct)
+  CASE (0)
+  powctr=b%SAGC0(1)
+  powmin=b%SAGC0(2)
+  powmax=b%SAGC0(3)
+  if (flag .ne. 0) then
+   do i=1,M1
+    do j=1,RadSlope%MV(i)
+      RadSlope%Zp(j,i)=b%SAGC(j,i)
+    end do
+   end do
+   DiaSlope=RadSlope              ! move to diagonal format
+   DiaSlope%Zpd2 = .n. DiaSlope
+   do i=1,M1
+    if (btest(dat,0)) then
+     call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%SAGC(N1+1,i))  ! center value
+    else
+     call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%SAGC(N1+1,i))  ! center value
+    endif
+   end do
+  endif
+  CASE (16)
+  powctr=b%INSTC0(1)
+  powmin=b%INSTC0(2)
+  powmax=b%INSTC0(3)
+  CASE (17)
+  powctr=b%INSTC20(1)
+  powmin=b%INSTC20(2)
+  powmax=b%INSTC20(3)
+  CASE (18)
+  powctr=b%MEANC0(1)
+  powmin=b%MEANC0(2)
+  powmax=b%MEANC0(3)
+  CASE (19)
+  powctr=b%MONGEA0(1)
+  powmin=b%MONGEA0(2)
+  powmax=b%MONGEA0(3)
+  CASE (20)
+  powctr=b%Z0(1)
+  powmin=b%Z0(2)
+  powmax=b%Z0(3)
+  CASE (21)
+  powctr=b%Warp0(1)
+  powmin=b%Warp0(2)
+  powmax=b%Warp0(3)
+  CASE DEFAULT
+  powctr=b%SAGC0(1)
+  powmin=b%SAGC0(2)
+  powmax=b%SAGC0(3)
+END SELECT
+endif
+endsubroutine selectfunction
 
 END MODULE cornea_arrays
 

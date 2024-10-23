@@ -1,9 +1,11 @@
 module special_fct
 ! vector and matrix functions
+! coordinate transform
 ! color functions
 ! zernike functions
 ! string replacement function
 ! binary search interface
+use cornea_arrays, ONLY : EPS, PI
 use set_precision, ONLY : wp, sk, int2d, int3d
 use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
 use, intrinsic ::  ieee_arithmetic
@@ -382,6 +384,50 @@ function rgb2attr(rgbv) result(attr)
 !  write(*,'(b8.8)') blue
 !  write(*,'(b16.16)') attr
 end function rgb2attr
+
+!! coordinate transform
+subroutine PolarTranslate(ctr_circle_x,ctr_circle_y,rlocal,thtlocal,R_global,Theta_global)
+    implicit none
+    REAL (wp), INTENT (IN) ::  ctr_circle_x,ctr_circle_y,rlocal,thtlocal
+    REAL (wp), INTENT(OUT) :: R_global,Theta_global
+    REAL (wp) :: X_global,Y_global
+    X_global=(ctr_circle_x-rlocal*cos(thtlocal))
+    Y_global=(ctr_circle_y-rlocal*sin(thtlocal))
+    R_global=sqrt(X_global*X_global+Y_global*Y_global)
+    if (ABS(X_global) > EPS .AND. ABS(Y_global) > EPS) then
+     if (X_global > 0 .AND. Y_global > 0 ) then
+      Theta_global=ATan(Y_global/X_global)
+     endif
+     if (X_global < 0 .AND. Y_global > 0 ) then
+      Theta_global=ATan(Y_global/X_global)+PI
+     endif
+     if (X_global < 0 .AND. Y_global < 0 ) then
+      Theta_global=ATan(Y_global/X_global)+PI
+     endif
+     if (X_global > 0 .AND. Y_global < 0 ) then
+      Theta_global=ATan(Y_global/X_global)+2*PI
+     endif
+    else
+     if (ABS(X_global) <= EPS .AND. ABS(Y_global) > EPS) then
+      if (Y_global > 0) then
+       Theta_global=PI/2
+      else
+       Theta_global=3*PI/2
+      endif
+     endif
+     if (ABS(X_global) > EPS .AND. ABS(Y_global) <= EPS) then
+      if (X_global > 0) then
+       Theta_global=0
+      else
+       Theta_global=PI
+      endif
+     endif
+    endif
+    if (Theta_global .gt. PI) then
+     R_global = -R_global
+    endif
+end subroutine PolarTranslate
+
 
 !! string/character functions
 !!https://stackoverflow.com/questions/58938347/how-do-i-replace-a-character-in-the-string-with-another-charater-in-fortran
