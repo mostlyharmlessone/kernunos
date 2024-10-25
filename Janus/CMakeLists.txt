@@ -220,6 +220,36 @@ else()
   set(LIBS )
 endif(WIN32)
 
+#   Fortran Source
+    file(GLOB_RECURSE lib_sources90  src/src90 *.f90 *.for)
+    file(GLOB_RECURSE mod_sources90  src/mod90 *.f90)
+    add_library( rply_includes ${rply_sources})
+    add_library( modules ${mod_sources90} ${interface})
+    add_library( splia ${lib_sources90} ${interface})
+
+#superlu example from chapter12
+
+set(LIBS2 ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${SUPERLU_LIBRARIES})
+set(HH_SOURCES
+                   src/HansonHopkins/driverPiecewiseLinear.f90
+                   src/HansonHopkins/sparseAssign.f90
+                   src/HansonHopkins/sparseOps.f90
+                   src/HansonHopkins/sparseSort.f90
+                   src/HansonHopkins/sparseTypes.f90
+                   src/HansonHopkins/sparseUtils.f90
+                   src/HansonHopkins/sluInterop.f90
+                   src/HansonHopkins/sortElements.f90
+                   src/HansonHopkins/fortran_double_call_SuperLU.c
+                   src/HansonHopkins/slu_Cnames.h
+                   src/HansonHopkins/slu_ddefs.h
+                   src/HansonHopkins/slu_util.h
+                   src/HansonHopkins/superlu_enum_consts.h
+                   src/HansonHopkins/supermatrix.h
+                   )
+               add_executable(driverPiecewiseLinear
+                   ${HH_SOURCES}
+               )
+target_link_libraries(driverPiecewiseLinear modules ${LIBS2})
 
 #viennaCL
 
@@ -258,12 +288,6 @@ endif(WIN32)
 #    add_executable(glarea src/c/gtk/glarea-app-window.c )
 #    target_link_libraries(glarea ${GTK3_LIBRARIES} epoxy)
 
-#   Fortran Source
-    file(GLOB_RECURSE lib_sources90  src/src90 *.f90 *.for)
-    file(GLOB_RECURSE mod_sources90  src/mod90 *.f90)
-    add_library( rply_includes ${rply_sources})
-    add_library( modules ${mod_sources90} ${interface})
-    add_library( splia ${lib_sources90} ${interface})
     
 #libraries      
     set(LIBS ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} ${GFORTRAN_LIBRARY})

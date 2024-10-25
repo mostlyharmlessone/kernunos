@@ -54,8 +54,6 @@ end subroutine
       
  subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
   USE set_precision, ONLY : wp
-  USE special_fct, ONLY : OPERATOR(.p.) !tensor summation convention
-  use,intrinsic :: ieee_arithmetic
   INTEGER, INTENT(IN) :: KP ! periodic vs natural spline flag
   INTEGER, INTENT(IN) :: n ! vector input length
   REAL(wp),INTENT(IN) :: u ! abscissa at which the spline is to be evaluated
@@ -67,8 +65,6 @@ end subroutine
 
 subroutine SplineEvalCenter(ii,x,y,y2,n,u,f,fp,fpp,fppp)
  USE set_precision, ONLY : wp
- USE special_fct, ONLY : OPERATOR(.p.) !tensor summation convention
- use,intrinsic :: ieee_arithmetic
  INTEGER, INTENT(IN) :: ii ! meridian
  INTEGER, INTENT(IN) :: n ! vector input length
  REAL(wp),INTENT(IN) :: u ! abscissa at which the spline is to be evaluated
@@ -80,7 +76,6 @@ end subroutine
 
  subroutine SplineEval1Dx1D(iflag,u,v,f,fr,frr,ft,frt,ftt)
   use set_precision, ONLY : wp
-  use,intrinsic :: ieee_arithmetic
   integer, INTENT(IN) :: iflag     ! iflag=0 no integration
   real(wp), INTENT(IN) :: u, v
   real(wp), INTENT(OUT),OPTIONAL ::  f,fr,ft,frt,frr,ftt

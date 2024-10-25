@@ -2,6 +2,8 @@ things to do
 
 CorneaCopia
 
+trying to make a superlu lsq build in cmakelists
+
 in janus,implement pupil registration in compare instead of straight subtraction
 select and load each into Zp unless you can be tricky and pass function names.
 

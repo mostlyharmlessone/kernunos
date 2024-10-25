@@ -1,4 +1,4 @@
-include ../../Makefile.inc
+include Makefile.inc
 
 # Use vpath patterns to pick up source files from
 # other chapters, e.g., set_precision, etc

@@ -1069,12 +1069,15 @@ end subroutine LIOC_Fortran
   end subroutine sagc2
 
 !! select function
-subroutine selectfunction(flag,b,fct,powctr,powmin,powmax)
+subroutine selectfunction(iflag,b,flag,powctr,powmin,powmax)
 implicit none
-integer(c_int), intent(in) :: fct
-integer,intent(in) :: flag
+integer(c_int), intent(in) :: flag
+integer,intent(in) :: iflag
+integer :: dat,fct,i,j
 real (wp), intent(out) :: powctr,powmin,powmax
 TYPE(wpJMatrix), INTENT(INOUT) :: b
+dat=(flag-mod(flag,1000000))/1000000 ! first two digits
+fct=mod(((flag-mod(flag,10000))/10000),100) ! second two digits, color map functions
 if (fct .lt. 16 .and. fct .gt. 0) then
   powctr=b%ZC0(1,fct)
   powmin=b%ZC0(2,fct)
@@ -1082,23 +1085,26 @@ if (fct .lt. 16 .and. fct .gt. 0) then
 else
 SELECT CASE (fct)
   CASE (0)
-  powctr=b%SAGC0(1)
-  powmin=b%SAGC0(2)
-  powmax=b%SAGC0(3)
-  if (flag .ne. 0) then
-   do i=1,M1
+  if (iflag == 0) then
+   powctr=b%SAGC0(1)
+   powmin=b%SAGC0(2)
+   powmax=b%SAGC0(3)
+  else
+   do i=1,180    !M1
     do j=1,RadSlope%MV(i)
       RadSlope%Zp(j,i)=b%SAGC(j,i)
     end do
    end do
    DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope
-   do i=1,M1
-    if (btest(dat,0)) then
-     call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%SAGC(N1+1,i))  ! center value
-    else
-     call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%SAGC(N1+1,i))  ! center value
-    endif
+   do i=1,180      !M1
+    do j=1,JMatrix%MV(i)
+     if (btest(dat,0)) then
+      call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%SAGC(j,i))
+     else
+      call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%SAGC(j,i))
+     endif
+    end do
    end do
   endif
   CASE (16)

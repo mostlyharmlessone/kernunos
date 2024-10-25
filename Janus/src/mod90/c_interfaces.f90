@@ -52,6 +52,18 @@ USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_char,c_null_char
  CHARACTER(c_char), INTENT(IN), dimension(*) :: iname
 end subroutine Ccounter
 
+SUBROUTINE fortran_print(info,n,nnzl,nnzu,memuse) BIND(C, &
+    NAME='fortran_print')
+! This routine is called from the C wrapper.  It summarizes
+! the results and memory usage of factoring the sparse
+! Harwell-Boeing square matrix.
+  USE, INTRINSIC :: iso_c_binding
+  USE sparsetypes, ONLY : mem_usage
+  IMPLICIT NONE
+  TYPE (mem_usage), INTENT (IN) :: memuse
+  INTEGER (c_int), INTENT(IN) :: info, n, nnzl, nnzu
+end subroutine
+
 END INTERFACE
     
  contains

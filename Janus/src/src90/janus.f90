@@ -216,7 +216,7 @@ if (mod(flag,100) .eq. 5 ) then
 ! needs powmin & powmax
  if (allocated(JMatrix%R)) then
   donut = .FALSE.
-  call selectfunction(0,JMatrix,fct,powctr,powmin,powmax)
+  call selectfunction(0,JMatrix,flag,powctr,powmin,powmax)
  endif
 ! generate data file
   unitno1 = get_new_fileunit()
@@ -333,7 +333,7 @@ file_idx=index(inputfile1, ".ply")
    return
   else
   donut = .FALSE.
-  call selectfunction(0,JMatrix,fct,powctr,powmin,powmax)
+  call selectfunction(0,JMatrix,flag,powctr,powmin,powmax)
   write(*,*) 'powctr,POWMIN,POWMAX',powctr,POWMIN,POWMAX
   call WriteGeomPLY(flag,JMatrix,donut,powmin,powmax,inputfile1)
   write(*,*) 'Wrote ply file...',inputfile1
@@ -354,7 +354,7 @@ file_idx=index(inputfile1, ".off")
    return
   else
   donut = .FALSE.
-  call selectfunction(0,JMatrix,fct,powctr,powmin,powmax)
+  call selectfunction(0,JMatrix,flag,powctr,powmin,powmax)
   write(*,*) 'powctr,POWMIN,POWMAX',powctr,POWMIN,POWMAX
   call WriteGeomOFF(flag,JMatrix,donut,powmin,powmax,inputfile1)
   write(*,*) 'Wrote off file...',inputfile1
@@ -419,13 +419,13 @@ else ! pupil registration
  ! decenter the rings
  do i=1,M1
   do j=1,JMatrix%MV(i)
-   call PolarTranslate(ctr_circle_x,ctr_circle_y,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%R(j,i),JMatrix%THT(i)
+   call PolarTranslate(ctr_circle_x,ctr_circle_y,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%R(j,i),JMatrix%THT(i))
 !  populate new JMatrix out of current one
 ! run compare as above
   end do
  end do
 
-!  remake whole thing, or just one function that we're looking at aka with something like selectfunction(b,fct,powctr,powmin,powmax)
+!  remake whole thing, or just one function that we're looking at aka with something like selectfunction(b,flag,powctr,powmin,powmax)
 !  when re-doing center
 
 
@@ -485,7 +485,7 @@ end do
 
   donut = .FALSE.
   RadSlope=JMatrix
-  call selectfunction(1,JMatrix,fct,powctr,powmin,powmax)
+  call selectfunction(1,JMatrix,flag,powctr,powmin,powmax)
 
 
 
@@ -1587,7 +1587,7 @@ endif
 ! writes values in openGL friendly format to matrices for passing to C/C++
 ! flag/fct determines what to write for elevation and color, just like in flag=2,3 output versions above
    donut = .FALSE.
-   call selectfunction(0,JMatrix,fct,powctr,powmin,powmax)
+   call selectfunction(0,JMatrix,flag,powctr,powmin,powmax)
 
   dist = real(-2*JMatrix%Z0(3),kind=sk)
 ! generate buffer data

@@ -1,0 +1,396 @@
+    MODULE sparseAssign
+
+      USE set_precision, ONLY : dkind
+      USE sparseTypes, ONLY: dpTriplet, dpTripletList, dpHBSparseMatrix, &
+          slu_dpHBSparseMatrix, setExpansionFactor, getExpansionFactor
+      IMPLICIT NONE
+
+!...
+! Define procedure names for assignment 
+      INTERFACE ASSIGNMENT (=)
+! This defines the basic operations for building a list of
+! triplets from individual triplets and for clearing a 
+! dpTripletList variable by reclaiming all the allocated space.
+
+ !TYPE(dpTripletList) = TYPE(dpTriplet)
+        MODULE PROCEDURE a_triplet
+ !TYPE(dpTripletList) = TYPE(dpTriplet)(:)
+        MODULE PROCEDURE list_of_triplets
+ !TYPE(dpTripletList) =  INTEGER (0)
+        MODULE PROCEDURE clear_triplets
+      END INTERFACE
+
+      INTERFACE ASSIGNMENT (=)
+! Define procedure names for assignment to
+ !TYPE(dpHBSparseMatrix)
+!
+! Convert a dpTripletList to HB sparse matrix form
+! TYPE(dpHBSparseMatrix) = TYPE(dpTripletList)
+        MODULE PROCEDURE dhbc_eq_list_of_triplets
+! Clear an HB sparse matrix and reclaim all allocated space
+! TYPE(dpHBSparseMatrix) = INTEGER (0)
+        MODULE PROCEDURE clear_dhbc
+      END INTERFACE
+
+      INTERFACE ASSIGNMENT (=)
+! Define procedure name for assignment to ! TYPE(dpTriplet)(:)
+
+! Convert a sparse matrix in HB format to a list of dpTriplest
+! TYPE(dpTriplet)(:) = TYPE(dpHBSparseMatrix)
+        MODULE PROCEDURE list_of_triplets_eq_dhbc
+      END INTERFACE
+
+      REAL (dkind), PRIVATE :: zero = 0.0e0_dkind
+    CONTAINS
+
+      SUBROUTINE a_triplet(sparse,triplet)
+        IMPLICIT NONE
+        TYPE (dpTripletList), INTENT (INOUT) :: sparse
+        TYPE (dpTriplet), INTENT (IN) :: triplet
+! Make a single triplet an equivalent array of size 1.
+! Use the array based assignment routine for the logic.       
+        CALL list_of_triplets(sparse,(/triplet/))
+      END SUBROUTINE a_triplet
+
+      SUBROUTINE clear_dhbc(dhbc,iflag)
+! The overloaded assignment dhbc = 0 clears
+! the contents of dhbc.   
+        IMPLICIT NONE
+        TYPE (dpHBSparseMatrix), INTENT (INOUT) :: dhbc
+        INTEGER, INTENT (IN) :: iflag
+! Note that only IFLAG=0 clears the list.       
+! Deallocate all space -- we don't bother to check if this
+! fails as there is nothing very sensible we can do except
+! abort which may well not be what the user wants
+        IF (iflag==0) THEN
+          IF (ALLOCATED(dhbc%colStartIndices)) &
+             DEALLOCATE (dhbc%rowIndices,dhbc%colStartIndices,dhbc%values)
+          dhbc%noOfRows = 0
+          dhbc%noOfColumns = 0
+          dhbc%errFlag = 0
+        END IF
+      END SUBROUTINE clear_dhbc
+
+      SUBROUTINE clear_triplets(sparse,iflag)
+! The overloaded assignment TYPE(dpTripletList) = 0 clears the contents
+! of sparse, reclaims allocated storage and sets lastTriplet=0.   
+        IMPLICIT NONE
+        TYPE (dpTripletList), INTENT (INOUT) :: sparse
+        INTEGER, INTENT (IN) :: iflag
+! Note that only iflag=0 clears the list.       
+        IF (iflag==0) THEN
+          IF (ALLOCATED(sparse%values)) &
+            DEALLOCATE (sparse%rows,sparse%columns,sparse%values)
+          sparse%lastTriplet = 0
+          sparse%errFlag = 0
+        END IF
+      END SUBROUTINE clear_triplets
+
+      SUBROUTINE dhbc_eq_list_of_triplets(dhbc,sparse)
+      USE sparseSort, ONLY : sparseData
+      USE sortElements, ONLY : qsort
+! This routine handles the overloaded assignment
+! TYPE(dpHBSparseMatrix)=TYPE(dpTripletList)
+
+! It builds an MROWS by NCOLS sparse matrix using
+! the Harwell-Boeing format.  Triplets in the list
+! TYPES(dpTripletList) are accumulated (summed) if there are
+! repeated entries of row indices. 
+        IMPLICIT NONE
+        TYPE (dpHBSparseMatrix), INTENT (INOUT) :: dhbc
+        TYPE (dpTripletList), INTENT (IN), TARGET :: sparse
+        TYPE(sparseData) :: spData
+
+! Local working variables:
+        INTEGER :: i, ioerr, j, last, ncols, mrows
+        INTEGER :: ii, mc, nz
+        LOGICAL :: accumulate
+
+        INTEGER, ALLOCATABLE, TARGET :: ind(:), itemp(:)
+        INTEGER, ALLOCATABLE :: ip(:)
+        REAL (dkind), ALLOCATABLE :: column(:), values(:)
+
+        last = sparse%lastTriplet
+! Take care of the empty case, LAST == 0.
+! This case implies that the sparse matrix is 0.
+        IF (last==0) THEN
+          dhbc%noOfColumns = 0
+          dhbc%noOfRows = 0
+          IF ( .NOT. ALLOCATED(dhbc%rowIndices)) THEN
+            ALLOCATE (dhbc%colStartIndices(1), STAT=ioerr)
+            IF (ioerr/=0) THEN
+              dhbc%errFlag = ioerr
+              RETURN
+            ENDIF
+          END IF
+! Initialize start of column indices
+          dhbc%colStartIndices(1) = 1
+          RETURN
+        END IF
+! Get working space to process and accumulate set of triplets.       
+        ALLOCATE (ind(last),itemp(last),values(last),STAT=ioerr)
+        IF (ioerr/=0) THEN
+          dhbc%errFlag = ioerr
+          RETURN
+        END IF
+! Sort the column indices.  Then extract the size of the matrix.
+! The max column index=NCOLS.  The max row index=MROWS.
+! Zero values are ignored for purposes of determining the size.       
+        ind(1:last) = [(i, i=1,last)]
+        spData%left = 1
+        spData%right = last
+        spData%colPtr => sparse%columns(1:last)
+        spData%indexPtr => ind(1:last)
+
+        CALL qsort(spData)
+
+! The matrix dimensions are determined by the largest
+! values of row and columns indices that appear in
+! the right-hand side or input list.
+
+! Rearrange the row subscripts and the values.       
+        values = sparse%values(ind)
+        itemp = sparse%rows(ind)
+        ncols = max(0,sparse%columns(ind(last)))
+        mrows = max(0,maxval(itemp))
+        dhbc%noOfColumns = ncols
+        dhbc%noOfRows = mrows
+! This is the pointer list to starts and end (less one) of the 
+! separate columns in the matrix. Initialize to zero.
+        ALLOCATE (ip(ncols+1), STAT=ioerr)
+        IF (ioerr/=0) THEN
+          dhbc%errFlag = ioerr
+          RETURN
+        END IF
+        ip = 0
+! Make a preliminary run through the matrix and separate
+! the columns.     
+        DO j = 1, last
+! Count the number of elements in each column.       
+          ip(sparse%columns(ind(j))+1) = ip(sparse%columns(ind(j))+1) + 1
+        END DO
+
+! Process the data in each column of the matrix.
+! Within each column sort the row indices.  If there
+! are repeats then expand the sums into a full column
+! of size DHBC %noOfRows.  Contract the column and record
+! the non-zero values.
+        ii = 0
+        nz = 0
+        DO j = 1, ncols
+! Get the number of elements in this column.  There
+! may be repeats. A scan is done to see and if there
+! are repeats and then an expand/sum/contract step
+! is made for this column.
+          mc = ip(j+1)
+          IF (mc==0) CYCLE
+! Sort the row indices within a column.
+          ind(1:mc) = [(i, i=1,mc)]
+          spData%left =  1
+          spData%right =  mc
+          spData%colPtr => itemp(ii+1:ii+mc)
+          spData%indexPtr => ind(1:mc)
+          CALL qsort(spData)
+! Move the row indices so they are sorted.                    
+          itemp(ii+1:ii+mc) = itemp(ii+ind(1:mc))
+! Move the corresponding values for those rows.          
+          values(ii+1:ii+mc) = values(ii+ind(1:mc))
+
+          accumulate = .FALSE.
+! See if there are any repeats of row indices.  If there are
+! then add the associated values and replace the repeated 
+! indices by a single value.         
+SCAN:     DO i = 1, mc - 1
+! This assigns the value .TRUE. the first time
+! a row index is repeated.          
+            accumulate = (itemp(ii+i)==itemp(ii+i+1))
+            IF (accumulate) EXIT SCAN
+          END DO SCAN
+
+! If there are repeats then get working space for 
+! expand/sum/contract buffer.  Then accumulate.
+          IF (accumulate) THEN
+            IF ( .NOT. ALLOCATED(column)) THEN
+              ALLOCATE (column(mrows), STAT=ioerr)
+              IF (ioerr/=0) THEN
+                dhbc%errFlag = ioerr
+                RETURN
+              END IF
+            END IF
+
+! Clear out the expanded column and accumulate repeated values.
+            IF (mrows>0) column = zero
+            DO i = 1, mc
+              column(itemp(ii+i)) = column(itemp(ii+i)) + values(ii+i)
+            END DO
+
+! Compress the column and move its final values.  This step
+! changes the value of MC (number of entries) for this column.
+            mc = 0
+            DO i = 1, mrows
+              IF (column(i)/=zero) THEN
+                nz = nz + 1
+! Save the row index and its accumulated value.                 
+                itemp(nz) = i
+                values(nz) = column(i)
+                mc = mc + 1
+              END IF
+            END DO
+          ELSE 
+            IF (mc>0) THEN
+              itemp(nz+1:nz+mc) = itemp(ii+1:ii+mc)
+              values(nz+1:nz+mc) = values(ii+1:ii+mc)
+              nz = nz + mc
+            END IF
+          END IF 
+
+! This is the new number of non-zero values in this column.
+          ii = ii + ip(j+1)
+          ip(j+1) = mc
+        END DO
+! Define the pointers for the columns of the Harwell-
+! Boeing format.  
+        DO j = 1, ncols
+          ip(j+1) = ip(j) + ip(j+1)
+          ip(j) = ip(j) + 1
+        END DO
+        ip(ncols+1) = ip(ncols+1) + 1
+
+! Move the local allocated arrays into place so they 
+! become the components of the derived type.  Because of 
+! accumulation the sizes of components for row indices and
+! values may be longer than required.  But this step avoids
+! creating new allocated temporary arrays that require
+! additional space.
+        CALL move_alloc(from=itemp,to=dhbc%rowIndices)
+        CALL move_alloc(from=ip,to=dhbc%colStartIndices)
+        CALL move_alloc(from=values,to=dhbc%values)
+! Tidy mind !
+        DEALLOCATE(ind)
+        IF (accumulate) THEN
+          DEALLOCATE(column)
+        END IF
+
+      END SUBROUTINE dhbc_eq_list_of_triplets
+
+      SUBROUTINE list_of_triplets(sparse,triplets)
+! Accumulate a list of triplets.  If space runs out, new
+! arrays are allocated that (attempt to) hold all the data. 
+! Non-positive subscripts are ignored.  
+        IMPLICIT NONE
+        TYPE (dpTripletList), INTENT (INOUT) :: sparse
+        TYPE (dpTriplet), INTENT (IN) :: triplets(:)
+        INTEGER, ALLOCATABLE :: tempInt(:)
+        REAL (dkind), ALLOCATABLE :: tempReal(:)
+        INTEGER :: istat, j, k, last, m
+
+        REAL(dkind) :: expFactor
+
+        expFactor = getExpansionFactor(sparse)
+
+! ALlocation error flag
+        istat = 0
+! This dummy loop is a container for the logic of the 
+! list building.   
+BLOCK:  DO
+! If the contents of dpTripletList are not allocated
+! then allocate it with size = max(K,expansionFactor * size(triplets))
+          k = size(triplets)
+          last = sparse%lastTriplet
+! If triplets set is empty, return immediately.
+          IF (k<=0) EXIT BLOCK
+          IF ( .NOT. ALLOCATED(sparse%values)) THEN
+! We are forcing expansion Factor to be > one
+            m = int(k*expFactor)
+! Allocate enough space, plus a bit more, for the
+! first set of triplets.          
+            ALLOCATE (sparse%rows(m),sparse%columns(m),sparse%values(m), &
+              STAT=istat)
+! Exit if allocate did not suceed
+            IF (istat/=0) EXIT BLOCK
+! Join the triplets to the end of the list.               
+! Note the number of triplets. 
+            last = 0
+            sparse%lastTriplet = k
+            sparse%rows(1:k) = triplets(1:k)%rowIndex
+            sparse%columns(1:k) = triplets(1:k)%columnIndex
+            sparse%values(1:k) = triplets(1:k)%value
+            EXIT BLOCK
+          ELSE
+            j = size(sparse%values)
+            IF (k+last>j) THEN
+! Space to hold the incoming set of triplets is
+! too small.  Expand the amount available.
+              m = max(k+last,int(j*expFactor))
+! Allocate space separately to minimize temporary memory use
+              ALLOCATE (tempInt(m),STAT=istat)
+! Check if allocation did not succeed. 
+              IF (istat/=0) EXIT BLOCK
+! Transfer the current list of triplets to the newly
+! allocated space. Row indices first
+              tempInt(1:last) = sparse%rows(1:last)
+              CALL move_alloc(from=tempInt,to=sparse%rows)
+! Then columns
+              ALLOCATE (tempInt(m),STAT=istat)
+              IF (istat/=0) EXIT BLOCK
+              tempInt(1:last) = sparse%columns(1:last)
+              CALL move_alloc(from=tempInt,to=sparse%columns)
+
+! Finally the values
+              ALLOCATE (tempReal(m),STAT=istat)
+              IF (istat/=0) EXIT BLOCK
+              tempReal(1:last) = sparse%values(1:last)
+              CALL move_alloc(from=tempReal,to=sparse%values)
+            END IF
+          END IF
+! If we arrive here we need to copy in the new triplet data
+          sparse%lastTriplet = last + k
+          sparse%rows(last+1:last+k) = triplets(1:k)%rowIndex
+          sparse%columns(last+1:last+k) = triplets(1:k)%columnIndex
+          sparse%values(last+1:last+k) = triplets(1:k)%value
+          EXIT BLOCK
+        END DO BLOCK
+
+! This flag is updated to alert if there was any
+! memory allocation problem.        
+        sparse%errFlag = ior(sparse%errFlag,istat)
+      END SUBROUTINE list_of_triplets
+
+      SUBROUTINE list_of_triplets_eq_dhbc(triplets,dhbc)
+! This routine handles the overloaded assignment
+! TYPE(dpTriplet)(:) = TYPE(dpHBSparseMatrix)
+
+! It assigns an array of triplets using the contents
+! of a Harwell-Boeing format sparse matrix.  Zero values
+! are not returned. 
+        IMPLICIT NONE
+        TYPE (dpTriplet), INTENT (INOUT), ALLOCATABLE :: triplets(:)
+        TYPE (dpHBSparseMatrix), INTENT (IN) :: dhbc
+        INTEGER :: i, icount, istat, j, k, l, m, n
+! Get matrix size.
+        n = dhbc%noOfColumns
+! Allocate just enough space to hold the entries
+! of the Harwell-Boeing format sparse matrix.       
+        k = max(0,dhbc%colStartIndices(n+1)-1)
+        ALLOCATE(triplets(k), STAT=istat)
+        IF(istat /= 0) THEN
+          WRITE(*,*) 'Allocation failure in assignment triplets(:)=dhbc_sparse.'
+          RETURN
+        END IF
+
+        l = 0
+        icount = 0
+        DO j = 1, n
+! Get the number of entries in column J of DHBC.
+          m = dhbc%colStartIndices(j+1) - dhbc%colStartIndices(j)
+          DO i = 1, m
+! Copy row index, column index and value to make a triplet.          
+            l = l + 1
+            icount = icount + 1
+            triplets(l) = dpTriplet(dhbc%rowIndices(icount),j,dhbc%values(icount))
+          END DO
+        END DO
+
+      END SUBROUTINE list_of_triplets_eq_dhbc
+
+    END MODULE sparseAssign
