@@ -52,6 +52,9 @@ USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_char,c_null_char
  CHARACTER(c_char), INTENT(IN), dimension(*) :: iname
 end subroutine Ccounter
 
+
+! call from c to fortran
+
 SUBROUTINE fortran_print(info,n,nnzl,nnzu,memuse) BIND(C, &
     NAME='fortran_print')
 ! This routine is called from the C wrapper.  It summarizes

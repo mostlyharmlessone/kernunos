@@ -1,5 +1,5 @@
---- slu_ddefs.h	2013-11-17 10:51:28.000000000 -0600
-+++ slu_ddefs.h	2021-03-27 11:34:54.774587599 -0500
+--- slu_ddefs.h	2013-11-17 08:51:28.000000000 -0800
++++ slu_ddefs.h	2024-10-27 09:42:17.163569396 -0700
 @@ -120,7 +120,7 @@
  dgssvx(superlu_options_t *, SuperMatrix *, int *, int *, int *,
         char *, double *, double *, SuperMatrix *, SuperMatrix *,
@@ -18,3 +18,13 @@
  extern int     dsnode_dfs (const int, const int, const int *, const int *,
  			     const int *, int *, int *, GlobalLU_t *);
  extern int     dsnode_bmod (const int, const int, const int, double *,
+@@ -273,6 +273,9 @@
+ extern int     print_double_vec(char *, int, double *);
+ extern void    check_tempv(int, double *);
+ 
++/*! \added for cmake*/
++extern void     fortran_print (int *info,int *n,int* nnzl,int* nnzu, mem_usage_t *);
++
+ #ifdef __cplusplus
+   }
+ #endif

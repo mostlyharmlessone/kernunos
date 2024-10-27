@@ -273,6 +273,9 @@ extern void    dprint_lu_col(char *, int, int, int *, GlobalLU_t *);
 extern int     print_double_vec(char *, int, double *);
 extern void    check_tempv(int, double *);
 
+/*! \added for cmake*/
+extern void     fortran_print (int *info,int *n,int* nnzl,int* nnzu, mem_usage_t *);
+
 #ifdef __cplusplus
   }
 #endif

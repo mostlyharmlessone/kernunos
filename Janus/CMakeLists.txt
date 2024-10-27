@@ -220,18 +220,13 @@ else()
   set(LIBS )
 endif(WIN32)
 
-#   Fortran Source
-    file(GLOB_RECURSE lib_sources90  src/src90 *.f90 *.for)
-    file(GLOB_RECURSE mod_sources90  src/mod90 *.f90)
-    add_library( rply_includes ${rply_sources})
-    add_library( modules ${mod_sources90} ${interface})
-    add_library( splia ${lib_sources90} ${interface})
-
 #superlu example from chapter12
 
 set(LIBS2 ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${SUPERLU_LIBRARIES})
 set(HH_SOURCES
                    src/HansonHopkins/driverPiecewiseLinear.f90
+                   src/mod90/set_precision.f90
+                   src/mod90/LapackInterface.f90
                    src/HansonHopkins/sparseAssign.f90
                    src/HansonHopkins/sparseOps.f90
                    src/HansonHopkins/sparseSort.f90
@@ -249,7 +244,7 @@ set(HH_SOURCES
                add_executable(driverPiecewiseLinear
                    ${HH_SOURCES}
                )
-target_link_libraries(driverPiecewiseLinear modules ${LIBS2})
+target_link_libraries(driverPiecewiseLinear ${LIBS2})
 
 #viennaCL
 
@@ -288,7 +283,13 @@ target_link_libraries(driverPiecewiseLinear modules ${LIBS2})
 #    add_executable(glarea src/c/gtk/glarea-app-window.c )
 #    target_link_libraries(glarea ${GTK3_LIBRARIES} epoxy)
 
-    
+#   Fortran Source
+    file(GLOB_RECURSE lib_sources90  src/src90/*.f90 src/src90/*.f90*.for)
+    file(GLOB_RECURSE mod_sources90  src/mod90/*.f90)
+    add_library( rply_includes ${rply_sources})
+    add_library( modules ${mod_sources90} ${interface})
+    add_library( splia ${lib_sources90} ${interface})
+
 #libraries      
     set(LIBS ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} ${GFORTRAN_LIBRARY})
 
@@ -299,16 +300,16 @@ include_directories(src/cxx/kernunos src/c/rply) # /usr/local/include/coretran)
 
 
 set(PROJECT_SOURCES
+                   src/c/kernunos/logc.c src/c/kernunos/logc.h
+                   src/c/kernunos/Ccounter.c src/c/kernunos/counter.h
+                   src/c/kernunos/ConvertPLYtoBIN.c
+                   gnuplot-iostream/gnuplot-iostream.h
                    src/cxx/kernunos/kernunos.cpp src/cxx/kernunos/kernunos.h
                    src/cxx/kernunos/GLwidget.cpp src/cxx/kernunos/GLwidget.h
                    src/cxx/kernunos/assistant.cpp src/cxx/kernunos/assistant.h
-                   src/c/kernunos/logc.c src/c/kernunos/logc.h
-                   src/c/kernunos/Ccounter.c src/c/kernunos/counter.h
                    src/cxx/kernunos/gnuplot_lioc.cpp
                    src/cxx/kernunos/gnuplot_load.cpp
-                   gnuplot-iostream/gnuplot-iostream.h
                    src/cxx/kernunos/mainwindow.ui
-                   src/c/kernunos/ConvertPLYtoBIN.c
                    src/src90/ConvertOFFtoSTL_C.f90
                    src/src90/janus.f90 
                    ${TS_FILES}
@@ -371,7 +372,7 @@ target_link_libraries(kernunos
                       Qt${QT_VERSION_MAJOR}::Gui
                       Qt${QT_VERSION_MAJOR}::Widgets
                       Qt${QT_VERSION_MAJOR}::OpenGL
-                      assimp splia modules rply_includes ${LIBS}
+                      assimp modules splia rply_includes ${LIBS}
            )
 
 
