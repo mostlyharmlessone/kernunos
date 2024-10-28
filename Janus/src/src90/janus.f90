@@ -384,7 +384,7 @@ if (.not.btest(dat,6)) then
   do i=1,M1
    j = mod(i + rotationdegrees,180)
    if (j .eq. 0) j = 180
-   JMatrix2%MV(i)=min(JMatrix%MV(i),JMatrix1%MV(i))
+   JMatrix2%MV(i)=min(JMatrix%MV(j),JMatrix1%MV(i))
    JMatrix2%Z(:,i)=ABS(JMatrix1%Z(:,i)-JMatrix%Z(:,j))
    JMatrix2%SAGC(:,i)=ABS(JMatrix1%SAGC(:,i)-JMatrix%SAGC(:,j))
    JMatrix2%Warp(:,i)=ABS(JMatrix1%Warp(:,i)-JMatrix%Warp(:,j))
@@ -395,6 +395,7 @@ if (.not.btest(dat,6)) then
    JMatrix2%ZC(:,i,:)=ABS(JMatrix1%ZC(:,i,:)-JMatrix%ZC(:,j,:))
   end do
  else
+  JMatrix2%MV(:)=min(JMatrix%MV(:),JMatrix1%MV(:))
   JMatrix2%Z(:,:)=ABS(JMatrix1%Z(:,:)-JMatrix%Z(:,:))
   JMatrix2%SAGC(:,:)=ABS(JMatrix1%SAGC(:,:)-JMatrix%SAGC(:,:))
   JMatrix2%Warp(:,:)=ABS(JMatrix1%Warp(:,:)-JMatrix%Warp(:,:))
@@ -414,6 +415,7 @@ if (.not.btest(dat,6)) then
  JMatrix2%ZC0(:,:)=ABS(JMatrix1%ZC0(:,:)-JMatrix%ZC0(:,:))
 else ! pupil registration
 
+ write(*,*) "compare with pupil: ", rotationdegrees, .not.btest(dat,6)
  ctr_circle_x=JMatrix1%Pupil_Center(1)-JMatrix%Pupil_Center(1)
  ctr_circle_y=JMatrix1%Pupil_Center(2)-JMatrix%Pupil_Center(2)
  ! decenter the rings
@@ -458,9 +460,6 @@ endif
   if (JMatrix2%ZC0(1,k) >= JMatrix2%ZC0(3,k)) JMatrix2%ZC0(3,k)=JMatrix2%ZC0(1,k)
  end do
 do i=1,M1
- if (rotationdegrees .eq. 0) then
-  JMatrix2%MV(i)=min(JMatrix%MV(i),JMatrix1%MV(i))
- endif
  do j=1,JMatrix2%MV(i)
    if (JMatrix2%INSTC(j,i) <= JMatrix2%INSTC0(2)) JMatrix2%INSTC0(2)=JMatrix2%INSTC(j,i)
    if (JMatrix2%INSTC(j,i) >= JMatrix2%INSTC0(3)) JMatrix2%INSTC0(3)=JMatrix2%INSTC(j,i)
@@ -485,12 +484,9 @@ end do
 
   donut = .FALSE.
   RadSlope=JMatrix
-  call selectfunction(1,JMatrix,flag,powctr,powmin,powmax)
-
-
-
-  elements(1:nE)=0
-  vertices(1:nV)=0
+  elements(1:nE) = 0
+  vertices(1:nV) = 0
+  call selectfunction(0,JMatrix2,flag,powctr,powmin,powmax)
   call Geom(flag, JMatrix2, donut, powmin, powmax, elements, vertices, nV, nE)
   call makelegend(flag, powmin, powmax, legend, nL)
 
@@ -1593,6 +1589,8 @@ endif
 ! generate buffer data
   pupil_elements(1:pupil_nE)=0
   pupil_vertices(1:pupil_nV)=0
+  elements(1:nE) = 0
+  vertices(1:nV) = 0
   call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
   call Pupil(JMatrix, dist, pupil_elements, pupil_vertices, pupil_nV, pupil_nE)
   call makelegend(flag, powmin, powmax, legend, nL)

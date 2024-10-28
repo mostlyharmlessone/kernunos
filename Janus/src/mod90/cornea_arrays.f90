@@ -1098,7 +1098,7 @@ SELECT CASE (fct)
    DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope
    do i=1,180      !M1
-    do j=1,JMatrix%MV(i)
+    do j=1,b%MV(i)
      if (btest(dat,0)) then
       call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%SAGC(j,i))
      else

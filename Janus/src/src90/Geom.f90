@@ -138,7 +138,7 @@
        endif
 
        do i=1,M1
-        do j=1,N1  !b%MV(i) can't be used because it leads to unpredictable geometry
+        do j=1,N1  !b%MV(i) can't be used because it leads to unpredictable geometry given node placement
          X1=b%THT(i)         ! in radians
          X2=b%R(j,i)
          X3=-b%Z(j,i)         ! flip it
