@@ -5,8 +5,6 @@ MODULE cornea_arrays
  USE spline_interfaces 
  use, intrinsic ::  ieee_arithmetic
  use, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
-!      USE spline_interfaces, ONLY : SplineEval, trapez, CubicSplineQuad, SplineCenter
-!      USE special_fct, ONLY : OPERATOR(.p.) ! tensor summation convention 
  REAL(wp), PARAMETER :: PI=3.1415926535897932384626433832795_wp
  REAL(wp), PARAMETER :: RFCT=33750.0_wp
  REAL(wp), PARAMETER :: EPS=0.0001_wp  ! used in pspli,SplineCenter,corneal calc fcts
@@ -110,7 +108,7 @@ END INTERFACE
 
 ! declaring common global data arrays
  real(wp), allocatable :: RadSplineCenter(:,:)
- TYPE(wpJMatrix) :: JMatrix,JMatrix1,JMatrix2
+ TYPE(wpJMatrix) :: JMatrix,JMatrix1,JMatrix2,JMatrix3
  TYPE(wpEyeSysMatrix) :: EyeSys
  TYPE(wpRadSlopeMatrix) :: RadSlope
  TYPE(wpAtlasMatrix) :: Atlas
@@ -151,14 +149,14 @@ end subroutine init_mat_Penta
 subroutine init_mat_JMatrix(MM,N,b) ! allocate common storage arrays
   INTEGER, INTENT(IN) :: MM,N
   TYPE(wpJMatrix) :: b
-  allocate (b%R(N,MM),b%Z(N+1,MM),b%THT(MM),b%YPR(N,MM),b%YPTHETA(N,MM),b%SAGC(N+1,MM),&
+   allocate (b%R(N,MM),b%Z(N+1,MM),b%THT(MM),b%YPR(N,MM),b%YPTHETA(N,MM),b%SAGC(N+1,MM),&
             b%INSTC(N+1,MM),b%INSTC2(N+1,MM),b%MEANC(N+1,MM),b%MONGEA(N+1,MM))
-  allocate (b%MV(MM),b%RC(3,MM),b%Warp(N+1,MM),b%PU(MM))
-  b%R(:,:)=0 ; b%Z(:,:)=0 ; b%THT(:)=0 ; b%YPR(:,:)=0 ; b%YPTHETA(:,:)=0 ; b%SAGC(:,:)=0
-  b%INSTC(:,:)=0 ; b%INSTC2(:,:)=0 ; b%MEANC(:,:)=0 ; b%MONGEA(:,:)=0 ;  b%Warp(:,:)=0
-  b%MV(:)=0 ; b%RC(:,:)=0 ; b%PU(:)=0; b%Pupil_Center(:)=0
-  allocate (b%ZC(N+1,MM,15))
-  b%ZC(:,:,:)=0
+   allocate (b%MV(MM),b%RC(3,MM),b%Warp(N+1,MM),b%PU(MM))
+   b%R(:,:)=0 ; b%Z(:,:)=0 ; b%THT(:)=0 ; b%YPR(:,:)=0 ; b%YPTHETA(:,:)=0 ; b%SAGC(:,:)=0
+   b%INSTC(:,:)=0 ; b%INSTC2(:,:)=0 ; b%MEANC(:,:)=0 ; b%MONGEA(:,:)=0 ;  b%Warp(:,:)=0
+   b%MV(:)=0 ; b%RC(:,:)=0 ; b%PU(:)=0; b%Pupil_Center(:)=0
+   allocate (b%ZC(N+1,MM,15))
+   b%ZC(:,:,:)=0
 end subroutine init_mat_JMatrix
 
 subroutine init_mat_EyeSys(MM,N,EyeSys) ! allocate EyeSys arrays
@@ -1073,11 +1071,12 @@ subroutine selectfunction(iflag,b,flag,powctr,powmin,powmax)
 implicit none
 integer(c_int), intent(in) :: flag
 integer,intent(in) :: iflag
-integer :: dat,fct,i,j
+integer :: dat,fct,i,j,M1
 real (wp), intent(out) :: powctr,powmin,powmax
 TYPE(wpJMatrix), INTENT(INOUT) :: b
 dat=(flag-mod(flag,1000000))/1000000 ! first two digits
 fct=mod(((flag-mod(flag,10000))/10000),100) ! second two digits, color map functions
+M1=size(b%r,2)
 if (fct .lt. 16 .and. fct .gt. 0) then
   powctr=b%ZC0(1,fct)
   powmin=b%ZC0(2,fct)
@@ -1085,27 +1084,37 @@ if (fct .lt. 16 .and. fct .gt. 0) then
 else
 SELECT CASE (fct)
   CASE (0)
-  if (iflag == 0) then
+  if (iflag == 0) then ! iflag == 0 load center/min/max into powctr/powmin/powmax
    powctr=b%SAGC0(1)
    powmin=b%SAGC0(2)
    powmax=b%SAGC0(3)
-  else
-   do i=1,180    !M1
+  endif
+  if (iflag == 1) then ! iflag == 1 remake JMatrix (b) including center
+   do i=1,M1
     do j=1,RadSlope%MV(i)
       RadSlope%Zp(j,i)=b%SAGC(j,i)
     end do
    end do
    DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope
-   do i=1,180      !M1
+   do i=1,M1
     do j=1,b%MV(i)
      if (btest(dat,0)) then
       call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%SAGC(j,i))
      else
       call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%SAGC(j,i))
      endif
+     if (b%SAGC(j,i) <= b%SAGC0(2)) b%SAGC0(2)=b%SAGC(j,i)
+     if (b%SAGC(j,i) >= b%SAGC0(3)) b%SAGC0(3)=b%SAGC(j,i)
     end do
    end do
+   if (btest(dat,0)) then
+    call SplineEval1Dx1D(10,b%R0,b%THT0,b%SAGC0(1))  ! center value
+   else
+    call SplineEval1Dx1D(0,b%R0,b%THT0,b%SAGC0(1))  ! center value
+   endif
+   if (b%SAGC0(1) <= b%SAGC0(2)) b%SAGC0(2)=b%SAGC0(1)
+   if (b%SAGC0(1) >= b%SAGC0(3)) b%SAGC0(3)=b%SAGC0(1)
   endif
   CASE (16)
   powctr=b%INSTC0(1)

@@ -75,6 +75,7 @@ write(*,*) 'color(map) to Fortran:',map
 ! dat =fifth binary bit 0/1 splinefillin cannot be combined with lsqfillin ie btest(dat,4) = .true.
 ! dat = sixth binary bit 0/1 decenter tweak ie btest(dat,5) = .true.
 ! dat = seventh binary bit 0/1 pupilregister tweak ie btest(dat,6) = .true.
+! dat = eighth binary bit 0/1 atlas spline consistency check tweak ie btest(dat,7) = .true.
 
 ! iflag passing of dat to SplineEval1Dx1D centernode splines and integration of splines
 ! first digit iflag-mod(iflag,10))/10
@@ -376,10 +377,30 @@ if (mod(flag,100) == 10) then
   JMatrix2%THT0=JMatrix%THT0
 
 ! if no pupil registration and rotationdegrees is even, then there's a shortcut not requiring resplining
-! made rotationdegrees even in kernunos so mod(rotationdegrees,2) .eq. 0 always true.
-if (.not.btest(dat,6)) then
- write(*,*) "compare without pupil: ", rotationdegrees, .not.btest(dat,6)
- rotationdegrees=mod(270-rotationdegrees/2,180) ! makes 180 no rotation without risk of negative indices
+ if (btest(dat,6)) then
+ ! make a copy of JMatrix prior to rewrite
+ if (allocated(JMatrix3%R)) then
+  write(*,*) 'JMatrix3 allocated'
+ else
+  write(*,*) 'allocating JMatrix3'
+  call init_mat_JMatrix(M1,N1,JMatrix3)
+ endif
+ JMatrix3=JMatrix
+  write(*,*) "compare with pupil: ", rotationdegrees, .not.btest(dat,6)
+  ctr_circle_x=JMatrix1%Pupil_Center(1)-JMatrix%Pupil_Center(1)
+  ctr_circle_y=JMatrix1%Pupil_Center(2)-JMatrix%Pupil_Center(2)
+!  decenter the rings
+  call PolarTranslate(ctr_circle_x,ctr_circle_y,0.0_wp,0.0_wp,JMatrix%R0,JMatrix%THT0)
+  do i=1,M1
+   do j=1,JMatrix%MV(i)
+    call PolarTranslate(ctr_circle_x, ctr_circle_y,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%R(j,i),JMatrix%THT(i))
+   end do
+  end do
+ ! generate new JMatrix
+  call selectfunction(1,JMatrix,flag,powctr,powmin,powmax)
+ endif
+ ! now rotate
+ rotationdegrees=mod(270-rotationdegrees/2,180) ! makes 180 no rotation without risk of negative indices, odd rotationdegrees get floor
  if (rotationdegrees .ne. 0) then
   do i=1,M1
    j = mod(i + rotationdegrees,180)
@@ -413,25 +434,6 @@ if (.not.btest(dat,6)) then
  JMatrix2%MONGEA0(:)=ABS(JMatrix1%MONGEA0(:)-JMatrix%MONGEA0(:))
  JMatrix2%ZC(:,:,:)=ABS(JMatrix1%ZC(:,:,:)-JMatrix%ZC(:,:,:))
  JMatrix2%ZC0(:,:)=ABS(JMatrix1%ZC0(:,:)-JMatrix%ZC0(:,:))
-else ! pupil registration
-
- write(*,*) "compare with pupil: ", rotationdegrees, .not.btest(dat,6)
- ctr_circle_x=JMatrix1%Pupil_Center(1)-JMatrix%Pupil_Center(1)
- ctr_circle_y=JMatrix1%Pupil_Center(2)-JMatrix%Pupil_Center(2)
- ! decenter the rings
- do i=1,M1
-  do j=1,JMatrix%MV(i)
-   call PolarTranslate(ctr_circle_x,ctr_circle_y,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%R(j,i),JMatrix%THT(i))
-!  populate new JMatrix out of current one
-! run compare as above
-  end do
- end do
-
-!  remake whole thing, or just one function that we're looking at aka with something like selectfunction(b,flag,powctr,powmin,powmax)
-!  when re-doing center
-
-
-endif
 ! have to re-do min/max
  JMatrix2%SAGC0(2)=1E30   ;  JMatrix2%SAGC0(3)=-1E30
  JMatrix2%Warp0(2)=1E30   ;  JMatrix2%Warp0(3)=-1E30
@@ -483,13 +485,17 @@ do i=1,M1
 end do
 
   donut = .FALSE.
-  RadSlope=JMatrix
   elements(1:nE) = 0
   vertices(1:nV) = 0
-  call selectfunction(0,JMatrix2,flag,powctr,powmin,powmax)
-  call Geom(flag, JMatrix2, donut, powmin, powmax, elements, vertices, nV, nE)
-  call makelegend(flag, powmin, powmax, legend, nL)
+! try showing new JMatrix instead of comparison JMatrix2
 
+  call selectfunction(0,JMatrix,flag,powctr,powmin,powmax)
+  call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
+  call makelegend(flag, powmin, powmax, legend, nL)
+  if (btest(dat,6)) then
+!  restore JMatrix
+   JMatrix=JMatrix3
+  endif
  return
  else
   write(*,*) "Needs two scans for compare"
@@ -940,7 +946,7 @@ if (mod(flag,100) .ne. 9 ) then
   endif
 
  ! Atlas spline consistency check and computation of elevation by power vs elevation in file
- if ( Testdata .eq. 1 ) then
+ if ( Testdata .eq. 1 .and. btest(dat,7) ) then
   k=0 ; powmax2 = 0 ; powmax =0  ! Use these temporarily
  ! find max elevation from Atlas file
   do i=1,M1
@@ -968,6 +974,7 @@ if (mod(flag,100) .ne. 9 ) then
  endif
 
 ! Make JMatrix
+
 !  make round rings and if needed convert 360x16 or 180x25 to 180x22
 ! donut
 ! Find maximum radius from data in RadSlope
@@ -999,6 +1006,7 @@ if (mod(flag,100) .ne. 9 ) then
    endif
    do j=1,JMatrix%MV(i)                             ! does not include center point
     JMatrix%R(j,i)=N1*100*(rBi+(j-1)*(rBo-rBi)/(N1-1))/(1.*N)  !scaled to compensate for 16 vs 22 or 25 rings
+
 ! populate JMatrix rings, not the centers
 ! elevations
     if (TestData.ne.2 .and. TestData.ne.4) then  ! slope based data, integrate based on iflag with or without cubic/trapez or center point or not for values
@@ -1113,14 +1121,15 @@ if (mod(flag,100) .ne. 9 ) then
      if (i .eq. 1) then
       JMatrix%SAGC0(1)=JMatrix%SAGC(N1+1,1)
      else
-      JMatrix%SAGC0(1)=(i*JMatrix%SAGC0(1)+JMatrix%SAGC(N1+1,i))/(i+1)      ! cumulative average
+     JMatrix%SAGC0(1)=(i*JMatrix%SAGC0(1)+JMatrix%SAGC(N1+1,i))/(i+1)      ! cumulative average
      endif
     end do
     if (JMatrix%SAGC0(1) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC0(1)
-    if (JMatrix%SAGC0(1) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC0(1)  
+    if (JMatrix%SAGC0(1) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC0(1)
+!   endif
 
 !  Warp
-!  Reload RadSlope with SAGC & re-spline; can't compute it from surface because ill-defined at origin
+!  Reload RadSlope & re-spline; can't compute it from surface because ill-defined at origin
     do i=1,M1
      do j=1,RadSlope%MV(i)
       RadSlope%Zp(j,i)=JMatrix%Warp(j,i)

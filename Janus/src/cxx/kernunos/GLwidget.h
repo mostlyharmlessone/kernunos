@@ -196,6 +196,12 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
         if(t) {dat |= 1UL << 6;} else { dat &= ~(1UL << 6);}  //set/unset 6th ie. seventh bit
         flag=1000000*dat+(flag%1000000);}
 
+    static bool isconsistency() { return m_consistency; }
+    static void setconsistency(bool t) { m_consistency = t;
+        int dat=(flag-(flag%1000000))/1000000;
+        if(t) {dat |= 1UL << 7;} else { dat &= ~(1UL << 7);}  //set/unset 7th ie. eighth bit
+        flag=1000000*dat+(flag%1000000);}
+
     static void setAllfctfalse(){
       m_Axial = false;
       m_Oblique = false;
@@ -524,6 +530,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     static bool m_Splinefillin;
     static bool m_decenter;
     static bool m_pupilregister;
+    static bool m_consistency;
 
     static bool m_Axial;
     static bool m_Oblique;

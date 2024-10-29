@@ -440,7 +440,7 @@ void MainWindow::compare()
 //        ui.infoLabel->setText(tr("Yes"));
         bool ok;
         degrees = QInputDialog::getInt(this, tr("Rotation "),
-                                                 tr("Degrees:"), degrees, 0, 360, 2, &ok,
+                                                 tr("Degrees:"), degrees, 0, 360, 1, &ok,
                                                  Qt::WindowFlags());
         if (ok){
             degreeLabel->setText(QString("$%1").arg(degrees));}
@@ -467,6 +467,15 @@ void MainWindow::compare()
 
 //  for now restore FROM hsbrgb
     flag=flag+100*(map-3);
+    GLwidget::sethsbrgb(false);
+    if (map == 1) GLwidget::setrgb2(true);
+    if (map == 2) GLwidget::setrgb5(true);
+    if (map == 3) GLwidget::sethsbrgb(true);
+    if (map == 4) GLwidget::setgplotpalette(true);
+    if (map == 5) GLwidget::setUSSfixed(true);
+    if (map == 6) GLwidget::setperceptualuniformfixed(true);
+    if (map == 7) GLwidget::setUSSpalette(true);
+    if (map == 8) GLwidget::setperceptualuniformpalette(true);
     checkmapsflags();
     update();}
     else {
@@ -1025,6 +1034,17 @@ void MainWindow::checkmapsflags(){
     USSfixedAct->setChecked(GLwidget::isUSSfixed());
     PerceptuallyUniformPaletteAct->setChecked(GLwidget::isperceptualuniformpalette());
     PerceptualfixedAct->setChecked(GLwidget::isperceptualuniformfixed());
+}
+
+void MainWindow::consistency()
+{
+    if (GLwidget::isconsistency()) {
+        GLwidget::setconsistency(false);
+        ui.infoLabel->setText(tr("Set <b>View:check consistency</b>"));
+    } else {
+        GLwidget::setconsistency(true);
+        ui.infoLabel->setText(tr("Set <b>View:check consistency</b>"));
+    };
 }
 
 void MainWindow::light()
@@ -1747,9 +1767,9 @@ void MainWindow::showDocumentation()
 
 void MainWindow::createActions()
 {
-   openAct = new QAction(tr("&Open..."), this);
+   openAct = new QAction(tr("&Load..."), this);
    openAct->setShortcuts(QKeySequence::Open);
-   openAct->setStatusTip(tr("Open an existing file"));
+   openAct->setStatusTip(tr("Load an existing data file"));
    connect(openAct, &QAction::triggered, this, &MainWindow::open);
 
    compareAct = new QAction(tr("&Compare..."), this);
@@ -1867,6 +1887,12 @@ void MainWindow::createActions()
    ringsAct->setStatusTip(tr("Show circumferential ring lsqfillin/splinefillin (Atlas only"));
    ringsAct->setEnabled(false);
    connect(ringsAct, &QAction::triggered, this, &MainWindow::rings);
+
+   consistencyAct = new QAction(tr("&Check spline consistency (Atlas only)"), this);
+   consistencyAct->setStatusTip(tr("Check spline consistency (Atlas only)"));
+   consistencyAct->setEnabled(true);
+   consistencyAct->setCheckable(true);
+   connect(consistencyAct, &QAction::triggered, this, &MainWindow::consistency);
 
    gnuplotAct = new QAction(tr("&Plots with Gnuplot Splot"), this);
    gnuplotAct->setStatusTip(tr("Plots with Gnuplot Splot"));
@@ -2024,7 +2050,9 @@ void MainWindow::createActions()
 void MainWindow::createMenus()
 {
    fileMenu = menuBar()->addMenu(tr("&File"));
-   fileMenu->addAction(openAct);
+   openMenu = fileMenu->addMenu(tr("&Open"));
+   openMenu->addAction(openAct);
+   openMenu->addAction(consistencyAct);
    fileMenu->addAction(compareAct);
    exportMenu = fileMenu->addMenu(tr("&Export"));
    exportMenu->addAction(makeplyAct);

@@ -386,13 +386,13 @@ function rgb2attr(rgbv) result(attr)
 end function rgb2attr
 
 !! coordinate transform
-subroutine PolarTranslate(ctr_circle_x,ctr_circle_y,rlocal,thtlocal,R_global,Theta_global)
+subroutine PolarTranslate(ctr_circle_x,ctr_circle_y,rlocal,tht_local,R_global,Theta_global)
     implicit none
-    REAL (wp), INTENT (IN) ::  ctr_circle_x,ctr_circle_y,rlocal,thtlocal
+    REAL (wp), INTENT (IN) ::  ctr_circle_x,ctr_circle_y,rlocal,tht_local
     REAL (wp), INTENT(OUT) :: R_global,Theta_global
     REAL (wp) :: X_global,Y_global
-    X_global=(ctr_circle_x-rlocal*cos(thtlocal))
-    Y_global=(ctr_circle_y-rlocal*sin(thtlocal))
+    X_global=(ctr_circle_x-rlocal*cos(tht_local))
+    Y_global=(ctr_circle_y-rlocal*sin(tht_local))
     R_global=sqrt(X_global*X_global+Y_global*Y_global)
     if (ABS(X_global) > EPS .AND. ABS(Y_global) > EPS) then
      if (X_global > 0 .AND. Y_global > 0 ) then

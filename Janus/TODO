@@ -2,15 +2,14 @@ things to do
 
 CorneaCopia
 
-trying to make a superlu lsq build in cmakelists
-
-in janus,implement pupil registration in compare instead of straight subtraction
-select and load each into Zp unless you can be tricky and pass function names.
+pupilregistered image is broken
 
 compare is broken with zernike; also so is opening 2nd file with zernike selected and zernike needs extreme value filter
 resurrect old noise reduction code to help out mongeastig and meanc for real data?
 need lapack or open version of numrec fourn:  fftpack
 extreme value filter for scales
+
+btest(dat,7) to allow atlas spline consistency check; can also use for autocheck of pentacam
 
 ele/ele.csv have a central computational issue
 
@@ -28,13 +27,9 @@ make 3D option for all functions, with scale Z value max and min
 this will affect Geom,WriteGeomPLY/OFF
 
 make cartesian grid display option; convert polar to grid, display pentacam directly
+ might need centerpoint version for pentacam to incorporate center from Penta,as opposed to computed center average!
 
 plots with gnuplot splot are only has fixed scale for sagc?
-
-incorporate "warp/oblique power" and reading zernike and pupils from some files into readme/faq
-probably needs a whole section on corneal topography and "powers" with math definitions
-check formula for mean curvature and monge astigmatism and possibly make limit friendlier version with limit added on exponential 
-check in isis/m with mathematica; generate print friendly Latex export TexForm
 
 ability to turn stdoutput logging on/off
 change most writes to kernunos log writes
@@ -51,11 +46,6 @@ you can run other Analyze ie center gnusplotplot, lioc, and move the picture
 probably can run kernunos but not janus?
 consider adding sound to play after zernike compute, but might need option to turn off http://github.com/zserge/beep or get fancy with .ogg
 
-
-
-centerpoints need explaining, as in why are they non-zero in writecenterj 
-might need centerpoint version for pentacam to incorporate center from Penta,as opposed to computed center average!
-
 in assistant.cpp look at showDocumentation and substitute docs for this project in appropriate format
 might want to change Cmakelist.txt for the proper install directory for documentation/copy
 ie use qhelpgenerator kernunos.qhcp kernunos.qhc after making the appropriate changes, need also edit the html files and rewrite the qhp file in documentation
@@ -64,6 +54,13 @@ qhelpgenerator simpletextviewer.qhcp -o simpletextviewer.qhc
 qhelpgenerator simpletextviewer.qhp -o simpletextviewer.qch
 make html files with abricotine export
 move faq to help menu: notes from spline.odt into help/faq OR add docs in pdf to main release files after some edits
+mathematica formulae isis/m brodie/m to generate TeXForm for documentation
+centerpoints need explaining, as in why are they non-zero in writecenterj
+incorporate "warp/oblique power" and reading zernike and pupils from some files into readme/faq
+probably needs a whole section on corneal topography and "powers" with math definitions
+check formula for mean curvature and monge astigmatism and possibly make limit friendlier version with limit added on exponential 
+check in isis/m with mathematica; generate print friendly Latex export TexForm
+
 
 need a 2-D picture output other than gnuplot version
 make mathematica plot output, just like ply,off etc.
@@ -77,7 +74,8 @@ QFileDialog messages in kernunos.cpp are in an unnoticeable font at the top of t
 now that more is moved to gnuplot, consider resurrecting janus/wxWidgets version or even juno
 
 Adapt code in book to do LS-BICSA
-2-D splining
+2-D splining use sparse solver via superLU possible superLU-dist to use GPU
+?strumpack
 
 Optimizing:
 1)valgrind/profiling can also try helegrind for cyclic 4 way slow down

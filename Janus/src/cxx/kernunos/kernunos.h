@@ -139,6 +139,7 @@ private slots:
     void center();
     void rings();
     void gnuplotsplot();
+    void consistency();
     void fctAxial();
     void fctOblique();
     void fctTangential();
@@ -227,7 +228,9 @@ private:
     QAction *PerceptuallyUniformPaletteAct;
 
     QMenu *fileMenu;
+    QMenu *openMenu;
     QAction *openAct;
+    QAction *consistencyAct;
     QAction *compareAct;
     QAction *exitAct;
 
