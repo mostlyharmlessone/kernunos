@@ -329,33 +329,83 @@ void MainWindow::SetGLString(QString& gls)
    glstring_global=*m_GLString;
 }
 
+bool MainWindow::replace(std::string& str,const std::string& from,const std::string& to)
+{
+    size_t start_pos = str.find(from);
+    if(start_pos == std::string::npos) return false;
+    str.replace(start_pos,from.length(),to);
+    return true;
+}
+
 void MainWindow::open()   //multiple invocations makes a comparison
 {
    ui.infoLabel->setText(tr("Invoked <b>File|Open</b>"));
    flag=flag-(flag%100)+0;  // last two digits of flag=0; need to reset this
 // note that the Atlas CSV filter is non-specific and will include all CSV files
-   QString filter = "PentaCam (*.CUR *.ELE *_CUR.CSV *_ELE.CSV);;EyeSys (RA*.* XX*.*);;Atlas (*.CSV) ;; All (*)";
+   QString filter = "All (*) ;; PentaCam (*.CUR *.ELE *_CUR.CSV *_ELE.CSV);;EyeSys (RA*.* XX*.*);;Atlas (*.CSV)";
    QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
    if (fileName.isEmpty())
        return;
    QByteArray ba = fileName.toLocal8Bit();
    filename = ba.data();
    ui.infoLabel->setText(tr("filename:  ")+tr(filename));
-   if (!fileName.isEmpty())
-       m_GLwidget->DataLoad(fileName, true);
-   update();
    std::string str(filename);
    bool pentacam =  str.find(".CUR")!= std::string::npos || str.find(".ELE") != std::string::npos ||
-                    str.find("_CUR")!= std::string::npos || str.find("_ELE") != std::string::npos;
+                   str.find("_CUR")!= std::string::npos || str.find("_ELE") != std::string::npos;
+   if(GLwidget::isconsistency()){
+       if (pentacam) GLwidget::setconsistency(false);  //skip the first pentacam file comparison when checking consistency
+       if (!fileName.isEmpty()){
+           m_GLwidget->DataLoad(fileName, true);}
+       if (pentacam) GLwidget::setconsistency(true);
+   }else{
+    if (!fileName.isEmpty())
+           m_GLwidget->DataLoad(fileName, true);}
+   update();
    if (pentacam) {
+       if(GLwidget::isconsistency()){
+           std::string str2(filename);
+            QString fileName2 = QString::fromStdString(str2);
+             if(replace(str2,"_ELE.CSV","_CUR.CSV")) {
+               if(FILE *file = fopen(str2.c_str(),"r")) {
+                   fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
+                   fileName2 = QString::fromStdString(str2);
+                   if (!fileName2.isEmpty())
+                       m_GLwidget->DataLoad(fileName2, true);
+               }else{std::cout << "Matching file not found\n" <<std::endl;}
+             }else{
+             if(replace(str2,"_CUR.CSV","_ELE.CSV")) {
+                 if(FILE *file = fopen(str2.c_str(),"r")) {
+                   fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
+                   fileName2 = QString::fromStdString(str2);
+                   if (!fileName2.isEmpty())
+                       m_GLwidget->DataLoad(fileName2, true);
+                 }else{std::cout << "Matching file not found\n" <<std::endl;}
+             }}
+             if(replace(str2,".ELE",".CUR")) {
+                 if(FILE *file = fopen(str2.c_str(),"r")) {
+                   fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
+                   fileName2 = QString::fromStdString(str2);
+                   if (!fileName2.isEmpty())
+                       m_GLwidget->DataLoad(fileName2, true);
+                 }else{std::cout << "Matching file not found\n" <<std::endl;}
+             }else{
+             if(replace(str2,".CUR",".ELE")) {
+                 if(FILE *file = fopen(str2.c_str(),"r")) {
+                   fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
+                   fileName2 = QString::fromStdString(str2);
+                   if (!fileName2.isEmpty())
+                       m_GLwidget->DataLoad(fileName2, true);
+                 }else{std::cout << "Matching file not found\n" <<std::endl;}
+             }}
+       }
     centerAct->setEnabled(true);  //change to false to not allow for pentacam, center deviations only for Placido
     ringsAct->setEnabled(false);
    } else{
     centerAct->setEnabled(true);
     ringsAct->setEnabled(true);
    };
-   bool atlas = str.find(".CSV")!= std::string::npos;
-   if (atlas && !pentacam) {              //CSV but not _ELE.CSV and _CUR.CSV
+   bool atlas = str.find(".CSV")!= std::string::npos && !pentacam; //CSV but not _ELE.CSV and _CUR.CSV ->atlas
+   if (atlas) {
       ShowZernAct->setEnabled(true);
    } else{
       ShowZernAct->setEnabled(false);
@@ -392,8 +442,8 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
            centerAct->setEnabled(true);
            ringsAct->setEnabled(true);
        };
-       bool atlas = str.find(".CSV")!= std::string::npos;
-       if (atlas && !pentacam) {              //CSV but not _ELE.CSV and _CUR.CSV
+       bool atlas = str.find(".CSV")!= std::string::npos && !pentacam; //CSV but not _ELE.CSV and _CUR.CSV ->atlas
+       if (atlas) {
            ShowZernAct->setEnabled(true);
        } else{
            ShowZernAct->setEnabled(false);
@@ -2050,9 +2100,8 @@ void MainWindow::createActions()
 void MainWindow::createMenus()
 {
    fileMenu = menuBar()->addMenu(tr("&File"));
-   openMenu = fileMenu->addMenu(tr("&Open"));
-   openMenu->addAction(openAct);
-   openMenu->addAction(consistencyAct);
+   fileMenu->addAction(openAct);
+   fileMenu->addAction(consistencyAct);
    fileMenu->addAction(compareAct);
    exportMenu = fileMenu->addMenu(tr("&Export"));
    exportMenu->addAction(makeplyAct);

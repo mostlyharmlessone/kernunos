@@ -143,6 +143,16 @@ if (mod(flag,100) == 99) then
     return
 endif
 
+! allocate JMatrix needed for file import
+!  JMatrix is 180x22 to make importing from Atlas easier.
+!  M1,N1 avoid overwriting MM,N at this point
+   M1=180
+   N1=22
+if (.not.allocated(JMatrix%R)) then
+  write(*,*) 'allocating JMatrix'
+  call init_mat_JMatrix(M1,N1,JMatrix)
+endif
+
 if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3) then
 !  only need new file name if opening a file or printing, or compare for degree information and
 !  local save of inputfile1,inputfile2,logfile
@@ -638,59 +648,6 @@ if (mod(flag,100) == 0) then
     endif
  endif ! (mod(flag,100) == 0) parsing the file name,assigning TestData type and MM,N
 
-
-! allocate JMatrix needed for file import
-!  JMatrix is 180x22 to make importing from Atlas easier.
-!  M1,N1 avoid overwriting MM,N at this point
-   M1=180
-   N1=22
-   if (allocated(JMatrix%R)) then
-    write(*,*) 'JMatrix allocated'
-    if (allocated(JMatrix1%R)) then
-     write(*,*) 'JMatrix1 allocated'
-    else
-     write(*,*) 'allocating JMatrix1'
-     call init_mat_JMatrix(M1,N1,JMatrix1)
-    endif
-    if (allocated(JMatrix2%R)) then
-     write(*,*) 'JMatrix2 allocated'
-    else
-     write(*,*) 'allocating JMatrix2'
-     call init_mat_JMatrix(M1,N1,JMatrix2)
-    endif
-    if (mod(flag,100) /= 10) then
-     JMatrix1%R(:,:)=JMatrix%R(:,:)
-     JMatrix1%PU(:)=JMatrix%PU(:)
-     JMatrix1%Pupil_Center(:)=JMatrix%Pupil_Center(:)
-     JMatrix1%Z(:,:)=JMatrix%Z(:,:)     
-     JMatrix1%YPR(:,:)=JMatrix%YPR(:,:)
-     JMatrix1%YPTHETA(:,:)=JMatrix%YPTHETA(:,:)
-     JMatrix1%THT(:)=JMatrix%THT(:)
-     JMatrix1%SAGC(:,:)=JMatrix%SAGC(:,:)
-     JMatrix1%Warp(:,:)=JMatrix%Warp(:,:)
-     JMatrix1%INSTC(:,:)=JMatrix%INSTC(:,:)
-     JMatrix1%INSTC2(:,:)=JMatrix%INSTC2(:,:)
-     JMatrix1%MEANC(:,:)=JMatrix%MEANC(:,:)
-     JMatrix1%MONGEA(:,:)=JMatrix%MONGEA(:,:)
-     JMatrix1%RC(:,:)=JMatrix%RC(:,:)
-     JMatrix1%MV(:)=JMatrix%MV(:)
-     JMatrix1%R0=JMatrix%R0
-     JMatrix1%Z0(:)=JMatrix%Z0(:)
-     JMatrix1%THT0=JMatrix%THT0
-     JMatrix1%SAGC0(:)=JMatrix%SAGC0(:)
-     JMatrix1%Warp0(:)=JMatrix%Warp0(:)
-     JMatrix1%INSTC0(:)=JMatrix%INSTC0(:)
-     JMatrix1%INSTC20(:)=JMatrix%INSTC20(:)
-     JMatrix1%MEANC0(:)=JMatrix%MEANC0(:)
-     JMatrix1%MONGEA0(:)=JMatrix%MONGEA0(:)
-     JMatrix1%ZC0(:,:)=JMatrix%ZC0(:,:)
-     JMatrix1%ZC(:,:,:)=JMatrix%ZC(:,:,:)
-    endif
-  else
-     write(*,*) 'allocating JMatrix'
-     call init_mat_JMatrix(M1,N1,JMatrix)
-  endif
-
 if (TestData .eq. 0) then
  MM=360 ; N=16 ! EyeSys if file not read; should not be necessary as should agree with previous value.
  ! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
@@ -813,9 +770,9 @@ endif ! end (TestData == 1)
   endif
    read_error=0
    if (TestData .eq. 3 .or. TestData .eq. 5) then
-   call RCNVRTP(TestData,inputfile2,read_error)  !curvatures
+    call RCNVRTP(TestData,inputfile2,read_error)  !curvatures
    else
-   call RCNVRTP(TestData,inputfile1,read_error)  !elevations TestData .eq. 2 .or. TestData .eq. 4
+    call RCNVRTP(TestData,inputfile1,read_error)  !elevations TestData .eq. 2 .or. TestData .eq. 4
    endif
    if (read_error > 0) return
    ! pupil conversion, could do whole circular spline here
@@ -945,7 +902,7 @@ if (mod(flag,100) .ne. 9 ) then
   call MakeRadSplineCenter(dat)        ! generates spline centers with tweaks
   endif
 
- ! Atlas spline consistency check and computation of elevation by power vs elevation in file
+! Atlas spline consistency check and computation of elevation by power vs elevation in file
  if ( Testdata .eq. 1 .and. btest(dat,7) ) then
   k=0 ; powmax2 = 0 ; powmax =0  ! Use these temporarily
  ! find max elevation from Atlas file
@@ -1255,6 +1212,66 @@ if (mod(flag,100) .ne. 9 ) then
  if (JMatrix%MONGEA0(1) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA0(1)
  if (JMatrix%MONGEA0(1) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA0(1)
 ! end populating JMatrix
+
+! Penta file(s) consistency check ELE vs. matching CUR
+! simple difference/subtraction with compare for elevation consistency
+ if (TestData .ge. 2 .AND. TestData .le. 5 .and. btest(dat,7) .and. exists) then
+ k=0 ; powmax2 = 0 ; powmax =0  ! Use these temporarily
+! find max elevation from JMatrix
+  do i=1,M1
+   do j=1,RadSlope%MV(i)
+   if (JMatrix%Z(j,i) > powmax) powmax=JMatrix%Z(j,i)
+   end do
+  end do
+! cumulative addition of differences
+  do i=1,M1
+   do j=1,RadSlope%MV(i)
+    if (JMatrix%Z(j,i) > 0 .and. JMatrix1%Z(j,i) > 0) then
+     k=k+1
+     powmax2=powmax2+ABS(JMatrix1%Z(j,i)-JMatrix%Z(j,i))
+    endif
+   end do
+  end do
+  write(*,*) 'Penta avg abs elevation percent error : ',(100*powmax2/k)/powmax
+ endif
+
+
+ if (.not.allocated(JMatrix1%R)) then
+  write(*,*) 'allocating JMatrix1'
+  call init_mat_JMatrix(M1,N1,JMatrix1)
+ endif
+ if (.not.allocated(JMatrix2%R)) then
+  write(*,*) 'allocating JMatrix2'
+  call init_mat_JMatrix(M1,N1,JMatrix2)
+ endif
+ if (mod(flag,100) /= 10) then
+  JMatrix1%R(:,:)=JMatrix%R(:,:)
+  JMatrix1%PU(:)=JMatrix%PU(:)
+  JMatrix1%Pupil_Center(:)=JMatrix%Pupil_Center(:)
+  JMatrix1%Z(:,:)=JMatrix%Z(:,:)
+  JMatrix1%YPR(:,:)=JMatrix%YPR(:,:)
+  JMatrix1%YPTHETA(:,:)=JMatrix%YPTHETA(:,:)
+  JMatrix1%THT(:)=JMatrix%THT(:)
+  JMatrix1%SAGC(:,:)=JMatrix%SAGC(:,:)
+  JMatrix1%Warp(:,:)=JMatrix%Warp(:,:)
+  JMatrix1%INSTC(:,:)=JMatrix%INSTC(:,:)
+  JMatrix1%INSTC2(:,:)=JMatrix%INSTC2(:,:)
+  JMatrix1%MEANC(:,:)=JMatrix%MEANC(:,:)
+  JMatrix1%MONGEA(:,:)=JMatrix%MONGEA(:,:)
+  JMatrix1%RC(:,:)=JMatrix%RC(:,:)
+  JMatrix1%MV(:)=JMatrix%MV(:)
+  JMatrix1%R0=JMatrix%R0
+  JMatrix1%Z0(:)=JMatrix%Z0(:)
+  JMatrix1%THT0=JMatrix%THT0
+  JMatrix1%SAGC0(:)=JMatrix%SAGC0(:)
+  JMatrix1%Warp0(:)=JMatrix%Warp0(:)
+  JMatrix1%INSTC0(:)=JMatrix%INSTC0(:)
+  JMatrix1%INSTC20(:)=JMatrix%INSTC20(:)
+  JMatrix1%MEANC0(:)=JMatrix%MEANC0(:)
+  JMatrix1%MONGEA0(:)=JMatrix%MONGEA0(:)
+  JMatrix1%ZC0(:,:)=JMatrix%ZC0(:,:)
+  JMatrix1%ZC(:,:,:)=JMatrix%ZC(:,:,:)
+ endif
 
 endif !mod(flag,100) /= 9
 

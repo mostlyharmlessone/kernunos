@@ -9,7 +9,11 @@ resurrect old noise reduction code to help out mongeastig and meanc for real dat
 need lapack or open version of numrec fourn:  fftpack
 extreme value filter for scales
 
-btest(dat,7) to allow atlas spline consistency check; can also use for autocheck of pentacam
+btest(dat,7) can also use for autocheck of pentacam, autoload matching file, run compare with numerical summary
+
+
+
+
 
 ele/ele.csv have a central computational issue
 

@@ -114,6 +114,7 @@ protected:
     void closeEvent(QCloseEvent *event) override;
 
 private slots:
+    bool replace(std::string& str,const std::string& from,const std::string& to);
     void open();
     void showDocumentation();
     void addComments();
@@ -228,7 +229,6 @@ private:
     QAction *PerceptuallyUniformPaletteAct;
 
     QMenu *fileMenu;
-    QMenu *openMenu;
     QAction *openAct;
     QAction *consistencyAct;
     QAction *compareAct;
