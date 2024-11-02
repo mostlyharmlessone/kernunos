@@ -4,8 +4,6 @@ CorneaCopia
 
 pupilregister still broken
 
-adding materials magic color scheme or no color to binary stl choice with dialog
-
 compare is broken with zernike; also so is opening 2nd file with zernike selected and zernike needs extreme value filter
 resurrect old noise reduction code to help out mongeastig and meanc for real data?
 need lapack or open version of numrec fourn:  fftpack
