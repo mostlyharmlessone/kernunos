@@ -23,7 +23,7 @@ module c_interfaces
 END SUBROUTINE Janus
 
 ! call from c++ to fortran as extern "C" 
- subroutine ConvertOFFtoSTL_C(INAME,ONAME) bind(C,name='ConvertOFFtoSTL_C_')
+ subroutine ConvertOFFtoSTL_C(INAME,ONAME,deftype) bind(C,name='ConvertOFFtoSTL_C_')
 ! Reads OFF file created by WriteOFF and generates ASCII and binary STL files 
 ! modified to be called from C/C++
   use io_functions, only : get_new_fileunit
@@ -32,6 +32,7 @@ END SUBROUTINE Janus
   use, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
   implicit none
   character(c_char), INTENT(INOUT), DIMENSION(4096) :: INAME,ONAME
+  integer(c_int),INTENT(IN) :: deftype
 end subroutine ConvertOFFtoSTL_C
 
 ! call from fortran to c

@@ -427,7 +427,7 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
     endif
    end do !j to N1
   end do !i to M1
-  write(*,*) 'rmin from RadSlope_eq_Skyline',rmin
+!  write(*,*) 'rmin from RadSlope_eq_Skyline',rmin
 !  write(*,*) imv(:)
 ! trim down imv for r > rmin
   do i=1,M1
@@ -1145,6 +1145,34 @@ SELECT CASE (fct)
   powmin=b%SAGC0(2)
   powmax=b%SAGC0(3)
 END SELECT
+endif
+! always do Z to display the geometry
+if (iflag == 1) then ! iflag == 1 remake JMatrix (b) including center
+ do i=1,M1
+  do j=1,RadSlope%MV(i)
+    RadSlope%Zp(j,i)=b%Z(j,i)
+  end do
+ end do
+ DiaSlope=RadSlope              ! move to diagonal format
+ DiaSlope%Zpd2 = .n. DiaSlope
+ do i=1,M1
+  do j=1,b%MV(i)
+   if (btest(dat,0)) then
+    call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%Z(j,i))
+   else
+    call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%Z(j,i))
+   endif
+   if (b%Z(j,i) <= b%Z0(2)) b%Z0(2)=b%Z(j,i)
+   if (b%Z(j,i) >= b%Z0(3)) b%Z0(3)=b%Z(j,i)
+  end do
+ end do
+ if (btest(dat,0)) then
+  call SplineEval1Dx1D(10,b%R0,b%THT0,b%Z0(1))  ! center value
+ else
+  call SplineEval1Dx1D(0,b%R0,b%THT0,b%Z0(1))  ! center value
+ endif
+ if (b%Z0(1) <= b%Z0(2)) b%Z0(2)=b%Z0(1)
+ if (b%Z0(1) >= b%Z0(3)) b%Z0(3)=b%Z0(1)
 endif
 endsubroutine selectfunction
 

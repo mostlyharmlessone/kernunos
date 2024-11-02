@@ -65,7 +65,7 @@ void janus_(int *flag,char *filename,GLuint *elements,GLfloat *vertices,float *l
 
 // calling C code
 extern "C" {
-void ConvertOFFtoSTL_C_(char *iname, char *oname);
+void ConvertOFFtoSTL_C_(char *iname, char *oname,int *deftype);
 };
 
 extern "C" {

@@ -362,21 +362,36 @@ function rgb5(x,minimum, maximum) result(rgbv)
 end function rgb5
 
 ! Converts full RGB (256x256x256) to SolidView 15 bit color attr
-function rgb2attr(rgbv) result(attr)
+function rgb2attr(deftype,rgbv) result(attr)
+  use, INTRINSIC :: iso_c_binding, ONLY : c_int
   integer(kind=2), INTENT(IN) :: rgbv(3)  !=INT16
+  integer(c_int), INTENT(IN) :: deftype
   integer(INT16) :: attr
-  integer(INT8) :: red,green,blue 
+  integer(INT8) :: red,green,blue
+!    color compatible with VisCAM and SolidView definition
 !    bits 0 to 4 are the intensity level for blue (0 to 31),
 !    bits 5 to 9 are the intensity level for green (0 to 31),
 !    bits 10 to 14 are the intensity level for red (0 to 31),
 !    bit 15 is 1 if the color is valid, or 0 if the color is not valid (as with normal STL files).
 !    attr= b'0000001100000001'   ! 00000 01100 00000 1 == blue 0, green 12, red 0, valid
- ! attr=0 
+ if (deftype == 0) then
   red = int(rgbv(1)/8,kind=int2d)
   green = int(rgbv(2)/8,kind=int2d)
   blue =  int(rgbv(3)/8,kind=int2d)
   attr=int(blue + 32*green + 1024*red, kind=int3d) ! packs the bits according to the scheme above
   attr=ibset(attr,15) ! sets position 15 to 1
+  else
+!    color compatible with Materials Magic definition
+!    bits 0 to 4 are the intensity level for red (0 to 31),
+!    bits 5 to 9 are the intensity level for green (0 to 31),
+!    bits 10 to 14 are the intensity level for blue (0 to 31),
+!    bit 15 is 0 if the color is valid, or 1 if per ofbuect color is to be used
+  red = int(rgbv(1)/8,kind=int2d)
+  green = int(rgbv(2)/8,kind=int2d)
+  blue =  int(rgbv(3)/8,kind=int2d)
+  attr=int(red + 32*green + 1024*blue, kind=int3d) ! packs the bits according to the scheme above
+  attr=ibclr(attr,15) ! sets position 15 to 0
+  endif
 !  write(*,*) rgbv
 !  write(*,*) red,green,blue
 !  write(*,'(b8.8)') red
@@ -391,8 +406,8 @@ subroutine PolarTranslate(ctr_circle_x,ctr_circle_y,rlocal,tht_local,R_global,Th
     REAL (wp), INTENT (IN) ::  ctr_circle_x,ctr_circle_y,rlocal,tht_local
     REAL (wp), INTENT(OUT) :: R_global,Theta_global
     REAL (wp) :: X_global,Y_global
-    X_global=(ctr_circle_x-rlocal*cos(tht_local))
-    Y_global=(ctr_circle_y-rlocal*sin(tht_local))
+    X_global=(rlocal*cos(tht_local)-ctr_circle_x)
+    Y_global=(rlocal*sin(tht_local)-ctr_circle_y)
     R_global=sqrt(X_global*X_global+Y_global*Y_global)
     if (ABS(X_global) > EPS .AND. ABS(Y_global) > EPS) then
      if (X_global > 0 .AND. Y_global > 0 ) then
@@ -422,9 +437,6 @@ subroutine PolarTranslate(ctr_circle_x,ctr_circle_y,rlocal,tht_local,R_global,Th
        Theta_global=PI
       endif
      endif
-    endif
-    if (Theta_global .gt. PI) then
-     R_global = -R_global
     endif
 end subroutine PolarTranslate
 

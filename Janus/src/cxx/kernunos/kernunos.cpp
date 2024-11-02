@@ -472,6 +472,7 @@ void MainWindow::compare()
     msgBox.addButton(QMessageBox::Yes);
     msgBox.addButton(QMessageBox::No);
     msgBox.addButton(QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::No);
     int pupilvalue = 1;
 
     QSpacerItem *horizontalspacer = new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
@@ -504,7 +505,7 @@ void MainWindow::compare()
     flag=flag-(flag%100)+10;  // last two digits of flag=10
 
 //  for now set compare TO hsbrgb   
-    int map=(flag-(flag%100))/100%100 ;
+    int map=(flag-(flag%100))/100%100 ; //save the current selection
     GLwidget::setAllmapsfalse();
     GLwidget::sethsbrgb(true);
     checkmapsflags();
@@ -835,7 +836,8 @@ void MainWindow::off2stl()
    if (fileName.isEmpty())
       return;
    QByteArray ba = fileName.toLocal8Bit();
-   char *filenameout = ba.data();
+   char *filenameout1 = ba.data();
+      ui.infoLabel->setText(tr("selected  ")+tr(filenameout1));
    //make temporary OFF file
    /*  //without Qt
     std::string filenamelocal = std::tmpnam(nullptr);
@@ -853,7 +855,35 @@ void MainWindow::off2stl()
    flag=flag-(flag%100)+2;  // last two digits of flag=2;
    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});
    future1.get();
-   ConvertOFFtoSTL_C_(filename,filenameout);
+
+   std::string str(filenameout1);
+   bool binary = str.find(".bin.stl")!= std::string::npos;;
+//   std::cout << str << " " << binary << std::endl;   //filenameout1 still here
+
+   int deftype =0;
+   if(binary){
+       QMessageBox msgBox(QMessageBox::Question, tr("Binary STL color"),
+                          tr("Do you want VisCam/SolidView compatible color (Yes),Materials Magic compatible color (No) or no color (Cancel)"), { }, this);
+       msgBox.setInformativeText(tr("This choice does not affect ASCII STL, which never have color information" ));
+       msgBox.addButton(QMessageBox::Yes);
+       msgBox.addButton(QMessageBox::No);
+       msgBox.addButton(QMessageBox::Cancel);
+       msgBox.setDefaultButton(QMessageBox::Yes);
+       int reply = msgBox.exec();
+       if (reply == QMessageBox::Yes) {deftype=0;}
+       if (reply == QMessageBox::No) {deftype=1;}
+       if (reply == QMessageBox::Cancel) {deftype=2;}
+   }
+// had to do this because filenameout1 disappears when the above if(binary) stanza exists after defining ??!!
+   ba = fileName.toLocal8Bit();
+   char *filenameout = ba.data();
+
+//   std::string str2(filenameout);
+//   std::cout << str2 << " " << deftype << std::endl;
+//   std::string str3(filenameout1);
+//   std::cout << str3 << " " << deftype << std::endl; //filenameout1 gone, unless I define filenameout!
+
+   ConvertOFFtoSTL_C_(filename,filenameout,&deftype);
    ui.infoLabel->setText(tr("Wrote  ")+tr(filenameout));
    FILE.remove();    //doesnt do anything
 }

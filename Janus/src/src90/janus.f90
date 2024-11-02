@@ -45,8 +45,8 @@
 !  integer, allocatable :: IPIV(:)
   real(wp) :: ctr_circle_x, ctr_circle_y, R_global, Theta_global
 
-write(*,*) 'flag to Fortran:',flag
-write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
+!write(*,*) 'flag to Fortran:',flag
+!write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
 !! last two digits are the program function
 !! 99 = deallocate arrays for program closure
 !! 10 = compare
@@ -61,12 +61,12 @@ write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
 !! 1 = compute zernike coefficients/maps
 !! 0 = open a file, display
 dat=(flag-mod(flag,1000000))/1000000 ! first two digits
-write(*,*) 'dat to Fortran:',dat
-write(*,*) 'tweaks(dat) to Fortran:',btest(dat, 0),btest(dat, 1),btest(dat, 2),btest(dat, 3),btest(dat, 4)
+!write(*,*) 'dat to Fortran:',dat
+!write(*,*) 'tweaks(dat) to Fortran:',btest(dat, 0),btest(dat, 1),btest(dat, 2),btest(dat, 3),btest(dat, 4)
 fct=mod(((flag-mod(flag,10000))/10000),100) ! second two digits, color map functions
-write(*,*) 'fct to Fortran:',fct
+!write(*,*) 'fct to Fortran:',fct
 map=mod((flag-mod(flag,100))/100,100)  ! last two digits are tweaks
-write(*,*) 'color(map) to Fortran:',map
+!write(*,*) 'color(map) to Fortran:',map
 ! dat = first binary bit 0/1 centernode tweak ie btest(dat,0) = .true.
 ! dat = second binary bit 0/1 shift r-values tweak ie btest(dat,1) = .true.
 ! integration of slopes for elevation:
@@ -151,6 +151,46 @@ endif
 if (.not.allocated(JMatrix%R)) then
   write(*,*) 'allocating JMatrix'
   call init_mat_JMatrix(M1,N1,JMatrix)
+endif
+if (.not.allocated(JMatrix1%R)) then
+ write(*,*) 'allocating JMatrix1'
+ call init_mat_JMatrix(M1,N1,JMatrix1)
+endif
+if (.not.allocated(JMatrix2%R)) then
+ write(*,*) 'allocating JMatrix2'
+ call init_mat_JMatrix(M1,N1,JMatrix2)
+endif
+if (.not.allocated(JMatrix3%R)) then
+ write(*,*) 'allocating JMatrix3'
+ call init_mat_JMatrix(M1,N1,JMatrix3)
+endif
+if (mod(flag,100) /= 10) then
+ JMatrix1%R(:,:)=JMatrix%R(:,:)
+ JMatrix1%PU(:)=JMatrix%PU(:)
+ JMatrix1%Pupil_Center(:)=JMatrix%Pupil_Center(:)
+ JMatrix1%Z(:,:)=JMatrix%Z(:,:)
+ JMatrix1%YPR(:,:)=JMatrix%YPR(:,:)
+ JMatrix1%YPTHETA(:,:)=JMatrix%YPTHETA(:,:)
+ JMatrix1%THT(:)=JMatrix%THT(:)
+ JMatrix1%SAGC(:,:)=JMatrix%SAGC(:,:)
+ JMatrix1%Warp(:,:)=JMatrix%Warp(:,:)
+ JMatrix1%INSTC(:,:)=JMatrix%INSTC(:,:)
+ JMatrix1%INSTC2(:,:)=JMatrix%INSTC2(:,:)
+ JMatrix1%MEANC(:,:)=JMatrix%MEANC(:,:)
+ JMatrix1%MONGEA(:,:)=JMatrix%MONGEA(:,:)
+ JMatrix1%RC(:,:)=JMatrix%RC(:,:)
+ JMatrix1%MV(:)=JMatrix%MV(:)
+ JMatrix1%R0=JMatrix%R0
+ JMatrix1%Z0(:)=JMatrix%Z0(:)
+ JMatrix1%THT0=JMatrix%THT0
+ JMatrix1%SAGC0(:)=JMatrix%SAGC0(:)
+ JMatrix1%Warp0(:)=JMatrix%Warp0(:)
+ JMatrix1%INSTC0(:)=JMatrix%INSTC0(:)
+ JMatrix1%INSTC20(:)=JMatrix%INSTC20(:)
+ JMatrix1%MEANC0(:)=JMatrix%MEANC0(:)
+ JMatrix1%MONGEA0(:)=JMatrix%MONGEA0(:)
+ JMatrix1%ZC0(:,:)=JMatrix%ZC0(:,:)
+ JMatrix1%ZC(:,:,:)=JMatrix%ZC(:,:,:)
 endif
 
 if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3) then
@@ -388,62 +428,55 @@ if (mod(flag,100) == 10) then
 
 ! if no pupil registration and rotationdegrees is even, then there's a shortcut not requiring resplining
  if (btest(dat,6)) then
- ! make a copy of JMatrix prior to rewrite
- if (allocated(JMatrix3%R)) then
-  write(*,*) 'JMatrix3 allocated'
- else
-  write(*,*) 'allocating JMatrix3'
-  call init_mat_JMatrix(M1,N1,JMatrix3)
- endif
- JMatrix3=JMatrix
-  write(*,*) "compare with pupil: ", rotationdegrees, .not.btest(dat,6)
   ctr_circle_x=JMatrix1%Pupil_Center(1)-JMatrix%Pupil_Center(1)
   ctr_circle_y=JMatrix1%Pupil_Center(2)-JMatrix%Pupil_Center(2)
-!  decenter the rings
-  call PolarTranslate(ctr_circle_x,ctr_circle_y,0.0_wp,0.0_wp,JMatrix%R0,JMatrix%THT0)
+!  decenter: these are not circless, ?as they are circles around the new center expressed in the original polar coordinate system
+  write(*,*) 'Decentering by',ctr_circle_x,ctr_circle_y
+  call PolarTranslate(ctr_circle_x,ctr_circle_y,0.0_wp,0.0_wp,JMatrix3%R0,JMatrix3%THT0)
   do i=1,M1
    do j=1,JMatrix%MV(i)
-    call PolarTranslate(ctr_circle_x, ctr_circle_y,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%R(j,i),JMatrix%THT(i))
+    call PolarTranslate(ctr_circle_x, ctr_circle_y,JMatrix%R(j,i),JMatrix%THT(i),JMatrix3%R(j,i),JMatrix3%THT(i))
    end do
   end do
  ! generate new JMatrix
-  call selectfunction(1,JMatrix,flag,powctr,powmin,powmax)
+  call selectfunction(1,JMatrix3,flag,powctr,powmin,powmax)
+ else
+  JMatrix3=JMatrix
  endif
- ! now rotate
  rotationdegrees=mod(270-rotationdegrees/2,180) ! makes 180 no rotation without risk of negative indices, odd rotationdegrees get floor
  if (rotationdegrees .ne. 0) then
   do i=1,M1
    j = mod(i + rotationdegrees,180)
    if (j .eq. 0) j = 180
    JMatrix2%MV(i)=min(JMatrix%MV(j),JMatrix1%MV(i))
-   JMatrix2%Z(:,i)=ABS(JMatrix1%Z(:,i)-JMatrix%Z(:,j))
-   JMatrix2%SAGC(:,i)=ABS(JMatrix1%SAGC(:,i)-JMatrix%SAGC(:,j))
-   JMatrix2%Warp(:,i)=ABS(JMatrix1%Warp(:,i)-JMatrix%Warp(:,j))
-   JMatrix2%INSTC(:,i)=ABS(JMatrix1%INSTC(:,i)-JMatrix%INSTC(:,j))
-   JMatrix2%INSTC2(:,i)=ABS(JMatrix1%INSTC2(:,i)-JMatrix%INSTC2(:,j))
-   JMatrix2%MEANC(:,i)=ABS(JMatrix1%MEANC(:,i)-JMatrix%MEANC(:,j))
-   JMatrix2%MONGEA(:,i)=ABS(JMatrix1%MONGEA(:,i)-JMatrix%MONGEA(:,j))
-   JMatrix2%ZC(:,i,:)=ABS(JMatrix1%ZC(:,i,:)-JMatrix%ZC(:,j,:))
+   JMatrix2%Z(:,i)=ABS(JMatrix1%Z(:,i)-JMatrix3%Z(:,j))
+   JMatrix2%SAGC(:,i)=ABS(JMatrix1%SAGC(:,i)-JMatrix3%SAGC(:,j))
+   JMatrix2%Warp(:,i)=ABS(JMatrix1%Warp(:,i)-JMatrix3%Warp(:,j))
+   JMatrix2%INSTC(:,i)=ABS(JMatrix1%INSTC(:,i)-JMatrix3%INSTC(:,j))
+   JMatrix2%INSTC2(:,i)=ABS(JMatrix1%INSTC2(:,i)-JMatrix3%INSTC2(:,j))
+   JMatrix2%MEANC(:,i)=ABS(JMatrix1%MEANC(:,i)-JMatrix3%MEANC(:,j))
+   JMatrix2%MONGEA(:,i)=ABS(JMatrix1%MONGEA(:,i)-JMatrix3%MONGEA(:,j))
+   JMatrix2%ZC(:,i,:)=ABS(JMatrix1%ZC(:,i,:)-JMatrix3%ZC(:,j,:))
   end do
  else
   JMatrix2%MV(:)=min(JMatrix%MV(:),JMatrix1%MV(:))
-  JMatrix2%Z(:,:)=ABS(JMatrix1%Z(:,:)-JMatrix%Z(:,:))
-  JMatrix2%SAGC(:,:)=ABS(JMatrix1%SAGC(:,:)-JMatrix%SAGC(:,:))
-  JMatrix2%Warp(:,:)=ABS(JMatrix1%Warp(:,:)-JMatrix%Warp(:,:))
-  JMatrix2%INSTC(:,:)=ABS(JMatrix1%INSTC(:,:)-JMatrix%INSTC(:,:))
-  JMatrix2%INSTC2(:,:)=ABS(JMatrix1%INSTC2(:,:)-JMatrix%INSTC2(:,:))
-  JMatrix2%MEANC(:,:)=ABS(JMatrix1%MEANC(:,:)-JMatrix%MEANC(:,:))
-  JMatrix2%MONGEA(:,:)=ABS(JMatrix1%MONGEA(:,:)-JMatrix%MONGEA(:,:))
+  JMatrix2%Z(:,:)=ABS(JMatrix1%Z(:,:)-JMatrix3%Z(:,:))
+  JMatrix2%SAGC(:,:)=ABS(JMatrix1%SAGC(:,:)-JMatrix3%SAGC(:,:))
+  JMatrix2%Warp(:,:)=ABS(JMatrix1%Warp(:,:)-JMatrix3%Warp(:,:))
+  JMatrix2%INSTC(:,:)=ABS(JMatrix1%INSTC(:,:)-JMatrix3%INSTC(:,:))
+  JMatrix2%INSTC2(:,:)=ABS(JMatrix1%INSTC2(:,:)-JMatrix3%INSTC2(:,:))
+  JMatrix2%MEANC(:,:)=ABS(JMatrix1%MEANC(:,:)-JMatrix3%MEANC(:,:))
+  JMatrix2%MONGEA(:,:)=ABS(JMatrix1%MONGEA(:,:)-JMatrix3%MONGEA(:,:))
  endif
- JMatrix2%SAGC0(:)=ABS(JMatrix1%SAGC0(:)-JMatrix%SAGC0(:))
- JMatrix2%Z0(:)=ABS(JMatrix1%Z0(:)-JMatrix%Z0(:))
- JMatrix2%Warp0(:)=ABS(JMatrix1%Warp0(:)-JMatrix%Warp0(:))
- JMatrix2%INSTC0(:)=ABS(JMatrix1%INSTC0(:)-JMatrix%INSTC0(:))
- JMatrix2%INSTC20(:)=ABS(JMatrix1%INSTC20(:)-JMatrix%INSTC20(:))
- JMatrix2%MEANC0(:)=ABS(JMatrix1%MEANC0(:)-JMatrix%MEANC0(:))
- JMatrix2%MONGEA0(:)=ABS(JMatrix1%MONGEA0(:)-JMatrix%MONGEA0(:))
- JMatrix2%ZC(:,:,:)=ABS(JMatrix1%ZC(:,:,:)-JMatrix%ZC(:,:,:))
- JMatrix2%ZC0(:,:)=ABS(JMatrix1%ZC0(:,:)-JMatrix%ZC0(:,:))
+ JMatrix2%SAGC0(:)=ABS(JMatrix1%SAGC0(:)-JMatrix3%SAGC0(:))
+ JMatrix2%Z0(:)=ABS(JMatrix1%Z0(:)-JMatrix3%Z0(:))
+ JMatrix2%Warp0(:)=ABS(JMatrix1%Warp0(:)-JMatrix3%Warp0(:))
+ JMatrix2%INSTC0(:)=ABS(JMatrix1%INSTC0(:)-JMatrix3%INSTC0(:))
+ JMatrix2%INSTC20(:)=ABS(JMatrix1%INSTC20(:)-JMatrix3%INSTC20(:))
+ JMatrix2%MEANC0(:)=ABS(JMatrix1%MEANC0(:)-JMatrix3%MEANC0(:))
+ JMatrix2%MONGEA0(:)=ABS(JMatrix1%MONGEA0(:)-JMatrix3%MONGEA0(:))
+ JMatrix2%ZC(:,:,:)=ABS(JMatrix1%ZC(:,:,:)-JMatrix3%ZC(:,:,:))
+ JMatrix2%ZC0(:,:)=ABS(JMatrix1%ZC0(:,:)-JMatrix3%ZC0(:,:))
 ! have to re-do min/max
  JMatrix2%SAGC0(2)=1E30   ;  JMatrix2%SAGC0(3)=-1E30
  JMatrix2%Warp0(2)=1E30   ;  JMatrix2%Warp0(3)=-1E30
@@ -497,16 +530,13 @@ end do
   donut = .FALSE.
   elements(1:nE) = 0
   vertices(1:nV) = 0
-! try showing new JMatrix instead of comparison JMatrix2
+! try showing new JMatrix3 instead of comparison JMatrix2
 
-  call selectfunction(0,JMatrix,flag,powctr,powmin,powmax)
-  call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
+  call selectfunction(0,JMatrix3,flag,powctr,powmin,powmax)
+  call Geom(flag, JMatrix3, donut, powmin, powmax, elements, vertices, nV, nE)
   call makelegend(flag, powmin, powmax, legend, nL)
-  if (btest(dat,6)) then
-!  restore JMatrix
-   JMatrix=JMatrix3
-  endif
- return
+
+  return
  else
   write(*,*) "Needs two scans for compare"
   return
@@ -980,7 +1010,7 @@ if (mod(flag,100) .ne. 9 ) then
     JMatrix%YPTHETA(j,i)=YPTHETA
 !  powers
     call AXIALP(JMatrix%R(j,i),ABS(YPR),YP2R2,JMatrix%SAGC(j,i))
-    call AXIALP(JMatrix%R(j,i),YPTHETA/abs(JMatrix%R(j,i)),YP2THETA/abs(JMatrix%R(j,i)),JMatrix%Warp(j,i))
+    call AXIALP(JMatrix%R(j,i),YPTHETA/JMatrix%R(j,i),YP2THETA/JMatrix%R(j,i),JMatrix%Warp(j,i))
     call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i),JMatrix%INSTC2(j,i))
     call MEANP(JMatrix%THT(i),JMatrix%R(j,i),ABS(YPR),YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
     call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),ABS(YPR),YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
@@ -1234,45 +1264,6 @@ if (mod(flag,100) .ne. 9 ) then
   end do
   write(*,*) 'Penta avg abs elevation percent error : ',(100*powmax2/k)/powmax
  endif
-
-
- if (.not.allocated(JMatrix1%R)) then
-  write(*,*) 'allocating JMatrix1'
-  call init_mat_JMatrix(M1,N1,JMatrix1)
- endif
- if (.not.allocated(JMatrix2%R)) then
-  write(*,*) 'allocating JMatrix2'
-  call init_mat_JMatrix(M1,N1,JMatrix2)
- endif
- if (mod(flag,100) /= 10) then
-  JMatrix1%R(:,:)=JMatrix%R(:,:)
-  JMatrix1%PU(:)=JMatrix%PU(:)
-  JMatrix1%Pupil_Center(:)=JMatrix%Pupil_Center(:)
-  JMatrix1%Z(:,:)=JMatrix%Z(:,:)
-  JMatrix1%YPR(:,:)=JMatrix%YPR(:,:)
-  JMatrix1%YPTHETA(:,:)=JMatrix%YPTHETA(:,:)
-  JMatrix1%THT(:)=JMatrix%THT(:)
-  JMatrix1%SAGC(:,:)=JMatrix%SAGC(:,:)
-  JMatrix1%Warp(:,:)=JMatrix%Warp(:,:)
-  JMatrix1%INSTC(:,:)=JMatrix%INSTC(:,:)
-  JMatrix1%INSTC2(:,:)=JMatrix%INSTC2(:,:)
-  JMatrix1%MEANC(:,:)=JMatrix%MEANC(:,:)
-  JMatrix1%MONGEA(:,:)=JMatrix%MONGEA(:,:)
-  JMatrix1%RC(:,:)=JMatrix%RC(:,:)
-  JMatrix1%MV(:)=JMatrix%MV(:)
-  JMatrix1%R0=JMatrix%R0
-  JMatrix1%Z0(:)=JMatrix%Z0(:)
-  JMatrix1%THT0=JMatrix%THT0
-  JMatrix1%SAGC0(:)=JMatrix%SAGC0(:)
-  JMatrix1%Warp0(:)=JMatrix%Warp0(:)
-  JMatrix1%INSTC0(:)=JMatrix%INSTC0(:)
-  JMatrix1%INSTC20(:)=JMatrix%INSTC20(:)
-  JMatrix1%MEANC0(:)=JMatrix%MEANC0(:)
-  JMatrix1%MONGEA0(:)=JMatrix%MONGEA0(:)
-  JMatrix1%ZC0(:,:)=JMatrix%ZC0(:,:)
-  JMatrix1%ZC(:,:,:)=JMatrix%ZC(:,:,:)
- endif
-
 endif !mod(flag,100) /= 9
 
 !zernike coefficents
