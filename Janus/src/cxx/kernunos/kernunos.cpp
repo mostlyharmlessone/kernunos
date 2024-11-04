@@ -329,6 +329,7 @@ void MainWindow::SetGLString(QString& gls)
    glstring_global=*m_GLString;
 }
 
+//https://stackoverflow.com/questions/3418231/replace-part-of-a-string-with-another-string
 bool MainWindow::replace(std::string& str,const std::string& from,const std::string& to)
 {
     size_t start_pos = str.find(from);
@@ -510,6 +511,7 @@ void MainWindow::compare()
     GLwidget::sethsbrgb(true);
     checkmapsflags();
 
+//  pupil register is sent through changing dat
     if (compareDialogOptionsWidget->value()){GLwidget::setpupilregister(true);}
     else {GLwidget::setpupilregister(false);}
 

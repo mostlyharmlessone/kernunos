@@ -63,10 +63,11 @@ void janus_(int *flag,char *filename,GLuint *elements,GLfloat *vertices,float *l
 // needs an underscore despite c_interface.f90 bind C declaration
 };
 
-// calling C code
 extern "C" {
 void ConvertOFFtoSTL_C_(char *iname, char *oname,int *deftype);
 };
+
+// calling C code
 
 extern "C" {
 int ConvertPLYtoBIN(const char *iname, const char *oname);

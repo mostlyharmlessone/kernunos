@@ -361,13 +361,16 @@ function rgb5(x,minimum, maximum) result(rgbv)
    
 end function rgb5
 
-! Converts full RGB (256x256x256) to SolidView 15 bit color attr
+! Converts full RGB (256x256x256) to VisCAM/SolidView or Materials Magic 15 bit color attr or no color
 function rgb2attr(deftype,rgbv) result(attr)
   use, INTRINSIC :: iso_c_binding, ONLY : c_int
   integer(kind=2), INTENT(IN) :: rgbv(3)  !=INT16
   integer(c_int), INTENT(IN) :: deftype
   integer(INT16) :: attr
   integer(INT8) :: red,green,blue
+  red = int(rgbv(1)/8,kind=int2d)
+  green = int(rgbv(2)/8,kind=int2d)
+  blue =  int(rgbv(3)/8,kind=int2d)
 !    color compatible with VisCAM and SolidView definition
 !    bits 0 to 4 are the intensity level for blue (0 to 31),
 !    bits 5 to 9 are the intensity level for green (0 to 31),
@@ -375,23 +378,21 @@ function rgb2attr(deftype,rgbv) result(attr)
 !    bit 15 is 1 if the color is valid, or 0 if the color is not valid (as with normal STL files).
 !    attr= b'0000001100000001'   ! 00000 01100 00000 1 == blue 0, green 12, red 0, valid
  if (deftype == 0) then
-  red = int(rgbv(1)/8,kind=int2d)
-  green = int(rgbv(2)/8,kind=int2d)
-  blue =  int(rgbv(3)/8,kind=int2d)
   attr=int(blue + 32*green + 1024*red, kind=int3d) ! packs the bits according to the scheme above
   attr=ibset(attr,15) ! sets position 15 to 1
-  else
+ endif
+ if (deftype == 1) then
 !    color compatible with Materials Magic definition
 !    bits 0 to 4 are the intensity level for red (0 to 31),
 !    bits 5 to 9 are the intensity level for green (0 to 31),
 !    bits 10 to 14 are the intensity level for blue (0 to 31),
-!    bit 15 is 0 if the color is valid, or 1 if per ofbuect color is to be used
-  red = int(rgbv(1)/8,kind=int2d)
-  green = int(rgbv(2)/8,kind=int2d)
-  blue =  int(rgbv(3)/8,kind=int2d)
+!    bit 15 is 0 if the color is valid, or 1 if per object color is to be used
   attr=int(red + 32*green + 1024*blue, kind=int3d) ! packs the bits according to the scheme above
   attr=ibclr(attr,15) ! sets position 15 to 0
   endif
+ if (deftype /= 1 .and. deftype /=0) then
+  attr=0
+ endif
 !  write(*,*) rgbv
 !  write(*,*) red,green,blue
 !  write(*,'(b8.8)') red

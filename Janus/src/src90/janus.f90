@@ -149,19 +149,15 @@ endif
    M1=180
    N1=22
 if (.not.allocated(JMatrix%R)) then
-  write(*,*) 'allocating JMatrix'
   call init_mat_JMatrix(M1,N1,JMatrix)
 endif
 if (.not.allocated(JMatrix1%R)) then
- write(*,*) 'allocating JMatrix1'
  call init_mat_JMatrix(M1,N1,JMatrix1)
 endif
 if (.not.allocated(JMatrix2%R)) then
- write(*,*) 'allocating JMatrix2'
  call init_mat_JMatrix(M1,N1,JMatrix2)
 endif
 if (.not.allocated(JMatrix3%R)) then
- write(*,*) 'allocating JMatrix3'
  call init_mat_JMatrix(M1,N1,JMatrix3)
 endif
 if (mod(flag,100) /= 10) then
