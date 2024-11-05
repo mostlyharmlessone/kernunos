@@ -44,6 +44,7 @@ you can run other Analyze ie center gnusplotplot, lioc, and move the picture
 probably can run kernunos but not janus?
 consider adding sound to play after zernike compute, but might need option to turn off http://github.com/zserge/beep or get fancy with .ogg
 
+might need to import olb brodiemanuscripts for background of monge patch, principal curvature
 in assistant.cpp look at showDocumentation and substitute docs for this project in appropriate format
 might want to change Cmakelist.txt for the proper install directory for documentation/copy
 ie use qhelpgenerator kernunos.qhcp kernunos.qhc after making the appropriate changes, need also edit the html files and rewrite the qhp file in documentation
@@ -51,13 +52,13 @@ have to regenerate in directory as dir info is coded in sql files, also make sur
 qhelpgenerator simpletextviewer.qhcp -o simpletextviewer.qhc
 qhelpgenerator simpletextviewer.qhp -o simpletextviewer.qch
 make html files with abricotine export
-move faq to help menu: notes from spline.odt into help/faq OR add docs in pdf to main release files after some edits
-mathematica formulae isis/m brodie/m to generate TeXForm for documentation
+move faq to help menu: 
 centerpoints need explaining, as in why are they non-zero in writecenterj
 incorporate "warp/oblique power" and reading zernike and pupils from some files into readme/faq
-probably needs a whole section on corneal topography and "powers" with math definitions
+Needs a whole section on corneal topography and "powers" with math definitions
+notes from spline_monge.odt into help/faq OR add docs in pdf to main release files
+incorporate cornea docs from BRODIE, may need to read those old DRW and WP files somehow
 check formula for mean curvature and monge astigmatism and possibly make limit friendlier version with limit added on exponential 
-check in isis/m with mathematica; generate print friendly Latex export TexForm
 
 
 need a 2-D picture output other than gnuplot version
