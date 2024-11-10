@@ -674,9 +674,11 @@ function splinefillin(b) result(a)
  allocate (spline%r(M1),spline%z(M1),spline%zp2(M1),spline%mvjr(N1))
  associate (t=>spline%r,z=>spline%z,zt2=>spline%zp2,mvjr=>spline%mvjr)
   mvjr=0
+  do j=1,M1
+   tht(j)=PI*(j-1)/90.0_wp  ! every 2 degrees
+  end do
   do i=1,N1
      do j=1,M1
-     tht(j)=PI*(j-1)/90.0_wp  ! every 2 degrees
        Q=b(j,i)
         if (ABS(Q) > 0.) then ! ABS is optional for AR or AP
          mvjr(i)=mvjr(i)+1
@@ -717,10 +719,12 @@ function splinefillintranspose(b) result(a)
  a=0 ; tht=0  !initialize else the damn thing will fill with NaN
  allocate (spline%r(M1),spline%z(M1),spline%zp2(M1),spline%mvjr(N1))
  associate (t=>spline%r,z=>spline%z,zt2=>spline%zp2,mvjr=>spline%mvjr)
+  do j=1,M1
+   tht(j)=PI*(j-1)/90.0_wp  ! every 2 degrees
+  end do
   mvjr=0
   do i=1,N1
      do j=1,M1
-     tht(j)=PI*(j-1)/90.0_wp  ! every 2 degrees
        Q=b(i,j)
         if (ABS(Q) > 0.) then ! ABS is optional for AR or AP
          mvjr(i)=mvjr(i)+1
@@ -752,95 +756,36 @@ end function splinefillintranspose
 ! not sure if this is safe with too few points or zero points in a ring
 function lsqfillin(b) result(a)
  real(wp),INTENT(IN) :: b(:,:)
- integer :: M1,N1,i,j,k,info,ipvt(M2)
+ integer :: M1,N1,i,j,k
  real(wp) :: a(size(b,1),size(b,2)),t(size(b,1)),z(size(b,1))
- real(wp) :: c(M2),X(M2,size(b,1)),zpX(M2),XTX(M2,M2)
+ real(wp) :: c(M2)
  logical :: Q
-! real (wp) res(size(b,1)),respres,sumr2,zpz
  N1=size(b,2) !N1=N
  M1=size(b,1) !M1=MM
  a=0  !initialize else the damn thing will fill with NaN
  z=0
  t=0
  do i=1,N1
-  zpX=0 
-  c=0  
-! X is cosine terms of fourier, t are angles, Z are radii for current ring
   do j=1,M2
    do k=1,M1
     Q=ABS(b(k,i)) > 0
     if (Q) then ! means it is  =/ 0
-     t(k)=PI*(k-1)/90.0_wp  ! every 2 degrees
      z(k)=b(k,i)
-     X(j,k)=cos((j-1)*t(k))    ! cosine series including 0 term
+     t(k)=PI*(k-1)/90.0_wp  ! every 2 degrees
     endif
    end do 
   end do
-  XTX=matmul(X,Transpose(X))
-  zpX=matmul(X,z)
-! get solution fit coefficients c to XTX.c=z.X
-  c=0
-!  call GaussJordan(M2, 1, XTX, M2, zpX, M2, INFO )
-!  or
-!  call DGESV(M2, 1, XTX, M2, ipvt, zpX, M2, INFO )
-!  or
-!  LWORK1 = min(M1,M2) + max( min(M1,M2), 1 )
-!  allocate (WORK1(LWORK1))! WORK is dimension LWORK
-!  call DGELS( 'T', M2, M1, 1, X, M2, z , M1, WORK1, LWORK1, INFO ) ! overwrites z (only to M2)
-!  or
-! The lapack insertion below from Hanson & Hopkins chapter 2: exampleLapack90.f90
-  call dgetrf(M2,M2,XTX,M2,ipvt,info)
-! Check that the Lapack routine has been successful
-  if (info<0) then
-   WRITE (*,'(''Argument '',i3,'' has an illegal value'')') - info
-  ELSE IF (info>0) THEN
-   WRITE (*,'(''Zero diagonal value detected in upper ''// &
-    &                       ''triangular factor at position &
-    &'',i7)') info
-  ELSE
-  call dgetrs('N',M2,1,XTX,M2,ipvt,zpX,M2,info)
-! Check that the Lapack routine has been successful
-  IF (info<0) THEN
-   WRITE (*,'(''Argument '',i3,'' has an illegal value'')') - info
-  END IF
-  end if
-!deallocate(WORK1)
-  c=zpX
+  call lsqfill(t,z,M1,M2,c)
 ! generate lsq fillin values
   do k=1,M1
     Q=ABS(b(k,i)) > 0
+Q = .false.  ! do all
     if (Q) then ! means it is  =/ 0
      a(k,i)=b(k,i)   ! retain old values where they exist
     else
-     do j=1,M2
-      a(k,i)=a(k,i)+c(j)*cos((j-1)*PI*(k-1)/90.0_wp) ! just replace missing values
-     end do 
-    endif    
+    call LSQEval(M2,c,t(k),a(k,i))
+    endif
   end do
-! quality of fit if not only replacing missing values as immediately above
-!  res=0
-!  respres=0
-!  zpz=0
-!   do k=1,M1  
-!    Q=ABS(b(k,i)) > 0
-!    if (Q) then ! means it is  =/ 0 
-!     res(k)=z(k)-a(k,i)
-!     respres=respres+res(k)*res(k)
-!     zpz=zpz+z(k)*z(k)
-!    endif
-!   end do
-!  sumr2=respres/zpz  
-!   if (i == 18) then 
-!   do k=1,M1
-!    Q=ABS(b(k,i)) > 0
-!    if (Q) then ! means it is  =/ 0 
-!     write(*,*) a(k,i)*cos(t(k)),a(k,i)*sin(t(k)),z(k)*cos(t(k)),z(k)*sin(t(k))
-!    else
-!     write(*,*) a(k,i)*cos(t(k)),a(k,i)*sin(t(k))
-!    endif
-!   end do
-!   endif     
-!   write(*,*) i,sumr2,c           	 	
  end do   
 end function lsqfillin
 
@@ -960,19 +905,10 @@ subroutine AXIALP(X2,Y1X,Y2X,SAGC)
 end subroutine AXIALP
 
 ! instantaneous "tangential" power using slope/derivatives with and without use of calculated angular derivatives
-subroutine instantp(X2,Y1X,Y1T,Y2X,TANC,ZNMEX)
+subroutine instantp(X2,Y1X,Y1T,Y2X,TANC)
  real(wp), INTENT(IN) :: X2,Y1X,Y1T,Y2X
- real(wp), INTENT(OUT) :: TANC,ZNMEX
+ real(wp), INTENT(OUT) :: TANC
  TANC=RFCT*Y2X/(SQRT(1+(Y1X)**2)**3)
-! UNDEFINED AT ORIGIN X2=0, LIMIT IS RFCT*Y2X ALSO TANC BECAUSE Y1X = 0 at ORIGIN X2=0 
- if (ABS(X2) < EPS) then
-   ZNMEX=TANC    
- else
-   ZNMEX=RFCT*Y2X/((1+Y1X**2)*SQRT(1+(Y1T/X2)**2+Y1X**2))
-   If (ABS(ZNMEX) < 1) then
-!    write(*,*) 'Warning ABS(ZNMEX)<1 instantp:X2,Y1X,Y1T,Y2X,TANC,ZNMEX',X2,Y1X,Y1T,Y2X,TANC,ZNMEX
-   endif 
- endif
 end subroutine instantp 
 
 ! mean power of slope/derivatives with use of calculated angular derivatives
@@ -1021,8 +957,8 @@ subroutine mongea(X1,X2,Y1XIN,Y1T,Y1XT,Y2T,Y2X,ZA)
        ZA1=((Y1T**2+Y**2+(Y1X*Y)**2)**3)*ZA1
        ZA2=((Y1T**2+Y**2+(Y1X*Y)**2)**4)*&
             (Y1T**2-2*Y1XT*Y1T*Y+(Y1XT*Y)**2-Y2X*Y2T*Y**2-Y1X*Y2X*Y**3)
-       ZA=ABS(ZA1+4*ZA2)**(-1/2.)
-       ZA=-log(RFCT*ZA/2.)
+       ZA=ABS(ZA1+4*ZA2)**(1/2.)
+       ZA=RFCT*ZA/2.
      else
        Y=-X2
        Y1X=-Y1XIN
@@ -1031,14 +967,66 @@ subroutine mongea(X1,X2,Y1XIN,Y1T,Y1XT,Y2T,Y2X,ZA)
        ZA1=((Y1T**2+Y**2+(Y1X*Y)**2)**3)*ZA1
        ZA2=((Y1T**2+Y**2+(Y1X*Y)**2)**4)*&
             (Y1T**2-2*Y1XT*Y1T*Y+(Y1XT*Y)**2-Y2X*Y2T*Y**2-Y1X*Y2X*Y**3)
-       ZA=ABS(ZA1+4*ZA2)**(-1/2.)
-       ZA=-log(RFCT*ZA/2.)
+       ZA=ABS(ZA1+4*ZA2)**(1/2.)
+       ZA=RFCT*ZA/2.
      endif
      else
 !    UNDEFINED AT ORIGIN X2=0          
        ZA=1E30_wp  
      endif
 end subroutine mongea
+
+! principal curvature calculations
+subroutine principal(t,r,hr,ht,hrt,htt,hrr,K,H,k1,k2,A)
+  real(wp), INTENT(INOUT) :: t,r,hr,ht,hrt,htt,hrr
+  real(wp), INTENT(OUT) :: K,H,k1,k2,A
+  real(wp) :: hu,hv,huu,hvv,huv,g
+   r=abs(r) ; hr=abs(hr)
+   if (ABS(r) > EPS) then
+!   cartesian conversion
+    hu = hr*cos(t)-sin(t)*ht/r
+    hv = hr*sin(t)+cos(t)*ht/r
+    huu=hrr-(sin(t)**2)*(hrr-hr/r-htt/(r**2))+2*cos(t)*sin(t)*(ht/(r**2)-hrt/r)
+    hvv=hrr-(cos(t)**2)*(hrr-hr/r-htt/(r**2))-2*cos(t)*sin(t)*(ht/(r**2)-hrt/r)
+    huv=cos(t)*sin(t)*(hrr-hr/r-htt/(r**2))+(sin(t)**2-cos(t)**2)*(ht/(r**2)-hrt/r)
+    g = 1 + hr**2 + (ht/r)**2
+    K=(huu*hvv-huv*huv)/(g*g)
+    H=((1+hv**2)*huu-2*hu*hv*huv+(1+hu**2)*hvv)/(2*(sqrt(g)**3))
+    if (H**2-K < 0) write(*,*) 'error in principal'
+     k1=H-sqrt(abs(H**2-K))
+     k2=H+sqrt(abs(H**2-K))
+     A=2*sqrt(abs(H**2-K))
+   else
+!   AT ORIGIN r = 0, things get weird at the limit
+    if ( ABS(ht) > EPS ) then  ! but really it depends on ht/r and htt/r^2
+     K=(htt/ht)**2
+    else ! axisymmetric answer
+     K=hrr*hrr
+    endif
+    H=hrr
+    k1=hrr
+    k2=hrr
+    A=0
+   endif
+end subroutine principal
+
+
+! axisymmetric_principal curvature calculations
+subroutine axisymmetric_principal(r,hr,hrr,K,H,k1,k2,A)
+  real(wp), INTENT(INOUT) :: r,hr,hrr
+  real(wp), INTENT(OUT) :: K,H,k1,k2,A
+    k1 = hrr/(SQRT(1+(hr)**2)**3)
+   if (ABS(r) < eps) then
+!   UNDEFINED AT ORIGIN X2=0, LIMIT IS RFCT*Y2X
+    k2=hrr
+   else
+    k2=abs(hr/(r*SQRT(1+hr**2)))
+   endif
+   A=abs(k1-k2)
+   H=(k1+k2)/2.
+   K=k1*k2
+end subroutine axisymmetric_principal
+
 
 ! Lines of Curvature
 subroutine LIOC_Fortran(X1,X2,Y1X,Y1T,UTPOS,VTPOS)

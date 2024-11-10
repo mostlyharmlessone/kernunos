@@ -16,10 +16,10 @@ subroutine trapez(ii,iflag,rv,zv,z2v,n,r,z)
     do i=2,low
      TRAP=TRAP+(rv(i)-rv(i-1))*(zv(i-1)+zv(i))/2.
     end do
-    if ((iflag-mod(iflag,10))/10 == 0) then
+    if (mod((iflag-mod(iflag,10))/10,10) == 0) then
      call SplineEval(0,rv,zv,z2v,n,r,z)
     endif
-    if ((iflag-mod(iflag,10))/10 == 1) then ! using center-node spline
+    if (mod((iflag-mod(iflag,10))/10,10) == 1) then  ! using center-node spline
      call SplineEvalCenter(ii,rv,zv,z2v,n,r,z)
     endif
     TRAP=TRAP+(r-rv(low))*(z+zv(low))/2.

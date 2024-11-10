@@ -44,6 +44,7 @@
   real(wp), allocatable :: UT(:,:),VT(:,:) !,XTX(:,:),EE(:,:)
 !  integer, allocatable :: IPIV(:)
   real(wp) :: ctr_circle_x, ctr_circle_y, R_global, Theta_global
+  real(wp) :: gaussian,meanpower,princ1,princ2,astigm
 
 !write(*,*) 'flag to Fortran:',flag
 !write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
@@ -76,16 +77,18 @@ map=mod((flag-mod(flag,100))/100,100)  ! last two digits are tweaks
 ! dat = sixth binary bit 0/1 decenter tweak ie btest(dat,5) = .true.
 ! dat = seventh binary bit 0/1 pupilregister tweak ie btest(dat,6) = .true.
 ! dat = eighth binary bit 0/1 atlas spline consistency check tweak ie btest(dat,7) = .true.
+! dat = ninth binary bit 0/1 lsq instead of circumferential spline tweak ie btest(dat,8) = .true.
 
-! iflag passing of dat to SplineEval1Dx1D centernode splines and integration of splines
-! first digit iflag-mod(iflag,10))/10
-! second digit mod(iflag,10)
+! iflag passing of dat to SplineEval1Dx1D centernode splines, integration of splines and LSQ vs circumferential splining
+! first mod((iflag-mod(iflag,100))/100,100)
+! second digit mod((iflag-mod(iflag,10))/10,10)
+! third digit mod(iflag,10)
 !btest(dat, 2)     T   F
 !
-!              T  12  11
+!              T  X12  X11
 !btest(dat,0)
-!              F  02  01
-
+!              F  X02  X01
+iflag =0 ! no integration, no centernode, circumferential spline
 if (btest(dat, 2)) then
  if (btest(dat,0)) then
   iflag=12
@@ -98,6 +101,10 @@ else
  else
   iflag=1
  endif
+endif
+! lsq instead of circumferential spline
+if (btest(dat, 8)) then
+ iflag =iflag+100
 endif
 
 ! mod(flag,100) == 99 Deallocate
@@ -1007,9 +1014,17 @@ if (mod(flag,100) .ne. 9 ) then
 !  powers
     call AXIALP(JMatrix%R(j,i),ABS(YPR),YP2R2,JMatrix%SAGC(j,i))
     call AXIALP(JMatrix%R(j,i),YPTHETA/JMatrix%R(j,i),YP2THETA/JMatrix%R(j,i),JMatrix%Warp(j,i))
-    call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i),JMatrix%INSTC2(j,i))
+    call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i))
     call MEANP(JMatrix%THT(i),JMatrix%R(j,i),ABS(YPR),YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
     call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),ABS(YPR),YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
+    call principal(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
+
+
+!write(*,*) '1',JMatrix%MEANC(j,i),JMatrix%MONGEA(j,i),JMatrix%INSTC(j,i),JMatrix%SAGC(j,i),sqrt(JMatrix%INSTC(j,i)*JMatrix%SAGC(j,i))
+!write(*,*) '2',RFCT*meanpower,RFCT*astigm,RFCT*princ1,RFCT*princ2,RFCT*sqrt(abs(gaussian))
+!   call  axisymmetric_principal(JMatrix%R(j,i),YPR,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
+!write(*,*) '3',RFCT*meanpower,RFCT*astigm,RFCT*princ1,RFCT*princ2,RFCT*sqrt(gaussian)
+
 !    if (M1 .eq. 360) then
 !     k=8 ! skip this many problematic values at x-axis
 !    else

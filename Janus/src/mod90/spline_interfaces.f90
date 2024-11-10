@@ -13,6 +13,21 @@ module spline_interfaces
   real(wp), INTENT(OUT) :: z
  end subroutine 
 
+ subroutine LSQEval(M2,c,v,f,ft,ftt,fttt)
+  USE set_precision, ONLY : wp
+  INTEGER, intent(in) :: M2
+  REAL(wp), intent(in) :: v,c(M2)
+  REAL(wp),INTENT(OUT),OPTIONAL :: f,ft,ftt,fttt
+ end subroutine
+
+ subroutine lsqfill(t,z,M1,M2,c)
+  use set_precision, only :  wp
+  use LapackInterface, ONLY : dgetrf, dgetrs !, dgels, GaussJordan
+  REAL(wp), intent(in) :: t(M1),z(M1)
+  INTEGER, intent(in) :: M1,M2
+  REAL(wp), intent(out) ::c(M2)
+ end subroutine
+
  subroutine MakeRadSplineCenter(dat)
   use, INTRINSIC :: iso_c_binding, ONLY : c_int
   use set_precision, ONLY : wp

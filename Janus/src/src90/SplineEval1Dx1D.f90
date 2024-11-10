@@ -1,17 +1,20 @@
       subroutine SplineEval1Dx1D(iflag,u,v,f,fr,frr,ft,frt,ftt)
-      USE cornea_arrays, ONLY : DiaSlope, RadSlope, eps
+      USE cornea_arrays, ONLY : DiaSlope, RadSlope, eps, M2
       USE set_precision, ONLY : wp
-      USE spline_interfaces, ONLY : pspli, SplineEval, SplineEvalCenter, trapez, CubicSplineQuad
+      USE spline_interfaces, ONLY : lsqfill, LSQEval, pspli, SplineEval, SplineEvalCenter, trapez, CubicSplineQuad
       USE special_fct, ONLY : bsearch, OPERATOR(.p.)
       use,intrinsic :: ieee_arithmetic
       implicit none
-      integer, INTENT(IN) :: iflag     ! iflag=0 no integration; iflag=1 trapezoidal integration; iflag=2 cubic integration;
+ !    first digit iflag=1 use lsq 0=use circumferential spline in second step
+ !    second digit iflag=1 central node 0= no central node
+ !    third digit iflag=0 no integration; iflag=1 trapezoidal integration; iflag=2 cubic integration
+      integer, INTENT(IN) :: iflag
       real(wp), INTENT(IN) :: u, v
       real(wp), INTENT(OUT),OPTIONAL ::  f,fr,ft,frt,frr,ftt
       real(wp) :: g,g0,gr,grr,h,hr,hrr,usignd !,error
       real(wp) :: fTmp(size(RadSlope%r,2)),frTmp(size(RadSlope%r,2)),frrTmp(size(RadSlope%r,2))
       real(wp) :: thta(size(RadSlope%r,2)),fttTmp(size(RadSlope%r,2)),frttTmp(size(RadSlope%r,2)),frrttTmp(size(RadSlope%r,2))
-      real(wp) :: r(2*size(RadSlope%r,1)),z(2*size(RadSlope%r,1)),zr2(2*size(RadSlope%r,1))
+      real(wp) :: r(2*size(RadSlope%r,1)),z(2*size(RadSlope%r,1)),zr2(2*size(RadSlope%r,1)),c(M2)
       integer :: L2,j,L,MM,N,i,i1
 !      logical :: IsInf
 
@@ -32,19 +35,19 @@
         r=DiaSlope%rd(1:2*N,i)
         z=DiaSlope%Zpd(1:2*N,i)
         zr2=DiaSlope%Zpd2(1:2*N,i)
-        if (mod(iflag,10) == 0) then                  ! no integration
-         if (((iflag-mod(iflag,10))/10) == 0) then    ! no central node
+        if (mod(iflag,10) == 0) then                  ! no integration load elevations
+         if (mod((iflag-mod(iflag,10))/10,10) == 0) then    ! no central node
           call SplineEval(0,r,z,zr2,L2,usignd,g,gr,grr)    ! first parameter = 0 nonperiodic
          endif
-         if (((iflag-mod(iflag,10))/10) == 1) then    ! non-periodic center node radial spline
+         if (mod((iflag-mod(iflag,10))/10,10) == 1) then    ! non-periodic center node radial spline
           call SplineEvalCenter(j,r,z,zr2,L2,usignd,g,gr,grr)
          endif
          fTmp(i)=g
-        else  !iflag=1 or 2
-         if (((iflag-mod(iflag,10))/10) == 0) then    ! no central node
+        else  ! integration, load derivatives
+         if (mod((iflag-mod(iflag,10))/10,10) == 0) then     ! no central node
           call SplineEval(0,r,z,zr2,L2,usignd,gr,grr)    ! first parameter = 0 nonperiodic
          endif
-         if (((iflag-mod(iflag,10))/10) == 1) then    ! non-periodic center node radial spline
+         if (mod((iflag-mod(iflag,10))/10,10) == 1) then    ! non-periodic center node radial spline
           call SplineEvalCenter(j,r,z,zr2,L2,usignd,gr,grr)
          endif
          if (mod(iflag,10) == 2) then                  ! cubic integration, iflag passes centernode option
@@ -120,32 +123,52 @@
         frrTmp(L)=hrr
       end do
 
-!     FIRST CALL FOR PERIODIC SPLINE OF f0, fttTmp is d2Y/dTHETA2
+!     FIRST CALL FOR PERIODIC SPLINE/LSQ OF f0, fttTmp is d2Y/dTHETA2
       if (Present(ftt)) then
-       call pspli(thta,fTmp,MM,fttTmp)
-       call SplineEval(1,thta,fTmp,fttTmp,MM,v,f,ft,ftt) !first parameter = 1 periodic
+       if (mod((iflag-mod(iflag,100))/100,100) == 0) then ! spline
+        call pspli(thta,fTmp,MM,fttTmp)
+        call SplineEval(1,thta,fTmp,fttTmp,MM,v,f,ft,ftt) !first parameter = 1 periodic
+       else   ! LSQ
+        call lsqfill(thta,fTmp,MM,M2,c)
+        call LSQEval(M2,c,v,f,ft,ftt)
+       endif
       else
        if (Present(ft)) then
-        call pspli(thta,fTmp,MM,fttTmp)
-        call SplineEval(1,thta,fTmp,fttTmp,MM,v,f,ft)
+        if (mod((iflag-mod(iflag,100))/100,100) == 0) then ! spline vs lsq
+         call pspli(thta,fTmp,MM,fttTmp)
+         call SplineEval(1,thta,fTmp,fttTmp,MM,v,f,ft)
+        else ! LSQ
+         call lsqfill(thta,fTmp,MM,M2,c)
+         call LSQEval(M2,c,v,f,ft)
+        endif
        else
         if (Present(f)) then
-        ! We spline around the points in order to generate the angular spline derivatives; the actual function point
+        ! We spline/lsq around the points in order to generate the derivatives; the actual function point
         ! and radial derivatives were already generated above as long as v is a knot.
          call bsearch(v,thta,MM,i1,i)
          if (abs(thta(i)-v) .le. eps) then  ! if on a theta knot, skip the spline
           f=fTmp(i)
          else
-          call pspli(thta,fTmp,MM,fttTmp)
-          call SplineEval(1,thta,fTmp,fttTmp,MM,v,f)
+          if (mod((iflag-mod(iflag,100))/100,100) == 0) then ! spline vs lsq
+           call pspli(thta,fTmp,MM,fttTmp)
+           call SplineEval(1,thta,fTmp,fttTmp,MM,v,f)
+          else ! LSQ
+           call lsqfill(thta,fTmp,MM,M2,c)
+           call LSQEval(M2,c,v,f)
+          endif
          endif
         endif
        endif
       endif
-!     SECOND CALL FOR PERIODIC SPLINE OF fr (df/dR), frrtTmp is d3Y/dRdTHETA2
+!     SECOND CALL FOR PERIODIC SPLINE/LSQ OF fr (df/dR), frrtTmp is d3Y/dRdTHETA2
       if (Present(frt)) then
-       call pspli(thta,frTmp,MM,frttTmp)
-       call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr,frt)
+       if (mod((iflag-mod(iflag,100))/100,100) == 0) then ! spline vs lsq
+        call pspli(thta,frTmp,MM,frttTmp)
+        call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr,frt)
+       else
+        call lsqfill(thta,frTmp,MM,M2,c)
+        call LSQEval(M2,c,v,fr,frt)
+       endif
       else
        if (Present(fr)) then
        ! We spline around the points in order to generate the angular spline derivatives; the actual function point
@@ -154,21 +177,31 @@
         if (abs(thta(i)-v) .le. eps) then  ! if on a theta knot, skip the spline
          fr=frTmp(i)
         else
-         call pspli(thta,frTmp,MM,frttTmp)
-         call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr)
+         if (mod((iflag-mod(iflag,100))/100,100) == 0) then ! spline vs lsq
+          call pspli(thta,frTmp,MM,frttTmp)
+          call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr)
+         else
+          call lsqfill(thta,frTmp,MM,M2,c)
+          call LSQEval(M2,c,v,fr)
+         endif
         endif
        endif
       endif
-!     THIRD CALL FOR PERIODIC SPLINE OF frr (d2f/dR2), frrttTmp is d4Y/dR2dTHETA2
+!     THIRD CALL FOR PERIODIC SPLINE/LSQ OF frr (d2f/dR2), frrttTmp is d4Y/dR2dTHETA2
       if (Present(frr)) then
-      ! We spline around the points in order to generate the angular spline derivatives; the actual function point
+      ! We spline/lsq around the points in order to generate the derivatives; the actual function point
       ! and radial derivatives were already generated above as long as v is a knot.
        call bsearch(v,thta,MM,i1,i)
        if (abs(thta(i)-v) .le. eps) then  ! if on a theta knot, skip the spline
         frr=frrTmp(i)
        else
-        call pspli(thta,frrTmp,MM,frrttTmp)
-        call SplineEval(1,thta,frrTmp,frrttTmp,MM,v,frr)
+        if (mod((iflag-mod(iflag,100))/100,100) == 0) then ! spline vs lsq
+         call pspli(thta,frrTmp,MM,frrttTmp)
+         call SplineEval(1,thta,frrTmp,frrttTmp,MM,v,frr)
+        else
+         call lsqfill(thta,frrTmp,MM,M2,c)
+         call LSQEval(M2,c,v,frr)
+        endif
        endif
       endif
       RETURN

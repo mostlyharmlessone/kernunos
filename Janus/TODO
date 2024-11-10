@@ -2,7 +2,23 @@ things to do
 
 CorneaCopia
 
-pupilregister still broken
+VERY IMPORTANT: iflag in janus needs fix so every call for integration with 0 as last digit can have lsq vs spline, rught now, its just the generic iflag calls at the beginning
+
+
+kernunos.cpp
+make new tweak to pick lsq vs circumspline
+make new tweak to pick 2d lsqspline (aspirational!)
+
+check formula for mean curvature and monge astigmatism, need taylor series for limit at origin
+
+
+color white centrally on test look at values in sagc ?NaN
+
+pupilregister still broken: polartranslate doesnt do what you think it does
+
+check to see lsqfill still works
+
+might need to change menu of functions to axisymmetric or not
 
 compare is broken with zernike; also so is opening 2nd file with zernike selected and zernike needs extreme value filter
 resurrect old noise reduction code to help out mongeastig and meanc for real data?
@@ -24,6 +40,7 @@ Is this reversible with tweaks, and/or can we also fake decentration with revers
 make 3D option for all functions, with scale Z value max and min
 this will affect Geom,WriteGeomPLY/OFF
 
+do calculations in cartesian for penta then migrate to polar
 make cartesian grid display option; convert polar to grid, display pentacam directly
  might need centerpoint version for pentacam to incorporate center from Penta,as opposed to computed center average!
 
@@ -57,9 +74,7 @@ centerpoints need explaining, as in why are they non-zero in writecenterj
 incorporate "warp/oblique power" and reading zernike and pupils from some files into readme/faq
 Needs a whole section on corneal topography and "powers" with math definitions
 notes from spline_monge.odt into help/faq OR add docs in pdf to main release files
-incorporate cornea docs from BRODIE, may need to read those old DRW and WP files somehow
-check formula for mean curvature and monge astigmatism and possibly make limit friendlier version with limit added on exponential 
-
+incorporate cornea docs from BRODIE, may need to read those old DRW and WP files somehow wine coreldraw install?
 
 need a 2-D picture output other than gnuplot version
 make mathematica plot output, just like ply,off etc.
