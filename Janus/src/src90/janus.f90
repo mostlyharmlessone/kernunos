@@ -88,24 +88,7 @@ map=mod((flag-mod(flag,100))/100,100)  ! last two digits are tweaks
 !              T  X12  X11
 !btest(dat,0)
 !              F  X02  X01
-iflag =0 ! no integration, no centernode, circumferential spline
-if (btest(dat, 2)) then
- if (btest(dat,0)) then
-  iflag=12
- else
-  iflag=2
- endif
-else
- if (btest(dat,0)) then
-  iflag=11
- else
-  iflag=1
- endif
-endif
-! lsq instead of circumferential spline
-if (btest(dat, 8)) then
- iflag =iflag+100
-endif
+! iflag =0 ! no integration, no centernode, circumferential spline, so then 10 or 0 or 100 or 110
 
 ! mod(flag,100) == 99 Deallocate
 if (mod(flag,100) == 99) then
@@ -937,6 +920,23 @@ if (mod(flag,100) .ne. 9 ) then
 
 ! Atlas spline consistency check and computation of elevation by power vs elevation in file
  if ( Testdata .eq. 1 .and. btest(dat,7) ) then
+ if (btest(dat, 2)) then
+  if (btest(dat,0)) then
+   iflag=12
+  else
+   iflag=2
+  endif
+ else
+  if (btest(dat,0)) then
+   iflag=11
+  else
+   iflag=1
+  endif
+ endif
+ ! lsq instead of circumferential spline
+ if (btest(dat, 8)) then
+  iflag =iflag+100
+ endif
   k=0 ; powmax2 = 0 ; powmax =0  ! Use these temporarily
  ! find max elevation from Atlas file
   do i=1,M1
@@ -969,6 +969,36 @@ if (mod(flag,100) .ne. 9 ) then
 ! donut
 ! Find maximum radius from data in RadSlope
   rBo = 0
+if (TestData.ne.2 .and. TestData.ne.4) then  ! slope based data, integrate based on iflag with or without cubic/trapez or center point or not for values
+ if (btest(dat, 2)) then
+  if (btest(dat,0)) then
+   iflag=12
+  else
+   iflag=2
+  endif
+ else
+  if (btest(dat,0)) then
+   iflag=11
+  else
+   iflag=1
+  endif
+ endif
+! lsq instead of circumferential spline
+ if (btest(dat, 8)) then
+  iflag =iflag+100
+ endif
+else
+ if (btest(dat,0)) then
+  iflag=10
+ else
+  iflag=0
+ endif
+!lsq instead of circumferential spline
+ if (btest(dat, 8)) then
+  iflag =iflag+100
+ endif
+endif
+
   do i=1,MM
    do j=1,N
     if (ABS(RadSlope%r(j,i)) >= rBo) rBo=ABS(RadSlope%r(j,i))
@@ -996,18 +1026,8 @@ if (mod(flag,100) .ne. 9 ) then
    endif
    do j=1,JMatrix%MV(i)                             ! does not include center point
     JMatrix%R(j,i)=N1*100*(rBi+(j-1)*(rBo-rBi)/(N1-1))/(1.*N)  !scaled to compensate for 16 vs 22 or 25 rings
-
-! populate JMatrix rings, not the centers
-! elevations
-    if (TestData.ne.2 .and. TestData.ne.4) then  ! slope based data, integrate based on iflag with or without cubic/trapez or center point or not for values
-     call SplineEval1Dx1D(iflag,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
-    else  !TestData.eq.2 .or. TestData.eq.4  ! ELE and ELE.CSV files use elevation, no integration, center point or not
-     if (btest(dat,0)) then
-      call SplineEval1Dx1D(10,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
-     else
-      call SplineEval1Dx1D(0,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
-     endif
-    endif
+!   generate elevations and derivatives; iflag no integration if .ELE .ELE_CSV file
+    call SplineEval1Dx1D(iflag,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
 !  save for vertex normals and for LIOC
     JMatrix%YPR(j,i)=YPR
     JMatrix%YPTHETA(j,i)=YPTHETA
@@ -1098,7 +1118,18 @@ if (mod(flag,100) .ne. 9 ) then
      endif
     end do
     if (JMatrix%Z0(1) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z0(1)
-    if (JMatrix%Z0(1) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z0(1)  
+    if (JMatrix%Z0(1) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z0(1)
+
+!   reset iflag for centers
+    if (btest(dat,0)) then
+     iflag=10
+    else
+     iflag=0
+    endif
+    !lsq instead of circumferential spline
+    if (btest(dat, 8)) then
+     iflag =iflag+100
+    endif
 
 !  SAGC
 !  Reload RadSlope with SAGC & re-spline; can't compute it from surface because ill-defined at origin
@@ -1111,11 +1142,7 @@ if (mod(flag,100) .ne. 9 ) then
     DiaSlope%Zpd2 = .n. DiaSlope
 
     do i=1,M1
-     if (btest(dat,0)) then
-      call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%SAGC(N1+1,i))  ! center value
-     else
-      call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%SAGC(N1+1,i))  ! center value
-     endif
+     call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%SAGC(N1+1,i))  ! center value
      if (i .eq. 1) then
       JMatrix%SAGC0(1)=JMatrix%SAGC(N1+1,1)
      else
@@ -1137,11 +1164,7 @@ if (mod(flag,100) .ne. 9 ) then
     DiaSlope%Zpd2 = .n. DiaSlope
 
     do i=1,M1
-     if (btest(dat,0)) then
-      call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%Warp(N1+1,i))  ! center value
-     else
-      call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%Warp(N1+1,i))  ! center value
-     endif
+     call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%Warp(N1+1,i))  ! center value
      if (i .eq. 1) then
       JMatrix%Warp0(1)=JMatrix%Warp(N1+1,1)
      else
@@ -1163,11 +1186,7 @@ if (mod(flag,100) .ne. 9 ) then
    DiaSlope%Zpd2 = .n. DiaSlope
 
    do i=1,M1
-    if (btest(dat,0)) then
-     call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC(N1+1,i))  ! center value
-    else
-     call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC(N1+1,i))  ! center value
-   endif
+    call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC(N1+1,i))  ! center value
    if (i .eq. 1) then
     JMatrix%INSTC0(1)=JMatrix%INSTC(N1+1,1)
    else
@@ -1188,11 +1207,7 @@ if (mod(flag,100) .ne. 9 ) then
   DiaSlope%Zpd2 = .n. DiaSlope
 
   do i=1,M1
-   if (btest(dat,0)) then
-    call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC2(N1+1,i))  ! center value
-   else
-    call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC2(N1+1,i))  ! center value
-   endif
+   call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC2(N1+1,i))  ! center value
    if (i .eq. 1) then
     JMatrix%INSTC20(1)=JMatrix%INSTC2(N1+1,1)
    else
@@ -1213,11 +1228,7 @@ if (mod(flag,100) .ne. 9 ) then
   DiaSlope%Zpd2 = .n. DiaSlope
 
   do i=1,M1
-   if (btest(dat,0)) then
-    call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%MEANC(N1+1,i))  ! center value
-   else
-    call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%MEANC(N1+1,i))  ! center value
-   endif
+   call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%MEANC(N1+1,i))  ! center value
    if (i .eq. 1) then
     JMatrix%MEANC0(1)=JMatrix%MEANC(N1+1,1)
    else
@@ -1239,11 +1250,7 @@ if (mod(flag,100) .ne. 9 ) then
   DiaSlope%Zpd2 = .n. DiaSlope
 
   do i=1,M1
-   if (btest(dat,0)) then
-    call SplineEval1Dx1D(10,JMatrix%R0,JMatrix%THT(i),JMatrix%MONGEA(N1+1,i))  ! center value
-   else
-    call SplineEval1Dx1D(0,JMatrix%R0,JMatrix%THT(i),JMatrix%MONGEA(N1+1,i))  ! center value
-  endif
+   call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%MONGEA(N1+1,i))  ! center value
   if (i .eq. 1) then
    JMatrix%MONGEA0(1)=JMatrix%MONGEA(N1+1,1)
   else
@@ -1304,6 +1311,24 @@ if ( Testdata .eq. 1 ) then
    call AdjustRadSplineCenter     ! changes r only
    DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
   endif
+endif
+! reset iflag for generating local elevations for computations
+if (btest(dat, 2)) then
+ if (btest(dat,0)) then
+  iflag=12
+ else
+  iflag=2
+ endif
+else
+ if (btest(dat,0)) then
+  iflag=11
+ else
+  iflag=1
+ endif
+endif
+! lsq instead of circumferential spline
+if (btest(dat, 8)) then
+ iflag =iflag+100
 endif
 
 ! allocate working matrices

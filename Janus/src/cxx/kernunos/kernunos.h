@@ -170,6 +170,8 @@ private slots:
     void tweakcubic();
     void tweakLSQfill();
     void tweakSplinefill();
+    void tweak2dspline();
+    void tweaklsqvsspline();
     void colorrgb2();
     void colorrgb5();
     void colorhsbrgb();
@@ -263,6 +265,8 @@ private:
     QAction *LSQfillinAct;
     QAction *SplinefillinAct;
     QAction *decenterAct;
+    QAction *lsqvssplineAct;
+    QAction *make2dsplineAct;
 
     QMenu *helpMenu;
     QAction *aboutAct;

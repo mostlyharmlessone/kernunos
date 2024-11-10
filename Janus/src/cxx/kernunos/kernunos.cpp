@@ -1635,6 +1635,7 @@ void MainWindow::tweakcubic()
        redraw();
    };
 }
+
 void MainWindow::tweakLSQfill()
 {
    if (GLwidget::isLSQfillin()) {
@@ -1671,6 +1672,40 @@ void MainWindow::tweakSplinefill()
    if (GLwidget::isRedraw()) {
        redraw();
    };
+}
+
+void MainWindow::tweaklsqvsspline()
+{
+    if (GLwidget::islsqvsspline()) {
+        GLwidget::setlsqvsspline(false);
+        lsqvssplineAct->setChecked(GLwidget::islsqvsspline());
+        make2dsplineAct->setChecked(GLwidget::is2dspline());
+    } else {
+        GLwidget::set2dspline(false);
+        GLwidget::setlsqvsspline(true);
+        lsqvssplineAct->setChecked(GLwidget::islsqvsspline());
+        make2dsplineAct->setChecked(GLwidget::is2dspline());
+    };
+    if (GLwidget::isRedraw()) {
+        redraw();
+    };
+}
+
+void MainWindow::tweak2dspline()
+{
+    if (GLwidget::is2dspline()) {
+        GLwidget::set2dspline(false);
+        lsqvssplineAct->setChecked(GLwidget::islsqvsspline());
+        make2dsplineAct->setChecked(GLwidget::is2dspline());
+    } else {
+        GLwidget::set2dspline(true);
+        GLwidget::setlsqvsspline(false);
+        lsqvssplineAct->setChecked(GLwidget::islsqvsspline());
+        make2dsplineAct->setChecked(GLwidget::is2dspline());
+    };
+    if (GLwidget::isRedraw()) {
+        redraw();
+    };
 }
 
 void MainWindow::colorrgb2()
@@ -1955,6 +1990,14 @@ void MainWindow::createActions()
    SplinefillinAct->setCheckable(true);
    connect(SplinefillinAct, &QAction::triggered, this, &MainWindow::tweakSplinefill);
 
+   lsqvssplineAct=new QAction(tr("&Use LSQ instead of circumferential spline"), this);
+   lsqvssplineAct->setCheckable(true);
+   connect(lsqvssplineAct, &QAction::triggered, this, &MainWindow::tweaklsqvsspline);
+
+   make2dsplineAct=new QAction(tr("&Use 2-D LSQ spline instead of 1Dx1D/LSQ"), this);
+   make2dsplineAct->setCheckable(true);
+   connect(make2dsplineAct, &QAction::triggered, this, &MainWindow::tweak2dspline);
+
    liocAct = new QAction(tr("&Lines of Curvature"), this);
    liocAct->setStatusTip(tr("Show plot of lines of curvature"));
    liocAct->setEnabled(false);
@@ -2195,6 +2238,8 @@ void MainWindow::createMenus()
    tweaksMenu->addAction(SplinefillinAct);
    tweaksMenu->addAction(LSQfillinAct);
    tweaksMenu->addAction(decenterAct);
+   tweaksMenu->addAction(lsqvssplineAct);
+   tweaksMenu->addAction(make2dsplineAct);
    helpMenu = menuBar()->addMenu(tr("&About"));
    helpMenu->addAction(HelpAct);
    helpMenu->addAction(aboutAct);

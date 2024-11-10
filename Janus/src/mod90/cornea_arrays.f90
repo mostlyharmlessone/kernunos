@@ -779,7 +779,6 @@ function lsqfillin(b) result(a)
 ! generate lsq fillin values
   do k=1,M1
     Q=ABS(b(k,i)) > 0
-Q = .false.  ! do all
     if (Q) then ! means it is  =/ 0
      a(k,i)=b(k,i)   ! retain old values where they exist
     else

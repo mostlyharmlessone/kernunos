@@ -2,21 +2,11 @@ things to do
 
 CorneaCopia
 
-VERY IMPORTANT: iflag in janus needs fix so every call for integration with 0 as last digit can have lsq vs spline, rught now, its just the generic iflag calls at the beginning
-
-
-kernunos.cpp
-make new tweak to pick lsq vs circumspline
-make new tweak to pick 2d lsqspline (aspirational!)
-
-check formula for mean curvature and monge astigmatism, need taylor series for limit at origin
-
+lsq instead of circumferential spline is broken
 
 color white centrally on test look at values in sagc ?NaN
 
 pupilregister still broken: polartranslate doesnt do what you think it does
-
-check to see lsqfill still works
 
 might need to change menu of functions to axisymmetric or not
 
@@ -74,7 +64,8 @@ centerpoints need explaining, as in why are they non-zero in writecenterj
 incorporate "warp/oblique power" and reading zernike and pupils from some files into readme/faq
 Needs a whole section on corneal topography and "powers" with math definitions
 notes from spline_monge.odt into help/faq OR add docs in pdf to main release files
-incorporate cornea docs from BRODIE, may need to read those old DRW and WP files somehow wine coreldraw install?
+incorporate cornea docs from BRODIE, may need to read those old DRW and WP files somehow: coreldraw works on wine, corelpaint does not; work on win31 under dosbox
+mean curvature and monge astigmatism, need taylor series for limit at origin
 
 need a 2-D picture output other than gnuplot version
 make mathematica plot output, just like ply,off etc.

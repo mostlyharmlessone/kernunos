@@ -163,7 +163,13 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
       if(t) {dat |= 1UL << 2;} else { dat &= ~(1UL << 2);}  //set/unset 2st ie. third bit
       flag=1000000*dat+(flag%1000000); }
 
-    // these two are mutually exclusive but can both be false
+    static bool isconsistency() { return m_consistency; }
+    static void setconsistency(bool t) { m_consistency = t;
+        int dat=(flag-(flag%1000000))/1000000;
+        if(t) {dat |= 1UL << 7;} else { dat &= ~(1UL << 7);}  //set/unset 7th ie. eighth bit
+        flag=1000000*dat+(flag%1000000);}
+
+    // these two are mutually exclusive but can both be false i.e. default is no fill in
 
     static bool isLSQfillin() { return m_LSQfillin; }
     static void setLSQfillin(bool t) {
@@ -189,6 +195,8 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
       // m_Splinefillin =(dat >> 4) & 1U;  should agree with m_Splinefillin = t;
       flag=1000000*dat+(flag%1000000); }
 
+    // these are independent options although they do the same thing?
+
     static bool isdecenter() { return m_decenter; }
     static void setdecenter(bool t) { m_decenter = t;
         int dat=(flag-(flag%1000000))/1000000;
@@ -201,10 +209,28 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
         if(t) {dat |= 1UL << 6;} else { dat &= ~(1UL << 6);}  //set/unset 6th ie. seventh bit
         flag=1000000*dat+(flag%1000000);}
 
-    static bool isconsistency() { return m_consistency; }
-    static void setconsistency(bool t) { m_consistency = t;
+    // these two are mutually exclusive but can both be false, ie default is 1dx1d splines
+
+    static bool islsqvsspline() { return m_lsqvsspline; }
+    static void setlsqvsspline(bool t) { m_lsqvsspline = t;
         int dat=(flag-(flag%1000000))/1000000;
-        if(t) {dat |= 1UL << 7;} else { dat &= ~(1UL << 7);}  //set/unset 7th ie. eighth bit
+        if(t) {dat |= 1UL << 8;
+            m_lsqvsspline = true;
+            dat &= ~(1UL << 9);
+            m_2dspline = false;}
+        else { dat &= ~(1UL << 8);
+            m_lsqvsspline = false;}  //set/unset 8th ie. ninth bit
+        flag=1000000*dat+(flag%1000000);}
+
+    static bool is2dspline() { return m_2dspline; }
+    static void set2dspline(bool t) { m_2dspline = t;
+        int dat=(flag-(flag%1000000))/1000000;
+        if(t) {dat |= 1UL << 9;
+            m_2dspline = true;
+            dat &= ~(1UL << 8);
+            m_lsqvsspline = false;}
+        else { dat &= ~(1UL << 9);
+            m_2dspline = false;}  //set/unset 9th ie. tenth bit
         flag=1000000*dat+(flag%1000000);}
 
     static void setAllfctfalse(){
@@ -536,6 +562,8 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     static bool m_decenter;
     static bool m_pupilregister;
     static bool m_consistency;
+    static bool m_lsqvsspline;
+    static bool m_2dspline;
 
     static bool m_Axial;
     static bool m_Oblique;

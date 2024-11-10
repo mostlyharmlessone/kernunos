@@ -131,6 +131,8 @@ bool GLwidget::m_Splinefillin = false;
 bool GLwidget::m_pupilregister = false;
 bool GLwidget::m_decenter = false;
 bool GLwidget::m_consistency = false;
+bool GLwidget::m_lsqvsspline = false;
+bool GLwidget::m_2dspline = false;
 
 bool GLwidget::m_Axial = true;
 bool GLwidget::m_Oblique = false;
