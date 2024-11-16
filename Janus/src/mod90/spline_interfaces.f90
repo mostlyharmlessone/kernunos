@@ -20,7 +20,7 @@ module spline_interfaces
   REAL(wp),INTENT(OUT),OPTIONAL :: f,ft,ftt,fttt
  end subroutine
 
- subroutine lsqfill(t,z,M1,M2,c)
+ subroutine lsqfit(t,z,M1,M2,c)
   use set_precision, only :  wp
   use LapackInterface, ONLY : dgetrf, dgetrs !, dgels, GaussJordan
   REAL(wp), intent(in) :: t(M1),z(M1)

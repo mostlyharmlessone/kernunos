@@ -775,7 +775,7 @@ function lsqfillin(b) result(a)
     endif
    end do 
   end do
-  call lsqfill(t,z,M1,M2,c)
+  call lsqfit(t,z,M1,M2,c)
 ! generate lsq fillin values
   do k=1,M1
     Q=ABS(b(k,i)) > 0

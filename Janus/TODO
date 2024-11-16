@@ -2,9 +2,29 @@ things to do
 
 CorneaCopia
 
-lsq instead of circumferential spline is broken
+atlas is loaded wrong!!!! shift discontinuity in lines 900 only so 25 vs 22 ring issue
 
-color white centrally on test look at values in sagc ?NaN
+plotting derivatives:YPTHETA,YPRTHETA,YP2THETA have only a few stray bad values near the axis esp YPRTHETA when plotting reference eyesys; 
+check what's happening there with discontinuity ?change in magnitude or sign in theta
+
+flat earth analogy with meridians not maps, frequency distribution = eg Zernike coefficient is the way to see corneas
+
+
+need to have no discontinuities in fr/zr or zrr, ie sign changes but can't just do abs value; discontinuities affect global fitting ie lsq but not local ie spline
+
+lsqfill needs sine and cosine functions
+lsq to get coefficients legendes, fourier Zernike, ellipsoid as basis functions is better than current approach
+
+
+local patch 
+
+all derivs starting with ypr are broken with lsq
+
+lsq instead of circumferential spline is broken; just fixed iflag issue, no have to find out next problem: 
+white display of all power
+ no guarantee of a local root in SplineCenter
+
+if error on atlas read, ie rtry to read a .pac.csv file, need to return without drawing anything, no .tmp file
 
 pupilregister still broken: polartranslate doesnt do what you think it does
 
@@ -40,6 +60,9 @@ ability to turn stdoutput logging on/off
 change most writes to kernunos log writes
 addcomments():
 errorMessageDialog
+
+consider making an explicit choice for test data instead of an error condition on file reads
+color white centrally on test look at values in sagc: it's outside USS scale
 
 try going back to splineeval1dx1d and removing extra calls to splineeval, aka back to trial that spawned current branch
 also try finding a way to use only local natural splines instead of generating whole circular spline and using pspli

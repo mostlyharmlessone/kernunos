@@ -1069,6 +1069,7 @@ void MainWindow::rings() {
     filenamelocal = filenamelocal.append(".plt");
     ba = filenamelocal.toLocal8Bit();
     filename = ba.data();
+    gp << "set polar \n";
     gp << "plot \"" << filename << "\" using 1:2 title" <<'"'<< "Rings" << '"' << "\n";
 #ifdef _WIN32
     // For Windows, prompt for a keystroke before the Gnuplot object goes out of scope so that

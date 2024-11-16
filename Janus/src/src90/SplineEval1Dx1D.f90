@@ -1,7 +1,7 @@
       subroutine SplineEval1Dx1D(iflag,u,v,f,fr,frr,ft,frt,ftt)
       USE cornea_arrays, ONLY : DiaSlope, RadSlope, eps, M2
       USE set_precision, ONLY : wp
-      USE spline_interfaces, ONLY : lsqfill, LSQEval, pspli, SplineEval, SplineEvalCenter, trapez, CubicSplineQuad
+      USE spline_interfaces, ONLY : lsqfit, LSQEval, pspli, SplineEval, SplineEvalCenter, trapez, CubicSplineQuad
       USE special_fct, ONLY : bsearch, OPERATOR(.p.)
       use,intrinsic :: ieee_arithmetic
       implicit none
@@ -64,7 +64,7 @@
          f=fTmp(i)
         endif
         if (Present(fr)) then
-         fr=gr
+          fr=sign(gr,u)
         endif
         if (Present(frr)) then
          frr=grr
@@ -85,22 +85,22 @@
         L=i+MM/2
         thta(L)=RadSlope%thta(L)
         if (mod(iflag,10) == 0) then                  ! no integration
-         if (((iflag-mod(iflag,10))/10) == 0) then    ! no central node
+         if ((mod((iflag-mod(iflag,10))/10,10)) == 0) then    ! no central node
           call SplineEval(0,r,z,zr2,L2,u,g,gr,grr)    ! first parameter = 0 nonperiodic
           call SplineEval(0,r,z,zr2,L2,-u,h,hr,hrr)    ! first parameter = 0 nonperiodic
          endif
-         if (((iflag-mod(iflag,10))/10) == 1) then    ! non-periodic center node radial spline
+         if ((mod((iflag-mod(iflag,10))/10,10)) == 1) then    ! non-periodic center node radial spline
           call SplineEvalCenter(j,r,z,zr2,L2,u,g,gr,grr)
           call SplineEvalCenter(j,r,z,zr2,L2,-u,h,hr,hrr)
          endif
          fTmp(i)=g
          fTmp(L)=h
         else  !iflag=1 or 2
-         if (((iflag-mod(iflag,10))/10) == 0) then    ! no central node
+         if ((mod((iflag-mod(iflag,10))/10,10)) == 0) then    ! no central node
          call SplineEval(0,r,z,zr2,L2,u,gr,grr)
          call SplineEval(0,r,z,zr2,L2,-u,hr,hrr)    ! first parameter = 0 nonperiodic
          endif
-         if (((iflag-mod(iflag,10))/10) == 1) then    ! non-periodic center node radial spline
+         if ((mod((iflag-mod(iflag,10))/10,10)) == 1) then    ! non-periodic center node radial spline
           call SplineEvalCenter(j,r,z,zr2,L2,u,gr,grr)
           call SplineEvalCenter(j,r,z,zr2,L2,-u,hr,hrr)
          endif
@@ -117,9 +117,9 @@
          fTmp(i)=g-g0
          fTmp(L)=h-g0
         endif      
-        frTmp(i)=gr
+        frTmp(i)=sign(gr,u)
         frrTmp(i)=grr
-        frTmp(L)=hr
+        frTmp(L)=sign(hr,u)
         frrTmp(L)=hrr
       end do
 
@@ -128,8 +128,8 @@
        if (mod((iflag-mod(iflag,100))/100,100) == 0) then ! spline
         call pspli(thta,fTmp,MM,fttTmp)
         call SplineEval(1,thta,fTmp,fttTmp,MM,v,f,ft,ftt) !first parameter = 1 periodic
-       else   ! LSQ
-        call lsqfill(thta,fTmp,MM,M2,c)
+       else   ! LSQ  
+        call lsqfit(thta,fTmp,MM,M2,c)
         call LSQEval(M2,c,v,f,ft,ftt)
        endif
       else
@@ -138,7 +138,7 @@
          call pspli(thta,fTmp,MM,fttTmp)
          call SplineEval(1,thta,fTmp,fttTmp,MM,v,f,ft)
         else ! LSQ
-         call lsqfill(thta,fTmp,MM,M2,c)
+         call lsqfit(thta,fTmp,MM,M2,c)
          call LSQEval(M2,c,v,f,ft)
         endif
        else
@@ -153,7 +153,7 @@
            call pspli(thta,fTmp,MM,fttTmp)
            call SplineEval(1,thta,fTmp,fttTmp,MM,v,f)
           else ! LSQ
-           call lsqfill(thta,fTmp,MM,M2,c)
+           call lsqfit(thta,fTmp,MM,M2,c)
            call LSQEval(M2,c,v,f)
           endif
          endif
@@ -165,8 +165,16 @@
        if (mod((iflag-mod(iflag,100))/100,100) == 0) then ! spline vs lsq
         call pspli(thta,frTmp,MM,frttTmp)
         call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr,frt)
+
+!if (abs(u) .gt. 470) then !for XX test case with PU and RA shows discontinuties
+!do i=1,MM
+!write(*,*) thta(i),ftmp(i),frTmp(i),frrtmp(i)
+!end do
+!stop
+!endif
+
        else
-        call lsqfill(thta,frTmp,MM,M2,c)
+        call lsqfit(thta,frTmp,MM,M2,c)
         call LSQEval(M2,c,v,fr,frt)
        endif
       else
@@ -181,7 +189,7 @@
           call pspli(thta,frTmp,MM,frttTmp)
           call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr)
          else
-          call lsqfill(thta,frTmp,MM,M2,c)
+          call lsqfit(thta,frTmp,MM,M2,c)
           call LSQEval(M2,c,v,fr)
          endif
         endif
@@ -199,7 +207,7 @@
          call pspli(thta,frrTmp,MM,frrttTmp)
          call SplineEval(1,thta,frrTmp,frrttTmp,MM,v,frr)
         else
-         call lsqfill(thta,frrTmp,MM,M2,c)
+         call lsqfit(thta,frrTmp,MM,M2,c)
          call LSQEval(M2,c,v,frr)
         endif
        endif

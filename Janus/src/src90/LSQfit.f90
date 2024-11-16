@@ -1,4 +1,4 @@
-subroutine lsqfill(t,z,M1,M2,c)
+subroutine lsqfit(t,z,M1,M2,c)
 use set_precision, only :  wp
 use LapackInterface, ONLY : dgetrf, dgetrs !, dgels, GaussJordan
 REAL(wp), intent(in) :: t(M1),z(M1)
@@ -30,7 +30,9 @@ REAL(wp), intent(out) ::c(M2)
 !  allocate (WORK1(LWORK1))! WORK is dimension LWORK
 !  call DGELS( 'T', M2, M1, 1, X, M2, z , M1, WORK1, LWORK1, INFO ) ! overwrites z (only to M2)
   call dgetrf(M2,M2,XTX,M2,ipvt,info)
+  if (info .ne. 0) write(*,*) 'Error in lsqfit: dgetrf'
   call dgetrs('N',M2,1,XTX,M2,ipvt,zpX,M2,info)
+  if (info .ne. 0) write(*,*) 'Error in lsqfit: dgetrs'
 !deallocate(WORK1)
   c=zpX
 end subroutine

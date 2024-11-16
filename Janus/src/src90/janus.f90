@@ -879,12 +879,11 @@ if (TestData .eq. 1) then
    BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".plt")
    open(unitno1, file = BigPlot, action="write", iostat=ierr)
  ! Look at these intersecting rings using
- ! gnuplot 'plot 'datafile dumped with' u 1:2' do not set polar or with lines
-    do j=1,N1
-     do i=1,M1
-      write(unitno1,*) Atlas%DEG(i),Atlas%AD(i,j)
+ ! gnuplot 'plot 'datafile dumped with' u 1:2'
+    do i=1,M1
+     do j=1,N1
+      write(unitno1,*) PI*(i-1)/90.0_wp,Atlas%AD(i,j)
      end do
-     write(unitno1,*) ' '
     end do
     CLOSE (unitno1)
     if (btest(dat, 4) .or. btest(dat, 3)) then
@@ -985,7 +984,7 @@ if (TestData.ne.2 .and. TestData.ne.4) then  ! slope based data, integrate based
  endif
 ! lsq instead of circumferential spline
  if (btest(dat, 8)) then
-  iflag =iflag+100
+  iflag = iflag+100
  endif
 else
  if (btest(dat,0)) then
@@ -995,10 +994,9 @@ else
  endif
 !lsq instead of circumferential spline
  if (btest(dat, 8)) then
-  iflag =iflag+100
+  iflag = iflag+100
  endif
 endif
-
   do i=1,MM
    do j=1,N
     if (ABS(RadSlope%r(j,i)) >= rBo) rBo=ABS(RadSlope%r(j,i))
@@ -1040,6 +1038,11 @@ endif
     call principal(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
 
 
+
+
+!write(*,*) ABS(JMatrix%R(j,i))*COS(JMatrix%THT(i)),ABS(JMatrix%R(j,i))*SIN(JMatrix%THT(i)),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA,ABS(JMatrix%R(j,i))
+
+!write(*,*) ABS(JMatrix%R(j,i))*COS(JMatrix%THT(i)),ABS(JMatrix%R(j,i))*SIN(JMatrix%THT(i)),JMatrix%Z(j,i),JMatrix%SAGC(j,i) !,YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA
 !write(*,*) '1',JMatrix%MEANC(j,i),JMatrix%MONGEA(j,i),JMatrix%INSTC(j,i),JMatrix%SAGC(j,i),sqrt(JMatrix%INSTC(j,i)*JMatrix%SAGC(j,i))
 !write(*,*) '2',RFCT*meanpower,RFCT*astigm,RFCT*princ1,RFCT*princ2,RFCT*sqrt(abs(gaussian))
 !   call  axisymmetric_principal(JMatrix%R(j,i),YPR,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
@@ -1128,7 +1131,7 @@ endif
     endif
     !lsq instead of circumferential spline
     if (btest(dat, 8)) then
-     iflag =iflag+100
+     iflag = iflag+100
     endif
 
 !  SAGC
@@ -1647,6 +1650,12 @@ endif
   call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
   call Pupil(JMatrix, dist, pupil_elements, pupil_vertices, pupil_nV, pupil_nE)
   call makelegend(flag, powmin, powmax, legend, nL)
+
+
+!write(*,*) JMatrix%SAGC0
+!write(*,*) powmin,powmax,dist
+
+
 ! eigenvalues show shape of RadSlope without make_rings but with FillArray 7 elevations
 !  atmp=pca(2,RadSlope)
 !  atmp=pca(3,RadSlope)
