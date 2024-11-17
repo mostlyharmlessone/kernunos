@@ -549,7 +549,7 @@ void MainWindow::redraw(){
 
 void MainWindow::zerncompute()
 {
-    if (system(NULL)) puts ("Ok");
+    if (system(NULL)) puts (" gnuplot available");
     else exit (EXIT_FAILURE);
     if(system("command -v gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
@@ -595,7 +595,7 @@ void MainWindow::zerncompute()
 
 void MainWindow::showzern()
 {
-    if (system(NULL)) puts ("Ok");
+    if (system(NULL)) puts (" gnuplot available");
     else exit (EXIT_FAILURE);
     if(system("command -v gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
@@ -939,7 +939,7 @@ void MainWindow::LinesofCurvature()
 
 void MainWindow::gnuplotsplot() {
 
-   if (system(NULL)) puts ("Ok");
+   if (system(NULL)) puts (" gnuplot available");
    else exit (EXIT_FAILURE);
    if(system("command -v gnuplot > /dev/null 2>&1") ){
        std::cout << "'gnuplot' command is not available.\n";
@@ -972,7 +972,7 @@ void MainWindow::gnuplotsplot() {
 
 void MainWindow::center() {
 
-   if (system(NULL)) puts ("Ok");
+   if (system(NULL)) puts (" gnuplot available");
    else exit (EXIT_FAILURE);
    if(system("command -v gnuplot > /dev/null 2>&1") ){
        std::cout << "'gnuplot' command is not available.\n";
@@ -1043,7 +1043,7 @@ void MainWindow::center() {
 
 void MainWindow::rings() {
 
-    if (system(NULL)) puts ("Ok");
+    if (system(NULL)) puts (" gnuplot available");
     else exit (EXIT_FAILURE);
     if(system("command -v gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";

@@ -53,7 +53,8 @@ module io_functions
      USE set_precision, ONLY : wp
      USE cornea_arrays, ONLY : Atlas, PI
      character(len=*), intent(in) :: KXNAME
-     integer, intent(out) :: N, read_error
+     integer, intent(in) :: N
+     integer, intent(out) :: read_error
     end subroutine
 
     subroutine rcnvrta_type(KXNAME,N,read_error)
@@ -585,13 +586,12 @@ subroutine rcnvrta(KXNAME,N,read_error)
  logical :: exists
  CHARACTER(80) KH1,KH2,KH3
  character(len=*), intent(in) :: KXNAME
- integer, intent(out) :: N, read_error
+ integer, intent(in) :: N
+ integer, intent(out) :: read_error
  INTEGER :: K,I,J,io,ITH,JTH,unitno,MM,ierr
  REAL(wp) :: R,DIST,Y,POW,Z
  read_error = 0
  MM=180
- ! its assumed at this point that the AR data is always N=22
- N=22
  inquire(file=trim(KXNAME), exist=exists)
  if (exists) then
   unitno = get_new_fileunit()
@@ -627,7 +627,7 @@ subroutine rcnvrta(KXNAME,N,read_error)
         IF (KH1.EQ.'Ring') THEN
          IF (KH2.EQ.'Point'.AND.KH3.EQ.'Radius') THEN
 !         DATA READ RADIUS? RING POSITION
-          DO J=1,N
+          DO J=1,22 !use 22 here not N
            DO I=1,MM
 !          RING, POINT(0-180), RADIUS  
             READ(unitno,*) ITH,JTH,R

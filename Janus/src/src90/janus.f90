@@ -721,9 +721,18 @@ if (TestData .eq. 1) then
    if (io > 0) then
     write (*,*) 'system command to sed failed'
     write (*,*) 'Consider using your text editor to search/replace all semicolons with commas in',inputfile1
+    return
    else
     call RCNVRTA_type(inputfile2, Power_Rings_Count, read_error)
-    if (read_error > 0) write (*,*) 'temp Atlas file read error, probably not because semicolon delimited'
+    if (read_error > 0) then
+     write (*,*) 'temp Atlas file read error, probably not because semicolon delimited'
+     file_idx=index(inputfile2, ".TMP")
+     if (file_idx .ne. 0) then
+      call system('rm ' // inputfile2, io)
+      if (io > 0) write (*,*) 'system command to remove tmp file failed'
+     endif
+     return
+    endif
    endif
   endif 
   N=Power_Rings_Count
@@ -878,11 +887,13 @@ if (TestData .eq. 1) then
    unitno1 = get_new_fileunit()
    BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".plt")
    open(unitno1, file = BigPlot, action="write", iostat=ierr)
- ! Look at these intersecting rings using
+ ! Look at these rings using gnuplot set polar
  ! gnuplot 'plot 'datafile dumped with' u 1:2'
-    do i=1,M1
-     do j=1,N1
-      write(unitno1,*) PI*(i-1)/90.0_wp,Atlas%AD(i,j)
+    do j=1,size(Atlas%AP,2)
+     do i=1,M1
+      if (Atlas%AD(i,j) .gt. 0) then
+       write(unitno1,*) PI*(i-1)/90.0_wp,Atlas%AD(i,j)
+      endif
      end do
     end do
     CLOSE (unitno1)
@@ -1040,7 +1051,7 @@ endif
 
 
 
-!write(*,*) ABS(JMatrix%R(j,i))*COS(JMatrix%THT(i)),ABS(JMatrix%R(j,i))*SIN(JMatrix%THT(i)),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA,ABS(JMatrix%R(j,i))
+write(*,*) ABS(JMatrix%R(j,i))*COS(JMatrix%THT(i)),ABS(JMatrix%R(j,i))*SIN(JMatrix%THT(i)),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA,ABS(JMatrix%R(j,i))
 
 !write(*,*) ABS(JMatrix%R(j,i))*COS(JMatrix%THT(i)),ABS(JMatrix%R(j,i))*SIN(JMatrix%THT(i)),JMatrix%Z(j,i),JMatrix%SAGC(j,i) !,YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA
 !write(*,*) '1',JMatrix%MEANC(j,i),JMatrix%MONGEA(j,i),JMatrix%INSTC(j,i),JMatrix%SAGC(j,i),sqrt(JMatrix%INSTC(j,i)*JMatrix%SAGC(j,i))

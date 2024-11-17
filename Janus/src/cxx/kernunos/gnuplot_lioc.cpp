@@ -8,7 +8,7 @@
 
 int lioc(const char *iname) {
 
-    if (system(NULL)) puts ("Ok");
+    if (system(NULL)) puts (" gnuplot available");
     else exit (EXIT_FAILURE);
     if(system("command -v gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";

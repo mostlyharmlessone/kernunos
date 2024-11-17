@@ -2,7 +2,7 @@ things to do
 
 CorneaCopia
 
-atlas is loaded wrong!!!! shift discontinuity in lines 900 only so 25 vs 22 ring issue
+looks like spline is better at fillin and lsq is better for well behaved derivatives
 
 plotting derivatives:YPTHETA,YPRTHETA,YP2THETA have only a few stray bad values near the axis esp YPRTHETA when plotting reference eyesys; 
 check what's happening there with discontinuity ?change in magnitude or sign in theta
@@ -10,19 +10,11 @@ check what's happening there with discontinuity ?change in magnitude or sign in 
 flat earth analogy with meridians not maps, frequency distribution = eg Zernike coefficient is the way to see corneas
 
 
-need to have no discontinuities in fr/zr or zrr, ie sign changes but can't just do abs value; discontinuities affect global fitting ie lsq but not local ie spline
-
-lsqfill needs sine and cosine functions
-lsq to get coefficients legendes, fourier Zernike, ellipsoid as basis functions is better than current approach
+lsq to get coefficients legendes, fourier Zernike, ellipsoid as basis functions is ?better than current approach
 
 
 local patch 
 
-all derivs starting with ypr are broken with lsq
-
-lsq instead of circumferential spline is broken; just fixed iflag issue, no have to find out next problem: 
-white display of all power
- no guarantee of a local root in SplineCenter
 
 if error on atlas read, ie rtry to read a .pac.csv file, need to return without drawing anything, no .tmp file
 
@@ -86,6 +78,7 @@ move faq to help menu:
 centerpoints need explaining, as in why are they non-zero in writecenterj
 incorporate "warp/oblique power" and reading zernike and pupils from some files into readme/faq
 Needs a whole section on corneal topography and "powers" with math definitions
+atlas shift discontinuity in 900: how to best address: document as opposed to missing data...discontinuities affect global fitting ie lsq but not local ie spline
 notes from spline_monge.odt into help/faq OR add docs in pdf to main release files
 incorporate cornea docs from BRODIE, may need to read those old DRW and WP files somehow: coreldraw works on wine, corelpaint does not; work on win31 under dosbox
 mean curvature and monge astigmatism, need taylor series for limit at origin
