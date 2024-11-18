@@ -166,12 +166,12 @@
         call pspli(thta,frTmp,MM,frttTmp)
         call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr,frt)
 
-!if (abs(u) .gt. 470) then !for XX test case with PU and RA shows discontinuties
-!do i=1,MM
+if (abs(u) .gt. 470) then !for XX test case with PU and RA shows discontinuties
+do i=1,MM
 !write(*,*) thta(i),ftmp(i),frTmp(i),frrtmp(i)
-!end do
+end do
 !stop
-!endif
+endif
 
        else
         call lsqfit(thta,frTmp,MM,M2,c)

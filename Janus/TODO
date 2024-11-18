@@ -2,23 +2,17 @@ things to do
 
 CorneaCopia
 
-looks like spline is better at fillin and lsq is better for well behaved derivatives
-
 plotting derivatives:YPTHETA,YPRTHETA,YP2THETA have only a few stray bad values near the axis esp YPRTHETA when plotting reference eyesys; 
 check what's happening there with discontinuity ?change in magnitude or sign in theta
 
 flat earth analogy with meridians not maps, frequency distribution = eg Zernike coefficient is the way to see corneas
-
-
-lsq to get coefficients legendes, fourier Zernike, ellipsoid as basis functions is ?better than current approach
-
-
-local patch 
-
+lsq to get coefficients legendres, fourier zernike, ellipsoid as basis functions is ?better than current approach 
 
 if error on atlas read, ie rtry to read a .pac.csv file, need to return without drawing anything, no .tmp file
 
 pupilregister still broken: polartranslate doesnt do what you think it does
+
+It'd be helpful to have axes/angles for orientation is moving the figure; perhaps a info box or three displaying angles?
 
 might need to change menu of functions to axisymmetric or not
 
@@ -77,8 +71,14 @@ make html files with abricotine export
 move faq to help menu: 
 centerpoints need explaining, as in why are they non-zero in writecenterj
 incorporate "warp/oblique power" and reading zernike and pupils from some files into readme/faq
+
 Needs a whole section on corneal topography and "powers" with math definitions
-atlas shift discontinuity in 900: how to best address: document as opposed to missing data...discontinuities affect global fitting ie lsq but not local ie spline
+
+needs section on handling bad data:
+shift discontinuity in 900 and others: how to best address: document as opposed to missing data...discontinuities affect global fitting ie lsq but not local ie spline
+spline better at filling in locally (it's interpolation after all) whereas LSQ can be used as a smoothing operation. See also early chapter in spline text, and reference it
+rings function can demonstate difference.
+
 notes from spline_monge.odt into help/faq OR add docs in pdf to main release files
 incorporate cornea docs from BRODIE, may need to read those old DRW and WP files somehow: coreldraw works on wine, corelpaint does not; work on win31 under dosbox
 mean curvature and monge astigmatism, need taylor series for limit at origin

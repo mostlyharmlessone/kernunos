@@ -221,7 +221,7 @@ if (mod(flag,100) .eq. 5 .or. mod(flag,100) .eq. 6 .or.&
         new_path (i:i) = file_from_C (i)
     end if
  end do
- write(*,*) 'file from kernunos: ',trim(new_path)
+! write(*,*) 'file from kernunos: ',trim(new_path)
  nblines=len(trim(new_path))
  if (allocated(BigPlot)) then
   deallocate(BigPlot)
@@ -242,7 +242,7 @@ if (mod(flag,100) .eq. 10  ) then  ! compare with btest(dat,6) = .true. or .fals
         new_path (i:i) = file_from_C (i)
     end if
  end do
- write(*,*) 'file from kernunos: ',trim(new_path)
+! write(*,*) 'file from kernunos: ',trim(new_path)
  new_path=trim(new_path)
  read(new_path,*) rotationdegrees
  write(*,*) "compare rotation, pupilregister: ",rotationdegrees,btest(dat,6)
@@ -668,7 +668,6 @@ if (TestData .eq. 0) then
  MM=360 ; N=16 ! EyeSys if file not read; should not be necessary as should agree with previous value.
  ! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
  if (allocated(RadSlope%r)) then
-  write(*,*) 'Radslope,DiaSlope need to be reallocated'
   RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
  else
@@ -763,7 +762,6 @@ if (TestData .eq. 1) then
  N=Power_Rings_Count
  ! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
  if (allocated(RadSlope%r)) then
-  write(*,*) 'Radslope,DiaSlope need to be reallocated'
   RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
  else
@@ -778,7 +776,6 @@ endif ! end (TestData == 1)
   MM=180; N=22; NP=141   ! PentaCam
 ! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
   if (allocated(RadSlope%r)) then
-   write(*,*) 'Radslope,DiaSlope need to be reallocated'
    RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
    call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
   else
@@ -833,7 +830,6 @@ if (TestData .lt. 0) then
  MM=360; N=16   ! fake EyeSys
 ! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
  if (allocated(RadSlope%r)) then
-  write(*,*) 'Radslope,DiaSlope need to be reallocated'
   RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
  else
@@ -850,9 +846,7 @@ if (TestData .lt. 0) then
  endif
 
 ! fillin tweaks
-!  FILL IN MISSING ATLAS RING DATA USING CIRCUMFERENTIAL SPLINES
-!  R is not constant; they're not circles, so splining along the curve gives curvatures that
-!  are not orthogonal to R, nor z2(deriv of theta)  probably best not to do this
+!  FILL IN MISSING ATLAS DATA
 if (TestData .eq. 1) then
  if (btest(dat, 4) .or. btest(dat, 3)) then
 ! make sure I have a backup of Atlas the same size as Atlas before fillin
@@ -869,16 +863,16 @@ if (TestData .eq. 1) then
  endif
  if (btest(dat, 4)) then
   AtlasSave=Atlas
-  Atlas%AP=splinefillin(Atlas%AP)
-  Atlas%AD=splinefillin(Atlas%AD)
-  Atlas%AY=splinefillin(Atlas%AY)
+  call Atlas_SplineFillin(AtlasSave,AtlasSave%AP,Atlas%AP)
+  call Atlas_SplineFillin(AtlasSave,AtlasSave%AD,Atlas%AD)
+  call Atlas_SplineFillin(AtlasSave,AtlasSave%AY,Atlas%AY)
  endif
-!  FILL IN MISSING ATLAS RING DATA USING LSQ cosine series
+!  FILL IN MISSING ATLAS RING DATA USING LSQ Fourier series
  if (btest(dat, 3)) then
   AtlasSave=Atlas
-  Atlas%AP=lsqfillin(Atlas%AP)
-  Atlas%AD=lsqfillin(Atlas%AD)
-  Atlas%AY=lsqfillin(Atlas%AY)
+  call Atlas_LSQFillin(AtlasSave,AtlasSave%AP,Atlas%AP)
+  call Atlas_LSQFillin(AtlasSave,AtlasSave%AD,Atlas%AD)
+  call Atlas_LSQFillin(AtlasSave,AtlasSave%AY,Atlas%AY)
  endif
 
  ! gnuplot splot output and exit
@@ -891,7 +885,7 @@ if (TestData .eq. 1) then
  ! gnuplot 'plot 'datafile dumped with' u 1:2'
     do j=1,size(Atlas%AP,2)
      do i=1,M1
-      if (Atlas%AD(i,j) .gt. 0) then
+      if ((Atlas%AP(i,j) > 0) .AND. (Atlas%AR(i,j) > 0) .AND. (Atlas%AD(i,j) > 0) .AND. (Atlas%AY(i,j) > 0)) then    ! Only for Atlas with valid data /= 0
        write(unitno1,*) PI*(i-1)/90.0_wp,Atlas%AD(i,j)
       endif
      end do
@@ -1033,7 +1027,7 @@ endif
    else  ! MM==180
     JMatrix%MV(i)=min(RadSlope%MV(i),N1)  ! if N=25 don't do more than 22
    endif
-   do j=1,JMatrix%MV(i)                             ! does not include center point
+   do j=1,JMatrix%MV(i) ! does not include center point
     JMatrix%R(j,i)=N1*100*(rBi+(j-1)*(rBo-rBi)/(N1-1))/(1.*N)  !scaled to compensate for 16 vs 22 or 25 rings
 !   generate elevations and derivatives; iflag no integration if .ELE .ELE_CSV file
     call SplineEval1Dx1D(iflag,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
@@ -1049,9 +1043,7 @@ endif
     call principal(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
 
 
-
-
-write(*,*) ABS(JMatrix%R(j,i))*COS(JMatrix%THT(i)),ABS(JMatrix%R(j,i))*SIN(JMatrix%THT(i)),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA,ABS(JMatrix%R(j,i))
+!write(*,*) ABS(JMatrix%R(j,i))*COS(JMatrix%THT(i)),ABS(JMatrix%R(j,i))*SIN(JMatrix%THT(i)),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA,ABS(JMatrix%R(j,i))
 
 !write(*,*) ABS(JMatrix%R(j,i))*COS(JMatrix%THT(i)),ABS(JMatrix%R(j,i))*SIN(JMatrix%THT(i)),JMatrix%Z(j,i),JMatrix%SAGC(j,i) !,YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA
 !write(*,*) '1',JMatrix%MEANC(j,i),JMatrix%MONGEA(j,i),JMatrix%INSTC(j,i),JMatrix%SAGC(j,i),sqrt(JMatrix%INSTC(j,i)*JMatrix%SAGC(j,i))

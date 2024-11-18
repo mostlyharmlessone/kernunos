@@ -11,7 +11,7 @@ MODULE cornea_arrays
 ! INTEGER, PARAMETER :: NP=141         ! PentaCam
 ! INTEGER, PARAMETER :: MM=180, N=22   ! Atlas
 ! INTEGER, PARAMETER :: MM=360, N=16  ! EyeSys
- integer, PARAMETER :: M2=10 ! lsq fourier series terms; if even then there's an equal number of sine and cosine terms
+ integer, PARAMETER :: M2=10 ! lsq fourier series terms; if even then there's an equal number of sine and cosine terms; don't make higher than 10 or get Gibb's phenomenon
 ! integer :: LWORK1
 ! real(wp), allocatable :: WORK1(:)
 
@@ -538,9 +538,9 @@ subroutine RadSlope_eq_Atlas(RadSlope,Atlas) ! initially populates r, thta, Zp, 
     MM=size(RadSlope%r,2)
     N=size(RadSlope%r,1)
     imv=0
-    do i=1,MM
-     RadSlope%thta(i)=PI*Atlas%DEG(i)/180.0_wp
-     do j=1,N
+    do j=1,N
+     do i=1,MM
+      RadSlope%thta(i)=PI*Atlas%DEG(i)/180.0_wp
       if ((Atlas%AP(i,j) > 0) .AND. (Atlas%AR(i,j) > 0) .AND. (Atlas%AD(i,j) > 0) .AND. (Atlas%AY(i,j) > 0)) then    ! Only for Atlas with valid data /= 0
        DIST=Atlas%AD(i,j)
        R=Atlas%AR(i,j)
@@ -661,12 +661,13 @@ function DiaSplineCenter(b) result(a)
   end do
 end function DiaSplineCenter
 
-! this version is for matrices that are MxN, ie Atlas
-function splinefillin(b) result(a)
+subroutine Atlas_SplineFillin(Atlas,b,a)
+ TYPE(wpAtlasMatrix), INTENT(IN) :: Atlas
  real(wp),INTENT(IN) :: b(:,:)
+ real(wp), intent(out) :: a(size(b,1),size(b,2))
  TYPE(wpsplinevect) :: spline
  integer :: M1,N1,i,j,k
- real(wp) :: a(size(b,1),size(b,2)),tht(size(b,1)),RTEMP,Q,radianK
+ real(wp) :: tht(size(b,1)),RTEMP,Q,radianK
 ! if Atlas then  size(b,2)->N and size(b,1)->M
  N1=size(b,2) !N1=N
  M1=size(b,1) !M1=MM
@@ -680,7 +681,8 @@ function splinefillin(b) result(a)
   do i=1,N1
    do j=1,M1
     Q=b(j,i)
-    if (ABS(Q) > 0.) then ! ABS is optional for AR or AP
+    if ((Atlas%AP(j,i) > 0) .AND. (Atlas%AR(j,i) > 0) .AND. (Atlas%AD(j,i) > 0) .AND. (Atlas%AY(j,i) > 0)) then ! eliminate all the bad points
+!    if (ABS(Q) > 0.) then
      mvjr(i)=mvjr(i)+1
      t(mvjr(i))=tht(j)
      z(mvjr(i))=Q
@@ -695,9 +697,10 @@ function splinefillin(b) result(a)
    do k=1,M1
     radianK=tht(k)
     call SplineEval(1,t,z,zt2,mvjr(i),radianK,RTEMP)
-    if(ABS(b(K,I)-RTEMP) > EPS) then
-     if(ABS(b(K,I)) > EPS) then
-      write(*,*) 'spline error in cornea_arrays fillin',K,I,b(K,I),RTEMP
+    if(ABS(b(k,i)-RTEMP) > EPS) then
+     if ((Atlas%AP(k,i) > 0) .AND. (Atlas%AR(k,i) > 0) .AND. (Atlas%AD(k,i) > 0) .AND. (Atlas%AY(k,i) > 0)) then ! eliminate all the bad points
+!     if(ABS(b(k,i)) > EPS) then
+      write(*,*) 'spline error in cornea_arrays Atlas fillin',K,I,b(K,I),RTEMP
      endif
      a(k,i)=RTEMP
     endif
@@ -705,7 +708,7 @@ function splinefillin(b) result(a)
   end do
  end associate
  deallocate (spline%r,spline%z,spline%zp2,spline%mvjr)
-end function splinefillin
+end subroutine Atlas_SplineFillin
 
 ! this version is for matrices that are NxM, ie. JMatrix
 function splinefillintranspose(b) result(a)
@@ -753,11 +756,13 @@ function splinefillintranspose(b) result(a)
    deallocate (spline%r,spline%z,spline%zp2,spline%mvjr)
 end function splinefillintranspose
 
-! not sure if this is safe with too few points or zero points in a ring
-function lsqfillin(b) result(a)
+
+subroutine Atlas_LSQfillin(Atlas,b,a)
+ TYPE(wpAtlasMatrix), INTENT(IN) :: Atlas
  real(wp),INTENT(IN) :: b(:,:)
+ real(wp), intent(out) :: a(size(b,1),size(b,2))
  integer :: M1,N1,i,j,k
- real(wp) :: a(size(b,1),size(b,2)),t(size(b,1)),z(size(b,1))
+ real(wp) ::t(size(b,1)),z(size(b,1))
  real(wp) :: c(M2)
  N1=size(b,2) !N1=N
  M1=size(b,1) !M1=MM
@@ -767,23 +772,26 @@ function lsqfillin(b) result(a)
  do i=1,N1
   do j=1,M2
    do k=1,M1
-    if (ABS(b(k,i)) .gt. 0) then ! means it is  =/ 0
+    if ((Atlas%AP(k,i) > 0) .AND. (Atlas%AR(k,i) > 0) .AND. (Atlas%AD(k,i) > 0) .AND. (Atlas%AY(k,i) > 0)) then ! eliminate all the bad points
+!    if (ABS(b(k,i)) .gt. 0) then ! means it is  =/ 0
      z(k)=b(k,i)
      t(k)=PI*(k-1)/90.0_wp  ! every 2 degrees
     endif
-   end do 
+   end do
   end do
   call lsqfit(t,z,M1,M2,c)
 ! generate lsq fillin values
   do k=1,M1
-    if (ABS(b(k,i)) .gt. 0) then ! means it is  =/ 0
-     a(k,i)=b(k,i)   ! retain old values where they exist, this is a fill-in, not a smoothing routine.
-    else
+!   changed this to a smoothing routine with relatively low M2 (10), as LSQ is terrible at discontinuities.
+!    if (ABS(b(k,i)) .gt. 0) then ! means it is  =/ 0
+!     a(k,i)=b(k,i)   ! retain old values where they exist, this is a fill-in, not a smoothing routine.
+!    else
     call LSQEval(M2,c,t(k),a(k,i))
-    endif
+!    endif
   end do
- end do   
-end function lsqfillin
+ end do
+end subroutine Atlas_LSQfillin
+
 
 function pca(M3,b) result(a) 
  use set_precision, ONLY : wp

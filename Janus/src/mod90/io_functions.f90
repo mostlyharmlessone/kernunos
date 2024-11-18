@@ -623,7 +623,7 @@ subroutine rcnvrta(KXNAME,N,read_error)
          READ(unitno,*,END=100,IOSTAT=io) KH1
          READ(unitno,*,END=100,IOSTAT=io) KH1,KH2,KH3
         ENDIF
-!       There only seem to be N=22 of these, and they're of unknown usefulness in calculation
+!       There only seem to be N=22 of these, and they're of unknown usefulness in calculation; used only as error checking
         IF (KH1.EQ.'Ring') THEN
          IF (KH2.EQ.'Point'.AND.KH3.EQ.'Radius') THEN
 !         DATA READ RADIUS? RING POSITION
@@ -650,6 +650,14 @@ subroutine rcnvrta(KXNAME,N,read_error)
           end do           
          ENDIF
         ENDIF
+!       ATLAS 900
+        IF (N .gt. 22) then
+         do J=23,N
+          do I=1,MM
+           Atlas%AR(I,J)=1   !make > 0 for allowing valid points in AD/AY/AP > 22
+          end do
+         end do
+        ENDIF
 
         IF (KH1.EQ.'Ring') THEN
          IF (KH2.EQ.'Point'.AND.KH3.EQ.'Distance(MM)') THEN       
@@ -670,7 +678,6 @@ subroutine rcnvrta(KXNAME,N,read_error)
             read_error=6
             goto 100
            endif
-!          UNLIKELY TO NEED ELEVATION
             Atlas%AY(JTH+1,ITH+1)=Y
             Atlas%AD(JTH+1,ITH+1)=DIST
             Atlas%AP(JTH+1,ITH+1)=POW
