@@ -15,7 +15,7 @@
       real(wp) :: fTmp(size(RadSlope%r,2)),frTmp(size(RadSlope%r,2)),frrTmp(size(RadSlope%r,2))
       real(wp) :: thta(size(RadSlope%r,2)),fttTmp(size(RadSlope%r,2)),frttTmp(size(RadSlope%r,2)),frrttTmp(size(RadSlope%r,2))
       real(wp) :: r(2*size(RadSlope%r,1)),z(2*size(RadSlope%r,1)),zr2(2*size(RadSlope%r,1)),c(M2)
-      integer :: L2,j,L,MM,N,i,i1
+      integer :: L2,j,L,MM,N,i,i1,k,k1
 !      logical :: IsInf
 
       MM=size(RadSlope%r,2)
@@ -23,7 +23,7 @@
 
       if(.not.Present(ft)) then                      ! if only f,fr,frr, no need for theta derivatives
        call bsearch(v,RadSlope%thta,MM,i1,i)         ! find the radial
-       if ((abs(RadSlope%thta(i))-v) .le. eps) then  ! and if on a theta knot
+       if ((abs(RadSlope%thta(i))-v) .le. eps) then  ! and if on a theta knot, which also means i=i1 with latest bsearch
 !       only 1D splining necessary
 !       odd as it seems, each angle i is repeated since we're on a diagonal, and u has a sign
         usignd = u
@@ -45,7 +45,7 @@
          fTmp(i)=g
         else  ! integration, load derivatives
          if (mod((iflag-mod(iflag,10))/10,10) == 0) then     ! no central node
-          call SplineEval(0,r,z,zr2,L2,usignd,gr,grr)    ! first parameter = 0 nonperiodic
+          call SplineEval(2,r,z,zr2,L2,usignd,gr,grr)    ! first parameter = 0 nonperiodic = 2 no extrapolation
          endif
          if (mod((iflag-mod(iflag,10))/10,10) == 1) then    ! non-periodic center node radial spline
           call SplineEvalCenter(j,r,z,zr2,L2,usignd,gr,grr)
@@ -166,10 +166,28 @@
         call pspli(thta,frTmp,MM,frttTmp)
         call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr,frt)
 
-if (abs(u) .gt. 470) then !for XX test case with PU and RA shows discontinuties
-do i=1,MM
-!write(*,*) thta(i),ftmp(i),frTmp(i),frrtmp(i)
+if (abs(u) .gt. 470) then !for XX test case with PU and RA shows discontinuties even in fTmp
+
+! the problem appears to be that these are all extrapolated past the edge, so why are they displayed at all?
+
+do i=1,MM/2
+L2=DiaSlope%L2(i)
+r=DiaSlope%rd(1:2*N,i)
+z=DiaSlope%Zpd(1:2*N,i)
+zr2=DiaSlope%Zpd2(1:2*N,i)
+call bsearch(u,r,L2,k,k1)
+! write(*,*) thta(i),ftmp(i),frTmp(i),frrtmp(i),u,r(k),r(k1)
 end do
+do i=1,MM/2
+L2=DiaSlope%L2(i)
+r=DiaSlope%rd(1:2*N,i)
+z=DiaSlope%Zpd(1:2*N,i)
+zr2=DiaSlope%Zpd2(1:2*N,i)
+L=i+MM/2
+call bsearch(-u,r,L2,k,k1)
+! write(*,*) thta(L),ftmp(L),frTmp(L),frrtmp(L),-u,r(k),r(k1)
+end do
+
 !stop
 endif
 

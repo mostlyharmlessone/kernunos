@@ -399,17 +399,45 @@ void MainWindow::open()   //multiple invocations makes a comparison
                  }else{std::cout << "Matching file not found\n" <<std::endl;}
              }}
        }
-    centerAct->setEnabled(true);  //change to false to not allow for pentacam, center deviations only for Placido
-    ringsAct->setEnabled(false);
-   } else{
-    centerAct->setEnabled(true);
-    ringsAct->setEnabled(true);
+      centerAct->setEnabled(true);  //change to false to not allow for pentacam, center deviations only for Placido
+      ShowZernAct->setEnabled(false);
+      ringsAct->setEnabled(false);
+      centernodeAct->setEnabled(false);
+      adjustradiiAct->setEnabled(false);
+      SplinefillinAct->setEnabled(false);
+      LSQfillinAct->setEnabled(false);
+      lsqvssplineAct->setEnabled(false);
    };
    bool atlas = str.find(".CSV")!= std::string::npos && !pentacam; //CSV but not _ELE.CSV and _CUR.CSV ->atlas
    if (atlas) {
       ShowZernAct->setEnabled(true);
-   } else{
-      ShowZernAct->setEnabled(false);
+      centerAct->setEnabled(true);
+      ringsAct->setEnabled(true);
+      centernodeAct->setEnabled(true);
+      adjustradiiAct->setEnabled(true);
+      SplinefillinAct->setEnabled(true);
+      LSQfillinAct->setEnabled(true);
+      lsqvssplineAct->setEnabled(true);
+   };
+   bool eyesys= false;               //if subsitutuing XX for RA or RA for XX results in an openable file, then probably EyeSys
+   std::string str2(filename);
+   if(replace(str2,"RA","XX")) {
+       if(FILE *file = fopen(str2.c_str(),"r")) {
+           fclose(file); eyesys = true;}
+   }else{
+       if(replace(str2,"XX","RA")) {
+           if(FILE *file = fopen(str2.c_str(),"r")) {
+               fclose(file); eyesys = true;
+           }}};
+   if (eyesys) {
+       ShowZernAct->setEnabled(false);
+       centerAct->setEnabled(false);
+       ringsAct->setEnabled(false);
+       centernodeAct->setEnabled(true);
+       adjustradiiAct->setEnabled(true);
+       SplinefillinAct->setEnabled(false);
+       LSQfillinAct->setEnabled(false);
+       lsqvssplineAct->setEnabled(false);
    };
    compareAct->setEnabled(true);
    redrawAct->setEnabled(true);
@@ -422,7 +450,7 @@ void MainWindow::open()   //multiple invocations makes a comparison
    off2stlAct->setEnabled(true);
    importexportAct->setEnabled(true);
    zernAct->setEnabled(true);
-}
+   }
 
 void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for the commandline file if any
 {

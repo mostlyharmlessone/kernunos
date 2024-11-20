@@ -875,7 +875,7 @@ if (TestData .eq. 1) then
   call Atlas_LSQFillin(AtlasSave,AtlasSave%AY,Atlas%AY)
  endif
 
- ! gnuplot splot output and exit
+ ! gnuplot rings output and exit
   if (mod(flag,100) .eq. 8 ) then
  ! generate data file
    unitno1 = get_new_fileunit()
@@ -1027,6 +1027,14 @@ endif
    else  ! MM==180
     JMatrix%MV(i)=min(RadSlope%MV(i),N1)  ! if N=25 don't do more than 22
    endif
+
+
+
+
+!!!!!!!!!!!!!!!!!!!!!this does not stop extrapolation as jmatrix r's/mv dont correspond to data r's regardless of mv
+
+
+
    do j=1,JMatrix%MV(i) ! does not include center point
     JMatrix%R(j,i)=N1*100*(rBi+(j-1)*(rBo-rBi)/(N1-1))/(1.*N)  !scaled to compensate for 16 vs 22 or 25 rings
 !   generate elevations and derivatives; iflag no integration if .ELE .ELE_CSV file

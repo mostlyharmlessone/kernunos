@@ -16,7 +16,7 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
 
 !  for extrapolation:  if u<x(1), i=1 is used;if u>x(n), i=n is used 
 
-  INTEGER, INTENT(IN) :: KP ! periodic KP=1 vs natural spline flag KP=0 KP=2 no extrapolation
+  INTEGER, INTENT(IN) :: KP ! periodic KP=1 vs natural spline flag KP=0; KP=2 no extrapolation
   INTEGER, INTENT(IN) :: n ! vector input length
   REAL(wp),INTENT(IN) :: u ! abscissa at which the spline is to be evaluated
   REAL(wp),INTENT(IN) :: x(n) ! abscissas of knots
@@ -38,8 +38,8 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
    return
   endif
   call bsearch(u,x,n,i1,i) ! binary search
-  if (i1 .eq. i) then  
-   if (i .ne. n) then
+  if (i1 .eq. i) then
+   if (i .ne. n) then  ! on a knot
     i1=i+1
     dr=x(i1)-x(i)
     B=0 ; A=1
@@ -88,7 +88,7 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
   if ((A*B) < 0) then
    if (KP /= 1) then  !  natural spline extrapolation z2=0 outside spline
     z2=0._wp
-    if (KP .eq. 2) then
+    if (KP ==2) then
      if (Present(f)) f=0
      if (Present(fp)) fp=0
      if (Present(fpp)) fpp=0
@@ -98,7 +98,7 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
    end if
   end if
   if (A < 0 .and. B < 0) then
-   if (KP /= 1) then  !  natural spline extrapolation z2=0 outside spline
+   if (KP /= 1) then
     write (*,*) 'Unexpected input in SplineEval',x(i1),u,x(i)
     return
    end if
