@@ -145,7 +145,7 @@ private slots:
     void fctAxial();
     void fctOblique();
     void fctTangential();
-    void fctInstantaneous();
+    void fctGaussian();
     void fctMean();
     void fctMongeAstig();
     void fctElevation();
@@ -172,6 +172,7 @@ private slots:
     void tweakSplinefill();
     void tweak2dspline();
     void tweaklsqvsspline();
+    void tweakaxisymmetric();
     void colorrgb2();
     void colorrgb5();
     void colorhsbrgb();
@@ -201,7 +202,7 @@ private:
     QAction *AxialAct;
     QAction *ObliqueAct;
     QAction *TangentialAct;
-    QAction *InstantaneousAct;
+    QAction *GaussianAct;
     QAction *MeanAct;
     QAction *AstigAct;
     QAction *ElevationAct;
@@ -267,6 +268,7 @@ private:
     QAction *decenterAct;
     QAction *lsqvssplineAct;
     QAction *make2dsplineAct;
+    QAction *axisymmetricAct;
 
     QMenu *helpMenu;
     QAction *aboutAct;

@@ -233,11 +233,17 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
             m_2dspline = false;}  //set/unset 9th ie. tenth bit
         flag=1000000*dat+(flag%1000000);}
 
+    static bool isaxisymmetric() { return m_axisymmetric; }
+    static void setaxisymmetric(bool t) { m_axisymmetric = t;
+        int dat=(flag-(flag%1000000))/1000000;
+        if(t) {dat |= 1UL << 10;} else { dat &= ~(1UL << 10);}  //set/unset 10th ie. eleventh bit
+        flag=1000000*dat+(flag%1000000);}
+
     static void setAllfctfalse(){
       m_Axial = false;
       m_Oblique = false;
       m_Tangential = false;
-      m_Instantaneous = false;
+      m_Gaussian = false;
       m_Mean = false;
       m_MongeAstig = false;
       m_Elevation = false;
@@ -290,12 +296,12 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
       setAllfctfalse();
       m_Tangential = t;}
 
-    static bool isInstantaneous() { return m_Instantaneous; }
-    static void setInstantaneous(bool t) {
+    static bool isGaussian() { return m_Gaussian; }
+    static void setGaussian(bool t) {
       int fct=((flag-(flag%10000))/10000)%100 ;
       flag=flag+10000*(17-fct); // 17 sets to Tangential
       setAllfctfalse();
-      m_Instantaneous = t;}
+      m_Gaussian = t;}
 
     static bool isMean() { return m_Mean; }
     static void setMean(bool t) {
@@ -564,11 +570,12 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     static bool m_consistency;
     static bool m_lsqvsspline;
     static bool m_2dspline;
+    static bool m_axisymmetric;
 
     static bool m_Axial;
     static bool m_Oblique;
     static bool m_Tangential;
-    static bool m_Instantaneous;
+    static bool m_Gaussian;
     static bool m_Mean;
     static bool m_MongeAstig;
     static bool m_Elevation;

@@ -37,7 +37,7 @@
         zr2=DiaSlope%Zpd2(1:2*N,i)
         if (mod(iflag,10) == 0) then                  ! no integration load elevations
          if (mod((iflag-mod(iflag,10))/10,10) == 0) then    ! no central node
-          call SplineEval(0,r,z,zr2,L2,usignd,g,gr,grr)    ! first parameter = 0 nonperiodic
+          call SplineEval(0,r,z,zr2,L2,usignd,g,gr,grr)    ! first parameter = 0 nonperiodic = 2 no extrapolation
          endif
          if (mod((iflag-mod(iflag,10))/10,10) == 1) then    ! non-periodic center node radial spline
           call SplineEvalCenter(j,r,z,zr2,L2,usignd,g,gr,grr)
@@ -45,7 +45,7 @@
          fTmp(i)=g
         else  ! integration, load derivatives
          if (mod((iflag-mod(iflag,10))/10,10) == 0) then     ! no central node
-          call SplineEval(2,r,z,zr2,L2,usignd,gr,grr)    ! first parameter = 0 nonperiodic = 2 no extrapolation
+          call SplineEval(0,r,z,zr2,L2,usignd,gr,grr)    ! first parameter = 0 nonperiodic = 2 no extrapolation
          endif
          if (mod((iflag-mod(iflag,10))/10,10) == 1) then    ! non-periodic center node radial spline
           call SplineEvalCenter(j,r,z,zr2,L2,usignd,gr,grr)
@@ -165,32 +165,6 @@
        if (mod((iflag-mod(iflag,100))/100,100) == 0) then ! spline vs lsq
         call pspli(thta,frTmp,MM,frttTmp)
         call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr,frt)
-
-if (abs(u) .gt. 470) then !for XX test case with PU and RA shows discontinuties even in fTmp
-
-! the problem appears to be that these are all extrapolated past the edge, so why are they displayed at all?
-
-do i=1,MM/2
-L2=DiaSlope%L2(i)
-r=DiaSlope%rd(1:2*N,i)
-z=DiaSlope%Zpd(1:2*N,i)
-zr2=DiaSlope%Zpd2(1:2*N,i)
-call bsearch(u,r,L2,k,k1)
-! write(*,*) thta(i),ftmp(i),frTmp(i),frrtmp(i),u,r(k),r(k1)
-end do
-do i=1,MM/2
-L2=DiaSlope%L2(i)
-r=DiaSlope%rd(1:2*N,i)
-z=DiaSlope%Zpd(1:2*N,i)
-zr2=DiaSlope%Zpd2(1:2*N,i)
-L=i+MM/2
-call bsearch(-u,r,L2,k,k1)
-! write(*,*) thta(L),ftmp(L),frTmp(L),frrtmp(L),-u,r(k),r(k1)
-end do
-
-!stop
-endif
-
        else
         call lsqfit(thta,frTmp,MM,M2,c)
         call LSQEval(M2,c,v,fr,frt)

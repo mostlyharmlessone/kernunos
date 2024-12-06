@@ -40,10 +40,10 @@ MODULE cornea_arrays
 !  Computed results: R is from make rings or Penta version; need to declare one of each of these for each data set for comparison
 !  each array except for R,THT, is (N+1,MM) to include values at each ring and also at center RC==RadSplineCenter pseudo ring
 !  each matching name has the value at origin, min value and max value
-   REAL (wp), ALLOCATABLE :: R(:,:),Z(:,:),THT(:),SAGC(:,:),INSTC(:,:),INSTC2(:,:),MEANC(:,:),MONGEA(:,:),Warp(:,:)
+   REAL (wp), ALLOCATABLE :: R(:,:),Z(:,:),THT(:),SAGC(:,:),INSTC(:,:),GAUSSC(:,:),MEANC(:,:),MONGEA(:,:),Warp(:,:)
    REAL (wp), ALLOCATABLE :: RC(:,:),YPR(:,:),YPTHETA(:,:),PU(:)  ! RC is RadSplineCenter, compare to R0
    INTEGER, ALLOCATABLE :: MV(:)
-   REAL (wp) :: R0,THT0,Z0(3),SAGC0(3),INSTC0(3),INSTC20(3),MEANC0(3),MONGEA0(3),Warp0(3),Pupil_Center(2)
+   REAL (wp) :: R0,THT0,Z0(3),SAGC0(3),INSTC0(3),GAUSSC0(3),MEANC0(3),MONGEA0(3),Warp0(3),Pupil_Center(2)
    ! 12 up to 15 zernike coordinates
    REAL(wp),ALLOCATABLE :: ZC(:,:,:)
    REAL(wp) :: ZC0(3,15) !origin,min,max for each
@@ -150,10 +150,10 @@ subroutine init_mat_JMatrix(MM,N,b) ! allocate common storage arrays
   INTEGER, INTENT(IN) :: MM,N
   TYPE(wpJMatrix) :: b
    allocate (b%R(N,MM),b%Z(N+1,MM),b%THT(MM),b%YPR(N,MM),b%YPTHETA(N,MM),b%SAGC(N+1,MM),&
-            b%INSTC(N+1,MM),b%INSTC2(N+1,MM),b%MEANC(N+1,MM),b%MONGEA(N+1,MM))
+            b%INSTC(N+1,MM),b%GAUSSC(N+1,MM),b%MEANC(N+1,MM),b%MONGEA(N+1,MM))
    allocate (b%MV(MM),b%RC(3,MM),b%Warp(N+1,MM),b%PU(MM))
    b%R(:,:)=0 ; b%Z(:,:)=0 ; b%THT(:)=0 ; b%YPR(:,:)=0 ; b%YPTHETA(:,:)=0 ; b%SAGC(:,:)=0
-   b%INSTC(:,:)=0 ; b%INSTC2(:,:)=0 ; b%MEANC(:,:)=0 ; b%MONGEA(:,:)=0 ;  b%Warp(:,:)=0
+   b%INSTC(:,:)=0 ; b%GAUSSC(:,:)=0 ; b%MEANC(:,:)=0 ; b%MONGEA(:,:)=0 ;  b%Warp(:,:)=0
    b%MV(:)=0 ; b%RC(:,:)=0 ; b%PU(:)=0; b%Pupil_Center(:)=0
    allocate (b%ZC(N+1,MM,15))
    b%ZC(:,:,:)=0
@@ -219,7 +219,7 @@ subroutine destroy_JMatrix(JMatrix,iflag)
   TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
   INTEGER, INTENT (IN) :: iflag 
   IF (iflag==0) THEN
-   deallocate (JMatrix%R,JMatrix%Z,JMatrix%THT,JMatrix%SAGC,JMatrix%INSTC,JMatrix%INSTC2,&
+   deallocate (JMatrix%R,JMatrix%Z,JMatrix%THT,JMatrix%SAGC,JMatrix%INSTC,JMatrix%GAUSSC,&
               JMatrix%MEANC,JMatrix%MONGEA,JMatrix%MV,JMatrix%RC,JMatrix%ZC)
   ENDIF
 end subroutine destroy_JMatrix
@@ -908,7 +908,7 @@ subroutine AXIALP(X2,Y1X,Y2X,SAGC)
  endif     
 end subroutine AXIALP
 
-! instantaneous "tangential" power using slope/derivatives with and without use of calculated angular derivatives
+! "tangential" power using slope/derivatives with and without use of calculated angular derivatives
 subroutine instantp(X2,Y1X,Y1T,Y2X,TANC)
  real(wp), INTENT(IN) :: X2,Y1X,Y1T,Y2X
  real(wp), INTENT(OUT) :: TANC
@@ -993,19 +993,21 @@ subroutine principal(t,r,hr,ht,hrt,htt,hrr,K,H,k1,k2,A)
     huu=hrr-(sin(t)**2)*(hrr-hr/r-htt/(r**2))+2*cos(t)*sin(t)*(ht/(r**2)-hrt/r)
     hvv=hrr-(cos(t)**2)*(hrr-hr/r-htt/(r**2))-2*cos(t)*sin(t)*(ht/(r**2)-hrt/r)
     huv=cos(t)*sin(t)*(hrr-hr/r-htt/(r**2))+(sin(t)**2-cos(t)**2)*(ht/(r**2)-hrt/r)
-    g = 1 + hr**2 + (ht/r)**2
+    g = 1 + hu**2 + hv**2
     K=(huu*hvv-huv*huv)/(g*g)
     H=((1+hv**2)*huu-2*hu*hv*huv+(1+hu**2)*hvv)/(2*(sqrt(g)**3))
     if (H**2-K < 0) write(*,*) 'error in principal'
+    if ((huu*hvv-huv*huv) < 0) write(*,*) 'Hessian error in principal: t,huu,hvv,huv,Hessian',t,huu,hvv,huv,huu*hvv-huv*huv,H,K
      k1=H-sqrt(abs(H**2-K))
      k2=H+sqrt(abs(H**2-K))
      A=2*sqrt(abs(H**2-K))
+     K=sqrt(abs(K))  ! use sqrt of gaussian curvature for output->geometric mean power in same units
    else
 !   AT ORIGIN r = 0, things get weird at the limit
     if ( ABS(ht) > EPS ) then  ! but really it depends on ht/r and htt/r^2
      K=(htt/ht)**2
     else ! axisymmetric answer
-     K=hrr*hrr
+     K=hrr
     endif
     H=hrr
     k1=hrr
@@ -1028,7 +1030,7 @@ subroutine axisymmetric_principal(r,hr,hrr,K,H,k1,k2,A)
    endif
    A=abs(k1-k2)
    H=(k1+k2)/2.
-   K=k1*k2
+   K=sqrt(abs(k1*k2)) ! use sqrt of gaussian curvature for output->geometric mean power in same units
 end subroutine axisymmetric_principal
 
 
@@ -1050,7 +1052,7 @@ subroutine LIOC_Fortran(X1,X2,Y1X,Y1T,UTPOS,VTPOS)
    endif
 end subroutine LIOC_Fortran
 
-! instantaneous "tangential" power and mean power in terms of axial/"sagittal" power,radius and radial derivative of axial power 
+! "tangential" power and mean power in terms of axial/"sagittal" power,radius and radial derivative of axial power
  subroutine sagc2(X2,SAGC,DSAGC,TANC,ZMM)  
   real(wp), INTENT(IN) :: X2,SAGC,DSAGC
   real(wp), INTENT(OUT) :: TANC,ZMM   
@@ -1113,9 +1115,9 @@ SELECT CASE (fct)
   powmin=b%INSTC0(2)
   powmax=b%INSTC0(3)
   CASE (17)
-  powctr=b%INSTC20(1)
-  powmin=b%INSTC20(2)
-  powmax=b%INSTC20(3)
+  powctr=b%GAUSSC0(1)
+  powmin=b%GAUSSC0(2)
+  powmax=b%GAUSSC0(3)
   CASE (18)
   powctr=b%MEANC0(1)
   powmin=b%MEANC0(2)

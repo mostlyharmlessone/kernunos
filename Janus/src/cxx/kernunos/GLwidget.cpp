@@ -133,11 +133,12 @@ bool GLwidget::m_decenter = false;
 bool GLwidget::m_consistency = false;
 bool GLwidget::m_lsqvsspline = false;
 bool GLwidget::m_2dspline = false;
+bool GLwidget::m_axisymmetric = true;
 
 bool GLwidget::m_Axial = true;
 bool GLwidget::m_Oblique = false;
 bool GLwidget::m_Tangential = false;
-bool GLwidget::m_Instantaneous = false;
+bool GLwidget::m_Gaussian = false;
 bool GLwidget::m_Mean = false;
 bool GLwidget::m_MongeAstig = false;
 bool GLwidget::m_Elevation = false;

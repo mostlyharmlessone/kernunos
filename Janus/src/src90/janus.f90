@@ -43,7 +43,7 @@
   real(wp), allocatable :: zernC(:,:), B_Matrix(:,:), rlocal(:), thtlocal(:), WORK(:)
   real(wp), allocatable :: UT(:,:),VT(:,:) !,XTX(:,:),EE(:,:)
 !  integer, allocatable :: IPIV(:)
-  real(wp) :: ctr_circle_x, ctr_circle_y, R_global, Theta_global
+  real(wp) :: ctr_circle_x, ctr_circle_y, R_global, Theta_global, R_MV, R_TST
   real(wp) :: gaussian,meanpower,princ1,princ2,astigm
 
 !write(*,*) 'flag to Fortran:',flag
@@ -78,6 +78,8 @@ map=mod((flag-mod(flag,100))/100,100)  ! last two digits are tweaks
 ! dat = seventh binary bit 0/1 pupilregister tweak ie btest(dat,6) = .true.
 ! dat = eighth binary bit 0/1 atlas spline consistency check tweak ie btest(dat,7) = .true.
 ! dat = ninth binary bit 0/1 lsq instead of circumferential spline tweak ie btest(dat,8) = .true.
+! dat = tenth binary bit 0/1 2d vs 1d x 1d spline tweak ie btest(dat,9) = .true.
+! dat = eleventh binary bit 0/1 axisymmetric tweak ie btest(dat,10) = .true.
 
 ! iflag passing of dat to SplineEval1Dx1D centernode splines, integration of splines and LSQ vs circumferential splining
 ! first mod((iflag-mod(iflag,100))/100,100)
@@ -161,7 +163,7 @@ if (mod(flag,100) /= 10) then
  JMatrix1%SAGC(:,:)=JMatrix%SAGC(:,:)
  JMatrix1%Warp(:,:)=JMatrix%Warp(:,:)
  JMatrix1%INSTC(:,:)=JMatrix%INSTC(:,:)
- JMatrix1%INSTC2(:,:)=JMatrix%INSTC2(:,:)
+ JMatrix1%GAUSSC(:,:)=JMatrix%GAUSSC(:,:)
  JMatrix1%MEANC(:,:)=JMatrix%MEANC(:,:)
  JMatrix1%MONGEA(:,:)=JMatrix%MONGEA(:,:)
  JMatrix1%RC(:,:)=JMatrix%RC(:,:)
@@ -172,7 +174,7 @@ if (mod(flag,100) /= 10) then
  JMatrix1%SAGC0(:)=JMatrix%SAGC0(:)
  JMatrix1%Warp0(:)=JMatrix%Warp0(:)
  JMatrix1%INSTC0(:)=JMatrix%INSTC0(:)
- JMatrix1%INSTC20(:)=JMatrix%INSTC20(:)
+ JMatrix1%GAUSSC0(:)=JMatrix%GAUSSC0(:)
  JMatrix1%MEANC0(:)=JMatrix%MEANC0(:)
  JMatrix1%MONGEA0(:)=JMatrix%MONGEA0(:)
  JMatrix1%ZC0(:,:)=JMatrix%ZC0(:,:)
@@ -439,7 +441,7 @@ if (mod(flag,100) == 10) then
    JMatrix2%SAGC(:,i)=ABS(JMatrix1%SAGC(:,i)-JMatrix3%SAGC(:,j))
    JMatrix2%Warp(:,i)=ABS(JMatrix1%Warp(:,i)-JMatrix3%Warp(:,j))
    JMatrix2%INSTC(:,i)=ABS(JMatrix1%INSTC(:,i)-JMatrix3%INSTC(:,j))
-   JMatrix2%INSTC2(:,i)=ABS(JMatrix1%INSTC2(:,i)-JMatrix3%INSTC2(:,j))
+   JMatrix2%GAUSSC(:,i)=ABS(JMatrix1%GAUSSC(:,i)-JMatrix3%GAUSSC(:,j))
    JMatrix2%MEANC(:,i)=ABS(JMatrix1%MEANC(:,i)-JMatrix3%MEANC(:,j))
    JMatrix2%MONGEA(:,i)=ABS(JMatrix1%MONGEA(:,i)-JMatrix3%MONGEA(:,j))
    JMatrix2%ZC(:,i,:)=ABS(JMatrix1%ZC(:,i,:)-JMatrix3%ZC(:,j,:))
@@ -450,7 +452,7 @@ if (mod(flag,100) == 10) then
   JMatrix2%SAGC(:,:)=ABS(JMatrix1%SAGC(:,:)-JMatrix3%SAGC(:,:))
   JMatrix2%Warp(:,:)=ABS(JMatrix1%Warp(:,:)-JMatrix3%Warp(:,:))
   JMatrix2%INSTC(:,:)=ABS(JMatrix1%INSTC(:,:)-JMatrix3%INSTC(:,:))
-  JMatrix2%INSTC2(:,:)=ABS(JMatrix1%INSTC2(:,:)-JMatrix3%INSTC2(:,:))
+  JMatrix2%GAUSSC(:,:)=ABS(JMatrix1%GAUSSC(:,:)-JMatrix3%GAUSSC(:,:))
   JMatrix2%MEANC(:,:)=ABS(JMatrix1%MEANC(:,:)-JMatrix3%MEANC(:,:))
   JMatrix2%MONGEA(:,:)=ABS(JMatrix1%MONGEA(:,:)-JMatrix3%MONGEA(:,:))
  endif
@@ -458,7 +460,7 @@ if (mod(flag,100) == 10) then
  JMatrix2%Z0(:)=ABS(JMatrix1%Z0(:)-JMatrix3%Z0(:))
  JMatrix2%Warp0(:)=ABS(JMatrix1%Warp0(:)-JMatrix3%Warp0(:))
  JMatrix2%INSTC0(:)=ABS(JMatrix1%INSTC0(:)-JMatrix3%INSTC0(:))
- JMatrix2%INSTC20(:)=ABS(JMatrix1%INSTC20(:)-JMatrix3%INSTC20(:))
+ JMatrix2%GAUSSC0(:)=ABS(JMatrix1%GAUSSC0(:)-JMatrix3%GAUSSC0(:))
  JMatrix2%MEANC0(:)=ABS(JMatrix1%MEANC0(:)-JMatrix3%MEANC0(:))
  JMatrix2%MONGEA0(:)=ABS(JMatrix1%MONGEA0(:)-JMatrix3%MONGEA0(:))
  JMatrix2%ZC(:,:,:)=ABS(JMatrix1%ZC(:,:,:)-JMatrix3%ZC(:,:,:))
@@ -468,14 +470,14 @@ if (mod(flag,100) == 10) then
  JMatrix2%Warp0(2)=1E30   ;  JMatrix2%Warp0(3)=-1E30
  JMatrix2%Z0(2)=1E30      ;  JMatrix2%Z0(3)=-1E30
  JMatrix2%INSTC0(2)=1E30  ;  JMatrix2%INSTC0(3)=-1E30
- JMatrix2%INSTC20(2)=1E30 ;  JMatrix2%INSTC20(3)=-1E30
+ JMatrix2%GAUSSC0(2)=1E30 ;  JMatrix2%GAUSSC0(3)=-1E30
  JMatrix2%MEANC0(2)=1E30  ;  JMatrix2%MEANC0(3)=-1E30
  JMatrix2%MONGEA0(2)=1E30 ;  JMatrix2%MONGEA0(3)=-1E30
  JMatrix2%ZC0(2,:)=1E30   ;  JMatrix2%ZC0(3,:)=-1E30
  if (JMatrix2%INSTC0(1) <= JMatrix2%INSTC0(2)) JMatrix2%INSTC0(2)=JMatrix2%INSTC0(1)
  if (JMatrix2%INSTC0(1) >= JMatrix2%INSTC0(3)) JMatrix2%INSTC0(3)=JMatrix2%INSTC0(1)
- if (JMatrix2%INSTC20(1) <= JMatrix2%INSTC20(2)) JMatrix2%INSTC20(2)=JMatrix2%INSTC20(1)
- if (JMatrix2%INSTC20(1) >= JMatrix2%INSTC20(3)) JMatrix2%INSTC20(3)=JMatrix2%INSTC20(1)
+ if (JMatrix2%GAUSSC0(1) <= JMatrix2%GAUSSC0(2)) JMatrix2%GAUSSC0(2)=JMatrix2%GAUSSC0(1)
+ if (JMatrix2%GAUSSC0(1) >= JMatrix2%GAUSSC0(3)) JMatrix2%GAUSSC0(3)=JMatrix2%GAUSSC0(1)
  if (JMatrix2%Z0(1) <= JMatrix2%Z0(2)) JMatrix2%Z0(2)=JMatrix2%Z0(1)
  if (JMatrix2%Z0(1) >= JMatrix2%Z0(3)) JMatrix2%Z0(3)=JMatrix2%Z0(1)
  if (JMatrix2%SAGC0(1) <= JMatrix2%SAGC0(2)) JMatrix2%SAGC0(2)=JMatrix2%SAGC0(1)
@@ -494,8 +496,8 @@ do i=1,M1
  do j=1,JMatrix2%MV(i)
    if (JMatrix2%INSTC(j,i) <= JMatrix2%INSTC0(2)) JMatrix2%INSTC0(2)=JMatrix2%INSTC(j,i)
    if (JMatrix2%INSTC(j,i) >= JMatrix2%INSTC0(3)) JMatrix2%INSTC0(3)=JMatrix2%INSTC(j,i)
-   if (JMatrix2%INSTC2(j,i) <= JMatrix2%INSTC20(2)) JMatrix2%INSTC20(2)=JMatrix2%INSTC2(j,i)
-   if (JMatrix2%INSTC2(j,i) >= JMatrix2%INSTC20(3)) JMatrix2%INSTC20(3)=JMatrix2%INSTC2(j,i)
+   if (JMatrix2%GAUSSC(j,i) <= JMatrix2%GAUSSC0(2)) JMatrix2%GAUSSC0(2)=JMatrix2%GAUSSC(j,i)
+   if (JMatrix2%GAUSSC(j,i) >= JMatrix2%GAUSSC0(3)) JMatrix2%GAUSSC0(3)=JMatrix2%GAUSSC(j,i)
    if (JMatrix2%Z(j,i) <= JMatrix2%Z0(2)) JMatrix2%Z0(2)=JMatrix2%Z(j,i)
    if (JMatrix2%Z(j,i) >= JMatrix2%Z0(3)) JMatrix2%Z0(3)=JMatrix2%Z(j,i)
    if (JMatrix2%SAGC(j,i) <= JMatrix2%SAGC0(2)) JMatrix2%SAGC0(2)=JMatrix2%SAGC(j,i)
@@ -969,95 +971,137 @@ if (mod(flag,100) .ne. 9 ) then
 
 ! Make JMatrix
 
-!  make round rings and if needed convert 360x16 or 180x25 to 180x22
+! set iflag for slope based data, integrate based on iflag with or without cubic/trapez or center point or not for values
+ if (TestData.ne.2 .and. TestData.ne.4) then
+  if (btest(dat, 2)) then
+   if (btest(dat,0)) then
+    iflag=12
+   else
+    iflag=2
+   endif
+  else
+   if (btest(dat,0)) then
+    iflag=11
+   else
+    iflag=1
+   endif
+  endif
+! lsq instead of circumferential spline
+   if (btest(dat, 8)) then
+    iflag = iflag+100
+   endif
+  else
+   if (btest(dat,0)) then
+    iflag=10
+   else
+    iflag=0
+   endif
+! lsq instead of circumferential spline
+   if (btest(dat, 8)) then
+    iflag = iflag+100
+   endif
+  endif
+
+! make round rings and if needed convert 360x16 or 180x25 to 180x22
 ! donut
 ! Find maximum radius from data in RadSlope
   rBo = 0
-if (TestData.ne.2 .and. TestData.ne.4) then  ! slope based data, integrate based on iflag with or without cubic/trapez or center point or not for values
- if (btest(dat, 2)) then
-  if (btest(dat,0)) then
-   iflag=12
-  else
-   iflag=2
-  endif
- else
-  if (btest(dat,0)) then
-   iflag=11
-  else
-   iflag=1
-  endif
- endif
-! lsq instead of circumferential spline
- if (btest(dat, 8)) then
-  iflag = iflag+100
- endif
-else
- if (btest(dat,0)) then
-  iflag=10
- else
-  iflag=0
- endif
-!lsq instead of circumferential spline
- if (btest(dat, 8)) then
-  iflag = iflag+100
- endif
-endif
   do i=1,MM
-   do j=1,N
-    if (ABS(RadSlope%r(j,i)) >= rBo) rBo=ABS(RadSlope%r(j,i))
-   end do
+   j=RadSlope%MV(i)
+   if (ABS(RadSlope%r(j,i)) >= rBo) rBo=ABS(RadSlope%r(j,i))
   end do
-  rBo=rBo/100.   ! scaling
   rBi=0.05*rBo
 !  min and max bounds
   JMatrix%SAGC0(2)=1E30   ;  JMatrix%SAGC0(3)=-1E30 ; JMatrix%SAGC0(1)=0
   JMatrix%Warp0(2)=1E30   ;  JMatrix%Warp0(3)=-1E30 ; JMatrix%Warp0(1)=0
   JMatrix%Z0(2)=1E30      ;  JMatrix%Z0(3)=-1E30 ;    JMatrix%Z0(3)=0
   JMatrix%INSTC0(2)=1E30  ;  JMatrix%INSTC0(3)=-1E30 ; JMatrix%INSTC0(1)=0
-  JMatrix%INSTC20(2)=1E30 ;  JMatrix%INSTC20(3)=-1E30 ; JMatrix%INSTC20(1)=0
+  JMatrix%GAUSSC0(2)=1E30 ;  JMatrix%GAUSSC0(3)=-1E30 ; JMatrix%GAUSSC0(1)=0
   JMatrix%MEANC0(2)=1E30  ;  JMatrix%MEANC0(3)=-1E30 ; JMatrix%MEANC0(1)=0
   JMatrix%MONGEA0(2)=1E30 ;  JMatrix%MONGEA0(3)=-1E30 ; JMatrix%MONGEA0(1)=0
   JMatrix%R0=0 ; JMatrix%THT0=0
-! Generate the rings
-! JMatrix
+! determine the boundary
   do i=1,M1                             ! every 2 degrees
    JMatrix%THT(i)=PI*(i-1)/90.0_wp
-   if (MM == 360 .and. N == 16) then  ! original EyeSys RadSlope or fake data
-    JMatrix%MV(i)=MIN(RadSlope%MV(2*i),RadSlope%MV(2*i-1))  ! close to real boundary
+   JMatrix%MV(i)=N1
+   j=N1
+   if (MM == 360) then  ! original EyeSys RadSlope or fake data
+    ii=2*i
    else  ! MM==180
-    JMatrix%MV(i)=min(RadSlope%MV(i),N1)  ! if N=25 don't do more than 22
+    ii=i
    endif
+   R_TST=RadSlope%r(RadSlope%MV(ii),ii)
+   if (R_TST > 0) then
+   R_MV=rBo
+    do while (R_MV .gt. R_TST)
+     JMatrix%MV(i)=JMatrix%MV(i)-1
+     j=j-1
+     R_MV=(rBi+(j-1)*(rBo-rBi)/(N1-1))
+    end do
+   else
+    R_MV=-rBo
+    do while (R_MV .lt. R_TST)
+     JMatrix%MV(i)=JMatrix%MV(i)-1
+     j=j-1
+     R_MV=-(rBi+(j-1)*(rBo-rBi)/(N1-1))
+    end do
+   endif
+  end do
 
-
-
-
-!!!!!!!!!!!!!!!!!!!!!this does not stop extrapolation as jmatrix r's/mv dont correspond to data r's regardless of mv
-
-
-
+! Generate the rings
+  do i=1,M1
    do j=1,JMatrix%MV(i) ! does not include center point
-    JMatrix%R(j,i)=N1*100*(rBi+(j-1)*(rBo-rBi)/(N1-1))/(1.*N)  !scaled to compensate for 16 vs 22 or 25 rings
+    JMatrix%R(j,i)=(rBi+(j-1)*(rBo-rBi)/(N1-1))
 !   generate elevations and derivatives; iflag no integration if .ELE .ELE_CSV file
     call SplineEval1Dx1D(iflag,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
-!  save for vertex normals and for LIOC
+
+!   save for vertex normals and for LIOC
     JMatrix%YPR(j,i)=YPR
     JMatrix%YPTHETA(j,i)=YPTHETA
-!  powers
+!   powers
     call AXIALP(JMatrix%R(j,i),ABS(YPR),YP2R2,JMatrix%SAGC(j,i))
     call AXIALP(JMatrix%R(j,i),YPTHETA/JMatrix%R(j,i),YP2THETA/JMatrix%R(j,i),JMatrix%Warp(j,i))
     call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i))
     call MEANP(JMatrix%THT(i),JMatrix%R(j,i),ABS(YPR),YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
-    call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),ABS(YPR),YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
-    call principal(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
+!    call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),ABS(YPR),YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
+     JMatrix%MONGEA(j,i)=abs(JMatrix%SAGC(j,i)-JMatrix%INSTC(j,i))
 
+    if (.not.btest(dat,10)) then
+     call principal(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
+    else
+     call axisymmetric_principal(JMatrix%R(j,i),YPR,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
+    endif
+!    JMatrix%MONGEA(j,i)=RFCT*astigm
+!    JMatrix%MEANC(j,i)=RFCT*meanpower
+!    JMatrix%INSTC(j,i)=RFCT*princ1
+!    JMatrix%SAGC(j,i)=RFCT*princ2
+!    JMatrix%GAUSSC(j,i)=RFCT*gaussian
 
-!write(*,*) ABS(JMatrix%R(j,i))*COS(JMatrix%THT(i)),ABS(JMatrix%R(j,i))*SIN(JMatrix%THT(i)),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA,ABS(JMatrix%R(j,i))
+!!!!!check here for extrapolation with XX; yep still doing it; its at the edge where the data is discontinuous circumferentially
 
-!write(*,*) ABS(JMatrix%R(j,i))*COS(JMatrix%THT(i)),ABS(JMatrix%R(j,i))*SIN(JMatrix%THT(i)),JMatrix%Z(j,i),JMatrix%SAGC(j,i) !,YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA
-!write(*,*) '1',JMatrix%MEANC(j,i),JMatrix%MONGEA(j,i),JMatrix%INSTC(j,i),JMatrix%SAGC(j,i),sqrt(JMatrix%INSTC(j,i)*JMatrix%SAGC(j,i))
-!write(*,*) '2',RFCT*meanpower,RFCT*astigm,RFCT*princ1,RFCT*princ2,RFCT*sqrt(abs(gaussian))
-!   call  axisymmetric_principal(JMatrix%R(j,i),YPR,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
-!write(*,*) '3',RFCT*meanpower,RFCT*astigm,RFCT*princ1,RFCT*princ2,RFCT*sqrt(gaussian)
+if (abs(YP2THETA) .gt. 2000) then
+
+write(*,*) ABS(JMatrix%R(j,i))*COS(JMatrix%THT(i)),ABS(JMatrix%R(j,i))*SIN(JMatrix%THT(i)),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA,ABS(JMatrix%R(j,i))
+!nb only for mm=60
+if (i .gt. M1/2) then
+ ii=2*(i-M1/2)
+else
+ ii=2*i
+endif
+write(*,*) RadSlope%r(1:N,ii/2)
+write(*,*) j,i,ii
+write(*,*) DiaSlope%rd(1:2*N,ii)
+
+endif
+
+write(*,*) ' '
+write(*,*) '1',JMatrix%MEANC(j,i),JMatrix%MONGEA(j,i),JMatrix%INSTC(j,i),JMatrix%SAGC(j,i),sqrt(JMatrix%INSTC(j,i)*JMatrix%SAGC(j,i))
+
+call principal(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
+write(*,*) '2',RFCT*meanpower,RFCT*astigm,RFCT*princ1,RFCT*princ2,RFCT*gaussian
+
+call axisymmetric_principal(JMatrix%R(j,i),YPR,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
+write(*,*) '3',RFCT*meanpower,RFCT*astigm,RFCT*princ1,RFCT*princ2,RFCT*gaussian
 
 !    if (M1 .eq. 360) then
 !     k=8 ! skip this many problematic values at x-axis
@@ -1070,8 +1114,8 @@ endif
 !    endif
     if (JMatrix%INSTC(j,i) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC(j,i)
     if (JMatrix%INSTC(j,i) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC(j,i)
-    if (JMatrix%INSTC2(j,i) <= JMatrix%INSTC20(2)) JMatrix%INSTC20(2)=JMatrix%INSTC2(j,i)
-    if (JMatrix%INSTC2(j,i) >= JMatrix%INSTC20(3)) JMatrix%INSTC20(3)=JMatrix%INSTC2(j,i)
+    if (JMatrix%GAUSSC(j,i) <= JMatrix%GAUSSC0(2)) JMatrix%GAUSSC0(2)=JMatrix%GAUSSC(j,i)
+    if (JMatrix%GAUSSC(j,i) >= JMatrix%GAUSSC0(3)) JMatrix%GAUSSC0(3)=JMatrix%GAUSSC(j,i)
     if (JMatrix%Z(j,i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z(j,i)
     if (JMatrix%Z(j,i) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z(j,i)
     if (JMatrix%SAGC(j,i) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC(j,i)
@@ -1210,26 +1254,26 @@ endif
   if (JMatrix%INSTC0(1) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC0(1)
   if (JMatrix%INSTC0(1) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC0(1)
 
-! INSTC2
+! GAUSSC
 ! Reload RadSlope & respline
   do i=1,M1
    do j=1,RadSlope%MV(i)
-    RadSlope%Zp(j,i)=JMatrix%INSTC2(j,i)
+    RadSlope%Zp(j,i)=JMatrix%GAUSSC(j,i)
    end do
   end do
   DiaSlope=RadSlope              ! move to diagonal format
   DiaSlope%Zpd2 = .n. DiaSlope
 
   do i=1,M1
-   call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC2(N1+1,i))  ! center value
+   call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%GAUSSC(N1+1,i))  ! center value
    if (i .eq. 1) then
-    JMatrix%INSTC20(1)=JMatrix%INSTC2(N1+1,1)
+    JMatrix%GAUSSC0(1)=JMatrix%GAUSSC(N1+1,1)
    else
-    JMatrix%INSTC20(1)=(i*JMatrix%INSTC20(1)+JMatrix%INSTC2(N1+1,i))/(i+1)      ! cumulative average
+    JMatrix%GAUSSC0(1)=(i*JMatrix%GAUSSC0(1)+JMatrix%GAUSSC(N1+1,i))/(i+1)      ! cumulative average
    endif
   end do
-  if (JMatrix%INSTC20(1) <= JMatrix%INSTC20(2)) JMatrix%INSTC20(2)=JMatrix%INSTC20(1)
-  if (JMatrix%INSTC20(1) >= JMatrix%INSTC20(3)) JMatrix%INSTC20(3)=JMatrix%INSTC20(1)
+  if (JMatrix%GAUSSC0(1) <= JMatrix%GAUSSC0(2)) JMatrix%GAUSSC0(2)=JMatrix%GAUSSC0(1)
+  if (JMatrix%GAUSSC0(1) >= JMatrix%GAUSSC0(3)) JMatrix%GAUSSC0(3)=JMatrix%GAUSSC0(1)
 
 ! MEANC
 ! Reload RadSlope & respline
@@ -1649,9 +1693,8 @@ endif
 
 ! writes values in openGL friendly format to matrices for passing to C/C++
 ! flag/fct determines what to write for elevation and color, just like in flag=2,3 output versions above
-   donut = .FALSE.
-   call selectfunction(0,JMatrix,flag,powctr,powmin,powmax)
-
+  donut = .FALSE.
+  call selectfunction(0,JMatrix,flag,powctr,powmin,powmax)
   dist = real(-2*JMatrix%Z0(3),kind=sk)
 ! generate buffer data
   pupil_elements(1:pupil_nE)=0

@@ -2,12 +2,7 @@ things to do
 
 CorneaCopia
 
-plotting derivatives:YPTHETA,YPRTHETA,YP2THETA have only a few stray bad values near the axis esp YPRTHETA when plotting reference eyesys; 
-check what's happening there with discontinuity even in fTmp in spline1dx1d
-look at EyeSys slopes vs frtmp, which should be very close 
-IT's extrapolation!!!!!!!!!!!!!!!!!!!!!
-jmatrix r's/mv dont correspond to data r's regardless of mv
-
+Redo main functions using principal/axisymmetric principal
 
 selectfunction in cornea_arrays in only partially implemented
 there's also a partial call/implementation in if (mod(flag,100) .eq. 5 ) ! gnuplot splot output
@@ -84,7 +79,7 @@ Needs a whole section on corneal topography and "powers" with math definitions
 needs section on handling bad data:
 shift discontinuity in 900 and others: how to best address: document as opposed to missing data...discontinuities affect global fitting ie lsq but not local ie spline
 spline better at filling in locally (it's interpolation after all) whereas LSQ can be used as a smoothing operation. See also early chapter in spline text, and reference it
-rings function can demonstate difference.
+rings function can demonstate difference. Discontinuity in all data circumferentially affects theta deivatives, all the more with splining.
 
 notes from spline_monge.odt into help/faq OR add docs in pdf to main release files
 incorporate cornea docs from BRODIE, may need to read those old DRW and WP files somehow: coreldraw works on wine, corelpaint does not; work on win31 under dosbox

@@ -97,6 +97,10 @@ const unsigned int SCR_HEIGHT = 600;
 // dat = fifth binary bit 0/1 splinefillin cannot be combined with lsqfillin
 // dat = sixth binary bit 0/1 decenter tweak
 // dat = seventh binary bit 0/1 pupilregister tweak
+// dat = eighth binary bit 0/1 atlas spline consistency check tweak
+// dat = ninth binary bit 0/1 lsq instead of circumferential spline tweak
+// dat = tenth binary bit 0/1 2d vs 1d x 1d spline tweak
+// dat = eleventh binary bit 0/1 axisymmetric tweak
 // second two digits are the function to be plotted as colors
 // 0 = SAGC Sagittal or Axial power
 // 1-15 = zernike coefficient maps
@@ -120,8 +124,8 @@ const unsigned int SCR_HEIGHT = 600;
     10     Z(1,1)  X tilt                X tilt
     07     Z(0,0)  Piston                Height
  */
-// 16 = INTC Instantaneous or Tangential power based only on meridional derivatives
-// 17 = INSTC2 Instantaneous or Tangential power using calculated angular derivatives
+// 16 = INTC Tangential power
+// 17 = GAUSSC Gaussian power
 // 18 = MEANC Monge Mean Curvature, in diopters
 // 19 = MONGEA Monge Astigmatism
 // 20 = Z Elevation
@@ -1114,7 +1118,7 @@ void MainWindow::checkfctsflags(){
     AxialAct->setChecked(GLwidget::isAxial());
     ObliqueAct->setChecked(GLwidget::isOblique());
     TangentialAct->setChecked(GLwidget::isTangential());
-    InstantaneousAct->setChecked(GLwidget::isInstantaneous());
+    GaussianAct->setChecked(GLwidget::isGaussian());
     MeanAct->setChecked(GLwidget::isMean());
     AstigAct->setChecked(GLwidget::isAstig());
     ElevationAct->setChecked(GLwidget::isElevation());
@@ -1258,18 +1262,18 @@ void MainWindow::fctTangential()
    };
 }
 
-void MainWindow::fctInstantaneous()
+void MainWindow::fctGaussian()
 {
-   if (GLwidget::isInstantaneous()) {
-        GLwidget::setInstantaneous(false);
+   if (GLwidget::isGaussian()) {
+        GLwidget::setGaussian(false);
         GLwidget::setAxial(true);
         AxialAct->setChecked(GLwidget::isAxial());
-        ui.infoLabel->setText(tr("Set <b>View:Instantaneous false, reset to Axial</b>"));
+        ui.infoLabel->setText(tr("Set <b>View:Gaussian false, reset to Axial</b>"));
    } else {
         GLwidget::setAllfctfalse();
-        GLwidget::setInstantaneous(true);
+        GLwidget::setGaussian(true);
         checkfctsflags();
-        ui.infoLabel->setText(tr("Set <b>View:Instantaneous true</b>"));
+        ui.infoLabel->setText(tr("Set <b>View:Gaussian true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -1737,6 +1741,21 @@ void MainWindow::tweak2dspline()
     };
 }
 
+void MainWindow::tweakaxisymmetric()
+{
+    if (GLwidget::isaxisymmetric()) {
+        GLwidget::setaxisymmetric(false);
+        axisymmetricAct->setChecked(GLwidget::isaxisymmetric());
+    } else {
+        GLwidget::setaxisymmetric(true);
+        axisymmetricAct->setChecked(GLwidget::isaxisymmetric());
+    };
+    if (GLwidget::isRedraw()) {
+        redraw();
+    };
+}
+
+
 void MainWindow::colorrgb2()
 {
    if (GLwidget::isrgb2()) {
@@ -2027,6 +2046,11 @@ void MainWindow::createActions()
    make2dsplineAct->setCheckable(true);
    connect(make2dsplineAct, &QAction::triggered, this, &MainWindow::tweak2dspline);
 
+   axisymmetricAct=new QAction(tr("&Impose Axisymmetry assumption in calculations"), this);
+   axisymmetricAct->setCheckable(true);
+   connect(axisymmetricAct, &QAction::triggered, this, &MainWindow::tweakaxisymmetric);
+   axisymmetricAct->setChecked(GLwidget::isaxisymmetric());  //check initially because default is true
+
    liocAct = new QAction(tr("&Lines of Curvature"), this);
    liocAct->setStatusTip(tr("Show plot of lines of curvature"));
    liocAct->setEnabled(false);
@@ -2072,13 +2096,13 @@ void MainWindow::createActions()
    ObliqueAct->setCheckable(true);
    connect(ObliqueAct, &QAction::triggered, this, &MainWindow::fctOblique);
 
-   TangentialAct=new QAction(tr("&Tangential Power, meridional calculation only"), this);
+   TangentialAct=new QAction(tr("&Tangential or Gaussian Power"), this);
    TangentialAct->setCheckable(true);
    connect(TangentialAct, &QAction::triggered, this, &MainWindow::fctTangential);
 
-   InstantaneousAct=new QAction(tr("&Instantaneous/Tangential Power"), this);
-   InstantaneousAct->setCheckable(true);
-   connect(InstantaneousAct, &QAction::triggered, this, &MainWindow::fctInstantaneous);
+   GaussianAct=new QAction(tr("&Gaussian Power"), this);
+   GaussianAct->setCheckable(true);
+   connect(GaussianAct, &QAction::triggered, this, &MainWindow::fctGaussian);
 
    MeanAct=new QAction(tr("&Mean Power"), this);
    MeanAct->setCheckable(true);
@@ -2227,7 +2251,7 @@ void MainWindow::createMenus()
    functionMenu->addAction(AxialAct);
    functionMenu->addAction(ObliqueAct);
    functionMenu->addAction(TangentialAct);
-   functionMenu->addAction(InstantaneousAct);
+   functionMenu->addAction(GaussianAct);
    functionMenu->addAction(MeanAct);
    functionMenu->addAction(AstigAct);
    functionMenu->addAction(ElevationAct);
@@ -2261,6 +2285,7 @@ void MainWindow::createMenus()
    viewMenu->addAction(normalAct);
    viewMenu->addAction(pupilAct);
    tweaksMenu = menuBar()->addMenu(tr("&Placido data tweaks"));
+   tweaksMenu->addAction(axisymmetricAct);
    tweaksMenu->addAction(centernodeAct);
    tweaksMenu->addAction(adjustradiiAct);
    tweaksMenu->addAction(cubicAct);
