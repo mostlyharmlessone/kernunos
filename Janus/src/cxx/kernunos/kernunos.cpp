@@ -305,6 +305,17 @@ MainWindow::MainWindow(QMainWindow *parent) : assistant(new Assistant)
    multiLineTextLabel->setFrameStyle(frameStyle);
    degreeLabel = new QLabel;
    degreeLabel->setFrameStyle(frameStyle);
+// starting defaults
+   GLwidget::setaxisymmetric(true);
+   GLwidget::setlsqvsspline(true);
+   centerAct->setEnabled(false);
+   ShowZernAct->setEnabled(false);
+   ringsAct->setEnabled(false);
+   centernodeAct->setEnabled(false);
+   adjustradiiAct->setEnabled(false);
+   SplinefillinAct->setEnabled(false);
+   LSQfillinAct->setEnabled(false);
+   lsqvssplineAct->setEnabled(true);
 
    resize(SCR_WIDTH, SCR_HEIGHT);
    update();
@@ -410,7 +421,7 @@ void MainWindow::open()   //multiple invocations makes a comparison
       adjustradiiAct->setEnabled(false);
       SplinefillinAct->setEnabled(false);
       LSQfillinAct->setEnabled(false);
-      lsqvssplineAct->setEnabled(false);
+      lsqvssplineAct->setEnabled(true);
    };
    bool atlas = str.find(".CSV")!= std::string::npos && !pentacam; //CSV but not _ELE.CSV and _CUR.CSV ->atlas
    if (atlas) {
@@ -441,7 +452,7 @@ void MainWindow::open()   //multiple invocations makes a comparison
        adjustradiiAct->setEnabled(true);
        SplinefillinAct->setEnabled(false);
        LSQfillinAct->setEnabled(false);
-       lsqvssplineAct->setEnabled(false);
+       lsqvssplineAct->setEnabled(true);
    };
    compareAct->setEnabled(true);
    redrawAct->setEnabled(true);
@@ -459,39 +470,111 @@ void MainWindow::open()   //multiple invocations makes a comparison
 void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for the commandline file if any
 {
    if (fileName.isEmpty()) return;
-
    QByteArray ba = fileName.toLocal8Bit();
    filename = ba.data();
    ui.infoLabel->setText(tr("filename:  ")+tr(filename));
    if (filepresent){
        m_GLwidget->DataLoad(fileName, true);
-       std::string str(filename);
-       bool pentacam =  str.find(".CUR")!= std::string::npos || str.find(".ELE") != std::string::npos ||
-                       str.find("_CUR")!= std::string::npos || str.find("_ELE") != std::string::npos;
-       if (pentacam) {
-           centerAct->setEnabled(true);  //change to false to not allow for pentacam, center deviations only for Placido
-           ringsAct->setEnabled(false);
-       } else{
-           centerAct->setEnabled(true);
-           ringsAct->setEnabled(true);
-       };
-       bool atlas = str.find(".CSV")!= std::string::npos && !pentacam; //CSV but not _ELE.CSV and _CUR.CSV ->atlas
-       if (atlas) {
-           ShowZernAct->setEnabled(true);
-       } else{
-           ShowZernAct->setEnabled(false);
-       };
-       compareAct->setEnabled(true);
-       redrawAct->setEnabled(true);
-       redrawOptionAct->setEnabled(true);
-       gnuplotAct->setEnabled(true);
-       liocAct->setEnabled(true);
-       makeoffAct->setEnabled(true);
-       makeplyAct->setEnabled(true);
-       ply2binAct->setEnabled(true);
-       off2stlAct->setEnabled(true);
-       importexportAct->setEnabled(true);
-       zernAct->setEnabled(true);}
+       std::string str(filename);  
+   bool pentacam =  str.find(".CUR")!= std::string::npos || str.find(".ELE") != std::string::npos ||
+                   str.find("_CUR")!= std::string::npos || str.find("_ELE") != std::string::npos;
+   if(GLwidget::isconsistency()){
+       if (pentacam) GLwidget::setconsistency(false);  //skip the first pentacam file comparison when checking consistency
+       if (!fileName.isEmpty()){
+           m_GLwidget->DataLoad(fileName, true);}
+       if (pentacam) GLwidget::setconsistency(true);
+   }else{
+       if (!fileName.isEmpty())
+           m_GLwidget->DataLoad(fileName, true);}
+   update();
+   if (pentacam) {
+       if(GLwidget::isconsistency()){
+           std::string str2(filename);
+           QString fileName2 = QString::fromStdString(str2);
+           if(replace(str2,"_ELE.CSV","_CUR.CSV")) {
+               if(FILE *file = fopen(str2.c_str(),"r")) {
+                   fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
+                   fileName2 = QString::fromStdString(str2);
+                   if (!fileName2.isEmpty())
+                       m_GLwidget->DataLoad(fileName2, true);
+               }else{std::cout << "Matching file not found\n" <<std::endl;}
+           }else{
+               if(replace(str2,"_CUR.CSV","_ELE.CSV")) {
+                   if(FILE *file = fopen(str2.c_str(),"r")) {
+                       fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
+                       fileName2 = QString::fromStdString(str2);
+                       if (!fileName2.isEmpty())
+                           m_GLwidget->DataLoad(fileName2, true);
+                   }else{std::cout << "Matching file not found\n" <<std::endl;}
+               }}
+           if(replace(str2,".ELE",".CUR")) {
+               if(FILE *file = fopen(str2.c_str(),"r")) {
+                   fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
+                   fileName2 = QString::fromStdString(str2);
+                   if (!fileName2.isEmpty())
+                       m_GLwidget->DataLoad(fileName2, true);
+               }else{std::cout << "Matching file not found\n" <<std::endl;}
+           }else{
+               if(replace(str2,".CUR",".ELE")) {
+                   if(FILE *file = fopen(str2.c_str(),"r")) {
+                       fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
+                       fileName2 = QString::fromStdString(str2);
+                       if (!fileName2.isEmpty())
+                           m_GLwidget->DataLoad(fileName2, true);
+                   }else{std::cout << "Matching file not found\n" <<std::endl;}
+               }}
+       }
+       centerAct->setEnabled(true);  //change to false to not allow for pentacam, center deviations only for Placido
+       ShowZernAct->setEnabled(false);
+       ringsAct->setEnabled(false);
+       centernodeAct->setEnabled(false);
+       adjustradiiAct->setEnabled(false);
+       SplinefillinAct->setEnabled(false);
+       LSQfillinAct->setEnabled(false);
+       lsqvssplineAct->setEnabled(true);
+   };
+   bool atlas = str.find(".CSV")!= std::string::npos && !pentacam; //CSV but not _ELE.CSV and _CUR.CSV ->atlas
+   if (atlas) {
+       ShowZernAct->setEnabled(true);
+       centerAct->setEnabled(true);
+       ringsAct->setEnabled(true);
+       centernodeAct->setEnabled(true);
+       adjustradiiAct->setEnabled(true);
+       SplinefillinAct->setEnabled(true);
+       LSQfillinAct->setEnabled(true);
+       lsqvssplineAct->setEnabled(true);
+   };
+   bool eyesys= false;               //if subsitutuing XX for RA or RA for XX results in an openable file, then probably EyeSys
+   std::string str2(filename);
+   if(replace(str2,"RA","XX")) {
+       if(FILE *file = fopen(str2.c_str(),"r")) {
+           fclose(file); eyesys = true;}
+   }else{
+       if(replace(str2,"XX","RA")) {
+           if(FILE *file = fopen(str2.c_str(),"r")) {
+               fclose(file); eyesys = true;
+           }}};
+   if (eyesys) {
+       ShowZernAct->setEnabled(false);
+       centerAct->setEnabled(false);
+       ringsAct->setEnabled(false);
+       centernodeAct->setEnabled(true);
+       adjustradiiAct->setEnabled(true);
+       SplinefillinAct->setEnabled(false);
+       LSQfillinAct->setEnabled(false);
+       lsqvssplineAct->setEnabled(true);
+   };
+   compareAct->setEnabled(true);
+   redrawAct->setEnabled(true);
+   redrawOptionAct->setEnabled(true);
+   gnuplotAct->setEnabled(true);
+   liocAct->setEnabled(true);
+   makeoffAct->setEnabled(true);
+   makeplyAct->setEnabled(true);
+   ply2binAct->setEnabled(true);
+   off2stlAct->setEnabled(true);
+   importexportAct->setEnabled(true);
+   zernAct->setEnabled(true);}
    else {m_GLwidget->DataLoad(fileName, false);}  //cube
    update();
 }
@@ -1211,7 +1294,7 @@ void MainWindow::pupil()
 void MainWindow::fctAxial()
 {
    if (GLwidget::isAxial()) {
-        GLwidget::setAxial(true);
+        GLwidget::setAxial(true);  //cannot turn off without turning something else on
         AxialAct->setChecked(GLwidget::isAxial());
         ui.infoLabel->setText(tr("Set <b>View:Axial is default, set another to deselect</b>"));
    } else {
@@ -1831,7 +1914,7 @@ void MainWindow::colorgplotpalette()
 void MainWindow::colorUSSpalettefixed()
 {
    if (GLwidget::isUSSfixed()) {
-        GLwidget::setUSSfixed(true);
+        GLwidget::setUSSfixed(true);    //cannot turn off without turning something else on
         USSfixedAct->setChecked(GLwidget::isUSSfixed());
         ui.infoLabel->setText(tr("Set <b>View:USS Palette fixed range is default, deselect by setting another</b>"));
    } else {
@@ -2041,6 +2124,7 @@ void MainWindow::createActions()
    lsqvssplineAct=new QAction(tr("&Use LSQ instead of circumferential spline"), this);
    lsqvssplineAct->setCheckable(true);
    connect(lsqvssplineAct, &QAction::triggered, this, &MainWindow::tweaklsqvsspline);
+   lsqvssplineAct->setChecked(GLwidget::islsqvsspline());  //check initially because default is true
 
    make2dsplineAct=new QAction(tr("&Use 2-D LSQ spline instead of 1Dx1D/LSQ"), this);
    make2dsplineAct->setCheckable(true);
@@ -2096,7 +2180,7 @@ void MainWindow::createActions()
    ObliqueAct->setCheckable(true);
    connect(ObliqueAct, &QAction::triggered, this, &MainWindow::fctOblique);
 
-   TangentialAct=new QAction(tr("&Tangential or Gaussian Power"), this);
+   TangentialAct=new QAction(tr("&Tangential or Instantaneous Power"), this);
    TangentialAct->setCheckable(true);
    connect(TangentialAct, &QAction::triggered, this, &MainWindow::fctTangential);
 
@@ -2289,8 +2373,8 @@ void MainWindow::createMenus()
    tweaksMenu->addAction(centernodeAct);
    tweaksMenu->addAction(adjustradiiAct);
    tweaksMenu->addAction(cubicAct);
-   tweaksMenu->addAction(SplinefillinAct);
    tweaksMenu->addAction(LSQfillinAct);
+   tweaksMenu->addAction(SplinefillinAct);
    tweaksMenu->addAction(decenterAct);
    tweaksMenu->addAction(lsqvssplineAct);
    tweaksMenu->addAction(make2dsplineAct);

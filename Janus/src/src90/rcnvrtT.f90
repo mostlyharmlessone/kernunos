@@ -15,16 +15,16 @@ logical :: IsInf
     RadSlope%thta(i)=PI*EyeSys%DEG(i)/180.0_wp
     do j=1,N+1        
        if (j > N) then
-        R=60.0_wp
+        R=55.0_wp
         A=50.0_wp
-        B=40.0_wp
+        B=45.0_wp
         D=0.0_wp ; X=0.0_wp
        else 
         DIST=0.2_wp+(j-1)*0.25_wp
 !       ELLIPSOID WITH ASTIGMATISM Z=R-R*SQRT(1-(rCOSt/A)^2-(rSINt)/B)^2)
-        R=60.0_wp
+        R=55.0_wp
         A=50.0_wp
-        B=40.0_wp
+        B=45.0_wp
         X=DIST*A/4.0
         D=X
        endif 
@@ -50,7 +50,7 @@ logical :: IsInf
         YZ=R-R*SQRT(1-(X*COS(RadSlope%thta(i))/A)**2-(X*SIN(RadSlope%thta(i))/B)**2) 
         YZ=R-R*SQRT(1-(D*COS(RadSlope%thta(i))/A)**2-(D*SIN(RadSlope%thta(i))/B)**2)
       if (j > N) then
-        POW=48  ! SAGC undefined when YP=0
+        POW=50  ! SAGC undefined when YP=0
       else    
         POW=ABS(X/YP)*SQRT(1+YP**2)
         POW=ABS(D/YP)*SQRT(1+YP**2)

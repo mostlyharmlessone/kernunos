@@ -908,78 +908,6 @@ subroutine AXIALP(X2,Y1X,Y2X,SAGC)
  endif     
 end subroutine AXIALP
 
-! "tangential" power using slope/derivatives with and without use of calculated angular derivatives
-subroutine instantp(X2,Y1X,Y1T,Y2X,TANC)
- real(wp), INTENT(IN) :: X2,Y1X,Y1T,Y2X
- real(wp), INTENT(OUT) :: TANC
- TANC=RFCT*Y2X/(SQRT(1+(Y1X)**2)**3)
-end subroutine instantp 
-
-! mean power of slope/derivatives with use of calculated angular derivatives
-subroutine meanp(X1,X2,Y1XIN,Y1T,Y1XT,Y2T,Y2X,ZMM)
- real(wp), INTENT(IN) :: X1,X2,Y1XIN,Y1T,Y1XT,Y2T,Y2X
- real(wp), INTENT(OUT) :: ZMM 
- real(wp) :: ZMX,Y,Y1X
-! MONGE MEAN CURVATURE
-! WHEN X2<0 X1>PI
-  if (ABS(X2) > EPS) then
-   IF (X2 > 0 .AND. X1 > PI) THEN
-      Y=X2
-      Y1X=Y1XIN      
-      ZMM=2*(1+Y1X**2+Y1T**2/Y**2)**(3/2.)
-      ZMX=-2*Y1X*Y1T**2/(Y**3)+(2*Y1X*Y1XT*Y1T-Y2T)/(Y**2)-&
-           Y2X*(Y1T/Y)**2-Y2T*(Y1X/Y)**2-(Y1X+Y1X**3)/Y-Y2X
-      ZMM=-RFCT*ZMX/ZMM
-   ELSE
-      Y=-X2
-      Y1X=-Y1XIN
-      ZMM=2*(1+Y1X**2+Y1T**2/Y**2)**(3/2.)
-      ZMX=-2*Y1X*Y1T**2/(Y**3)+(2*Y1X*Y1XT*Y1T-Y2T)/(Y**2)-&
-           Y2X*(Y1T/Y)**2-Y2T*(Y1X/Y)**2-(Y1X+Y1X**3)/Y-Y2X
-      ZMM=-RFCT*ZMX/ZMM
-   ENDIF
-   ELSE
-!      UNDEFINED AT ORIGIN X2=0, LIMIT IS 1/Y2X         
-      ZMM=RFCT*Y2X
-   ENDIF
-end subroutine meanp
-
-! Monge astigmatism of slope/derivatives with use of calculated angular derivatives
-subroutine mongea(X1,X2,Y1XIN,Y1T,Y1XT,Y2T,Y2X,ZA)
-  real(wp), INTENT(IN) :: X1,X2,Y1XIN,Y1T,Y1XT,Y2T,Y2X
-  real(wp), INTENT(OUT) :: ZA    
-  real(wp) :: ZA1,ZA2,Y,Y1X
-! MONGE ASTIG, plotted on log scale
-! WATCH OUT FOR ZERO AT UMBILICAL POINTS!
-! WHEN X2>0 X1<PI
-   if (ABS(X2) > EPS) then
-     if (X2 > 0 .AND. X1 > PI) then
-       Y=X2
-       Y1X=Y1XIN
-       ZA1=(2*Y1X*Y1T**2+(Y1X**2+Y2X*Y1T**2+Y2T-2*Y1X*Y1XT*Y1T*Y2T)*Y&
-                                       +(Y1X+Y1X**3)*Y**2+Y2X*Y**3)**2
-       ZA1=((Y1T**2+Y**2+(Y1X*Y)**2)**3)*ZA1
-       ZA2=((Y1T**2+Y**2+(Y1X*Y)**2)**4)*&
-            (Y1T**2-2*Y1XT*Y1T*Y+(Y1XT*Y)**2-Y2X*Y2T*Y**2-Y1X*Y2X*Y**3)
-       ZA=ABS(ZA1+4*ZA2)**(1/2.)
-       ZA=RFCT*ZA/2.
-     else
-       Y=-X2
-       Y1X=-Y1XIN
-       ZA1=(2*Y1X*Y1T**2+(Y1X**2+Y2X*Y1T**2+Y2T-2*Y1X*Y1XT*Y1T*Y2T)*Y&
-                                       +(Y1X+Y1X**3)*Y**2+Y2X*Y**3)**2
-       ZA1=((Y1T**2+Y**2+(Y1X*Y)**2)**3)*ZA1
-       ZA2=((Y1T**2+Y**2+(Y1X*Y)**2)**4)*&
-            (Y1T**2-2*Y1XT*Y1T*Y+(Y1XT*Y)**2-Y2X*Y2T*Y**2-Y1X*Y2X*Y**3)
-       ZA=ABS(ZA1+4*ZA2)**(1/2.)
-       ZA=RFCT*ZA/2.
-     endif
-     else
-!    UNDEFINED AT ORIGIN X2=0          
-       ZA=1E30_wp  
-     endif
-end subroutine mongea
-
 ! principal curvature calculations
 subroutine principal(t,r,hr,ht,hrt,htt,hrr,K,H,k1,k2,A)
   real(wp), INTENT(INOUT) :: t,r,hr,ht,hrt,htt,hrr
@@ -996,12 +924,13 @@ subroutine principal(t,r,hr,ht,hrt,htt,hrr,K,H,k1,k2,A)
     g = 1 + hu**2 + hv**2
     K=(huu*hvv-huv*huv)/(g*g)
     H=((1+hv**2)*huu-2*hu*hv*huv+(1+hu**2)*hvv)/(2*(sqrt(g)**3))
-    if (H**2-K < 0) write(*,*) 'error in principal'
-    if ((huu*hvv-huv*huv) < 0) write(*,*) 'Hessian error in principal: t,huu,hvv,huv,Hessian',t,huu,hvv,huv,huu*hvv-huv*huv,H,K
-     k1=H-sqrt(abs(H**2-K))
-     k2=H+sqrt(abs(H**2-K))
+    if (H**2-K < 0) write(*,*) 'FATAL error in principal,H,K,H^2-K',H,K,H**2-K
+    if (H**2-K < 0) stop
+    if ((huu*hvv-huv*huv) < 0) write(*,*) 'Hessian negative in principal: t,ht,hrt,htt,huu,hvv,huv',t,ht,hrt,htt,huu,hvv,huv
+     k1=H+sign(sqrt(abs(H**2-K)),H)  ! better way to compute quadratic roots without cancellation
+     k2=K/k1
      A=2*sqrt(abs(H**2-K))
-     K=sqrt(abs(K))  ! use sqrt of gaussian curvature for output->geometric mean power in same units
+     K=sqrt(abs(K))  ! use sqrt of gaussian curvature for output->geometric mean power in same units ; absolute power for saddle points
    else
 !   AT ORIGIN r = 0, things get weird at the limit
     if ( ABS(ht) > EPS ) then  ! but really it depends on ht/r and htt/r^2
@@ -1030,7 +959,7 @@ subroutine axisymmetric_principal(r,hr,hrr,K,H,k1,k2,A)
    endif
    A=abs(k1-k2)
    H=(k1+k2)/2.
-   K=sqrt(abs(k1*k2)) ! use sqrt of gaussian curvature for output->geometric mean power in same units
+   K=sqrt(abs(k1*k2)) ! use sqrt of gaussian curvature for output->geometric mean power in same units; absolute power for saddle points
 end subroutine axisymmetric_principal
 
 
@@ -1040,13 +969,13 @@ subroutine LIOC_Fortran(X1,X2,Y1X,Y1T,UTPOS,VTPOS)
    real(wp), intent(inout) :: UTPOS,VTPOS
 !  CARTESIAN TANGENT VECTOR COMPONENTS (-UTPOS,-VTPOS,1)  
    if (ABS(X2) > EPS) then  ! and ill conditioned even farther than that
-     if (X2 > 0) then     
+!     if (X2 > 0) then
       UTPOS=Y1X*COS(X1)-Y1T*SIN(X1)/X2
       VTPOS=Y1X*SIN(X1)+Y1T*COS(X1)/X2
-     else
-      UTPOS=-Y1X*COS(X1)+Y1T*SIN(X1)/X2
-      VTPOS=-Y1X*SIN(X1)-Y1T*COS(X1)/X2
-     endif
+!     else
+!      UTPOS=-Y1X*COS(X1)+Y1T*SIN(X1)/X2
+!      VTPOS=-Y1X*SIN(X1)-Y1T*COS(X1)/X2
+!     endif
    else
     write(*,*) 'Warning ill conditioned attempt at UT,VT'
    endif

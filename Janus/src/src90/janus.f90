@@ -1059,23 +1059,17 @@ if (mod(flag,100) .ne. 9 ) then
     JMatrix%YPR(j,i)=YPR
     JMatrix%YPTHETA(j,i)=YPTHETA
 !   powers
-    call AXIALP(JMatrix%R(j,i),ABS(YPR),YP2R2,JMatrix%SAGC(j,i))
     call AXIALP(JMatrix%R(j,i),YPTHETA/JMatrix%R(j,i),YP2THETA/JMatrix%R(j,i),JMatrix%Warp(j,i))
-    call INSTANTP(JMatrix%R(j,i),YPR,YPTHETA,YP2R2,JMatrix%INSTC(j,i))
-    call MEANP(JMatrix%THT(i),JMatrix%R(j,i),ABS(YPR),YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
-!    call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),ABS(YPR),YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
-     JMatrix%MONGEA(j,i)=abs(JMatrix%SAGC(j,i)-JMatrix%INSTC(j,i))
-
-    if (.not.btest(dat,10)) then
-     call principal(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
-    else
+    if (btest(dat,10)) then
      call axisymmetric_principal(JMatrix%R(j,i),YPR,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
+    else
+     call principal(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
     endif
-!    JMatrix%MONGEA(j,i)=RFCT*astigm
-!    JMatrix%MEANC(j,i)=RFCT*meanpower
-!    JMatrix%INSTC(j,i)=RFCT*princ1
-!    JMatrix%SAGC(j,i)=RFCT*princ2
-!    JMatrix%GAUSSC(j,i)=RFCT*gaussian
+    JMatrix%MONGEA(j,i)=RFCT*astigm
+    JMatrix%MEANC(j,i)=RFCT*meanpower
+    JMatrix%INSTC(j,i)=RFCT*princ1
+    JMatrix%SAGC(j,i)=RFCT*princ2
+    JMatrix%GAUSSC(j,i)=RFCT*gaussian
 
 !!!!!check here for extrapolation with XX; yep still doing it; its at the edge where the data is discontinuous circumferentially
 
@@ -1088,20 +1082,18 @@ if (i .gt. M1/2) then
 else
  ii=2*i
 endif
-write(*,*) RadSlope%r(1:N,ii/2)
+write(*,*) RadSlope%r(1:N,ii)
 write(*,*) j,i,ii
-write(*,*) DiaSlope%rd(1:2*N,ii)
+write(*,*) DiaSlope%rd(1:2*N,ii/2)
 
 endif
 
-write(*,*) ' '
-write(*,*) '1',JMatrix%MEANC(j,i),JMatrix%MONGEA(j,i),JMatrix%INSTC(j,i),JMatrix%SAGC(j,i),sqrt(JMatrix%INSTC(j,i)*JMatrix%SAGC(j,i))
+!write(*,*) ' '
+!call principal(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
+!write(*,*) '2',RFCT*meanpower,RFCT*astigm,RFCT*princ1,RFCT*princ2,RFCT*gaussian
 
-call principal(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
-write(*,*) '2',RFCT*meanpower,RFCT*astigm,RFCT*princ1,RFCT*princ2,RFCT*gaussian
-
-call axisymmetric_principal(JMatrix%R(j,i),YPR,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
-write(*,*) '3',RFCT*meanpower,RFCT*astigm,RFCT*princ1,RFCT*princ2,RFCT*gaussian
+!call axisymmetric_principal(JMatrix%R(j,i),YPR,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
+!write(*,*) '3',RFCT*meanpower,RFCT*astigm,RFCT*princ1,RFCT*princ2,RFCT*gaussian
 
 !    if (M1 .eq. 360) then
 !     k=8 ! skip this many problematic values at x-axis
@@ -1112,6 +1104,7 @@ write(*,*) '3',RFCT*meanpower,RFCT*astigm,RFCT*princ1,RFCT*princ2,RFCT*gaussian
 !     call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),ABS(YPR),YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
 !     call MEANP(JMatrix%THT(i),JMatrix%R(j,i),ABS(YPR),YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
 !    endif
+
     if (JMatrix%INSTC(j,i) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC(j,i)
     if (JMatrix%INSTC(j,i) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC(j,i)
     if (JMatrix%GAUSSC(j,i) <= JMatrix%GAUSSC0(2)) JMatrix%GAUSSC0(2)=JMatrix%GAUSSC(j,i)
@@ -1714,8 +1707,8 @@ endif
 !  atmp=pca(2,RadSlope)
 !  atmp=pca(3,RadSlope)
 
-  write(*,*) "Done: janus"
-  call LogC("Done: janus"//c_null_char)  !has to be C and declared, not cpp
+!  write(*,*) "Done: janus"
+!  call LogC("Done: janus"//c_null_char)  !has to be C and declared, not cpp
 
   return        
 

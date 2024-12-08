@@ -52,10 +52,10 @@ subroutine SplineEvalCenter(ii,x,y,y2,n,u,f,fp,fpp,fppp)
    end do
     call bsearch(u,xx,n+1,i1,i) ! binary search
     if (i1 .eq. i) then ! if on the knot
-     if (i .ne. n) then  ! last knot for non-cyclic spline
+     if (i .ne. (n+1)) then  ! last knot for non-cyclic spline
       i1=i+1
      else
-      i1=n ; i=n-1
+      i1=n+1; i=n
      endif
     endif
     dr=xx(i1)-xx(i)

@@ -84,7 +84,7 @@
         edges=edges+M1-1
        endif 
  
-       write(*,*) 'Writing Geom for OpenGL'
+!       write(*,*) 'Writing Geom for OpenGL'
 !       RGB colors can follow after vertices       
 !       255 0 0 #red
 !       0 255 0 #green
