@@ -401,11 +401,13 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
      call SplineEval(0,y(1:L2),fTmp(1:L2),f2Tmp(1:L2),L2,v,DAT)  ! first parameter = 0 nonperiodic
      call SplineEval(2,y(1:L2),fTmp(1:L2),f2Tmp(1:L2),L2,v,secondcheck)  ! first parameter = 2 extrapolation check
      if (j > N1) then
-      JMatrix%R0=0 ; JMatrix%THT0=0
-      if (ABS(DAT) > 0) then
-       JMatrix%SAGC0(1)=RFCT/(100.0*ABS(DAT))  ! if curvatures
+      if (i .eq. 1) then  !only have to do the center once, not for each i
+       JMatrix%R0=0 ; JMatrix%THT0=0
+       if (ABS(DAT) > 0) then
+        JMatrix%SAGC0(1)=RFCT/(100.0*ABS(DAT))  ! if curvatures
+       endif
+        JMatrix%Z0(1)=ABS(DAT)                  ! if elevation (this seems to be zero by design in .ELE/.ELE.csv files)
       endif
-       JMatrix%Z0(1)=ABS(DAT)                  ! if elevation
      else
 !   boundary check here
      xx=u*(NP-1)/14.0 ; yy=v*(NP-1)/14.0

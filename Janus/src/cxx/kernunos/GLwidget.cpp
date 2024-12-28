@@ -210,7 +210,7 @@ void GLwidget::cleanup()
   m_vao.destroy();
   //deallocates Fortran arrays
   flag=flag-(flag%100)+99;  // last two digits of flag = 99;
-  std::cout << "flag in cleanup: " << flag << "\n";
+//  std::cout << "flag in cleanup: " << flag << "\n";
   #ifdef _WIN32
 //  system("copy zernike.tmp zernike.bak");
   system("del zernike.tmp");   //probably broken if zernike not computed, as there is no zernike.tmp file

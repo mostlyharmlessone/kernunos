@@ -273,16 +273,6 @@ target_link_libraries(driverPiecewiseLinear ${LIBS2})
     file(GLOB interface src/c/kernunos/logc.c src/c/kernunos/logc.h
         src/c/kernunos/Ccounter.c src/c/kernunos/counter.h)
 
-    # gtk example with gtk4 & blas fortran
-    #doesn't compile with mingw cmake because of multiple definitions of dgemm
-    #     file(GLOB blas_f2c src/c/gtk/c_dgemm.f90)
-#     add_library( blas_f2c ${blas_f2c})
-#     add_executable(example-2 src/c/gtk/gtkexample2.c)
-#     target_link_libraries(example-2 ${GTK4_LIBRARIES} blas_f2c ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
-#   gtk GL example
-#    add_executable(glarea src/c/gtk/glarea-app-window.c )
-#    target_link_libraries(glarea ${GTK3_LIBRARIES} epoxy)
-
 #   Fortran Source
     file(GLOB_RECURSE lib_sources90  src/src90/*.f90 src/src90/*.f90*.for)
     file(GLOB_RECURSE mod_sources90  src/mod90/*.f90)

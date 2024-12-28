@@ -417,7 +417,11 @@ void MainWindow::open()   //multiple invocations makes a comparison
       centerAct->setEnabled(true);  //change to false to not allow for pentacam, center deviations only for Placido
       ShowZernAct->setEnabled(false);
       ringsAct->setEnabled(false);
-      centernodeAct->setEnabled(false);
+      centernodeAct->setEnabled(true);
+//      GLwidget::setCenterNode(true);  //force centernode to center value for pentacam
+//    needs modification of SplineCenter to incoroporate center value and needs value initialized
+      GLwidget::isCenterNode();
+      centernodeAct->setChecked(GLwidget::isCenterNode());
       adjustradiiAct->setEnabled(false);
       SplinefillinAct->setEnabled(false);
       LSQfillinAct->setEnabled(false);
@@ -527,7 +531,10 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
        centerAct->setEnabled(true);  //change to false to not allow for pentacam, center deviations only for Placido
        ShowZernAct->setEnabled(false);
        ringsAct->setEnabled(false);
-       centernodeAct->setEnabled(false);
+       centernodeAct->setEnabled(true);
+       GLwidget::setCenterNode(true);  //force centernode to center value for pentacam
+       GLwidget::isCenterNode();
+       centernodeAct->setChecked(GLwidget::isCenterNode());
        adjustradiiAct->setEnabled(false);
        SplinefillinAct->setEnabled(false);
        LSQfillinAct->setEnabled(false);

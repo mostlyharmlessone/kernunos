@@ -5,8 +5,8 @@
       USE special_fct, ONLY : bsearch, OPERATOR(.p.)
       use,intrinsic :: ieee_arithmetic
       implicit none
- !    first digit iflag=1 use lsq 0=use circumferential spline in second step
- !    second digit iflag=1 central node 0= no central node
+ !    first digit iflag=1 -> use lsq iflag=0 -> use circumferential spline in second step
+ !    second digit iflag=1 central node 0 = no central node
  !    third digit iflag=0 no integration; iflag=1 trapezoidal integration; iflag=2 cubic integration
       integer, INTENT(IN) :: iflag
       real(wp), INTENT(IN) :: u, v

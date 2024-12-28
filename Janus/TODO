@@ -2,9 +2,21 @@ things to do
 
 CorneaCopia
 
-still have computation error with circumferntial spline at x-axis; using test, and monge astigmatism, see horizontal line spoiling color scale, blue on left, red on right
 
-what to do with warp?
+pupilregister still broken: polartranslate does not do what I think it does in a test?
+
+also comparison is small back circle, between cur and ele
+
+loading .ele first then .cur results in no computation of center and vice versa;  there's also a problem wit the center value on display in ele
+loading cur twice has same issue with calc center: this error comes from line 421 in kernunos.cpp:   GLwidget::setCenterNode(true);  //force centernode to center value for pentacam
+in kernunos.cpp void MainWindow::open() and loadfile  //multiple invocations makes a comparison  you need to test the file name and set the dat conditions before invoking janus with DataLoad
+{
+
+
+
+ele/ele.csv have a central computational issue; there are other central computation artefacts in others too...it's extrapolation? : make sure adding central node for .ELE uses central data for Z same with SAGC/CUR
+
+what to do with/how to explain warp?
 
 selectfunction in cornea_arrays in only partially implemented
 there's also a partial call/implementation in if (mod(flag,100) .eq. 5 ) ! gnuplot splot output
@@ -16,18 +28,12 @@ lsq to get coefficients legendres, fourier zernike, ellipsoid as basis functions
 
 if error on atlas read, ie retry to read a .pac.csv file, need to return without drawing anything, no .tmp file
 
-pupilregister still broken: polartranslate doesnt do what you think it does
-
 It'd be helpful to have axes/angles for orientation is moving the figure; perhaps a info box or three displaying angles?
-
-might need to change menu of functions to axisymmetric or not
 
 compare is broken with zernike; also so is opening 2nd file with zernike selected and zernike needs extreme value filter
 resurrect old noise reduction code to help out mongeastig and meanc for real data?
 need lapack or open version of numrec fourn:  fftpack
 extreme value filter for scales
-
-ele/ele.csv have a central computational issue
 
 redraw: only affects central image; does not change JMatrix1 or vertices2/elements2; 
 running compare here compares the original with the tweak

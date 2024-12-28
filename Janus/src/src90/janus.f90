@@ -43,7 +43,7 @@
   real(wp), allocatable :: zernC(:,:), B_Matrix(:,:), rlocal(:), thtlocal(:), WORK(:)
   real(wp), allocatable :: UT(:,:),VT(:,:) !,XTX(:,:),EE(:,:)
 !  integer, allocatable :: IPIV(:)
-  real(wp) :: ctr_circle_x, ctr_circle_y, R_global, Theta_global, R_MV, R_TST
+  real(wp) :: ctr_circle_x, ctr_circle_y, R_global, Theta_global, R_MV, R_TST, P_TEMP
   real(wp) :: gaussian,meanpower,princ1,princ2,astigm
 
 !write(*,*) 'flag to Fortran:',flag
@@ -418,7 +418,7 @@ if (mod(flag,100) == 10) then
  if (btest(dat,6)) then
   ctr_circle_x=JMatrix1%Pupil_Center(1)-JMatrix%Pupil_Center(1)
   ctr_circle_y=JMatrix1%Pupil_Center(2)-JMatrix%Pupil_Center(2)
-!  decenter: these are not circless, ?as they are circles around the new center expressed in the original polar coordinate system
+!  decenter: these are not circles, ?as they are circles around the new center expressed in the original polar coordinate system
   write(*,*) 'Decentering by',ctr_circle_x,ctr_circle_y
   call PolarTranslate(ctr_circle_x,ctr_circle_y,0.0_wp,0.0_wp,JMatrix3%R0,JMatrix3%THT0)
   do i=1,M1
@@ -816,14 +816,14 @@ endif ! end (TestData == 1)
   call CPU_TIME(time_end)
   write(*,*) 'Time to convert Penta: ',(time_end-time_start)*1000
   if (TestData.eq.2 .or. TestData.eq.4) then ! ELE or ELE.CSV PentaCam files, put elevation into Zp for splining without integration
-   RadSlope%Zp(:,:)=0 ; JMatrix%SAGC(:,:) = 0 ; JMatrix%SAGC0(:) = 0 ! ELE should not have anything in Zp or SAGC yet
+!   RadSlope%Zp(:,:)=0 ; JMatrix%SAGC(:,:) = 0 ; JMatrix%SAGC0(:) = 0 ! ELE should not have anything in Zp or SAGC yet
    do i=1,MM
     do j=1,RadSlope%MV(i)
       RadSlope%Zp(j,i)=JMatrix%Z(j,i) !=RadSlope%Z(j,i) ! at this point
     end do
    end do
   endif
-  JMatrix%Z(:,:) = 0 ; JMatrix%Z0(:) = 0
+  JMatrix%Z(:,:) = 0
  endif
 
 
@@ -973,8 +973,8 @@ if (mod(flag,100) .ne. 9 ) then
 
 ! set iflag for slope based data, integrate based on iflag with or without cubic/trapez or center point or not for values
  if (TestData.ne.2 .and. TestData.ne.4) then
-  if (btest(dat, 2)) then
-   if (btest(dat,0)) then
+  if (btest(dat, 2)) then   ! cubic integration
+   if (btest(dat,0)) then   !c enternode
     iflag=12
    else
     iflag=2
@@ -985,7 +985,7 @@ if (mod(flag,100) .ne. 9 ) then
    else
     iflag=1
    endif
-  endif
+  endif  
 ! lsq instead of circumferential spline
    if (btest(dat, 8)) then
     iflag = iflag+100
@@ -1012,9 +1012,9 @@ if (mod(flag,100) .ne. 9 ) then
   end do
   rBi=0.05*rBo
 !  min and max bounds
-  JMatrix%SAGC0(2)=1E30   ;  JMatrix%SAGC0(3)=-1E30 ; JMatrix%SAGC0(1)=0
+  JMatrix%SAGC0(2)=1E30   ;  JMatrix%SAGC0(3)=-1E30
   JMatrix%Warp0(2)=1E30   ;  JMatrix%Warp0(3)=-1E30 ; JMatrix%Warp0(1)=0
-  JMatrix%Z0(2)=1E30      ;  JMatrix%Z0(3)=-1E30 ;    JMatrix%Z0(3)=0
+  JMatrix%Z0(2)=1E30      ;  JMatrix%Z0(3)=-1E30
   JMatrix%INSTC0(2)=1E30  ;  JMatrix%INSTC0(3)=-1E30 ; JMatrix%INSTC0(1)=0
   JMatrix%GAUSSC0(2)=1E30 ;  JMatrix%GAUSSC0(3)=-1E30 ; JMatrix%GAUSSC0(1)=0
   JMatrix%MEANC0(2)=1E30  ;  JMatrix%MEANC0(3)=-1E30 ; JMatrix%MEANC0(1)=0
@@ -1082,6 +1082,7 @@ if (i .gt. M1/2) then
 else
  ii=2*i
 endif
+write(*,*) 'abs(YP2THETA) .gt. 2000'
 write(*,*) RadSlope%r(1:N,ii)
 write(*,*) j,i,ii
 write(*,*) DiaSlope%rd(1:2*N,ii/2)
@@ -1142,7 +1143,11 @@ endif
    DiaSlope=RadSlope              ! move to diagonal format
    DiaSlope%Zpd2 = .n. DiaSlope
 
-! this stanza is only for elevations (and therefore for input to zernike also)
+
+write(*,*) Radslope%Z(:,1)
+write(*,*) Radslope%Zp(:,1)
+
+! this stanza is only for Z and Atlas (and for input to zernike also)
  if ( Testdata .eq. 1 ) then
    call MakeRadSplineCenter(0)     ! remakes RadSplineCenter(1,:)
    if (btest(dat, 0) ) then        ! use nsplineCenter to force zero slope at origin,
@@ -1163,24 +1168,33 @@ endif
     do i=1,M1
      call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%Z(N1+1,i))  !center value of elevation; needs integration from slopes
      if (i .eq. 1) then
-      JMatrix%Z0(1)=JMatrix%Z(N1+1,1)
+      P_TEMP=JMatrix%Z(N1+1,1)
+
+write(*,*) P_TEMP,iflag
+
+
      else
-      JMatrix%Z0(1)=(i*JMatrix%Z0(1)+JMatrix%Z(N1+1,i))/(i+1)      ! cumulative average
+      P_TEMP=(i*P_TEMP+JMatrix%Z(N1+1,i))/(i+1)      ! cumulative average
      endif
     end do
-    if (JMatrix%Z0(1) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z0(1)
-    if (JMatrix%Z0(1) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z0(1)
+   if (TestData.ne.2 .and. TestData.ne.4) then
+    JMatrix%Z0(1)=P_TEMP
+   else
+    write(*,*) 'JMatrix%Z0(1) already set in RadSlope_eq_Skyline: center elevation supplied, average calculated',JMatrix%Z0(1),P_TEMP
+   endif
+   if (JMatrix%Z0(1) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z0(1)
+   if (JMatrix%Z0(1) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z0(1)
 
-!   reset iflag for centers
-    if (btest(dat,0)) then
-     iflag=10
-    else
-     iflag=0
-    endif
-    !lsq instead of circumferential spline
-    if (btest(dat, 8)) then
-     iflag = iflag+100
-    endif
+!  reset iflag for centers
+   if (btest(dat,0)) then
+    iflag=10
+   else
+    iflag=0
+   endif
+   !lsq instead of circumferential spline
+   if (btest(dat, 8)) then
+    iflag = iflag+100
+   endif
 
 !  SAGC
 !  Reload RadSlope with SAGC & re-spline; can't compute it from surface because ill-defined at origin
@@ -1195,14 +1209,25 @@ endif
     do i=1,M1
      call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%SAGC(N1+1,i))  ! center value
      if (i .eq. 1) then
-      JMatrix%SAGC0(1)=JMatrix%SAGC(N1+1,1)
+      P_TEMP=JMatrix%SAGC(N1+1,1)
+
+
+write(*,*) P_TEMP,iflag
+
+
+
+
      else
-     JMatrix%SAGC0(1)=(i*JMatrix%SAGC0(1)+JMatrix%SAGC(N1+1,i))/(i+1)      ! cumulative average
+      P_TEMP=(i*P_TEMP+JMatrix%SAGC(N1+1,i))/(i+1)      ! cumulative average
      endif
     end do
-    if (JMatrix%SAGC0(1) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC0(1)
-    if (JMatrix%SAGC0(1) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC0(1)
-!   endif
+   if (TestData.ne.3 .and. TestData.ne.5) then
+    JMatrix%SAGC0(1)=P_TEMP
+   else
+    write(*,*) 'JMatrix%SAGC0(1) already set in RadSlope_eq_Skyline, center power supplied, average calculated',JMatrix%SAGC0(1),P_TEMP
+   endif
+   if (JMatrix%SAGC0(1) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC0(1)
+   if (JMatrix%SAGC0(1) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC0(1)
 
 !  Warp
 !  Reload RadSlope & re-spline; can't compute it from surface because ill-defined at origin
@@ -1288,7 +1313,6 @@ endif
   end do
   if (JMatrix%MEANC0(1) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC0(1)
   if (JMatrix%MEANC0(1) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC0(1)
-
 
 ! MONGEA
 ! Reload RadSlope & respline
