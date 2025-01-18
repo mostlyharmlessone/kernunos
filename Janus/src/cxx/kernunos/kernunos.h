@@ -110,6 +110,7 @@ public:
     void SetGLString(QString& gls);
     void loadFile(QString& fileName, bool filepresent);
     QTimer t;
+    bool pentacam;
 
 protected:
     void closeEvent(QCloseEvent *event) override;

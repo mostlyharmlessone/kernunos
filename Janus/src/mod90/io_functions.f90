@@ -215,11 +215,11 @@ subroutine rcnvrtp(TestData,filename,read_error)
           endif
           if (somecharacter(1:5).eq.'FRONT'.and.(i.eq.1)) then  !testdata 4 or 5
            if (TestData .eq. 4 .or. TestData .eq. 5) then
-            write(*,*) 'Read PentaCam CUR.CSV/ELE.CSV header'
+            write(*,*) 'Read PentaCam _CUR.CSV/_ELE.CSV header'
            else
            close(unitno1)
            read_error=2
-           write(*,*) 'Could not read PentaCam CUR.CSV/ELE.CSV header'
+           write(*,*) 'Could not read PentaCam _CUR.CSV/_ELE.CSV header'
            return
            endif
           endif

@@ -2,19 +2,17 @@ things to do
 
 CorneaCopia
 
+!!!(btest(dat flag -> .false. still has problem!
+centernode is broken for pentacam now
+YPR=R or close to it for centernode and pentacam
+
+analyze/redraw centerpoint with pentacam leads to "all points undefined" in gnuplot WHEN USING no axysymmetry because mult errors with negative hessian
+
+enable the tweaks prior to loading the file? but not with auto redraw
 
 pupilregister still broken: polartranslate does not do what I think it does in a test?
 
 also comparison is small back circle, between cur and ele
-
-loading .ele first then .cur results in no computation of center and vice versa;  there's also a problem wit the center value on display in ele
-loading cur twice has same issue with calc center: this error comes from line 421 in kernunos.cpp:   GLwidget::setCenterNode(true);  //force centernode to center value for pentacam
-in kernunos.cpp void MainWindow::open() and loadfile  //multiple invocations makes a comparison  you need to test the file name and set the dat conditions before invoking janus with DataLoad
-{
-
-
-
-ele/ele.csv have a central computational issue; there are other central computation artefacts in others too...it's extrapolation? : make sure adding central node for .ELE uses central data for Z same with SAGC/CUR
 
 what to do with/how to explain warp?
 
@@ -27,6 +25,7 @@ flat earth analogy with meridians not maps, frequency distribution = eg Zernike 
 lsq to get coefficients legendres, fourier zernike, ellipsoid as basis functions is ?better than current approach 
 
 if error on atlas read, ie retry to read a .pac.csv file, need to return without drawing anything, no .tmp file
+if error on any read->same
 
 It'd be helpful to have axes/angles for orientation is moving the figure; perhaps a info box or three displaying angles?
 
@@ -90,7 +89,10 @@ spline better at filling in locally (it's interpolation after all) whereas LSQ c
 rings function can demonstate difference. Discontinuity in all data circumferentially affects theta deivatives, all the more with splining.
 
 notes from spline_monge.odt into help/faq OR add docs in pdf to main release files
-incorporate cornea docs from BRODIE, may need to read those old DRW and WP files somehow: coreldraw works on wine, corelpaint does not; work on win31 under dosbox
+incorporate cornea docs from BRODIE, may need to read those old DRW
+instructions on running win3.1, ie designer or mathematica:
+dosbox-x DXSCSI1, then select drive in menu to map DXSCSI2 to E:, go to E:\WINDOWS and run win, select mouse capture in menu
+Export as EPS.
 mean curvature and monge astigmatism, need taylor series for limit at origin
 
 need a 2-D picture output other than gnuplot version
@@ -107,6 +109,9 @@ now that more is moved to gnuplot, consider resurrecting janus/wxWidgets version
 Adapt code in book to do LS-BICSA
 2-D splining use sparse solver via superLU possible superLU-dist to use GPU
 ?strumpack
+
+openGL display doesn't work with prime-run ./kernunos; might need to look at openGL calls to diagnose the issue?
+
 
 Optimizing:
 1)valgrind/profiling can also try helegrind for cyclic 4 way slow down

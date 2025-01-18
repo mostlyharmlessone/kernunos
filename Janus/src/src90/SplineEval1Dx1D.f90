@@ -85,22 +85,22 @@
         L=i+MM/2
         thta(L)=RadSlope%thta(L)
         if (mod(iflag,10) == 0) then                  ! no integration
-         if ((mod((iflag-mod(iflag,10))/10,10)) == 0) then    ! no central node
+         if (mod((iflag-mod(iflag,10))/10,10) == 0) then    ! no central node
           call SplineEval(0,r,z,zr2,L2,u,g,gr,grr)    ! first parameter = 0 nonperiodic
           call SplineEval(0,r,z,zr2,L2,-u,h,hr,hrr)    ! first parameter = 0 nonperiodic
          endif
-         if ((mod((iflag-mod(iflag,10))/10,10)) == 1) then    ! non-periodic center node radial spline
+         if (mod((iflag-mod(iflag,10))/10,10) == 1) then    ! non-periodic center node radial spline
           call SplineEvalCenter(i,r,z,zr2,L2,u,g,gr,grr)
           call SplineEvalCenter(i,r,z,zr2,L2,-u,h,hr,hrr)
          endif
          fTmp(i)=g
          fTmp(L)=h
         else  !iflag=1 or 2
-         if ((mod((iflag-mod(iflag,10))/10,10)) == 0) then    ! no central node
+         if (mod((iflag-mod(iflag,10))/10,10) == 0) then    ! no central node
          call SplineEval(0,r,z,zr2,L2,u,gr,grr)
          call SplineEval(0,r,z,zr2,L2,-u,hr,hrr)    ! first parameter = 0 nonperiodic
          endif
-         if ((mod((iflag-mod(iflag,10))/10,10)) == 1) then    ! non-periodic center node radial spline
+         if (mod((iflag-mod(iflag,10))/10,10) == 1) then    ! non-periodic center node radial spline
           call SplineEvalCenter(i,r,z,zr2,L2,u,gr,grr)
           call SplineEvalCenter(i,r,z,zr2,L2,-u,hr,hrr)
          endif

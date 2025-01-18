@@ -143,19 +143,21 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Concurrent REQUIRED)
 
 set(TS_FILES src/cxx/kernunos/kernunos_en_US.ts)
 
+
 #GTK4
 find_package (PkgConfig REQUIRED)
-pkg_check_modules(GTK4 REQUIRED gtk4)
-INCLUDE_DIRECTORIES(${GTK4_INCLUDE_DIRS})
-LINK_DIRECTORIES (${GTK4_LIBRARY_DIRS})
+#pkg_check_modules(GTK4 REQUIRED gtk4)
+#INCLUDE_DIRECTORIES(${GTK4_INCLUDE_DIRS})
+#LINK_DIRECTORIES (${GTK4_LIBRARY_DIRS})
 #GTK3
-pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
-message(STATUS "----- GTK3_INCLUDE_DIRS: ${GTK3_INCLUDE_DIRS}")
-message(STATUS "----- GKT3_LIBRARIES: ${GTK3_LIBRARIES}")
-message(STATUS "----- GTK3_LINK_LIBRARIES: ${GTK3_LINK_LIBRARIES}")
-include_directories(${GTK3_INCLUDE_DIRS})
-link_directories(${GTK3_LIBRARY_DIRS})
-list(APPEND FC_DEP_LIBS ${GTK3_LIBRARIES})
+#pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+#message(STATUS "----- GTK3_INCLUDE_DIRS: ${GTK3_INCLUDE_DIRS}")
+#message(STATUS "----- GKT3_LIBRARIES: ${GTK3_LIBRARIES}")
+#message(STATUS "----- GTK3_LINK_LIBRARIES: ${GTK3_LINK_LIBRARIES}")
+#include_directories(${GTK3_INCLUDE_DIRS})
+#link_directories(${GTK3_LIBRARY_DIRS})
+#list(APPEND FC_DEP_LIBS ${GTK3_LIBRARIES})
+
 
 find_library(GFORTRAN_LIBRARY NAMES gfortran)  # trying to fix ISO_Fortran_binding.h not found error, doesn't solve it, might be Intel compiler only
 ADD_COMPILE_DEFINITIONS(ASSIMP_VERSION="${ASSIMP_VERSION}")
@@ -184,6 +186,11 @@ find_package(OPENCL)
 #  set(OPENCL_LIBRARIES "/usr/lib/libOpenCL.so")
   set(OPENCL_LIBRARIES "/usr/lib/libOpenCL.so.1") 
  endif()
+find_package(CUDAToolkit COMPONENTS cudart)
+if(CUDAToolkit_FOUND)
+    message("CUDA compiler: ${CUDAToolkit_NVCC_EXECUTABLE}")
+    message("CUDA version: ${CUDAToolkit_VERSION}")
+endif()
 find_package(OpenMP)
 #  boost, needed for gnuplot-iostream
 find_package(Boost REQUIRED COMPONENTS iostreams system filesystem)
@@ -247,14 +254,20 @@ set(HH_SOURCES
 target_link_libraries(driverPiecewiseLinear ${LIBS2})
 
 #viennaCL
-
 # ViennaCL example
-#  add_executable(viennacl src/cxx/vienna/viennacl-info.cpp)  
-#  target_link_libraries(viennacl ${OPENCL_LIBRARIES} ) 
-#  add_executable(sparse src/cxx/vienna/sparse.cpp)  
+#  include_directories(src/cxx/vienna/viennacl/*)
+  #include(ViennaCLCommon)  #needs cmake/ViennaCLConfig.cmake, which might need path adjustments
+#  add_executable(viennacl src/cxx/vienna/viennacl-info.cpp)
+#  target_link_libraries(viennacl ${OPENCL_LIBRARIES} )
+#  add_executable(sparse src/cxx/vienna/sparse.cpp)
 #  target_link_libraries(sparse ${OPENCL_LIBRARIES} )
-#  add_executable(blasexample src/cxx/vienna/blas3.cpp)  
+#  add_executable(blasexample src/cxx/vienna/blas3.cpp)
 #  target_link_libraries(blasexample ${OPENCL_LIBRARIES} )
+
+# needs to use nvcc
+# Add a CUDA executable
+#    add_executable(dense-blas-bench-cuda src/cxx/vienna/dense_blas.cu)
+#    target_link_libraries(dense-blas-bench-cuda INTERFACE CUDAToolkit::cudart)
 
 # Compile.
 
@@ -284,7 +297,7 @@ target_link_libraries(driverPiecewiseLinear ${LIBS2})
     set(LIBS ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} ${GFORTRAN_LIBRARY})
 
 # need this so that GLwidget.h can be found by AUTOUIC and ui.mainwindow.h, and for rply and assimp
-include_directories(src/cxx/kernunos src/c/rply) # /usr/local/include/coretran)
+include_directories(src/cxx/kernunos src/c/rply)
 
 #kernunos Qt version
 

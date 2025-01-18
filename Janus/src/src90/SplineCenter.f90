@@ -33,28 +33,28 @@
   else
    call SplineEval(0,r,z,zr2,n,u,g,gr) 
   endif
-   if (ABS(gr) < EPS) then        ! gr is the second derivative, if it gets small as g/gr gets small there is an issue
+   if (ABS(gr) < EPS*EPS) then        ! gr is the first derivative, if it gets small as g/gr gets small there might be an overflow
     u=(r(high)+r(low))/2.0_wp     ! just make it in the center; no guarantee of a local root
-    write(*,*) 'no guarantee of a local root in SplineCenter'
+    write(*,*) 'no guarantee of a local root in SplineCenter',g/gr,gr
     return
    endif
    u=u-g/gr
   end do
-! should take under 10 iterations; if not:  
-  if (j > 9) then
+! should take under 10 iterations; if not:
+  if (j > 10) then
    u=(r(high)+r(low))/2.0_wp      ! just make it in the center; no guarantee of a local root
    write(*,*) 'Probable error on iterations in SplineCenter finding root',u,g,gr  
   endif
  
   else     ! the origin isn't between a positive and negative value, so if the slope changes sign, there's a minmax
 
-!  First time through RadSlopeCenter == 0
+!  First time through RadSplineCenter == 0
    if (btest(dat, 0) ) then ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
-    call SplineEvalCenter(jj,r,z,zr2,n,z(high),g,slopeh)
-    call SplineEvalCenter(jj,r,z,zr2,n,z(low),g,slopel)
+    call SplineEvalCenter(jj,r,z,zr2,n,r(high),g,slopeh)
+    call SplineEvalCenter(jj,r,z,zr2,n,r(low),g,slopel)
    else
-    call SplineEval(0,r,z,zr2,n,z(high),g,slopeh)
-    call SplineEval(0,r,z,zr2,n,z(low),g,slopel)
+    call SplineEval(0,r,z,zr2,n,r(high),g,slopeh)
+    call SplineEval(0,r,z,zr2,n,r(low),g,slopel)
    endif
   
    if (slopeh*slopel <= 0) then   ! find a minmax, the slope changes sign   
@@ -64,23 +64,21 @@
     grr=2*gr/(r(high)-r(low))
     do while ((j < 10) .AND. (ABS(gr/grr) > eps)) 
      j=j+1    
-
      ! First time through RadSlopeCenter == 0
-     if (btest(dat, 0) ) then ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+     if (btest(dat, 0)) then ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
       call SplineEvalCenter(jj,r,z,zr2,n,u,g,gr,grr)
      else
       call SplineEval(0,r,z,zr2,n,u,g,gr,grr)
      endif
-
-     if (ABS(grr) < EPS) then
+     if (ABS(grr) < EPS*EPS) then
       u=(r(high)+r(low))/2.0_wp     ! just make it in the center; no guarantee of a local minmax
-      write(*,*) 'no guarantee of a local minmax in SplineCenter'
+      write(*,*) 'no guarantee of a local minmax in SplineCenter',gr/grr,grr
       return
      endif     
      u=u-gr/grr
     end do  
-! should take under 10 iterations  
-    if (j > 9) then
+! should take under 10 iterations
+    if (j > 10) then
      u=(r(high)+r(low))/2.0_wp      ! just make it in the center; no guarantee of a local minmax
      write(*,*) 'Probable error on iterations in SplineCenter finding minmax',u,gr,grr,ABS(gr/grr) 
 !     write(*,*) low,high,r(low),z(low),r(high),z(high)

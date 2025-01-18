@@ -353,7 +353,7 @@ bool MainWindow::replace(std::string& str,const std::string& from,const std::str
     return true;
 }
 
-void MainWindow::open()   //multiple invocations makes a comparison
+void MainWindow::open()   //multiple invocations needed to make a comparison
 {
    ui.infoLabel->setText(tr("Invoked <b>File|Open</b>"));
    flag=flag-(flag%100)+0;  // last two digits of flag=0; need to reset this
@@ -366,173 +366,14 @@ void MainWindow::open()   //multiple invocations makes a comparison
    filename = ba.data();
    ui.infoLabel->setText(tr("filename:  ")+tr(filename));
    std::string str(filename);
-   bool pentacam =  str.find(".CUR")!= std::string::npos || str.find(".ELE") != std::string::npos ||
+   pentacam =  str.find(".CUR")!= std::string::npos || str.find(".ELE") != std::string::npos ||
                    str.find("_CUR")!= std::string::npos || str.find("_ELE") != std::string::npos;
-   if(GLwidget::isconsistency()){
-       if (pentacam) GLwidget::setconsistency(false);  //skip the first pentacam file comparison when checking consistency
-       if (!fileName.isEmpty()){
-           m_GLwidget->DataLoad(fileName, true);}
-       if (pentacam) GLwidget::setconsistency(true);
-   }else{
-    if (!fileName.isEmpty())
-           m_GLwidget->DataLoad(fileName, true);}
-   update();
    if (pentacam) {
-       if(GLwidget::isconsistency()){
-           std::string str2(filename);
-            QString fileName2 = QString::fromStdString(str2);
-             if(replace(str2,"_ELE.CSV","_CUR.CSV")) {
-               if(FILE *file = fopen(str2.c_str(),"r")) {
-                   fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
-                   fileName2 = QString::fromStdString(str2);
-                   if (!fileName2.isEmpty())
-                       m_GLwidget->DataLoad(fileName2, true);
-               }else{std::cout << "Matching file not found\n" <<std::endl;}
-             }else{
-             if(replace(str2,"_CUR.CSV","_ELE.CSV")) {
-                 if(FILE *file = fopen(str2.c_str(),"r")) {
-                   fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
-                   fileName2 = QString::fromStdString(str2);
-                   if (!fileName2.isEmpty())
-                       m_GLwidget->DataLoad(fileName2, true);
-                 }else{std::cout << "Matching file not found\n" <<std::endl;}
-             }}
-             if(replace(str2,".ELE",".CUR")) {
-                 if(FILE *file = fopen(str2.c_str(),"r")) {
-                   fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
-                   fileName2 = QString::fromStdString(str2);
-                   if (!fileName2.isEmpty())
-                       m_GLwidget->DataLoad(fileName2, true);
-                 }else{std::cout << "Matching file not found\n" <<std::endl;}
-             }else{
-             if(replace(str2,".CUR",".ELE")) {
-                 if(FILE *file = fopen(str2.c_str(),"r")) {
-                   fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
-                   fileName2 = QString::fromStdString(str2);
-                   if (!fileName2.isEmpty())
-                       m_GLwidget->DataLoad(fileName2, true);
-                 }else{std::cout << "Matching file not found\n" <<std::endl;}
-             }}
-       }
-      centerAct->setEnabled(true);  //change to false to not allow for pentacam, center deviations only for Placido
-      ShowZernAct->setEnabled(false);
-      ringsAct->setEnabled(false);
-      centernodeAct->setEnabled(true);
-//      GLwidget::setCenterNode(true);  //force centernode to center value for pentacam
-//    needs modification of SplineCenter to incoroporate center value and needs value initialized
-      GLwidget::isCenterNode();
-      centernodeAct->setChecked(GLwidget::isCenterNode());
-      adjustradiiAct->setEnabled(false);
-      SplinefillinAct->setEnabled(false);
-      LSQfillinAct->setEnabled(false);
-      lsqvssplineAct->setEnabled(true);
-   };
-   bool atlas = str.find(".CSV")!= std::string::npos && !pentacam; //CSV but not _ELE.CSV and _CUR.CSV ->atlas
-   if (atlas) {
-      ShowZernAct->setEnabled(true);
-      centerAct->setEnabled(true);
-      ringsAct->setEnabled(true);
-      centernodeAct->setEnabled(true);
-      adjustradiiAct->setEnabled(true);
-      SplinefillinAct->setEnabled(true);
-      LSQfillinAct->setEnabled(true);
-      lsqvssplineAct->setEnabled(true);
-   };
-   bool eyesys= false;               //if subsitutuing XX for RA or RA for XX results in an openable file, then probably EyeSys
-   std::string str2(filename);
-   if(replace(str2,"RA","XX")) {
-       if(FILE *file = fopen(str2.c_str(),"r")) {
-           fclose(file); eyesys = true;}
-   }else{
-       if(replace(str2,"XX","RA")) {
-           if(FILE *file = fopen(str2.c_str(),"r")) {
-               fclose(file); eyesys = true;
-           }}};
-   if (eyesys) {
-       ShowZernAct->setEnabled(false);
-       centerAct->setEnabled(false);
-       ringsAct->setEnabled(false);
-       centernodeAct->setEnabled(true);
-       adjustradiiAct->setEnabled(true);
-       SplinefillinAct->setEnabled(false);
-       LSQfillinAct->setEnabled(false);
-       lsqvssplineAct->setEnabled(true);
-   };
-   compareAct->setEnabled(true);
-   redrawAct->setEnabled(true);
-   redrawOptionAct->setEnabled(true);
-   gnuplotAct->setEnabled(true);
-   liocAct->setEnabled(true);
-   makeoffAct->setEnabled(true);
-   makeplyAct->setEnabled(true);
-   ply2binAct->setEnabled(true);
-   off2stlAct->setEnabled(true);
-   importexportAct->setEnabled(true);
-   zernAct->setEnabled(true);
-   }
-
-void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for the commandline file if any
-{
-   if (fileName.isEmpty()) return;
-   QByteArray ba = fileName.toLocal8Bit();
-   filename = ba.data();
-   ui.infoLabel->setText(tr("filename:  ")+tr(filename));
-   if (filepresent){
-       m_GLwidget->DataLoad(fileName, true);
-       std::string str(filename);  
-   bool pentacam =  str.find(".CUR")!= std::string::npos || str.find(".ELE") != std::string::npos ||
-                   str.find("_CUR")!= std::string::npos || str.find("_ELE") != std::string::npos;
-   if(GLwidget::isconsistency()){
-       if (pentacam) GLwidget::setconsistency(false);  //skip the first pentacam file comparison when checking consistency
-       if (!fileName.isEmpty()){
-           m_GLwidget->DataLoad(fileName, true);}
-       if (pentacam) GLwidget::setconsistency(true);
-   }else{
-       if (!fileName.isEmpty())
-           m_GLwidget->DataLoad(fileName, true);}
-   update();
-   if (pentacam) {
-       if(GLwidget::isconsistency()){
-           std::string str2(filename);
-           QString fileName2 = QString::fromStdString(str2);
-           if(replace(str2,"_ELE.CSV","_CUR.CSV")) {
-               if(FILE *file = fopen(str2.c_str(),"r")) {
-                   fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
-                   fileName2 = QString::fromStdString(str2);
-                   if (!fileName2.isEmpty())
-                       m_GLwidget->DataLoad(fileName2, true);
-               }else{std::cout << "Matching file not found\n" <<std::endl;}
-           }else{
-               if(replace(str2,"_CUR.CSV","_ELE.CSV")) {
-                   if(FILE *file = fopen(str2.c_str(),"r")) {
-                       fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
-                       fileName2 = QString::fromStdString(str2);
-                       if (!fileName2.isEmpty())
-                           m_GLwidget->DataLoad(fileName2, true);
-                   }else{std::cout << "Matching file not found\n" <<std::endl;}
-               }}
-           if(replace(str2,".ELE",".CUR")) {
-               if(FILE *file = fopen(str2.c_str(),"r")) {
-                   fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
-                   fileName2 = QString::fromStdString(str2);
-                   if (!fileName2.isEmpty())
-                       m_GLwidget->DataLoad(fileName2, true);
-               }else{std::cout << "Matching file not found\n" <<std::endl;}
-           }else{
-               if(replace(str2,".CUR",".ELE")) {
-                   if(FILE *file = fopen(str2.c_str(),"r")) {
-                       fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
-                       fileName2 = QString::fromStdString(str2);
-                       if (!fileName2.isEmpty())
-                           m_GLwidget->DataLoad(fileName2, true);
-                   }else{std::cout << "Matching file not found\n" <<std::endl;}
-               }}
-       }
        centerAct->setEnabled(true);  //change to false to not allow for pentacam, center deviations only for Placido
        ShowZernAct->setEnabled(false);
        ringsAct->setEnabled(false);
        centernodeAct->setEnabled(true);
-       GLwidget::setCenterNode(true);  //force centernode to center value for pentacam
+       GLwidget::setCenterNode(true);  //force centernode to center value for pentaca needs modification of SplineCenter to incorporate center value and needs value initialized
        GLwidget::isCenterNode();
        centernodeAct->setChecked(GLwidget::isCenterNode());
        adjustradiiAct->setEnabled(false);
@@ -581,7 +422,174 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
    ply2binAct->setEnabled(true);
    off2stlAct->setEnabled(true);
    importexportAct->setEnabled(true);
-   zernAct->setEnabled(true);}
+   zernAct->setEnabled(true);
+
+   if(GLwidget::isconsistency()){
+       if (pentacam) GLwidget::setconsistency(false);  //skip the first pentacam file comparison when checking consistency
+       if (!fileName.isEmpty()){
+           m_GLwidget->DataLoad(fileName, true);}
+       if (pentacam) GLwidget::setconsistency(true);
+     }
+    else{
+    if (!fileName.isEmpty())
+           m_GLwidget->DataLoad(fileName, true);}
+           update();
+    if (pentacam) {
+       if(GLwidget::isconsistency()){
+           std::string str2(filename);
+            QString fileName2 = QString::fromStdString(str2);
+             if(replace(str2,"_ELE.CSV","_CUR.CSV")) {
+               if(FILE *file = fopen(str2.c_str(),"r")) {
+                   fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
+                   fileName2 = QString::fromStdString(str2);
+                   if (!fileName2.isEmpty())
+                       m_GLwidget->DataLoad(fileName2, true);
+               }else{std::cout << "Matching file not found\n" <<std::endl;}
+             }else{
+             if(replace(str2,"_CUR.CSV","_ELE.CSV")) {
+                 if(FILE *file = fopen(str2.c_str(),"r")) {
+                   fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
+                   fileName2 = QString::fromStdString(str2);
+                   if (!fileName2.isEmpty())
+                       m_GLwidget->DataLoad(fileName2, true);
+                 }else{std::cout << "Matching file not found\n" <<std::endl;}
+             }}
+             if(replace(str2,".ELE",".CUR")) {
+                 if(FILE *file = fopen(str2.c_str(),"r")) {
+                   fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
+                   fileName2 = QString::fromStdString(str2);
+                   if (!fileName2.isEmpty())
+                       m_GLwidget->DataLoad(fileName2, true);
+                 }else{std::cout << "Matching file not found\n" <<std::endl;}
+             }else{
+             if(replace(str2,".CUR",".ELE")) {
+                 if(FILE *file = fopen(str2.c_str(),"r")) {
+                   fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
+                   fileName2 = QString::fromStdString(str2);
+                   if (!fileName2.isEmpty())
+                       m_GLwidget->DataLoad(fileName2, true);
+                 }else{std::cout << "Matching file not found\n" <<std::endl;}
+             }}
+       }
+   };
+   }
+
+void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for the commandline file if any
+{
+   if (fileName.isEmpty()) return;
+   QByteArray ba = fileName.toLocal8Bit();
+   filename = ba.data();
+   ui.infoLabel->setText(tr("filename:  ")+tr(filename));
+   if (filepresent){
+       m_GLwidget->DataLoad(fileName, true);
+       std::string str(filename);  
+       pentacam =  str.find(".CUR")!= std::string::npos || str.find(".ELE") != std::string::npos ||
+                   str.find("_CUR")!= std::string::npos || str.find("_ELE") != std::string::npos;
+       if (pentacam){
+       centerAct->setEnabled(true);  //change to false to not allow for pentacam, center deviations only for Placido
+       ShowZernAct->setEnabled(false);
+       ringsAct->setEnabled(false);
+       centernodeAct->setEnabled(true);
+       GLwidget::setCenterNode(true);  //force centernode to center value for pentacam
+       GLwidget::isCenterNode();
+       centernodeAct->setChecked(GLwidget::isCenterNode());
+       adjustradiiAct->setEnabled(false);
+       SplinefillinAct->setEnabled(false);
+       LSQfillinAct->setEnabled(false);
+       lsqvssplineAct->setEnabled(true);
+       };
+       bool atlas = str.find(".CSV")!= std::string::npos && !pentacam; //CSV but not _ELE.CSV and _CUR.CSV ->atlas
+       if (atlas) {
+           ShowZernAct->setEnabled(true);
+           centerAct->setEnabled(true);
+           ringsAct->setEnabled(true);
+           centernodeAct->setEnabled(true);
+           adjustradiiAct->setEnabled(true);
+           SplinefillinAct->setEnabled(true);
+           LSQfillinAct->setEnabled(true);
+           lsqvssplineAct->setEnabled(true);
+       };
+       bool eyesys= false;               //if subsitutuing XX for RA or RA for XX results in an openable file, then probably EyeSys
+       std::string str2(filename);
+       if(replace(str2,"RA","XX")) {
+           if(FILE *file = fopen(str2.c_str(),"r")) {
+               fclose(file); eyesys = true;}
+       }else{
+           if(replace(str2,"XX","RA")) {
+               if(FILE *file = fopen(str2.c_str(),"r")) {
+                   fclose(file); eyesys = true;
+               }}};
+       if (eyesys) {
+           ShowZernAct->setEnabled(false);
+           centerAct->setEnabled(false);
+           ringsAct->setEnabled(false);
+           centernodeAct->setEnabled(true);
+           adjustradiiAct->setEnabled(true);
+           SplinefillinAct->setEnabled(false);
+           LSQfillinAct->setEnabled(false);
+           lsqvssplineAct->setEnabled(true);
+       };
+       compareAct->setEnabled(true);
+       redrawAct->setEnabled(true);
+       redrawOptionAct->setEnabled(true);
+       gnuplotAct->setEnabled(true);
+       liocAct->setEnabled(true);
+       makeoffAct->setEnabled(true);
+       makeplyAct->setEnabled(true);
+       ply2binAct->setEnabled(true);
+       off2stlAct->setEnabled(true);
+       importexportAct->setEnabled(true);
+       zernAct->setEnabled(true);
+
+
+   if(GLwidget::isconsistency()){
+       if (pentacam) GLwidget::setconsistency(false);  //skip the first pentacam file comparison when checking consistency
+       if (!fileName.isEmpty()){
+           m_GLwidget->DataLoad(fileName, true);}
+       if (pentacam) GLwidget::setconsistency(true);
+   }else{
+       if (!fileName.isEmpty())
+           m_GLwidget->DataLoad(fileName, true);}
+   update();
+   if (pentacam) {
+       if(GLwidget::isconsistency()){
+           std::string str2(filename);
+           QString fileName2 = QString::fromStdString(str2);
+           if(replace(str2,"_ELE.CSV","_CUR.CSV")) {
+               if(FILE *file = fopen(str2.c_str(),"r")) {
+                   fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
+                   fileName2 = QString::fromStdString(str2);
+                   if (!fileName2.isEmpty())
+                       m_GLwidget->DataLoad(fileName2, true);
+               }else{std::cout << "Matching file not found\n" <<std::endl;}
+           }else{
+               if(replace(str2,"_CUR.CSV","_ELE.CSV")) {
+                   if(FILE *file = fopen(str2.c_str(),"r")) {
+                       fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
+                       fileName2 = QString::fromStdString(str2);
+                       if (!fileName2.isEmpty())
+                           m_GLwidget->DataLoad(fileName2, true);
+                   }else{std::cout << "Matching file not found\n" <<std::endl;}
+               }}
+           if(replace(str2,".ELE",".CUR")) {
+               if(FILE *file = fopen(str2.c_str(),"r")) {
+                   fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
+                   fileName2 = QString::fromStdString(str2);
+                   if (!fileName2.isEmpty())
+                       m_GLwidget->DataLoad(fileName2, true);
+               }else{std::cout << "Matching file not found\n" <<std::endl;}
+           }else{
+               if(replace(str2,".CUR",".ELE")) {
+                   if(FILE *file = fopen(str2.c_str(),"r")) {
+                       fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
+                       fileName2 = QString::fromStdString(str2);
+                       if (!fileName2.isEmpty())
+                           m_GLwidget->DataLoad(fileName2, true);
+                   }else{std::cout << "Matching file not found\n" <<std::endl;}
+               }}
+       }
+   };
+}
    else {m_GLwidget->DataLoad(fileName, false);}  //cube
    update();
 }
@@ -1145,13 +1153,14 @@ void MainWindow::center() {
    filename = ba.data();
    gp << "plot \"" << filename << "\" using 1:2 with lines title" <<'"'<< "SagC" << '"' << "\n";
 
+   if (!pentacam){
    gp << "set term wxt 5 title 'Center' \n";
    filenamelocal = FILE.fileName();
    filenamelocal = filenamelocal.append(".plt");
    ba = filenamelocal.toLocal8Bit();
    filename = ba.data();
    gp << "plot \"" << filename << "\" using 1:2 with lines title" <<'"'<< "Center" << '"' << "\n";
-
+   }
 
 #ifdef _WIN32
    // For Windows, prompt for a keystroke before the Gnuplot object goes out of scope so that

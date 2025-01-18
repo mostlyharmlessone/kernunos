@@ -1024,7 +1024,7 @@ SELECT CASE (fct)
    DiaSlope%Zpd2 = .n. DiaSlope
    do i=1,M1
     do j=1,b%MV(i)
-     if (btest(dat,0)) then
+     if (.false.) then !btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
       call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%SAGC(j,i))
      else
       call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%SAGC(j,i))
@@ -1033,7 +1033,7 @@ SELECT CASE (fct)
      if (b%SAGC(j,i) >= b%SAGC0(3)) b%SAGC0(3)=b%SAGC(j,i)
     end do
    end do
-   if (btest(dat,0)) then
+   if (.false.) then !btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
     call SplineEval1Dx1D(10,b%R0,b%THT0,b%SAGC0(1))  ! center value
    else
     call SplineEval1Dx1D(0,b%R0,b%THT0,b%SAGC0(1))  ! center value
@@ -1082,7 +1082,7 @@ if (iflag == 1) then ! iflag == 1 remake JMatrix (b) including center
  DiaSlope%Zpd2 = .n. DiaSlope
  do i=1,M1
   do j=1,b%MV(i)
-   if (btest(dat,0)) then
+   if (.false.) then !btest(dat,0)) then                                    !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
     call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%Z(j,i))
    else
     call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%Z(j,i))
@@ -1091,7 +1091,7 @@ if (iflag == 1) then ! iflag == 1 remake JMatrix (b) including center
    if (b%Z(j,i) >= b%Z0(3)) b%Z0(3)=b%Z(j,i)
   end do
  end do
- if (btest(dat,0)) then
+ if (.false.) then !btest(dat,0)) then                                      !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
   call SplineEval1Dx1D(10,b%R0,b%THT0,b%Z0(1))  ! center value
  else
   call SplineEval1Dx1D(0,b%R0,b%THT0,b%Z0(1))  ! center value

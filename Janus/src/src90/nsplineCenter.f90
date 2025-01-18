@@ -44,19 +44,15 @@
    rr(i)=r(i)
    zz(i)=z(i)
   end do
-! add a centerpoint at origin with zero slope
-   rr(low+1)=0_wp
-   call SplineEval(0,r,z,z2,n,RadSplineCenter(1,ii),zz(low+1))
-   RadSplineCenter(2,ii)=zz(low+1)
-
+! add a centerpoint with zero slope
+  rr(low+1)=RadSplineCenter(1,ii)
+  call SplineEval(0,r,z,z2,n,RadSplineCenter(1,ii),zz(low+1))
+  RadSplineCenter(2,ii)=zz(low+1)  ! store z value at centerpoint
   do i=high,n  ! high=low+1
    rr(i+1)=r(i)
    zz(i+1)=z(i)
   end do
-
   INFO=0 ; a=0  ;  b=0  ;   c=0  ;  d=0 
-
-
 ! spline equation at internal knots
     do i=2,n
      a(i-1)=(rr(i)-rr(i-1))/6.0
@@ -87,7 +83,7 @@
    end do
 ! skip zz2(high) high=low+1
    do i=high+1,n-1
-     z2(i)=zz2(i)  
+     z2(i)=zz2(i)
    end do
  ! store z2 central/origin
    RadSplineCenter(3,ii)=zz2(high)
