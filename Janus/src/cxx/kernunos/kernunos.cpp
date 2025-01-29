@@ -369,7 +369,7 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
    pentacam =  str.find(".CUR")!= std::string::npos || str.find(".ELE") != std::string::npos ||
                    str.find("_CUR")!= std::string::npos || str.find("_ELE") != std::string::npos;
    if (pentacam) {
-       centerAct->setEnabled(true);  //change to false to not allow for pentacam, center deviations only for Placido
+       centerAct->setEnabled(true);
        ShowZernAct->setEnabled(false);
        ringsAct->setEnabled(false);
        centernodeAct->setEnabled(true);
@@ -392,7 +392,7 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
        LSQfillinAct->setEnabled(true);
        lsqvssplineAct->setEnabled(true);
    };
-   bool eyesys= false;               //if subsitutuing XX for RA or RA for XX results in an openable file, then probably EyeSys
+   bool eyesys= false;               //if substituting XX for RA or RA for XX results in an openable file, then probably EyeSys
    std::string str2(filename);
    if(replace(str2,"RA","XX")) {
        if(FILE *file = fopen(str2.c_str(),"r")) {
@@ -404,7 +404,7 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
            }}};
    if (eyesys) {
        ShowZernAct->setEnabled(false);
-       centerAct->setEnabled(false);
+       centerAct->setEnabled(true);
        ringsAct->setEnabled(false);
        centernodeAct->setEnabled(true);
        adjustradiiAct->setEnabled(true);
@@ -521,7 +521,7 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
                }}};
        if (eyesys) {
            ShowZernAct->setEnabled(false);
-           centerAct->setEnabled(false);
+           centerAct->setEnabled(true);
            ringsAct->setEnabled(false);
            centernodeAct->setEnabled(true);
            adjustradiiAct->setEnabled(true);
@@ -2156,8 +2156,8 @@ void MainWindow::createActions()
    liocAct->setEnabled(false);
    connect(liocAct, &QAction::triggered, this, &MainWindow::LinesofCurvature);
 
-   centerAct = new QAction(tr("&Center deviations (only for Placido Disk data)"), this);
-   centerAct->setStatusTip(tr("Center deviations (only for Placido Disk data)"));
+   centerAct = new QAction(tr("&Center deviations"), this);
+   centerAct->setStatusTip(tr("Center deviations"));
    centerAct->setEnabled(false);
    connect(centerAct, &QAction::triggered, this, &MainWindow::center);
 

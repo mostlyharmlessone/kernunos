@@ -29,12 +29,15 @@
     allocate (rr(n+1),zz(n+1))
   endif
 
+! make a noncenterpoint spline to find center values of elevation and curvature
+  call nspline(r,z,n,z2)
+
 ! boundary conditions for natural spline, not used in calculations
   z2(1)=0.
   z2(n)=0.
   a=0  ;  b=0  ;   c=0  ;  d=0
 
-! find center
+! find the bracket for the center
   call bsearch(0.0_wp,r,n,high,low)
   if (low .eq. high) then ! 0.0 == r(n)
    write(*,*) 'Unexpected error in nsplineCenter'
@@ -44,7 +47,7 @@
    rr(i)=r(i)
    zz(i)=z(i)
   end do
-! add a centerpoint with zero slope
+! add a centerpoint with zero slope, or at provided center
   rr(low+1)=RadSplineCenter(1,ii)
   call SplineEval(0,r,z,z2,n,RadSplineCenter(1,ii),zz(low+1))
   RadSplineCenter(2,ii)=zz(low+1)  ! store z value at centerpoint
@@ -52,6 +55,7 @@
    rr(i+1)=r(i)
    zz(i+1)=z(i)
   end do
+
   INFO=0 ; a=0  ;  b=0  ;   c=0  ;  d=0 
 ! spline equation at internal knots
     do i=2,n

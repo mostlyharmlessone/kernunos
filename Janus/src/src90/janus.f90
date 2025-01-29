@@ -96,8 +96,6 @@ map=mod((flag-mod(flag,100))/100,100)  ! last two digits are tweaks
 ! iflag =110 ! no integration, centernode, LSQ, so then 10 or 0 or 100 or 110
 ! iflag =111 ! integration, centernode, LSQ, so then 10 or 0 or 100 or 110
 
-write(*,*) 'btest(dat,0)', btest(dat,0)
-
 ! mod(flag,100) == 99 Deallocate
 if (mod(flag,100) == 99) then
     if (allocated(JMatrix%R)) then
@@ -317,14 +315,14 @@ DiaSlope%Zpd2 = .n. DiaSlope
  endif
  if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
   DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
-  if (TestData.eq.3 .or. TestData.eq.5 .and. (fct == 0)) RadSplineCenter(2,:)=JMatrix%SAGC0(1)   ! pentacam data provided
-  if (TestData.eq.2 .or. TestData.eq.4 .and. (fct == 20)) RadSplineCenter(2,:)=JMatrix%Z0(1)      ! pentacam data provided
+  if (TestData.eq.3 .or. TestData.eq.5 ) RadSplineCenter(2,:)=JMatrix%SAGC0(1)   ! pentacam data provided
+  if (TestData.eq.2 .or. TestData.eq.4 ) RadSplineCenter(2,:)=JMatrix%Z0(1)      ! pentacam data provided
  endif
  if (btest(dat, 1)) then          ! moving each meridian to align curves
   call AdjustRadSplineCenter     ! changes r only
   DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
  endif
-
+  call MakeRadSplineCenter(dat)        ! generates spline centers with tweaks
 
 ! WriteCenter shows where the spline of slopes is zero, it should be close to zero for a concave center with a unique maximum
  BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".plt")
@@ -921,17 +919,19 @@ if (mod(flag,100) .ne. 9 ) then
  DiaSlope=RadSlope              ! move to diagonal format
  DiaSlope%Zpd2 = .n. DiaSlope
  call MakeRadSplineCenter(0)   ! remakes RadSplineCenter(1,:)
- if (TestData.eq.3 .or. TestData.eq.5 .and. (fct == 0)) RadSplineCenter(1,:)=0   ! pentacam data provided
- if (TestData.eq.2 .or. TestData.eq.4 .and. (fct == 20)) RadSplineCenter(1,:)=0
+ if (TestData.eq.3 .or. TestData.eq.5 ) RadSplineCenter(1,:)=0   ! pentacam data provided
+ if (TestData.eq.2 .or. TestData.eq.4 ) RadSplineCenter(1,:)=0
  if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
   DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
-  if (TestData.eq.3 .or. TestData.eq.5 .and. (fct == 0)) RadSplineCenter(2,:)=JMatrix%SAGC0(1)   ! pentacam data provided
-  if (TestData.eq.2 .or. TestData.eq.4 .and. (fct == 20)) RadSplineCenter(2,:)=JMatrix%Z0(1)      ! pentacam data provided
+  if (TestData.eq.3 .or. TestData.eq.5 ) RadSplineCenter(2,:)=JMatrix%SAGC0(1)   ! pentacam data provided
+  if (TestData.eq.2 .or. TestData.eq.4 ) RadSplineCenter(2,:)=JMatrix%Z0(1)      ! pentacam data provided
  endif
  if (btest(dat, 1)) then          ! moving each meridian to align curves
   call AdjustRadSplineCenter     ! changes r only
   DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
  endif
+  call MakeRadSplineCenter(dat)        ! generates spline centers with tweaks
+
 ! Atlas spline consistency check and computation of elevation by power vs elevation in file
  if ( Testdata .eq. 1 .and. btest(dat,7) ) then
  if (btest(dat, 2)) then
@@ -1079,16 +1079,6 @@ if (mod(flag,100) .ne. 9 ) then
     JMatrix%SAGC(j,i)=RFCT*princ2
     JMatrix%GAUSSC(j,i)=RFCT*gaussian
 
-!!!!checking here for problems with sagc; there's a problem with asymmetry/jump in YP2R2 with ELE/SAGC
-
-
-if (j .eq. 1 ) then
-
-  write(*,*) JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA, YP2R2,gaussian,meanpower,princ1,princ2,astigm
-
-endif
-
-
 !!!!!check here for extrapolation with XX; yep still doing it; its at the edge where the data is discontinuous circumferentially
 
 if (abs(YP2THETA) .gt. 2000) then
@@ -1154,8 +1144,6 @@ endif
   DiaSlope=0
   deallocate(RadSplineCenter)
 ! reinitialize with M1 and N1
-!  MM=M1
-!  N=N1
   call init_mat(M1,N1,RadSlope,DiaSlope,RadSplineCenter)
   RadSlope=JMatrix
 
@@ -1170,19 +1158,15 @@ endif
    call MakeRadSplineCenter(0)   ! remakes RadSplineCenter(1,:)
   else
    RadSplineCenter(1,:)=0      ! pentacam by definition is at 0
-   if (TestData.eq.3 .or. TestData.eq.5 .and. (fct == 0)) RadSplineCenter(2,:)=JMatrix%SAGC0(1)   ! pentacam data provided
-   if (TestData.eq.2 .or. TestData.eq.4 .and. (fct == 20)) RadSplineCenter(2,:)=JMatrix%Z0(1)      ! pentacam data provided
+   if (TestData.eq.3 .or. TestData.eq.5 ) RadSplineCenter(2,:)=JMatrix%SAGC0(1)   ! pentacam data provided
+   if (TestData.eq.2 .or. TestData.eq.4 ) RadSplineCenter(2,:)=JMatrix%Z0(1)      ! pentacam data provided
   endif
 
   if (btest(dat, 1)) then          ! moving each meridian to align curves
    call AdjustRadSplineCenter     ! changes r only
    DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
   endif
-
-
-!  weird RadSplineCenter(1,:) values come from this call
-!  call MakeRadSplineCenter(dat)        ! generates spline centers with tweaks
-
+  call MakeRadSplineCenter(dat)        ! generates spline centers with tweaks
 
 !  Z
 !   notice that we didn't load Z into Zp and then use iflag=10, and 0, though it should be the same
@@ -1202,8 +1186,6 @@ endif
    if (JMatrix%Z0(1) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z0(1)
    if (JMatrix%Z0(1) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z0(1)
 
-write(*,*) '1192, Z0',P_TEMP
-
 !  SAGC
 !  Reload RadSlope with SAGC & re-spline; can't compute it from surface because ill-defined at origin
     do i=1,M1
@@ -1214,7 +1196,7 @@ write(*,*) '1192, Z0',P_TEMP
     DiaSlope=RadSlope              ! move to diagonal format
 
 !   reset iflag for centers: no integration
-    if (.false.) then !btest(dat,0)) then                            !!!(btest(dat,0)  SAGC0
+    if (.false.) then !btest(dat,0)) then
      iflag=10
      DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
     else
@@ -1228,9 +1210,6 @@ write(*,*) '1192, Z0',P_TEMP
 
     do i=1,M1
      call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%SAGC(N1+1,i))  ! center value
-
-!write(*,*) JMatrix%SAGC(1,i),JMatrix%SAGC(N1+1,i)     !!!!!!!!!!WTF sagc at 1 and 2 are all too small with centernode; 3 are ok
-
      if (i .eq. 1) then
       P_TEMP=JMatrix%SAGC(N1+1,1)
      else
@@ -1239,17 +1218,6 @@ write(*,*) '1192, Z0',P_TEMP
     end do
    if (TestData.ne.3 .and. TestData.ne.5) then
     JMatrix%SAGC0(1)=P_TEMP
-
-write(*,*) '1230, SAGC0',P_TEMP
-
-!write(*,*) 'first and last are N1 values... might be zero because no data out there'
-do i=N1,1,-1
-!write(*,*) JMatrix%R(i,180),JMatrix%SAGC(i,180)
-end do
-do i=1,N1
-!write(*,*) JMatrix%R(i,1),JMatrix%SAGC(i,1)
-end do
-
    else
     write(*,*) 'JMatrix%SAGC0(1) already set in RadSlope_eq_Skyline, center power supplied, average calculated',JMatrix%SAGC0(1),P_TEMP
    endif
@@ -1408,15 +1376,14 @@ if (mod(flag,100) == 1) then
   endif
   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
    DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
-   if (TestData.eq.3 .or. TestData.eq.5 .and. (fct == 0)) RadSplineCenter(2,:)=JMatrix%SAGC0(1)   ! pentacam data provided
-   if (TestData.eq.2 .or. TestData.eq.4 .and. (fct == 20)) RadSplineCenter(2,:)=JMatrix%Z0(1)      ! pentacam data provided
+   if (TestData.eq.3 .or. TestData.eq.5 ) RadSplineCenter(2,:)=JMatrix%SAGC0(1)   ! pentacam data provided
+   if (TestData.eq.2 .or. TestData.eq.4 ) RadSplineCenter(2,:)=JMatrix%Z0(1)      ! pentacam data provided
   endif
   if (btest(dat, 1)) then          ! moving each meridian to align curves
    call AdjustRadSplineCenter     ! changes r only
    DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
   endif
   call MakeRadSplineCenter(dat)        ! generates spline centers with tweaks
-
 
 ! reset iflag for generating local elevations for computations
 if (btest(dat, 2)) then

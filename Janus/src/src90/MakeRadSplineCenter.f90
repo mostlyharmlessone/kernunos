@@ -16,7 +16,7 @@
         z=DiaSlope%Zpd(1:2*N,j)
         zr2=DiaSlope%Zpd2(1:2*N,j)
         call SplineCenter(dat,j,r,z,zr2,L2,w) !each call can potentionally have a call to read RadSplineCenter(:,j)
-                                              ! if btest(dat,0) = .true., needs call to DiaSplineCenter first
+                                              ! if btest(dat,0) = .true., needs call to DiaSplineCenter=.nc.->nsplinecenter first
         RadSplineCenter(1,j)=w
 !       odd as it seems, each angle j is also angle L since we're on a diagonal 
         L=j+MM/2
