@@ -3,33 +3,39 @@ things to do
 CorneaCopia
 
 pupilregister still broken: polartranslate does not do what I think it does in a test?
+redraw: only affects central image; does not change JMatrix1 or vertices2/elements2; 
+running compare here compares the original with the tweak
+redraw comparison, pick a different color and function for compare (third buffer); basically re-runs last step of compare
+
+janus needs error reporting back to DataLoad/kernunos
+if error on atlas read, ie retry to read a .pac.csv file, need to return without drawing anything, no .tmp file
+if error on any read->same
+consider making an explicit choice for test data instead of an error condition on file reads; at this point test is diabled because of change in open()
 
 what to do with/how to explain warp?
-mult errors with negative hessian
+mult errors with negative hessian: ?do cartesian calc with penta directly?
+do calculations in cartesian for penta then migrate to polar
+make cartesian grid display option; convert polar to grid, display pentacam directly
+ might need centerpoint version for pentacam to incorporate center from Penta,as opposed to computed center average!
 
 enable the tweaks prior to loading the file? but not with auto redraw
 
 selectfunction in cornea_arrays in only partially implemented
 there's also a partial call/implementation in if (mod(flag,100) .eq. 5 ) ! gnuplot splot output
 plots with gnuplot splot are only has fixed scale for sagc?
-need to write a WriteGeomXXX type file for gnuplot splot: replacement/update or use for PRINTGRAPH
+need to write a WriteGeomXXX type file for gnuplot splot: replacement/update or use for PRINTGRAPH 
 
-flat earth analogy with meridians not maps, frequency distribution = eg Zernike coefficient is the way to see corneas
-lsq to get coefficients legendres, fourier zernike, ellipsoid as basis functions is ?better than current approach 
 
-if error on atlas read, ie retry to read a .pac.csv file, need to return without drawing anything, no .tmp file
-if error on any read->same
 
 It'd be helpful to have axes/angles for orientation is moving the figure; perhaps a info box or three displaying angles?
+make 3D option for all functions, with scale Z value max and min
+this will affect Geom,WriteGeomPLY/OFF
 
 compare is broken with zernike; also so is opening 2nd file with zernike selected and zernike needs extreme value filter
 resurrect old noise reduction code to help out mongeastig and meanc for real data?
 need lapack or open version of numrec fourn:  fftpack
 extreme value filter for scales
 
-redraw: only affects central image; does not change JMatrix1 or vertices2/elements2; 
-running compare here compares the original with the tweak
-redraw comparison, pick a different color and function for compare (third buffer); basically re-runs last step of compare
 
 built framework for decenter; both involve moving elevation data points, either, 
 then resplining on that basis, just like an ELE file, in fact, for an ELE/ELE.CSV file, adjust the data before the first spline
@@ -37,19 +43,12 @@ decenter needs a dialog box for the amount and direction needs inputdialog get f
 decentration accomplished with penta data off by one in getArg(); make it (i) or (i+2) to decenter and generate fake astigmatism: 
 Is this reversible with tweaks, and/or can we also fake decentration with reverse tweaks?
 
-make 3D option for all functions, with scale Z value max and min
-this will affect Geom,WriteGeomPLY/OFF
-
-do calculations in cartesian for penta then migrate to polar
-make cartesian grid display option; convert polar to grid, display pentacam directly
- might need centerpoint version for pentacam to incorporate center from Penta,as opposed to computed center average!
-
 ability to turn stdoutput logging on/off
 change most writes to kernunos log writes
 addcomments():
 errorMessageDialog
 
-consider making an explicit choice for test data instead of an error condition on file reads
+
 color white centrally on test look at values in sagc: it's outside USS scale
 
 try going back to splineeval1dx1d and removing extra calls to splineeval, aka back to trial that spawned current branch
@@ -73,6 +72,9 @@ make html files with abricotine export
 move faq to help menu: 
 centerpoints need explaining, as in why are they non-zero in writecenterj
 incorporate "warp/oblique power" and reading zernike and pupils from some files into readme/faq
+
+flat earth analogy with meridians not maps, frequency distribution = eg Zernike coefficient is the way to see corneas
+lsq to get coefficients legendres, fourier zernike, ellipsoid as basis functions is ?better than current approach
 
 Needs a whole section on corneal topography and "powers" with math definitions
 

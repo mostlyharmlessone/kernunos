@@ -118,6 +118,7 @@ protected:
 private slots:
     bool replace(std::string& str,const std::string& from,const std::string& to);
     void open();
+    void test();
     void showDocumentation();
     void addComments();
     void redraw();
@@ -235,6 +236,7 @@ private:
 
     QMenu *fileMenu;
     QAction *openAct;
+    QAction *testAct;
     QAction *consistencyAct;
     QAction *compareAct;
     QAction *exitAct;

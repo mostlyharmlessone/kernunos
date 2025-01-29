@@ -357,8 +357,7 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
 {
    ui.infoLabel->setText(tr("Invoked <b>File|Open</b>"));
    flag=flag-(flag%100)+0;  // last two digits of flag=0; need to reset this
-// note that the Atlas CSV filter is non-specific and will include all CSV files
-   QString filter = "All (*) ;; PentaCam (*.CUR *.ELE *_CUR.CSV *_ELE.CSV);;EyeSys (RA*.* XX*.*);;Atlas (*.CSV)";
+   QString filter = "Topography files (*.CUR *.ELE *_CUR.CSV *_ELE.CSV RA*.* XX*.* *OD.CSV *OS.CSV) ;; PentaCam (*.CUR *.ELE *_CUR.CSV *_ELE.CSV);;EyeSys (RA*.* XX*.*);;Atlas (*OD.CSV *OS.CSV);;All (*)";
    QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
    if (fileName.isEmpty())
        return;
@@ -368,6 +367,18 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
    std::string str(filename);
    pentacam =  str.find(".CUR")!= std::string::npos || str.find(".ELE") != std::string::npos ||
                    str.find("_CUR")!= std::string::npos || str.find("_ELE") != std::string::npos;
+   bool atlas = (str.find("OD.CSV")!= std::string::npos) || (str.find("OS.CSV")!= std::string::npos && !pentacam); //OD.CSV OS.CSV but not _ELE.CSV and _CUR.CSV ->atlas
+   bool eyesys= false;               //if substituting XX for RA or RA for XX results in an openable file, then probably EyeSys
+   std::string str2(filename);
+   if(replace(str2,"RA","XX")) {
+       if(FILE *file = fopen(str2.c_str(),"r")) {
+           fclose(file); eyesys = true;}
+   }else{
+       if(replace(str2,"XX","RA")) {
+           if(FILE *file = fopen(str2.c_str(),"r")) {
+               fclose(file); eyesys = true;
+           }}};
+   if (!pentacam && !atlas && !eyesys) return;   //no supported file format
    if (pentacam) {
        centerAct->setEnabled(true);
        ShowZernAct->setEnabled(false);
@@ -381,7 +392,6 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
        LSQfillinAct->setEnabled(false);
        lsqvssplineAct->setEnabled(true);
    };
-   bool atlas = str.find(".CSV")!= std::string::npos && !pentacam; //CSV but not _ELE.CSV and _CUR.CSV ->atlas
    if (atlas) {
        ShowZernAct->setEnabled(true);
        centerAct->setEnabled(true);
@@ -392,16 +402,6 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
        LSQfillinAct->setEnabled(true);
        lsqvssplineAct->setEnabled(true);
    };
-   bool eyesys= false;               //if substituting XX for RA or RA for XX results in an openable file, then probably EyeSys
-   std::string str2(filename);
-   if(replace(str2,"RA","XX")) {
-       if(FILE *file = fopen(str2.c_str(),"r")) {
-           fclose(file); eyesys = true;}
-   }else{
-       if(replace(str2,"XX","RA")) {
-           if(FILE *file = fopen(str2.c_str(),"r")) {
-               fclose(file); eyesys = true;
-           }}};
    if (eyesys) {
        ShowZernAct->setEnabled(false);
        centerAct->setEnabled(true);
@@ -474,6 +474,13 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
    };
    }
 
+void MainWindow::test()
+{
+    QString fileName = QString::fromStdString("test");
+    m_GLwidget->DataLoad(fileName, true);
+};
+
+
 void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for the commandline file if any
 {
    if (fileName.isEmpty()) return;
@@ -485,6 +492,18 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
        std::string str(filename);  
        pentacam =  str.find(".CUR")!= std::string::npos || str.find(".ELE") != std::string::npos ||
                    str.find("_CUR")!= std::string::npos || str.find("_ELE") != std::string::npos;
+       bool atlas = (str.find("OD.CSV")!= std::string::npos) || (str.find("OS.CSV")!= std::string::npos && !pentacam); //OD.CSV OS.CSV but not _ELE.CSV and _CUR.CSV ->atlas
+       bool eyesys= false;               //if subsitutuing XX for RA or RA for XX results in an openable file, then probably EyeSys
+       std::string str2(filename);
+       if(replace(str2,"RA","XX")) {
+           if(FILE *file = fopen(str2.c_str(),"r")) {
+               fclose(file); eyesys = true;}
+       }else{
+           if(replace(str2,"XX","RA")) {
+               if(FILE *file = fopen(str2.c_str(),"r")) {
+                   fclose(file); eyesys = true;
+               }}};
+       if (!pentacam && !atlas && !eyesys) {m_GLwidget->DataLoad(fileName, false); return;}  //cube   //no supported file format
        if (pentacam){
        centerAct->setEnabled(true);  //change to false to not allow for pentacam, center deviations only for Placido
        ShowZernAct->setEnabled(false);
@@ -497,8 +516,7 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
        SplinefillinAct->setEnabled(false);
        LSQfillinAct->setEnabled(false);
        lsqvssplineAct->setEnabled(true);
-       };
-       bool atlas = str.find(".CSV")!= std::string::npos && !pentacam; //CSV but not _ELE.CSV and _CUR.CSV ->atlas
+       };       
        if (atlas) {
            ShowZernAct->setEnabled(true);
            centerAct->setEnabled(true);
@@ -509,16 +527,6 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
            LSQfillinAct->setEnabled(true);
            lsqvssplineAct->setEnabled(true);
        };
-       bool eyesys= false;               //if subsitutuing XX for RA or RA for XX results in an openable file, then probably EyeSys
-       std::string str2(filename);
-       if(replace(str2,"RA","XX")) {
-           if(FILE *file = fopen(str2.c_str(),"r")) {
-               fclose(file); eyesys = true;}
-       }else{
-           if(replace(str2,"XX","RA")) {
-               if(FILE *file = fopen(str2.c_str(),"r")) {
-                   fclose(file); eyesys = true;
-               }}};
        if (eyesys) {
            ShowZernAct->setEnabled(false);
            centerAct->setEnabled(true);
@@ -2036,6 +2044,11 @@ void MainWindow::createActions()
    openAct->setStatusTip(tr("Load an existing data file"));
    connect(openAct, &QAction::triggered, this, &MainWindow::open);
 
+   testAct = new QAction(tr("&Test"), this);
+   testAct->setShortcuts(QKeySequence::Open);
+   testAct->setStatusTip(tr("Generate some fake data"));
+   connect(testAct, &QAction::triggered, this, &MainWindow::test);
+
    compareAct = new QAction(tr("&Compare..."), this);
    compareAct->setStatusTip(tr("Compare to previous file"));
    compareAct->setEnabled(false);
@@ -2329,6 +2342,7 @@ void MainWindow::createMenus()
 {
    fileMenu = menuBar()->addMenu(tr("&File"));
    fileMenu->addAction(openAct);
+   fileMenu->addAction(testAct);
    fileMenu->addAction(consistencyAct);
    fileMenu->addAction(compareAct);
    exportMenu = fileMenu->addMenu(tr("&Export"));
