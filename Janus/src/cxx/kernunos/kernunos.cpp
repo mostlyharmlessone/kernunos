@@ -477,6 +477,25 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
 void MainWindow::test()
 {
     QString fileName = QString::fromStdString("test");
+    ShowZernAct->setEnabled(false);
+    centerAct->setEnabled(true);
+    ringsAct->setEnabled(false);
+    centernodeAct->setEnabled(true);
+    adjustradiiAct->setEnabled(true);
+    SplinefillinAct->setEnabled(false);
+    LSQfillinAct->setEnabled(false);
+    lsqvssplineAct->setEnabled(true);
+    compareAct->setEnabled(true);
+    redrawAct->setEnabled(true);
+    redrawOptionAct->setEnabled(true);
+    gnuplotAct->setEnabled(true);
+    liocAct->setEnabled(true);
+    makeoffAct->setEnabled(true);
+    makeplyAct->setEnabled(true);
+    ply2binAct->setEnabled(true);
+    off2stlAct->setEnabled(true);
+    importexportAct->setEnabled(true);
+    zernAct->setEnabled(true);
     m_GLwidget->DataLoad(fileName, true);
 };
 
@@ -2045,7 +2064,7 @@ void MainWindow::createActions()
    connect(openAct, &QAction::triggered, this, &MainWindow::open);
 
    testAct = new QAction(tr("&Test"), this);
-   testAct->setShortcuts(QKeySequence::Open);
+   testAct->setShortcuts(QKeySequence::UnknownKey);
    testAct->setStatusTip(tr("Generate some fake data"));
    connect(testAct, &QAction::triggered, this, &MainWindow::test);
 

@@ -2,6 +2,13 @@ things to do
 
 CorneaCopia
 
+pupil register broken also with small black circle: 
+step 1: load any file
+step 2: load any file
+step 3: compare WITH pupilregister -> black circle
+if compare done first without pupilregister, then WITH pupilregister changes plot back and forth normally
+also OS_ELE still has funky center
+
 pupilregister still broken: polartranslate does not do what I think it does in a test?
 redraw: only affects central image; does not change JMatrix1 or vertices2/elements2; 
 running compare here compares the original with the tweak
@@ -10,9 +17,7 @@ redraw comparison, pick a different color and function for compare (third buffer
 janus needs error reporting back to DataLoad/kernunos
 if error on atlas read, ie retry to read a .pac.csv file, need to return without drawing anything, no .tmp file
 if error on any read->same
-consider making an explicit choice for test data instead of an error condition on file reads; at this point test is diabled because of change in open()
 
-what to do with/how to explain warp?
 mult errors with negative hessian: ?do cartesian calc with penta directly?
 do calculations in cartesian for penta then migrate to polar
 make cartesian grid display option; convert polar to grid, display pentacam directly
@@ -25,7 +30,8 @@ there's also a partial call/implementation in if (mod(flag,100) .eq. 5 ) ! gnupl
 plots with gnuplot splot are only has fixed scale for sagc?
 need to write a WriteGeomXXX type file for gnuplot splot: replacement/update or use for PRINTGRAPH 
 
-
+in kernunos menu actions do some key bindings?
+setShortcuts(QKeySequence::UnknownKey);
 
 It'd be helpful to have axes/angles for orientation is moving the figure; perhaps a info box or three displaying angles?
 make 3D option for all functions, with scale Z value max and min
@@ -72,19 +78,22 @@ make html files with abricotine export
 move faq to help menu: 
 centerpoints need explaining, as in why are they non-zero in writecenterj
 incorporate "warp/oblique power" and reading zernike and pupils from some files into readme/faq
+what to do with/how to explain warp?
 
 flat earth analogy with meridians not maps, frequency distribution = eg Zernike coefficient is the way to see corneas
 lsq to get coefficients legendres, fourier zernike, ellipsoid as basis functions is ?better than current approach
 
-Needs a whole section on corneal topography and "powers" with math definitions
+Needs a whole section on corneal topography and "powers" with math definitions; 
+1d-2d/2d-3d difference between x and r; possible incorporation of iris equation example ?picture showing skew rays
+simple difference between d/dx and 1/r(d/dr) axisymmetry is not linear == lost battle with IRIS paper circles are not squares, spheres are not cubes
 
 needs section on handling bad data:
 shift discontinuity in 900 and others: how to best address: document as opposed to missing data...discontinuities affect global fitting ie lsq but not local ie spline
 spline better at filling in locally (it's interpolation after all) whereas LSQ can be used as a smoothing operation. See also early chapter in spline text, and reference it
-rings function can demonstate difference. Discontinuity in all data circumferentially affects theta deivatives, all the more with splining.
+rings function can demonstrate difference. Discontinuity in all data circumferentially affects theta deivatives, all the more with splining.
 
 notes from spline_monge.odt into help/faq OR add docs in pdf to main release files
-incorporate cornea docs from BRODIE, may need to read those old DRW
+incorporate cornea docs from BRODIE, may need to read those old DRW->some converted to eps
 instructions on running win3.1, ie designer or mathematica:
 dosbox-x DXSCSI1, then select drive in menu to map DXSCSI2 to E:, go to E:\WINDOWS and run win, select mouse capture in menu
 Export as EPS.

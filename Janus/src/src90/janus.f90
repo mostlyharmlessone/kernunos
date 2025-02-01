@@ -428,6 +428,15 @@ if (mod(flag,100) == 10) then
   ctr_circle_y=JMatrix1%Pupil_Center(2)-JMatrix%Pupil_Center(2)
 !  decenter: these are not circles, ?as they are circles around the new center expressed in the original polar coordinate system
   write(*,*) 'Decentering by',ctr_circle_x,ctr_circle_y
+
+write(*,*) "pupil data in compare line 432"
+write(*,*) JMatrix1%Pupil_Center(1),JMatrix%Pupil_Center(1)
+write(*,*) Penta%Pupil_Center(1)
+!ctr_circle_x=10.0
+!ctr_circle_y=11.0
+
+
+
   call PolarTranslate(ctr_circle_x,ctr_circle_y,0.0_wp,0.0_wp,JMatrix3%R0,JMatrix3%THT0)
   do i=1,M1
    do j=1,JMatrix%MV(i)
@@ -832,6 +841,13 @@ endif ! end (TestData == 1)
    end do
   endif
   JMatrix%Z(:,:) = 0
+
+
+write(*,*) "pupil data in read line 846"
+write(*,*) JMatrix1%Pupil_Center(1),JMatrix%Pupil_Center(1)
+write(*,*) Penta%Pupil_Center(1)
+
+
  endif
 
 ! OR GENERATE Fake EyeSys data
