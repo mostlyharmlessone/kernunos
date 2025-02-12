@@ -259,6 +259,7 @@ if (mod(flag,100) .eq. 5 ) then
 ! needs powmin & powmax
  if (allocated(JMatrix%R)) then
   donut = .FALSE.
+  fct=mod(((flag-mod(flag,10000))/10000),100)
   call selectfunction(0,JMatrix,flag,powctr,powmin,powmax)
  endif
 ! generate data file
@@ -268,9 +269,26 @@ if (mod(flag,100) .eq. 5 ) then
    do j=1,JMatrix%MV(i)
     X1=JMatrix%tht(i)
     X2=JMatrix%r(j,i)
-    P1=JMatrix%SAGC(j,i)
+    SELECT CASE (fct)
+      CASE (0)
+         p1=JMatrix%SAGC(j,i)
+      CASE (16)
+          p1=JMatrix%INSTC(j,i)
+      CASE (17)
+         p1=JMatrix%GAUSSC(j,i)
+      CASE (18)
+         p1=JMatrix%MEANC(j,i)
+      CASE (19)
+         p1=JMatrix%MONGEA(j,i)
+      CASE (20)
+         p1=JMatrix%Z(j,i)
+      CASE (21)
+         p1=JMatrix%Warp(j,i)
+      CASE DEFAULT
+         p1=JMatrix%SAGC(j,i)
+   END SELECT
     IF((ABS(P1).GT.0).AND.(ABS(X2).GT.0.01)) THEN
-      WRITE(unitno1,*) ABS(X2)*COS(X1),ABS(X2)*SIN(X1),P1
+      WRITE(unitno1,*) ABS(X2)*COS(X1),ABS(X2)*SIN(X1),p1
     ENDIF
    end do
    WRITE(unitno1,*) ' '
@@ -280,9 +298,26 @@ if (mod(flag,100) .eq. 5 ) then
   do J=1,JMatrix%MV(i)
    X1=JMatrix%tht(i)
    X2=JMatrix%r(j,i)
-   P1=JMatrix%SAGC(j,i)
+   SELECT CASE (fct)
+     CASE (0)
+        p1=JMatrix%SAGC(j,i)
+     CASE (16)
+         p1=JMatrix%INSTC(j,i)
+     CASE (17)
+        p1=JMatrix%GAUSSC(j,i)
+     CASE (18)
+        p1=JMatrix%MEANC(j,i)
+     CASE (19)
+        p1=JMatrix%MONGEA(j,i)
+     CASE (20)
+        p1=JMatrix%Z(j,i)
+     CASE (21)
+        p1=JMatrix%Warp(j,i)
+     CASE DEFAULT
+        p1=JMatrix%SAGC(j,i)
+  END SELECT
    IF((P1.GT.0).AND.(ABS(X2).GT.0.01)) THEN
-    WRITE(unitno1,*) ABS(X2)*COS(X1),ABS(X2)*SIN(X1),P1
+    WRITE(unitno1,*) ABS(X2)*COS(X1),ABS(X2)*SIN(X1),p1
    ENDIF
   end do
   CLOSE (unitno1)
@@ -315,8 +350,6 @@ DiaSlope%Zpd2 = .n. DiaSlope
  endif
  if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
   DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
-  if (TestData.eq.3 .or. TestData.eq.5 ) RadSplineCenter(2,:)=JMatrix%SAGC0(1)   ! pentacam data provided
-  if (TestData.eq.2 .or. TestData.eq.4 ) RadSplineCenter(2,:)=JMatrix%Z0(1)      ! pentacam data provided
  endif
  if (btest(dat, 1)) then          ! moving each meridian to align curves
   call AdjustRadSplineCenter     ! changes r only
@@ -421,33 +454,24 @@ if (mod(flag,100) == 10) then
   JMatrix2%THT(:)=JMatrix%THT(:)
   JMatrix2%R0=JMatrix%R0
   JMatrix2%THT0=JMatrix%THT0
-
+! generate new JMatrix
+  JMatrix3=JMatrix
 ! if no pupil registration and rotationdegrees is even, then there's a shortcut not requiring resplining
  if (btest(dat,6)) then
   ctr_circle_x=JMatrix1%Pupil_Center(1)-JMatrix%Pupil_Center(1)
   ctr_circle_y=JMatrix1%Pupil_Center(2)-JMatrix%Pupil_Center(2)
 !  decenter: these are not circles, ?as they are circles around the new center expressed in the original polar coordinate system
   write(*,*) 'Decentering by',ctr_circle_x,ctr_circle_y
-
-write(*,*) "pupil data in compare line 432"
-write(*,*) JMatrix1%Pupil_Center(1),JMatrix%Pupil_Center(1)
-write(*,*) Penta%Pupil_Center(1)
-!ctr_circle_x=10.0
-!ctr_circle_y=11.0
-
-
-
   call PolarTranslate(ctr_circle_x,ctr_circle_y,0.0_wp,0.0_wp,JMatrix3%R0,JMatrix3%THT0)
   do i=1,M1
    do j=1,JMatrix%MV(i)
     call PolarTranslate(ctr_circle_x, ctr_circle_y,JMatrix%R(j,i),JMatrix%THT(i),JMatrix3%R(j,i),JMatrix3%THT(i))
    end do
   end do
- ! generate new JMatrix
+! regenerates based on new R/tht
   call selectfunction(1,JMatrix3,flag,powctr,powmin,powmax)
- else
-  JMatrix3=JMatrix
  endif
+
  rotationdegrees=mod(270-rotationdegrees/2,180) ! makes 180 no rotation without risk of negative indices, odd rotationdegrees get floor
  if (rotationdegrees .ne. 0) then
   do i=1,M1
@@ -509,8 +533,8 @@ write(*,*) Penta%Pupil_Center(1)
   if (JMatrix2%ZC0(1,k) <= JMatrix2%ZC0(2,k)) JMatrix2%ZC0(2,k)=JMatrix2%ZC0(1,k)
   if (JMatrix2%ZC0(1,k) >= JMatrix2%ZC0(3,k)) JMatrix2%ZC0(3,k)=JMatrix2%ZC0(1,k)
  end do
-do i=1,M1
- do j=1,JMatrix2%MV(i)
+ do i=1,M1
+  do j=1,JMatrix2%MV(i)
    if (JMatrix2%INSTC(j,i) <= JMatrix2%INSTC0(2)) JMatrix2%INSTC0(2)=JMatrix2%INSTC(j,i)
    if (JMatrix2%INSTC(j,i) >= JMatrix2%INSTC0(3)) JMatrix2%INSTC0(3)=JMatrix2%INSTC(j,i)
    if (JMatrix2%GAUSSC(j,i) <= JMatrix2%GAUSSC0(2)) JMatrix2%GAUSSC0(2)=JMatrix2%GAUSSC(j,i)
@@ -529,18 +553,14 @@ do i=1,M1
     if (JMatrix2%ZC(j,i,k) <= JMatrix2%ZC0(2,k)) JMatrix2%ZC0(2,k)=JMatrix2%ZC(j,i,k)
     if (JMatrix2%ZC(j,i,k) >= JMatrix2%ZC0(3,k)) JMatrix2%ZC0(3,k)=JMatrix2%ZC(j,i,k)
    end do
+  end do
  end do
-end do
-
   donut = .FALSE.
   elements(1:nE) = 0
   vertices(1:nV) = 0
-! try showing new JMatrix3 instead of comparison JMatrix2
-
-  call selectfunction(0,JMatrix3,flag,powctr,powmin,powmax)
-  call Geom(flag, JMatrix3, donut, powmin, powmax, elements, vertices, nV, nE)
+  call selectfunction(0,JMatrix2,flag,powctr,powmin,powmax)
+  call Geom(flag, JMatrix2, donut, powmin, powmax, elements, vertices, nV, nE)
   call makelegend(flag, powmin, powmax, legend, nL)
-
   return
  else
   write(*,*) "Needs two scans for compare"
@@ -841,13 +861,6 @@ endif ! end (TestData == 1)
    end do
   endif
   JMatrix%Z(:,:) = 0
-
-
-write(*,*) "pupil data in read line 846"
-write(*,*) JMatrix1%Pupil_Center(1),JMatrix%Pupil_Center(1)
-write(*,*) Penta%Pupil_Center(1)
-
-
  endif
 
 ! OR GENERATE Fake EyeSys data
@@ -939,8 +952,6 @@ if (mod(flag,100) .ne. 9 ) then
  if (TestData.eq.2 .or. TestData.eq.4 ) RadSplineCenter(1,:)=0
  if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
   DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
-  if (TestData.eq.3 .or. TestData.eq.5 ) RadSplineCenter(2,:)=JMatrix%SAGC0(1)   ! pentacam data provided
-  if (TestData.eq.2 .or. TestData.eq.4 ) RadSplineCenter(2,:)=JMatrix%Z0(1)      ! pentacam data provided
  endif
  if (btest(dat, 1)) then          ! moving each meridian to align curves
   call AdjustRadSplineCenter     ! changes r only
@@ -951,13 +962,13 @@ if (mod(flag,100) .ne. 9 ) then
 ! Atlas spline consistency check and computation of elevation by power vs elevation in file
  if ( Testdata .eq. 1 .and. btest(dat,7) ) then
  if (btest(dat, 2)) then
-  if (.false.) then ! btest(dat,0)) then
+  if (btest(dat,0)) then
    iflag=12
   else
    iflag=2
   endif
  else
-  if (.false.) then !btest(dat,0)) then
+  if (btest(dat,0)) then
    iflag=11
   else
    iflag=1
@@ -996,36 +1007,31 @@ if (mod(flag,100) .ne. 9 ) then
 ! Make JMatrix
 
 ! set iflag for slope based data, integrate based on iflag with or without cubic/trapez or center point or not for values
- if (TestData.ne.2 .and. TestData.ne.4) then
+ if (TestData.ne.2 .and. TestData.ne.4) then   !not ELE files
   if (btest(dat, 2)) then   ! cubic integration
-   if (.false.) then !btest(dat,0)) then   !centernode               !!!(btest(dat,0) not ELE files cubic integration
+   if (btest(dat,0)) then   !centernode
     iflag=12
-   else
+    else
     iflag=2
+    endif
+   else         !trapezoidal integration
+    if (btest(dat,0)) then
+     iflag=11
+    else
+     iflag=1
+    endif
    endif
-  else
-   if (.false.) then !btest(dat,0)) then       !!!(btest(dat,0) not ELE files
-    iflag=11
-   else
-    iflag=1
-   endif
-  endif  
-! lsq instead of circumferential spline
-   if (btest(dat, 8)) then
-    iflag = iflag+100
-   endif
-  else
-   if (.false.) then !btest(dat,0)) then   !!!(btest(dat,0) ELE files
+  else                      !ELE files
+   if (btest(dat,0)) then   !centernode
     iflag=10
    else
     iflag=0
    endif
+  endif
 ! lsq instead of circumferential spline
    if (btest(dat, 8)) then
     iflag = iflag+100
    endif
-  endif
-
 ! make round rings and if needed convert 360x16 or 180x25 to 180x22
 ! donut
 ! Find maximum radius from data in RadSlope
@@ -1174,8 +1180,6 @@ endif
    call MakeRadSplineCenter(0)   ! remakes RadSplineCenter(1,:)
   else
    RadSplineCenter(1,:)=0      ! pentacam by definition is at 0
-   if (TestData.eq.3 .or. TestData.eq.5 ) RadSplineCenter(2,:)=JMatrix%SAGC0(1)   ! pentacam data provided
-   if (TestData.eq.2 .or. TestData.eq.4 ) RadSplineCenter(2,:)=JMatrix%Z0(1)      ! pentacam data provided
   endif
 
   if (btest(dat, 1)) then          ! moving each meridian to align curves
@@ -1212,7 +1216,7 @@ endif
     DiaSlope=RadSlope              ! move to diagonal format
 
 !   reset iflag for centers: no integration
-    if (.false.) then !btest(dat,0)) then
+    if (btest(dat,0)) then
      iflag=10
      DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
     else
@@ -1392,8 +1396,6 @@ if (mod(flag,100) == 1) then
   endif
   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
    DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
-   if (TestData.eq.3 .or. TestData.eq.5 ) RadSplineCenter(2,:)=JMatrix%SAGC0(1)   ! pentacam data provided
-   if (TestData.eq.2 .or. TestData.eq.4 ) RadSplineCenter(2,:)=JMatrix%Z0(1)      ! pentacam data provided
   endif
   if (btest(dat, 1)) then          ! moving each meridian to align curves
    call AdjustRadSplineCenter     ! changes r only
@@ -1403,13 +1405,13 @@ if (mod(flag,100) == 1) then
 
 ! reset iflag for generating local elevations for computations
 if (btest(dat, 2)) then
- if (.false.) then !btest(dat,0)) then
+ if (btest(dat,0)) then
   iflag=12
  else
   iflag=2
  endif
 else
- if (.false.) then !btest(dat,0)) then
+ if (btest(dat,0)) then
   iflag=11
  else
   iflag=1

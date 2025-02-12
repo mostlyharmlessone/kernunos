@@ -2,33 +2,13 @@ things to do
 
 CorneaCopia
 
-pupil register broken also with small black circle: 
-step 1: load any file
-step 2: load any file
-step 3: compare WITH pupilregister -> black circle
-if compare done first without pupilregister, then WITH pupilregister changes plot back and forth normally
-also OS_ELE still has funky center
-
-pupilregister still broken: polartranslate does not do what I think it does in a test?
-redraw: only affects central image; does not change JMatrix1 or vertices2/elements2; 
-running compare here compares the original with the tweak
-redraw comparison, pick a different color and function for compare (third buffer); basically re-runs last step of compare
+also OS_ELE still has funky center; check with decenter then compare or remove r=0 enforcement
 
 janus needs error reporting back to DataLoad/kernunos
 if error on atlas read, ie retry to read a .pac.csv file, need to return without drawing anything, no .tmp file
 if error on any read->same
 
-mult errors with negative hessian: ?do cartesian calc with penta directly?
-do calculations in cartesian for penta then migrate to polar
-make cartesian grid display option; convert polar to grid, display pentacam directly
- might need centerpoint version for pentacam to incorporate center from Penta,as opposed to computed center average!
-
 enable the tweaks prior to loading the file? but not with auto redraw
-
-selectfunction in cornea_arrays in only partially implemented
-there's also a partial call/implementation in if (mod(flag,100) .eq. 5 ) ! gnuplot splot output
-plots with gnuplot splot are only has fixed scale for sagc?
-need to write a WriteGeomXXX type file for gnuplot splot: replacement/update or use for PRINTGRAPH 
 
 in kernunos menu actions do some key bindings?
 setShortcuts(QKeySequence::UnknownKey);
@@ -48,6 +28,13 @@ then resplining on that basis, just like an ELE file, in fact, for an ELE/ELE.CS
 decenter needs a dialog box for the amount and direction needs inputdialog get float x 2
 decentration accomplished with penta data off by one in getArg(); make it (i) or (i+2) to decenter and generate fake astigmatism: 
 Is this reversible with tweaks, and/or can we also fake decentration with reverse tweaks?
+
+mult errors with negative hessian: ?do cartesian calc with penta directly?
+do calculations in cartesian for penta then migrate to polar
+make cartesian grid display option; convert polar to grid, display pentacam directly
+
+
+
 
 ability to turn stdoutput logging on/off
 change most writes to kernunos log writes

@@ -991,7 +991,8 @@ end subroutine LIOC_Fortran
   ZMM=0.5_wp*(SAGC+TANC)
   end subroutine sagc2
 
-!! select function
+! world's ugliest hack
+! select function, respline JMatrix
 subroutine selectfunction(iflag,b,flag,powctr,powmin,powmax)
 implicit none
 integer(c_int), intent(in) :: flag
@@ -1003,9 +1004,38 @@ dat=(flag-mod(flag,1000000))/1000000 ! first two digits
 fct=mod(((flag-mod(flag,10000))/10000),100) ! second two digits, color map functions
 M1=size(b%r,2)
 if (fct .lt. 16 .and. fct .gt. 0) then
-  powctr=b%ZC0(1,fct)
-  powmin=b%ZC0(2,fct)
-  powmax=b%ZC0(3,fct)
+  if (iflag == 0) then ! iflag == 0 load center/min/max into powctr/powmin/powmax
+   powctr=b%ZC0(1,fct)
+   powmin=b%ZC0(2,fct)
+   powmax=b%ZC0(3,fct)
+  endif
+  if (iflag == 1) then ! iflag == 1 remake JMatrix (b) including center
+   do i=1,M1
+    do j=1,RadSlope%MV(i)
+      RadSlope%Zp(j,i)=b%ZC(j,i,fct)
+    end do
+   end do
+   DiaSlope=RadSlope              ! move to diagonal format
+   DiaSlope%Zpd2 = .n. DiaSlope
+   do i=1,M1
+    do j=1,b%MV(i)
+     if (btest(dat,0)) then                                    !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+      call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%ZC(j,i,fct))
+     else
+      call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%ZC(j,i,fct))
+     endif
+     if (b%ZC(j,i,fct) <= b%ZC0(2,fct)) b%ZC0(2,fct)=b%ZC(j,i,fct)
+     if (b%ZC(j,i,fct) >= b%ZC0(3,fct)) b%ZC0(3,fct)=b%ZC(j,i,fct)
+    end do
+   end do
+   if (btest(dat,0)) then                                      !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+    call SplineEval1Dx1D(10,b%R0,b%THT0,b%ZC0(1,fct))  ! center value
+   else
+    call SplineEval1Dx1D(0,b%R0,b%THT0,b%ZC0(1,fct))  ! center value
+   endif
+   if (b%ZC0(1,fct) <= b%ZC0(2,fct)) b%ZC0(2,fct)=b%ZC0(1,fct)
+   if (b%ZC0(1,fct) >= b%ZC0(3,fct)) b%ZC0(3,fct)=b%ZC0(1,fct)
+  endif
 else
 SELECT CASE (fct)
   CASE (0)
@@ -1024,7 +1054,7 @@ SELECT CASE (fct)
    DiaSlope%Zpd2 = .n. DiaSlope
    do i=1,M1
     do j=1,b%MV(i)
-     if (.false.) then !btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+     if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
       call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%SAGC(j,i))
      else
       call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%SAGC(j,i))
@@ -1033,7 +1063,7 @@ SELECT CASE (fct)
      if (b%SAGC(j,i) >= b%SAGC0(3)) b%SAGC0(3)=b%SAGC(j,i)
     end do
    end do
-   if (.false.) then !btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+   if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
     call SplineEval1Dx1D(10,b%R0,b%THT0,b%SAGC0(1))  ! center value
    else
     call SplineEval1Dx1D(0,b%R0,b%THT0,b%SAGC0(1))  ! center value
@@ -1042,33 +1072,209 @@ SELECT CASE (fct)
    if (b%SAGC0(1) >= b%SAGC0(3)) b%SAGC0(3)=b%SAGC0(1)
   endif
   CASE (16)
-  powctr=b%INSTC0(1)
-  powmin=b%INSTC0(2)
-  powmax=b%INSTC0(3)
+  if (iflag == 0) then ! iflag == 0 load center/min/max into powctr/powmin/powmax
+   powctr=b%INSTC0(1)
+   powmin=b%INSTC0(2)
+   powmax=b%INSTC0(3)
+  endif
+  if (iflag == 1) then ! iflag == 1 remake JMatrix (b) including center
+   do i=1,M1
+    do j=1,RadSlope%MV(i)
+      RadSlope%Zp(j,i)=b%INSTC(j,i)
+    end do
+   end do
+   DiaSlope=RadSlope              ! move to diagonal format
+   DiaSlope%Zpd2 = .n. DiaSlope
+   do i=1,M1
+    do j=1,b%MV(i)
+     if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+      call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%INSTC(j,i))
+     else
+      call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%INSTC(j,i))
+     endif
+     if (b%INSTC(j,i) <= b%INSTC0(2)) b%INSTC0(2)=b%INSTC(j,i)
+     if (b%INSTC(j,i) >= b%INSTC0(3)) b%INSTC0(3)=b%INSTC(j,i)
+    end do
+   end do
+   if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+    call SplineEval1Dx1D(10,b%R0,b%THT0,b%INSTC0(1))  ! center value
+   else
+    call SplineEval1Dx1D(0,b%R0,b%THT0,b%INSTC0(1))  ! center value
+   endif
+   if (b%INSTC0(1) <= b%INSTC0(2)) b%INSTC0(2)=b%INSTC0(1)
+   if (b%INSTC0(1) >= b%INSTC0(3)) b%INSTC0(3)=b%INSTC0(1)
+  endif
   CASE (17)
-  powctr=b%GAUSSC0(1)
-  powmin=b%GAUSSC0(2)
-  powmax=b%GAUSSC0(3)
+  if (iflag == 0) then ! iflag == 0 load center/min/max into powctr/powmin/powmax
+   powctr=b%GAUSSC0(1)
+   powmin=b%GAUSSC0(2)
+   powmax=b%GAUSSC0(3)
+  endif
+  if (iflag == 1) then ! iflag == 1 remake JMatrix (b) including center
+   do i=1,M1
+    do j=1,RadSlope%MV(i)
+      RadSlope%Zp(j,i)=b%GAUSSC(j,i)
+    end do
+   end do
+   DiaSlope=RadSlope              ! move to diagonal format
+   DiaSlope%Zpd2 = .n. DiaSlope
+   do i=1,M1
+    do j=1,b%MV(i)
+     if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+      call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%GAUSSC(j,i))
+     else
+      call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%GAUSSC(j,i))
+     endif
+     if (b%GAUSSC(j,i) <= b%GAUSSC0(2)) b%GAUSSC0(2)=b%GAUSSC(j,i)
+     if (b%GAUSSC(j,i) >= b%GAUSSC0(3)) b%GAUSSC0(3)=b%GAUSSC(j,i)
+    end do
+   end do
+   if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+    call SplineEval1Dx1D(10,b%R0,b%THT0,b%GAUSSC0(1))  ! center value
+   else
+    call SplineEval1Dx1D(0,b%R0,b%THT0,b%GAUSSC0(1))  ! center value
+   endif
+   if (b%GAUSSC0(1) <= b%GAUSSC0(2)) b%GAUSSC0(2)=b%GAUSSC0(1)
+   if (b%GAUSSC0(1) >= b%GAUSSC0(3)) b%GAUSSC0(3)=b%GAUSSC0(1)
+  endif
   CASE (18)
-  powctr=b%MEANC0(1)
-  powmin=b%MEANC0(2)
-  powmax=b%MEANC0(3)
+  if (iflag == 0) then ! iflag == 0 load center/min/max into powctr/powmin/powmax
+   powctr=b%MEANC0(1)
+   powmin=b%MEANC0(2)
+   powmax=b%MEANC0(3)
+  endif
+  if (iflag == 1) then ! iflag == 1 remake JMatrix (b) including center
+   do i=1,M1
+    do j=1,RadSlope%MV(i)
+      RadSlope%Zp(j,i)=b%MEANC(j,i)
+    end do
+   end do
+   DiaSlope=RadSlope              ! move to diagonal format
+   DiaSlope%Zpd2 = .n. DiaSlope
+   do i=1,M1
+    do j=1,b%MV(i)
+     if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+      call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%MEANC(j,i))
+     else
+      call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%MEANC(j,i))
+     endif
+     if (b%MEANC(j,i) <= b%MEANC0(2)) b%MEANC0(2)=b%MEANC(j,i)
+     if (b%MEANC(j,i) >= b%MEANC0(3)) b%MEANC0(3)=b%MEANC(j,i)
+    end do
+   end do
+   if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+    call SplineEval1Dx1D(10,b%R0,b%THT0,b%MEANC0(1))  ! center value
+   else
+    call SplineEval1Dx1D(0,b%R0,b%THT0,b%MEANC0(1))  ! center value
+   endif
+   if (b%MEANC0(1) <= b%MEANC0(2)) b%MEANC0(2)=b%MEANC0(1)
+   if (b%MEANC0(1) >= b%MEANC0(3)) b%MEANC0(3)=b%MEANC0(1)
+  endif
   CASE (19)
-  powctr=b%MONGEA0(1)
-  powmin=b%MONGEA0(2)
-  powmax=b%MONGEA0(3)
+  if (iflag == 0) then ! iflag == 0 load center/min/max into powctr/powmin/powmax
+   powctr=b%MONGEA0(1)
+   powmin=b%MONGEA0(2)
+   powmax=b%MONGEA0(3)
+  endif
+  if (iflag == 1) then ! iflag == 1 remake JMatrix (b) including center
+   do i=1,M1
+    do j=1,RadSlope%MV(i)
+      RadSlope%Zp(j,i)=b%MONGEA(j,i)
+    end do
+   end do
+   DiaSlope=RadSlope              ! move to diagonal format
+   DiaSlope%Zpd2 = .n. DiaSlope
+   do i=1,M1
+    do j=1,b%MV(i)
+     if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+      call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%MONGEA(j,i))
+     else
+      call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%MONGEA(j,i))
+     endif
+     if (b%MONGEA(j,i) <= b%MONGEA0(2)) b%MONGEA0(2)=b%MONGEA(j,i)
+     if (b%MONGEA(j,i) >= b%MONGEA0(3)) b%MONGEA0(3)=b%MONGEA(j,i)
+    end do
+   end do
+   if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+    call SplineEval1Dx1D(10,b%R0,b%THT0,b%MONGEA0(1))  ! center value
+   else
+    call SplineEval1Dx1D(0,b%R0,b%THT0,b%MONGEA0(1))  ! center value
+   endif
+   if (b%MONGEA0(1) <= b%MONGEA0(2)) b%MONGEA0(2)=b%MONGEA0(1)
+   if (b%MONGEA0(1) >= b%MONGEA0(3)) b%MONGEA0(3)=b%MONGEA0(1)
+  endif
   CASE (20)
-  powctr=b%Z0(1)
-  powmin=b%Z0(2)
-  powmax=b%Z0(3)
+  if (iflag == 0) then ! iflag == 0 load center/min/max into powctr/powmin/powmax
+   powctr=b%Z0(1)
+   powmin=b%Z0(2)
+   powmax=b%Z0(3)
+  endif
   CASE (21)
-  powctr=b%Warp0(1)
-  powmin=b%Warp0(2)
-  powmax=b%Warp0(3)
+  if (iflag == 0) then ! iflag == 0 load center/min/max into powctr/powmin/powmax
+   powctr=b%Warp0(1)
+   powmin=b%Warp0(2)
+   powmax=b%Warp0(3)
+  endif
+  if (iflag == 1) then ! iflag == 1 remake JMatrix (b) including center
+   do i=1,M1
+    do j=1,RadSlope%MV(i)
+      RadSlope%Zp(j,i)=b%Warp(j,i)
+    end do
+   end do
+   DiaSlope=RadSlope              ! move to diagonal format
+   DiaSlope%Zpd2 = .n. DiaSlope
+   do i=1,M1
+    do j=1,b%MV(i)
+     if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+      call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%Warp(j,i))
+     else
+      call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%Warp(j,i))
+     endif
+     if (b%Warp(j,i) <= b%Warp0(2)) b%Warp0(2)=b%Warp(j,i)
+     if (b%Warp(j,i) >= b%Warp0(3)) b%Warp0(3)=b%Warp(j,i)
+    end do
+   end do
+   if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+    call SplineEval1Dx1D(10,b%R0,b%THT0,b%Warp0(1))  ! center value
+   else
+    call SplineEval1Dx1D(0,b%R0,b%THT0,b%Warp0(1))  ! center value
+   endif
+   if (b%Warp0(1) <= b%Warp0(2)) b%Warp0(2)=b%Warp0(1)
+   if (b%Warp0(1) >= b%Warp0(3)) b%Warp0(3)=b%Warp0(1)
+  endif
   CASE DEFAULT
-  powctr=b%SAGC0(1)
-  powmin=b%SAGC0(2)
-  powmax=b%SAGC0(3)
+  if (iflag == 0) then ! iflag == 0 load center/min/max into powctr/powmin/powmax
+   powctr=b%SAGC0(1)
+   powmin=b%SAGC0(2)
+   powmax=b%SAGC0(3)
+  endif
+  if (iflag == 1) then ! iflag == 1 remake JMatrix (b) including center
+   do i=1,M1
+    do j=1,RadSlope%MV(i)
+      RadSlope%Zp(j,i)=b%SAGC(j,i)
+    end do
+   end do
+   DiaSlope=RadSlope              ! move to diagonal format
+   DiaSlope%Zpd2 = .n. DiaSlope
+   do i=1,M1
+    do j=1,b%MV(i)
+     if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+      call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%SAGC(j,i))
+     else
+      call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%SAGC(j,i))
+     endif
+     if (b%SAGC(j,i) <= b%SAGC0(2)) b%SAGC0(2)=b%SAGC(j,i)
+     if (b%SAGC(j,i) >= b%SAGC0(3)) b%SAGC0(3)=b%SAGC(j,i)
+    end do
+   end do
+   if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+    call SplineEval1Dx1D(10,b%R0,b%THT0,b%SAGC0(1))  ! center value
+   else
+    call SplineEval1Dx1D(0,b%R0,b%THT0,b%SAGC0(1))  ! center value
+   endif
+   if (b%SAGC0(1) <= b%SAGC0(2)) b%SAGC0(2)=b%SAGC0(1)
+   if (b%SAGC0(1) >= b%SAGC0(3)) b%SAGC0(3)=b%SAGC0(1)
+  endif
 END SELECT
 endif
 ! always do Z to display the geometry
@@ -1082,7 +1288,7 @@ if (iflag == 1) then ! iflag == 1 remake JMatrix (b) including center
  DiaSlope%Zpd2 = .n. DiaSlope
  do i=1,M1
   do j=1,b%MV(i)
-   if (.false.) then !btest(dat,0)) then                                    !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+   if (btest(dat,0)) then                                    !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
     call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%Z(j,i))
    else
     call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%Z(j,i))
@@ -1091,7 +1297,7 @@ if (iflag == 1) then ! iflag == 1 remake JMatrix (b) including center
    if (b%Z(j,i) >= b%Z0(3)) b%Z0(3)=b%Z(j,i)
   end do
  end do
- if (.false.) then !btest(dat,0)) then                                      !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+ if (btest(dat,0)) then                                      !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
   call SplineEval1Dx1D(10,b%R0,b%THT0,b%Z0(1))  ! center value
  else
   call SplineEval1Dx1D(0,b%R0,b%THT0,b%Z0(1))  ! center value
