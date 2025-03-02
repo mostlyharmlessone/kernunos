@@ -1,4 +1,4 @@
-  subroutine Janus(flag,file_from_C,elements,vertices,legend,zern,nV,nE,nL,pupil_elements,pupil_vertices,pupil_nV,pupil_nE) bind(C,name='janus_')
+  subroutine Janus(flag,file_from_C,elements,vertices,legend,zern,nV,nE,nL,pupil_elements,pupil_vertices,pupil_nV,pupil_nE,err_janus) bind(C,name='janus_')
 ! back end for calculations
   use set_precision, ONLY : wp, sk
   use lapackinterface
@@ -23,6 +23,7 @@
   integer(c_int), INTENT(INOUT) :: elements(*)
   integer(c_int), INTENT(INOUT) :: pupil_nV
   integer(c_int), INTENT(INOUT) :: pupil_nE
+  integer(c_int), INTENT(INOUT) :: err_janus
   real(c_float), INTENT(INOUT) :: pupil_vertices(*)
   integer(c_int), INTENT(INOUT) :: pupil_elements(*)
   integer(c_int), INTENT(INOUT) :: nL
@@ -410,6 +411,7 @@ if (allocated(JMatrix%R)) then
 file_idx=index(inputfile1, ".ply")
  if( file_idx == 0) then
    write(*,*) inputfile1, 'is not a ply file'
+   err_janus=3
    return
   else
   donut = .FALSE.
@@ -421,6 +423,7 @@ file_idx=index(inputfile1, ".ply")
  endif
 else
   write(*,*) 'Have to allocate data prior to writing a ply file'
+  err_janus=3
  return ! if flag==3 and not allocated do nothing
 endif
 endif
@@ -431,6 +434,7 @@ if (allocated(JMatrix%R)) then
 file_idx=index(inputfile1, ".off")
  if( file_idx == 0) then
    write(*,*) inputfile1,'is not an off file'
+   err_janus=2
    return
   else
   donut = .FALSE.
@@ -442,6 +446,7 @@ file_idx=index(inputfile1, ".off")
  endif
 else
   write(*,*) 'Have to allocate data prior to writing an off file'
+  err_janus=2
  return ! if flag==2 and not allocated do nothing
 endif
 endif
@@ -564,6 +569,7 @@ if (mod(flag,100) == 10) then
   return
  else
   write(*,*) "Needs two scans for compare"
+  err_janus=10
   return
  endif
 endif
@@ -657,6 +663,7 @@ if (mod(flag,100) == 0) then
         if(.NOT.exists) then
          write(*,*) 'Error: EyeSys files have to be in pairs, or file name has XX other than prefix'
          write(*,*) 'No corresponding',inputfile2,'for',inputfile1,'found'
+         err_janus=-1
          return
         endif
        endif
@@ -685,11 +692,13 @@ if (mod(flag,100) == 0) then
          if(.NOT.exists) then
           write(*,*) 'Error: EyeSys files have to be in pairs, or file name has RA other than prefix'
           write(*,*) 'No corresponding',inputfile1,'for',inputfile2,'found'
+          err_janus=-1
           return
          endif
         endif
        else
         write(*,*) 'Error parsing EyeSys file name'
+        err_janus=-1
         return
        endif
       endif
@@ -736,7 +745,10 @@ if (TestData .eq. 0) then
    endif
    call CPU_TIME(time_end)
    write(*,*) 'Time to read EyeSys files: ',(time_end-time_start)*1000
-   if (read_error > 0) return
+   if (read_error > 0) then
+    err_janus=read_error*10
+    return
+   endif
   endif  !(mod(flag,100) /= 0,99,2,3 must be 1 or 4, reload the original data
 ! Generate the slope matrix using ZFCT
   RadSlope=EyeSys
@@ -759,6 +771,7 @@ if (TestData .eq. 1) then
    if (io > 0) then
     write (*,*) 'system command to sed failed'
     write (*,*) 'Consider using your text editor to search/replace all semicolons with commas in',inputfile1
+    err_janus=11
     return
    else
     call RCNVRTA_type(inputfile2, Power_Rings_Count, read_error)
@@ -769,6 +782,7 @@ if (TestData .eq. 1) then
       call system('rm ' // inputfile2, io)
       if (io > 0) write (*,*) 'system command to remove tmp file failed'
      endif
+     err_janus=read_error*100
      return
     endif
    endif
@@ -782,6 +796,7 @@ if (TestData .eq. 1) then
   endif  
   read_error=0
   call RCNVRTA(inputfile2,N,read_error)
+  err_janus=read_error*100
   file_idx=index(inputfile2, ".TMP")
   if (file_idx .ne. 0) then
    call system('rm ' // inputfile2, io)
@@ -789,7 +804,10 @@ if (TestData .eq. 1) then
   endif
   call CPU_TIME(time_end)
   write(*,*) 'Time to read Atlas CSV file: ',(time_end-time_start)*1000
-  if (read_error > 0) return
+  if (read_error > 0) then
+   err_janus=read_error*100
+   return
+  endif
   ! pupil conversion
    JMatrix%Pupil_Center=Atlas%Pupil_Center*100
    do i=1,MM
@@ -835,7 +853,10 @@ endif ! end (TestData == 1)
    else
     call RCNVRTP(TestData,inputfile1,read_error)  !elevations TestData .eq. 2 .or. TestData .eq. 4
    endif
-   if (read_error > 0) return
+   if (read_error > 0) then
+    err_janus=read_error*1000
+    return
+   endif
    ! pupil conversion, could do whole circular spline here
     JMatrix%Pupil_Center=Penta%Pupil_Center/10.
     do i=1,MM
@@ -1437,6 +1458,7 @@ endif
    allocate (B_Matrix(k_max,kk_max),zernC(kk_max,nrhs),rlocal(kk_max),thtlocal(kk_max),stat=ierr) ! zernC(kk_max) to hold data though only k_max zernike coeficients
    if (ierr /= 0) then
 !    write(*,*) 'unable to allocate memory in zernike: ', ierr,k_max,kk_max,nrhs
+    err_janus=-2
     return
    endif
    zernC=0
@@ -1518,6 +1540,7 @@ call LogC("pre-LSQ"//c_null_char)
   allocate (WORK(LWORK),stat=ierr) ! WORK is dimension LWORK
   if (ierr /= 0) then
    write(*,*) 'unable to allocate memory in zernike for WORK '
+   err_janus=-2
    return
   endif
   call DGELS( 'T', k_max, kk_max, nrhs, B_Matrix, k_max, zernC , kk_max, WORK, LWORK, INFO ) ! overwrites zernC (only to k_max)
@@ -1590,6 +1613,7 @@ deallocate(zernC,rlocal,thtlocal)
  write(*,*) 'Time to compute zernike: ',(time_end-time_start)
  else
  call LogC("Have to open a file prior to computing zernike"//c_null_char)
+ err_janus=9
  return ! if last digits of flag==1 and not allocated do nothing
  endif
 endif  ! end of flag=1

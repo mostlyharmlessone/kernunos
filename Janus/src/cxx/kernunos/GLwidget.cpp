@@ -412,7 +412,7 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
       // Start the computation.
       paintme=false;
       if ((flag%100) == 10){
-          auto future1 = std::async([&]{return janus_(&flag,filename,elements3,vertices3,legend2,zern,&nV[2],&nE[2],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});
+          auto future1 = std::async([&]{return janus_(&flag,filename,elements3,vertices3,legend2,zern,&nV[2],&nE[2],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE, &err_janus);});
           future1.get();}
       else {
 
@@ -424,7 +424,7 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
               elements2[i]=elements[i];
           }
 
-          futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);}));
+          futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE, &err_janus);}));
           // Display the dialog and start the event loop.
           dialog.exec();
           futureWatcher.waitForFinished();
@@ -676,6 +676,7 @@ void GLwidget::paintGL(void)
 {
     if ( !success ) return;  //not until shaders are built
     if ( !paintme ) return;  //not until nV, nE, vertices, elements are loaded
+    if ( err_janus != 0 ) return;
 
     // Clear the screen    
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

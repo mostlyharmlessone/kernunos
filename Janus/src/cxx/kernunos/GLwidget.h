@@ -72,6 +72,7 @@ extern std::vector<GLfloat> Vertices3;
 extern GLfloat* vertices3;
 extern GLuint* elements3;
 
+extern int err_janus;
 extern int pupil_nV;
 extern int pupil_nE;
 extern std::vector<GLuint> pupil_Elements;
@@ -80,7 +81,7 @@ extern GLfloat* pupil_vertices;
 extern GLuint* pupil_elements;
 
 extern "C" {
-void janus_(int *flag,char *filename,GLuint *elements,GLfloat *vertices,float *legend,float *zern,int *nV,int *nE,int *nL,GLuint *pupil_elements,GLfloat *pupil_vertices,int *pupil_nV, int *pupil_nE);
+void janus_(int *flag,char *filename,GLuint *elements,GLfloat *vertices,float *legend,float *zern,int *nV,int *nE,int *nL,GLuint *pupil_elements,GLfloat *pupil_vertices,int *pupil_nV, int *pupil_nE, int *err_janus);
 // needs an underscore despite c_interface.f90 bind C declaration
 };
 

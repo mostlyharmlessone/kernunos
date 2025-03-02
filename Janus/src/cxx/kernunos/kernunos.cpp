@@ -157,6 +157,7 @@ int counter=0;
 char *filename;
 bool success=false;
 bool paintme = false;
+int err_janus = 0;
 
 //how very old Fortran that these need to be static & global
 // data vectors for corneal images
@@ -700,7 +701,7 @@ void MainWindow::redraw(){
     QByteArray ba = fileName.toLocal8Bit();
     filename = ba.data();
 
-   janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);
+   janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
 
    return;}
 
@@ -721,7 +722,7 @@ void MainWindow::zerncompute()
     QByteArray ba = filenamelocal.toLocal8Bit();
     filename = ba.data();
     flag=flag-(flag%100)+1;  // last two digits of flag=1;
-    std::thread([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);}).detach();
+    std::thread([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);}).detach();
 
 #ifdef _WIN32
     // For Windows, prompt for a keystroke before the Gnuplot object goes out of scope so that
@@ -767,7 +768,7 @@ void MainWindow::showzern()
     QByteArray ba = filenamelocal.toLocal8Bit();
     filename = ba.data();
     flag=flag-(flag%100)+9;  // last two digits of flag=1;
-    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});
+    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
     future1.get();
 
 #ifdef _WIN32
@@ -792,7 +793,7 @@ void MainWindow::importexport()
     filename = ba.data();
     // generate temp ply file
     flag=flag-(flag%100)+3;  // last two digits of flag=3;
-    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});
+    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
     future1.get();
     // get output file name and type
    QString filter =
@@ -977,7 +978,7 @@ void MainWindow::ply2bin()
     ba = filenamelocal.toLocal8Bit();
     filename = ba.data();
     flag=flag-(flag%100)+3;  // last two digits of flag=3;
-    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});
+    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
     future1.get();
     // from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY; MIT licence, included source in tree
     int wrote=ConvertPLYtoBIN(filename,filenameout);
@@ -1012,7 +1013,7 @@ void MainWindow::off2stl()
    ba = filenamelocal.toLocal8Bit();
    filename = ba.data();
    flag=flag-(flag%100)+2;  // last two digits of flag=2;
-   auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});
+   auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
    future1.get();
 
    std::string str(filenameout1);
@@ -1056,7 +1057,7 @@ void MainWindow::makeoff()
    QByteArray ba = fileName.toLocal8Bit();
    filename = ba.data();
    flag=flag-(flag%100)+2;  // last two digits of flag=2;
-   auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});
+   auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
    future1.get();
    ui.infoLabel->setText(tr("Wrote  ")+tr(filename));
 }
@@ -1070,7 +1071,7 @@ void MainWindow::makeply()
    QByteArray ba = fileName.toLocal8Bit();
    filename = ba.data();
    flag=flag-(flag%100)+3;  // last two digits of flag=3;
-   auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});
+   auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
    future1.get();
    ui.infoLabel->setText(tr("Wrote  ")+tr(filename));
 }
@@ -1085,7 +1086,7 @@ void MainWindow::LinesofCurvature()
     QByteArray ba = filenamelocal.toLocal8Bit();
     filename = ba.data();
     flag=flag-(flag%100)+7;  // last two digits of flag=7;
-    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});
+    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
     future1.get();
     int wrote=lioc(filename);
    if (wrote == 0) {
@@ -1111,7 +1112,7 @@ void MainWindow::gnuplotsplot() {
    QByteArray ba = filenamelocal.toLocal8Bit();
    filename = ba.data();
    flag=flag-(flag%100)+5;  // last two digits of flag=5;
-   auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});
+   auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
    future1.get();
    // would be better if calcs could be done here instead of in janus
    Gnuplot gp;
@@ -1144,7 +1145,7 @@ void MainWindow::center() {
    QByteArray ba = filenamelocal.toLocal8Bit();
    filename = ba.data();
    flag=flag-(flag%100)+6;  // last two digits of flag=6;
-   auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});
+   auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
    future1.get();
    // would be better if calcs could be done here instead of in janus, or at least call WriteCenter?
 
@@ -1216,7 +1217,7 @@ void MainWindow::rings() {
     QByteArray ba = filenamelocal.toLocal8Bit();
     filename = ba.data();
     flag=flag-(flag%100)+8;  // last two digits of flag=8;
-    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE);});
+    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
     future1.get();
     // would be better if calcs could be done here instead of in janus, or at least call WriteCenter?
 

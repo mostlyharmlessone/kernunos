@@ -4,10 +4,6 @@ CorneaCopia
 
 also OS_ELE still has funky center; check with decenter then compare or remove r=0 enforcement
 
-janus needs error reporting back to DataLoad/kernunos
-if error on atlas read, ie retry to read a .pac.csv file, need to return without drawing anything, no .tmp file
-if error on any read->same
-
 enable the tweaks prior to loading the file? but not with auto redraw
 
 in kernunos menu actions do some key bindings?
