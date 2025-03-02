@@ -414,6 +414,7 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
        lsqvssplineAct->setEnabled(true);
    };
    compareAct->setEnabled(true);
+   swapAct->setEnabled(true);
    redrawAct->setEnabled(true);
    redrawOptionAct->setEnabled(true);
    gnuplotAct->setEnabled(true);
@@ -487,6 +488,7 @@ void MainWindow::test()
     LSQfillinAct->setEnabled(false);
     lsqvssplineAct->setEnabled(true);
     compareAct->setEnabled(true);
+    swapAct->setEnabled(true);
     redrawAct->setEnabled(true);
     redrawOptionAct->setEnabled(true);
     gnuplotAct->setEnabled(true);
@@ -558,6 +560,7 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
            lsqvssplineAct->setEnabled(true);
        };
        compareAct->setEnabled(true);
+       swapAct->setEnabled(true);
        redrawAct->setEnabled(true);
        redrawOptionAct->setEnabled(true);
        gnuplotAct->setEnabled(true);
@@ -620,6 +623,11 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
 }
    else {m_GLwidget->DataLoad(fileName, false);}  //cube
    update();
+}
+
+void MainWindow::swap()
+{
+    m_GLwidget->Swap();
 }
 
 void MainWindow::compare()
@@ -2074,6 +2082,11 @@ void MainWindow::createActions()
    compareAct->setEnabled(false);
    connect(compareAct, &QAction::triggered, this, &MainWindow::compare);
 
+   swapAct = new QAction(tr("&Swap..."), this);
+   swapAct->setStatusTip(tr("Swap data wth previous file"));
+   swapAct->setEnabled(false);
+   connect(swapAct, &QAction::triggered, this, &MainWindow::swap);
+
    zernAct = new QAction(tr("&Compute Zernike Coefficients"), this);
    zernAct->setStatusTip(tr("Compute Zernike coefficients and maps"));
    zernAct->setEnabled(false);
@@ -2365,6 +2378,7 @@ void MainWindow::createMenus()
    fileMenu->addAction(testAct);
    fileMenu->addAction(consistencyAct);
    fileMenu->addAction(compareAct);
+   fileMenu->addAction(swapAct);
    exportMenu = fileMenu->addMenu(tr("&Export"));
    exportMenu->addAction(makeplyAct);
    exportMenu->addAction(ply2binAct);

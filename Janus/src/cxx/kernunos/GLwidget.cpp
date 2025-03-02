@@ -368,26 +368,26 @@ void GLwidget::initializeGL()
 
 bool GLwidget::Swap()
 {
-/*
-    for (int i=0; i < nV; ++i){
+
+    for (int i=0; i < nV[2]; ++i){
         vertices3[i]=vertices2[i];
     }
-    for (int i=0; i< nE; ++i){
+    for (int i=0; i< nE[2]; ++i){
         elements3[i]=elements2[i];
     }
-    for (int i=0; i < nV; ++i){
+    for (int i=0; i < nV[1]; ++i){
         vertices2[i]=vertices[i];
     }
-    for (int i=0; i< nE; ++i){
+    for (int i=0; i< nE[1]; ++i){
         elements2[i]=elements[i];
     }
-    for (int i=0; i < nV; ++i){
+    for (int i=0; i < nV[0]; ++i){
         vertices[i]=vertices3[i];
     }
-    for (int i=0; i< nE; ++i){
+    for (int i=0; i< nE[0]; ++i){
         elements[i]=elements3[i];
     }
-*/
+
   return true;
 }
 

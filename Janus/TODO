@@ -18,6 +18,8 @@ resurrect old noise reduction code to help out mongeastig and meanc for real dat
 need lapack or open version of numrec fourn:  fftpack
 extreme value filter for scales
 
+Resurrected swap/Swap; see how it goes
+
 
 built framework for decenter; both involve moving elevation data points, either, 
 then resplining on that basis, just like an ELE file, in fact, for an ELE/ELE.CSV file, adjust the data before the first spline
@@ -50,7 +52,7 @@ you can run other Analyze ie center gnusplotplot, lioc, and move the picture
 probably can run kernunos but not janus?
 consider adding sound to play after zernike compute, but might need option to turn off http://github.com/zserge/beep or get fancy with .ogg
 
-might need to import olb brodiemanuscripts for background of monge patch, principal curvature
+might need to import old brodiemanuscripts for background of monge patch, principal curvature
 in assistant.cpp look at showDocumentation and substitute docs for this project in appropriate format
 might want to change Cmakelist.txt for the proper install directory for documentation/copy
 ie use qhelpgenerator kernunos.qhcp kernunos.qhc after making the appropriate changes, need also edit the html files and rewrite the qhp file in documentation
@@ -67,8 +69,9 @@ flat earth analogy with meridians not maps, frequency distribution = eg Zernike 
 lsq to get coefficients legendres, fourier zernike, ellipsoid as basis functions is ?better than current approach
 
 Needs a whole section on corneal topography and "powers" with math definitions; 
-1d-2d/2d-3d difference between x and r; possible incorporation of iris equation example ?picture showing skew rays
-simple difference between d/dx and 1/r(d/dr) axisymmetry is not linear == lost battle with IRIS paper circles are not squares, spheres are not cubes
+1d-2d/2d-3d difference between x and r; possible incorporation of iris equation example ?picture showing skew rays 
+bad data here is implicitly assuming axisymmetery for Placido reflection, but if the machine is reporting true "axial curvatures", it should still be computable (test example)
+simple difference between d/dx and 1/r(d/dr) axisymmetry is not linear ==> lost battle with IRIS paper circles are not squares, spheres are not cubes
 
 needs section on handling bad data:
 shift discontinuity in 900 and others: how to best address: document as opposed to missing data...discontinuities affect global fitting ie lsq but not local ie spline
@@ -83,7 +86,7 @@ Export as EPS.
 mean curvature and monge astigmatism, need taylor series for limit at origin
 
 need a 2-D picture output other than gnuplot version
-make mathematica plot output, just like ply,off etc.
+make mathematica plot output?, just like ply,off etc.
 
 Fit elevation with Principal component analysis, meh 
 
@@ -97,8 +100,7 @@ Adapt code in book to do LS-BICSA
 2-D splining use sparse solver via superLU possible superLU-dist to use GPU
 ?strumpack
 
-openGL display doesn't work with prime-run ./kernunos; might need to look at openGL calls to diagnose the issue?
-
+use of gpu acceleration
 
 Optimizing:
 1)valgrind/profiling can also try helegrind for cyclic 4 way slow down

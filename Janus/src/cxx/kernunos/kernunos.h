@@ -124,6 +124,7 @@ private slots:
     void addComments();
     void redraw();
     void compare();
+    void swap();
     void zerncompute();
     void showzern();
     void ply2bin();
@@ -240,6 +241,7 @@ private:
     QAction *testAct;
     QAction *consistencyAct;
     QAction *compareAct;
+    QAction *swapAct;
     QAction *exitAct;
 
     QMenu *exportMenu;
