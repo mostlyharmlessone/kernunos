@@ -4,7 +4,7 @@ MODULE cornea_arrays
  USE LapackInterface, ONLY : dgetrf, dgetrs, dgesv, dsyev
  USE spline_interfaces 
  use, intrinsic ::  ieee_arithmetic
- use, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
+ use, intrinsic :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
  REAL(wp), PARAMETER :: PI=3.1415926535897932384626433832795_wp
  REAL(wp), PARAMETER :: RFCT=33750.0_wp
  REAL(wp), PARAMETER :: EPS=0.0001_wp  ! used in pspli,SplineCenter,corneal calc fcts
@@ -306,8 +306,8 @@ subroutine Skyline_eq_Penta(Skyline,Penta)  ! Arrange data Skyline, that will al
 !   row ii = first_row+i-1
     ii=first_row+i-1
     jj=index_row(first_row+i-1)+j-1
-    Skyline%x(i,j)=-7.00+((jj-1)*14.00)/(NP-1.0)   
-    Skyline%DAT(i,j)=Penta%DAT(ii,jj)
+    Skyline%x(i,j)=-700.0+((jj-1)*1400.0)/(NP-1.0)
+    Skyline%DAT(i,j)=Penta%DAT(ii,jj)/10.0
 !   Count rows in each column
     Skyline%L2y(j)=row(first_col+j-1)              ! number of rows == length of each splining vector
     Skyline%index_col(j)=index_col(first_col+j-1)  ! Skyline these for border calculation
@@ -334,18 +334,19 @@ subroutine Skyline_eq_Penta(Skyline,Penta)  ! Arrange data Skyline, that will al
 !  write (*,*) 'Total number vertices in Skyline: ',ii,jj
 end subroutine Skyline_eq_Penta
 
+! generates principal curvaratures for ELE files
 subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initially populates JMatrix & RadSlope with splining
   TYPE(wpSkyline), INTENT(INOUT) :: Skyline                                             
   TYPE(wpPentaMatrix), INTENT(IN) :: Penta
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
   TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix  
-  integer :: M1,N1,i,j,k,kk,L2,offset,NP,ITH
+  integer :: M1,N1,i,j,k,kk,L2,offset,NP,ITH,err_report
   integer :: imv(size(JMatrix%Z,2))
-  real(wp) :: rBo,rBi,DAT,u,v,xx,yy,f,fTmp(Skyline%rows),f2Tmp(Skyline%rows)
+  real(wp) :: rBo,rBi,DAT,u,v,xx,yy,f,fx,fxx,fy,fxy,fyy,fTmp(Skyline%rows),f2Tmp(Skyline%rows),fxTmp(Skyline%rows),fx2Tmp(Skyline%rows),fxxTmp(Skyline%rows),fxx2Tmp(Skyline%rows)
   real(wp) :: r(size(RadSlope%r,2)),z(Skyline%cols),z2(Skyline%cols)
   real(wp) :: x(Skyline%cols)              ! maximum size needed, don't need NP
   real(wp) :: y(Skyline%rows)
-  real(wp) :: rmin,check,firstcheck,secondcheck
+  real(wp) :: rmin,check,firstcheck,secondcheck,q,mean,gaussian
   M1=size(RadSlope%r,2)
   N1=size(RadSlope%r,1)
   NP=size(Skyline%DAT,1)                                                   
@@ -356,12 +357,12 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
    L2=Skyline%L2x(i)                                       
    x(1:L2)=Skyline%x(i,1:L2)
    z(1:L2)=Skyline%DAT(i,1:L2)
-   call nspline(x,z,L2,z2)                                ! generate zxDAT 
+   call nspline(x,z,L2,z2,err_report)                                ! generate zxDAT
    Skyline%z2DAT(i,1:L2)=z2(1:L2)
   end do
 ! make rings
 ! scale in 14x 14 mm of Penta matrix 141x141 divided by 2
-  rBo=7.0                                   ! try to make radius at least out to 7 (theoretical max on PentaCam)
+  rBo=700.0                                   ! try to make radius at least out to 7 (theoretical max on PentaCam)
   rBi=0.05*rBo                              ! donut 
   JMatrix%SAGC0(2)=1E30                     ! bound setting
   JMatrix%SAGC0(3)=-1E30
@@ -387,39 +388,68 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
       z(1:L2)=Skyline%DAT(k,1:L2)
       z2(1:L2)=Skyline%z2DAT(k,1:L2)
 !     f is value at u, fTmp is a new 1:(Skyline%rows) column of values at u
-      call SplineEval(0,x(1:L2),z(1:L2),z2(1:L2),L2,u,f)   ! first parameter = 0 nonperiodic
+      call SplineEval(0,x(1:L2),z(1:L2),z2(1:L2),L2,u,f,fx,fxx)   ! first parameter = 0 nonperiodic
       call SplineEval(2,x(1:L2),z(1:L2),z2(1:L2),L2,u,check)   ! first parameter = 2 extrapolation check
       if (check == 0) firstcheck=firstcheck+1 ! how much extrapolation
       fTmp(k)=f
+      fxTmp(k)=fx     ! only for ELE files
+      fxxTmp(k)=fxx     ! only for ELE files
      end do
      offset=Skyline%first_row-1
      L2=Skyline%rows       ! this L2 will introduce bogus values at the end of the splines needing trimming
      do kk=1,L2            ! fTmp has to align with y; but ftmp starts at Skyline%first_row, y starts at 1 for calculation
-      y(kk)=7.00-((kk-1+offset)*14.00)/(NP-1.0)
+      y(kk)=700.0-((kk-1+offset)*1400.0)/(NP-1.0)
      end do
-     call nspline(y(1:L2),fTmp(1:L2),L2,f2Tmp(1:L2))             ! spline in Y
-     call SplineEval(0,y(1:L2),fTmp(1:L2),f2Tmp(1:L2),L2,v,DAT)  ! first parameter = 0 nonperiodic
+     call nspline(y(1:L2),fTmp(1:L2),L2,f2Tmp(1:L2),err_report)             ! spline in Y of f
      call SplineEval(2,y(1:L2),fTmp(1:L2),f2Tmp(1:L2),L2,v,secondcheck)  ! first parameter = 2 extrapolation check
-     if (j > N1) then
-      if (i .eq. 1) then  !only have to do the center once, not for each i
-       JMatrix%R0=0 ; JMatrix%THT0=0
-       if (ABS(DAT) > 0) then
-        JMatrix%SAGC0(1)=RFCT/(100.0*ABS(DAT))  ! if curvatures
+     if (secondcheck /= 0) then
+
+      call nspline(y(1:L2),fxTmp(1:L2),L2,fx2Tmp(1:L2),err_report)           ! spline in Y of fx to get fxy (only for ELE files)
+      call nspline(y(1:L2),fxxTmp(1:L2),L2,fxx2Tmp(1:L2),err_report)           ! spline in Y of fxx to get fxx (only for ELE files)
+
+      call SplineEval(0,y(1:L2),fTmp(1:L2),f2Tmp(1:L2),L2,v,DAT,fy,fyy)  ! first parameter = 0 nonperiodic
+
+      call SplineEval(0,y(1:L2),fxTmp(1:L2),fx2Tmp(1:L2),L2,v,fx,fxy)  ! first parameter = 0 nonperiodic
+      call SplineEval(0,y(1:L2),fxxTmp(1:L2),fxx2Tmp(1:L2),L2,v,fxx)  ! first parameter = 0 nonperiodic
+
+      if (j > N1) then
+       if (i .eq. 1) then  !only have to do the center once, not for each i
+        JMatrix%R0=0 ; JMatrix%THT0=0
+        if (ABS(DAT) > 0) then
+         JMatrix%SAGC0(1)=RFCT/(1000.0*ABS(DAT))  ! if curvatures
+        endif
+         JMatrix%Z0(1)=ABS(DAT)                ! if elevation (this seems to be zero by design in .ELE/.ELE.csv files)
        endif
-        JMatrix%Z0(1)=ABS(DAT)                  ! if elevation (this seems to be zero by design in .ELE/.ELE.csv files)
-      endif
-     else
-!   boundary check here
-     xx=u*(NP-1)/14.0 ; yy=v*(NP-1)/14.0
-     if (Penta%DAT(1+(NP-1)/2+sign(floor(ABS(xx)),floor(xx)),&
+      else
+!     boundary check here
+      xx=u*(NP-1)/1400.0 ; yy=v*(NP-1)/1400.0
+      if (Penta%DAT(1+(NP-1)/2+sign(floor(ABS(xx)),floor(xx)),&
                 &1+(NP-1)/2+sign(floor(ABS(yy)),floor(yy))) > 0) then  ! test for >0 is why Penta needed here
-      if (firstcheck < 70 .and. secondcheck /= 0) then ! better extrapolation check; the 70 here is arbitrary, 40 is getting too low
-       imv(i)=imv(i)+1
-       if (ABS(DAT) > 0 ) then
-        RadSlope%Z(j,i)=ABS(DAT)/10.0              ! if DAT is elevation
-        CALL ZFCT(M1,i,100.0*ABS(r(j)),100.0*ABS(DAT),RadSlope%R(j,i),RadSlope%Zp(j,i))  !only for DAT is curvature/SAGC
+       if (firstcheck < 70) then ! better extrapolation check; the 70 here is arbitrary, 40 is getting too low
+        imv(i)=imv(i)+1
+        if (ABS(DAT) > 0 ) then
+         RadSlope%Z(j,i)=ABS(DAT)              ! if DAT is elevation
+         CALL ZFCT(M1,i,ABS(r(j))/100.0,10.0*ABS(DAT),RadSlope%R(j,i),RadSlope%Zp(j,i))    !only for DAT is curvature/SAGC
+         RadSlope%R(j,i)=100*RadSlope%R(j,i)
+        endif
+        JMatrix%Z(j,i)=RadSlope%Z(j,i)   !only for elevations, put in RadSlope%Zp(j,i) in janus
+
+        gaussian =  (fxx*fyy - fxy*fxy)/((1+fx*fx+fy*fy)**2)
+        mean =  ((fyy*(1+fx*fx)) + fxx*(1+fy*fy) - 2*fx*fy*fxy)/(2*(1+fx*fx+fy*fy)**1.5)
+        q = mean + sign(mean,sqrt(mean*mean-gaussian))
+!       only for elevations
+        JMatrix%MONGEA(j,i)=RFCT*(q-gaussian/q)
+        JMatrix%MEANC(j,i)=RFCT*mean
+        JMatrix%INSTC(j,i)=RFCT*q
+        JMatrix%SAGC(j,i)=RFCT*gaussian/q
+        JMatrix%GAUSSC(j,i)=RFCT*sqrt(abs(gaussian))
+        if ((fxx*fxx-fxy*fxy) < 0) write(*,*) 'Hessian negative in RadSlope_eq_Skyline: gaussian',gaussian,RFCT*sqrt(abs(gaussian))
+
+       else  ! outside boundary
+        if (r(j) < rmin) then
+         rmin=r(j)
+        endif
        endif
-       JMatrix%Z(j,i)=RadSlope%Z(j,i)   !only for elevations, put in RadSlope%Zp(j,i) in janus
       else  ! outside boundary
        if (r(j) < rmin) then
         rmin=r(j)
@@ -428,7 +458,7 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
      endif
     endif
    end do !j to N1
-  end do !i to M1
+ end do !i to M1
 !  write(*,*) 'rmin from RadSlope_eq_Skyline',rmin
 !  write(*,*) imv(:)
 ! trim down imv for r > rmin
@@ -482,7 +512,11 @@ subroutine RadSlope_eq_JMatrix(RadSlope,JMatrix)
        if (ZIX > ABS(JMatrix%R(j,i)) ) then
         call ZFCT(MM,i,ABS(JMatrix%R(j,i)),ZIX,X2A1,YA3)
        else
-        RadSlope%r(j,i)=JMatrix%R(j,i)
+        if (i > (MM/2)) then  ! > PI negative R
+         RadSlope%r(j,i)=-JMatrix%R(j,i)
+        else
+         RadSlope%r(j,i)=JMatrix%R(j,i)
+        endif
         RadSlope%Zp(j,i)=0._wp  ! sets border
         RadSlope%Z(j,i)=JMatrix%Z(j,i)
         RadSlope%Zp2(j,i)=1/803.0_wp ! fallback value before splining
@@ -493,7 +527,11 @@ subroutine RadSlope_eq_JMatrix(RadSlope,JMatrix)
        RadSlope%Z(j,i)=JMatrix%Z(j,i)
        RadSlope%Zp2(j,i)=1/803.0_wp ! fallback value before splining
       else
-       RadSlope%r(j,i)=JMatrix%R(j,i)
+       if (i > (MM/2)) then  ! > PI negative R
+        RadSlope%r(j,i)=-JMatrix%R(j,i)
+       else
+        RadSlope%r(j,i)=JMatrix%R(j,i)
+       endif
        RadSlope%Zp(j,i)=0._wp  ! sets border
        RadSlope%Z(j,i)=JMatrix%Z(j,i)
        RadSlope%Zp2(j,i)=1/803.0_wp ! fallback value before splining
@@ -641,25 +679,32 @@ end subroutine RadSlope_eq_DiaSlope
 ! spline b%rd(:,i),b%Zpd(:,i)
 function DiaSpline(b) result(a) 
  TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b
- integer :: M1,N1,i
+ integer :: M1,N1,i,err_report
  real(wp) :: a(size(b%rd,1),size(b%rd,2))
  N1=size(b%rd,1) !N1=2*N*M
  M1=size(b%rd,2) !M1=MM/2
   a=0  !initialize else the damn thing will fill with NaN
+  err_report = 0
   do i=1,M1 
-   call nspline(b%rd(:,i),b%Zpd(:,i),b%L2(i),a(:,i))
+   call nspline(b%rd(:,i),b%Zpd(:,i),b%L2(i),a(:,i),err_report)
+   if (err_report .ne. 0) then
+    write(*,*) 'DiaSpline error at meridian: ',i
+   endif
   end do
 end function DiaSpline
 
 function DiaSplineCenter(b) result(a)
  TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b
  real(wp) :: a(size(b%rd,1),size(b%rd,2))
- integer :: M1,N1,i
+ integer :: M1,N1,i, err_report
  N1=size(b%rd,1) !N1=2*N*M
  M1=size(b%rd,2) !M1=MM/2
- a=0
+ a=0 ; err_report = 0
   do i=1,M1 
-   call nsplineCenter(i,b%rd(:,i),b%Zpd(:,i),b%L2(i),a(:,i))
+   call nsplineCenter(i,b%rd(:,i),b%Zpd(:,i),b%L2(i),a(:,i),err_report)
+   if (err_report .ne. 0) then
+    write(*,*) 'DiaSplineCenter error at meridian: ',i
+   endif
   end do
 end function DiaSplineCenter
 
@@ -884,7 +929,7 @@ subroutine ZFCT(MM,ITH,ZJX,ZIX,X2A1,YA3)
  REAL(wp) :: YA1,YA2
  INTEGER, INTENT(IN) :: ITH,MM
  !     INVERSE IS AXIALP	
-      if (ZIX <= ZJX) WRITE (*,*) 'ERROR IN ARCTAN'
+      if (ZIX <= ZJX) WRITE (*,*) 'ERROR IN ARCTAN',ZIX,ZJX
  !     CONVERTS ZIX TO DZ/DR
       YA1=ZJX/(ZIX-ZJX)
       YA2=ZJX/(ZIX+ZJX)
@@ -928,11 +973,15 @@ subroutine principal(t,r,hr,ht,hrt,htt,hrr,K,H,k1,k2,A)
     H=((1+hv**2)*huu-2*hu*hv*huv+(1+hu**2)*hvv)/(2*(sqrt(g)**3))
     if (H**2-K < 0) write(*,*) 'FATAL error in principal,H,K,H^2-K',H,K,H**2-K
     if (H**2-K < 0) stop
-    if ((huu*hvv-huv*huv) < 0) write(*,*) 'Hessian negative in principal: t,ht,hrt,htt,huu,hvv,huv',t,ht,hrt,htt,huu,hvv,huv
+    if ((huu*hvv-huv*huv) < 0) write(*,*) 'Hessian negative in principal: t,gaussian,K',t,K,RFCT*sqrt(abs(K))
      k1=H+sign(sqrt(abs(H**2-K)),H)  ! better way to compute quadratic roots without cancellation
      k2=K/k1
      A=2*sqrt(abs(H**2-K))
      K=sqrt(abs(K))  ! use sqrt of gaussian curvature for output->geometric mean power in same units ; absolute power for saddle points
+     if(.not.ieee_is_finite(A)) then
+      write(*,*) 'Error in principal:'
+      write(*,*) hu,hv,huu,hvv,huv
+     endif
    else
 !   AT ORIGIN r = 0, things get weird at the limit
     if ( ABS(ht) > EPS ) then  ! but really it depends on ht/r and htt/r^2

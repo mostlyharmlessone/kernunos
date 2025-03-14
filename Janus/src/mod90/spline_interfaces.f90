@@ -34,19 +34,21 @@ module spline_interfaces
   integer(c_int), INTENT(IN) :: dat
  end subroutine
 
- subroutine nspline(r,z,n,z2)
+ subroutine nspline(r,z,n,z2,err_report)
   USE set_precision, ONLY : wp
   integer, INTENT(IN) :: n
   real(wp), INTENT(IN) ::  r(n),z(n)
   real(wp), INTENT(OUT) :: z2(n)
+  integer, INTENT(OUT) :: err_report
  end subroutine
 
- subroutine nsplineCenter(ii,r,z,n,z2)
+ subroutine nsplineCenter(ii,r,z,n,z2,err_report)
   use set_precision, only : wp
   integer, INTENT(IN) :: ii,n
   real(wp), INTENT(IN) ::  r(n)
   real(wp), INTENT(IN) ::  z(n)
   real(wp), INTENT(OUT) :: z2(n)
+  integer, INTENT(OUT) :: err_report
  end subroutine
 
 subroutine pspli(t,z,n,zt2)

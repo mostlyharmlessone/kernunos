@@ -114,7 +114,7 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
 
    if (Present(f)) IsInf=ieee_is_finite(f)
    if (Present(fp)) IsInf=ieee_is_finite(f) .and. ieee_is_finite(fp)
-   If(.not.IsInf) then
+   if(.not.IsInf) then
     write(*,*) 'Error in SplineEval',KP,u,n,i1,i,z,z2,dr
     write(*,*) AB,CD,dAB,dCD
     return

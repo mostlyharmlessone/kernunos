@@ -1,6 +1,6 @@
 ! PURPOSE adds a central node to the radial spline at the origin between central points
 ! only use after nspline and MakeRadSplineCenter have run
- subroutine nsplineCenter(ii,r,z,n,z2)
+ subroutine nsplineCenter(ii,r,z,n,z2,err_report)
  use set_precision, only : wp
  use cornea_arrays, only : RadSplineCenter
  use spline_interfaces, ONLY : thomas, SplineEval
@@ -11,12 +11,13 @@
   real(wp), INTENT(IN) ::  r(n)
   real(wp), INTENT(IN) ::  z(n)
   real(wp), INTENT(OUT) :: z2(n)
+  integer, INTENT(OUT) :: err_report
   real(wp),allocatable ::  a(:),b(:),c(:),d(:),zz2(:),a_short(:)
   real(wp),allocatable ::  rr(:),zz(:)
   integer :: high, low, i
   integer :: info    ! for lapack use below 
 
-  INFO=0             
+  INFO=0   ; err_report = 0
   if ( n < 2 ) then  ! invalid parameter
    INFO=-1
    return
@@ -30,7 +31,13 @@
   endif
 
 ! make a noncenterpoint spline to find center values of elevation and curvature
-  call nspline(r,z,n,z2)
+  call nspline(r,z,n,z2,err_report)
+
+  if (err_report .ne. 0) then
+   write(*,*) 'nsplinecenter:'
+   write(*,*) r(1:n)
+
+  endif
 
 ! boundary conditions for natural spline, not used in calculations
   z2(1)=0.

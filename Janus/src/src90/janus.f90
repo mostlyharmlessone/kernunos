@@ -6,7 +6,8 @@
   use special_fct
   use io_functions
   use spline_interfaces
-  use, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
+  use,intrinsic :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
+  use,intrinsic :: ieee_arithmetic
   use c_interfaces, ONLY : LogC, Ccounter, ConvertPLYtoBIN
   use omp_lib
   IMPLICIT NONE
@@ -881,7 +882,7 @@ endif ! end (TestData == 1)
     end do
    end do
   endif
-  JMatrix%Z(:,:) = 0
+!  JMatrix%Z(:,:) = 0
  endif
 
 ! OR GENERATE Fake EyeSys data
@@ -1111,16 +1112,36 @@ if (mod(flag,100) .ne. 9 ) then
     JMatrix%YPTHETA(j,i)=YPTHETA
 !   powers
     call AXIALP(JMatrix%R(j,i),YPTHETA/JMatrix%R(j,i),YP2THETA/JMatrix%R(j,i),JMatrix%Warp(j,i))
+!   not elevations
+!    if (.not.(TestData.eq.2 .or. TestData.eq.4)) then
     if (btest(dat,10)) then
      call axisymmetric_principal(JMatrix%R(j,i),YPR,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
     else
      call principal(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
     endif
+
+!if (i == 2 .and. j==4) then
+if (.not.ieee_is_finite(JMatrix%MONGEA(j,i))) then   !!!OD _ELE file
+    write(*,*) 'Janus 1123',i,j
+    write(*,*) JMatrix%MONGEA(j,i),RFCT*astigm
+    write(*,*) JMatrix%MEANC(j,i),RFCT*meanpower
+    write(*,*) JMatrix%INSTC(j,i),RFCT*princ1
+    write(*,*) JMatrix%SAGC(j,i),RFCT*princ2
+    write(*,*) JMatrix%GAUSSC(j,i),RFCT*gaussian
+endif
+
+
     JMatrix%MONGEA(j,i)=RFCT*astigm
     JMatrix%MEANC(j,i)=RFCT*meanpower
     JMatrix%INSTC(j,i)=RFCT*princ1
     JMatrix%SAGC(j,i)=RFCT*princ2
     JMatrix%GAUSSC(j,i)=RFCT*gaussian
+
+
+!write(*,*) JMatrix%R(j,i)*COS(JMatrix%THT(i)),JMatrix%R(j,i)*SIN(JMatrix%THT(i)),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA
+
+
+!    endif
 
 !!!!!check here for extrapolation with XX; yep still doing it; its at the edge where the data is discontinuous circumferentially
 
@@ -1227,6 +1248,8 @@ endif
    if (JMatrix%Z0(1) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z0(1)
    if (JMatrix%Z0(1) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z0(1)
 
+
+!   write(*,*) 'sagc'
 !  SAGC
 !  Reload RadSlope with SAGC & re-spline; can't compute it from surface because ill-defined at origin
     do i=1,M1
@@ -1248,7 +1271,6 @@ endif
     if (btest(dat, 8)) then
      iflag = iflag+100
     endif
-
     do i=1,M1
      call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%SAGC(N1+1,i))  ! center value
      if (i .eq. 1) then
@@ -1265,6 +1287,8 @@ endif
    if (JMatrix%SAGC0(1) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC0(1)
    if (JMatrix%SAGC0(1) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC0(1)
 
+
+!   write(*,*) 'Warp'
 !  Warp
 !  Reload RadSlope & re-spline; can't compute it from surface because ill-defined at origin
     do i=1,M1
@@ -1287,6 +1311,7 @@ endif
     if (JMatrix%Warp0(1) >= JMatrix%Warp0(3)) JMatrix%Warp0(3)=JMatrix%Warp0(1)
 !   endif
 
+!  write(*,*) 'INSTC'
 !  INSTC
 !  Reload RadSlope & respline
    do i=1,M1
@@ -1308,6 +1333,7 @@ endif
   if (JMatrix%INSTC0(1) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC0(1)
   if (JMatrix%INSTC0(1) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC0(1)
 
+!   write(*,*) 'GAUSSC'
 ! GAUSSC
 ! Reload RadSlope & respline
   do i=1,M1
@@ -1350,6 +1376,7 @@ endif
   if (JMatrix%MEANC0(1) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC0(1)
   if (JMatrix%MEANC0(1) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC0(1)
 
+!  write(*,*) 'MONGEA'
 ! MONGEA
 ! Reload RadSlope & respline
   do i=1,M1

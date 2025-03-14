@@ -3,6 +3,7 @@ things to do
 CorneaCopia
 
 also OS_ELE still has funky center; check with decenter then compare or remove r=0 enforcement
+centernode disabled and without checkmark initially but actually active ELE
 
 enable the tweaks prior to loading the file? but not with auto redraw
 
@@ -18,7 +19,7 @@ resurrect old noise reduction code to help out mongeastig and meanc for real dat
 need lapack or open version of numrec fourn:  fftpack
 extreme value filter for scales
 
-Resurrected swap/Swap; see how it goes
+Resurrected swap/Swap; needs fixing
 
 
 built framework for decenter; both involve moving elevation data points, either, 
