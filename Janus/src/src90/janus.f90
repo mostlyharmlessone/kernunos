@@ -885,6 +885,23 @@ endif ! end (TestData == 1)
 !  JMatrix%Z(:,:) = 0
  endif
 
+! decentering for Penta elevation files is easiest
+if (TestData .eq. .or Testdata .eq.) then
+if (mod(flag,100) == 0) then ! read the files
+if(.not.allocated(Penta%DAT)) then
+   call init_mat_Penta(NP,tempPenta,tempSkyline)
+if (TestData .le. 3) then !.CUR/.ELE need to be flipped
+temp=Penta%DAT
+ do i=1,NP
+  do k=1,NP
+   Penta%DAT(i,k)=temp(NP-i+1,k)
+   Penta%DAT(NP-i+1,k)=temp(i,k)
+  end do
+ end do
+ deallocate(tempPenta,tempSkyline)
+
+
+
 ! OR GENERATE Fake EyeSys data
 if (TestData .lt. 0) then
  MM=360; N=16   ! fake EyeSys
@@ -1113,35 +1130,17 @@ if (mod(flag,100) .ne. 9 ) then
 !   powers
     call AXIALP(JMatrix%R(j,i),YPTHETA/JMatrix%R(j,i),YP2THETA/JMatrix%R(j,i),JMatrix%Warp(j,i))
 !   not elevations
-!    if (.not.(TestData.eq.2 .or. TestData.eq.4)) then
     if (btest(dat,10)) then
      call axisymmetric_principal(JMatrix%R(j,i),YPR,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
     else
      call principal(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
     endif
-
-!if (i == 2 .and. j==4) then
-if (.not.ieee_is_finite(JMatrix%MONGEA(j,i))) then   !!!OD _ELE file
-    write(*,*) 'Janus 1123',i,j
-    write(*,*) JMatrix%MONGEA(j,i),RFCT*astigm
-    write(*,*) JMatrix%MEANC(j,i),RFCT*meanpower
-    write(*,*) JMatrix%INSTC(j,i),RFCT*princ1
-    write(*,*) JMatrix%SAGC(j,i),RFCT*princ2
-    write(*,*) JMatrix%GAUSSC(j,i),RFCT*gaussian
-endif
-
-
     JMatrix%MONGEA(j,i)=RFCT*astigm
     JMatrix%MEANC(j,i)=RFCT*meanpower
     JMatrix%INSTC(j,i)=RFCT*princ1
     JMatrix%SAGC(j,i)=RFCT*princ2
     JMatrix%GAUSSC(j,i)=RFCT*gaussian
 
-
-!write(*,*) JMatrix%R(j,i)*COS(JMatrix%THT(i)),JMatrix%R(j,i)*SIN(JMatrix%THT(i)),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA
-
-
-!    endif
 
 !!!!!check here for extrapolation with XX; yep still doing it; its at the edge where the data is discontinuous circumferentially
 

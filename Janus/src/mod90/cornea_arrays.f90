@@ -5,6 +5,7 @@ MODULE cornea_arrays
  USE spline_interfaces 
  use, intrinsic ::  ieee_arithmetic
  use, intrinsic :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
+ IMPLICIT NONE
  REAL(wp), PARAMETER :: PI=3.1415926535897932384626433832795_wp
  REAL(wp), PARAMETER :: RFCT=33750.0_wp
  REAL(wp), PARAMETER :: EPS=0.0001_wp  ! used in pspli,SplineCenter,corneal calc fcts
@@ -350,7 +351,7 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
   M1=size(RadSlope%r,2)
   N1=size(RadSlope%r,1)
   NP=size(Skyline%DAT,1)                                                   
-  imv=0
+  imv=0 ; err_report = 0
   rmin=1E30
 ! Spline in x                               (this is the equivalent of DiaSpline)
   do i=1,Skyline%rows
@@ -370,12 +371,12 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
   JMatrix%Z0(3)=-1E30  
   do i=1,M1
    ITH=2*(i-1)                             ! every 2 degrees
-   RadSlope%thta(i)=PI*ITH/180.0_wp   
+   RadSlope%thta(i)=PI*ITH/180.0_wp
    do j=1,N1+1                             ! include center point
     if (j > N1) then
      u=0 ; v=0
     else
-     r(j)=(j-1)*(rBo-rBi)/(N1-1)+rBi  
+     r(j)=(j-1)*(rBo-rBi)/(N1-1)+rBi
      u=r(j)*COS(RadSlope%thta(i))        ! x,y coordinates of ring point
      v=r(j)*SIN(RadSlope%thta(i))
     endif
@@ -401,17 +402,16 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
       y(kk)=700.0-((kk-1+offset)*1400.0)/(NP-1.0)
      end do
      call nspline(y(1:L2),fTmp(1:L2),L2,f2Tmp(1:L2),err_report)             ! spline in Y of f
+     if (err_report .ne. 0) write(*,*) 'Error in RadSlope_eq_Skyline f(Y)'
      call SplineEval(2,y(1:L2),fTmp(1:L2),f2Tmp(1:L2),L2,v,secondcheck)  ! first parameter = 2 extrapolation check
      if (secondcheck /= 0) then
-
       call nspline(y(1:L2),fxTmp(1:L2),L2,fx2Tmp(1:L2),err_report)           ! spline in Y of fx to get fxy (only for ELE files)
-      call nspline(y(1:L2),fxxTmp(1:L2),L2,fxx2Tmp(1:L2),err_report)           ! spline in Y of fxx to get fxx (only for ELE files)
-
+      if (err_report .ne. 0) write(*,*) 'Error in RadSlope_eq_Skyline fx(Y)'
+      call nspline(y(1:L2),fxxTmp(1:L2),L2,fxx2Tmp(1:L2),err_report)          ! spline in Y of fxx to get fxx (only for ELE files)
+      if (err_report .ne. 0) write(*,*) 'Error in RadSlope_eq_Skyline fxx(Y)'
       call SplineEval(0,y(1:L2),fTmp(1:L2),f2Tmp(1:L2),L2,v,DAT,fy,fyy)  ! first parameter = 0 nonperiodic
-
       call SplineEval(0,y(1:L2),fxTmp(1:L2),fx2Tmp(1:L2),L2,v,fx,fxy)  ! first parameter = 0 nonperiodic
       call SplineEval(0,y(1:L2),fxxTmp(1:L2),fxx2Tmp(1:L2),L2,v,fxx)  ! first parameter = 0 nonperiodic
-
       if (j > N1) then
        if (i .eq. 1) then  !only have to do the center once, not for each i
         JMatrix%R0=0 ; JMatrix%THT0=0
@@ -424,7 +424,7 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
 !     boundary check here
       xx=u*(NP-1)/1400.0 ; yy=v*(NP-1)/1400.0
       if (Penta%DAT(1+(NP-1)/2+sign(floor(ABS(xx)),floor(xx)),&
-                &1+(NP-1)/2+sign(floor(ABS(yy)),floor(yy))) > 0) then  ! test for >0 is why Penta needed here
+                &1+(NP-1)/2+sign(floor(ABS(yy)),floor(yy))) >= 0) then  ! test for >0 is why Penta needed here
        if (firstcheck < 70) then ! better extrapolation check; the 70 here is arbitrary, 40 is getting too low
         imv(i)=imv(i)+1
         if (ABS(DAT) > 0 ) then
@@ -433,18 +433,16 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
          RadSlope%R(j,i)=100*RadSlope%R(j,i)
         endif
         JMatrix%Z(j,i)=RadSlope%Z(j,i)   !only for elevations, put in RadSlope%Zp(j,i) in janus
-
         gaussian =  (fxx*fyy - fxy*fxy)/((1+fx*fx+fy*fy)**2)
         mean =  ((fyy*(1+fx*fx)) + fxx*(1+fy*fy) - 2*fx*fy*fxy)/(2*(1+fx*fx+fy*fy)**1.5)
-        q = mean + sign(mean,sqrt(mean*mean-gaussian))
-!       only for elevations
+        q = mean + sign(sqrt(mean*mean-gaussian),mean)
+!       only for elevations; yields worse results than splining; tried at knots as well, no better
         JMatrix%MONGEA(j,i)=RFCT*(q-gaussian/q)
         JMatrix%MEANC(j,i)=RFCT*mean
         JMatrix%INSTC(j,i)=RFCT*q
         JMatrix%SAGC(j,i)=RFCT*gaussian/q
         JMatrix%GAUSSC(j,i)=RFCT*sqrt(abs(gaussian))
-        if ((fxx*fxx-fxy*fxy) < 0) write(*,*) 'Hessian negative in RadSlope_eq_Skyline: gaussian',gaussian,RFCT*sqrt(abs(gaussian))
-
+!        if ((fxx*fxx-fxy*fxy) < 0) write(*,*) 'Hessian negative in RadSlope_eq_Skyline: gaussian',gaussian,RFCT*sqrt(abs(gaussian)),u,v
        else  ! outside boundary
         if (r(j) < rmin) then
          rmin=r(j)
@@ -545,7 +543,7 @@ end subroutine RadSlope_eq_JMatrix
 subroutine Atlas_eq_RadSlope(Atlas,RadSlope)
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
   TYPE(wpAtlasMatrix), INTENT(INOUT) :: Atlas
-  INTEGER :: i,j,MM,N
+  INTEGER :: i,j,imv,MM,N
   REAL(wp) :: X2,YP,Y2X,POW
   imv=0
   Atlas%AP=0._wp
@@ -574,7 +572,7 @@ subroutine RadSlope_eq_Atlas(RadSlope,Atlas) ! initially populates r, thta, Zp, 
   TYPE(wpAtlasMatrix), INTENT(INOUT) :: Atlas
   REAL(wp) :: ZIX,ZJX,YA3,X2A1
   REAL(wp) :: DIST,R,POW
-  INTEGER :: i,j,MM,imv(size(RadSlope%r,2))
+  INTEGER :: i,j,MM,N,imv(size(RadSlope%r,2))
     MM=size(RadSlope%r,2)
     N=size(RadSlope%r,1)
     imv=0
@@ -973,13 +971,13 @@ subroutine principal(t,r,hr,ht,hrt,htt,hrr,K,H,k1,k2,A)
     H=((1+hv**2)*huu-2*hu*hv*huv+(1+hu**2)*hvv)/(2*(sqrt(g)**3))
     if (H**2-K < 0) write(*,*) 'FATAL error in principal,H,K,H^2-K',H,K,H**2-K
     if (H**2-K < 0) stop
-    if ((huu*hvv-huv*huv) < 0) write(*,*) 'Hessian negative in principal: t,gaussian,K',t,K,RFCT*sqrt(abs(K))
+!    if ((huu*hvv-huv*huv) < 0) write(*,*) 'Hessian negative in principal: t,gaussian,K',t,K,RFCT*sqrt(abs(K))
      k1=H+sign(sqrt(abs(H**2-K)),H)  ! better way to compute quadratic roots without cancellation
      k2=K/k1
      A=2*sqrt(abs(H**2-K))
      K=sqrt(abs(K))  ! use sqrt of gaussian curvature for output->geometric mean power in same units ; absolute power for saddle points
      if(.not.ieee_is_finite(A)) then
-      write(*,*) 'Error in principal:'
+      write(*,*) 'Error in principal'
       write(*,*) hu,hv,huu,hvv,huv
      endif
    else

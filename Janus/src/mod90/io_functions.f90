@@ -8,22 +8,22 @@ module io_functions
 
     subroutine ConvertOFFtoSTL(OFFNAME,STLNAME,STLBINNAME) 
      use special_fct, only : surface_normal,rgb2attr
-      use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
+     use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
      character(len=*), intent(in) :: OFFNAME,STLNAME,STLBINNAME
     end subroutine
 
     subroutine Geom(flag, b, donut, powmin, powmax, elements, vertices, nV, nE)
-       use cornea_arrays
-       use set_precision, ONLY : wp
-       use special_fct, only : rgb2, rgb5
-       use, intrinsic :: iso_c_binding, ONLY : c_float,c_int
-       use ISO_FORTRAN_ENV, only: stdin=>input_unit     
-       TYPE(wpJMatrix),INTENT(IN) :: b
-       logical, intent(IN) :: donut       
-       real(wp), intent(INOUT) :: powmin,powmax 
-       integer(c_int), INTENT(INOUT) :: elements(*)                          ! faces x 3   index 0
-       real(c_float), INTENT(INOUT) :: vertices(*)                           ! vertices x 6
-       integer(c_int), INTENT(INOUT) :: flag, nE, nV                         ! passed from janus to call OpenGL
+     use cornea_arrays
+     use set_precision, ONLY : wp
+     use special_fct, only : rgb2, rgb5
+     use, intrinsic :: iso_c_binding, ONLY : c_float,c_int
+     use ISO_FORTRAN_ENV, only: stdin=>input_unit
+     TYPE(wpJMatrix),INTENT(IN) :: b
+     logical, intent(IN) :: donut
+     real(wp), intent(INOUT) :: powmin,powmax
+     integer(c_int), INTENT(INOUT) :: elements(*)                          ! faces x 3   index 0
+     real(c_float), INTENT(INOUT) :: vertices(*)                           ! vertices x 6
+     integer(c_int), INTENT(INOUT) :: flag, nE, nV                         ! passed from janus to call OpenGL
     end subroutine
 
     subroutine makelegend(flag, powmin, powmax, legend, nL)
@@ -260,10 +260,7 @@ subroutine rcnvrtp(TestData,filename,read_error)
                     Penta%DAT(k,i) = 100000*getArg(i+1)
                    end do
                  endif
-!               if (k == 76) then
-!                write(*,*) Penta%DAT(k,:)
-!               endif
-               endif  
+               endif
             else
 !              write(*,*) 'Read ',k-1,' rows from ',trim(filename)
 !               do k=1,NP

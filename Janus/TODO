@@ -2,25 +2,7 @@ things to do
 
 CorneaCopia
 
-also OS_ELE still has funky center; check with decenter then compare or remove r=0 enforcement
-centernode disabled and without checkmark initially but actually active ELE
-
-enable the tweaks prior to loading the file? but not with auto redraw
-
-in kernunos menu actions do some key bindings?
-setShortcuts(QKeySequence::UnknownKey);
-
-It'd be helpful to have axes/angles for orientation is moving the figure; perhaps a info box or three displaying angles?
-make 3D option for all functions, with scale Z value max and min
-this will affect Geom,WriteGeomPLY/OFF
-
-compare is broken with zernike; also so is opening 2nd file with zernike selected and zernike needs extreme value filter
-resurrect old noise reduction code to help out mongeastig and meanc for real data?
-need lapack or open version of numrec fourn:  fftpack
-extreme value filter for scales
-
-Resurrected swap/Swap; needs fixing
-
+OS_ELE still has funky center (there are 3 zero elevations in the file data) ; check with decenter then compare or remove r=0 enforcement
 
 built framework for decenter; both involve moving elevation data points, either, 
 then resplining on that basis, just like an ELE file, in fact, for an ELE/ELE.CSV file, adjust the data before the first spline
@@ -28,20 +10,28 @@ decenter needs a dialog box for the amount and direction needs inputdialog get f
 decentration accomplished with penta data off by one in getArg(); make it (i) or (i+2) to decenter and generate fake astigmatism: 
 Is this reversible with tweaks, and/or can we also fake decentration with reverse tweaks?
 
-mult errors with negative hessian: ?do cartesian calc with penta directly?
-do calculations in cartesian for penta then migrate to polar
+Resurrected swap/Swap; needs fixing
+
+It'd be helpful to have axes/angles for orientation is moving the figure; perhaps a info box or three displaying angles?
+make 3D option for all functions, with scale Z value max and min
+this will affect Geom,WriteGeomPLY/OFF
+
 make cartesian grid display option; convert polar to grid, display pentacam directly
 
+compare is broken with zernike; also so is opening 2nd file with zernike selected and zernike needs extreme value filter
+resurrect old noise reduction code to help out mongeastig and meanc for real data?
+need lapack or open version of numrec fourn:  fftpack
+extreme value filter for scales
 
-
+in kernunos menu actions do some key bindings?
+setShortcuts(QKeySequence::UnknownKey);
 
 ability to turn stdoutput logging on/off
 change most writes to kernunos log writes
 addcomments():
 errorMessageDialog
 
-
-color white centrally on test look at values in sagc: it's outside USS scale
+enable the tweaks prior to loading the file? but not with auto redraw
 
 try going back to splineeval1dx1d and removing extra calls to splineeval, aka back to trial that spawned current branch
 also try finding a way to use only local natural splines instead of generating whole circular spline and using pspli
