@@ -124,6 +124,7 @@ private slots:
     void addComments();
     void redraw();
     void compare();
+    void decenter();
     void swap();
     void zerncompute();
     void showzern();
@@ -168,7 +169,6 @@ private slots:
     void fctZ11();
     void fctZ1neg1();
     void fctZ00();
-    void tweakdecenter();
     void tweakcenterNode();
     void tweakadjustradii();
     void tweakcubic();
@@ -286,8 +286,11 @@ private:
 
     QLabel *multiLineTextLabel;
     QLabel *degreeLabel;
+    QLabel *xLabel;
+    QLabel *yLabel;
     QErrorMessage *errorMessageDialog;
     DialogOptionsWidget *compareDialogOptionsWidget;
+    DialogOptionsWidget *decenterDialogOptionsWidget;
 
 };
 

@@ -39,7 +39,7 @@
   real(8) :: time_start, time_end
   real(wp) :: POWMIN,POWMAX,POWMAX2,POWCTR,POW,P1,X1,X2,U,V
   logical :: donut, exists
-  real(wp) :: Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo
+  real(wp) :: Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo,dvert,dhoriz
   integer :: k_max, kk_max, iflag, LWORK, rotationdegrees
   integer(c_int) :: dat, fct, map
   real(wp), allocatable :: zernC(:,:), B_Matrix(:,:), rlocal(:), thtlocal(:), WORK(:)
@@ -47,6 +47,7 @@
 !  integer, allocatable :: IPIV(:)
   real(wp) :: ctr_circle_x, ctr_circle_y, R_global, Theta_global, R_MV, R_TST, P_TEMP
   real(wp) :: gaussian,meanpower,princ1,princ2,astigm
+  real(wp), allocatable :: temp(:,:)
 
 !write(*,*) 'flag to Fortran:',flag
 !write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
@@ -750,7 +751,7 @@ if (TestData .eq. 0) then
     err_janus=read_error*10
     return
    endif
-  endif  !(mod(flag,100) /= 0,99,2,3 must be 1 or 4, reload the original data
+  endif  !(mod(flag,100) = 0
 ! Generate the slope matrix using ZFCT
   RadSlope=EyeSys
 endif
@@ -867,6 +868,36 @@ endif ! end (TestData == 1)
      JMatrix%PU(i)=sqrt(X1*X1+X2*X2)/10.
     end do
   endif  !(mod(flag,100) /= 0,99,2,3 must be 1 or 4-7, reload the original data
+
+  ! Easiest decentering for Penta elevation files is by shifting the Penta data; limited to 0.1 mm increments
+  if (btest(dat,5)) then
+   new_path = " "
+   do i=1, 4096
+      if ( file_from_C (i) == c_null_char ) then
+          exit
+      else
+          new_path (i:i) = file_from_C (i)
+      end if
+   end do
+  ! write(*,*) 'file from kernunos: ',trim(new_path)
+   new_path=trim(new_path)
+   read(new_path,*) dhoriz,dvert
+   if (TestData .eq. 2 .or. Testdata .eq. 4 .and. allocated(Penta%DAT) ) then
+    if(.not.allocated(temp)) then
+     allocate(temp(NP,NP))
+    endif
+    do i=1,NP
+     do k=1,NP
+      temp(1+modulo(i-1+int(10*dhoriz),NP),1+modulo(k-1+int(10*dvert),NP))=Penta%DAT(i,k)
+     end do
+    end do
+    do k=1,NP
+     Penta%DAT(:,k)=temp(:,k)
+    end do
+    deallocate(temp)
+   endif
+   endif
+
 ! arrange the data
   Skyline=Penta
 ! convert to polar with splining; makes round rings as above with 180x22 - also already has either center value Z0(1) or SAGC0(1)
@@ -884,22 +915,6 @@ endif ! end (TestData == 1)
   endif
 !  JMatrix%Z(:,:) = 0
  endif
-
-! decentering for Penta elevation files is easiest
-if (TestData .eq. .or Testdata .eq.) then
-if (mod(flag,100) == 0) then ! read the files
-if(.not.allocated(Penta%DAT)) then
-   call init_mat_Penta(NP,tempPenta,tempSkyline)
-if (TestData .le. 3) then !.CUR/.ELE need to be flipped
-temp=Penta%DAT
- do i=1,NP
-  do k=1,NP
-   Penta%DAT(i,k)=temp(NP-i+1,k)
-   Penta%DAT(NP-i+1,k)=temp(i,k)
-  end do
- end do
- deallocate(tempPenta,tempSkyline)
-
 
 
 ! OR GENERATE Fake EyeSys data

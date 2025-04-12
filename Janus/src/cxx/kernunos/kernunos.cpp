@@ -143,6 +143,8 @@ const unsigned int SCR_HEIGHT = 600;
 // last two digits are the program function
 // 0 = open a file, display
 // 99 = deallocate arrays for program closure
+// 10 = compare two images
+// 9 = show zernike coefficents
 // 8 = show circumferential ring lsqfillin/splinefillin
 // 7 = make lioc
 // 6 = make centers
@@ -304,8 +306,6 @@ MainWindow::MainWindow(QMainWindow *parent) : assistant(new Assistant)
    errorMessageDialog = new QErrorMessage(this);
    multiLineTextLabel = new QLabel;
    multiLineTextLabel->setFrameStyle(frameStyle);
-   degreeLabel = new QLabel;
-   degreeLabel->setFrameStyle(frameStyle);
 // starting defaults
    GLwidget::setaxisymmetric(true);
    GLwidget::setlsqvsspline(true);
@@ -405,7 +405,7 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
    };
    if (eyesys) {
        ShowZernAct->setEnabled(false);
-       centerAct->setEnabled(true);
+       centerAct->setEnabled(true);       
        ringsAct->setEnabled(false);
        centernodeAct->setEnabled(true);
        adjustradiiAct->setEnabled(true);
@@ -414,6 +414,7 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
        lsqvssplineAct->setEnabled(true);
    };
    compareAct->setEnabled(true);
+   decenterAct->setEnabled(true);
    swapAct->setEnabled(true);
    redrawAct->setEnabled(true);
    redrawOptionAct->setEnabled(true);
@@ -560,6 +561,7 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
            lsqvssplineAct->setEnabled(true);
        };
        compareAct->setEnabled(true);
+       decenterAct->setEnabled(true);
        swapAct->setEnabled(true);
        redrawAct->setEnabled(true);
        redrawOptionAct->setEnabled(true);
@@ -655,23 +657,19 @@ void MainWindow::compare()
     degrees=degrees / 16;
 
     if (reply == QMessageBox::Yes){
-//        ui.infoLabel->setText(tr("Yes"));
         bool ok;
         degrees = QInputDialog::getInt(this, tr("Rotation "),
                                                  tr("Degrees:"), degrees, 0, 360, 1, &ok,
                                                  Qt::WindowFlags());
-        if (ok){
-            degreeLabel->setText(QString("$%1").arg(degrees));}
     }
     else if (reply == QMessageBox::No){
-//        ui.infoLabel->setText(tr("No"));
     }
     if (!(reply == QMessageBox::Cancel)){
 
     ui.zSlider->setValue(degrees * 16);
-    flag=flag-(flag%100)+10;  // last two digits of flag=10
+    flag=flag-(flag%100)+10;  // last two digits of flag=10 is the code for compare
 
-//  for now set compare TO hsbrgb   
+//  for now set compare to hsbrgb
     int map=(flag-(flag%100))/100%100 ; //save the current selection
     GLwidget::setAllmapsfalse();
     GLwidget::sethsbrgb(true);
@@ -701,6 +699,71 @@ void MainWindow::compare()
 //        ui.infoLabel->setText(tr("Cancel"));
         return;
     }
+}
+
+void MainWindow::decenter()
+{
+    QMessageBox msgBox(QMessageBox::Question, tr("Decenter"),
+                       tr("Would you like to change the current center"), { }, this);
+    msgBox.setInformativeText(tr("Allows for decentering the data " ));
+    msgBox.addButton(QMessageBox::Yes);
+    msgBox.addButton(QMessageBox::No);
+    msgBox.addButton(QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::No);
+    int polar = 1;
+
+    QSpacerItem *horizontalspacer = new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    QGridLayout *layout =(QGridLayout*)msgBox.layout();
+    layout->addItem(horizontalspacer,layout->rowCount(),0,1,layout->columnCount());
+    decenterDialogOptionsWidget = new DialogOptionsWidget;
+    decenterDialogOptionsWidget->addCheckBox(tr("Polar"), polar);
+    layout->addWidget(decenterDialogOptionsWidget);
+    int reply = msgBox.exec();
+    int degrees = 0;
+    double dist = 0.0;
+    double xdist = 0.0;
+    double ydist = 0.0;
+    //  polar vs cartesian is sent through changing dat
+        if (reply == QMessageBox::Yes){
+            GLwidget::setdecenter(true);
+            bool ok;
+            if (decenterDialogOptionsWidget->value()){
+
+             dist = QInputDialog::getDouble(this, tr("Distance "),
+                                           tr("mm:"), dist, 0.0, 1.0, 2, &ok,
+                                           Qt::WindowFlags());
+             degrees = QInputDialog::getInt(this, tr("Rotation "),
+                                           tr("Degrees:"), degrees, 0, 360, 1, &ok,
+                                           Qt::WindowFlags());
+            if (ok){
+                xdist = dist * cos(3.1415926*degrees/180.0);
+                ydist = dist * sin(3.1415926*degrees/180.0);}
+             }
+             else {
+            xdist = QInputDialog::getDouble(this, tr("x dist "),
+                         tr("mm:"), xdist, -1.0, 1.0, 2, &ok, Qt::WindowFlags());
+            ydist = QInputDialog::getDouble(this, tr("y dist "),
+                         tr("mm:"), ydist, -1.0, 1.0, 2, &ok, Qt::WindowFlags());}
+            }
+
+        else {
+            if (reply == QMessageBox::No) {GLwidget::setdecenter(false);
+            }};
+
+    if (!(reply == QMessageBox::Cancel)){
+
+        QString fileName = QString::fromStdString((std::to_string(xdist)+","+std::to_string(ydist))); //send floats as filename
+        flag=flag-(flag%100)+4;  // last two digits of flag=4; this is a type of redraw;
+        QByteArray ba = fileName.toLocal8Bit();
+        filename = ba.data();
+
+        janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
+
+        update();}
+    else {
+        //        ui.infoLabel->setText(tr("Cancel"));
+        return;
+     }
 }
 
 void MainWindow::redraw(){
@@ -1771,23 +1834,6 @@ void MainWindow::tweakadjustradii()
    };
 }
 
-
-void MainWindow::tweakdecenter()
-{
-    if (GLwidget::isdecenter()) {
-        GLwidget::setdecenter(false);
-        decenterAct->setChecked(GLwidget::isdecenter());
-        ui.infoLabel->setText(tr("Set <b>Tweak:DeCenter false</b>"));
-    } else {
-        GLwidget::setdecenter(true);
-        decenterAct->setChecked(GLwidget::isdecenter());
-        ui.infoLabel->setText(tr("Set <b>Tweak:DeCenter true</b>"));
-    };
-    if (GLwidget::isRedraw()) {
-        redraw();
-    };
-}
-
 void MainWindow::tweakcubic()
 {
    if (GLwidget::iscubic()) {
@@ -2082,6 +2128,10 @@ void MainWindow::createActions()
    compareAct->setEnabled(false);
    connect(compareAct, &QAction::triggered, this, &MainWindow::compare);
 
+   decenterAct = new QAction(tr("&Decenter image"), this);
+   connect(decenterAct, &QAction::triggered, this, &MainWindow::decenter);
+   decenterAct->setEnabled(false);
+
    swapAct = new QAction(tr("&Swap..."), this);
    swapAct->setStatusTip(tr("Swap data wth previous file"));
    swapAct->setEnabled(false);
@@ -2158,10 +2208,6 @@ void MainWindow::createActions()
    pupilAct->setStatusTip(tr("Show pupil data if any"));
    connect(pupilAct, &QAction::triggered, this, &MainWindow::pupil);
    pupilAct->setCheckable(true);
-
-   decenterAct = new QAction(tr("&Decenter image"), this);
-   connect(decenterAct, &QAction::triggered, this, &MainWindow::tweakdecenter);
-   decenterAct->setCheckable(true);
 
    centernodeAct=new QAction(tr("&Create center node to force MinMax at origin"), this);
    centernodeAct->setCheckable(true);
@@ -2378,6 +2424,7 @@ void MainWindow::createMenus()
    fileMenu->addAction(testAct);
    fileMenu->addAction(consistencyAct);
    fileMenu->addAction(compareAct);
+   fileMenu->addAction(decenterAct);
    fileMenu->addAction(swapAct);
    exportMenu = fileMenu->addMenu(tr("&Export"));
    exportMenu->addAction(makeplyAct);
@@ -2439,7 +2486,6 @@ void MainWindow::createMenus()
    tweaksMenu->addAction(cubicAct);
    tweaksMenu->addAction(LSQfillinAct);
    tweaksMenu->addAction(SplinefillinAct);
-   tweaksMenu->addAction(decenterAct);
    tweaksMenu->addAction(lsqvssplineAct);
    tweaksMenu->addAction(make2dsplineAct);
    helpMenu = menuBar()->addMenu(tr("&About"));

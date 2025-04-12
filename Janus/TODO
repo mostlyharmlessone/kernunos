@@ -2,13 +2,12 @@ things to do
 
 CorneaCopia
 
-OS_ELE still has funky center (there are 3 zero elevations in the file data) ; check with decenter then compare or remove r=0 enforcement
+OS_ELE still has funky center (there are 3 zero elevations in the file data) 
 
 built framework for decenter; both involve moving elevation data points, either, 
 then resplining on that basis, just like an ELE file, in fact, for an ELE/ELE.CSV file, adjust the data before the first spline
-decenter needs a dialog box for the amount and direction needs inputdialog get float x 2
-decentration accomplished with penta data off by one in getArg(); make it (i) or (i+2) to decenter and generate fake astigmatism: 
-Is this reversible with tweaks, and/or can we also fake decentration with reverse tweaks?
+
+
 
 Resurrected swap/Swap; needs fixing
 
