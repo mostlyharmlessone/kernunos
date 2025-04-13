@@ -64,11 +64,11 @@ module io_functions
      integer, intent(out) :: N, read_error
     end subroutine
 
-    subroutine rcnvrte(read_error,RANAME,XXNAME,PUNAME)
+    subroutine rcnvrte(read_error,RANAME,XXNAME,PUNAME,HXNAME)
      USE set_precision, ONLY : wp
      USE cornea_arrays, ONLY : EyeSys
      character(len=*), intent(in) :: RANAME,XXNAME
-     character(len=*), intent(in), optional :: PUNAME
+     character(len=*), intent(in), optional :: PUNAME,HXNAME
      integer, intent(out) :: read_error
     end subroutine
 
@@ -356,7 +356,7 @@ subroutine rcnvrtp(TestData,filename,read_error)
    endif
 end subroutine rcnvrtp
 
-subroutine rcnvrte(read_error,RANAME,XXNAME,PUNAME)
+subroutine rcnvrte(read_error,RANAME,XXNAME,PUNAME,HXNAME)
 ! EYESYS VERSION
   USE io_functions, ONLY : get_new_fileunit
   USE set_precision, ONLY : wp
@@ -365,12 +365,12 @@ subroutine rcnvrte(read_error,RANAME,XXNAME,PUNAME)
   implicit none
   logical :: exists
   character(len=*), intent(in) :: RANAME,XXNAME
-  character(len=*), intent(in), optional :: PUNAME
+  character(len=*), intent(in), optional :: PUNAME,HXNAME
   character(1000) header,header_space
-  integer :: file_idx1,file_idx2,file_idx3,readerr
+  integer :: file_idx1,file_idx2,file_idx3,file_idx4,readerr
   integer, intent(out) :: read_error
   REAL(wp) :: ZX(16),YX(16),PX,CX,CY
-  INTEGER :: I,J,ITH,unitno1,unitno2,unitno3,MM,N,ierr
+  INTEGER :: I,J,ITH,unitno1,unitno2,unitno3,unitno4,MM,N,ierr
   MM=360
   N=16
   inquire(file=trim(RANAME), exist=exists)
@@ -386,7 +386,7 @@ subroutine rcnvrte(read_error,RANAME,XXNAME,PUNAME)
       READ (unitno1,*) header
       file_idx1=index(trim(header),"|")
       if (file_idx1 > 0) then
-       write(*,*) 'RA EyeSys header detected: ',trim(header)
+       write(*,*) 'RA EyeSys header detected: ',trim(header)       
       endif
       READ (unitno2,*) header
       file_idx2=index(trim(header),"|")
@@ -448,6 +448,21 @@ subroutine rcnvrte(read_error,RANAME,XXNAME,PUNAME)
       end do 
       CLOSE (unitno1)
       CLOSE (unitno2)
+      if (Present(HXNAME)) then
+       inquire(file=trim(HXNAME), exist=exists)
+       if (exists) then
+        unitno4 = get_new_fileunit()
+        open(unitno4, file=trim(HXNAME), action="read", iostat=ierr)
+        if (ierr .eq. 0) then
+         READ (unitno4,*) header
+         file_idx4=index(trim(header),"|")
+         if (file_idx4 > 0) then
+          write(*,*) 'HX EyeSys header detected: ',trim(header)
+         endif
+        endif
+        CLOSE(unitno4)
+       endif
+      endif
       if (Present(PUNAME)) then
        inquire(file=trim(PUNAME), exist=exists)
        if (exists) then

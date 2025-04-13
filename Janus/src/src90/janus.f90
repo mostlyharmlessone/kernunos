@@ -32,7 +32,7 @@
   real(c_float), INTENT(INOUT) :: zern(*)
   real(c_float) :: dist
   character(len=4096) :: new_path
-  character(:),save, ALLOCATABLE :: inputfile1,inputfile2,inputfile3,BigPlot,gnu_instruct
+  character(:),save, ALLOCATABLE :: inputfile1,inputfile2,inputfile3,inputfile4,BigPlot,gnu_instruct
   character(:),save, ALLOCATABLE :: logfile
   integer ::  nblines, file_idx,read_error,io
   integer,allocatable :: MV(:)
@@ -210,6 +210,7 @@ if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3) then
   deallocate(inputfile1)
   deallocate(inputfile2)
   deallocate(inputfile3)
+  deallocate(inputfile4)
   deallocate(logfile)
  endif
  allocate(character(nblines) :: inputfile1)
@@ -217,6 +218,7 @@ if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3) then
  inputfile1=trim(new_path)
  allocate(character(nblines) :: inputfile2)
  allocate(character(nblines) :: inputfile3)
+ allocate(character(nblines+3) :: inputfile4)
 endif  ! mod(flag,100) == 0, 10, 2, or 3
 
 
@@ -649,6 +651,15 @@ if (mod(flag,100) == 0) then
        write(*,*) 'EyeSys XX file: ',inputfile1
        inputfile2=replacestr(string=inputfile1,search="XX",substitute="RA")
        inputfile3=replacestr(string=inputfile1,search="XX",substitute="PU")
+       inputfile4=replacestr(string=inputfile1,search="XX",substitute="HX")
+       file_idx=index(inputfile4, ".")
+!          write(*,*) 'suffix is found at index: ',file_idx,"length: ",len(inputfile4)
+!          write(*,*) 'suffix:',inputfile4(file_idx:len(inputfile4))
+       inputfile4=inputfile4(1:file_idx) // "HDR"
+       inquire(file=trim(inputfile4), exist=exists)
+       if(exists) then
+        write(*,*) "Matching EyeSys HX/HDR file found"
+       endif
        inquire(file=trim(inputfile3), exist=exists)
        if(exists) then
         write(*,*) "Matching EyeSys PU file found"
@@ -657,6 +668,15 @@ if (mod(flag,100) == 0) then
        if(.NOT.exists) then
         inputfile2=replacestr(string=inputfile1,search="/XX",substitute="/RA")
         inputfile3=replacestr(string=inputfile1,search="/XX",substitute="/PU")
+        inputfile4=replacestr(string=inputfile1,search="/XX",substitute="/HX")
+        file_idx=index(inputfile4, ".")
+!          write(*,*) 'suffix is found at index: ',file_idx,"length: ",len(inputfile4)
+!          write(*,*) 'suffix:',inputfile4(file_idx:len(inputfile4))
+        inputfile4=inputfile4(1:file_idx) // "HDR"
+        inquire(file=trim(inputfile4), exist=exists)
+        if(exists) then
+         write(*,*) "Matching EyeSys HX/HDR file found"
+        endif
         inquire(file=trim(inputfile3), exist=exists)
         if(exists) then
          write(*,*) "Matching EyeSys PU file found"
@@ -672,12 +692,19 @@ if (mod(flag,100) == 0) then
       else
        file_idx=index(inputfile1, "RA") !index(inputfile1, "RA", back)
        if (file_idx /= 0) then
-!        write(*,*) 'prefix is found at index: ',file_idx,"length: ",len(inputfile1)
-!        write(*,*) 'prefix:',inputfile1(file_idx:file_idx+1)
         write(*,*) 'EyeSys RA file: ',inputfile1
         inputfile2=inputfile1
         inputfile1=replacestr(string=inputfile2,search="RA",substitute="XX")
         inputfile3=replacestr(string=inputfile2,search="RA",substitute="PU")
+        inputfile4=replacestr(string=inputfile2,search="RA",substitute="HX")
+        file_idx=index(inputfile4, ".")
+!          write(*,*) 'suffix is found at index: ',file_idx,"length: ",len(inputfile4)
+!          write(*,*) 'suffix:',inputfile4(file_idx:len(inputfile4))
+        inputfile4=inputfile4(1:file_idx) // "HDR"
+        inquire(file=trim(inputfile4), exist=exists)
+        if(exists) then
+         write(*,*) "Matching EyeSys HX/HDR file found"
+        endif
         inquire(file=trim(inputfile3), exist=exists)
         if(exists) then
          write(*,*) "Matching EyeSys PU file found"
@@ -686,6 +713,15 @@ if (mod(flag,100) == 0) then
         if(.NOT.exists) then
          inputfile1=replacestr(string=inputfile2,search="/RA",substitute="/XX")
          inputfile3=replacestr(string=inputfile2,search="/RA",substitute="/PU")
+         inputfile4=replacestr(string=inputfile2,search="/RA",substitute="/HX")
+         file_idx=index(inputfile4, ".")
+!           write(*,*) 'suffix is found at index: ',file_idx,"length: ",len(inputfile4)
+!           write(*,*) 'suffix:',inputfile4(file_idx:len(inputfile4))
+         inputfile4=inputfile4(1:file_idx) // "HDR"
+         inquire(file=trim(inputfile4), exist=exists)
+         if(exists) then
+          write(*,*) "Matching EyeSys HX/HDR file found"
+         endif
          inquire(file=trim(inputfile3), exist=exists)
          if(exists) then
           write(*,*) "Matching EyeSys PU file found"
@@ -738,7 +774,12 @@ if (TestData .eq. 0) then
    if(.NOT.exists) then
     call RCNVRTE(read_error,inputfile2,inputfile1)
    else
-    call RCNVRTE(read_error,inputfile2,inputfile1,inputfile3)
+    inquire(file=trim(inputfile4), exist=exists)
+    if(.NOT.exists) then
+     call RCNVRTE(read_error,inputfile2,inputfile1,inputfile3)
+    else
+     call RCNVRTE(read_error,inputfile2,inputfile1,inputfile3,inputfile4)
+    endif
 !   pupil conversion if any
     JMatrix%Pupil_Center=EyeSys%Pupil_Center/10.
     do i=1,MM/2

@@ -1,6 +1,6 @@
 // Copyright (C) 2017 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
-// minimal changes from simpletextviewer exampke
+// minimal changes from simpletextviewer example
 
 #include "assistant.h"
 
@@ -29,7 +29,8 @@ void Assistant::showDocumentation(const QString &page)
         return;
 
     QByteArray ba("SetSource ");
-    ba.append("qthelp://org.qt-project.examples.simpletextviewer/doc/");   //this corresponds to qhp/qhcp files
+//    ba.append("qthelp://org.qt-project.examples.simpletextviewer/doc/");   //this corresponds to qhp/qhcp files
+    ba.append("qthelp://Janus/kernunos/doc/");   //this corresponds to qhp/qhcp files
     m_process->write(ba + page.toLocal8Bit() + '\n');
 
     std::cout << "Qt Assistant: " << (ba + page.toLocal8Bit() + '\n').toStdString() << "\n";

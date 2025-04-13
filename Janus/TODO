@@ -7,7 +7,9 @@ OS_ELE still has funky center (there are 3 zero elevations in the file data)
 built framework for decenter; both involve moving elevation data points, either, 
 then resplining on that basis, just like an ELE file, in fact, for an ELE/ELE.CSV file, adjust the data before the first spline
 
+center deviations all plot the same thing!
 
+compare is still broken
 
 Resurrected swap/Swap; needs fixing
 
@@ -17,10 +19,12 @@ this will affect Geom,WriteGeomPLY/OFF
 
 make cartesian grid display option; convert polar to grid, display pentacam directly
 
-compare is broken with zernike; also so is opening 2nd file with zernike selected and zernike needs extreme value filter
+compare is broken with zernike; also so is opening 2nd file with zernike selected and zernike ? needs extreme value filter
 resurrect old noise reduction code to help out mongeastig and meanc for real data?
 need lapack or open version of numrec fourn:  fftpack
 extreme value filter for scales
+
+make ability to detect eyesys hdr files
 
 in kernunos menu actions do some key bindings?
 setShortcuts(QKeySequence::UnknownKey);
@@ -45,12 +49,12 @@ consider adding sound to play after zernike compute, but might need option to tu
 might need to import old brodiemanuscripts for background of monge patch, principal curvature
 in assistant.cpp look at showDocumentation and substitute docs for this project in appropriate format
 might want to change Cmakelist.txt for the proper install directory for documentation/copy
+when making documents, can edit in Abricotine; regenerate to html, same with spline_monge; open in libreoffice, regenerate into pdf
 ie use qhelpgenerator kernunos.qhcp kernunos.qhc after making the appropriate changes, need also edit the html files and rewrite the qhp file in documentation
 have to regenerate in directory as dir info is coded in sql files, also make sure source names in qhc/qhcp files match those in assistant.cpp
 qhelpgenerator simpletextviewer.qhcp -o simpletextviewer.qhc
 qhelpgenerator simpletextviewer.qhp -o simpletextviewer.qch
 make html files with abricotine export
-move faq to help menu: 
 centerpoints need explaining, as in why are they non-zero in writecenterj
 incorporate "warp/oblique power" and reading zernike and pupils from some files into readme/faq
 what to do with/how to explain warp?

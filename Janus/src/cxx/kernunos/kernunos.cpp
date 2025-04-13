@@ -730,7 +730,7 @@ void MainWindow::decenter()
             if (decenterDialogOptionsWidget->value()){
 
              dist = QInputDialog::getDouble(this, tr("Distance "),
-                                           tr("mm:"), dist, 0.0, 1.0, 2, &ok,
+                                           tr("mm:"), dist, 0.0, 0.5, 2, &ok,
                                            Qt::WindowFlags());
              degrees = QInputDialog::getInt(this, tr("Rotation "),
                                            tr("Degrees:"), degrees, 0, 360, 1, &ok,
@@ -741,9 +741,9 @@ void MainWindow::decenter()
              }
              else {
             xdist = QInputDialog::getDouble(this, tr("x dist "),
-                         tr("mm:"), xdist, -1.0, 1.0, 2, &ok, Qt::WindowFlags());
+                         tr("mm:"), xdist, -0.5, 0.5, 2, &ok, Qt::WindowFlags());
             ydist = QInputDialog::getDouble(this, tr("y dist "),
-                         tr("mm:"), ydist, -1.0, 1.0, 2, &ok, Qt::WindowFlags());}
+                         tr("mm:"), ydist, -0.5, 0.5, 2, &ok, Qt::WindowFlags());}
             }
 
         else {
