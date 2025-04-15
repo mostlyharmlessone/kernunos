@@ -53,13 +53,14 @@
 !write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
 !! last two digits are the program function
 !! 99 = deallocate arrays for program closure
+!! 11 = swap
 !! 10 = compare
 !! 9 = show zernike coefficients
 !! 8 = show circumferential ring lsqfillin/splinefillin
 !! 7 = make lioc
 !! 6 = make centers
 !! 5 = make gnuplotsplot
-!! 4 = redraw without reloading new file
+!! 4 = redraw without reloading new file (also used with decenter)
 !! 3 = write ASCII PLY file
 !! 2 = write OFF file
 !! 1 = compute zernike coefficients/maps
@@ -159,7 +160,7 @@ endif
 if (.not.allocated(JMatrix3%R)) then
  call init_mat_JMatrix(M1,N1,JMatrix3)
 endif
-if (mod(flag,100) /= 10) then
+if (mod(flag,100) /= 10 .and. mod(flag,100) /= 11) then  !store last JMatrix if not doing swap or compare
  JMatrix1%R(:,:)=JMatrix%R(:,:)
  JMatrix1%PU(:)=JMatrix%PU(:)
  JMatrix1%Pupil_Center(:)=JMatrix%Pupil_Center(:)
@@ -455,21 +456,34 @@ else
 endif
 endif
 
+! simple swap
+if (mod(flag,100) == 11) then
+ if (allocated(JMatrix2%R)) then
+  JMatrix2=JMatrix
+  JMatrix=JMatrix1
+  JMatrix1=JMatrix2
+  return
+ else
+  write(*,*) "Needs two scans for swap"
+  err_janus=11
+  return
+ endif
+endif
+
 ! simple difference/subtraction with compare
 if (mod(flag,100) == 10) then
+!generate new JMatrix
+ JMatrix3=JMatrix
  if (allocated(JMatrix2%R)) then
 ! use geometry from current JMatrix to populate
   JMatrix2%R(:,:)=JMatrix%R(:,:) ! might have zeroes if smaller, but should be caught by MV below
   JMatrix2%THT(:)=JMatrix%THT(:)
   JMatrix2%R0=JMatrix%R0
   JMatrix2%THT0=JMatrix%THT0
-! generate new JMatrix
-  JMatrix3=JMatrix
 ! if no pupil registration and rotationdegrees is even, then there's a shortcut not requiring resplining
  if (btest(dat,6)) then
   ctr_circle_x=JMatrix1%Pupil_Center(1)-JMatrix%Pupil_Center(1)
   ctr_circle_y=JMatrix1%Pupil_Center(2)-JMatrix%Pupil_Center(2)
-!  decenter: these are not circles, ?as they are circles around the new center expressed in the original polar coordinate system
   write(*,*) 'Decentering by',ctr_circle_x,ctr_circle_y
   call PolarTranslate(ctr_circle_x,ctr_circle_y,0.0_wp,0.0_wp,JMatrix3%R0,JMatrix3%THT0)
   do i=1,M1
@@ -937,6 +951,12 @@ endif ! end (TestData == 1)
     end do
     deallocate(temp)
    endif
+   do i=1,MM
+    j=floor(1.+(i-1)*255/179.0)
+    X1=Penta%PU(j,1)-dhoriz
+    X2=Penta%PU(j,2)-dvert
+    JMatrix%PU(i)=sqrt(X1*X1+X2*X2)/10.
+   end do
    endif
 
 ! arrange the data

@@ -629,6 +629,11 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
 
 void MainWindow::swap()
 {
+    flag=flag-(flag%100)+11;  // flag for swap
+    QString fileName = "swap";
+    QByteArray ba = fileName.toLocal8Bit();
+    filename = ba.data();
+    janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
     m_GLwidget->Swap();
 }
 
@@ -725,7 +730,7 @@ void MainWindow::decenter()
     double ydist = 0.0;
     //  polar vs cartesian is sent through changing dat
         if (reply == QMessageBox::Yes){
-            GLwidget::setdecenter(true);
+            GLwidget::setdecenter(true);  //set decenter flag (chnages dat)
             bool ok;
             if (decenterDialogOptionsWidget->value()){
 
@@ -759,7 +764,8 @@ void MainWindow::decenter()
 
         janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
 
-        update();}
+        update();
+        GLwidget::setdecenter(false);}   //reset decenter flag
     else {
         //        ui.infoLabel->setText(tr("Cancel"));
         return;

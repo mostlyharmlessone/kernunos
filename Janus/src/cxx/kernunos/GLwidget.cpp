@@ -368,28 +368,73 @@ void GLwidget::initializeGL()
 
 bool GLwidget::Swap()
 {
+    nV[2]=nV[0]; nE[2]=nE[0];
+    for (int i=0; i < 51840; ++i){
+        vertices3[i]=vertices[i];
+    }
+    for (int i=0; i< 26130; ++i){
+        elements3[i]=elements[i];
+    }
+    nV[0]=nV[1]; nE[0]=nE[1];
+    for (int i=0; i < 51840; ++i){
+        vertices[i]=vertices2[i];
+    }
+    for (int i=0; i< 26130; ++i){
+        elements[i]=elements2[i];
+    }
+    nV[1]=nV[2]; nE[1]=nE[2];
+    for (int i=0; i < 51840; ++i){
+        vertices2[i]=vertices3[i];
+    }
+    for (int i=0; i< 26130; ++i){
+        elements2[i]=elements3[i];
+    }
 
-    for (int i=0; i < nV[2]; ++i){
-        vertices3[i]=vertices2[i];
+    //  the demo cube
+    int nV_cube = 72;
+    int nE_cube = 36;
+
+    GLfloat cube_vertices[] = {
+        -50.0f,  50.0f, -50.0f, -0.76f,  0.76f, -0.76f, 1.0f, 0.0f, 0.0f,   // Top-left & Red (x,y,z,nx,ny,nz,r,g,b)
+        50.0f,  50.0f, -50.0f,  0.76f,  0.76f, -0.76f, 0.0f, 1.0f, 0.0f,   // Top-right & Green
+        50.0f, -50.0f, -50.0f,  0.76f, -0.76f, -0.76f, 0.0f, 0.0f, 1.0f,   // Bottom-right & Blue
+        -50.0f, -50.0f, -50.0f, -0.76f, -0.76f, -0.76f, 1.0f, 1.0f, 1.0f,   // Bottom-left & White
+        -50.0f,  50.0f,  50.0f, -0.76f,  0.76f,  0.76f, 1.0f, 1.0f, 0.0f,   // Top-left & Orange?
+        50.0f,  50.0f,  50.0f,  0.76f,  0.76f,  0.76f, 0.0f, 1.0f, 1.0f,   // Top-right & Yellow?
+        50.0f, -50.0f,  50.0f,  0.76f, -0.76f,  0.76f, 1.0f, 0.0f, 1.0f,   // Bottom-right & Pink?
+        -50.0f, -50.0f,  50.0f, -0.76f, -0.76f,  0.76f, 0.0f, 0.0f, 0.0f    // Bottom-left & Black
+    };
+    // 12 triangles = 6 faces with 2 triangles per face
+    GLuint cube_elements[] = {
+        0, 1, 2,
+        2, 3, 0,
+        4, 5, 6,
+        6, 7, 4,
+        0, 4, 5,
+        5, 1, 0,
+        3, 7, 6,
+        6, 2, 3,
+        0, 4, 7,
+        7, 3, 0,
+        1, 5, 6,
+        6, 2, 1
+    };
+
+    nV[2]=nV_cube;
+    nE[2]=nE_cube;
+
+    for (int i=0; i< nV[2]; ++i){
+        vertices3[i]=cube_vertices[i];
     }
     for (int i=0; i< nE[2]; ++i){
-        elements3[i]=elements2[i];
-    }
-    for (int i=0; i < nV[1]; ++i){
-        vertices2[i]=vertices[i];
-    }
-    for (int i=0; i< nE[1]; ++i){
-        elements2[i]=elements[i];
-    }
-    for (int i=0; i < nV[0]; ++i){
-        vertices[i]=vertices3[i];
-    }
-    for (int i=0; i< nE[0]; ++i){
-        elements[i]=elements3[i];
+        elements3[i]=cube_elements[i];
     }
 
-  return true;
+    paintme=true;
+    return true;
 }
+
+
 
 bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cube
 {

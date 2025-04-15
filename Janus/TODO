@@ -2,16 +2,8 @@ things to do
 
 CorneaCopia
 
-OS_ELE still has funky center (there are 3 zero elevations in the file data) 
-
 built framework for decenter; both involve moving elevation data points, either, 
 then resplining on that basis, just like an ELE file, in fact, for an ELE/ELE.CSV file, adjust the data before the first spline
-
-center deviations all plot the same thing!
-
-compare is still broken
-
-Resurrected swap/Swap; needs fixing
 
 It'd be helpful to have axes/angles for orientation is moving the figure; perhaps a info box or three displaying angles?
 make 3D option for all functions, with scale Z value max and min

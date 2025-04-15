@@ -196,7 +196,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
       // m_Splinefillin =(dat >> 4) & 1U;  should agree with m_Splinefillin = t;
       flag=1000000*dat+(flag%1000000); }
 
-    // these are independent options although they do the same thing?
+    // these are independent options with pupilregister aligning two data sets and decenter changing one
 
     static bool isdecenter() { return m_decenter; }
     static void setdecenter(bool t) { m_decenter = t;
