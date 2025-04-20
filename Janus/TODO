@@ -16,8 +16,6 @@ resurrect old noise reduction code to help out mongeastig and meanc for real dat
 need lapack or open version of numrec fourn:  fftpack
 extreme value filter for scales
 
-make ability to detect eyesys hdr files
-
 in kernunos menu actions do some key bindings?
 setShortcuts(QKeySequence::UnknownKey);
 
