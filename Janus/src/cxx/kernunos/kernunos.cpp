@@ -528,17 +528,17 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
                }}};
        if (!pentacam && !atlas && !eyesys) {m_GLwidget->DataLoad(fileName, false); return;}  //cube   //no supported file format
        if (pentacam){
-       centerAct->setEnabled(true);  //change to false to not allow for pentacam, center deviations only for Placido
-       ShowZernAct->setEnabled(false);
-       ringsAct->setEnabled(false);
-       centernodeAct->setEnabled(true);
-       GLwidget::setCenterNode(true);  //force centernode to center value for pentacam
-       GLwidget::isCenterNode();
-       centernodeAct->setChecked(GLwidget::isCenterNode());
-       adjustradiiAct->setEnabled(false);
-       SplinefillinAct->setEnabled(false);
-       LSQfillinAct->setEnabled(false);
-       lsqvssplineAct->setEnabled(true);
+           centerAct->setEnabled(true);  //change to false to not allow for pentacam, center deviations only for Placido
+           ShowZernAct->setEnabled(false);
+           ringsAct->setEnabled(false);
+           centernodeAct->setEnabled(true);
+           GLwidget::setCenterNode(true);  //force centernode to center value for pentacam
+           GLwidget::isCenterNode();
+           centernodeAct->setChecked(GLwidget::isCenterNode());
+           adjustradiiAct->setEnabled(false);
+           SplinefillinAct->setEnabled(false);
+           LSQfillinAct->setEnabled(false);
+           lsqvssplineAct->setEnabled(true);
        };       
        if (atlas) {
            ShowZernAct->setEnabled(true);

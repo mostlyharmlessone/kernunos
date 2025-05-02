@@ -335,13 +335,13 @@ subroutine Skyline_eq_Penta(Skyline,Penta)  ! Arrange data Skyline, that will al
 !  write (*,*) 'Total number vertices in Skyline: ',ii,jj
 end subroutine Skyline_eq_Penta
 
-! generates principal curvaratures for ELE files
+! generates principal curvatures for ELE files
 subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initially populates JMatrix & RadSlope with splining
   TYPE(wpSkyline), INTENT(INOUT) :: Skyline                                             
   TYPE(wpPentaMatrix), INTENT(IN) :: Penta
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
   TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix  
-  integer :: M1,N1,i,j,k,kk,L2,offset,NP,ITH,err_report
+  integer :: M1,N1,i,j,k,kk,L2,offset,NP,ITH,err_report,num_zeroes
   integer :: imv(size(JMatrix%Z,2))
   real(wp) :: rBo,rBi,DAT,u,v,xx,yy,f,fx,fxx,fy,fxy,fyy,fTmp(Skyline%rows),f2Tmp(Skyline%rows),fxTmp(Skyline%rows),fx2Tmp(Skyline%rows),fxxTmp(Skyline%rows),fxx2Tmp(Skyline%rows)
   real(wp) :: r(size(RadSlope%r,2)),z(Skyline%cols),z2(Skyline%cols)
@@ -351,16 +351,27 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
   M1=size(RadSlope%r,2)
   N1=size(RadSlope%r,1)
   NP=size(Skyline%DAT,1)                                                   
-  imv=0 ; err_report = 0
+  imv=0 ; err_report = 0 ; num_zeroes=0
   rmin=1E30
 ! Spline in x                               (this is the equivalent of DiaSpline)
   do i=1,Skyline%rows
    L2=Skyline%L2x(i)                                       
    x(1:L2)=Skyline%x(i,1:L2)
    z(1:L2)=Skyline%DAT(i,1:L2)
+
+!  multiple zeroes detection
+   do j=1,L2
+    if (ABS(Skyline%DAT(i,j)) .lt. eps) then
+     num_zeroes=num_zeroes+1
+    endif
+   end do
    call nspline(x,z,L2,z2,err_report)                                ! generate zxDAT
    Skyline%z2DAT(i,1:L2)=z2(1:L2)
   end do
+  if (num_zeroes .gt. 1) then
+   write (*,*) 'multiple zeroes in ELE profile',num_zeroes
+  endif
+
 ! make rings
 ! scale in 14x 14 mm of Penta matrix 141x141 divided by 2
   rBo=700.0                                   ! try to make radius at least out to 7 (theoretical max on PentaCam)
@@ -424,7 +435,7 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
 !     boundary check here
       xx=u*(NP-1)/1400.0 ; yy=v*(NP-1)/1400.0
       if (Penta%DAT(1+(NP-1)/2+sign(floor(ABS(xx)),floor(xx)),&
-                &1+(NP-1)/2+sign(floor(ABS(yy)),floor(yy))) >= 0) then  ! test for >0 is why Penta needed here
+                &1+(NP-1)/2+sign(floor(ABS(yy)),floor(yy))) >= 0) then  ! test for >=0 is why Penta needed here; careful because of center
        if (firstcheck < 70) then ! better extrapolation check; the 70 here is arbitrary, 40 is getting too low
         imv(i)=imv(i)+1
         if (ABS(DAT) > 0 ) then

@@ -5,19 +5,47 @@ CorneaCopia
 built framework for decenter; both involve moving elevation data points, either, 
 then resplining on that basis, just like an ELE file, in fact, for an ELE/ELE.CSV file, adjust the data before the first spline
 
+superLU 1-D example used to solve cyclic band-> might have to look at 2-D spline paper or just use existing sparse matrix rules and adapt to triplets then HB
+
+make a 1d lsq splin by defining the knots as a subset of the data, or even off the data, at least on the radius side
+
+2D cartesian using existing data, ?how to make sure there's enough data in every interval -> or somehow adapt existing matrix data
+
+
 It'd be helpful to have axes/angles for orientation is moving the figure; perhaps a info box or three displaying angles?
 make 3D option for all functions, with scale Z value max and min
 this will affect Geom,WriteGeomPLY/OFF
 
 make cartesian grid display option; convert polar to grid, display pentacam directly
 
-compare is broken with zernike; also so is opening 2nd file with zernike selected and zernike ? needs extreme value filter
+compare is broken with zernike; also so is opening 2nd file with zernike selected and zernike 
+
+need a 2-D picture output other than gnuplot version
+make mathematica plot output?, just like ply,off etc.
+
+Fit elevation with Principal component analysis, meh 
+
+Adapt code in book to do LS-BICSA
+2-D splining use sparse solver via superLU possible superLU-dist to use GPU
+?strumpack
+
+use of gpu acceleration
+
+? needs extreme value filter
 resurrect old noise reduction code to help out mongeastig and meanc for real data?
 need lapack or open version of numrec fourn:  fftpack
 extreme value filter for scales
 
+try going back to splineeval1dx1d and removing extra calls to splineeval, aka back to trial that spawned current branch
+also try finding a way to use only local natural splines instead of generating whole circular spline and using pspli
+
+
+IMPROVEMENTS
+
 in kernunos menu actions do some key bindings?
 setShortcuts(QKeySequence::UnknownKey);
+
+QFileDialog messages in kernunos.cpp are in an unnoticeable font at the top of the Window...
 
 ability to turn stdoutput logging on/off
 change most writes to kernunos log writes
@@ -26,8 +54,6 @@ errorMessageDialog
 
 enable the tweaks prior to loading the file? but not with auto redraw
 
-try going back to splineeval1dx1d and removing extra calls to splineeval, aka back to trial that spawned current branch
-also try finding a way to use only local natural splines instead of generating whole circular spline and using pspli
 
 enforce, or have a warning having to make new zernike after loading new data, also if tweaks changed
 
@@ -35,6 +61,9 @@ try to (b)lock opening another file while Zernike is computing to avoid crash ? 
 you can run other Analyze ie center gnusplotplot, lioc, and move the picture
 probably can run kernunos but not janus?
 consider adding sound to play after zernike compute, but might need option to turn off http://github.com/zserge/beep or get fancy with .ogg
+
+
+DOCUMENTATION
 
 might need to import old brodiemanuscripts for background of monge patch, principal curvature
 in assistant.cpp look at showDocumentation and substitute docs for this project in appropriate format
@@ -62,6 +91,10 @@ shift discontinuity in 900 and others: how to best address: document as opposed 
 spline better at filling in locally (it's interpolation after all) whereas LSQ can be used as a smoothing operation. See also early chapter in spline text, and reference it
 rings function can demonstrate difference. Discontinuity in all data circumferentially affects theta deivatives, all the more with splining.
 
+Add section on why not cgal/jet-3,libigl both for viewer and curvatures etc c++ reusability of code, lack of documentation, c++
+
+hamming's motto "THe purpose of computing is insight, not numbers"
+
 notes from spline_monge.odt into help/faq OR add docs in pdf to main release files
 incorporate cornea docs from BRODIE, may need to read those old DRW->some converted to eps
 instructions on running win3.1, ie designer or mathematica:
@@ -69,22 +102,10 @@ dosbox-x DXSCSI1, then select drive in menu to map DXSCSI2 to E:, go to E:\WINDO
 Export as EPS.
 mean curvature and monge astigmatism, need taylor series for limit at origin
 
-need a 2-D picture output other than gnuplot version
-make mathematica plot output?, just like ply,off etc.
 
-Fit elevation with Principal component analysis, meh 
+POLISHING
 
 analyze fowler sauna patient: arvo poster
-
-QFileDialog messages in kernunos.cpp are in an unnoticeable font at the top of the Window...
-
-now that more is moved to gnuplot, consider resurrecting janus/wxWidgets version or even juno
-
-Adapt code in book to do LS-BICSA
-2-D splining use sparse solver via superLU possible superLU-dist to use GPU
-?strumpack
-
-use of gpu acceleration
 
 Optimizing:
 1)valgrind/profiling can also try helegrind for cyclic 4 way slow down
