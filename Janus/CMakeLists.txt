@@ -253,6 +253,29 @@ set(HH_SOURCES
                )
 target_link_libraries(driverPiecewiseLinear ${LIBS2})
 
+set(HH_SOURCES2
+                   src/HansonHopkins/driverPiecewiseCubic.f90
+                   src/mod90/set_precision.f90
+                   src/mod90/LapackInterface.f90
+                   src/HansonHopkins/sparseAssign.f90
+                   src/HansonHopkins/sparseOps.f90
+                   src/HansonHopkins/sparseSort.f90
+                   src/HansonHopkins/sparseTypes.f90
+                   src/HansonHopkins/sparseUtils.f90
+                   src/HansonHopkins/sluInterop.f90
+                   src/HansonHopkins/sortElements.f90
+                   src/HansonHopkins/fortran_double_call_SuperLU.c
+                   src/HansonHopkins/slu_Cnames.h
+                   src/HansonHopkins/slu_ddefs.h
+                   src/HansonHopkins/slu_util.h
+                   src/HansonHopkins/superlu_enum_consts.h
+                   src/HansonHopkins/supermatrix.h
+                   )
+               add_executable(driverPiecewiseCubic
+                   ${HH_SOURCES2}
+               )
+target_link_libraries(driverPiecewiseCubic ${LIBS2})
+
 #viennaCL
 # ViennaCL example
 #  include_directories(src/cxx/vienna/viennacl/*)

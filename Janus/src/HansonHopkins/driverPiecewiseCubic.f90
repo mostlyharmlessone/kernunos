@@ -32,7 +32,7 @@
 ! Set problem size:
       INTEGER, PARAMETER :: n=2000 ! Could make this an input value
 ! Define arrays for knots, data points, etc
-      REAL(dkind), ALLOCATABLE :: a(:), rhs(:), t(:), x(:), r(:)
+      REAL(dkind), ALLOCATABLE :: a(:), rhs(:), t(:), x(:), r(:), z(:)
 ! iseed is used to store the seed used for the Fortran intrinsic
 !       random number generator
 ! saw_points is used to ensure that every interval in the partition
@@ -49,7 +49,7 @@
       TYPE (slu_dpHBSparseMatrix) :: g
 
 ! Define local variables
-      REAL (dkind) :: delta, u, v, resid_error
+      REAL (dkind) :: delta, u, resid_error
       INTEGER :: errno, i, j, k, sz
 
       ALLOCATE (a(n), saw_points(n-1), STAT=errno)
@@ -88,7 +88,7 @@
       CALL random_seed(put=iseed)
 
 ! Allocate local working space
-      ALLOCATE (t(m),x(n+m),r(n+m),rhs(n+m), STAT=errno)
+      ALLOCATE (t(m),x(n+m),z(n+m),r(n+m),rhs(n+m), STAT=errno)
       IF (errno /= 0) THEN
         print *, "Allocate fails with errno: ", errno
       END IF
@@ -96,18 +96,33 @@
 ! Record the function values in RHS(*).
       DO j = 1, m
         CALL random_number(t(j))
-        rhs(j) = t(j)**2
+        z(j) = t(j)**2
+      end do
+
+      rhs(1)=0 ; rhs(m)=0 ; s = dpTriplet(1,n+1,one) ; s = dpTriplet(m,n+m,one)
+      DO j = 2, m-1
+
+!     ?replace with bsearch or vice-versa, ugly hack for k=1
         k = findInterval(t(j), n, a)
-        v = (t(j)-a(k))/delta
+        if (k .eq. 1) k=2 !cycle doesn't work here
+
+        rhs(j)=(z(j+1)-z(j))/(a(k+1)-t(j))-(z(j)-z(j-1))/(t(j)-a(k-1))
+
 ! Gather up the list of the sparse matrix triplets (S) that
 ! will define B.  The next assignments (S =) are accumulation
 ! steps of the list of matrix entries.
 ! Write adjacent columns of the A matrix, in NW corner of B:    
-        s = dpTriplet(j,k,v)
-        s = dpTriplet(j,k+1,one-v)
+
+        s = dpTriplet(j,k-1,(t(j)-a(k-1))/6.0)
+        s = dpTriplet(j,k,(a(k+1)-a(k-1))/3.0)
+        s = dpTriplet(j,k+1,(a(k+1)-t(j))/6.0)
+
 ! Write adjacent rows of the A^T matrix, in SE corner of B:
-        s = dpTriplet(k+m,n+j,v)
-        s = dpTriplet(k+m+1,n+j,one-v)
+
+        s = dpTriplet(k+m-1,n+j,(t(j)-a(k-1))/6.0)
+        s = dpTriplet(k+m,n+j,(a(k+1)-a(k-1))/3.0)
+        s = dpTriplet(k+m+1,n+j,(a(k+1)-t(j))/6.0)
+
 ! Write row of identity matrix I_M, in NE corner of B:
         s = dpTriplet(j,n+j,one)
       END DO
@@ -120,7 +135,7 @@
       s = 0
 ! Define the rest of the right-hand side.
       rhs(m+1:n+m) = zero
-! Solve for the coefficients of the piece-wise linear spline.
+! Solve for the coefficients of the piece-wise cubic spline.
 ! This defined operation works with a Harwell-Boeing matrix
 ! and ascends B to be a component of an extended type, G.
 ! Default settings of pivoting rules and other parameters
@@ -153,20 +168,15 @@
       r = r - rhs
       r(1:m) = r(1:m) + x(n+1:n+m)
       resid_error = dnrm2(m,r,1)/dnrm2(m,x(n+1:),1)
+
+!      call SplineEval(0,x,y,y2,n,u,f,fp,fpp,fppp)
+      !  x->a(k) (n values), y->z(j) (m values), y2->z2(k) (n values) at knots
+
       WRITE (*,'(A)') ' Repeated Data Fitting of y(t)=t**2, (0,1) - No Factorization -.'
       WRITE (*,'(A,2I10)') &
         ' The number of breakpoints (N) and data points (M) ', n, m
       WRITE (*,'(/A/(A,1PG12.5))') ' Relative Error (2) (Vector Norm)', &
         ' with solution and computed residual =', resid_error
-
-!the difference is easily seen by setting n=20 instead of 2000
-!plot t(j),z(j) ie t(j), t(j)**2 j=1,m and also a(k),x(k) k=1,n
-! x are the coefficients so y=x(i)v+x(i+1)(1-v); at knots v=1 so x(i)==y(i)
-! so comparison of fit to data x(k) to computed actual data a(k)**2 at knots (which you don't get as data) is
-! do k=1,n
-!   write(*,*) a(k),x(k),a(k)**2
-! end do
-
 ! Free storage and clear matrix
       g = 0
       b = 0

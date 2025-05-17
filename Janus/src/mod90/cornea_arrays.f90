@@ -358,8 +358,7 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
    L2=Skyline%L2x(i)                                       
    x(1:L2)=Skyline%x(i,1:L2)
    z(1:L2)=Skyline%DAT(i,1:L2)
-
-!  multiple zeroes detection
+!  multiple zeroes detection; only the most noticable flat area in elevation files
    do j=1,L2
     if (ABS(Skyline%DAT(i,j)) .lt. eps) then
      num_zeroes=num_zeroes+1
@@ -367,7 +366,7 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
    end do
    call nspline(x,z,L2,z2,err_report)                                ! generate zxDAT
    Skyline%z2DAT(i,1:L2)=z2(1:L2)
-  end do
+  end do 
   if (num_zeroes .gt. 1) then
    write (*,*) 'multiple zeroes in ELE profile',num_zeroes
   endif

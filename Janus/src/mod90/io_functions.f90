@@ -354,6 +354,19 @@ subroutine rcnvrtp(TestData,filename,read_error)
      end do
     end do
    endif
+!  multiple adjacent points have identical elevations, resulting in local flat surfaces and distortion of spline approximations
+!   if (TestData .eq. 2 .or. TestData .eq. 4) then !_ELE.CSV/.ELE
+!    do i=2,NP-1
+!     do k=2,NP-1
+!      if ( Penta%DAT(i,k) .ge. 0) then
+!       if (Penta%DAT(i,k) .eq. Penta%DAT(i-1,k)) write (*,*) 'adjacent points: ',i,k,Penta%DAT(i,k)
+!       if (Penta%DAT(i,k) .eq. Penta%DAT(i+1,k)) write (*,*) 'adjacent points: ',i,k,Penta%DAT(i,k)
+!       if (Penta%DAT(i,k) .eq. Penta%DAT(i,k-1)) write (*,*) 'adjacent points: ',i,k,Penta%DAT(i,k)
+!       if (Penta%DAT(i,k) .eq. Penta%DAT(i,k+1)) write (*,*) 'adjacent points: ',i,k,Penta%DAT(i,k)
+!      endif
+!     end do
+!    end do
+!   endif
 end subroutine rcnvrtp
 
 subroutine rcnvrte(read_error,RANAME,XXNAME,PUNAME,HXNAME)

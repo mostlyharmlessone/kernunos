@@ -2,10 +2,15 @@ things to do
 
 CorneaCopia
 
+can make ELE smoother in center by eliminatng duplicate points from spline?
+
 built framework for decenter; both involve moving elevation data points, either, 
 then resplining on that basis, just like an ELE file, in fact, for an ELE/ELE.CSV file, adjust the data before the first spline
 
+
 superLU 1-D example used to solve cyclic band-> might have to look at 2-D spline paper or just use existing sparse matrix rules and adapt to triplets then HB
+looks like it works; have to plot curve vs data; linear should be straightforward, cubic will involve some version of splineeval piecewise since I've solved for z2, not z
+
 
 make a 1d lsq splin by defining the knots as a subset of the data, or even off the data, at least on the radius side
 
@@ -25,10 +30,8 @@ make mathematica plot output?, just like ply,off etc.
 
 Fit elevation with Principal component analysis, meh 
 
-Adapt code in book to do LS-BICSA
-2-D splining use sparse solver via superLU possible superLU-dist to use GPU
+possible superLU-dist to use GPU
 ?strumpack
-
 use of gpu acceleration
 
 ? needs extreme value filter
@@ -80,6 +83,7 @@ what to do with/how to explain warp?
 
 flat earth analogy with meridians not maps, frequency distribution = eg Zernike coefficient is the way to see corneas
 lsq to get coefficients legendres, fourier zernike, ellipsoid as basis functions is ?better than current approach
+look at Phorcides documentation
 
 Needs a whole section on corneal topography and "powers" with math definitions; 
 1d-2d/2d-3d difference between x and r; possible incorporation of iris equation example ?picture showing skew rays 
@@ -88,12 +92,15 @@ simple difference between d/dx and 1/r(d/dr) axisymmetry is not linear ==> lost 
 
 needs section on handling bad data:
 shift discontinuity in 900 and others: how to best address: document as opposed to missing data...discontinuities affect global fitting ie lsq but not local ie spline
-spline better at filling in locally (it's interpolation after all) whereas LSQ can be used as a smoothing operation. See also early chapter in spline text, and reference it
-rings function can demonstrate difference. Discontinuity in all data circumferentially affects theta deivatives, all the more with splining.
+spline better at filling in locally (it's interpolation after all) whereas LSQ can be used as a smoothing operation. See also early chapter in spline text, and reference it:
+   from LSQBspline paper as well as others interpolation vs fitting
+rings function can demonstrate difference. Discontinuity in all data circumferentially affects theta derivatives, all the more with splining.
+multiple zeroes in ELE and adjacent identical points in general.
+
 
 Add section on why not cgal/jet-3,libigl both for viewer and curvatures etc c++ reusability of code, lack of documentation, c++
 
-hamming's motto "THe purpose of computing is insight, not numbers"
+hamming's motto "The purpose of computing is insight, not numbers"
 
 notes from spline_monge.odt into help/faq OR add docs in pdf to main release files
 incorporate cornea docs from BRODIE, may need to read those old DRW->some converted to eps
