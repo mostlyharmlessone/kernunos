@@ -1,0 +1,327 @@
+--- sparsekit.f90	2025-05-24 10:26:09.385042349 -0700
++++ ../mod90/sparsekit.f90	2025-05-24 14:41:34.946339923 -0700
+@@ -1,3 +1,65 @@
++MODULE sparsekit
++
++INTERFACE
++! select routines with interface for convenience
++
++subroutine amub ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, nzmax, &
++  iw, ierr )
++  integer ( kind = 4 ) ncol
++  integer ( kind = 4 ) nrow
++  integer ( kind = 4 ) nzmax
++  real ( kind = 8 ) a(*)
++  real ( kind = 8 ) b(*)
++  real ( kind = 8 ) c(nzmax)
++  integer ( kind = 4 ) ia(nrow+1)
++  integer ( kind = 4 ) ib(ncol+1)
++  integer ( kind = 4 ) ic(ncol+1)
++  integer ( kind = 4 ) ierr
++  integer ( kind = 4 ) iw(ncol)
++  integer ( kind = 4 ) ja(*)
++  integer ( kind = 4 ) jb(*)
++  integer ( kind = 4 ) jc(nzmax)
++  integer ( kind = 4 ) job
++end subroutine
++
++subroutine amux ( n, x, y, a, ja, ia )
++  integer ( kind = 4 ) n
++  real ( kind = 8 ) a(*)
++  integer ( kind = 4 ) ia(*)
++  integer ( kind = 4 ) ja(*)
++  real ( kind = 8 ) x(*)
++  real ( kind = 8 ) y(n)
++end subroutine
++
++subroutine coocsr ( nrow, nnz, a, ir, jc, ao, jao, iao )
++  integer ( kind = 4 ) nrow
++  integer ( kind = 4 ) nnz
++  real ( kind = 8 ) a(*)
++  integer ( kind = 4 ) ir(*)
++  integer ( kind = 4 ) jc(*)
++  real ( kind = 8 ) ao(*)
++  integer ( kind = 4 ) jao(*)
++  integer ( kind = 4 ) iao(nrow+1)
++end subroutine
++
++subroutine csrcoo ( nrow, job, nzmax, a, ja, ia, nnz, ao, ir, jc, ierr )
++  integer ( kind = 4 ) nrow
++  real ( kind = 8 ) a(*)
++  real ( kind = 8 ) ao(*)
++  integer ( kind = 4 ) ia(nrow+1)
++  integer ( kind = 4 ) ierr
++  integer ( kind = 4 ) ir(*)
++  integer ( kind = 4 ) ja(*)
++  integer ( kind = 4 ) jc(*)
++  integer ( kind = 4 ) job
++  integer ( kind = 4 ) nnz
++  integer ( kind = 4 ) nzmax
++end subroutine
++
++END INTERFACE
++
++CONTAINS
++
+ subroutine amask ( nrow, ncol, a, ja, ia, jmask, imask, c, jc, ic, iw, &
+   nzmax, ierr )
+ 
+@@ -515,6 +577,7 @@
+ 
+   return
+ end
++
+ subroutine amuxd ( n, x, y, diag, ndiag, idiag, ioff )
+ 
+ !*****************************************************************************80
+@@ -8973,6 +9036,7 @@
+ 
+   return
+ end
++
+ subroutine exppro ( n, m, eps, tn, u, w, x, y, indic, ierr )
+ 
+ !*****************************************************************************80
+@@ -9080,7 +9144,7 @@
+   real ( kind = 8 ) dtl
+   real ( kind = 8 ) eps
+   real ( kind = 8 ) errst
+-  real ( kind = 8 ) hh
++  real ( kind = 8 ) hh(ih0,ih0)
+   integer ( kind = 4 ) ierr
+   integer ( kind = 4 ) ih
+   integer ( kind = 4 ) indic
+@@ -9252,7 +9316,10 @@
+ !
+ !  Matrix vector-product for diagonal storage.
+ !
+-    call oped ( n, x, y, a, ioff, ndiag )
++!  missing routine
++  write(*,*) 'STOP: oped function not found in this version of sparsekit.f90, unsupported'
++  stop
++!!    call oped ( n, x, y, a, ioff, ndiag )
+ 
+   end do
+ 
+@@ -13298,10 +13365,75 @@
+ 
+   return
+ end
++
++! from sparsekit_test01.f90
++
+ subroutine ope ( n, x, y, a, ja, ia )
+ 
+ !*****************************************************************************80
+ !
++!! OPE computes A * x for a sparse matrix A.
++!
++  implicit none
++
++  integer n
++
++  real ( kind = 8 ) a(*)
++  integer i
++  integer ia(n+1)
++  integer ja(*)
++  integer k1
++  integer k2
++  real ( kind = 8 ) x(*)
++  real ( kind = 8 ) y(*)
++!
++! sparse matrix * vector multiplication
++!
++  do i=1,n
++    k1 = ia(i)
++    k2 = ia(i+1) -1
++    y(i) = dot_product ( a(k1:k2), x(ja(k1:k2)) )
++  end do
++
++  return
++end
++subroutine opet ( n, x, y, a, ja, ia )
++
++!*****************************************************************************80
++!
++!! OPET computes A' * x for a sparse matrix A.
++!
++  implicit none
++
++  real ( kind = 8 ) a(*)
++  integer i
++  integer ia(*)
++  integer ja(*)
++  integer k
++  integer n
++  real ( kind = 8 ) x(*)
++  real ( kind = 8 ) y(*)
++!
++! sparse matrix * vector multiplication
++!
++  y(1:n) = 0.0D+00
++
++  do  i=1,n
++    do k=ia(i), ia(i+1)-1
++      y(ja(k)) = y(ja(k)) + x(i)*a(k)
++    end do
++  end do
++
++  return
++end
++
++
++
++!duplicate version in original
++!subroutine ope ( n, x, y, a, ja, ia )
++
++!*****************************************************************************80
++!
+ !! OPE sparse matrix * vector multiplication
+ !
+ !  Modified:
+@@ -13323,31 +13455,32 @@
+ !    Input, real A(*), integer ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
+ !    Compressed Sparse Row format.
+ !
+-  implicit none
++!  implicit none
+ 
+-  integer ( kind = 4 ) n
++!  integer ( kind = 4 ) n
+ 
+-  real ( kind = 8 ) a(*)
+-  integer ( kind = 4 ) i
+-  integer ( kind = 4 ) ia(n+1)
+-  integer ( kind = 4 ) ja(*)
+-  integer ( kind = 4 ) k
+-  integer ( kind = 4 ) k1
+-  integer ( kind = 4 ) k2
+-  real ( kind = 8 ) x(n)
+-  real ( kind = 8 ) y(n)
++!  real ( kind = 8 ) a(*)
++!  integer ( kind = 4 ) i
++!  integer ( kind = 4 ) ia(n+1)
++!  integer ( kind = 4 ) ja(*)
++!  integer ( kind = 4 ) k
++!  integer ( kind = 4 ) k1
++!  integer ( kind = 4 ) k2
++!  real ( kind = 8 ) x(n)
++!  real ( kind = 8 ) y(n)
++
++!  do i = 1, n
++!    k1 = ia(i)
++!    k2 = ia(i+1) -1
++!    y(i) = 0.0D+00
++!    do k = k1, k2
++!      y(i) = y(i) + a(k) * x(ja(k))
++!    end do
++!  end do
+ 
+-  do i = 1, n
+-    k1 = ia(i)
+-    k2 = ia(i+1) -1
+-    y(i) = 0.0D+00
+-    do k = k1, k2
+-      y(i) = y(i) + a(k) * x(ja(k))
+-    end do
+-  end do
++!  return
++!end
+ 
+-  return
+-end
+ subroutine pgmres ( n, im, rhs, sol, vv, eps, maxits, iout, &
+   aa, ja, ia, alu, jlu, ju, ierr )
+ 
+@@ -14187,14 +14320,12 @@
+   ptrcrd = ncol / nperli + 1
+ 
+   if ( 9 < len ) then
+-     assign 101 to ix
++  write (ptrfmt,101) nperli,len
++ 101  format(1h(,i2,1HI,i2,1h) )
+   else
+-     assign 100 to ix
+-  end if
+-
+-  write (ptrfmt,ix) nperli,len
++  write (ptrfmt,100) nperli,len
+  100  format(1h(,i2,1HI,i1,1h) )
+- 101  format(1h(,i2,1HI,i2,1h) )
++  end if
+ !
+ !  Compute the ROW index format.
+ !
+@@ -14221,17 +14352,15 @@
+      nperli = 80 / len
+ 
+      if ( len <= 9 ) then
+-        assign 102 to ix
+-     elseif ( ifmt <= 9 ) then
+-        assign 103 to ix
+-     else
+-        assign 104 to ix
+-     end if
+-
+-     write(valfmt,ix) nperli,len,ifmt
++     write(valfmt,102) nperli,len,ifmt
+  102     format(1h(,i2,1hF,i1,1h.,i1,1h) )
++     elseif ( ifmt <= 9 ) then
++     write(valfmt,103) nperli,len,ifmt
+  103     format(1h(,i2,1hF,i2,1h.,i1,1h) )
++     else
++     write(valfmt,104) nperli,len,ifmt
+  104     format(1h(,i2,1hF,i2,1h.,i2,1h) )
++     end if
+ 
+   else
+      len = ifmt + 6
+@@ -14241,30 +14370,28 @@
+ !
+      if ( nperli <= 9 ) then
+       if ( len <= 9 ) then
+-         assign 105 to ix
++           write(valfmt,105) nperli,len,ifmt
++ 105     format(1h(,i1,1hE,i1,1h.,i1,1h) )
+       else if ( ifmt <= 9 ) then
+-         assign 106 to ix
++           write(valfmt,106) nperli,len,ifmt
++ 106     format(1h(,i1,1hE,i2,1h.,i1,1h) )
+       else
+-         assign 107 to ix
++           write(valfmt,107) nperli,len,ifmt
++ 107     format(1h(,i1,1hE,i2,1h.,i2,1h) )
+       end if
+    else
+       if ( len <= 9 ) then
+-         assign 108 to ix
++     write(valfmt,108) nperli,len,ifmt
++108     format(1h(,i2,1hE,i1,1h.,i1,1h) )
+       else if ( ifmt <= 9 ) then
+-         assign 109 to ix
++     write(valfmt,109) nperli,len,ifmt
++109     format(1h(,i2,1hE,i2,1h.,i1,1h) )
+       else
+-           assign 110 to ix
++     write(valfmt,110) nperli,len,ifmt
++110     format(1h(,i2,1hE,i2,1h.,i2,1h) )
+         end if
+      end if
+ 
+-     write(valfmt,ix) nperli,len,ifmt
+- 105     format(1h(,i1,1hE,i1,1h.,i1,1h) )
+- 106     format(1h(,i1,1hE,i2,1h.,i1,1h) )
+- 107     format(1h(,i1,1hE,i2,1h.,i2,1h) )
+- 108     format(1h(,i2,1hE,i1,1h.,i1,1h) )
+- 109     format(1h(,i2,1hE,i2,1h.,i1,1h) )
+- 110     format(1h(,i2,1hE,i2,1h.,i2,1h) )
+-
+   end if
+   valcrd = ( nnz - 1 ) / nperli + 1
+   nrhs = job - 2
+@@ -16283,3 +16410,5 @@
+ 
+   return
+ end
++
++END MODULE

@@ -2,20 +2,26 @@ things to do
 
 CorneaCopia
 
-can make ELE smoother in center by eliminatng duplicate points from spline?
+make driverPieceWiseCubic a drop in replacement for nspline or pspli
+need a radial version and a periodic version of C and d, but not A
+do 1d lsq spline, use existing splineval on lsq spline, then lsq (periodic) spline the second part and use existing splineeval
+
+
+CSRCOO converts Compressed Sparse Row to Coordinate
+COOCSR converts COO to CSR. 
+AMUB performs the matrix by matrix product C = A * B. in csr format
+AMUX multiplies a CSR matrix A times a vector.
+
+add to sparseOps.f90 a routine to multiply two dptriplet sparse matrices=> to get dp triplets; then I can make the LSQ ATA and CTC parts
+(1) generate triplets (COO) A, and their transpose AT
+(2) convert to CSR (COOCSR), multiply ATA in CSR format (AMUB), convert ATA to COO (triplets): CSRCOO, multiply ATb (AMUX)
+(3) generate triplets C, CT
+(4) convert (ATA,C,CT,0) to HB, solve against (ATb,d) for y,y'',residuals(lambda)
+
+make a patchfile from original sparseops
 
 built framework for decenter; both involve moving elevation data points, either, 
 then resplining on that basis, just like an ELE file, in fact, for an ELE/ELE.CSV file, adjust the data before the first spline
-
-
-superLU 1-D example used to solve cyclic band-> might have to look at 2-D spline paper or just use existing sparse matrix rules and adapt to triplets then HB
-looks like it works; have to plot curve vs data; linear should be straightforward, cubic will involve some version of splineeval piecewise since I've solved for z2, not z
-
-
-make a 1d lsq splin by defining the knots as a subset of the data, or even off the data, at least on the radius side
-
-2D cartesian using existing data, ?how to make sure there's enough data in every interval -> or somehow adapt existing matrix data
-
 
 It'd be helpful to have axes/angles for orientation is moving the figure; perhaps a info box or three displaying angles?
 make 3D option for all functions, with scale Z value max and min
@@ -96,9 +102,6 @@ spline better at filling in locally (it's interpolation after all) whereas LSQ c
    from LSQBspline paper as well as others interpolation vs fitting
 rings function can demonstrate difference. Discontinuity in all data circumferentially affects theta derivatives, all the more with splining.
 multiple zeroes in ELE and adjacent identical points in general.
-
-
-Add section on why not cgal/jet-3,libigl both for viewer and curvatures etc c++ reusability of code, lack of documentation, c++
 
 hamming's motto "The purpose of computing is insight, not numbers"
 

@@ -257,6 +257,7 @@ set(HH_SOURCES2
                    src/HansonHopkins/driverPiecewiseCubic.f90
                    src/mod90/set_precision.f90
                    src/mod90/LapackInterface.f90
+                   src/mod90/sparsekit.f90
                    src/HansonHopkins/sparseAssign.f90
                    src/HansonHopkins/sparseOps.f90
                    src/HansonHopkins/sparseSort.f90
