@@ -210,19 +210,23 @@ FUNCTION transpose_triplet(b) RESULT (a)
 ! triplet list, A=B^T.  It supports the
 ! overloaded operation .t. B.
   IMPLICIT NONE
-  TYPE (dpTriplet), INTENT (IN) :: b
-  TYPE (dpTriplet) :: a
+  TYPE (dpTripletList), INTENT (IN) :: b
+  TYPE (dpTripletList) :: a
+! Local working array of triplets
+  TYPE (dpTriplet), ALLOCATABLE :: bb(:)
 ! Local integers for indexing and swapping indices
   INTEGER :: itemp, k
-! Interchange row and column indices to get a list
-! of triplets corresponding to the transpose
-  DO k = 1, SIZE(b)
-    itemp = b(k)%rowIndex
-    b(k)%rowIndex = b(k)%columnIndex
-    b(k)%columnIndex = itemp
-  END DO
-! Convert array of triplets to a list
-  a = b
+  ! Convert tripletlist terms to list of triplets
+          bb = b
+  ! Interchange row and column indices to get a list
+  ! of triplets corresponding to the transpose
+          DO k = 1, SIZE(bb)
+            itemp = bb(k)%rowIndex
+            bb(k)%rowIndex = bb(k)%columnIndex
+            bb(k)%columnIndex = itemp
+          END DO
+  ! Convert array of triplets to a list
+          a = bb
 END FUNCTION transpose_triplet
 
 FUNCTION CSR_sparse_matrix_times_CSR_sparse_matrix(a,b) RESULT (c)
@@ -234,22 +238,22 @@ USE sparsekit, ONLY: amub
 ! maximum of the dimensions of the separate factors.
 TYPE (dpCSRSparseMatrix), INTENT (IN) :: a, b
 TYPE (dpCSRSparseMatrix) :: c
-INTEGER :: nzmax,ncol,ioerr,ierr
+INTEGER :: nzmax,ncol,ioerr,ierr,i
 INTEGER, ALLOCATABLE :: iw(:)
 INTEGER, ALLOCATABLE, TARGET :: ind(:),itemp(:)
 nzmax = a%nnz*b%nnz
-ALLOCATE (ind(nnz),itemp(nnz)),STAT=ioerr)
+ALLOCATE (ind(nzmax),itemp(nzmax),STAT=ioerr)
 IF (ioerr/=0) THEN
- a%errFlag = ioerr
+ c%errFlag = ioerr
  RETURN
 END IF
 ! The max col index => ncol.
   ind(1:a%nnz) = [(i, i=1,a%nnz)]
-  itemp = sparse%columns(ind)
+  itemp = a%ja(ind)
   ncol = max(0,maxval(itemp))
-ALLOCATE(iw(ncol),ioerr)
+ALLOCATE(iw(ncol),stat=ioerr)
 IF (ioerr/=0) THEN
-  a%errFlag = ioerr
+  c%errFlag = ioerr
   RETURN
 ENDIF
 call amub ( a%noOfRows, ncol, 1 , a%a, a%ja, a%ia, b%a, b%ja, b%ia, c%a, c%ja, c%ia, nzmax, iw, ierr )

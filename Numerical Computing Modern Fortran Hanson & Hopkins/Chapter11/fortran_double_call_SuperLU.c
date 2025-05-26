@@ -49,8 +49,6 @@ void FACTOR_with_SuperLU(int *iopt, int *n, int *nnz,
 	int *etree;  /* column elimination tree */
 	SCformat *Lstore;
 	NCformat *Ustore;
-        GlobalLU_t Glu; /* facilitate multiple factorizations with 
-                           SamePattern_SameRowPerm                  */	
 	int      i, panel_size, permc_spec, relax;
 
 	//trans_t  trans;
@@ -95,7 +93,7 @@ void FACTOR_with_SuperLU(int *iopt, int *n, int *nnz,
 		relax = sp_ienv(2);
 
 		dgstrf(options, &AC, relax, panel_size, 
-			etree, NULL, 0, perm_c, perm_r, L, U,&Glu, &stat, info);
+			etree, NULL, 0, perm_c, perm_r, L, U, &stat, info);
 
 		/*dgstrf (superlu_options_t *options, SuperMatrix *A,
 		int relax, int panel_size, int *etree, void *work, int lwork,

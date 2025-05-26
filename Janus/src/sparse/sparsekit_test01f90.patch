@@ -1,0 +1,175 @@
+--- sparsekit_test01.f90	2025-05-24 10:47:49.292398101 -0700
++++ ../mod90/sparsekit_test01.f90	2025-05-26 14:33:02.283075292 -0700
+@@ -1,164 +1,7 @@
+-program main
++MODULE sparsekit_test01_fcts
+ 
+-!*****************************************************************************80
+-!
+-!! MAIN is the main program for SPARSEKIT_PRB01.
+-!
+-!  Discussion:
+-!
+-!    SPARSEKIT_PRB01 tests the SPARSEKIT library.
+-!
+-!  Modified:
+-!
+-!    17 August 2008
+-!
+-  implicit none
+-
+-  integer, parameter :: nxmax = 30
+-  integer, parameter :: nmx = nxmax * nxmax
+-  integer, parameter :: nzmax = 7 * nmx
+-
+-  real ( kind = 8 ) a(nzmax)
+-  real ( kind = 8 ) alpha
+-  real ( kind = 8 ) b(nzmax)
+-  real ( kind = 8 ) beta
+-  real ( kind = 8 ) c(nzmax)
+-  integer ia(nmx+1)
+-  integer ib(nmx+1)
+-  integer ic(nzmax)
+-  integer ierr
+-  integer ifmt
+-  integer iw(nmx)
+-  integer j
+-  integer ja(nzmax)
+-  integer jb(nzmax)
+-  integer jc(nzmax)
+-  integer jj
+-  integer job
+-  integer k
+-  character ( len = 8 ) key
+-  integer n
+-  integer na
+-  integer nx
+-  integer ny
+-  integer nz
+-  real ( kind = 8 ) s
+-  real ( kind = 8 ) stencil(100)
+-  character ( len = 71 ) title
+-  character ( len = 3 ) type
+-  real ( kind = 8 ) x(nmx)
+-  real ( kind = 8 ) y(nmx)
+-  real ( kind = 8 ) y1(nmx)
+-
+-  call timestamp ( )
+-  write ( *, '(a)' ) ' '
+-  write ( *, '(a)' ) 'SPARSEKIT_PRB01'
+-  write ( *, '(a)' ) '  FORTRAN90 version'
+-  write ( *, '(a)' ) '  Test the SPARSEKIT library.'
+-
+-  nx=10
+-  ny=10
+-  nz = 1
+-  na = 5*nmx
+-  call gen57pt(nx,ny,nz,a,ja,ia,iw,stencil)
+-  beta  = alpha
+-  alpha = 0.0D+00
+-
+-  call gen57pt(ny,nx,nz,b,jb,ib,iw,stencil)
+-  n = nx*ny*nz
+-
+-  s = 3.812D+00
+-
+-  call aplsb1(n,n,a,ja,ia,s,b,jb,ib,c,jc,ic,nzmax,ierr)
+-  if (ierr .ne. 0)WRITE(*,*)' ierr = ',ierr
+-
+-  call dump(n,c,jc,ic,6)
+-
+-  do k=1,n
+-    x(k) = real ( k, kind = 8 ) / real ( n, kind = 8 )
+-  end do
+-
+-  call ope (n,x,y1,a,ja,ia)
+-  call ope (n,x,y,b,jb,ib)
+-  do j=1, n
+-    y1(j) = s*y(j) + y1(j)
+-  end do
+-
+-  call ope (n,x,y,c,jc,ic)
+-
+-  write (*,*) ' ------------ checking APLSB --------------'
+-  call ydfnorm(n,y1,y)
+-
+-  type = '--------'
+-  title=' test matrix for blassm c = a+b '
+-  key = 'rua'
++CONTAINS
+ 
+-  ifmt = 103
+-
+-  job = -1
+-
+-  do jj=1,2
+-    call apmbt(n,n,job,a,ja,ia,b,jb,ib,c,jc,ic,nzmax,iw,ierr)
+-    if (ierr .ne. 0) WRITE(*,*)' ierr = ',ierr
+-    call ope (n,x,y1,a,ja,ia)
+-    call opet (n,x,y,b,jb,ib)
+-    s = real ( job, kind = 8 )
+-
+-    y1(1:n) = y1(1:n) + s * y(1:n)
+-
+-    call ope (n,x,y,c,jc,ic)
+-
+-    WRITE(*,*) '  '
+-    WRITE(*,*) ' ------------ checking APMBT---------------'
+-    WRITE(*,*) ' ------------ with JOB = ',job,' -------------'
+-    call ydfnorm(n,y1,y)
+-
+-    job = job + 2
+-  end do
+-
+-  type = '--------'
+-  title=' test matrix for blassm c = a+b^T '
+-
+-  s = 0.1232445D+00
+-  call aplsbt(n,n,a,ja,ia,s,b,jb,ib,c,jc,ic,nzmax,iw,ierr)
+-
+-  if (ierr .ne. 0) WRITE(*,*)' ierr = ',ierr
+-  call ope (n,x,y1,a,ja,ia)
+-  call opet (n,x,y,b,jb,ib)
+-
+-  y1(1:n) = y1(1:n) + s * y(1:n)
+-
+-  call ope (n,x,y,c,jc,ic)
+-
+-  WRITE(*,*) '  '
+-  WRITE(*,*) ' ------------ checking APLSBT---------------'
+-  call ydfnorm(n,y1,y)
+-!
+-!  Testing matrix products
+-!
+-  job = 1
+-  call amub (n,n,job,a,ja,ia,b,jb,ib,c,jc,ic,nzmax,iw,ierr)
+-
+-  if (ierr .ne. 0) WRITE(*,*)' ierr = ',ierr
+-  call ope(n,x,y,b,jb,ib)
+-  call ope(n,y,y1,a,ja,ia)
+-
+-  call ope(n,x,y,c,jc,ic)
+-
+-  WRITE(*,*) '  '
+-  WRITE(*,*) ' ------------ checking AMUB  ---------------'
+-  call ydfnorm(n,y1,y)
+-!
+-!  Terminate.
+-!
+-  write ( *, '(a)' ) ' '
+-  write ( *, '(a)' ) 'SPARSEKIT_PRB01'
+-  write ( *, '(a)' ) '  Normal end of execution.'
+-  write ( *, '(a)' ) ' '
+-  call timestamp ( )
+-
+-  stop
+-end
+ function afun ( x, y, z )
+ 
+ !*****************************************************************************80
+@@ -584,3 +427,5 @@
+ 
+   return
+ end
++
++END MODULE

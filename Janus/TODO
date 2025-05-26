@@ -6,6 +6,7 @@ make driverPieceWiseCubic a drop in replacement for nspline or pspli
 need a radial version and a periodic version of C and d, but not A
 do 1d lsq spline, use existing splineval on lsq spline, then lsq (periodic) spline the second part and use existing splineeval
 
+need unit test for new functions
 
 CSRCOO converts Compressed Sparse Row to Coordinate
 COOCSR converts COO to CSR. 
@@ -18,7 +19,6 @@ add to sparseOps.f90 a routine to multiply two dptriplet sparse matrices=> to ge
 (3) generate triplets C, CT
 (4) convert (ATA,C,CT,0) to HB, solve against (ATb,d) for y,y'',residuals(lambda)
 
-make a patchfile from original sparseops
 
 built framework for decenter; both involve moving elevation data points, either, 
 then resplining on that basis, just like an ELE file, in fact, for an ELE/ELE.CSV file, adjust the data before the first spline
@@ -37,7 +37,7 @@ make mathematica plot output?, just like ply,off etc.
 Fit elevation with Principal component analysis, meh 
 
 possible superLU-dist to use GPU
-?strumpack
+?strumpack if not, remove from README
 use of gpu acceleration
 
 ? needs extreme value filter

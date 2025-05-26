@@ -1,63 +1,5 @@
 MODULE sparsekit
 
-INTERFACE
-! select routines with interface for convenience
-
-subroutine amub ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, nzmax, &
-  iw, ierr )
-  integer ( kind = 4 ) ncol
-  integer ( kind = 4 ) nrow
-  integer ( kind = 4 ) nzmax
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) b(*)
-  real ( kind = 8 ) c(nzmax)
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) ib(ncol+1)
-  integer ( kind = 4 ) ic(ncol+1)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) iw(ncol)
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jb(*)
-  integer ( kind = 4 ) jc(nzmax)
-  integer ( kind = 4 ) job
-end subroutine
-
-subroutine amux ( n, x, y, a, ja, ia )
-  integer ( kind = 4 ) n
-  real ( kind = 8 ) a(*)
-  integer ( kind = 4 ) ia(*)
-  integer ( kind = 4 ) ja(*)
-  real ( kind = 8 ) x(*)
-  real ( kind = 8 ) y(n)
-end subroutine
-
-subroutine coocsr ( nrow, nnz, a, ir, jc, ao, jao, iao )
-  integer ( kind = 4 ) nrow
-  integer ( kind = 4 ) nnz
-  real ( kind = 8 ) a(*)
-  integer ( kind = 4 ) ir(*)
-  integer ( kind = 4 ) jc(*)
-  real ( kind = 8 ) ao(*)
-  integer ( kind = 4 ) jao(*)
-  integer ( kind = 4 ) iao(nrow+1)
-end subroutine
-
-subroutine csrcoo ( nrow, job, nzmax, a, ja, ia, nnz, ao, ir, jc, ierr )
-  integer ( kind = 4 ) nrow
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) ao(*)
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) ir(*)
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jc(*)
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) nnz
-  integer ( kind = 4 ) nzmax
-end subroutine
-
-END INTERFACE
-
 CONTAINS
 
 subroutine amask ( nrow, ncol, a, ja, ia, jmask, imask, c, jc, ic, iw, &
@@ -3382,6 +3324,8 @@ subroutine bsten ( nx, ny, nz, kx, ky, kz, nfree, stencil, h )
 !
 !  Parameters:
 !
+
+  USE sparsekit_test01_fcts
   implicit none
 
   real ( kind = 8 ) cntr(225)
@@ -7592,7 +7536,8 @@ subroutine dinfo1 ( n, iout, a, ja, ia, valued, title, key, type, ao, jao, iao )
 !
 !     t = real ( icount, kind = 8 ) / real ( nnz, kind = 8 )
 !
-      write (iout,118) nzdiag
+!      write (iout,118) nzdiag
+       write (iout,*) nzdiag
       write (tmpst,'(10i6)') ioff(1:ndiag)
       write (iout,110) ndiag,tmpst
       write (tmpst,'(10f6.1)') dcount(1:ndiag)
@@ -7701,14 +7646,12 @@ subroutine dinfo1 ( n, iout, a, ja, ia, valued, title, key, type, ao, jao, iao )
  114       format( &
    6x,' *  Block structure found with block size            = ', &
    i10,'  *')
- 115       format( &
-   6x ' *  There are zero rows. Number of such rows         = ', &
-   i10,'  *')
+ 115       format( 6x, ' *  There are zero rows. Number of such rows = ', i10,'  *')
  116       format( &
-   6x ' *  There are zero columns. Number of such columns   = ', &
+   6x, ' *  There are zero columns. Number of such columns   = ', &
    i10,'  *')
  118       format( &
-   6x ' *  The total number of nonvoid diagonals is         = ', &
+   6x, ' *  The total number of nonvoid diagonals is         = ', &
    i10,'  *')
 
   return
@@ -10670,17 +10613,19 @@ subroutine getsten ( nx, ny, nz, kx, ky, kz, stencil, h )
 !
 !    ?, real H, ?
 !
+
+  USE sparsekit_test01_fcts
   implicit none
 
-  real ( kind = 8 ) afun
-  real ( kind = 8 ) bfun
-  real ( kind = 8 ) cfun
+!  real ( kind = 8 ) afun
+!  real ( kind = 8 ) bfun
+!  real ( kind = 8 ) cfun
   real ( kind = 8 ) cntr
   real ( kind = 8 ) coeff
-  real ( kind = 8 ) dfun
-  real ( kind = 8 ) efun
-  real ( kind = 8 ) ffun
-  real ( kind = 8 ) gfun
+!  real ( kind = 8 ) dfun
+!  real ( kind = 8 ) efun
+!  real ( kind = 8 ) ffun
+!  real ( kind = 8 ) gfun
   real ( kind = 8 ) h
   real ( kind = 8 ) hhalf
   integer ( kind = 4 ) kx
@@ -14139,7 +14084,7 @@ subroutine pltmtps ( nrow, ncol, mode, ja, ia, title, key, type, job, iounit )
   end do
 
   write(iounit,*)' showpage grestore'
- 130    format('Dimension: ',i4,' x ',i4',  Nonzero elements: ',i5)
+ 130    format("Dimension: ",i4," x ",i4,",  Nonzero elements: ",i5)
   return
 end
 subroutine project ( n, m, u, v, w )

@@ -1,5 +1,5 @@
---- slu_ddefs.h	2013-11-17 08:51:28.000000000 -0800
-+++ slu_ddefs.h	2024-10-27 09:42:17.163569396 -0700
+--- Chapter11/slu_ddefs.h	2013-11-17 08:51:28.000000000 -0800
++++ ../Janus/src/HansonHopkins/slu_ddefs.h	2024-10-27 09:42:17.163569396 -0700
 @@ -120,7 +120,7 @@
  dgssvx(superlu_options_t *, SuperMatrix *, int *, int *, int *,
         char *, double *, double *, SuperMatrix *, SuperMatrix *,

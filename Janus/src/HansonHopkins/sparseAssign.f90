@@ -16,6 +16,8 @@
         MODULE PROCEDURE a_triplet
  !TYPE(dpTripletList) = TYPE(dpTriplet)(:)
         MODULE PROCEDURE list_of_triplets
+!TYPE(dpTriplet) = TYPE(dpTripletList)(:)
+        MODULE PROCEDURE list_of_triplets_eq_triplets
  !TYPE(dpTripletList) =  INTEGER (0)
         MODULE PROCEDURE clear_triplets
       END INTERFACE
@@ -311,6 +313,8 @@ SCAN:     DO i = 1, mc - 1
 ! Accumulate a list of triplets.  If space runs out, new
 ! arrays are allocated that (attempt to) hold all the data. 
 ! Non-positive subscripts are ignored.  
+! This routine handles the overloaded assignment
+! TYPE(dpTripletList)(:) = TYPE(dptriplets);
         IMPLICIT NONE
         TYPE (dpTripletList), INTENT (INOUT) :: sparse
         TYPE (dpTriplet), INTENT (IN) :: triplets(:)
@@ -427,6 +431,21 @@ BLOCK:  DO
 
       END SUBROUTINE list_of_triplets_eq_dhbc
 
+
+SUBROUTINE list_of_triplets_eq_triplets(triplets,sparse)
+! This routine handles the overloaded assignment
+! TYPE(dpTriplets)(:) = TYPE(dptripletList; opposite of SUBROUTINE list_of_triplets(sparse,triplets)
+ IMPLICIT NONE
+ TYPE (dpTriplet), INTENT (INOUT) :: triplets(:)
+ TYPE (dpTripletList), INTENT (IN) :: sparse
+ INTEGER :: nnz,i
+ nnz=sparse%lastTriplet
+ do i=1,nnz
+  triplets(i)=dpTriplet(sparse%rows(i),sparse%columns(i),sparse%values(i))
+ end do
+END SUBROUTINE list_of_triplets_eq_triplets
+
+
 SUBROUTINE list_of_triplets_eq_dcsr(triplets,dcsr)
 USE sparsekit, ONLY: csrcoo
 ! This routine handles the overloaded assignment
@@ -452,7 +471,7 @@ USE sparsekit, ONLY: csrcoo
   END IF
 ! different options for conversion
   job=3
-  call csrcoo( nrow, job, nzmax, dcsr%a, dcsr%ja, dcsr%ia, dcsr%nnz, triplets%values, triplets%rows, triplets%columns, ierr )
+  call csrcoo( nrow, job, nzmax, dcsr%a, dcsr%ja, dcsr%ia, dcsr%nnz, triplets%value, triplets%rowIndex, triplets%columnIndex, ierr )
   IF(ierr /= 0) THEN
     WRITE(*,*) 'Conversion failure in assignment triplets(:)=dcsr_sparse.'
     RETURN
@@ -471,21 +490,20 @@ USE sparsekit, ONLY: coocsr
   IMPLICIT NONE
   TYPE (dpCSRSparseMatrix), INTENT (INOUT) :: dcsr
   TYPE (dpTripletList), INTENT (IN), TARGET :: sparse
-  TYPE(sparseData) :: spData
-  INTEGER :: istat, ioerr
+  INTEGER :: istat, ioerr, i
   INTEGER, ALLOCATABLE :: ir(:)
   INTEGER, ALLOCATABLE, TARGET :: ind(:),itemp(:)
 
 ! need to find nrow first for list of triplets
-  dcrs%nnz = sparse%lastTriplet
+  dcsr%nnz = sparse%lastTriplet
 ! Take care of the empty case, LAST == 0.
 ! This case implies that the sparse matrix is 0.
-  IF (dcrs%nnz==0) THEN
+  IF (dcsr%nnz==0) THEN
    dcsr%noOfRows = 0
    IF ( .NOT. ALLOCATED(dcsr%ia)) THEN
     ALLOCATE (dcsr%ia(1), STAT=ioerr)
     IF (ioerr/=0) THEN
-      dhbc%errFlag = ioerr
+      dcsr%errFlag = ioerr
       RETURN
     ENDIF
    END IF
@@ -493,26 +511,26 @@ USE sparsekit, ONLY: coocsr
    dcsr%ja(1) = 1
    RETURN
   END IF
-  ALLOCATE (ind(nnz),itemp(nnz)),STAT=ioerr)
+  ALLOCATE (ind(dcsr%nnz),itemp(dcsr%nnz),STAT=ioerr)
   IF (ioerr/=0) THEN
-   dhbc%errFlag = ioerr
+   dcsr%errFlag = ioerr
    RETURN
   END IF
 
 ! The max row index => dcsr%noOfRows.
-  ind(1:dcsr%nnz) = [(i, i=1,dcrs%nnz)]
+  ind(1:dcsr%nnz) = [(i, i=1,dcsr%nnz)]
   itemp = sparse%rows(ind)
   dcsr%noOfRows = max(0,maxval(itemp))
 
   ! Allocate just enough space to hold the entries of the CSR matrix
-  ALLOCATE (ir(dcrs%nnz),dcsr%ia(dcsr%noOfRows+1),dcsr%a(dcrs%nnz), dcsr%ja(nnz),STAT=istat)
+  ALLOCATE (ir(dcsr%nnz),dcsr%ia(dcsr%noOfRows+1),dcsr%a(dcsr%nnz), dcsr%ja(dcsr%nnz),STAT=istat)
   IF(istat /= 0) THEN
     WRITE(*,*) 'Allocation failure in assignment dcsr_sparse(:)=triplets.'
     RETURN
   END IF
 ! coocsr destroys ir, make working copy of triplets%rows
   ir=sparse%rows
-  call coocsr( dcsr%noOfRows, dcrs%nnz, sparse%values, ir, sparse%columns, dcsr%a, dcsr%ja, dcsr%ia )
+  call coocsr( dcsr%noOfRows, dcsr%nnz, sparse%values, ir, sparse%columns, dcsr%a, dcsr%ja, dcsr%ia )
   DEALLOCATE(ind,itemp,ir)
 
 END SUBROUTINE dcsr_eq_list_of_triplets

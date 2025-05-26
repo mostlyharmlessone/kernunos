@@ -232,8 +232,10 @@ endif(WIN32)
 set(LIBS2 ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${SUPERLU_LIBRARIES})
 set(HH_SOURCES
                    src/HansonHopkins/driverPiecewiseLinear.f90
-                   src/mod90/set_precision.f90
-                   src/mod90/LapackInterface.f90
+                   src/HansonHopkins/set_precision.f90
+                   src/HansonHopkins/LapackInterface.f90
+                   src/sparse/sparsekit.f90
+                   src/sparse/sparsekit_test01.f90
                    src/HansonHopkins/sparseAssign.f90
                    src/HansonHopkins/sparseOps.f90
                    src/HansonHopkins/sparseSort.f90
@@ -255,9 +257,10 @@ target_link_libraries(driverPiecewiseLinear ${LIBS2})
 
 set(HH_SOURCES2
                    src/HansonHopkins/driverPiecewiseCubic.f90
-                   src/mod90/set_precision.f90
-                   src/mod90/LapackInterface.f90
-                   src/mod90/sparsekit.f90
+                   src/HansonHopkins/set_precision.f90
+                   src/HansonHopkins/LapackInterface.f90
+                   src/sparse/sparsekit.f90
+                   src/sparse/sparsekit_test01.f90
                    src/HansonHopkins/sparseAssign.f90
                    src/HansonHopkins/sparseOps.f90
                    src/HansonHopkins/sparseSort.f90
@@ -312,7 +315,9 @@ target_link_libraries(driverPiecewiseCubic ${LIBS2})
 
 #   Fortran Source
     file(GLOB_RECURSE lib_sources90  src/src90/*.f90 src/src90/*.f90*.for)
-    file(GLOB_RECURSE mod_sources90  src/mod90/*.f90)
+    file(GLOB_RECURSE mod_sources90  src/mod90/*.f90
+                                     src/HansonHopkins/set_precision.f90
+                                     src/HansonHopkins/LapackInterface.f90)
     add_library( rply_includes ${rply_sources})
     add_library( modules ${mod_sources90} ${interface})
     add_library( splia ${lib_sources90} ${interface})
