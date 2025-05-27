@@ -1,28 +1,33 @@
-    PROGRAM drivePiecewiseLinear
-! Generate the coefficient matrix for a least squares problem
-! that comes from piece-wise linear fitting of data with a
-! continuous function.  The breakpoints are equally spaced.  
+    PROGRAM drivePiecewiseCubic
+
+! Generate the coefficient matrix for a constrained least squares problem
+! that comes from piece-wise cubic spline fitting of data with a
+! continuous function.  The breakpoints (knots) are equally spaced.
 
 ! There are N unknowns in the problem and M data values.
-! The N unknowns are the values of the linear functions at the
-! ends of the each breakpoint interval.
+! The N unknowns are the z values and z" second derivatives of the functions at the
+! ends of the each breakpoint interval (the knots).
 
 ! The M data value are pairs (t_i, y(t_i)) where the t_i
 ! are random on (0,1).
 
-! The matrix  B=[A : I_M]
-!               [0 : A^T] is first defined as a list of triplets.
+! the design matric A (N x M) is such that A*z=y with constraint C^T*b=d as NxN constraints
+! on the continuity of the first derivatives at the knots
+! then B*[z,r]=[y,0]
+
+! The matrix  B=[A^TA : C]
+!               [C^T :  0] is first defined as a list of triplets.
 ! This matrix is assembled using overloaded assignment.
 ! B is then converted to Harwell-Boeing format using overloaded
 ! assignment between derived types.  The sparse matrix B has
 ! dimension (M+N) by (M+N).
 
       USE set_precision, ONLY: dkind
-      USE sparseTypes, ONLY: dpTriplet, dpTripletList,&
+      USE sparseTypes, ONLY: dpTriplet, dpTripletList, dpCSRSparseMatrix, &
           dpHBSparseMatrix, slu_dpHBSparseMatrix
       USE sparseOps, ONLY: OPERATOR(.p.)
       USE sluInterop, ONLY: OPERATOR(.ip.), ASSIGNMENT(=) 
-      USE sparseAssign !, ONLY: ASSIGNMENT(=)
+      USE sparseAssign, ONLY: ASSIGNMENT(=)
       USE lapackinterface, ONLY: dnrm2
 
       IMPLICIT NONE
