@@ -238,7 +238,7 @@ USE sparsekit, ONLY: amub
 ! maximum of the dimensions of the separate factors.
 TYPE (dpCSRSparseMatrix), INTENT (IN) :: a, b
 TYPE (dpCSRSparseMatrix) :: c
-INTEGER :: nzmax,ioerr,ierr,i
+INTEGER :: nzmax,ioerr,ierr
 INTEGER, ALLOCATABLE :: iw(:)
 nzmax = a%nnz*b%nnz
 ! this routine needs the number of columns, which is not typically part of the CSR structure
@@ -248,7 +248,7 @@ IF (ioerr/=0) THEN
   RETURN
 ENDIF
 call amub ( a%noOfRows, a%noOfColumns, 1 , a%a, a%ja, a%ia, b%a, b%ja, b%ia, c%a, c%ja, c%ia, nzmax, iw, ierr )
-DEALLOCATE(iw,ind,itemp)
+DEALLOCATE(iw)
 IF (ierr/=0) THEN
   c%errFlag = ierr
   RETURN

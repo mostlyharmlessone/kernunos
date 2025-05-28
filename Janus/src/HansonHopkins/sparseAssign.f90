@@ -540,20 +540,20 @@ USE sparsekit, ONLY: coocsr
 
 END SUBROUTINE dcsr_eq_list_of_triplets
 
-SUBROUTINE matrix_eq_dcsr
+SUBROUTINE matrix_eq_dcsr(matrix,dcsr)
 USE sparsekit, ONLY: csrdns
 ! This routine handles the overloaded assignment
 ! REAL(:,:)=TYPE(dpCSRSparseMatrix)
 ! by providing a modern interface to sparsekit.f90 CSRDNS
   IMPLICIT NONE
-  REAL (dkind) INTENT (INOUT), ALLOCATABLE :: matrix(:,:)
+  REAL (dkind), INTENT(INOUT), ALLOCATABLE :: matrix(:,:)
   TYPE (dpCSRSparseMatrix), INTENT (IN) :: dcsr
   INTEGER :: ierr
   ALLOCATE (matrix(dcsr%noOfRows,dcsr%noOfColumns))
-  call csrdns ( dcsr%noOfRows, dcsr%noOfColumns, dcsr%a, dcsr%ja, dcsr%ia, matrix, dcsr%noOfRow, ierr )
+  call csrdns ( dcsr%noOfRows, dcsr%noOfColumns, dcsr%a, dcsr%ja, dcsr%ia, matrix, dcsr%noOfRows, ierr )
   IF (ierr/=0) THEN
-    dcsr%errFlag = ierr
-    RETURN
+   write(*,*) 'Error in csrdns'
+   RETURN
   ENDIF
 END SUBROUTINE matrix_eq_dcsr
 

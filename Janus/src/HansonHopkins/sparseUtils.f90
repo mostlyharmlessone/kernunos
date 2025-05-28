@@ -7,6 +7,7 @@ MODULE sparseUtils
   CONTAINS
 ! print routines for each of the derived types 
 ! useful to check constructions and for debugging
+
       SUBROUTINE printDpTriplet(triplet)
       TYPE(dpTriplet), INTENT(IN) :: triplet
 
@@ -56,6 +57,16 @@ MODULE sparseUtils
           END DO 
         END IF
       END DO
-
       END SUBROUTINE printDpHBSparseMatrix
+
+      SUBROUTINE printDpmatrix(matrix)
+       REAL (dkind), INTENT(IN) :: matrix(:,:)
+       integer :: row, columnsize
+       columnsize = Size(matrix,2)
+       do row=1,Size(matrix,1)
+        WRITE(*, '(I6, E14.6)') matrix(row,1:columnsize)
+       end do
+      END SUBROUTINE printDpmatrix
+
+
 END MODULE sparseUtils

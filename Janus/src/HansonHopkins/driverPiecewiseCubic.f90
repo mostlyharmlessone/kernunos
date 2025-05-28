@@ -11,7 +11,7 @@
 ! The M data value are pairs (t_i, y(t_i)) where the t_i
 ! are random on (0,1).
 
-! the design matric A (Mx2N) is such that A*z=y with constraint C^T*(z,z")=d as (2N x N) constraints
+! the design matric A (Mx2N) is for the LSQ solution to A*z=y (M data points) with constraint C^T*(z,z")=d as (2N x N) constraints
 ! on the continuity of the first derivatives at the knots, r are the Lagrange multipliers
 ! then B*[(z,z"),r]=[A^T*y,d]
 
@@ -20,12 +20,12 @@
 ! This matrix is assembled using overloaded assignment.
 ! B is then converted to Harwell-Boeing format using overloaded
 ! assignment between derived types.  The sparse matrix B has
-! dimension (3N) by (3N).
+! dimension (3N x 3N).
 
       USE set_precision, ONLY: dkind
       USE sparseTypes, ONLY: dpTriplet, dpTripletList, dpCSRSparseMatrix, &
           dpHBSparseMatrix, slu_dpHBSparseMatrix
-      USE sparseOps, ONLY: OPERATOR(.p.)
+      USE sparseOps, ONLY: OPERATOR(.p.), OPERATOR(.t.)
       USE sluInterop, ONLY: OPERATOR(.ip.), ASSIGNMENT(=) 
       USE sparseAssign, ONLY: ASSIGNMENT(=)
       USE lapackinterface, ONLY: dnrm2
@@ -38,6 +38,8 @@
       INTEGER, PARAMETER :: n=2000 ! Could make this an input value
 ! Define arrays for knots, data points, etc
       REAL(dkind), ALLOCATABLE :: a(:), rhs(:), t(:), x(:), r(:), y(:)
+! Define arrays for testing/printing
+      REAL(dkind), ALLOCATABLE ::dense(:,:)
 ! iseed is used to store the seed used for the Fortran intrinsic
 !       random number generator
 ! saw_points is used to ensure that every interval in the partition
@@ -47,15 +49,18 @@
 ! Define what will be the collection of matrix triplets.
       TYPE (dpTripletList) :: s
 ! Define what will be the collection of matrix triplets for the design matrix
-      TYPE (dpTripletList) :: a
+      TYPE (dpTripletList) :: acbd
 ! Define what will be the transposed collection of matrix triplets for the design matrix
-      TYPE (dpTripletList) :: at
+      TYPE (dpTripletList) :: acbdT
 ! Define what will be the CSR version for the design matrix
-      TYPE (dpCSRSparseMatrix) :: a_csr
+      TYPE (dpCSRSparseMatrix) :: acbd_csr
 ! Define what will be the transposed CSR version for the design matrix
-      TYPE (dpCSRSparseMatrix) :: at_csr
+      TYPE (dpCSRSparseMatrix) :: acbdT_csr
 ! Define what will be the CSR version of A^TA for the design matrix
       TYPE (dpCSRSparseMatrix) :: ata_csr
+! Define what will be the tripletList of A^TA for the design matrix
+      TYPE (dpTripletList) :: ata
+
 ! Define the Harwell-Boeing derived type that holds the
 ! processed triplets.
       TYPE (dpHBSparseMatrix) :: b
@@ -64,7 +69,7 @@
       TYPE (slu_dpHBSparseMatrix) :: g
 
 ! Define local variables
-      REAL (dkind) :: delta, u, resid_error
+      REAL (dkind) :: delta, v, u, resid_error
       INTEGER :: errno, i, j, k, sz
 
       ALLOCATE (a(n), saw_points(n-1), STAT=errno)
@@ -118,48 +123,45 @@
 
       DO j = 1, m
 
-!     ?replace with bsearch or vice-versa, ugly hack for k=1
         k = findInterval(t(j), n, a)
-        if (k .eq. 1) k=2 !cycle doesn't work here
-
 ! from linear version, needs work
         rhs(j) = t(j)**2
         k = findInterval(t(j), n, a)
         v = (t(j)-a(k))/delta
 ! Write adjacent columns of the A matrix, in NW corner of B:
-        a = dpTriplet(j,k,v)
-        a = dpTriplet(j,k+1,one-v)
+        acbd = dpTriplet(j,k,v)
+        acbd = dpTriplet(j,k+1,one-v)
 ! Write adjacent rows of the A^T matrix, in SE corner of B:
-        at = dpTriplet(k+m,n+j,v)
-        at = dpTriplet(k+m+1,n+j,one-v)
+        acbdT = dpTriplet(k+m,n+j,v)
+        acbdT = dpTriplet(k+m+1,n+j,one-v)
+! can test with acbdT should be identical to (.t. acbd) if
 
       END DO
 
 ! Use overloaded assigment to convert from a list of
 ! triplets. Create a Compressed Sparse Row matrix representation for A, A^T.
-        a_csr = a
-        at_csr = at
+        acbd_csr = acbd
+        acbdT_csr = acbdT
 ! Create A^TA by multiplication of CSR sparse matrices
-        ata_csr = at_csr .p. a_csr
+        ata_csr = acbdT_csr .p. acbd_csr
 ! Create A^T*y
-        rhs = at_csr .p. y
-! Create a triplet list for A^TA
+        rhs(1:2*n) = acbdT_csr .p. y
+! Create tripletList corresponding to A^TA
         ata = ata_csr
 ! Create triplets corresponding to A^TA
         s = ata
 
 
 ! Constraints, need to rewrite in terms of z, z" at knots NxN equations
-    rhs(1)=0 ; rhs(m)=0 ; s = dpTriplet(1,n+1,one) ; s = dpTriplet(m,n+m,one)
+  s = dpTriplet(1,n+1,one) ; s = dpTriplet(m,n+m,one)
 
 DO j = 2, m-1
 
-!     ?replace with bsearch or vice-versa, ugly hack for k=1
+!     ?replace with bsearch or vice-versa, ugly hack for k=1 for periodic version
   k = findInterval(t(j), n, a)
   if (k .eq. 1) k=2 !cycle doesn't work here
 
-!     "d" from C^T=d constraint equation, M values, starting after N values A^T*y
-  rhs(j+n)=(z(j+1)-z(j))/(a(k+1)-t(j))-(z(j)-z(j-1))/(t(j)-a(k-1))
+!  constraint "d" = 0, no addition to rhs(:)
 
 ! Gather up the list of the sparse matrix triplets (S) that
 ! will define C^T.  The next assignments (S =) are accumulation
@@ -187,7 +189,7 @@ END DO
 ! the space used accumulating the list, S.
       s = 0
 ! Define the rest of the right-hand side.
-      rhs(m+1:n+m) = zero
+      rhs(2*n+1:3*n) = zero
 ! Solve for the coefficients of the piece-wise cubic spline.
 ! This defined operation works with a Harwell-Boeing matrix
 ! and ascends B to be a component of an extended type, G.
