@@ -23,9 +23,7 @@
       END INTERFACE
 
       INTERFACE ASSIGNMENT (=)
-! Define procedure names for assignment to
- !TYPE(dpHBSparseMatrix)
-!
+! Define procedure names for assignment to TYPE(dpHBSparseMatrix)
 ! Convert a dpTripletList to HB sparse matrix form
 ! TYPE(dpHBSparseMatrix) = TYPE(dpTripletList)
         MODULE PROCEDURE dhbc_eq_list_of_triplets
@@ -35,27 +33,31 @@
       END INTERFACE
 
       INTERFACE ASSIGNMENT (=)
-! Define procedure name for assignment to ! TYPE(dpTriplet)(:)
-
+! Define procedure name for assignment to TYPE(dpTriplet)(:)
 ! Convert a sparse matrix in HB format to a list of dpTriplest
 ! TYPE(dpTriplet)(:) = TYPE(dpHBSparseMatrix)
-        MODULE PROCEDURE list_of_triplets_eq_dhbc
-      END INTERFACE
-
-INTERFACE ASSIGNMENT (=)
-! Define procedure names for assignment to
-!TYPE(dpCSRSparseMatrix)
-! Convert a dpTripletList to CSR sparse matrix form
-! TYPE(dpCSRSparseMatrix) = TYPE(dpTripletList)
-  MODULE PROCEDURE dcsr_eq_list_of_triplets
-! Clear an CSR sparse matrix and reclaim all allocated space
-! TYPE(dpCSRSparseMatrix) = INTEGER (0)
-  MODULE PROCEDURE clear_dcsr
-! Define procedure name for assignment to ! TYPE(dpTriplet)(:)
+       MODULE PROCEDURE list_of_triplets_eq_dhbc
 ! Convert a sparse matrix in CSR format to a list of dpTriplest
 ! TYPE(dpTriplet)(:) = TYPE(dpCSRSparseMatrix)
-  MODULE PROCEDURE list_of_triplets_eq_dcsr
-END INTERFACE
+       MODULE PROCEDURE list_of_triplets_eq_dcsr
+     END INTERFACE
+
+     INTERFACE ASSIGNMENT (=)
+! Define procedure names for assignment to TYPE(dpCSRSparseMatrix)
+! Convert a dpTripletList to CSR sparse matrix format
+! TYPE(dpCSRSparseMatrix) = TYPE(dpTripletList)
+      MODULE PROCEDURE dcsr_eq_list_of_triplets
+! Clear an CSR sparse matrix and reclaim all allocated space
+! TYPE(dpCSRSparseMatrix) = INTEGER (0)
+      MODULE PROCEDURE clear_dcsr
+! Define procedure name for assignment to ! TYPE(dpTriplet)(:)
+     END INTERFACE
+
+     INTERFACE ASSIGNMENT (=)
+! This routine handles the overloaded assignment
+! REAL(:,:)=TYPE(dpCSRSparseMatrix)
+      MODULE PROCEDURE matrix_eq_dcsr
+     END INTERFACE
 
       REAL (dkind), PRIVATE :: zero = 0.0e0_dkind
     CONTAINS
@@ -102,6 +104,7 @@ END INTERFACE
     IF (ALLOCATED(dcsr%ia)) &
        DEALLOCATE (dcsr%a,dcsr%ia,dcsr%ja)
     dcsr%noOfRows = 0
+    dcsr%noOfColumns = 0
     dcsr%nnz = 0
   END IF
  END SUBROUTINE clear_dcsr
@@ -516,11 +519,13 @@ USE sparsekit, ONLY: coocsr
    dcsr%errFlag = ioerr
    RETURN
   END IF
-
 ! The max row index => dcsr%noOfRows.
   ind(1:dcsr%nnz) = [(i, i=1,dcsr%nnz)]
   itemp = sparse%rows(ind)
   dcsr%noOfRows = max(0,maxval(itemp))
+! The max column index => dcsr%noOfColumns.
+  itemp = sparse%columns(ind)
+  dcsr%noOfColumns = max(0,maxval(itemp))
 
   ! Allocate just enough space to hold the entries of the CSR matrix
   ALLOCATE (ir(dcsr%nnz),dcsr%ia(dcsr%noOfRows+1),dcsr%a(dcsr%nnz), dcsr%ja(dcsr%nnz),STAT=istat)
@@ -534,5 +539,22 @@ USE sparsekit, ONLY: coocsr
   DEALLOCATE(ind,itemp,ir)
 
 END SUBROUTINE dcsr_eq_list_of_triplets
+
+SUBROUTINE matrix_eq_dcsr
+USE sparsekit, ONLY: csrdns
+! This routine handles the overloaded assignment
+! REAL(:,:)=TYPE(dpCSRSparseMatrix)
+! by providing a modern interface to sparsekit.f90 CSRDNS
+  IMPLICIT NONE
+  REAL (dkind) INTENT (INOUT), ALLOCATABLE :: matrix(:,:)
+  TYPE (dpCSRSparseMatrix), INTENT (IN) :: dcsr
+  INTEGER :: ierr
+  ALLOCATE (matrix(dcsr%noOfRows,dcsr%noOfColumns))
+  call csrdns ( dcsr%noOfRows, dcsr%noOfColumns, dcsr%a, dcsr%ja, dcsr%ia, matrix, dcsr%noOfRow, ierr )
+  IF (ierr/=0) THEN
+    dcsr%errFlag = ierr
+    RETURN
+  ENDIF
+END SUBROUTINE matrix_eq_dcsr
 
     END MODULE sparseAssign

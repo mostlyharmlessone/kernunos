@@ -34,16 +34,18 @@
 
 ! Define double precision Compressed Sparse Row format matrix as defined in sparsekit.f90
 ! and see https://en.wikipedia.org/wiki/Sparse_matrix, known as CSR or Yale format
+! for convenience, the no of columns is defined as well, though it is not part of the format
 ! It is defined using overloaded assignment:
 ! TYPE(dpCSRSparseMatrix) = TYPE(dpTripletList).  This will be used
 ! after the triplets list has been accumulated in a
 ! variable of TYPE(dpTripletList).
       TYPE dpCSRSparseMatrix
-! The number of rows in the matrix, and number of values.
+! The number of rows in the matrix, number of columns in the matrix, and number of values.
 ! These values are defined, in the overloaded
 ! assignment, as the maximum indices noted for
 ! any triplet.
       INTEGER :: noOfRows = 0
+      INTEGER :: noOfColumns = 0
       INTEGER :: nnz = 0
 ! This flag is non-zero if there is any allocation error
 ! during creation of a Compressed Sparse Row matrix with overloaded

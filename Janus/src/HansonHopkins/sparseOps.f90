@@ -238,25 +238,16 @@ USE sparsekit, ONLY: amub
 ! maximum of the dimensions of the separate factors.
 TYPE (dpCSRSparseMatrix), INTENT (IN) :: a, b
 TYPE (dpCSRSparseMatrix) :: c
-INTEGER :: nzmax,ncol,ioerr,ierr,i
+INTEGER :: nzmax,ioerr,ierr,i
 INTEGER, ALLOCATABLE :: iw(:)
-INTEGER, ALLOCATABLE, TARGET :: ind(:),itemp(:)
 nzmax = a%nnz*b%nnz
-ALLOCATE (ind(nzmax),itemp(nzmax),STAT=ioerr)
-IF (ioerr/=0) THEN
- c%errFlag = ioerr
- RETURN
-END IF
-! The max col index => ncol.
-  ind(1:a%nnz) = [(i, i=1,a%nnz)]
-  itemp = a%ja(ind)
-  ncol = max(0,maxval(itemp))
-ALLOCATE(iw(ncol),stat=ioerr)
+! this routine needs the number of columns, which is not typically part of the CSR structure
+ALLOCATE(iw(a%noOfColumns),stat=ioerr)
 IF (ioerr/=0) THEN
   c%errFlag = ioerr
   RETURN
 ENDIF
-call amub ( a%noOfRows, ncol, 1 , a%a, a%ja, a%ia, b%a, b%ja, b%ia, c%a, c%ja, c%ia, nzmax, iw, ierr )
+call amub ( a%noOfRows, a%noOfColumns, 1 , a%a, a%ja, a%ia, b%a, b%ja, b%ia, c%a, c%ja, c%ia, nzmax, iw, ierr )
 DEALLOCATE(iw,ind,itemp)
 IF (ierr/=0) THEN
   c%errFlag = ierr

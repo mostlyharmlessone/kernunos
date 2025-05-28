@@ -1,26 +1,26 @@
     PROGRAM drivePiecewiseCubic
 
-! Generate the coefficient matrix for a constrained least squares problem
+! Generate the coefficient matrix for a equality-constrained least squares problem
 ! that comes from piece-wise cubic spline fitting of data with a
 ! continuous function.  The breakpoints (knots) are equally spaced.
 
-! There are N unknowns in the problem and M data values.
-! The N unknowns are the z values and z" second derivatives of the functions at the
+! There are 2N unknowns at N knots in the problem and M data values.
+! The 2N unknowns are the N z values and N z" second derivatives of the functions at the
 ! ends of the each breakpoint interval (the knots).
 
 ! The M data value are pairs (t_i, y(t_i)) where the t_i
 ! are random on (0,1).
 
-! the design matric A (N x M) is such that A*z=y with constraint C^T*b=d as NxN constraints
-! on the continuity of the first derivatives at the knots
-! then B*[z,r]=[y,0]
+! the design matric A (Mx2N) is such that A*z=y with constraint C^T*(z,z")=d as (2N x N) constraints
+! on the continuity of the first derivatives at the knots, r are the Lagrange multipliers
+! then B*[(z,z"),r]=[A^T*y,d]
 
 ! The matrix  B=[A^TA : C]
 !               [C^T :  0] is first defined as a list of triplets.
 ! This matrix is assembled using overloaded assignment.
 ! B is then converted to Harwell-Boeing format using overloaded
 ! assignment between derived types.  The sparse matrix B has
-! dimension (M+N) by (M+N).
+! dimension (3N) by (3N).
 
       USE set_precision, ONLY: dkind
       USE sparseTypes, ONLY: dpTriplet, dpTripletList, dpCSRSparseMatrix, &
@@ -37,7 +37,7 @@
 ! Set problem size:
       INTEGER, PARAMETER :: n=2000 ! Could make this an input value
 ! Define arrays for knots, data points, etc
-      REAL(dkind), ALLOCATABLE :: a(:), rhs(:), t(:), x(:), r(:), z(:)
+      REAL(dkind), ALLOCATABLE :: a(:), rhs(:), t(:), x(:), r(:), y(:)
 ! iseed is used to store the seed used for the Fortran intrinsic
 !       random number generator
 ! saw_points is used to ensure that every interval in the partition
@@ -46,6 +46,16 @@
       INTEGER :: m, findInterval
 ! Define what will be the collection of matrix triplets.
       TYPE (dpTripletList) :: s
+! Define what will be the collection of matrix triplets for the design matrix
+      TYPE (dpTripletList) :: a
+! Define what will be the transposed collection of matrix triplets for the design matrix
+      TYPE (dpTripletList) :: at
+! Define what will be the CSR version for the design matrix
+      TYPE (dpCSRSparseMatrix) :: a_csr
+! Define what will be the transposed CSR version for the design matrix
+      TYPE (dpCSRSparseMatrix) :: at_csr
+! Define what will be the CSR version of A^TA for the design matrix
+      TYPE (dpCSRSparseMatrix) :: ata_csr
 ! Define the Harwell-Boeing derived type that holds the
 ! processed triplets.
       TYPE (dpHBSparseMatrix) :: b
@@ -93,7 +103,7 @@
       CALL random_seed(put=iseed)
 
 ! Allocate local working space
-      ALLOCATE (t(m),x(n+m),z(n+m),r(n+m),rhs(n+m), STAT=errno)
+      ALLOCATE (t(m),x(n+m),y(n+m),r(n+m),rhs(n+m), STAT=errno)
       IF (errno /= 0) THEN
         print *, "Allocate fails with errno: ", errno
       END IF
@@ -101,36 +111,74 @@
 ! Record the function values in RHS(*).
       DO j = 1, m
         CALL random_number(t(j))
-        z(j) = t(j)**2
+        y(j) = t(j)**2
       end do
 
-      rhs(1)=0 ; rhs(m)=0 ; s = dpTriplet(1,n+1,one) ; s = dpTriplet(m,n+m,one)
-      DO j = 2, m-1
+! Design matrix 2NxM equations
+
+      DO j = 1, m
 
 !     ?replace with bsearch or vice-versa, ugly hack for k=1
         k = findInterval(t(j), n, a)
         if (k .eq. 1) k=2 !cycle doesn't work here
 
-        rhs(j)=(z(j+1)-z(j))/(a(k+1)-t(j))-(z(j)-z(j-1))/(t(j)-a(k-1))
+! from linear version, needs work
+        rhs(j) = t(j)**2
+        k = findInterval(t(j), n, a)
+        v = (t(j)-a(k))/delta
+! Write adjacent columns of the A matrix, in NW corner of B:
+        a = dpTriplet(j,k,v)
+        a = dpTriplet(j,k+1,one-v)
+! Write adjacent rows of the A^T matrix, in SE corner of B:
+        at = dpTriplet(k+m,n+j,v)
+        at = dpTriplet(k+m+1,n+j,one-v)
+
+      END DO
+
+! Use overloaded assigment to convert from a list of
+! triplets. Create a Compressed Sparse Row matrix representation for A, A^T.
+        a_csr = a
+        at_csr = at
+! Create A^TA by multiplication of CSR sparse matrices
+        ata_csr = at_csr .p. a_csr
+! Create A^T*y
+        rhs = at_csr .p. y
+! Create a triplet list for A^TA
+        ata = ata_csr
+! Create triplets corresponding to A^TA
+        s = ata
+
+
+! Constraints, need to rewrite in terms of z, z" at knots NxN equations
+    rhs(1)=0 ; rhs(m)=0 ; s = dpTriplet(1,n+1,one) ; s = dpTriplet(m,n+m,one)
+
+DO j = 2, m-1
+
+!     ?replace with bsearch or vice-versa, ugly hack for k=1
+  k = findInterval(t(j), n, a)
+  if (k .eq. 1) k=2 !cycle doesn't work here
+
+!     "d" from C^T=d constraint equation, M values, starting after N values A^T*y
+  rhs(j+n)=(z(j+1)-z(j))/(a(k+1)-t(j))-(z(j)-z(j-1))/(t(j)-a(k-1))
 
 ! Gather up the list of the sparse matrix triplets (S) that
-! will define B.  The next assignments (S =) are accumulation
+! will define C^T.  The next assignments (S =) are accumulation
 ! steps of the list of matrix entries.
-! Write adjacent columns of the A matrix, in NW corner of B:    
+! Write adjacent columns of the C^T matrix, in NW corner of B:
 
-        s = dpTriplet(j,k-1,(t(j)-a(k-1))/6.0)
-        s = dpTriplet(j,k,(a(k+1)-a(k-1))/3.0)
-        s = dpTriplet(j,k+1,(a(k+1)-t(j))/6.0)
+  s = dpTriplet(j,k-1,(t(j)-a(k-1))/6.0)
+  s = dpTriplet(j,k,(a(k+1)-a(k-1))/3.0)
+  s = dpTriplet(j,k+1,(a(k+1)-t(j))/6.0)
 
-! Write adjacent rows of the A^T matrix, in SE corner of B:
+! Write adjacent rows of the C matrix, in SE corner of B:
 
-        s = dpTriplet(k+m-1,n+j,(t(j)-a(k-1))/6.0)
-        s = dpTriplet(k+m,n+j,(a(k+1)-a(k-1))/3.0)
-        s = dpTriplet(k+m+1,n+j,(a(k+1)-t(j))/6.0)
+  s = dpTriplet(k+m-1,n+j,(t(j)-a(k-1))/6.0)
+  s = dpTriplet(k+m,n+j,(a(k+1)-a(k-1))/3.0)
+  s = dpTriplet(k+m+1,n+j,(a(k+1)-t(j))/6.0)
 
-! Write row of identity matrix I_M, in NE corner of B:
-        s = dpTriplet(j,n+j,one)
-      END DO
+END DO
+
+
 ! Use overloaded assigment to convert from a list of
 ! triplets. Create a Harwell-Boeing matrix representation for B.
 ! This assignment (B =) converts the S list to a sparse matrix format.
