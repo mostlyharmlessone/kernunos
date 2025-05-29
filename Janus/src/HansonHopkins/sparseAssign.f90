@@ -448,7 +448,6 @@ SUBROUTINE list_of_triplets_eq_triplets(triplets,sparse)
  end do
 END SUBROUTINE list_of_triplets_eq_triplets
 
-
 SUBROUTINE list_of_triplets_eq_dcsr(triplets,dcsr)
 USE sparsekit, ONLY: csrcoo
 ! This routine handles the overloaded assignment
@@ -461,14 +460,14 @@ USE sparsekit, ONLY: csrcoo
   IMPLICIT NONE
   TYPE (dpTriplet), INTENT (INOUT), ALLOCATABLE :: triplets(:)
   TYPE (dpCSRSparseMatrix), INTENT (IN) :: dcsr
-  INTEGER :: nrow, nzmax, ierr, istat, job
+  INTEGER :: nrow, nzmax, ierr, job
 ! Get matrix size.
   nrow = dcsr%noOfRows
 ! Allocate just enough space to hold the entries
 ! of the Compressed Sparse Row format sparse matrix.
   nzmax = max(0,dcsr%nnz)
-  ALLOCATE(triplets(nzmax), STAT=istat)
-  IF(istat /= 0) THEN
+  ALLOCATE(triplets(nzmax), STAT=ierr)
+  IF(ierr /= 0) THEN
     WRITE(*,*) 'Allocation failure in assignment triplets(:)=dcsr_sparse.'
     RETURN
   END IF
@@ -481,7 +480,6 @@ USE sparsekit, ONLY: csrcoo
   END IF
 
 END SUBROUTINE list_of_triplets_eq_dcsr
-
 
 SUBROUTINE dcsr_eq_list_of_triplets(dcsr,sparse)
 USE sparsekit, ONLY: coocsr

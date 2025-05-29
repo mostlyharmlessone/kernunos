@@ -58,8 +58,8 @@
       TYPE (dpCSRSparseMatrix) :: acbdT_csr
 ! Define what will be the CSR version of A^TA for the design matrix
       TYPE (dpCSRSparseMatrix) :: ata_csr
-! Define what will be the tripletList of A^TA for the design matrix
-      TYPE (dpTripletList) :: ata
+! Define what will be the collection of matrix triplets.
+      TYPE (dpTriplet), ALLOCATABLE :: trip_array(:)
 
 ! Define the Harwell-Boeing derived type that holds the
 ! processed triplets.
@@ -145,11 +145,20 @@
 ! Create A^TA by multiplication of CSR sparse matrices
         ata_csr = acbdT_csr .p. acbd_csr
 ! Create A^T*y
-        rhs(1:2*n) = acbdT_csr .p. y
-! Create tripletList corresponding to A^TA
-        ata = ata_csr
+        rhs(1:2*n) = acbdT_csr .p. y(1:m)
 ! Create triplets corresponding to A^TA
-        s = ata
+        trip_array = ata_csr
+! Create tripletlist
+        s = trip_array
+
+
+
+! Test routines
+        dense = ata_csr                !!!this works (or at least compiles))
+        acbdT_csr = .t. acbd_csr      !!!this works (or at least compiles))
+        s = .t. s                     !!!this works (or at least compiles))
+
+
 
 
 ! Constraints, need to rewrite in terms of z, z" at knots NxN equations

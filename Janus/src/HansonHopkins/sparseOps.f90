@@ -9,9 +9,9 @@ MODULE sparseOps
   REAL(dkind), PRIVATE :: zero = 0.0e0_dkind
 
 ! Define procedure name for unary defined operation (.t.),
-! the transpose of a Harwell-Boeing matrices or triplets.
+! the transpose of a Harwell-Boeing (HB), Compressed Sparse Row (CSR) matrices or triplets.
       INTERFACE OPERATOR (.t.)
-        MODULE PROCEDURE transpose_dhbc,transpose_triplet
+        MODULE PROCEDURE transpose_dhbc,transpose_triplet,transpose_dcsr
       END INTERFACE
 
 ! Define the procedure name for the user-defined operation +,
@@ -27,7 +27,7 @@ MODULE sparseOps
 ! by element multiplication. Also multiplies CSR matrix by CSR matrix
       INTERFACE OPERATOR (.p.)
         MODULE PROCEDURE sparse_matrix_times_vector, &
-          vector_times_sparse_matrix, sparse_matrix_times_matrix, &
+          vector_times_sparse_matrix, sparse_matrix_times_matrix, CSR_sparse_matrix_times_vector, &
           matrix_times_sparse_matrix, CSR_sparse_matrix_times_CSR_sparse_matrix
       END INTERFACE
 
@@ -205,6 +205,36 @@ MODULE sparseOps
         a = aa
       END FUNCTION transpose_dhbc
 
+
+FUNCTION transpose_dcsr(b) RESULT (a)
+! This functions constructs the transpose of a
+! CSR sparse matrix, A=B^T.  It supports the
+! overloaded operation .t. B.
+  IMPLICIT NONE
+  TYPE (dpCSRSparseMatrix), INTENT (IN) :: b
+  TYPE (dpCSRSparseMatrix) :: a
+! Local working arrays of triplets
+  TYPE (dpTriplet), ALLOCATABLE :: bb(:)
+! Local list of triplets
+  TYPE (dpTripletList) :: aa
+! Local integers for indexing and swapping indices
+  INTEGER :: itemp, k
+! Convert CSR terms to list of triplets
+  bb = b
+! Interchange row and column indices to get a list
+! of triplets corresponding to the transpose
+  DO k = 1, SIZE(bb)
+    itemp = bb(k)%rowIndex
+    bb(k)%rowIndex = bb(k)%columnIndex
+    bb(k)%columnIndex = itemp
+  END DO
+! Convert array of triplets to a list
+  aa = bb
+! Convert list to output CSR matrix form
+  a = aa
+END FUNCTION transpose_dcsr
+
+
 FUNCTION transpose_triplet(b) RESULT (a)
 ! This functions constructs the transpose of a
 ! triplet list, A=B^T.  It supports the
@@ -269,7 +299,6 @@ USE sparsekit, ONLY: amux
  REAL (dkind) :: y(h%noOfRows)
  call amux ( h%noOfRows, x, y, h%a, h%ja, h%ia )
 END FUNCTION CSR_sparse_matrix_times_vector
-
 
 END MODULE sparseOps
 
