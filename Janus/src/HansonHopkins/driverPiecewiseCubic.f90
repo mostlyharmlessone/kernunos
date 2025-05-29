@@ -29,13 +29,14 @@
       USE sluInterop, ONLY: OPERATOR(.ip.), ASSIGNMENT(=) 
       USE sparseAssign, ONLY: ASSIGNMENT(=)
       USE lapackinterface, ONLY: dnrm2
+      USE sparseUtils
 
       IMPLICIT NONE
 
 ! Real constants
       REAL(dkind), PARAMETER :: one=1.0E0_dkind, zero=0.0E0_dkind
 ! Set problem size:
-      INTEGER, PARAMETER :: n=2000 ! Could make this an input value
+      INTEGER, PARAMETER :: n=10 !n=2000 ! Could make this an input value
 ! Define arrays for knots, data points, etc
       REAL(dkind), ALLOCATABLE :: a(:), rhs(:), t(:), x(:), r(:), y(:)
 ! Define arrays for testing/printing
@@ -142,24 +143,77 @@
 ! triplets. Create a Compressed Sparse Row matrix representation for A, A^T.
         acbd_csr = acbd
         acbdT_csr = acbdT
-! Create A^TA by multiplication of CSR sparse matrices
-        ata_csr = acbdT_csr .p. acbd_csr
-! Create A^T*y
-        rhs(1:2*n) = acbdT_csr .p. y(1:m)
-! Create triplets corresponding to A^TA
-        trip_array = ata_csr
-! Create tripletlist
-        s = trip_array
 
 
 
 ! Test routines
-        dense = ata_csr                !!!this works (or at least compiles))
-        acbdT_csr = .t. acbd_csr      !!!this works (or at least compiles))
-        s = .t. s                     !!!this works (or at least compiles))
+!!!!!!! this section is repeated below; only here for test
+! make some s values for test
+
+  s = dpTriplet(1,n+1,one) ; s = dpTriplet(m,n+m,one)
+
+DO j = 2, m-1
+
+!     ?replace with bsearch or vice-versa, ugly hack for k=1 for periodic version
+  k = findInterval(t(j), n, a)
+  if (k .eq. 1) k=2 !cycle doesn't work here
+
+!  constraint "d" = 0, no addition to rhs(:)
+
+! Gather up the list of the sparse matrix triplets (S) that
+! will define C^T.  The next assignments (S =) are accumulation
+! steps of the list of matrix entries.
+! Write adjacent columns of the C^T matrix, in NW corner of B:
+
+  s = dpTriplet(j,k-1,(t(j)-a(k-1))/6.0)
+  s = dpTriplet(j,k,(a(k+1)-a(k-1))/3.0)
+  s = dpTriplet(j,k+1,(a(k+1)-t(j))/6.0)
+
+! Write adjacent rows of the C matrix, in SE corner of B:
+
+  s = dpTriplet(k+m-1,n+j,(t(j)-a(k-1))/6.0)
+  s = dpTriplet(k+m,n+j,(a(k+1)-a(k-1))/3.0)
+  s = dpTriplet(k+m+1,n+j,(a(k+1)-t(j))/6.0)
+
+END DO
 
 
 
+
+!! makes array temprs on call to csrcoo sparseAssign lne 476
+!acbdT_csr = .t. acbd_csr
+
+!! crashes line 253 bb not allocated
+!s = .t. s
+
+! list is empty number items  = 0
+call printdptripletlist(s)
+
+dense = acbd_csr
+call printdpmatrix(dense)
+
+
+
+
+
+
+
+
+! Create A^TA by multiplication of CSR sparse matrices
+!!! problems in sparsekit
+! At line 3908 of file /home/debeus/Janus/Janus/src/sparse/sparsekit.f90
+! Fortran runtime error: Index '0' of dimension 1 of array 'iao' below lower bound of 1
+!!        ata_csr = acbdT_csr .p. acbd_csr
+! Create A^T*y
+!!! problems in sparsekit
+        rhs(1:2*n) = acbdT_csr .p. y(1:m)
+
+
+
+! Create triplets corresponding to A^TA
+        trip_array = ata_csr
+! Create tripletlist
+        s = trip_array
 
 ! Constraints, need to rewrite in terms of z, z" at knots NxN equations
   s = dpTriplet(1,n+1,one) ; s = dpTriplet(m,n+m,one)

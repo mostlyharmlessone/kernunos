@@ -268,8 +268,10 @@ USE sparsekit, ONLY: amub
 ! maximum of the dimensions of the separate factors.
 TYPE (dpCSRSparseMatrix), INTENT (IN) :: a, b
 TYPE (dpCSRSparseMatrix) :: c
-INTEGER :: nzmax,ioerr,ierr
+INTEGER :: nzmax,ioerr,ierr, i
 INTEGER, ALLOCATABLE :: iw(:)
+TYPE (dpTriplet), ALLOCATABLE :: triplets(:)
+TYPE (dpTripletList) :: d
 nzmax = a%nnz*b%nnz
 ! this routine needs the number of columns, which is not typically part of the CSR structure
 ALLOCATE(iw(a%noOfColumns),stat=ioerr)
@@ -277,7 +279,18 @@ IF (ioerr/=0) THEN
   c%errFlag = ioerr
   RETURN
 ENDIF
+! allocate space
+ALLOCATE(triplets(nzmax),stat=ioerr)
+IF (ioerr/=0) THEN
+  c%errFlag = ioerr
+  RETURN
+ENDIF
+! make a dpTripletList
+d = triplets
+! make a dpCSRSparseMatrix
+c = d
 call amub ( a%noOfRows, a%noOfColumns, 1 , a%a, a%ja, a%ia, b%a, b%ja, b%ia, c%a, c%ja, c%ia, nzmax, iw, ierr )
+c%nnz=nzmax ! may not be accurate
 DEALLOCATE(iw)
 IF (ierr/=0) THEN
   c%errFlag = ierr

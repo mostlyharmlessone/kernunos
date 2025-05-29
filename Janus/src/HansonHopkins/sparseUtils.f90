@@ -24,7 +24,7 @@ MODULE sparseUtils
       expFactor = getExpansionFactor(tripletList)
 
       WRITE(*, '(''Number of items in list: '',I7)') tripletList%lastTriplet
-      WRITE(*, '(''Error flag: '',i5,''  Exapnsion factor: '',f7.3)') &
+      WRITE(*, '(''Error flag: '',i5,''  Expansion factor: '',f7.3)') &
            tripletList%errFlag, expFactor 
 
       IF (tripletList%lastTriplet /= 0) THEN
@@ -64,7 +64,7 @@ MODULE sparseUtils
        integer :: row, columnsize
        columnsize = Size(matrix,2)
        do row=1,Size(matrix,1)
-        WRITE(*, '(I6, E14.6)') matrix(row,1:columnsize)
+        WRITE(*, '(E14.6, E14.6)') matrix(row,1:columnsize)
        end do
       END SUBROUTINE printDpmatrix
 
