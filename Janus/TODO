@@ -3,22 +3,8 @@ things to do
 CorneaCopia
 
 make driverPieceWiseCubic a drop in replacement for nspline or pspli
-need a radial version and a periodic version of C and d, but not A
+need a radial version and a periodic version (only affects two numbers in constraints
 do 1d lsq spline, use existing splineval on lsq spline, then lsq (periodic) spline the second part and use existing splineeval
-
-need unit test for new functions
-
-CSRCOO converts Compressed Sparse Row to Coordinate
-COOCSR converts COO to CSR. 
-AMUB performs the matrix by matrix product C = A * B. in csr format
-AMUX multiplies a CSR matrix A times a vector.
-
-add to sparseOps.f90 a routine to multiply two dptriplet sparse matrices=> to get dp triplets; then I can make the LSQ ATA and CTC parts
-(1) generate triplets (COO) A, and their transpose AT
-(2) convert to CSR (COOCSR), multiply ATA in CSR format (AMUB), convert ATA to COO (triplets): CSRCOO, multiply ATb (AMUX)
-(3) generate triplets C, CT
-(4) convert (ATA,C,CT,0) to HB, solve against (ATb,d) for y,y'',residuals(lambda)
-
 
 built framework for decenter; both involve moving elevation data points, either, 
 then resplining on that basis, just like an ELE file, in fact, for an ELE/ELE.CSV file, adjust the data before the first spline
@@ -35,13 +21,24 @@ need a 2-D picture output other than gnuplot version
 make mathematica plot output?, just like ply,off etc.
 
 Fit elevation with Principal component analysis, meh 
-
 possible superLU-dist to use GPU
-?strumpack if not, remove from README
-use of gpu acceleration
+use of gpu acceleration nvidia cuBLAS=> blas cuSOLVER => sort of LAPACK, MAGMA=>sort of blas/lapack
+cuSPARSE ?strumpack if not, remove from README
+https://docs.nersc.gov/performance/readiness/
+nvidia compiler flags -fast -mp=gpu -gpu=cc80  (openMP offload to gpu, source NSERC, 
+also recommend "teams" directive not  "target parallel for" in c++
+OpenMP 4 vs.
+#pragma omp target teams distribute parallel for 
+for (int i = 0; i < N; i++) a[i]=b[i]+ scalar * c[i]; 
+OpenMP 5.0
+#pragma omp target teams loop
+for (int i = 0; i < N; i++) a[i]=b[i]+ scalar * c[i];)
 
-? needs extreme value filter
-resurrect old noise reduction code to help out mongeastig and meanc for real data?
+"Smolek-Klyce" = Universal Scale 30-67.5, 1.5 d increments; 
+"Nidek" absolute (extended) 9 to 101.5 with peripheral increments extended 
+units id D or mm for elevation
+? needs extreme value filter; or histogram of values for median and color scale  like OPDIII
+resurrect old noise reduction code to help out monge-astig and meanc for real data?
 need lapack or open version of numrec fourn:  fftpack
 extreme value filter for scales
 
@@ -99,7 +96,7 @@ simple difference between d/dx and 1/r(d/dr) axisymmetry is not linear ==> lost 
 needs section on handling bad data:
 shift discontinuity in 900 and others: how to best address: document as opposed to missing data...discontinuities affect global fitting ie lsq but not local ie spline
 spline better at filling in locally (it's interpolation after all) whereas LSQ can be used as a smoothing operation. See also early chapter in spline text, and reference it:
-   from LSQBspline paper as well as others interpolation vs fitting
+   from LSQ Bspline paper as well as others interpolation vs fitting
 rings function can demonstrate difference. Discontinuity in all data circumferentially affects theta derivatives, all the more with splining.
 multiple zeroes in ELE and adjacent identical points in general.
 
@@ -128,3 +125,62 @@ https://github.com/Zeranoe/mingw-w64-build
 Investigate:
 Passing an assumed-shape array or array pointer to an explicit-shape array can slow run-time performance. https://www.cita.utoronto.ca/~merz/intel_f10b/main_for/mergedProjects/optaps_for/fortran/optaps_prg_arrs_f.htm
 Spline routines seem to have explicit shape, and are passed possibly assumed-shape
+
+
+include these and similar notes in io.f90
+notes on OPD Nidek files
+
+OPD, Internal OPD, PSF, MTF graph, Visual Acuity
+33 vertical, 39 horizontal (6 extra partial horizontal rings horizontally)
+0.5 to 11.0 mm (R = 7.9 mm)
+11,880 points and more
+Axial, Instantaneous, "Refractive", Elevation
+33 x 360 = 11880
+
+The binary ones may be compressed; see the uncompressed database I downloaded and the opd-iii manual in docs
+
+There are only 23 mires in the uncompressed files; the manula says the number of rings is adjustable up to 33
+RA == ?Radii of rings in EyeSys terms, increasing in magnitude from 40's to 400's with the EyeSys XX files being the sagittal curvature given in diopters 700's because R=(n-1)/D
+RA Nidek seems to be 7.xx curvatures ED 0.40 to 4.x ? radii or HT* height?
+QV* files are Q values for CL fitting per the manual.
+
+I suspect they are based on EyeSys files with 33 mires and 360 meridians (each degree)
+They are calibration files, not patient data, stored as *.CAB files under Windows, extracted and all with *.DAT except for RP*.txt
+RE*, PU*, PP*, EY* .DAT are all *.PNG image files, EY* are rings. There are 16 rings in an image seen
+RP*.txt viewed in mc has hex data terminated with ASCII descriptors of cylinder, sphere, PD etc. look like summary data; line terminations are (0D 0A)
+HD*. dat is almost certainly summary data and patient information similar to Export data function; line terminations are (0D 0A)
+
+RA*. dat shows 360 data segments that are 138 bytes long each could be 17 x 8 bytes = 136 + 2 (0D 0A)
+20 3 byte segments alternating with 19 4 bytes segments (ends in 3-byte section) then the + 2 (0D 0A)
+39 3 byte segments in groups of 2 separated by EA or at the end E2
+
+ED =?Eye Data
+ED* .dat shows 360 data segments that are 138-141 bytes each could be 17 numbers x 8 bytes + +( 0-3 bytes ) + 2 (0D 0A) 
+a 141 byte section has 17 3-byte sections alternating with 17 4 byte segments  then 5 4-byte almost identical sections then the + 2 (0D 0A)
+                       39 3 bytes sections in groups of two separated by E2, E3, E4, E5, E6, E2 then in groups of 1 sep by D2
+a 140 byte section has 17 3-byte sections alternating with 17 4 byte segments  then 4 4-byte almost identical sections and a terminal 3-byte section then + 2 (0D 0A)
+                       39 3 bytes sections in groups of two separated by E2, E3, E4, E5, E6, E2 then in groups of 1 sep by D2 and a terminal 3-byte section
+a 139 byte section has 20 3 byte segments alternating with 20 4 bytes segments then the + 2 (0D 0A)
+                       39 3 bytes sections in groups of two separated by E2, E3, E4, E5, E6, E2 then in groups of 1 sep by D2                     
+a 138 byte section has 20 3 byte segments alternating with 19 4 bytes segments = 39 total then the + 2 (0D 0A)
+                       39 3 byte segments in groups of 2 separated by EA or at the end E2
+                       39 alternating 3 and 4 byte groups starting with either AC24/23 or EAC2 until last seven with 2C22 or E2C2
+                          is A==10 bits of data vs 2==2 bits of data?
+AR==aberrometry? autorefraction?
+PR, PE  == pupil radius? / pupil?
+
+AR*. dat shows 361 data segments the first is a short segment 13 bytes, then 360 x 39-41 bytes each  = (11)37 + (0-2 bytes) + 2 bytes (0D 0A)
+? Automated objective refraction (dynamic skiascopy) 2,520 points (7 x 360)
+PR*.dat shows 361 data segments the first is a long segment 9 bytes, then 360 x 5 bytes each  = (7)3 + 2 bytes (0D 0A)
+PE*.dat shows 361 data segments the first is a long segment 9 bytes, then 360 x 5 bytes each  = (7)3 + 2 bytes (0D 0A)
+
+
+Misc notes
+EyeSys EY*.DAT file is not an image; or try raw image file
+PentaCam U12 file looks like it has binary data separated by blocks of zero, possibly readable.
+iTrace 8640 points = 360 x 24; has "Data" binary compressed with gzip
+
+
+
+
+

@@ -11,16 +11,31 @@
 ! The M data value are pairs (t_i, y(t_i)) where the t_i
 ! are random on (0,1).
 
-! the design matric A (Mx2N) is for the LSQ solution to A*z=y (M data points) with constraint C^T*(z,z")=d as (2N x N) constraints
-! on the continuity of the first derivatives at the knots, r are the Lagrange multipliers
-! then B*[(z,z"),r]=[A^T*y,d]
+! the design matric A (Mx2N) is for the LSQ solution to A*z=y (M data points) with constraint C*(z,z")=d as (2N x N) constraints
+! on the continuity of the first derivatives at the knots, h are the Lagrange multipliers
+! then y == (z sub j,z" sub j) alternating.
 
-! The matrix  B=[A^TA : C]
-!               [C^T :  0] is first defined as a list of triplets.
-! This matrix is assembled using overloaded assignment.
-! B is then converted to Harwell-Boeing format using overloaded
-! assignment between derived types.  The sparse matrix B has
-! dimension (3N x 3N).
+! The matrix  B=[A^TA : C^T][(z,z") ]  = [A^T*y] 2N
+!               [ C   :  0 ][    h  ]    [  d  ] N
+!                 2N     N
+
+! The matrix B has dimension (3N x 3N) but has the possibly ill-conditioned Gram product ATA.
+
+! The extension of H&H to avoid the normal equations is using the (M+3N)x(M+3N) system
+
+! The matrix  B= [A : I_M :  0 ][ y ]   [ b ] M
+!                [0 : A^T : C^T][ r ] = [ 0 ] 2N
+!                [C :  0  :  0 ][ h ]   [ d ] N
+!                 M    2N    N
+! which adds the constraint C*y=d, with h Lagrange multipliers
+! which can be rearranged for symmetry as (Amy Tabb referencing Matrix Computations, Gene H. Golub and Charles F. Van Loan. 4th edition, 2013 ISBN 9781421407944.)
+
+! The matrix  B= [0 : A^T : C^T ][ y ]   [ 0 ] 2N
+!                [A : I_M :  0  ][ r ] = [ b ] M
+!                [C :  0  :  0  ][ h ]   [ d ] N
+!                 2N    M     N
+
+! The matrix B has dimension (2N+M+N x 2N+M+N)
 
       USE set_precision, ONLY: dkind
       USE sparseTypes, ONLY: dpTriplet, dpTripletList, dpCSRSparseMatrix, &
@@ -39,8 +54,6 @@
       INTEGER, PARAMETER :: n=10 !n=2000 ! Could make this an input value
 ! Define arrays for knots, data points, etc
       REAL(dkind), ALLOCATABLE :: a(:), rhs(:), t(:), x(:), r(:), y(:)
-! Define arrays for testing/printing
-      REAL(dkind), ALLOCATABLE ::dense(:,:)
 ! iseed is used to store the seed used for the Fortran intrinsic
 !       random number generator
 ! saw_points is used to ensure that every interval in the partition
@@ -144,70 +157,21 @@
         acbd_csr = acbd
         acbdT_csr = acbdT
 
-
-
-! Test routines
-!!!!!!! this section is repeated below; only here for test
-! make some s values for test
-
-  s = dpTriplet(1,n+1,one) ; s = dpTriplet(m,n+m,one)
-
-DO j = 2, m-1
-
-!     ?replace with bsearch or vice-versa, ugly hack for k=1 for periodic version
-  k = findInterval(t(j), n, a)
-  if (k .eq. 1) k=2 !cycle doesn't work here
-
-!  constraint "d" = 0, no addition to rhs(:)
-
-! Gather up the list of the sparse matrix triplets (S) that
-! will define C^T.  The next assignments (S =) are accumulation
-! steps of the list of matrix entries.
-! Write adjacent columns of the C^T matrix, in NW corner of B:
-
-  s = dpTriplet(j,k-1,(t(j)-a(k-1))/6.0)
-  s = dpTriplet(j,k,(a(k+1)-a(k-1))/3.0)
-  s = dpTriplet(j,k+1,(a(k+1)-t(j))/6.0)
-
-! Write adjacent rows of the C matrix, in SE corner of B:
-
-  s = dpTriplet(k+m-1,n+j,(t(j)-a(k-1))/6.0)
-  s = dpTriplet(k+m,n+j,(a(k+1)-a(k-1))/3.0)
-  s = dpTriplet(k+m+1,n+j,(a(k+1)-t(j))/6.0)
-
-END DO
-
-
-
-
 !! makes array temprs on call to csrcoo sparseAssign lne 476
-!acbdT_csr = .t. acbd_csr
+        acbdT_csr = .t. acbd_csr
 
 !! crashes line 253 bb not allocated
-!s = .t. s
-
-! list is empty number items  = 0
-call printdptripletlist(s)
-
-dense = acbd_csr
-call printdpmatrix(dense)
-
-
-
-
-
-
+        s = .t. s
 
 
 ! Create A^TA by multiplication of CSR sparse matrices
 !!! problems in sparsekit
 ! At line 3908 of file /home/debeus/Janus/Janus/src/sparse/sparsekit.f90
 ! Fortran runtime error: Index '0' of dimension 1 of array 'iao' below lower bound of 1
-!!        ata_csr = acbdT_csr .p. acbd_csr
+        ata_csr = acbdT_csr .p. acbd_csr
 ! Create A^T*y
 !!! problems in sparsekit
         rhs(1:2*n) = acbdT_csr .p. y(1:m)
-
 
 
 ! Create triplets corresponding to A^TA

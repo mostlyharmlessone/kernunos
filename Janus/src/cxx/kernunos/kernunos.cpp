@@ -2405,12 +2405,12 @@ void MainWindow::createActions()
    gplotpaletteAct->setCheckable(true);
    connect(gplotpaletteAct, &QAction::triggered, this, &MainWindow::colorgplotpalette);
 
-   USSfixedAct=new QAction(tr("&Uniform Standard Scale discrete map with linear interpolation between 26 colors with fixed range for sagittal/axial powers"), this);
+   USSfixedAct=new QAction(tr("&Uniform Standard Scale (Smolek-Klyce) discrete map with linear interpolation between 26 colors with fixed range for sagittal/axial powers"), this);
    USSfixedAct->setCheckable(true);
    connect(USSfixedAct, &QAction::triggered, this, &MainWindow::colorUSSpalettefixed);
    USSfixedAct->setChecked(GLwidget::isUSSfixed());  //needs this here to check initially because it is the default
 
-   USSPaletteAct=new QAction(tr("&Uniform Standard Scale discrete map with linear interpolation between 26 colors"), this);
+   USSPaletteAct=new QAction(tr("&Uniform Standard Scale (Smolek-Klyce) discrete map with linear interpolation between 26 colors"), this);
    USSPaletteAct->setCheckable(true);
    connect(USSPaletteAct, &QAction::triggered, this, &MainWindow::colorUSSpalette);
 

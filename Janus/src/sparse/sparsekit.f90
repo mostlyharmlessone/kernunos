@@ -1642,7 +1642,7 @@ subroutine aplsbt ( nrow, ncol, a, ja, ia, s, b, jb, ib, c, jc, ic, nzmax, &
   real ( kind = 8 ) c(*)
   integer ( kind = 4 ) ia(nrow+1)
   integer ( kind = 4 ) ib(ncol+1)
-  integer ( kind = 4 ) ic(*)
+  integer ( kind = 4 ) ic(:)
   integer ( kind = 4 ) ierr
   integer ( kind = 4 ) ii
   integer ( kind = 4 ) ipos
@@ -1731,7 +1731,7 @@ subroutine aplsbt ( nrow, ncol, a, ja, ia, s, b, jb, ib, c, jc, ic, nzmax, &
 !
   ljob = 3
 
-  call csrcoo ( nrow, ljob, nnzb, c, jc, ic, nnzb, c, ic, jc, ierr )
+  call csrcoo ( nrow, ljob, c, jc, ic, nnzb, c, ic, jc, ierr )
 
   if ( ierr /= 0 ) then
     ierr = -ierr
@@ -1954,7 +1954,7 @@ subroutine apmbt ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, nzmax, &
   real ( kind = 8 ) c(*)
   integer ( kind = 4 ) ia(nrow+1)
   integer ( kind = 4 ) ib(ncol+1)
-  integer ( kind = 4 ) ic(*)
+  integer ( kind = 4 ) ic(:)
   integer ( kind = 4 ) ierr
   integer ( kind = 4 ) ii
   integer ( kind = 4 ) ipos
@@ -2057,7 +2057,7 @@ subroutine apmbt ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, nzmax, &
     ljob = 3
   end if
 
-  call csrcoo ( nrow, ljob, nnzb, c, jc, ic, nnzb ,c, ic, jc, ierr )
+  call csrcoo ( nrow, ljob, c, jc, ic, nnzb ,c, ic, jc, ierr )
 
   if ( ierr /= 0 ) then
     ierr = -ierr
@@ -4844,7 +4844,8 @@ subroutine csrbsr ( n, nblk, na, a, ja, ia, ao, jao, iao )
 
   return
 end
-subroutine csrcoo ( nrow, job, nzmax, a, ja, ia, nnz, ao, ir, jc, ierr )
+
+subroutine csrcoo ( nrow, job, a, ja, ia, nnz, ao, ir, jc, ierr )
 
 !*****************************************************************************80
 !
@@ -4876,7 +4877,7 @@ subroutine csrcoo ( nrow, job, nzmax, a, ja, ia, nnz, ao, ir, jc, ierr )
 !         simply copied into ao, jc.  When job=2, only jc and ir are
 !         returned. With job=1 only the array ir is returned. Moreover,
 !         the algorithm is in place:
-!           call csrcoo (nrow,1,nzmax,a,ja,ia,nnz,a,ia,ja,ierr)
+!           call csrcoo (nrow,1,a,ja,ia,nnz,a,ia,ja,ierr)
 !         will write the output matrix in coordinate format on a, ja,ia.
 !         (Important: note the order in the output arrays a, ja, ia. )
 !         i.e., ao can be the same as a, ir can be the same as ia
@@ -4885,9 +4886,8 @@ subroutine csrcoo ( nrow, job, nzmax, a, ja, ia, nnz, ao, ir, jc, ierr )
 !    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-! nzmax = length of space available in ao, ir, jc.
-!         the code will stop immediatly if the number of
-!         nonzero elements found in input matrix exceeds nzmax.
+! nnz =  number of
+!         nonzero elements .
 !
 ! on return:
 !-
@@ -4904,11 +4904,11 @@ subroutine csrcoo ( nrow, job, nzmax, a, ja, ia, nnz, ao, ir, jc, ierr )
   implicit none
 
   integer ( kind = 4 ) nrow
-
+  integer ( kind = 4 ) nnz
   real ( kind = 8 ) a(*)
   real ( kind = 8 ) ao(*)
   integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(nrow+1)
+  integer ( kind = 4 ) ia(*)
   integer ( kind = 4 ) ierr
   integer ( kind = 4 ) ir(*)
   integer ( kind = 4 ) ja(*)
@@ -4917,16 +4917,9 @@ subroutine csrcoo ( nrow, job, nzmax, a, ja, ia, nnz, ao, ir, jc, ierr )
   integer ( kind = 4 ) k
   integer ( kind = 4 ) k1
   integer ( kind = 4 ) k2
-  integer ( kind = 4 ) nnz
-  integer ( kind = 4 ) nzmax
 
   ierr = 0
   nnz = ia(nrow+1)-1
-
-  if ( nzmax < nnz ) then
-    ierr = 1
-    return
-  end if
 
   if ( 3 <= job ) then
     ao(1:nnz) = a(1:nnz)
@@ -4948,6 +4941,7 @@ subroutine csrcoo ( nrow, job, nzmax, a, ja, ia, nnz, ao, ir, jc, ierr )
 
   return
 end
+
 subroutine csrcsc ( n, job, ipos, a, ja, ia, ao, jao, iao )
  
 !*****************************************************************************80
@@ -5261,7 +5255,7 @@ subroutine csrdia ( n, idiag, job, a, ja, ia, ndiag, diag, ioff, ao, &
 
   return
 end
-subroutine csrdns ( nrow, ncol, a, ja, ia, dns, ndns, ierr )
+subroutine csrdns ( nrow, ncol, a, ja, ia, dns, ierr )
 
 !*****************************************************************************80
 !
@@ -5288,10 +5282,8 @@ subroutine csrdns ( nrow, ncol, a, ja, ia, dns, ndns, ierr )
 !    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-!    Output, real DNS(NDNS,NDNS), the dense array containing a
+!    Output, real DNS, the dense array containing a
 !    copy of the matrix.
-!
-!    Input, integer ( kind = 4 ) NDNS, the dimension of the DNS array.
 !
 !    Output, integer ( kind = 4 ) IERR, error indicator.
 !    0, means normal return
@@ -5301,10 +5293,8 @@ subroutine csrdns ( nrow, ncol, a, ja, ia, dns, ndns, ierr )
   implicit none
 
   integer ( kind = 4 ) ncol
-  integer ( kind = 4 ) ndns
-
   real ( kind = 8 ) a(*)
-  real ( kind = 8 ) dns(ndns,ncol)
+  real ( kind = 8 ), allocatable :: dns(:,:)
   integer ( kind = 4 ) i
   integer ( kind = 4 ) ia(*)
   integer ( kind = 4 ) ierr
@@ -5329,6 +5319,7 @@ subroutine csrdns ( nrow, ncol, a, ja, ia, dns, ndns, ierr )
 
   return
 end
+
 subroutine csrell ( nrow, a, ja, ia, maxcol, coef, jcoef, ncoef, &
   ndiag, ierr )
 

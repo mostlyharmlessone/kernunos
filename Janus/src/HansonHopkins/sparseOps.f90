@@ -268,30 +268,60 @@ USE sparsekit, ONLY: amub
 ! maximum of the dimensions of the separate factors.
 TYPE (dpCSRSparseMatrix), INTENT (IN) :: a, b
 TYPE (dpCSRSparseMatrix) :: c
-INTEGER :: nzmax,ioerr,ierr, i
-INTEGER, ALLOCATABLE :: iw(:)
-TYPE (dpTriplet), ALLOCATABLE :: triplets(:)
-TYPE (dpTripletList) :: d
+INTEGER :: ncol, nzmax,ierr,i
+INTEGER, ALLOCATABLE :: iw(:),tempia(:),tempja(:)
+INTEGER, ALLOCATABLE, TARGET :: ind(:),itemp(:)
+REAL (dkind), ALLOCATABLE :: tempa(:)
+IF (a%noOfRows/=b%noOfColumns) THEN
+  c%errFlag = -1
+  RETURN
+ENDIF
+! weird routine hack for amub
+ncol = max( a%noOfColumns,  b%noOfColumns)
 nzmax = a%nnz*b%nnz
 ! this routine needs the number of columns, which is not typically part of the CSR structure
-ALLOCATE(iw(a%noOfColumns),stat=ioerr)
-IF (ioerr/=0) THEN
-  c%errFlag = ioerr
+ALLOCATE(iw(ncol),tempa(nzmax),tempja(nzmax),tempia(nzmax),stat=ierr)
+IF (ierr/=0) THEN
+  c%errFlag = ierr
   RETURN
 ENDIF
-! allocate space
-ALLOCATE(triplets(nzmax),stat=ioerr)
-IF (ioerr/=0) THEN
-  c%errFlag = ioerr
+call amub ( a%noOfRows, ncol, 1 , a%a, a%ja, a%ia, b%a, b%ja, b%ia, tempa, tempja, tempia, nzmax, iw, ierr )
+! determine nnz
+c%nnz = 0
+do i=1,nzmax
+ if (tempa(i) > 0) c%nnz=c%nnz+1
+end do
+c%noOfRows = a%noOfRows
+c%noOfColumns = b%noOfColumns
+IF (c%nnz==0) THEN
+ c%noOfRows = 0
+ IF ( .NOT. ALLOCATED(c%ia)) THEN
+  ALLOCATE (c%ia(1),c%ja(1),STAT=ierr)
+  IF (ierr/=0) THEN
+    c%errFlag = ierr
+    RETURN
+  ENDIF
+ END IF
+! Initialize start of column indices
+ c%ja(1) = 1
+ RETURN
+END IF
+! nnz > 0
+ALLOCATE (ind(c%nnz),itemp(c%nnz),STAT=ierr)
+IF (ierr/=0) THEN
+ c%errFlag = ierr
+ RETURN
+END IF
+! Allocate just enough space to hold the entries of the CSR matrix
+ALLOCATE (c%ia(c%noOfRows+1),c%a(c%nnz),c%ja(c%nnz),STAT=ierr)
+IF(ierr /= 0) THEN
+  WRITE(*,*) 'Allocation failure in CSR_sparse_matrix_times_CSR_sparse_matrix'
   RETURN
-ENDIF
-! make a dpTripletList
-d = triplets
-! make a dpCSRSparseMatrix
-c = d
-call amub ( a%noOfRows, a%noOfColumns, 1 , a%a, a%ja, a%ia, b%a, b%ja, b%ia, c%a, c%ja, c%ia, nzmax, iw, ierr )
-c%nnz=nzmax ! may not be accurate
-DEALLOCATE(iw)
+END IF
+c%a(1:c%nnz)=tempa(1:c%nnz)
+c%ja(1:c%nnz)=tempja(1:c%nnz)
+c%ia(1:c%noOfRows+1)=tempia(1:c%noOfRows+1)
+DEALLOCATE(iw,ind,itemp,tempa,tempia,tempja)
 IF (ierr/=0) THEN
   c%errFlag = ierr
   RETURN

@@ -1,10 +1,16 @@
-! taken from http://www.siam.org/books/ot134 Numerical Computing with Modern Fortran Richard J.Hanson and Tim Hopkins SIAM
+! modified from http://www.siam.org/books/ot134 Numerical Computing with Modern Fortran Richard J.Hanson and Tim Hopkins SIAM
 
 ! Module set_precision provides the kind type parameter needed
 ! to define the precision of a complete package along
 ! with values for all commonly used precisions
     MODULE set_precision
+    use iso_fortran_env, only: int8, int16, int32, int64
+    use iso_c_binding, only: c_bool, c_int
+    implicit none
+    private
+    public :: wp, sk, sp, dp, xdp, qp, int8, int16, int32, int64, lk, c_bool, skind, dkind, int2d, int3d, c_int
 ! ..
+
 ! .. Intrinsic Functions ..
       INTRINSIC KIND
 ! .. Parameters ..
@@ -25,6 +31,13 @@
 ! Set the precision for the whole package
       INTEGER, PARAMETER :: wp = dkind
       INTEGER, PARAMETER :: sk = skind
+
+      integer, parameter :: sp = selected_real_kind(6)
+      integer, parameter :: dp = selected_real_kind(15)
+      integer, parameter :: xdp = selected_real_kind(18)
+      integer, parameter :: qp = selected_real_kind(33)
+      integer, parameter :: lk = kind(.true.)
+
 
 !-----------------------------------------------------------
 ! For the non-standard quadruple precision:

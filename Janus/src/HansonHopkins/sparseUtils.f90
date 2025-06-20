@@ -2,7 +2,7 @@ MODULE sparseUtils
 
   USE set_precision, ONLY: dkind
   USE sparseTypes, ONLY: dpTriplet, dpTripletList, dpHBSparseMatrix, &
-                         getExpansionFactor
+                         dpCSRSparseMatrix,getExpansionFactor
 
   CONTAINS
 ! print routines for each of the derived types 
@@ -10,23 +10,18 @@ MODULE sparseUtils
 
       SUBROUTINE printDpTriplet(triplet)
       TYPE(dpTriplet), INTENT(IN) :: triplet
-
       WRITE(*,'(''Row and Column Indices: '',I7,'','',I7,'' Value: '',E16.8)') &
          triplet%rowIndex,  triplet%columnIndex,  triplet%value
-
       END SUBROUTINE printDpTriplet
 
       SUBROUTINE printDpTripletList(tripletList)
       TYPE(dpTripletList), INTENT(INOUT) :: tripletList
       INTEGER :: i
       REAL(dkind) :: expFactor
-
       expFactor = getExpansionFactor(tripletList)
-
       WRITE(*, '(''Number of items in list: '',I7)') tripletList%lastTriplet
       WRITE(*, '(''Error flag: '',i5,''  Expansion factor: '',f7.3)') &
            tripletList%errFlag, expFactor 
-
       IF (tripletList%lastTriplet /= 0) THEN
         WRITE(*,'(I7,'': ('',I7,'','',I7,''): '',E16.8)') &
            (i, tripletList%rows(i), tripletList%columns(i), &
@@ -34,14 +29,11 @@ MODULE sparseUtils
       ELSE
         WRITE(*, '(''List empty'')')
       END IF
-
       END SUBROUTINE printDpTripletList
 
       SUBROUTINE printDpHBSparseMatrix(h)
       TYPE(dpHBSparseMatrix), INTENT(IN) :: h
-
       INTEGER :: col, row, rowStart, rowEnd
-
       WRITE(*, '(''Number of rows and columns: '',I6,'', '',I6)') &
          h%noOfRows, h%noOfColumns
       WRITE(*, '(''Error flag: '',i5)') h%errFlag
@@ -61,12 +53,26 @@ MODULE sparseUtils
 
       SUBROUTINE printDpmatrix(matrix)
        REAL (dkind), INTENT(IN) :: matrix(:,:)
-       integer :: row, columnsize
-       columnsize = Size(matrix,2)
+       integer :: row
        do row=1,Size(matrix,1)
-        WRITE(*, '(E14.6, E14.6)') matrix(row,1:columnsize)
+        WRITE(*,*) matrix(row,1:Size(matrix,2))
        end do
       END SUBROUTINE printDpmatrix
 
+      SUBROUTINE printDpCSRSparseMatrix(h)
+      TYPE(dpCSRSparseMatrix), INTENT(IN) :: h
+!      INTEGER :: i
+      WRITE(*, '(''Number of rows and columns: '',I6,'', '',I6)') &
+         h%noOfRows, h%noOfColumns
+!      do i=1,h%nnz
+!       WRITE(*, '(I6, E14.6)') h%ja(i),h%a(i)
+!      end do
+!      do i=1,h%noOfRows+1
+!       WRITE(*, '(I6)') h%ia(i)
+!      end do
+       WRITE(*,*) h%a(1:h%nnz)
+       WRITE(*,*) h%ja(1:h%nnz)
+       WRITE(*,*) h%ia(1:h%noOfRows+1)
+      END SUBROUTINE printDpCSRSparseMatrix
 
 END MODULE sparseUtils
