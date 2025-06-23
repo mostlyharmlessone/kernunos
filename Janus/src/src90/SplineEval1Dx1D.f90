@@ -15,7 +15,7 @@
       real(wp) :: fTmp(size(RadSlope%r,2)),frTmp(size(RadSlope%r,2)),frrTmp(size(RadSlope%r,2))
       real(wp) :: thta(size(RadSlope%r,2)),fttTmp(size(RadSlope%r,2)),frttTmp(size(RadSlope%r,2)),frrttTmp(size(RadSlope%r,2))
       real(wp) :: r(2*size(RadSlope%r,1)),z(2*size(RadSlope%r,1)),zr2(2*size(RadSlope%r,1)),c(M2)
-      integer :: L2,j,L,MM,N,i,i1,k,k1
+      integer :: L2,j,L,MM,N,i,i1,k,k1,err_report
 !      logical :: IsInf
 
       MM=size(RadSlope%r,2)
@@ -126,7 +126,7 @@
 !     FIRST CALL FOR PERIODIC SPLINE/LSQ OF f0, fttTmp is d2Y/dTHETA2
       if (Present(ftt)) then
        if (mod((iflag-mod(iflag,100))/100,100) == 0) then ! spline
-        call pspli(thta,fTmp,MM,fttTmp)
+        call pspli(thta,fTmp,MM,fttTmp,err_report)
         call SplineEval(1,thta,fTmp,fttTmp,MM,v,f,ft,ftt) !first parameter = 1 periodic
        else   ! LSQ  
         call lsqfit(thta,fTmp,MM,M2,c)
@@ -135,7 +135,7 @@
       else
        if (Present(ft)) then
         if (mod((iflag-mod(iflag,100))/100,100) == 0) then ! spline vs lsq
-         call pspli(thta,fTmp,MM,fttTmp)
+         call pspli(thta,fTmp,MM,fttTmp,err_report)
          call SplineEval(1,thta,fTmp,fttTmp,MM,v,f,ft)
         else ! LSQ
          call lsqfit(thta,fTmp,MM,M2,c)
@@ -150,7 +150,7 @@
           f=fTmp(i)
          else
           if (mod((iflag-mod(iflag,100))/100,100) == 0) then ! spline vs lsq
-           call pspli(thta,fTmp,MM,fttTmp)
+           call pspli(thta,fTmp,MM,fttTmp,err_report)
            call SplineEval(1,thta,fTmp,fttTmp,MM,v,f)
           else ! LSQ
            call lsqfit(thta,fTmp,MM,M2,c)
@@ -163,7 +163,7 @@
 !     SECOND CALL FOR PERIODIC SPLINE/LSQ OF fr (df/dR), frrtTmp is d3Y/dRdTHETA2
       if (Present(frt)) then
        if (mod((iflag-mod(iflag,100))/100,100) == 0) then ! spline vs lsq
-        call pspli(thta,frTmp,MM,frttTmp)
+        call pspli(thta,frTmp,MM,frttTmp,err_report)
         call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr,frt)
        else
         call lsqfit(thta,frTmp,MM,M2,c)
@@ -178,7 +178,7 @@
          fr=frTmp(i)
         else
          if (mod((iflag-mod(iflag,100))/100,100) == 0) then ! spline vs lsq
-          call pspli(thta,frTmp,MM,frttTmp)
+          call pspli(thta,frTmp,MM,frttTmp,err_report)
           call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr)
          else
           call lsqfit(thta,frTmp,MM,M2,c)
@@ -196,7 +196,7 @@
         frr=frrTmp(i)
        else
         if (mod((iflag-mod(iflag,100))/100,100) == 0) then ! spline vs lsq
-         call pspli(thta,frrTmp,MM,frrttTmp)
+         call pspli(thta,frrTmp,MM,frrttTmp,err_report)
          call SplineEval(1,thta,frrTmp,frrttTmp,MM,v,frr)
         else
          call lsqfit(thta,frrTmp,MM,M2,c)

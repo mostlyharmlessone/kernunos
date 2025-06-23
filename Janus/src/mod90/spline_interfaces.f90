@@ -51,11 +51,12 @@ module spline_interfaces
   integer, INTENT(OUT) :: err_report
  end subroutine
 
-subroutine pspli(t,z,n,zt2)
+subroutine pspli(t,z,n,zt2,err_report)
  use set_precision, only :  wp
  REAL(wp), intent(in) :: t(n),z(n)
  INTEGER, intent(in) :: n
  REAL(wp), intent(out) ::zt2(n)
+ integer, INTENT(OUT) :: err_report
  REAL(wp) :: PERD,error
  REAL(wp) :: d(n),a(n),b(n),c(n)
 end subroutine

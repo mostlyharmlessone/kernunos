@@ -721,7 +721,7 @@ subroutine Atlas_SplineFillin(Atlas,b,a)
  real(wp),INTENT(IN) :: b(:,:)
  real(wp), intent(out) :: a(size(b,1),size(b,2))
  TYPE(wpsplinevect) :: spline
- integer :: M1,N1,i,j,k
+ integer :: M1,N1,i,j,k,err_report
  real(wp) :: tht(size(b,1)),RTEMP,Q,radianK
 ! if Atlas then  size(b,2)->N and size(b,1)->M
  N1=size(b,2) !N1=N
@@ -745,7 +745,7 @@ subroutine Atlas_SplineFillin(Atlas,b,a)
    end do
 !  no splining if less than half the points available
    if (mvjr(i) .gt. (M1/2)) then
-    call pspli(t,z,mvjr(i),zt2)
+    call pspli(t,z,mvjr(i),zt2,err_report)
    else
     cycle
    endif
@@ -769,7 +769,7 @@ end subroutine Atlas_SplineFillin
 function splinefillintranspose(b) result(a)
  real(wp),INTENT(IN) :: b(:,:)
  TYPE(wpsplinevect) :: spline
- integer :: M1,N1,i,j,k
+ integer :: M1,N1,i,j,k, err_report
  real(wp) :: a(size(b,1),size(b,2)),tht(size(b,2)),RTEMP,Q,radianK
 ! if JMatrix then  size(b,2)->M and size(b,1)->N
  N1=size(b,1) !N1=N
@@ -792,7 +792,7 @@ function splinefillintranspose(b) result(a)
       end do
 !     no splining if less than half the points available
       if (mvjr(i) .gt. (M1/2)) then
-       call pspli(t,z,mvjr(i),zt2)
+       call pspli(t,z,mvjr(i),zt2,err_report)
        else
         cycle
        endif

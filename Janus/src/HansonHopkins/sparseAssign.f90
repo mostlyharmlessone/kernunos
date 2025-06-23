@@ -11,7 +11,6 @@
 ! This defines the basic operations for building a list of
 ! triplets from individual triplets and for clearing a 
 ! dpTripletList variable by reclaiming all the allocated space.
-
  !TYPE(dpTripletList) = TYPE(dpTriplet)
         MODULE PROCEDURE a_triplet
  !TYPE(dpTripletList) = TYPE(dpTriplet)(:)
@@ -27,6 +26,9 @@
 ! Convert a dpTripletList to HB sparse matrix form
 ! TYPE(dpHBSparseMatrix) = TYPE(dpTripletList)
         MODULE PROCEDURE dhbc_eq_list_of_triplets
+! Convert a CSR sparse to a HB sparse
+! TYPE(dpHBSparseMatrix) = TYPE(dpCSRSparseMatrix)
+        MODULE PROCEDURE dhbc_eq_dcsr
 ! Clear an HB sparse matrix and reclaim all allocated space
 ! TYPE(dpHBSparseMatrix) = INTEGER (0)
         MODULE PROCEDURE clear_dhbc
@@ -53,7 +55,7 @@
      END INTERFACE
 
      INTERFACE ASSIGNMENT (=)
-! This routine handles the overloaded assignment
+! Convert a sparse matrix in CSR format to a dense matrix
 ! REAL(:,:)=TYPE(dpCSRSparseMatrix)
       MODULE PROCEDURE matrix_eq_dcsr
      END INTERFACE
@@ -447,10 +449,9 @@ BLOCK:  DO
 
       END SUBROUTINE list_of_triplets_eq_dhbc
 
-
 SUBROUTINE list_of_triplets_eq_triplets(triplets,sparse)
 ! This routine handles the overloaded assignment
-! TYPE(dpTriplets)(:) = TYPE(dptripletList; opposite of SUBROUTINE list_of_triplets(sparse,triplets)
+! TYPE(dpTriplet)(:) = TYPE(dptripletList; opposite of SUBROUTINE list_of_triplets(sparse,triplets)
  IMPLICIT NONE
  TYPE (dpTriplet), INTENT (INOUT) :: triplets(:)
  TYPE (dpTripletList), INTENT (IN) :: sparse
@@ -497,6 +498,7 @@ USE sparsekit, ONLY: csrcoo
     end do
   end do
 END SUBROUTINE list_of_triplets_eq_dcsr
+
 
 SUBROUTINE dcsr_eq_list_of_triplets(dcsr,sparse)
 USE sparsekit, ONLY: coocsr
@@ -554,6 +556,20 @@ USE sparsekit, ONLY: coocsr
   DEALLOCATE(ind,itemp,ir)
 
 END SUBROUTINE dcsr_eq_list_of_triplets
+
+SUBROUTINE dhbc_eq_dcsr(dhbc,dcsr)
+! This routine handles the overloaded assignment
+! TYPE(dpHBSparseMatrix) = TYPE(dpCSRSparseMatrix)
+! using the above overloaded assignments
+  IMPLICIT NONE
+  TYPE (dpHBSparseMatrix), INTENT (INOUT) :: dhbc
+  TYPE (dpCSRSparseMatrix), INTENT (IN) :: dcsr
+  TYPE (dpTriplet), ALLOCATABLE :: triplets(:)
+  TYPE (dpTripletList) :: s
+  triplets = dcsr
+  s = triplets
+  dhbc = s
+END SUBROUTINE dhbc_eq_dcsr
 
 SUBROUTINE matrix_eq_dcsr(matrix,dcsr)
 USE sparsekit, ONLY: csrdns

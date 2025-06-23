@@ -1,4 +1,5 @@
     PROGRAM drivePiecewiseLinear
+! Modified to test use of normal equations/Gram matrix, test of CSR sparse matrix routines and comparison with dense matrix lapack solution
 ! Generate the coefficient matrix for a least squares problem
 ! that comes from piece-wise linear fitting of data with a
 ! continuous function.  The breakpoints are equally spaced.  
@@ -10,20 +11,27 @@
 ! The M data value are pairs (t_i, y(t_i)) where the t_i
 ! are random on (0,1).
 
-! The matrix  B=[A : I_M]
-!               [0 : A^T] is first defined as a list of triplets.
+!                 N     M
+! The matrix  B=[ A  : I_M][ x ]  =  [y]  M
+!               [0_N : A^T][ r ]     [0]  N
+
+! is first defined as a list of triplets.
 ! This matrix is assembled using overloaded assignment.
 ! B is then converted to Harwell-Boeing format using overloaded
 ! assignment between derived types.  The sparse matrix B has
 ! dimension (M+N) by (M+N).
 
+! Can alternatively solve normal equations
+! [A^TA ][ x ]  = [A^T*y] N x N
+! followed by solution DGESV or use of superlu, as A^TA is also sparse.
+
       USE set_precision, ONLY: dkind
-      USE sparseTypes, ONLY: dpTriplet, dpTripletList,&
-          dpHBSparseMatrix, slu_dpHBSparseMatrix
-      USE sparseOps, ONLY: OPERATOR(.p.)
+      USE sparseTypes, ONLY: dpTriplet, dpTripletList, dpCSRSparseMatrix, &
+                dpHBSparseMatrix, slu_dpHBSparseMatrix
+      USE sparseOps, ONLY: OPERATOR(.p.), OPERATOR(.t.)
       USE sluInterop, ONLY: OPERATOR(.ip.), ASSIGNMENT(=) 
       USE sparseAssign !, ONLY: ASSIGNMENT(=)
-      USE lapackinterface, ONLY: dnrm2
+      USE lapackinterface, ONLY: dnrm2, dgesv, GaussJordan
 
       IMPLICIT NONE
 
@@ -40,7 +48,7 @@
       INTEGER, ALLOCATABLE :: iseed(:), saw_points(:)
       INTEGER :: m, findInterval
 ! Define what will be the collection of matrix triplets.
-      TYPE (dpTripletList) :: s
+      TYPE (dpTripletList) :: s, s_test
 ! Define the Harwell-Boeing derived type that holds the
 ! processed triplets.
       TYPE (dpHBSparseMatrix) :: b
@@ -48,8 +56,23 @@
 ! matrix and factorization quantities.
       TYPE (slu_dpHBSparseMatrix) :: g
 
+! Define what will be the CSR version for the design matrix
+      TYPE (dpCSRSparseMatrix) :: a_csr
+! Define what will be the transposed CSR version for the design matrix
+      TYPE (dpCSRSparseMatrix) :: aT_csr
+! Define what will be the CSR version of A^TA for the design matrix
+      TYPE (dpCSRSparseMatrix) :: ata_csr
+ ! Define variables for test with Gram matrix
+      REAL(dkind), ALLOCATABLE :: rhs_test(:),ata(:,:),d(:)
+      INTEGER :: info
+      INTEGER, ALLOCATABLE :: ipiv(:)
+! Define what will be the collection of matrix triplets.
+      TYPE (dpTriplet), ALLOCATABLE :: triplets(:)
+! Timing
+      real(8) :: time_start, time_end
+
 ! Define local variables
-      REAL (dkind) :: delta, u, v, resid_error
+      REAL (dkind) :: delta, u, v, resid_error, residuals
       INTEGER :: errno, i, j, k, sz
 
       ALLOCATE (a(n), saw_points(n-1), STAT=errno)
@@ -105,21 +128,72 @@
 ! Write adjacent columns of the A matrix, in NW corner of B:    
         s = dpTriplet(j,k,v)
         s = dpTriplet(j,k+1,one-v)
+! copy for test of CSRSparse; only need A
+        s_test = dpTriplet(j,k,v)
+        s_test = dpTriplet(j,k+1,one-v)
 ! Write adjacent rows of the A^T matrix, in SE corner of B:
         s = dpTriplet(k+m,n+j,v)
         s = dpTriplet(k+m+1,n+j,one-v)
 ! Write row of identity matrix I_M, in NE corner of B:
         s = dpTriplet(j,n+j,one)
-      END DO
+      END DO      
+
+! Define the rest of the right-hand side.
+      rhs(m+1:n+m) = zero
+
+! Use overloaded assigment to convert from a list of
+! triplets. Create a CSR matrix representation for
+! This assignment (a_csr =) converts the S list to a sparse matrix format
+      ALLOCATE (rhs_test(n),d(n),ipiv(n), STAT=errno)
+      a_csr = s_test
+      aT_csr =  .t. a_csr        ! generates the sparse transpose (could have done it with triplets above)
+      ata_csr = aT_csr .p. a_csr ! generates the NxN Gram matrix which may not be as sparse and may be ill-conditioned
+      rhs_test(1:n)= aT_csr .p. rhs(1:m)
+! Clear out space used by s_test
+      s_test = 0
+
+! Using superlu with Gram matrix and normal equations, fastest
+! Solve for the coefficients of the piece-wise linear spline; you don't get residuals this way
+      call CPU_TIME(time_start)
+! Convert to HB
+      b= ata_csr
+      d = b .ip. rhs_test
+      r = ( a_csr .p. d )  - rhs
+      residuals = dnrm2(m,r,1)
+      call CPU_TIME(time_end)
+      write(*,*) 'Superlu with normal equations'
+      WRITE (*,'(A)') ' Data Fitting of y(t)=t**2, (0,1).'
+      WRITE (*,'(A,1PG12.5)') ' Computed Residuals (00) (Vector Norm)', residuals
+      write(*,*) 'time ',time_end-time_start
+      write(*,*) ' '
+
+! Using lapack with Gram matrix and normal equations, converting to dense matrix, slowest
+! Solve for the coefficients of the piece-wise linear spline; you don't get residuals this way
+      call CPU_TIME(time_start)
+! Convert to a dense matrix
+      ata = ata_csr
+      d(:)=rhs_test(:)    ! d gets overwritten
+      call DGESV(n, 1, ata, n, IPIV, d, n, info ) ! d is overwritten
+!     Non-Lapack really slow routine
+!     call GaussJordan( n, 1, ata, n, d, n, info )
+      r = ( a_csr .p. d ) - rhs
+      residuals = dnrm2(m,r,1)
+      call CPU_TIME(time_end)
+      write(*,*) 'Lapack with dense matrix normal equations'
+      WRITE (*,'(A)') ' Data Fitting of y(t)=t**2, (0,1).'
+      WRITE (*,'(A,1PG12.5)') ' Computed Residuals (0) (Vector Norm)', residuals
+      write(*,*) 'time ',time_end-time_start
+      write(*,*) ' '
+
+! Using original H & H matrix above avoiding Gram matrix, and using superlu, intermediate in speed
 ! Use overloaded assigment to convert from a list of
 ! triplets. Create a Harwell-Boeing matrix representation for B.
 ! This assignment (B =) converts the S list to a sparse matrix format.
+      call CPU_TIME(time_start)
       b = s
 ! Clear out space occupied by S.  This assignment deallocates
 ! the space used accumulating the list, S.
       s = 0
-! Define the rest of the right-hand side.
-      rhs(m+1:n+m) = zero
 ! Solve for the coefficients of the piece-wise linear spline.
 ! This defined operation works with a Harwell-Boeing matrix
 ! and ascends B to be a component of an extended type, G.
@@ -130,13 +204,19 @@
 ! are the same as the negative values of X(N+1:N+M).    
       r = b .p. x(1:n)
       r = r - rhs
+      residuals = dnrm2(m,r,1)
       r(1:m) = r(1:m) + x(n+1:n+m)
       resid_error = dnrm2(m,r,1)/dnrm2(m,x(n+1),1)
+      call CPU_TIME(time_end)
+      write(*,*) 'Superlu with sparse matrix, no Gram matrix'
       WRITE (*,'(A)') ' Data Fitting of y(t)=t**2, (0,1).'
-      WRITE (*,'(A,2I10)') &
-        ' The number of breakpoints (N) and data points (M) ', n, m
+      WRITE (*,'(A,1PG12.5)') ' Computed Residuals (1) (Vector Norm)', residuals
+      write(*,*) 'time ',time_end-time_start
       WRITE (*,'(/A/(A,1PG12.5))') ' Relative Error (1) (Vector Norm)', &
         ' with solution and computed residual =', resid_error
+      WRITE (*,'(A,2I10)') &
+        ' The number of breakpoints (N) and data points (M) ', n, m
+
 
 ! Ascend B, the Harwell-Boeing matrix, to the extended type G.
 ! The advantage of using .ip. on the extended type is that a
@@ -151,13 +231,18 @@
       x = g .ip. rhs
       r = b .p. x(1:n)
       r = r - rhs
+      residuals = dnrm2(m,r,1)
       r(1:m) = r(1:m) + x(n+1:n+m)
       resid_error = dnrm2(m,r,1)/dnrm2(m,x(n+1:),1)
+      write(*,*) 'Superlu with sparse matrix, no Gram matrix'
       WRITE (*,'(A)') ' Repeated Data Fitting of y(t)=t**2, (0,1) - No Factorization -.'
-      WRITE (*,'(A,2I10)') &
-        ' The number of breakpoints (N) and data points (M) ', n, m
+      WRITE (*,'(A,1PG12.5)') ' Computed Residuals (2) (Vector Norm)', residuals
+
       WRITE (*,'(/A/(A,1PG12.5))') ' Relative Error (2) (Vector Norm)', &
         ' with solution and computed residual =', resid_error
+      WRITE (*,'(A,2I10)') &
+        ' The number of breakpoints (N) and data points (M) ', n, m
+
 
 !the difference is easily seen by setting n=20 instead of 2000
 !plot t(j),z(j) ie t(j), t(j)**2 j=1,m and also a(k),x(k) k=1,n

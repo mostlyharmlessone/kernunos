@@ -11,12 +11,12 @@
 ! The M data value are pairs (t_i, y(t_i)) where the t_i
 ! are random on (0,1).
 
-! the design matric A (Mx2N) is for the LSQ solution to A*z=y (M data points) with constraint C*(z,z")=d as (2N x N) constraints
+! the design matric A (Mx2N) is for the LSQ solution to A*y=b (M data points) with constraint C*(z,z")=d as (2N x N) constraints
 ! on the continuity of the first derivatives at the knots, h are the Lagrange multipliers
 ! then y == (z sub j,z" sub j) alternating.
 
-! The matrix  B=[A^TA : C^T][(z,z") ]  = [A^T*y] 2N
-!               [ C   :  0 ][    h  ]    [  d  ] N
+! The matrix  B=[A^TA : C^T][ y ]  = [A^T*b] 2N
+!               [ C   :  0 ][ h ]    [  d  ] N
 !                 2N     N
 
 ! The matrix B has dimension (3N x 3N) but has the possibly ill-conditioned Gram product ATA.
@@ -26,7 +26,7 @@
 ! The matrix  B= [A : I_M :  0 ][ y ]   [ b ] M
 !                [0 : A^T : C^T][ r ] = [ 0 ] 2N
 !                [C :  0  :  0 ][ h ]   [ d ] N
-!                 M    2N    N
+!                 2N   M     N
 ! which adds the constraint C*y=d, with h Lagrange multipliers
 ! which can be rearranged for symmetry as (Amy Tabb referencing Matrix Computations, Gene H. Golub and Charles F. Van Loan. 4th edition, 2013 ISBN 9781421407944.)
 
@@ -121,8 +121,10 @@
 ! Set random number seed so the same sequence results.
       CALL random_seed(put=iseed)
 
+
+!! copied from Linear
 ! Allocate local working space
-      ALLOCATE (t(m),x(n+m),y(n+m),r(n+m),rhs(n+m), STAT=errno)
+      ALLOCATE (t(m),x(n+m),r(n+m),rhs(n+m), STAT=errno)
       IF (errno /= 0) THEN
         print *, "Allocate fails with errno: ", errno
       END IF
@@ -130,8 +132,31 @@
 ! Record the function values in RHS(*).
       DO j = 1, m
         CALL random_number(t(j))
-        y(j) = t(j)**2
-      end do
+        rhs(j) = t(j)**2
+        k = findInterval(t(j), n, a)
+        v = (t(j)-a(k))/delta
+! Gather up the list of the sparse matrix triplets (S) that
+! will define B.  The next assignments (S =) are accumulation
+! steps of the list of matrix entries.
+! Write adjacent columns of the A matrix, in NW corner of B:
+        s = dpTriplet(j,k,v)
+        s = dpTriplet(j,k+1,one-v)
+! copy for test of CSRSparse; only need A
+        s_test = dpTriplet(j,k,v)
+        s_test = dpTriplet(j,k+1,one-v)
+! Write adjacent rows of the A^T matrix, in SE corner of B:
+        s = dpTriplet(k+m,n+j,v)
+        s = dpTriplet(k+m+1,n+j,one-v)
+! Write row of identity matrix I_M, in NE corner of B:
+        s = dpTriplet(j,n+j,one)
+      END DO
+
+! Define the rest of the right-hand side.
+      rhs(m+1:n+m) = zero
+
+
+
+
 
 ! Design matrix 2NxM equations
 
@@ -156,24 +181,10 @@
 ! triplets. Create a Compressed Sparse Row matrix representation for A, A^T.
         acbd_csr = acbd
         acbdT_csr = acbdT
-
-!! makes array temprs on call to csrcoo sparseAssign lne 476
-        acbdT_csr = .t. acbd_csr
-
-!! crashes line 253 bb not allocated
-        s = .t. s
-
-
 ! Create A^TA by multiplication of CSR sparse matrices
-!!! problems in sparsekit
-! At line 3908 of file /home/debeus/Janus/Janus/src/sparse/sparsekit.f90
-! Fortran runtime error: Index '0' of dimension 1 of array 'iao' below lower bound of 1
         ata_csr = acbdT_csr .p. acbd_csr
 ! Create A^T*y
-!!! problems in sparsekit
         rhs(1:2*n) = acbdT_csr .p. y(1:m)
-
-
 ! Create triplets corresponding to A^TA
         trip_array = ata_csr
 ! Create tripletlist
@@ -206,6 +217,8 @@ DO j = 2, m-1
   s = dpTriplet(k+m+1,n+j,(a(k+1)-t(j))/6.0)
 
 END DO
+
+
 
 
 ! Use overloaded assigment to convert from a list of

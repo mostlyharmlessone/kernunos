@@ -1,4 +1,4 @@
-       subroutine pspli(t,z,n,zt2)
+       subroutine pspli(t,z,n,zt2, err_report)
        use cornea_arrays, only : PI, EPS
        use set_precision, only :  wp
        USE special_fct, ONLY : OPERATOR(.p.) !tensor summation convention
@@ -9,11 +9,13 @@
        REAL(wp), intent(in) :: t(n),z(n)
        INTEGER, intent(in) :: n
        REAL(wp), intent(out) ::zt2(n)
+       integer, INTENT(OUT) :: err_report
        REAL(wp) :: PERD,error
        REAL(wp) :: d(n),a(n),b(n),c(n) !,AA(n,n)
        INTEGER :: m,j,info !,ipiv(n)
        logical :: IsInf 
 
+       INFO=0   ; err_report = 0
        PERD=2*PI
 !      ill-conditioning with PERD close to t(n)-t(1)   
 !      CASE WHERE c(n)/=a(1) AND z(1)/=z(n) AND t(1)-t(n)+PERD/=0        
@@ -59,6 +61,7 @@
 !      call GaussJordan( m, 1, AA, m, D, m, INFO )
        if (info > 0) then
         write(*,*) 'pspli matrix solving error, info:',info
+        err_report = info
        endif
 
        zt2=d             
@@ -73,7 +76,8 @@
 
        if(.not.IsInf) then
         write(*,*) 'Warning from pspli',m,n,t(1),t(m),ABS(t(1)-t(m)+PERD),ieee_is_finite(z .p. z)
-        stop
+        err_report = -1
+        return
        endif
        
        end subroutine pspli

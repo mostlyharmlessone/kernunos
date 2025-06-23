@@ -2,8 +2,8 @@ things to do
 
 CorneaCopia
 
-make driverPieceWiseCubic a drop in replacement for nspline or pspli
-need a radial version and a periodic version (only affects two numbers in constraints
+make driverPieceWiseCubic a drop in replacement for nspline or pspli; possibly unify the interface for those as well as one_dimensional_spline
+need a radial version and a periodic version (should only affect two numbers in constraints)
 do 1d lsq spline, use existing splineval on lsq spline, then lsq (periodic) spline the second part and use existing splineeval
 
 built framework for decenter; both involve moving elevation data points, either, 
@@ -27,7 +27,7 @@ cuSPARSE ?strumpack if not, remove from README
 https://docs.nersc.gov/performance/readiness/
 nvidia compiler flags -fast -mp=gpu -gpu=cc80  (openMP offload to gpu, source NSERC, 
 also recommend "teams" directive not  "target parallel for" in c++
-OpenMP 4 vs.
+OpenMP 4 
 #pragma omp target teams distribute parallel for 
 for (int i = 0; i < N; i++) a[i]=b[i]+ scalar * c[i]; 
 OpenMP 5.0
@@ -127,24 +127,31 @@ Passing an assumed-shape array or array pointer to an explicit-shape array can s
 Spline routines seem to have explicit shape, and are passed possibly assumed-shape
 
 
-include these and similar notes in io.f90
-notes on OPD Nidek files
+include these and similar notes in io_functions.f90
 
-OPD, Internal OPD, PSF, MTF graph, Visual Acuity
+notes on EyeSys files, RA, XX, PU, HDR 
+RA == ?Radii of rings in EyeSys terms, increasing in magnitude from 40's to 400's with the EyeSys XX files being the sagittal curvature given in diopters 700's because R=(n-1)/D
+
+notes on OPD-III Nidek files
+
+from the manual and brochure:
 33 vertical, 39 horizontal (6 extra partial horizontal rings horizontally)
-0.5 to 11.0 mm (R = 7.9 mm)
 11,880 points and more
 Axial, Instantaneous, "Refractive", Elevation
 33 x 360 = 11880
 
-The binary ones may be compressed; see the uncompressed database I downloaded and the opd-iii manual in docs
+They are similar to EyeSys dat files.
 
-There are only 23 mires in the uncompressed files; the manula says the number of rings is adjustable up to 33
-RA == ?Radii of rings in EyeSys terms, increasing in magnitude from 40's to 400's with the EyeSys XX files being the sagittal curvature given in diopters 700's because R=(n-1)/D
-RA Nidek seems to be 7.xx curvatures ED 0.40 to 4.x ? radii or HT* height?
+The binary files may simply be compressed; they appear to be a 30-50% smaller than the uncompressed versions & the opd-iii manual describes "compressed vs uncompressed database"
+However, if so, not very good nonstandard compression, for example AR*.DAT files ASCII are about 25Kbytes, binary versions are 14Kybes but using gzip on ASCII gives 3.7Kbytes
+
+There are only 23 mires in the uncompressed files; the manual says the number of rings is adjustable up to 33
+Nidek RA seems to be 7.xx curvatures (corresponding to EyeSys XX file) 
+ED 0.40 to 4.x ? radii (corresponding to EyeSys RA file) 
+HT* files seem to be elevation from 0.01- > 2.x
 QV* files are Q values for CL fitting per the manual.
 
-I suspect they are based on EyeSys files with 33 mires and 360 meridians (each degree)
+the compressed files appear to have 33 mires and 360 meridians (each degree)
 They are calibration files, not patient data, stored as *.CAB files under Windows, extracted and all with *.DAT except for RP*.txt
 RE*, PU*, PP*, EY* .DAT are all *.PNG image files, EY* are rings. There are 16 rings in an image seen
 RP*.txt viewed in mc has hex data terminated with ASCII descriptors of cylinder, sphere, PD etc. look like summary data; line terminations are (0D 0A)
@@ -176,7 +183,7 @@ PE*.dat shows 361 data segments the first is a long segment 9 bytes, then 360 x 
 
 
 Misc notes
-EyeSys EY*.DAT file is not an image; or try raw image file
+EyeSys EY*.DAT file is not an image
 PentaCam U12 file looks like it has binary data separated by blocks of zero, possibly readable.
 iTrace 8640 points = 360 x 24; has "Data" binary compressed with gzip
 
