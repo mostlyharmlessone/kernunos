@@ -227,58 +227,6 @@ else()
   set(LIBS )
 endif(WIN32)
 
-#superlu example from chapter12
-
-set(LIBS2 ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${SUPERLU_LIBRARIES})
-set(HH_SOURCES
-                   src/HansonHopkins/driverPiecewiseLinear.f90
-                   src/HansonHopkins/set_precision.f90
-                   src/HansonHopkins/LapackInterface.f90
-                   src/sparse/sparsekit.f90
-                   src/sparse/sparsekit_test01.f90
-                   src/HansonHopkins/sparseAssign.f90
-                   src/HansonHopkins/sparseOps.f90
-                   src/HansonHopkins/sparseSort.f90
-                   src/HansonHopkins/sparseTypes.f90
-                   src/HansonHopkins/sparseUtils.f90
-                   src/HansonHopkins/sluInterop.f90
-                   src/HansonHopkins/sortElements.f90
-                   src/HansonHopkins/fortran_double_call_SuperLU.c
-                   src/HansonHopkins/slu_Cnames.h
-                   src/HansonHopkins/slu_ddefs.h
-                   src/HansonHopkins/slu_util.h
-                   src/HansonHopkins/superlu_enum_consts.h
-                   src/HansonHopkins/supermatrix.h
-                   )
-               add_executable(driverPiecewiseLinear
-                   ${HH_SOURCES}
-               )
-target_link_libraries(driverPiecewiseLinear ${LIBS2})
-
-set(HH_SOURCES2
-                   src/HansonHopkins/driverPiecewiseCubic.f90
-                   src/HansonHopkins/set_precision.f90
-                   src/HansonHopkins/LapackInterface.f90
-                   src/sparse/sparsekit.f90
-                   src/sparse/sparsekit_test01.f90
-                   src/HansonHopkins/sparseAssign.f90
-                   src/HansonHopkins/sparseOps.f90
-                   src/HansonHopkins/sparseSort.f90
-                   src/HansonHopkins/sparseTypes.f90
-                   src/HansonHopkins/sparseUtils.f90
-                   src/HansonHopkins/sluInterop.f90
-                   src/HansonHopkins/sortElements.f90
-                   src/HansonHopkins/fortran_double_call_SuperLU.c
-                   src/HansonHopkins/slu_Cnames.h
-                   src/HansonHopkins/slu_ddefs.h
-                   src/HansonHopkins/slu_util.h
-                   src/HansonHopkins/superlu_enum_consts.h
-                   src/HansonHopkins/supermatrix.h
-                   )
-               add_executable(driverPiecewiseCubic
-                   ${HH_SOURCES2}
-               )
-target_link_libraries(driverPiecewiseCubic ${LIBS2})
 
 #viennaCL
 # ViennaCL example
@@ -314,13 +262,13 @@ target_link_libraries(driverPiecewiseCubic ${LIBS2})
         src/c/kernunos/Ccounter.c src/c/kernunos/counter.h)
 
 #   Fortran Source
+
+    file(GLOB_RECURSE math77_lib     math77/src/MATH77/src/src90/*.f)
     file(GLOB_RECURSE lib_sources90  src/src90/*.f90 src/src90/*.f90*.for)
     file(GLOB_RECURSE mod_sources90  src/mod90/*.f90
                                      src/HansonHopkins/set_precision.f90
                                      src/HansonHopkins/LapackInterface.f90)
-    add_library( rply_includes ${rply_sources})
-    add_library( modules ${mod_sources90} ${interface})
-    add_library( splia ${lib_sources90} ${interface})
+    add_library( libmath77 ${math77_lib})
 
 #libraries      
     set(LIBS ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} ${GFORTRAN_LIBRARY})
@@ -328,8 +276,68 @@ target_link_libraries(driverPiecewiseCubic ${LIBS2})
 # need this so that GLwidget.h can be found by AUTOUIC and ui.mainwindow.h, and for rply and assimp
 include_directories(src/cxx/kernunos src/c/rply)
 
-#kernunos Qt version
+#superlu example from chapter12
 
+set(LIBS2 ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${SUPERLU_LIBRARIES})
+set(HH_SOURCES
+                   src/HansonHopkins/driverPiecewiseLinear.f90
+                   src/HansonHopkins/set_precision.f90
+                   src/HansonHopkins/LapackInterface.f90
+                   src/sparse/sparsekit.f90
+                   src/sparse/sparsekit_test01.f90
+                   src/HansonHopkins/sparseAssign.f90
+                   src/HansonHopkins/sparseOps.f90
+                   src/HansonHopkins/sparseSort.f90
+                   src/HansonHopkins/sparseTypes.f90
+                   src/HansonHopkins/sparseUtils.f90
+                   src/HansonHopkins/sluInterop.f90
+                   src/HansonHopkins/sortElements.f90
+                   src/HansonHopkins/fortran_double_call_SuperLU.c
+                   src/HansonHopkins/slu_Cnames.h
+                   src/HansonHopkins/slu_ddefs.h
+                   src/HansonHopkins/slu_util.h
+                   src/HansonHopkins/superlu_enum_consts.h
+                   src/HansonHopkins/supermatrix.h
+                   src/src90/gauss-jordan.f90
+                   )
+               add_executable(driverPiecewiseLinear
+                   ${HH_SOURCES}
+               )
+target_link_libraries(driverPiecewiseLinear ${LIBS2})
+
+set(HH_SOURCES2
+                   src/HansonHopkins/driverPiecewiseCubic.f90
+                   src/HansonHopkins/set_precision.f90
+                   src/HansonHopkins/LapackInterface.f90
+                   src/sparse/sparsekit.f90
+                   src/sparse/sparsekit_test01.f90
+                   src/HansonHopkins/sparseAssign.f90
+                   src/HansonHopkins/sparseOps.f90
+                   src/HansonHopkins/sparseSort.f90
+                   src/HansonHopkins/sparseTypes.f90
+                   src/HansonHopkins/sparseUtils.f90
+                   src/HansonHopkins/sluInterop.f90
+                   src/HansonHopkins/sortElements.f90
+                   src/HansonHopkins/fortran_double_call_SuperLU.c
+                   src/HansonHopkins/slu_Cnames.h
+                   src/HansonHopkins/slu_ddefs.h
+                   src/HansonHopkins/slu_util.h
+                   src/HansonHopkins/superlu_enum_consts.h
+                   src/HansonHopkins/supermatrix.h
+                   src/src90/gauss-jordan.f90
+                   src/src90/bsearch.f90
+                   )
+               add_executable(driverPiecewiseCubic
+                   ${HH_SOURCES2}
+               )
+target_link_libraries(driverPiecewiseCubic libmath77 ${LIBS2})
+
+#kernunos Qt version
+# has to follow after sparsetypes.mod is generated by above; will have to fix eventually
+
+add_library( rply_includes ${rply_sources})
+add_library( modules ${mod_sources90} ${interface})
+add_library( splia ${lib_sources90} ${interface})
 
 set(PROJECT_SOURCES
                    src/c/kernunos/logc.c src/c/kernunos/logc.h

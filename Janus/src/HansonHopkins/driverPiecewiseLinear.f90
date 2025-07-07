@@ -38,7 +38,7 @@
 ! Real constants
       REAL(dkind), PARAMETER :: one=1.0E0_dkind, zero=0.0E0_dkind
 ! Set problem size:
-      INTEGER, PARAMETER :: n=2000 ! Could make this an input value
+      INTEGER, PARAMETER :: n=100 !=2000 ! Could make this an input value
 ! Define arrays for knots, data points, etc
       REAL(dkind), ALLOCATABLE :: a(:), rhs(:), t(:), x(:), r(:)
 ! iseed is used to store the seed used for the Fortran intrinsic
@@ -70,6 +70,8 @@
       TYPE (dpTriplet), ALLOCATABLE :: triplets(:)
 ! Timing
       real(8) :: time_start, time_end
+      real(dkind) :: sumsq
+
 
 ! Define local variables
       REAL (dkind) :: delta, u, v, resid_error, residuals
@@ -120,6 +122,7 @@
       DO j = 1, m
         CALL random_number(t(j))
         rhs(j) = t(j)**2
+!        rhs(j) = sin(5*3.14*t(j))
         k = findInterval(t(j), n, a)
         v = (t(j)-a(k))/delta
 ! Gather up the list of the sparse matrix triplets (S) that
@@ -136,7 +139,7 @@
         s = dpTriplet(k+m+1,n+j,one-v)
 ! Write row of identity matrix I_M, in NE corner of B:
         s = dpTriplet(j,n+j,one)
-      END DO      
+      END DO
 
 ! Define the rest of the right-hand side.
       rhs(m+1:n+m) = zero
@@ -201,7 +204,7 @@
 ! are used.
       x = b .ip. rhs
 ! Compute the residual.  The first M components of R
-! are the same as the negative values of X(N+1:N+M).    
+! are the same as the negative values of X(N+1:N+M).
       r = b .p. x(1:n)
       r = r - rhs
       residuals = dnrm2(m,r,1)
@@ -244,13 +247,19 @@
         ' The number of breakpoints (N) and data points (M) ', n, m
 
 
-!the difference is easily seen by setting n=20 instead of 2000
-!plot t(j),z(j) ie t(j), t(j)**2 j=1,m and also a(k),x(k) k=1,n
-! x are the coefficients so y=x(i)v+x(i+1)(1-v); at knots v=1 so x(i)==y(i)
 ! so comparison of fit to data x(k) to computed actual data a(k)**2 at knots (which you don't get as data) is
-! do k=1,n
-!   write(*,*) a(k),x(k),a(k)**2
-! end do
+sumsq = 0
+ do k=1,n
+   write(*,*) a(k),x(k),a(k)**2,x(k)-a(k)**2
+   sumsq=sumsq+(x(k)-a(k)**2)**2
+!   write(*,*) a(k),x(k),sin(5*3.14*a(k)),x(k)-sin(5*3.14*a(k))
+!   sumsq=sumsq+(x(k)-sin(5*3.14*a(k)))**2
+ end do
+   sumsq=sqrt(sumsq)/n
+write(*,*) 'Sum Squared',sumsq
+
+
+
 
 ! Free storage and clear matrix
       g = 0
