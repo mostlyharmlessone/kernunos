@@ -57,8 +57,8 @@
 ! Real constants
       REAL(dkind), PARAMETER :: one=1.0E0_dkind, zero=0.0E0_dkind
 ! Set problem size:
-      INTEGER, PARAMETER :: n=10 !n=2000 ! Could make this an input value
-      LOGICAL, PARAMETER :: periodic = .false. ! Could make this an input value
+      INTEGER, PARAMETER :: n=20 !n=2000 ! Could make this an input value
+      LOGICAL, PARAMETER :: periodic = .true. ! Could make this an input value
 ! Define arrays for knots, data points, etc
       REAL(dkind), ALLOCATABLE :: a(:), rhs(:), t(:), x(:), r(:),rhs_test(:)
 ! iseed is used to store the seed used for the Fortran intrinsic
@@ -87,35 +87,35 @@
 ! matrix and factorization quantities.
       TYPE (slu_dpHBSparseMatrix) :: g
 
+! Modified to allow n intervals after each break point including the last one for periodic cas
 ! Define local variables
       REAL (dkind) :: delta, v, u, resid_error
       INTEGER :: errno, i, j, k, sz
-! Modified to allow n intervals
-
-!!!!!
-!      ALLOCATE (a(n), saw_points(n-1), STAT=errno)
-      ALLOCATE (a(n), saw_points(n), STAT=errno)
-
-
-      IF (errno /= 0) THEN
+      if (periodic) then
+       ALLOCATE (a(n), saw_points(n), STAT=errno)
+       IF (errno /= 0) THEN
         print *, "Allocate fails with errno: ", errno
-      END IF
-      delta = one/real(n-1,dkind)
-
-
-!!!!!!!!!!
-!      delta = one/real(n,dkind)
-
+       END IF
+       delta = one/real(n,dkind)
 ! Define the array of breakpoints
-      a(1) = zero
-      a(n) = one
-! Define the knots or inner breakpoints
-!!!!!!!!!!!
-!      DO i = 2, n
-
-       DO i = 2, n - 1
-        a(i) = a(i-1) + delta
-      END DO
+       a(1) = zero
+       a(n) = one-delta
+        DO i = 2, n - 1
+         a(i) = a(i-1) + delta
+       END DO
+      else
+       ALLOCATE (a(n), saw_points(n-1), STAT=errno)
+       IF (errno /= 0) THEN
+         print *, "Allocate fails with errno: ", errno
+       END IF
+       delta = one/real(n-1,dkind)
+! Define the array of breakpoints
+       a(1) = zero
+       a(n) = one
+        DO i = 2, n - 1
+         a(i) = a(i-1) + delta
+       END DO
+      endif
 
 ! Generate sufficient random values so that each interval
 ! has at least one value.  We do not store these data values
@@ -133,13 +133,7 @@
       CALL random_seed(get=iseed)
       DO WHILE (any(saw_points==0))
         CALL random_number(u)
-
-!!!!!!!!!!!!!!!!!!!!!!!
-        k = findInterval(u*(1.0+delta), n, a)
-        call bsearch(u*(1.0+delta),a,n,high,low)
-
-!        k = findInterval(u, n, a)
-
+        k = findInterval(u, n, a, periodic)
         saw_points(k) = 1
         m = m + 1
       END DO
@@ -154,22 +148,14 @@
 ! Record the function values in RHS(*).
       DO j = 1, m     ! j = data points
         CALL random_number(u)
-        t(j) = u *(1.0+delta)
-!         t(j) = u
-!        rhs(j) = sin(5*3.14*t(j)) !t(j)**2
-        rhs(j) = t(j)**2
-
-!!!!!!!!!!!!!!!
-        call bsearch(t(j),a,n,high,low)
-        k = findInterval(t(j), n, a)
-        if (k .ne. low) write(*,*) 'low',low,k,high,t(j),a(k)
-        if (k .ne. high) write(*,*) 'high',low,k,high,t(j),a(k)
-
+         t(j) = u
+        rhs(j) = sin(4*3.14*t(j)) !
+!        rhs(j) = t(j)**2
+        k = findInterval(t(j), n, a, periodic)
         v = one-(t(j)-a(k))/delta
 ! Gather up the list of the sparse matrix triplets (S) that
 ! will define B.  The next assignments (S =) are accumulation
 ! steps of the list of matrix entries.
-
 ! Write adjacent columns of the (design) A matrix, in NW corner of B:
 ! Starts at 1st row and column, m rows, 2*n columns; odd is z, even z''
         s = dpTriplet(j,2*k-1,v)
@@ -189,11 +175,13 @@
         s = dpTriplet(2*k+2+m,2*n+j,delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0 )
 ! Write row of identity matrix I_M, top middle of B:
         s = dpTriplet(j,2*n+j,one)
+      END DO
 
+! Constraints are not dependent on data j or m
+      DO k=1,n
 ! Write adjacent columns of the C^T matrix, along middle right/E border of B:
 ! Starts at m+1 row and m+2n+1 column; 2n rows, n columns
 ! first column of C^T, two versions depending on periodicity
-
         IF ( k .eq. 1 ) THEN
          IF (periodic) then
           s = dpTriplet(2*k-1+m,k+m+n+n,    2.0 )
@@ -208,7 +196,6 @@
           s = dpTriplet(2*k+m,k+m+n+n,    1.0 )
          ENDIF
         ENDIF
-
         IF ( k .gt. 1 .and. k .lt. n  ) THEN
          s = dpTriplet(2*k-3+m,k+m+n+n,  -1.0)
          s = dpTriplet(2*k-2+m,k+m+n+n,  delta*delta/6.0 )
@@ -217,8 +204,6 @@
          s = dpTriplet(2*k+1+m,k+m+n+n,  -1.0)
          s = dpTriplet(2*k+2+m,k+m+n+n,  delta*delta/6.0)
         ENDIF
-
-
 ! last column of C^T, two versions depending on periodicity
         IF ( k .eq. n ) THEN
          IF (periodic) then
@@ -234,13 +219,10 @@
           s = dpTriplet(2*k+m,k+m+n+n,    1.0 )
          ENDIF
         ENDIF
-
-
 ! Write rows of the (constraint) C matrix, in SW corner of B:
 ! Starts at m+2n+1 rows, 1st column, n rows, 2*n columns
 ! first row of C, two versions depending on periodicity
 ! These are the constraints on the slopes
-
         IF ( k .eq. 1 ) THEN
          IF (periodic) then
           s = dpTriplet(k+m+n+n,2*k-1,    2.0 )
@@ -255,7 +237,6 @@
           s = dpTriplet(k+m+n+n,2*k,   1.0 )
          ENDIF
         ENDIF
-
         IF ( k .gt. 1 .and. k .lt. n  ) THEN
          s = dpTriplet(k+m+n+n,2*k-3,  -1.0)
          s = dpTriplet(k+m+n+n,2*k-2,  delta*delta/6.0 )
@@ -264,7 +245,6 @@
          s = dpTriplet(k+m+n+n,2*k+1,  -1.0)
          s = dpTriplet(k+m+n+n,2*k+2,  delta*delta/6.0)
         ENDIF
-
 ! last row of C, two versions depending on periodicity
         IF ( k .eq. n ) THEN
          IF (periodic) then
@@ -281,10 +261,8 @@
          ENDIF
         ENDIF
 
-
 ! CSR versions start at 2n+1 row and 1st column for C,   n rows, 2n columns
 !                       2n+1 column and 1st row for C^T, 2n rows, n columns
-
       END DO
 
 ! Define the rest of the right-hand side; the constraint C*y = d = 0
@@ -379,10 +357,10 @@ if (info .ne. 0) stop
 ! so comparison of fit to data x(k) to computed actual data a(k)**2 at knots (which you don't get as data) is
 sumsq = 0
  do k=1,n
-   write(*,*) a(k),x(2*k-1),a(k)**2,x(2*k-1)-a(k)**2
-   sumsq=sumsq+(x(2*k-1)-a(k)**2)**2
-!   write(*,*) a(k),x(2*k-1),sin(5*3.14*a(k)),x(2*k-1)-sin(5*3.14*a(k))
-!   sumsq=sumsq+(x(2*k-1)-sin(5*3.14*a(k)))**2
+!   write(*,*) a(k),x(2*k-1),a(k)**2,x(2*k-1)-a(k)**2
+!   sumsq=sumsq+(x(2*k-1)-a(k)**2)**2
+   write(*,*) a(k),x(2*k-1),sin(4*3.14*a(k)),x(2*k-1)-sin(5*3.14*a(k))
+   sumsq=sumsq+(x(2*k-1)-sin(4*3.14*a(k)))**2
  end do
    sumsq=sqrt(sumsq)/n
 write(*,*) 'Sum Squared',sumsq
@@ -430,24 +408,32 @@ write(*,*) 'Sum Squared',sumsq
 !  call DC2FIT(X, Y, SD, NXY, B, NB, W, NW, YKNOT,YPKNOT,SIGFAC,IERR)
 
 
+!!!!slope constraint met by periodic conditions; periodicity of function not met in design?
 
 
 do j=1,1001
 z = (j-1)/1000.0
-k = findInterval(z, n, a)
+k = findInterval(z, n, a, periodic)
         IF ( k .gt. 1 .and. k .lt. n  ) THEN
         zs = -1.0*x(2*k-3) + x(2*k-2)*delta*delta/6.0 + 2.0*x(2*k-1) + &
              2.0*x(2*k)*delta*delta/3.0 - 1.0*x(2*k+1) + x(2*k+2)*delta*delta/6.0  !should be zero
         else
-        zs = 0
+        if (k .eq. 1) then
+         zs = -1.0*x(2*n-1) + x(2*n)*delta*delta/6.0 + 2.0*x(2*k-1) + &
+             2.0*x(2*k)*delta*delta/3.0 - 1.0*x(2*k+1) + x(2*k+2)*delta*delta/6.0  !should be zero
+         else
+         zs = -1.0*x(2*k-3) + x(2*k-2)*delta*delta/6.0 + 2.0*x(2*k-1) + &
+             2.0*x(2*k)*delta*delta/3.0 - 1.0*x(1) + x(2)*delta*delta/6.0  !should be zero
+         endif
         ENDIF
 v = one-(z-a(k))/delta
 y = x(2*k-1)*v + x(2+k)*delta*delta*v*(v*v-one)/6.0 &
   + x(2*k+1)*(1-v) + x(2*k+2)*delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0
 y2 = x(2*k)*v + x(2*k+2)*(1-v)
-!if (v .eq. 0 .or. v .eq. 1) then
- write(*,*) z,z**2,y,y-z**2,zs,y2,k,a(k)
-!endif
+
+! write(*,*) z,z**2,y,y-z**2,zs,2,y2,k,a(k)
+ write(*,*) z,sin(4*3.14*z),y,y-sin(4*3.14*z),zs,y2,-4*3.14*4*3.14*sin(4*3.14*z),k,a(k)
+
 end do
 
 ! Free storage and clear matrix
@@ -455,10 +441,11 @@ end do
       b = 0
     END PROGRAM
 
-    FUNCTION findInterval(u, n, a) RESULT(k)
+    FUNCTION findInterval(u, n, a, periodic) RESULT(k)
     USE set_precision, ONLY: dkind
     INTEGER, INTENT(IN) :: n
     REAL(dkind), INTENT(IN) :: u, a(*)
+    LOGICAL, INTENT(IN) :: periodic
     REAL(dkind) :: v, delta
     REAL(dkind), PARAMETER :: one = 1.0E0_dkind
     INTEGER :: k
@@ -466,7 +453,11 @@ end do
 ! This direct computation of the interval containing
 ! the data can be off (low) by 1.  So if the value
 ! of the basis function is > 1, move to the next interval.
+    if (periodic) then
+      delta = one/real(n,dkind)
+    else
       delta = one/real(n-1,dkind)
+    endif
     k = max(1,min(n,floor(real(n*u,dkind))))
     DO
       v = (u-a(k))/delta

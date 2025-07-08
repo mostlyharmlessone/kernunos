@@ -2,12 +2,14 @@ things to do
 
 CorneaCopia
 
-
+need to cleanup gitmodules/submodules that may no longer exit or are not in the project 
 test assimp now that added as submodule to keep up to date
 
 make driverPieceWiseCubic a drop in replacement for nspline or pspli; possibly unify the interface for those as well as one_dimensional_spline
 need a radial version and a periodic version (should only affect two numbers in constraints)
 do 1d lsq spline, use existing splineval on lsq spline, then lsq (periodic) spline the second part and use existing splineeval
+
+make a drop in replacement from math77 DC2FIT for comparison
 
 built framework for decenter; both involve moving elevation data points, either, 
 then resplining on that basis, just like an ELE file, in fact, for an ELE/ELE.CSV file, adjust the data before the first spline
