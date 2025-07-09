@@ -70,6 +70,7 @@ MODULE sparseUtils
 !      do i=1,h%noOfRows+1
 !       WRITE(*, '(I6)') h%ia(i)
 !      end do
+       WRITE(*,*) 'Number of non-zero numbers: ',h%nnz
        WRITE(*,*) h%a(1:h%nnz)
        WRITE(*,*) h%ja(1:h%nnz)
        WRITE(*,*) h%ia(1:h%noOfRows+1)

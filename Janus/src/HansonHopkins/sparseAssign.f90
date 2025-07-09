@@ -479,7 +479,7 @@ USE sparsekit, ONLY: csrcoo
   nrow = dcsr%noOfRows
 ! Allocate just enough space to hold the entries
 ! of the Compressed Sparse Row format sparse matrix.
-  nzmax = max(0,dcsr%nnz)
+  nzmax = dcsr%ia(dcsr%noOfRows+1)-1
   ALLOCATE(triplets(nzmax), STAT=ierr)
   IF(ierr /= 0) THEN
     WRITE(*,*) 'Allocation failure in assignment triplets(:)=dcsr_sparse.'

@@ -58,9 +58,9 @@
       REAL(dkind), PARAMETER :: one=1.0E0_dkind, zero=0.0E0_dkind
 ! Set problem size:
       INTEGER, PARAMETER :: n=20 !n=2000 ! Could make this an input value
-      LOGICAL, PARAMETER :: periodic = .true. ! Could make this an input value
+      LOGICAL, PARAMETER :: periodic = .false., csr = .true., sparse = .false. ! Could make these an input value
 ! Define arrays for knots, data points, etc
-      REAL(dkind), ALLOCATABLE :: a(:), rhs(:), t(:), x(:), r(:),rhs_test(:)
+      REAL(dkind), ALLOCATABLE :: a(:), rhs(:), t(:), x(:), r(:), rhs_m(:)
 ! iseed is used to store the seed used for the Fortran intrinsic
 !       random number generator
 ! saw_points is used to ensure that every interval in the partition
@@ -68,11 +68,13 @@
       INTEGER, ALLOCATABLE :: iseed(:), saw_points(:)
       INTEGER :: m, findInterval
 ! Define what will be the collection of matrix triplets.
-      TYPE (dpTripletList) :: s, s_test, sc_test
+      TYPE (dpTripletList) :: s, s_test
 ! Define what will be the CSR version for the design matrix
-      TYPE (dpCSRSparseMatrix) :: a_csr, b_csr
+      TYPE (dpCSRSparseMatrix) :: a_csr
 ! Define what will be the CSR version of A^TA for the design matrix
       TYPE (dpCSRSparseMatrix) :: ata_csr
+! Define some  triplets
+      TYPE (dpTriplet), ALLOCATABLE :: triplets(:)
 
 !!!!!!testing
       real(dkind), ALLOCATABLE :: dense(:,:),d(:)
@@ -87,7 +89,7 @@
 ! matrix and factorization quantities.
       TYPE (slu_dpHBSparseMatrix) :: g
 
-! Modified to allow n intervals after each break point including the last one for periodic cas
+! Modified to allow n intervals after each break point including the last one for periodic case
 ! Define local variables
       REAL (dkind) :: delta, v, u, resid_error
       INTEGER :: errno, i, j, k, sz
@@ -121,7 +123,6 @@
 ! has at least one value.  We do not store these data values
 ! here as we don't know the total number of data points required yet
 ! note for the periodic case we need a value in the n to 1 interval so that k can actually reach n
-! multiply u by 1+delta
       saw_points = 0
       m = 0
 ! Store the seed so we can regenerate the data points later
@@ -140,17 +141,23 @@
 ! Set random number seed so the same sequence results.
       CALL random_seed(put=iseed)
 ! Allocate local working space
-      ALLOCATE (t(m),x(3*n+m),r(3*n+m),rhs(3*n+m),d(3*n+m),rhs_test(3*n),ipiv(3*n+m), STAT=errno)
+     if (csr) then
+      ALLOCATE (t(m),x(3*n),r(3*n),rhs_m(m),rhs(3*n),d(3*n),ipiv(3*n), STAT=errno)
+     else
+      ALLOCATE (t(m),x(3*n+m),r(3*n+m),rhs_m(m),rhs(3*n+m),d(3*n+m),ipiv(3*n+m), STAT=errno)
       IF (errno /= 0) THEN
         print *, "Allocate fails with errno: ", errno
       END IF
+     endif
+! initialize
+     rhs(:) = zero
 ! Generate the random values and write the matrix entries.
 ! Record the function values in RHS(*).
-      DO j = 1, m     ! j = data points
+     DO j = 1, m     ! j = data points
         CALL random_number(u)
          t(j) = u
-        rhs(j) = sin(4*3.14*t(j)) !
-!        rhs(j) = t(j)**2
+        rhs_m(j) = sin(4*3.14*t(j))
+!        rhs_m(j) = t(j)**2
         k = findInterval(t(j), n, a, periodic)
         v = one-(t(j)-a(k))/delta
 ! Gather up the list of the sparse matrix triplets (S) that
@@ -158,26 +165,147 @@
 ! steps of the list of matrix entries.
 ! Write adjacent columns of the (design) A matrix, in NW corner of B:
 ! Starts at 1st row and column, m rows, 2*n columns; odd is z, even z''
+      if (csr) then
+! only write A for CSRSparse to make ATA
         s = dpTriplet(j,2*k-1,v)
         s = dpTriplet(j,2*k, delta*delta*v*(v*v-one)/6.0 )
-        s = dpTriplet(j,2*k+1,one-v)
-        s = dpTriplet(j,2*k+2,delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0 )
-! copy for test of CSRSparse to make ATA
-        s_test = dpTriplet(j,2*k-1,v)
-        s_test = dpTriplet(j,2*k, delta*delta*v*(v*v-one)/6.0 )
-        s_test = dpTriplet(j,2*k+1,one-v)
-        s_test = dpTriplet(j,2*k+2,delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0 )
+        if (k .lt. n) then
+         s = dpTriplet(j,2*k+1,one-v)
+         s = dpTriplet(j,2*k+2,delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0 )
+        endif
+ ! For H&H approach write A, A^T and I_M
+      else
+        s = dpTriplet(j,2*k-1,v)
+        s = dpTriplet(j,2*k, delta*delta*v*(v*v-one)/6.0 )
+        if (k .lt. n) then
+         s = dpTriplet(j,2*k+1,one-v)
+         s = dpTriplet(j,2*k+2,delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0 )
+        endif
 ! Write adjacent rows of the A^T matrix, in middle of B:
 ! Starts at m+1st row and 2*n+1st column, 2*n rows, m columns
         s = dpTriplet(2*k-1+m,2*n+j,v)
         s = dpTriplet(2*k+m,2*n+j, delta*delta*v*(v*v-one)/6.0 )
-        s = dpTriplet(2*k+1+m,2*n+j,one-v)
-        s = dpTriplet(2*k+2+m,2*n+j,delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0 )
+        if (k .lt. n) then
+         s = dpTriplet(2*k+1+m,2*n+j,one-v)
+         s = dpTriplet(2*k+2+m,2*n+j,delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0 )
+        endif
 ! Write row of identity matrix I_M, top middle of B:
         s = dpTriplet(j,2*n+j,one)
-      END DO
+      endif
+     END DO
+
+     if (csr) then
+! CSR version
+! Use overloaded assigment to convert from a list of
+! triplets. Create a Compressed Sparse Row matrix representation for A, A^T.
+        a_csr = s
+        s = 0
+! Create A^TA by multiplication of CSR sparse matrices
+        ata_csr = (.t. a_csr) .p. a_csr
+! Make triplets from ata_csr
+        triplets = ata_csr
+        s = triplets
+! Create A^T*y
+       rhs(1:2*n) = (.t. a_csr) .p. rhs_m(:)
+      else
+       rhs(1:m)=rhs_m(:)
+      endif
 
 ! Constraints are not dependent on data j or m
+      if (csr) then
+! The matrix  B=[A^TA : C^T][ x ]  = [A^T*b] 2N
+!               [ C   :  0 ][ h ]    [  d  ] N
+!                 2N     N
+! CSR versions start at 2n+1 column and 1st row for C^T, 2n rows, n columns
+! Write adjacent columns of the C^T matrix, along NE border of B:
+! two versions depending on periodicity
+      DO k=1,n
+        IF ( k .eq. 1 ) THEN
+         IF (periodic) then
+          s = dpTriplet(2*k-1,k+n+n,    2.0 )
+          s = dpTriplet(2*k,k+n+n,  2.0*delta*delta/3.0 )
+          s = dpTriplet(2*k+1,k+n+n,  -1.0)
+          s = dpTriplet(2*k+2,k+n+n,  delta*delta/6.0)
+! periodic terms
+          s = dpTriplet(2*n-1,k+n+n,  -1.0)
+          s = dpTriplet(2*n,k+n+n,  delta*delta/6.0 )
+         ELSE
+! terms here for z" == 0
+          s = dpTriplet(2*k,k+n+n,    1.0 )
+         ENDIF
+        ENDIF
+        IF ( k .gt. 1 .and. k .lt. n  ) THEN
+         s = dpTriplet(2*k-3,k+n+n,  -1.0)
+         s = dpTriplet(2*k-2,k+n+n,  delta*delta/6.0 )
+         s = dpTriplet(2*k-1,k+n+n,    2.0 )
+         s = dpTriplet(2*k,k+n+n,  2.0*delta*delta/3.0 )
+         s = dpTriplet(2*k+1,k+n+n,  -1.0)
+         s = dpTriplet(2*k+2,k+n+n,  delta*delta/6.0)
+        ENDIF
+! last column of C^T, two versions depending on periodicity
+        IF ( k .eq. n ) THEN
+         IF (periodic) then
+          s = dpTriplet(2*k-3,k+n+n,  -1.0)
+          s = dpTriplet(2*k-2,k+n+n,  delta*delta/6.0 )
+          s = dpTriplet(2*k-1,k+n+n,     2.0 )
+          s = dpTriplet(2*k,k+n+n,  2.0*delta*delta/3.0 )
+! periodic terms
+          s = dpTriplet(1,k+n+n, -1.0 )
+          s = dpTriplet(2,k+n+n, delta*delta/6.0 )
+         ELSE
+! terms here for z" == 0
+          s = dpTriplet(2*k,k+n+n,    1.0 )
+         ENDIF
+        ENDIF
+! Write rows of the (constraint) C matrix, in SW corner of B:
+! CSR versions start at 2n+1 row and 1st column for C, n rows, 2n columns
+! These are the constraints on the slopes
+        IF ( k .eq. 1 ) THEN
+         IF (periodic) then
+          s = dpTriplet(k+n+n,2*k-1,    2.0 )
+          s = dpTriplet(k+n+n,2*k,  2.0*delta*delta/3.0 )
+          s = dpTriplet(k+n+n,2*k+1,  -1.0)
+          s = dpTriplet(k+n+n,2*k+2,  delta*delta/6.0)
+! periodic terms
+          s = dpTriplet(k+n+n,2*n-1,  -1.0)
+          s = dpTriplet(k+n+n,2*n,  delta*delta/6.0 )
+         ELSE
+! terms here for z" == 0
+          s = dpTriplet(k+n+n,2*k,   1.0 )
+         ENDIF
+        ENDIF
+        IF ( k .gt. 1 .and. k .lt. n  ) THEN
+         s = dpTriplet(k+n+n,2*k-3,  -1.0)
+         s = dpTriplet(k+n+n,2*k-2,  delta*delta/6.0 )
+         s = dpTriplet(k+n+n,2*k-1,    2.0 )
+         s = dpTriplet(k+n+n,2*k,  2.0*delta*delta/3.0 )
+         s = dpTriplet(k+n+n,2*k+1,  -1.0)
+         s = dpTriplet(k+n+n,2*k+2,  delta*delta/6.0)
+        ENDIF
+! last row of C, two versions depending on periodicity
+        IF ( k .eq. n ) THEN
+         IF (periodic) then
+          s = dpTriplet(k+n+n,2*k-3,  -1.0)
+          s = dpTriplet(k+n+n,2*k-2,  delta*delta/6.0 )
+          s = dpTriplet(k+n+n,2*k-1,     2.0 )
+          s = dpTriplet(k+n+n,2*k,  2.0*delta*delta/3.0 )
+! periodic terms
+          s = dpTriplet(k+n+n,1, -1.0 )
+          s = dpTriplet(k+n+n,2, delta*delta/6.0 )
+         ELSE
+! terms here for z" == 0
+          s = dpTriplet(k+n+n,2*k,   1.0 )
+         ENDIF
+        ENDIF
+      END DO
+
+      else
+
+! NOT the CSR version
+! The matrix  B= [A : I_M :  0 ][ x ]   [ b ] M
+!                [0 : A^T : C^T][ r ] = [ 0 ] 2N
+!                [C :  0  :  0 ][ h ]   [ d ] N
+!                 2N   M     N
       DO k=1,n
 ! Write adjacent columns of the C^T matrix, along middle right/E border of B:
 ! Starts at m+1 row and m+2n+1 column; 2n rows, n columns
@@ -260,41 +388,17 @@
           s = dpTriplet(k+m+n+n,2*k,   1.0 )
          ENDIF
         ENDIF
+       END DO
 
-! CSR versions start at 2n+1 row and 1st column for C,   n rows, 2n columns
-!                       2n+1 column and 1st row for C^T, 2n rows, n columns
-      END DO
+      endif
 
-! Define the rest of the right-hand side; the constraint C*y = d = 0
-      rhs(m+1:3*n+m) = zero
-
-! CSR version
-! ?needs more operators for assembly
-! Use overloaded assigment to convert from a list of
-! triplets. Create a Compressed Sparse Row matrix representation for A, A^T.
-!        a_csr = s_test
-!        s_test = 0
-! Create A^TA by multiplication of CSR sparse matrices
-!        ata_csr = (.t. a_csr) .p. a_csr
-! Make triplets from ata_csr
-!        triplets = ata_csr
-!        s_test = triplets
-!        b_csr = sc_test + s_test
-! Create A^T*y
-!        rhs_test(1:3*n) = a_csr .p. rhs(1:m)
+!Use superlu to solve sparse systems
+if (sparse) then
 
 ! Use overloaded assigment to convert from a list of
 ! triplets. Create a Harwell-Boeing matrix representation for B.
 ! This assignment (B =) converts the S list to a sparse matrix format.
       b = s
-
-  a_csr=s
-  dense = a_csr
-  d(:)=rhs(:)    ! d gets overwritten
-!  size(dense,1)->3*n+m
-  call DGESV(size(dense,1), 1, dense, size(dense,1), IPIV, d, size(dense,1), info ) ! d is overwritten
- write(*,*) 'info',info
-if (info .ne. 0) stop
 
 ! Clear out space occupied by S.  This assignment deallocates
 ! the space used accumulating the list, S.
@@ -305,7 +409,10 @@ if (info .ne. 0) stop
 ! and ascends B to be a component of an extended type, G.
 ! Default settings of pivoting rules and other parameters
 ! are used.
-      x = b .ip. rhs
+     x = b .ip. rhs
+     if (csr) then
+      write(*,*) 'no residual calculation'
+     else
 ! Compute the residual.  The first M components of R
 ! are the same as the negative values of X(2N+1:2N+M).
       r = b .p. x(1:2*n)
@@ -317,18 +424,21 @@ if (info .ne. 0) stop
         ' The number of breakpoints (N) and data points (M) ', n, m
       WRITE (*,'(/A/(A,1PG12.5))') ' Relative Error (1) (Vector Norm)', &
         ' with solution and computed residual =', resid_error
-
+     endif
 ! Ascend B, the Harwell-Boeing matrix, to the extended type G.
 ! The advantage of using .ip. on the extended type is that a
 ! factorization does not have to be recomputed after it is
 ! once available.  Options can also be reset from defaults.
-      g%options%printstat = 1
-      g = b
-      x = g .ip. rhs
-      x = zero
+     g%options%printstat = 1
+     g = b
+     x = g .ip. rhs
+     x = zero
 
 ! The factorization is available so only back solves now needed.     
-      x = g .ip. rhs
+     x = g .ip. rhs
+     if (csr) then
+      write(*,*) 'no residual calculation'
+     else
       r = b .p. x(1:2*n)
       r = r - rhs(1:size(r))
       r(1:m) = r(1:m) + x(2*n+1:2*n+m)
@@ -339,7 +449,26 @@ if (info .ne. 0) stop
         ' The number of breakpoints (N) and data points (M) ', n, m
       WRITE (*,'(/A/(A,1PG12.5))') ' Relative Error (2) (Vector Norm)', &
         ' with solution and computed residual =', resid_error
+     endif
 
+! Free storage and clear matrix
+      g = 0
+      b = 0
+
+else
+
+! Use LAPACK not superlu
+  a_csr = 0
+  a_csr=s
+  dense = a_csr
+   d(:)=rhs(:)    ! d gets overwritten
+!  size(dense,1)->3*n+m
+  call DGESV(size(dense,1), 1, dense, size(dense,1), IPIV, d, size(dense,1), info ) ! d is overwritten
+ write(*,*) 'info',info
+if (info .ne. 0) stop
+  x(:) = d(:)
+
+endif
 
 !the difference is easily seen by setting n=20 instead of 2000
 !plot t(j),z(j) ie t(j), t(j)**2 j=1,m and also a(k),x(k) k=1,n
@@ -357,10 +486,10 @@ if (info .ne. 0) stop
 ! so comparison of fit to data x(k) to computed actual data a(k)**2 at knots (which you don't get as data) is
 sumsq = 0
  do k=1,n
-!   write(*,*) a(k),x(2*k-1),a(k)**2,x(2*k-1)-a(k)**2
-!   sumsq=sumsq+(x(2*k-1)-a(k)**2)**2
-   write(*,*) a(k),x(2*k-1),sin(4*3.14*a(k)),x(2*k-1)-sin(5*3.14*a(k))
-   sumsq=sumsq+(x(2*k-1)-sin(4*3.14*a(k)))**2
+   write(*,*) a(k),x(2*k-1),a(k)**2,x(2*k-1)-a(k)**2
+   sumsq=sumsq+(x(2*k-1)-a(k)**2)**2
+!   write(*,*) a(k),x(2*k-1),sin(4*3.14*a(k)),x(2*k-1)-sin(5*3.14*a(k))
+!   sumsq=sumsq+(x(2*k-1)-sin(4*3.14*a(k)))**2
  end do
    sumsq=sqrt(sumsq)/n
 write(*,*) 'Sum Squared',sumsq
@@ -436,9 +565,6 @@ y2 = x(2*k)*v + x(2*k+2)*(1-v)
 
 end do
 
-! Free storage and clear matrix
-      g = 0
-      b = 0
     END PROGRAM
 
     FUNCTION findInterval(u, n, a, periodic) RESULT(k)

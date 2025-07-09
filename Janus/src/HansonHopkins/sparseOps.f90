@@ -289,7 +289,7 @@ call amub ( a%noOfRows, ncol, 1 , a%a, a%ja, a%ia, b%a, b%ja, b%ia, tempa, tempj
 ! determine nnz
 c%nnz = 0
 do i=1,nzmax
- if (tempa(i) > 0) c%nnz=c%nnz+1
+ if (abs(tempa(i)) > 0) c%nnz=c%nnz+1
 end do
 c%noOfRows = a%noOfRows
 c%noOfColumns = b%noOfColumns
@@ -322,6 +322,7 @@ c%a(1:c%nnz)=tempa(1:c%nnz)
 c%ja(1:c%nnz)=tempja(1:c%nnz)
 c%ia(1:c%noOfRows+1)=tempia(1:c%noOfRows+1)
 DEALLOCATE(iw,ind,itemp,tempa,tempia,tempja)
+IF (c%nnz /= c%ia(c%noOfRows+1)-1) ierr=100
 IF (ierr/=0) THEN
   c%errFlag = ierr
   RETURN
