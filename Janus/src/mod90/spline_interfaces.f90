@@ -1,6 +1,6 @@
 module spline_interfaces
  ! alphabetical order
- ! gathering all the interfaces of spline subprograms not in a module
+ ! gathering the interfaces of spline subprograms not in a module
  INTERFACE
 
  subroutine AdjustRadSplineCenter
@@ -26,6 +26,25 @@ module spline_interfaces
   REAL(wp), intent(in) :: t(M1),z(M1)
   INTEGER, intent(in) :: M1,M2
   REAL(wp), intent(out) ::c(M2)
+ end subroutine
+
+ subroutine LSQspline(t, y, m, a, z, z2, n, err_report, periodic, csr , sparse)
+   USE set_precision, ONLY: wp
+! Number of data points
+     integer, INTENT(IN) :: m
+! Data points
+     real(wp), INTENT(IN) ::  t(m),y(m)
+! number of knots:
+     INTEGER, INTENT(IN) :: n
+! knots function, second derivatives of spline at knots
+     real(wp), INTENT(OUT) :: a(n),z(n),z2(n)
+! periodic = true means periodic bc, false, natural spline conditions
+! csr = true means using the Gram product ATA and the 3n x 3n system, false means using the H&H M+3*n system
+! sparse = true means using superlu to solve the system, false means converting to a dense matrix and using LAPACK
+! obviously sparse = true is suitable for large n
+     LOGICAL, INTENT(IN) :: periodic, csr , sparse
+! error reporting
+     integer, INTENT(OUT) :: err_report
  end subroutine
 
  subroutine MakeRadSplineCenter(dat)

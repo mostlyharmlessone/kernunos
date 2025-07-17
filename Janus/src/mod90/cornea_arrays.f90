@@ -335,7 +335,7 @@ subroutine Skyline_eq_Penta(Skyline,Penta)  ! Arrange data Skyline, that will al
 !  write (*,*) 'Total number vertices in Skyline: ',ii,jj
 end subroutine Skyline_eq_Penta
 
-! generates principal curvatures for ELE files
+! generates curvatures for ELE files
 subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initially populates JMatrix & RadSlope with splining
   TYPE(wpSkyline), INTENT(INOUT) :: Skyline                                             
   TYPE(wpPentaMatrix), INTENT(IN) :: Penta
@@ -344,10 +344,11 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
   integer :: M1,N1,i,j,k,kk,L2,offset,NP,ITH,err_report,num_zeroes
   integer :: imv(size(JMatrix%Z,2))
   real(wp) :: rBo,rBi,DAT,u,v,xx,yy,f,fx,fxx,fy,fxy,fyy,fTmp(Skyline%rows),f2Tmp(Skyline%rows),fxTmp(Skyline%rows),fx2Tmp(Skyline%rows),fxxTmp(Skyline%rows),fxx2Tmp(Skyline%rows)
-  real(wp) :: r(size(RadSlope%r,2)),z(Skyline%cols),z2(Skyline%cols)
+  real(wp) :: r(size(RadSlope%r,2)),z(Skyline%cols),z2(Skyline%cols), ztemp(Skyline%cols), z2temp(Skyline%cols)
   real(wp) :: x(Skyline%cols)              ! maximum size needed, don't need NP
   real(wp) :: y(Skyline%rows)
-  real(wp) :: rmin,check,firstcheck,secondcheck,q,mean,gaussian
+  real(wp) :: rmin,check,firstcheck,secondcheck,q,mean,gaussian,fp
+  real(wp), allocatable :: knots(:),knotsz(:),knotsz2(:)
   M1=size(RadSlope%r,2)
   N1=size(RadSlope%r,1)
   NP=size(Skyline%DAT,1)                                                   
@@ -365,7 +366,37 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
     endif
    end do
    call nspline(x,z,L2,z2,err_report)                                ! generate zxDAT
-   Skyline%z2DAT(i,1:L2)=z2(1:L2)
+   allocate (knots(NP/2),knotsz(NP/2),knotsz2(NP/2))
+
+!!!!!!!!!!!! errors out owing to bad data in, presumbably; needs more parameter and sanity checks
+   call LSQspline(x, z, L2, knots, knotsz, knotsz2, L2/2, err_report, .false., .true. , .false.)
+
+!!!!!!!!!!!! makes zig zags
+!   call LSQ_DC2FIT(x, z, L2, knots, knotsz, knotsz2, L2/2, err_report)
+
+
+!  repopulate
+   do j=1,L2
+    call SplineEval(0,knots,knotsz,knotsz2,L2/2,x(j),ztemp(j),fp,z2temp(j))
+   end do
+   deallocate(knots,knotsz,knotsz2)
+
+if (num_zeroes .eq. 2) then
+ write (*,*) 'multiple zeroes in ELE profile',num_zeroes
+write(*,*) i, L2
+do j=1,L2
+write(*,*) x(j),z(j),z2(j),ztemp(j),z2temp(j)
+end do
+endif
+z(:)=z(:)
+z2(:)=z2temp(:)
+
+!!!!!!!
+
+
+  Skyline%DAT(i,1:L2)=z(1:L2)
+  Skyline%z2DAT(i,1:L2)=z2(1:L2)
+
   end do 
   if (num_zeroes .gt. 1) then
    write (*,*) 'multiple zeroes in ELE profile',num_zeroes
@@ -412,12 +443,21 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
       y(kk)=700.0-((kk-1+offset)*1400.0)/(NP-1.0)
      end do
      call nspline(y(1:L2),fTmp(1:L2),L2,f2Tmp(1:L2),err_report)             ! spline in Y of f
+
+
+
+
+
      if (err_report .ne. 0) write(*,*) 'Error in RadSlope_eq_Skyline f(Y)'
      call SplineEval(2,y(1:L2),fTmp(1:L2),f2Tmp(1:L2),L2,v,secondcheck)  ! first parameter = 2 extrapolation check
      if (secondcheck /= 0) then
       call nspline(y(1:L2),fxTmp(1:L2),L2,fx2Tmp(1:L2),err_report)           ! spline in Y of fx to get fxy (only for ELE files)
+
+
+
       if (err_report .ne. 0) write(*,*) 'Error in RadSlope_eq_Skyline fx(Y)'
       call nspline(y(1:L2),fxxTmp(1:L2),L2,fxx2Tmp(1:L2),err_report)          ! spline in Y of fxx to get fxx (only for ELE files)
+
       if (err_report .ne. 0) write(*,*) 'Error in RadSlope_eq_Skyline fxx(Y)'
       call SplineEval(0,y(1:L2),fTmp(1:L2),f2Tmp(1:L2),L2,v,DAT,fy,fyy)  ! first parameter = 0 nonperiodic
       call SplineEval(0,y(1:L2),fxTmp(1:L2),fx2Tmp(1:L2),L2,v,fx,fxy)  ! first parameter = 0 nonperiodic

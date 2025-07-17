@@ -1,5 +1,5 @@
     MODULE sparseAssign
-
+!  Modified to add CSR sparse matrices
       USE set_precision, ONLY : dkind
       USE sparseTypes, ONLY: dpTriplet, dpTripletList, dpHBSparseMatrix, &
           dpCSRSparseMatrix, slu_dpHBSparseMatrix, setExpansionFactor, getExpansionFactor
@@ -145,7 +145,6 @@
       USE sortElements, ONLY : qsort
 ! This routine handles the overloaded assignment
 ! TYPE(dpHBSparseMatrix)=TYPE(dpTripletList)
-
 ! It builds an MROWS by NCOLS sparse matrix using
 ! the Harwell-Boeing format.  Triplets in the list
 ! TYPES(dpTripletList) are accumulated (summed) if there are
@@ -154,16 +153,13 @@
         TYPE (dpHBSparseMatrix), INTENT (INOUT) :: dhbc
         TYPE (dpTripletList), INTENT (IN), TARGET :: sparse
         TYPE(sparseData) :: spData
-
 ! Local working variables:
         INTEGER :: i, ioerr, j, last, ncols, mrows
         INTEGER :: ii, mc, nz
         LOGICAL :: accumulate
-
         INTEGER, ALLOCATABLE, TARGET :: ind(:), itemp(:)
         INTEGER, ALLOCATABLE :: ip(:)
         REAL (dkind), ALLOCATABLE :: column(:), values(:)
-
         last = sparse%lastTriplet
 ! Take care of the empty case, LAST == 0.
 ! This case implies that the sparse matrix is 0.
@@ -195,13 +191,10 @@
         spData%right = last
         spData%colPtr => sparse%columns(1:last)
         spData%indexPtr => ind(1:last)
-
         CALL qsort(spData)
-
 ! The matrix dimensions are determined by the largest
 ! values of row and columns indices that appear in
 ! the right-hand side or input list.
-
 ! Rearrange the row subscripts and the values.       
         values = sparse%values(ind)
         itemp = sparse%rows(ind)
@@ -223,7 +216,6 @@
 ! Count the number of elements in each column.       
           ip(sparse%columns(ind(j))+1) = ip(sparse%columns(ind(j))+1) + 1
         END DO
-
 ! Process the data in each column of the matrix.
 ! Within each column sort the row indices.  If there
 ! are repeats then expand the sums into a full column
@@ -249,7 +241,6 @@
           itemp(ii+1:ii+mc) = itemp(ii+ind(1:mc))
 ! Move the corresponding values for those rows.          
           values(ii+1:ii+mc) = values(ii+ind(1:mc))
-
           accumulate = .FALSE.
 ! See if there are any repeats of row indices.  If there are
 ! then add the associated values and replace the repeated 
@@ -260,7 +251,6 @@ SCAN:     DO i = 1, mc - 1
             accumulate = (itemp(ii+i)==itemp(ii+i+1))
             IF (accumulate) EXIT SCAN
           END DO SCAN
-
 ! If there are repeats then get working space for 
 ! expand/sum/contract buffer.  Then accumulate.
           IF (accumulate) THEN
@@ -271,13 +261,11 @@ SCAN:     DO i = 1, mc - 1
                 RETURN
               END IF
             END IF
-
 ! Clear out the expanded column and accumulate repeated values.
             IF (mrows>0) column = zero
             DO i = 1, mc
               column(itemp(ii+i)) = column(itemp(ii+i)) + values(ii+i)
             END DO
-
 ! Compress the column and move its final values.  This step
 ! changes the value of MC (number of entries) for this column.
             mc = 0
@@ -297,7 +285,6 @@ SCAN:     DO i = 1, mc - 1
               nz = nz + mc
             END IF
           END IF 
-
 ! This is the new number of non-zero values in this column.
           ii = ii + ip(j+1)
           ip(j+1) = mc
@@ -309,7 +296,6 @@ SCAN:     DO i = 1, mc - 1
           ip(j) = ip(j) + 1
         END DO
         ip(ncols+1) = ip(ncols+1) + 1
-
 ! Move the local allocated arrays into place so they 
 ! become the components of the derived type.  Because of 
 ! accumulation the sizes of components for row indices and
@@ -324,7 +310,6 @@ SCAN:     DO i = 1, mc - 1
         IF (accumulate) THEN
           DEALLOCATE(column)
         END IF
-
       END SUBROUTINE dhbc_eq_list_of_triplets
 
       SUBROUTINE list_of_triplets(sparse,triplets)
@@ -433,7 +418,6 @@ BLOCK:  DO
           WRITE(*,*) 'Allocation failure in assignment triplets(:)=dhbc_sparse.'
           RETURN
         END IF
-
         l = 0
         icount = 0
         DO j = 1, n
@@ -467,19 +451,18 @@ USE sparsekit, ONLY: csrcoo
 ! This routine handles the overloaded assignment
 ! TYPE(dpTriplet)(:) = TYPE(dpCSRSparseMatrix)
 ! by providing a modern interface to sparsekit.f90 CSRCOO
-
 ! It assigns an array of triplets using the contents
 ! of a Compressed Sparse Row format sparse matrix.  Zero values
 ! are not returned.
   IMPLICIT NONE
   TYPE (dpTriplet), INTENT (INOUT), ALLOCATABLE :: triplets(:)
   TYPE (dpCSRSparseMatrix), INTENT (IN) :: dcsr
-  INTEGER :: nrow, nzmax, ierr, job, k, k1, k2, i
+  INTEGER :: nrow, nzmax, ierr, k, k1, k2, i !,job
 ! Get matrix size.
   nrow = dcsr%noOfRows
 ! Allocate just enough space to hold the entries
 ! of the Compressed Sparse Row format sparse matrix.
-  nzmax = dcsr%ia(dcsr%noOfRows+1)-1
+  nzmax = max(dcsr%nnz,dcsr%ia(dcsr%noOfRows+1)-1)
   ALLOCATE(triplets(nzmax), STAT=ierr)
   IF(ierr /= 0) THEN
     WRITE(*,*) 'Allocation failure in assignment triplets(:)=dcsr_sparse.'
@@ -505,7 +488,6 @@ USE sparsekit, ONLY: coocsr
 ! This routine handles the overloaded assignment
 ! TYPE(dpCSRSparseMatrix)=TYPE(dpTripletList)
 ! by providing an interface to sparsekit.f90 COOCSR
-
 ! It builds a Compressed Sparse Row matrix from a list of triplets.
   IMPLICIT NONE
   TYPE (dpCSRSparseMatrix), INTENT (INOUT) :: dcsr
@@ -513,7 +495,6 @@ USE sparsekit, ONLY: coocsr
   INTEGER :: istat, ioerr, i
   INTEGER, ALLOCATABLE :: ir(:)
   INTEGER, ALLOCATABLE, TARGET :: ind(:),itemp(:)
-
 ! need to find nrow first for list of triplets
   dcsr%nnz = sparse%lastTriplet
 ! Take care of the empty case, LAST == 0.
@@ -543,13 +524,19 @@ USE sparsekit, ONLY: coocsr
 ! The max column index => dcsr%noOfColumns.
   itemp = sparse%columns(ind)
   dcsr%noOfColumns = max(0,maxval(itemp))
-
   ! Allocate just enough space to hold the entries of the CSR matrix
   ALLOCATE (ir(dcsr%nnz),dcsr%ia(dcsr%noOfRows+1),dcsr%a(dcsr%nnz), dcsr%ja(dcsr%nnz),STAT=istat)
   IF(istat /= 0) THEN
     WRITE(*,*) 'Allocation failure in assignment dcsr_sparse(:)=triplets.'
     RETURN
   END IF
+
+
+write(*,*) 'sv',sparse%values(:)
+
+
+
+
 ! coocsr destroys ir, make working copy of triplets%rows
   ir=sparse%rows
   call coocsr( dcsr%noOfRows, dcsr%nnz, sparse%values, ir, sparse%columns, dcsr%a, dcsr%ja, dcsr%ia )

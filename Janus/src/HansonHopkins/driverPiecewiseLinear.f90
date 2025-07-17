@@ -23,7 +23,7 @@
 
 ! Can alternatively solve normal equations
 ! [A^TA ][ x ]  = [A^T*y] N x N
-! followed by solution DGESV or use of superlu, as A^TA is also sparse.
+! followed by solution with LAPACK DGESV or use of superlu, as A^TA is also sparse.
 
       USE set_precision, ONLY: dkind
       USE sparseTypes, ONLY: dpTriplet, dpTripletList, dpCSRSparseMatrix, &
@@ -31,9 +31,17 @@
       USE sparseOps, ONLY: OPERATOR(.p.), OPERATOR(.t.)
       USE sluInterop, ONLY: OPERATOR(.ip.), ASSIGNMENT(=) 
       USE sparseAssign !, ONLY: ASSIGNMENT(=)
-      USE lapackinterface, ONLY: dnrm2, dgesv, GaussJordan
+      USE lapackinterface, ONLY: dnrm2, dgesv
 
       IMPLICIT NONE
+
+      INTERFACE
+       FUNCTION findInterval(u, n, a) RESULT(k)
+       USE set_precision, ONLY: dkind
+       INTEGER, INTENT(IN) :: n
+       REAL(dkind), INTENT(IN) :: u, a(n)
+       END FUNCTION findInterval
+      END INTERFACE
 
 ! Real constants
       REAL(dkind), PARAMETER :: one=1.0E0_dkind, zero=0.0E0_dkind
@@ -46,7 +54,7 @@
 ! saw_points is used to ensure that every interval in the partition
 !       contains at least one point
       INTEGER, ALLOCATABLE :: iseed(:), saw_points(:)
-      INTEGER :: m, findInterval
+      INTEGER :: m !, findInterval
 ! Define what will be the collection of matrix triplets.
       TYPE (dpTripletList) :: s, s_test
 ! Define the Harwell-Boeing derived type that holds the
@@ -66,8 +74,6 @@
       REAL(dkind), ALLOCATABLE :: rhs_test(:),ata(:,:),d(:)
       INTEGER :: info
       INTEGER, ALLOCATABLE :: ipiv(:)
-! Define what will be the collection of matrix triplets.
-      TYPE (dpTriplet), ALLOCATABLE :: triplets(:)
 ! Timing
       real(8) :: time_start, time_end
       real(dkind) :: sumsq
@@ -177,8 +183,6 @@
       ata = ata_csr
       d(:)=rhs_test(:)    ! d gets overwritten
       call DGESV(n, 1, ata, n, IPIV, d, n, info ) ! d is overwritten
-!     Non-Lapack really slow routine
-!     call GaussJordan( n, 1, ata, n, d, n, info )
       r = ( a_csr .p. d ) - rhs
       residuals = dnrm2(m,r,1)
       call CPU_TIME(time_end)
@@ -257,9 +261,6 @@ sumsq = 0
  end do
    sumsq=sqrt(sumsq)/n
 write(*,*) 'Sum Squared',sumsq
-
-
-
 
 ! Free storage and clear matrix
       g = 0

@@ -3,10 +3,11 @@
  subroutine nsplineCenter(ii,r,z,n,z2,err_report)
  use set_precision, only : wp
  use cornea_arrays, only : RadSplineCenter
- use spline_interfaces, ONLY : thomas, SplineEval
+ use spline_interfaces, ONLY : thomas, SplineEval, nspline
   use special_fct, ONLY : bsearch
  use LapackInterface, ONLY : dgtsv
  use,intrinsic :: ieee_arithmetic
+
   integer, INTENT(IN) :: ii,n
   real(wp), INTENT(IN) ::  r(n)
   real(wp), INTENT(IN) ::  z(n)

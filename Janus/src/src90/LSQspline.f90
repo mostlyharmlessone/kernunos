@@ -1,22 +1,17 @@
-    PROGRAM drivePiecewiseCubic
+  subroutine LSQspline(t, y, m, a, z, z2, n, err_report, periodic, csr , sparse)
 
 ! Adapted from H&H drivePiecewiseLinear
 
-! Generate the coefficient matrix for a equality-constrained least squares problem
-! that comes from piece-wise cubic spline fitting of data with a
-! continuous function.  The breakpoints (knots) are equally spaced.
+! Generates an equality-constrained least squares piece-wise cubic spline fitting of data with a
+! continuous function with either natural or periodic boundary conditions.  The n breakpoints (knots) are equally spaced. 
+
+! The input are the m data points (t, y(t)), assumed to be ordered.
+! The output are the n knots and second derivatives at the knots of the LSQ piecewise cubic spline
 
 ! There are 2N unknowns at N knots in the problem and M data values.
 ! The 2N unknowns are the N z values and N z" second derivatives of the functions at the
 ! ends of the each breakpoint interval (the knots); the natural spline condition sets the end points = 0,
 ! removing 2 of the unknowns and making two constraints trivial; in the periodic case, there are 2N constraints and 2N unknowns
-
-! The M data value are pairs (t_i, y(t_i)) where the t_i
-! are random on (0,1).
-
-! the y(t) is either y=x^2 or sin(4*3.14*x) selected by commenting one out; by default the sine function is active (lines 166/490/519)
-! the periodic bc are obviously not suitable for the parabola, as the end conditions resemble a step function.
-! Since the second derivative of the sine is zero at the ends,the natural spline or periodic conditions work equally well
 
 ! the design matric A (Mx2N) is for the LSQ solution to A*x=b (M data points) with constraint C*(z,z")=d as
 ! as either (2N x N)  constraints on the continuity of the first derivatives at the knots, h are the Lagrange multipliers
@@ -49,132 +44,99 @@
 !                 2N    M     N
 
 
-      USE set_precision, ONLY: dkind
+      USE set_precision, ONLY: wp
       USE sparseTypes, ONLY: dpTriplet, dpTripletList, dpCSRSparseMatrix, &
           dpHBSparseMatrix, slu_dpHBSparseMatrix
       USE sparseOps, ONLY: OPERATOR(.p.), OPERATOR(.t.)
       USE sluInterop, ONLY: OPERATOR(.ip.), ASSIGNMENT(=) 
       USE sparseAssign, ONLY: ASSIGNMENT(=)
       USE lapackinterface, ONLY: dnrm2, dgesv
+      USE sparseUtils
 
       IMPLICIT NONE
 
       INTERFACE
-       FUNCTION findInterval(u, n, a, periodic) RESULT(k)
-       USE set_precision, ONLY: dkind
+       FUNCTION findInterval(u, n, a, delta) RESULT(k)
+       USE set_precision, ONLY: wp
        INTEGER, INTENT(IN) :: n
-       REAL(dkind), INTENT(IN) :: u, a(*)
-       LOGICAL, INTENT(IN) :: periodic
+       REAL(wp), INTENT(IN) :: u, a(*)
+       REAL(wp), INTENT(IN) :: delta
        END FUNCTION findInterval
       END INTERFACE
 
-! Real constants
-      REAL(dkind), PARAMETER :: one=1.0E0_dkind, zero=0.0E0_dkind
-! Set problem size:
-      INTEGER, PARAMETER :: n=20 !n=2000 ! Could make this an input value
+! Number of data points
+      integer, INTENT(IN) :: m
+! Data points
+      real(wp), INTENT(IN) ::  t(m),y(m)
+! number of knots:
+      INTEGER, INTENT(IN) :: n  
+! knots function, second derivatives of spline at knots
+      real(wp), INTENT(OUT) :: a(n),z(n),z2(n)
 ! periodic = true means periodic bc, false, natural spline conditions
 ! csr = true means using the Gram product ATA and the 3n x 3n system, false means using the H&H M+3*n system
 ! sparse = true means using superlu to solve the system, false means converting to a dense matrix and using LAPACK
 ! obviously sparse = true is suitable for large n
-      LOGICAL, PARAMETER :: periodic = .false., csr = .true., sparse = .true. ! Could make these an input value
+      LOGICAL, INTENT(IN) :: periodic, csr , sparse
+! error reporting 
+      integer, INTENT(OUT) :: err_report
+
+! Real constants
+      REAL(wp), PARAMETER :: one=1.0E0_wp, zero=0.0E0_wp
 ! Define arrays for knots, data points, etc
-      REAL(dkind), ALLOCATABLE :: a(:), rhs(:), t(:), x(:), r(:), rhs_m(:)
-! iseed is used to store the seed used for the Fortran intrinsic
-!       random number generator
-! saw_points is used to ensure that every interval in the partition
-!       contains at least one point
-      INTEGER, ALLOCATABLE :: iseed(:), saw_points(:)
-      INTEGER :: m !, findInterval
+      REAL(wp), ALLOCATABLE :: rhs(:), x(:), r(:)
+
 ! Define what will be the collection of matrix triplets.
-      TYPE (dpTripletList) :: s, s_test
+      TYPE (dpTripletList) :: s
 ! Define what will be the CSR version for the design matrix
       TYPE (dpCSRSparseMatrix) :: a_csr
 ! Define what will be the CSR version of A^TA for the design matrix
       TYPE (dpCSRSparseMatrix) :: ata_csr
 ! Define some  triplets
       TYPE (dpTriplet), ALLOCATABLE :: triplets(:)
-! Define variables for LAPACK and printing results
-      real(dkind), ALLOCATABLE :: dense(:,:),d(:)
+! Define variables for LAPACK 
+      real(wp), ALLOCATABLE :: dense(:,:),d(:)
       integer, allocatable :: ipiv(:)
       integer :: info
-      real(dkind) :: sumsq,y,y1,y2,z,zs
 ! Define the Harwell-Boeing derived type that holds the
 ! processed triplets.
       TYPE (dpHBSparseMatrix) :: b
-! Define the ascended type that holds the Harwell-Boeing
-! matrix and factorization quantities.
-      TYPE (slu_dpHBSparseMatrix) :: g
 
 ! Modified to allow n intervals after each break point including the last one for the periodic case
 ! Define local variables
-      REAL (dkind) :: delta, v, u, resid_error
-      INTEGER :: errno, i, j, k, sz
+      REAL (wp) :: delta, v, u, resid_error
+      INTEGER :: i, j, k, sz
       if (periodic) then
-       ALLOCATE (a(n), saw_points(n), STAT=errno)
-       IF (errno /= 0) THEN
-        print *, "Allocate fails with errno: ", errno
-       END IF
-       delta = one/real(n,dkind)
+       delta = (t(m)-t(1))/real(n,wp)
 ! Define the array of breakpoints
-       a(1) = zero
-       a(n) = one-delta
+       a(1) = t(1)
+       a(n) = t(m)-delta
         DO i = 2, n - 1
          a(i) = a(i-1) + delta
        END DO
       else
-       ALLOCATE (a(n), saw_points(n-1), STAT=errno)
-       IF (errno /= 0) THEN
-         print *, "Allocate fails with errno: ", errno
-       END IF
-       delta = one/real(n-1,dkind)
+       delta = (t(m)-t(1))/real(n-1,wp)
 ! Define the array of breakpoints
-       a(1) = zero
-       a(n) = one
+       a(1) = t(1)
+       a(n) = t(m)
         DO i = 2, n - 1
          a(i) = a(i-1) + delta
        END DO
       endif
 
-! Generate sufficient random values so that each interval
-! has at least one value.  We do not store these data values
-! here as we don't know the total number of data points required yet
-! note for the periodic case we need a value in the n to 1 interval so that k can actually reach n
-      saw_points = 0
-      m = 0
-! Store the seed so we can regenerate the data points later
-      CALL random_seed(size=sz)
-      ALLOCATE (iseed(sz), STAT=errno)
-      IF (errno /= 0) THEN
-        print *, "Allocate fails with errno: ", errno
-      END IF
-      CALL random_seed(get=iseed)
-      DO WHILE (any(saw_points==0))
-        CALL random_number(u)
-        k = findInterval(u, n, a, periodic)
-        saw_points(k) = 1
-        m = m + 1
-      END DO
-! Set random number seed so the same sequence results.
-      CALL random_seed(put=iseed)
 ! Allocate local working space
      if (csr) then
-      ALLOCATE (t(m),x(3*n),r(3*n),rhs_m(m),rhs(3*n),d(3*n),ipiv(3*n), STAT=errno)
+      ALLOCATE (x(3*n),r(3*n),rhs(3*n),d(3*n),ipiv(3*n), STAT=err_report)
      else
-      ALLOCATE (t(m),x(3*n+m),r(3*n+m),rhs_m(m),rhs(3*n+m),d(3*n+m),ipiv(3*n+m), STAT=errno)
-      IF (errno /= 0) THEN
-        print *, "Allocate fails with errno: ", errno
-      END IF
+      ALLOCATE (x(3*n+m),r(3*n+m),rhs(3*n+m),d(3*n+m),ipiv(3*n+m), STAT=err_report)
      endif
+     IF (err_report /= 0) THEN
+      print *, "Allocate fails with error: ", err_report
+      return
+     END IF
 ! initialize
      rhs(:) = zero
-! Generate the random values and write the matrix entries.
-! Record the function values in RHS(*).
-     DO j = 1, m     ! j = data points
-        CALL random_number(u)
-         t(j) = u
-        rhs_m(j) = sin(4*3.14*t(j))
-!        rhs_m(j) = t(j)**2
-        k = findInterval(t(j), n, a, periodic)
+     DO j = 1, m     
+        k = findInterval(t(j), n, a, delta)
         v = one-(t(j)-a(k))/delta
 ! Gather up the list of the sparse matrix triplets (S) that
 ! will define B.  The next assignments (S =) are accumulation
@@ -183,27 +145,27 @@
 ! Starts at 1st row and column, m rows, 2*n columns; odd is z, even z''
       if (csr) then
 ! only write A for CSRSparse to make ATA
-        s = dpTriplet(j,2*k-1,v)
-        s = dpTriplet(j,2*k, delta*delta*v*(v*v-one)/6.0 )
+        if (abs(v) > 0) s = dpTriplet(j,2*k-1,v)
+        if (abs(delta*delta*v*(v*v-one)/6.0) > 0) s = dpTriplet(j,2*k, delta*delta*v*(v*v-one)/6.0 )
         if (k .lt. n) then
-         s = dpTriplet(j,2*k+1,one-v)
-         s = dpTriplet(j,2*k+2,delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0 )
+         if (abs(one-v) > 0) s = dpTriplet(j,2*k+1,one-v)
+         if (abs(delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0) > 0) s = dpTriplet(j,2*k+2,delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0 )
         endif
  ! For H&H approach write A, A^T and I_M
       else
-        s = dpTriplet(j,2*k-1,v)
-        s = dpTriplet(j,2*k, delta*delta*v*(v*v-one)/6.0 )
+        if (abs(v) > 0) s = dpTriplet(j,2*k-1,v)
+        if (abs(delta*delta*v*(v*v-one)/6.0) > 0)s = dpTriplet(j,2*k, delta*delta*v*(v*v-one)/6.0 )
         if (k .lt. n) then
-         s = dpTriplet(j,2*k+1,one-v)
-         s = dpTriplet(j,2*k+2,delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0 )
+         if (abs(one-v) > 0) s = dpTriplet(j,2*k+1,one-v)
+         if (abs(delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0) > 0) s = dpTriplet(j,2*k+2,delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0 )
         endif
 ! Write adjacent rows of the A^T matrix, in middle of B:
 ! Starts at m+1st row and 2*n+1st column, 2*n rows, m columns
-        s = dpTriplet(2*k-1+m,2*n+j,v)
-        s = dpTriplet(2*k+m,2*n+j, delta*delta*v*(v*v-one)/6.0 )
+        if (abs(v) > 0) s = dpTriplet(2*k-1+m,2*n+j,v)
+        if (abs(delta*delta*v*(v*v-one)/6.0) > 0) s = dpTriplet(2*k+m,2*n+j, delta*delta*v*(v*v-one)/6.0 )
         if (k .lt. n) then
-         s = dpTriplet(2*k+1+m,2*n+j,one-v)
-         s = dpTriplet(2*k+2+m,2*n+j,delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0 )
+         if(abs(one-v) > 0) s = dpTriplet(2*k+1+m,2*n+j,one-v)
+         if (abs(delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0) > 0) s = dpTriplet(2*k+2+m,2*n+j,delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0 )
         endif
 ! Write row of identity matrix I_M, top middle of B:
         s = dpTriplet(j,2*n+j,one)
@@ -215,16 +177,46 @@
 ! Use overloaded assigment to convert from a list of
 ! triplets. Create a Compressed Sparse Row matrix representation for A, A^T.
         a_csr = s
+        if (a_csr%errFlag .ne. 0) then
+         write(*,*) 'FATAL Error in CSRCOO',a_csr%errFlag
+         stop
+        endif
+
+call printDpCSRSparseMatrix(a_csr)
         s = 0
+
+
+
 ! Create A^TA by multiplication of CSR sparse matrices
         ata_csr = (.t. a_csr) .p. a_csr
+        if (ata_csr%errFlag .ne. 0) then
+         write(*,*) 'FATAL Error in AMUB',ata_csr%errFlag
+         stop
+        endif
+
+! zero index s???
+
+
+call printDpCSRSparseMatrix(ata_csr)
+
 ! Make triplets from ata_csr
         triplets = ata_csr
+
+
+do i=1, size(triplets)
+call printDpTriplet(triplets(i))
+end do
+
         s = triplets
+
+call printDpTripletList(s)
+
+
+
 ! Create A^T*y
-       rhs(1:2*n) = (.t. a_csr) .p. rhs_m(:)
+       rhs(1:2*n) = (.t. a_csr) .p. y(:)
       else
-       rhs(1:m)=rhs_m(:)
+       rhs(1:m)=y(:)
       endif
 
 ! Constraints are not dependent on data j or m
@@ -409,7 +401,7 @@
       endif
 
 !Use superlu to solve sparse systems
-if (sparse) then
+   if (sparse) then
 
 ! Use overloaded assigment to convert from a list of
 ! triplets. Create a Harwell-Boeing matrix representation for B.
@@ -426,136 +418,44 @@ if (sparse) then
 ! Default settings of pivoting rules and other parameters
 ! are used.
      x = b .ip. rhs
-     if (csr) then
-      write(*,*) 'Using csr: no residual calculation'
-     else
-! Compute the residual.  The first M components of R
-! are the same as the negative values of X(2N+1:2N+M).
-      r = b .p. x(1:2*n)
-      r = r - rhs(1:size(r))
-      r(1:m) = r(1:m) + x(2*n+1:2*n+m)
-      resid_error = dnrm2(m,r,1)/dnrm2(m,x(2*n+1),1)
-      WRITE (*,'(A)') ' Data Fitting of y(t)=t**2, (0,1).'
-      WRITE (*,'(A,2I10)') &
-        ' The number of breakpoints (N) and data points (M) ', n, m
-      WRITE (*,'(/A/(A,1PG12.5))') ' Relative Error (1) (Vector Norm)', &
-        ' with solution and computed residual =', resid_error
-     endif
+     b = 0
 
-! Ascend B, the Harwell-Boeing matrix, to the extended type G.
-! The advantage of using .ip. on the extended type is that a
-! factorization does not have to be recomputed after it is
-! once available.  Options can also be reset from defaults.
-     g%options%printstat = 1
-     g = b
-     x = g .ip. rhs
-     x = zero
-
-! The factorization is available so only back solves now needed.     
-     x = g .ip. rhs
-     if (csr) then
-      write(*,*) 'Using csr: no residual calculation'
-     else
-      r = b .p. x(1:2*n)
-      r = r - rhs(1:size(r))
-      r(1:m) = r(1:m) + x(2*n+1:2*n+m)
-      resid_error = dnrm2(m,r,1)/dnrm2(m,x(2*n+1:),1)
-
-      WRITE (*,'(A)') ' Repeated Data Fitting of y(t)=t**2, (0,1) - No Factorization -.'
-      WRITE (*,'(A,2I10)') &
-        ' The number of breakpoints (N) and data points (M) ', n, m
-      WRITE (*,'(/A/(A,1PG12.5))') ' Relative Error (2) (Vector Norm)', &
-        ' with solution and computed residual =', resid_error
-     endif
-
-! Free storage and clear matrix
-      g = 0
-      b = 0
-
-else
+   else
 
 ! Use LAPACK not superlu
-  a_csr = 0
-  a_csr=s
-  dense = a_csr
-  d(:)=rhs(:)    ! d gets overwritten
-  call DGESV(size(dense,1), 1, dense, size(dense,1), IPIV, d, size(dense,1), info ) ! d is overwritten
-  write(*,*) 'info from LAPACK',info
-  if (info .ne. 0) stop
-   x(:) = d(:)
+    a_csr = 0
+    a_csr = s
+    s = 0
+    dense = a_csr
+    call DGESV(size(dense,1), 1, dense, size(dense,1), IPIV, rhs, size(dense,1), info ) ! rhs is overwritten
+    write(*,*) 'LAPACK DGESV info: ',info
+    if (info .ne. 0) err_report = info
+    a_csr = 0
+    x(:) = rhs(:)
+   endif
 
-endif
+   do i=1,n
+    z(i)=x(2*i-1)
+    z2(i)= x(2*i)
+   end do
 
-! x are the coefficients so y=x(i)v+x(i+1)(1-v); at knots v=1 so x(i)==y(i) for linear
-! x are the coefficients so y=x(2+i-1)v+x(2+i)*delta*delta*v*(v*v-one)/6.0
-!                            +x(2*i+1)(1-v)+x(2*i+2)*delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0
-!                          at knots v=1 so x(2*i-1)==y(i) for cubic
+   DEALLOCATE (x,r,rhs,d,ipiv)
 
-! so comparison of fit to data x(k) to computed actual data at knots (which you don't get as data) is
+  end subroutine LSQSpline
 
-sumsq = 0
-write(*,*) 'a(k),x(2*k-1),y(k),x(2*k-1)-y(a(k))'
- do k=1,n
-!   write(*,*) a(k),x(2*k-1),a(k)**2,x(2*k-1)-a(k)**2
-!   sumsq=sumsq+(x(2*k-1)-a(k)**2)**2
-   write(*,*) a(k),x(2*k-1),sin(4*3.14*a(k)),x(2*k-1)-sin(4*3.14*a(k))
-   sumsq=sumsq+(x(2*k-1)-sin(4*3.14*a(k)))**2
- end do
-   sumsq=sqrt(sumsq)/n
-write(*,*) 'Sum Squared',sumsq
-
-! print to plot with gnuplot eg.
-
-!do j=1,1001
-!z = (j-1)/1000.0
-!k = findInterval(z, n, a, periodic)
-!        IF ( k .gt. 1 .and. k .lt. n  ) THEN
-!        zs = -1.0*x(2*k-3) + x(2*k-2)*delta*delta/6.0 + 2.0*x(2*k-1) + &
-!             2.0*x(2*k)*delta*delta/3.0 - 1.0*x(2*k+1) + x(2*k+2)*delta*delta/6.0  !should be zero
-!        else
-!        if (k .eq. 1) then
-!         zs = -1.0*x(2*n-1) + x(2*n)*delta*delta/6.0 + 2.0*x(2*k-1) + &
-!             2.0*x(2*k)*delta*delta/3.0 - 1.0*x(2*k+1) + x(2*k+2)*delta*delta/6.0  !should be zero
-!         else
-!         zs = -1.0*x(2*k-3) + x(2*k-2)*delta*delta/6.0 + 2.0*x(2*k-1) + &
-!             2.0*x(2*k)*delta*delta/3.0 - 1.0*x(1) + x(2)*delta*delta/6.0  !should be zero
-!         endif
-!        ENDIF
-!v = one-(z-a(k))/delta
-!y = x(2*k-1)*v + x(2+k)*delta*delta*v*(v*v-one)/6.0 &
-!  + x(2*k+1)*(1-v) + x(2*k+2)*delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0
-!y2 = x(2*k)*v + x(2*k+2)*(1-v)
-
-! write(*,*) z,z**2,y,y-z**2,zs,2,y2,k,a(k)
-! write(*,*) z,sin(4*3.14*z),y,y-sin(4*3.14*z),zs,y2,-4*3.14*4*3.14*sin(4*3.14*z),k,a(k)
-
-!end do
-
-    END PROGRAM
-
-    FUNCTION findInterval(u, n, a, periodic) RESULT(k)
-    USE set_precision, ONLY: dkind
+    FUNCTION findInterval(u, n, a, delta) RESULT(k)
+    USE set_precision, ONLY: wp
     INTEGER, INTENT(IN) :: n
-    REAL(dkind), INTENT(IN) :: u, a(*)
-    LOGICAL, INTENT(IN) :: periodic
-    REAL(dkind) :: v, delta
-    REAL(dkind), PARAMETER :: one = 1.0E0_dkind
+    REAL(wp), INTENT(IN) :: u, a(*)
+    REAL(wp), INTENT(IN) :: delta
+    REAL(wp) :: v
+    REAL(wp), PARAMETER :: one = 1.0E0_wp
     INTEGER :: k
-! Modified to allow n intervals after each break point including the last one for periodic case
-! This direct computation of the interval containing
-! the data can be off (low) by 1.  So if the value
-! of the basis function is > 1, move to the next interval.
-    if (periodic) then
-      delta = one/real(n,dkind)
-    else
-      delta = one/real(n-1,dkind)
-    endif
-    k = max(1,min(n,floor(real(n*u,dkind))))
+    k = max(1,min(n,floor(real(n*u/a(n),wp))))
     DO
       v = (u-a(k))/delta
       IF (v<=one .OR. k==n) EXIT
 ! Move to the next interval.        
       k = k + 1
     END DO
-
     END FUNCTION findInterval

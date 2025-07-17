@@ -2,14 +2,19 @@ things to do
 
 CorneaCopia
 
-need to cleanup gitmodules/submodules that may no longer exit or are not in the project 
-test assimp now that added as submodule to keep up to date
+lsqspline works with periodic no (yes has predictable edge effects)
+ csr no csr yes->issues in dhbc_eq_list_of_triplets (sparse = true) or in coocsr dcsr_eq_list_of_triplets (sparse = false)
+sparse either
+
+make a test bed for nspline/pspli vs lsqspline vs dc2fit
 
 make driverPieceWiseCubic a drop in replacement for nspline or pspli; possibly unify the interface for those as well as one_dimensional_spline
 need a radial version and a periodic version (should only affect two numbers in constraints)
 do 1d lsq spline, use existing splineval on lsq spline, then lsq (periodic) spline the second part and use existing splineeval
-
 make a drop in replacement from math77 DC2FIT for comparison
+
+need to cleanup gitmodules/submodules that may no longer exit or are not in the project 
+test assimp now that added as submodule to keep up to date
 
 built framework for decenter; both involve moving elevation data points, either, 
 then resplining on that basis, just like an ELE file, in fact, for an ELE/ELE.CSV file, adjust the data before the first spline
@@ -24,6 +29,8 @@ compare is broken with zernike; also so is opening 2nd file with zernike selecte
 
 need a 2-D picture output other than gnuplot version
 make mathematica plot output?, just like ply,off etc.
+
+This is a fontconfig 2.17.0 issue affecting everything: "Fontconfig warning: using without calling FcInit()"
 
 Fit elevation with Principal component analysis, meh 
 possible superLU-dist to use GPU
@@ -134,10 +141,10 @@ Spline routines seem to have explicit shape, and are passed possibly assumed-sha
 
 include these and similar notes in io_functions.f90
 
-notes on EyeSys files, RA, XX, PU, HDR 
+Notes on EyeSys files, RA, XX, PU, HDR 
 RA == ?Radii of rings in EyeSys terms, increasing in magnitude from 40's to 400's with the EyeSys XX files being the sagittal curvature given in diopters 700's because R=(n-1)/D
 
-notes on OPD-III Nidek files
+Notes on OPD-III Nidek files
 
 from the manual and brochure:
 33 vertical, 39 horizontal (6 extra partial horizontal rings horizontally)
@@ -149,6 +156,8 @@ They are similar to EyeSys dat files.
 
 The binary files may simply be compressed; they appear to be a 30-50% smaller than the uncompressed versions & the opd-iii manual describes "compressed vs uncompressed database"
 However, if so, not very good nonstandard compression, for example AR*.DAT files ASCII are about 25Kbytes, binary versions are 14Kybes but using gzip on ASCII gives 3.7Kbytes
+
+Try using the simplest PE/PR files to break the encoding scheme
 
 There are only 23 mires in the uncompressed files; the manual says the number of rings is adjustable up to 33
 Nidek RA seems to be 7.xx curvatures (corresponding to EyeSys XX file) 

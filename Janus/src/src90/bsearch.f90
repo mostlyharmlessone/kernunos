@@ -1,13 +1,12 @@
 ! binary search for r in rv
 subroutine bsearch(r,rv,n,high,low)
  use set_precision, only : wp
+ use cornea_arrays, only : eps
  implicit none
 integer, intent(in) :: n
 real(wp), intent(in) :: r, rv(n)
 integer, intent(out) :: high, low
 integer m
-real eps
- eps = 0.00001
  low=1
  high=n
  if ( n < 1 ) then

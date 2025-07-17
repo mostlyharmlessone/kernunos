@@ -1,5 +1,5 @@
     MODULE sparseTypes
-
+!  Modified to add CSR sparse matrices
       USE set_precision, ONLY : dkind
       USE iso_c_binding
       IMPLICIT NONE

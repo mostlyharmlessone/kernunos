@@ -6,7 +6,7 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
  use,intrinsic :: ieee_arithmetic
  IMPLICIT NONE
 ! !1-D version
-! shamelessly adapted from Computer Methods for Mathematical Computations Forsythe et al. 1977
+! adapted from Computer Methods for Mathematical Computations Forsythe et al. 1977
 ! http://www.pdas.com/fmmdownload.html : SUBROUTINE Seval3Single(u,x,y,b,c,d,f,fp,fpp,fppp)
 ! ---------------------------------------------------------------------------
 !  PURPOSE - Evaluate the cubic spline function and its derivatives
