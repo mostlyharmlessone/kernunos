@@ -181,41 +181,24 @@
          write(*,*) 'FATAL Error in CSRCOO',a_csr%errFlag
          stop
         endif
-
-call printDpCSRSparseMatrix(a_csr)
         s = 0
-
-
-
 ! Create A^TA by multiplication of CSR sparse matrices
         ata_csr = (.t. a_csr) .p. a_csr
         if (ata_csr%errFlag .ne. 0) then
-         write(*,*) 'FATAL Error in AMUB',ata_csr%errFlag
+!        write(*,*) 'FATAL Error in AMUB',ata_csr%errFlag
          stop
         endif
-
-! zero index s???
-
-
-call printDpCSRSparseMatrix(ata_csr)
-
 ! Make triplets from ata_csr
         triplets = ata_csr
-
-
-do i=1, size(triplets)
-call printDpTriplet(triplets(i))
-end do
-
+        if (ata_csr%errFlag .ne. 0) then
+         write(*,*) 'FATAL Error in CSRCOO',a_csr%errFlag
+         stop
+        endif
         s = triplets
-
-call printDpTripletList(s)
-
-
-
 ! Create A^T*y
        rhs(1:2*n) = (.t. a_csr) .p. y(:)
       else
+!  NOT csr
        rhs(1:m)=y(:)
       endif
 
@@ -428,8 +411,8 @@ call printDpTripletList(s)
     s = 0
     dense = a_csr
     call DGESV(size(dense,1), 1, dense, size(dense,1), IPIV, rhs, size(dense,1), info ) ! rhs is overwritten
-    write(*,*) 'LAPACK DGESV info: ',info
     if (info .ne. 0) err_report = info
+    if (info .ne. 0) write(*,*) 'LAPACK DGESV info: ',info
     a_csr = 0
     x(:) = rhs(:)
    endif

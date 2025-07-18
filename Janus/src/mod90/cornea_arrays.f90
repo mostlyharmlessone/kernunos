@@ -367,9 +367,7 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
    end do
    call nspline(x,z,L2,z2,err_report)                                ! generate zxDAT
    allocate (knots(NP/2),knotsz(NP/2),knotsz2(NP/2))
-
-!!!!!!!!!!!! errors out owing to bad data in, presumbably; needs more parameter and sanity checks
-   call LSQspline(x, z, L2, knots, knotsz, knotsz2, L2/2, err_report, .false., .true. , .false.)
+   call LSQspline(x, z, L2, knots, knotsz, knotsz2, L2/2, err_report, .false., .true. , .true.)
 
 !!!!!!!!!!!! makes zig zags
 !   call LSQ_DC2FIT(x, z, L2, knots, knotsz, knotsz2, L2/2, err_report)

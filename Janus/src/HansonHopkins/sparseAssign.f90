@@ -58,6 +58,10 @@
 ! Convert a sparse matrix in CSR format to a dense matrix
 ! REAL(:,:)=TYPE(dpCSRSparseMatrix)
       MODULE PROCEDURE matrix_eq_dcsr
+! Convert a dense matrix to a sparse matrix in CSR format
+! TYPE(dpCSRSparseMatrix)=REAL(:,:)
+      MODULE PROCEDURE dcsr_eq_matrix
+
      END INTERFACE
 
     INTERFACE
@@ -446,24 +450,23 @@ SUBROUTINE list_of_triplets_eq_triplets(triplets,sparse)
  end do
 END SUBROUTINE list_of_triplets_eq_triplets
 
-SUBROUTINE list_of_triplets_eq_dcsr(triplets,dcsr)
+SUBROUTINE list_of_triplets_eq_dcsr(trip,dcsr)
 USE sparsekit, ONLY: csrcoo
 ! This routine handles the overloaded assignment
 ! TYPE(dpTriplet)(:) = TYPE(dpCSRSparseMatrix)
-! by providing a modern interface to sparsekit.f90 CSRCOO
+! by providing a modern interface/replacement to sparsekit.f90 CSRCOO
 ! It assigns an array of triplets using the contents
 ! of a Compressed Sparse Row format sparse matrix.  Zero values
 ! are not returned.
   IMPLICIT NONE
-  TYPE (dpTriplet), INTENT (INOUT), ALLOCATABLE :: triplets(:)
+  TYPE (dpTriplet), INTENT (OUT), ALLOCATABLE :: trip(:)
   TYPE (dpCSRSparseMatrix), INTENT (IN) :: dcsr
-  INTEGER :: nrow, nzmax, ierr, k, k1, k2, i !,job
+  INTEGER :: nrow, nnz, ierr, k, k1, k2, i
 ! Get matrix size.
-  nrow = dcsr%noOfRows
+  nrow = dcsr%noOfRows ; ierr = 0
 ! Allocate just enough space to hold the entries
 ! of the Compressed Sparse Row format sparse matrix.
-  nzmax = max(dcsr%nnz,dcsr%ia(dcsr%noOfRows+1)-1)
-  ALLOCATE(triplets(nzmax), STAT=ierr)
+  ALLOCATE(trip(dcsr%nnz), STAT=ierr)
   IF(ierr /= 0) THEN
     WRITE(*,*) 'Allocation failure in assignment triplets(:)=dcsr_sparse.'
     RETURN
@@ -471,15 +474,27 @@ USE sparsekit, ONLY: csrcoo
 ! uses sparsekit.f90 but makes array temps
 !  call csrcoo( nrow, 3, dcsr%a, dcsr%ja, dcsr%ia, dcsr%nnz, triplets%value, triplets%rowIndex, triplets%columnIndex, ierr )
 ! copied from csrcoo
- triplets%value=dcsr%a
- triplets%columnIndex=dcsr%ja
-  do i = dcsr%noOfRows, 1, -1
-    k1 = dcsr%ia(i+1) - 1
-    k2 = dcsr%ia(i)
-    do k = k1, k2, -1
-      triplets(k)%rowIndex = i
-    end do
-  end do
+  nnz = dcsr%nnz
+  if ((dcsr%ia(nrow+1)-1) .ne. nnz) then
+   write(*,*) 'FATAL Error on input list_of_triplets_eq_dcsr/csrcoo: unexpected nnz',dcsr%ia(nrow+1)-1,nnz
+   stop
+  endif
+  trip(1:nnz)%value = dcsr%a(1:nnz)
+  trip(1:nnz)%columnIndex = dcsr%ja(1:nnz)
+!  Copy backward.
+  do i = nrow, 1, -1
+   k1 = dcsr%ia(i+1) - 1
+   k2 = dcsr%ia(i)
+   do k = k1, k2, -1
+    trip(k)%rowIndex = i
+   end do
+ end do
+ do i=1, dcsr%nnz
+  if (trip(i)%rowIndex .lt. 1 .or. trip(i)%rowIndex .gt. dcsr%nnz) then
+   write(*,*) 'FATAL Error on output list_of_triplets_eq_dcsr/csrcoo: bad rowIndex'
+   stop
+  endif
+ end do
 END SUBROUTINE list_of_triplets_eq_dcsr
 
 
@@ -525,21 +540,14 @@ USE sparsekit, ONLY: coocsr
   itemp = sparse%columns(ind)
   dcsr%noOfColumns = max(0,maxval(itemp))
   ! Allocate just enough space to hold the entries of the CSR matrix
-  ALLOCATE (ir(dcsr%nnz),dcsr%ia(dcsr%noOfRows+1),dcsr%a(dcsr%nnz), dcsr%ja(dcsr%nnz),STAT=istat)
+  ALLOCATE (ir(dcsr%nnz),dcsr%ia(dcsr%nnz),dcsr%a(dcsr%nnz), dcsr%ja(dcsr%nnz),STAT=istat)
   IF(istat /= 0) THEN
     WRITE(*,*) 'Allocation failure in assignment dcsr_sparse(:)=triplets.'
     RETURN
   END IF
-
-
-write(*,*) 'sv',sparse%values(:)
-
-
-
-
 ! coocsr destroys ir, make working copy of triplets%rows
-  ir=sparse%rows
-  call coocsr( dcsr%noOfRows, dcsr%nnz, sparse%values, ir, sparse%columns, dcsr%a, dcsr%ja, dcsr%ia )
+  ir(1:dcsr%nnz)=sparse%rows(1:dcsr%nnz)
+  call coocsr( dcsr%noOfRows, dcsr%nnz, sparse%values(1:dcsr%nnz), ir(1:dcsr%nnz), sparse%columns(1:dcsr%nnz), dcsr%a, dcsr%ja, dcsr%ia )
   DEALLOCATE(ind,itemp,ir)
 
 END SUBROUTINE dcsr_eq_list_of_triplets
@@ -574,5 +582,30 @@ USE sparsekit, ONLY: csrdns
    RETURN
   ENDIF
 END SUBROUTINE matrix_eq_dcsr
+
+SUBROUTINE dcsr_eq_matrix(dcsr,matrix)
+USE sparsekit, ONLY: dnscsr
+! This routine handles the overloaded assignment
+! TYPE(dpCSRSparseMatrix)=REAL(:,:)
+! by providing an interface to sparsekit.f90 CSRDNS (modified)
+  IMPLICIT NONE
+  TYPE (dpCSRSparseMatrix), INTENT (INOUT) :: dcsr
+  REAL (dkind), INTENT(IN) :: matrix(:,:)
+  INTEGER :: ierr, i, j
+  dcsr%nnz = 0
+  do i=1,size(matrix,1)
+   do j=1,size(matrix,2)
+    if (abs(matrix(j,i)) > 0) dcsr%nnz=dcsr%nnz+1
+   end do
+  end do
+  ALLOCATE(dcsr%a(1:dcsr%nnz), dcsr%ja(1:dcsr%nnz), dcsr%ia(1:dcsr%nnz))
+  dcsr%noOfRows=size(matrix,1)
+  dcsr%noOfColumns=size(matrix,2)
+  call dnscsr ( size(matrix,1), size(matrix,2), dcsr%nnz, matrix, size(matrix,1), dcsr%a(1:dcsr%nnz), dcsr%ja(1:dcsr%nnz), dcsr%ia(1:dcsr%nnz), dcsr%errFlag )
+  IF (dcsr%errFlag /= 0) THEN
+   write(*,*) 'Error in dnscsr'
+   RETURN
+  ENDIF
+END SUBROUTINE dcsr_eq_matrix
 
     END MODULE sparseAssign

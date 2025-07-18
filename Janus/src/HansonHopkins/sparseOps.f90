@@ -261,7 +261,7 @@ FUNCTION transpose_triplet(b) RESULT (a)
 END FUNCTION transpose_triplet
 
 FUNCTION CSR_sparse_matrix_times_CSR_sparse_matrix(a,b) RESULT (c)
-USE sparsekit, ONLY: amub
+USE sparsekit, ONLY: amub, amubdg
 ! This function computes the product of two Compressed Sparse Row
 ! format sparse matrices, C = A * B.
 ! by providing a modern interface to sparsekit.f90 AMUB
@@ -270,64 +270,47 @@ USE sparsekit, ONLY: amub
 TYPE (dpCSRSparseMatrix), INTENT (IN) :: a, b
 TYPE (dpCSRSparseMatrix) :: c
 INTEGER :: ncol, nzmax,ierr,i
-INTEGER, ALLOCATABLE :: iw(:),tempia(:),tempja(:)
-INTEGER, ALLOCATABLE, TARGET :: ind(:),itemp(:)
-REAL (dkind), ALLOCATABLE :: tempa(:)
+INTEGER, ALLOCATABLE :: iw(:), ndegr(:)
 IF (a%noOfRows/=b%noOfColumns) THEN
   c%errFlag = -1
   RETURN
 ENDIF
-! weird routine hack for amub
-ncol = max( a%noOfColumns,  b%noOfColumns)
-nzmax = a%nnz*b%nnz
+! weird amub thing
+ncol = max(a%noOfColumns, b%noOfColumns)
 ! this routine needs the number of columns, which is not typically part of the CSR structure
-ALLOCATE(iw(ncol),tempa(nzmax),tempja(nzmax),tempia(nzmax),stat=ierr)
+ALLOCATE(iw(ncol), ndegr(a%noOfRows), stat=ierr)
 IF (ierr/=0) THEN
   c%errFlag = ierr
   RETURN
 ENDIF
-call amub ( a%noOfRows, ncol, 1 , a%a, a%ja, a%ia, b%a, b%ja, b%ia, tempa, tempja, tempia, nzmax, iw, ierr )
 ! determine nnz
-c%nnz = 0
-do i=1,nzmax
- if (abs(tempa(i)) > 0) c%nnz=c%nnz+1
-end do
-c%noOfRows = a%noOfRows
-c%noOfColumns = b%noOfColumns
+call amubdg ( a%noOfRows, a%noOfColumns, b%noOfColumns, a%ja, a%ia, b%ja, b%ia, ndegr, c%nnz, iw )
 IF (c%nnz==0) THEN
  c%noOfRows = 0
- IF ( .NOT. ALLOCATED(c%ia)) THEN
-  ALLOCATE (c%ia(1),c%ja(1),STAT=ierr)
-  IF (ierr/=0) THEN
+  IF ( .NOT. ALLOCATED(c%ia)) THEN
+   ALLOCATE (c%ia(1),c%ja(1),STAT=ierr)
+   IF (ierr/=0) THEN
     c%errFlag = ierr
-    RETURN
+   RETURN
+   ENDIF
   ENDIF
+ ENDIF
+ ! nnz > 0
+ ! Allocate just enough space to hold the entries of the CSR matrix
+ c%noOfRows = a%noOfRows
+ c%noOfColumns = b%noOfRows
+ ALLOCATE (c%ia(c%nnz),c%a(c%nnz),c%ja(c%nnz),STAT=ierr)
+ IF (ierr/=0) THEN
+  c%errFlag = ierr
+  RETURN
  END IF
-! Initialize start of column indices
- c%ja(1) = 1
- RETURN
-END IF
-! nnz > 0
-ALLOCATE (ind(c%nnz),itemp(c%nnz),STAT=ierr)
+call amub ( a%noOfRows, ncol, 1 , a%a, a%ja, a%ia, b%a, b%ja, b%ia, c%a, c%ja, c%ia, c%nnz, iw, ierr )
+DEALLOCATE(iw)
 IF (ierr/=0) THEN
  c%errFlag = ierr
  RETURN
 END IF
-! Allocate just enough space to hold the entries of the CSR matrix
-ALLOCATE (c%ia(c%noOfRows+1),c%a(c%nnz),c%ja(c%nnz),STAT=ierr)
-IF(ierr /= 0) THEN
-  WRITE(*,*) 'Allocation failure in CSR_sparse_matrix_times_CSR_sparse_matrix'
-  RETURN
-END IF
-c%a(1:c%nnz)=tempa(1:c%nnz)
-c%ja(1:c%nnz)=tempja(1:c%nnz)
-c%ia(1:c%noOfRows+1)=tempia(1:c%noOfRows+1)
-DEALLOCATE(iw,ind,itemp,tempa,tempia,tempja)
-IF (c%nnz /= c%ia(c%noOfRows+1)-1) ierr=100
-IF (ierr/=0) THEN
-  c%errFlag = ierr
-  RETURN
-ENDIF
+
 END FUNCTION CSR_sparse_matrix_times_CSR_sparse_matrix
 
 FUNCTION CSR_sparse_matrix_times_vector(h,x) RESULT (y)
