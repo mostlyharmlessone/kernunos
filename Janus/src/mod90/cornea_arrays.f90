@@ -344,7 +344,7 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
   integer :: M1,N1,i,j,k,kk,L2,offset,NP,ITH,err_report,num_zeroes
   integer :: imv(size(JMatrix%Z,2))
   real(wp) :: rBo,rBi,DAT,u,v,xx,yy,f,fx,fxx,fy,fxy,fyy,fTmp(Skyline%rows),f2Tmp(Skyline%rows),fxTmp(Skyline%rows),fx2Tmp(Skyline%rows),fxxTmp(Skyline%rows),fxx2Tmp(Skyline%rows)
-  real(wp) :: r(size(RadSlope%r,2)),z(Skyline%cols),z2(Skyline%cols), ztemp(Skyline%cols), z2temp(Skyline%cols)
+  real(wp) :: r(size(RadSlope%r,2)),z(Skyline%cols),z2(Skyline%cols)
   real(wp) :: x(Skyline%cols)              ! maximum size needed, don't need NP
   real(wp) :: y(Skyline%rows)
   real(wp) :: rmin,check,firstcheck,secondcheck,q,mean,gaussian,fp
@@ -367,34 +367,19 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
    end do
    call nspline(x,z,L2,z2,err_report)                                ! generate zxDAT
    allocate (knots(NP/2),knotsz(NP/2),knotsz2(NP/2))
-   call LSQspline(x, z, L2, knots, knotsz, knotsz2, L2/2, err_report, .false., .true. , .true.)
-
-!!!!!!!!!!!! makes zig zags
+!  natural spline; csr and LAPACK not superlu is fastest for these matrix sizes
+   call LSQspline(x, z, L2, knots, knotsz, knotsz2, L2/2, err_report, .false., .true., .false.)
+   if (err_report .ne. 0) write(*,*) 'Error in LSQspline',err_report
+!   makes zigzags, larger z2
 !   call LSQ_DC2FIT(x, z, L2, knots, knotsz, knotsz2, L2/2, err_report)
-
-
+!   if (err_report .ne. 0) write(*,*) 'Error in LSQ_DC2FIT',err_report
 !  repopulate
    do j=1,L2
-    call SplineEval(0,knots,knotsz,knotsz2,L2/2,x(j),ztemp(j),fp,z2temp(j))
+    call SplineEval(0,knots,knotsz,knotsz2,L2/2,x(j),z(j),fp,z2(j))
    end do
    deallocate(knots,knotsz,knotsz2)
-
-if (num_zeroes .eq. 2) then
- write (*,*) 'multiple zeroes in ELE profile',num_zeroes
-write(*,*) i, L2
-do j=1,L2
-write(*,*) x(j),z(j),z2(j),ztemp(j),z2temp(j)
-end do
-endif
-z(:)=z(:)
-z2(:)=z2temp(:)
-
-!!!!!!!
-
-
   Skyline%DAT(i,1:L2)=z(1:L2)
   Skyline%z2DAT(i,1:L2)=z2(1:L2)
-
   end do 
   if (num_zeroes .gt. 1) then
    write (*,*) 'multiple zeroes in ELE profile',num_zeroes

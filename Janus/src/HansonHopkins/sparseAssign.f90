@@ -452,6 +452,7 @@ END SUBROUTINE list_of_triplets_eq_triplets
 
 SUBROUTINE list_of_triplets_eq_dcsr(trip,dcsr)
 USE sparsekit, ONLY: csrcoo
+use sparseUtils
 ! This routine handles the overloaded assignment
 ! TYPE(dpTriplet)(:) = TYPE(dpCSRSparseMatrix)
 ! by providing a modern interface/replacement to sparsekit.f90 CSRCOO
@@ -475,6 +476,10 @@ USE sparsekit, ONLY: csrcoo
 !  call csrcoo( nrow, 3, dcsr%a, dcsr%ja, dcsr%ia, dcsr%nnz, triplets%value, triplets%rowIndex, triplets%columnIndex, ierr )
 ! copied from csrcoo
   nnz = dcsr%nnz
+  if ( (nrow+1) .gt. size(dcsr%ia)) then
+   write(*,*) 'FATAL Error on input list_of_triplets_eq_dcsr/csrcoo: unexpected size',(nrow+1),size(dcsr%ia)
+   stop
+  endif
   if ((dcsr%ia(nrow+1)-1) .ne. nnz) then
    write(*,*) 'FATAL Error on input list_of_triplets_eq_dcsr/csrcoo: unexpected nnz',dcsr%ia(nrow+1)-1,nnz
    stop

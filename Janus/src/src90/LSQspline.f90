@@ -51,6 +51,7 @@
       USE sluInterop, ONLY: OPERATOR(.ip.), ASSIGNMENT(=) 
       USE sparseAssign, ONLY: ASSIGNMENT(=)
       USE lapackinterface, ONLY: dnrm2, dgesv
+      use special_fct, ONLY : bsearch
       USE sparseUtils
 
       IMPLICIT NONE
@@ -104,7 +105,7 @@
 ! Modified to allow n intervals after each break point including the last one for the periodic case
 ! Define local variables
       REAL (wp) :: delta, v, u, resid_error
-      INTEGER :: i, j, k, sz
+      INTEGER :: i, j, k, sz, high, low
       if (periodic) then
        delta = (t(m)-t(1))/real(n,wp)
 ! Define the array of breakpoints
@@ -122,7 +123,7 @@
          a(i) = a(i-1) + delta
        END DO
       endif
-
+     err_report = 0
 ! Allocate local working space
      if (csr) then
       ALLOCATE (x(3*n),r(3*n),rhs(3*n),d(3*n),ipiv(3*n), STAT=err_report)
@@ -138,6 +139,13 @@
      DO j = 1, m     
         k = findInterval(t(j), n, a, delta)
         v = one-(t(j)-a(k))/delta
+!       findInterval is faster than binary search, but is wrong sometimes
+        if ((v .gt. 1) .or. (v .lt. 0)) then
+         err_report = err_report + 1
+         call bsearch(t(j),a,n,high,low)
+         k=low
+         v = one-(t(j)-a(k))/delta
+        endif
 ! Gather up the list of the sparse matrix triplets (S) that
 ! will define B.  The next assignments (S =) are accumulation
 ! steps of the list of matrix entries.
@@ -172,26 +180,31 @@
       endif
      END DO
 
+     if (err_report .ne. 0) then
+      write(*,*) 'Errors in findInterval', err_report
+      err_report = 0
+     endif
+
      if (csr) then
 ! CSR version
 ! Use overloaded assigment to convert from a list of
 ! triplets. Create a Compressed Sparse Row matrix representation for A, A^T.
         a_csr = s
         if (a_csr%errFlag .ne. 0) then
-         write(*,*) 'FATAL Error in CSRCOO',a_csr%errFlag
+         write(*,*) 'FATAL Error in CSRCOO in LSQspline',a_csr%errFlag
          stop
         endif
         s = 0
 ! Create A^TA by multiplication of CSR sparse matrices
         ata_csr = (.t. a_csr) .p. a_csr
         if (ata_csr%errFlag .ne. 0) then
-!        write(*,*) 'FATAL Error in AMUB',ata_csr%errFlag
+         write(*,*) 'FATAL Error in AMUB in LSQSpline',ata_csr%errFlag
          stop
         endif
 ! Make triplets from ata_csr
         triplets = ata_csr
         if (ata_csr%errFlag .ne. 0) then
-         write(*,*) 'FATAL Error in CSRCOO',a_csr%errFlag
+         write(*,*) 'FATAL Error in CSRCOO in LSQspline',a_csr%errFlag
          stop
         endif
         s = triplets
