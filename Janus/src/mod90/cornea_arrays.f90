@@ -365,19 +365,21 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
      num_zeroes=num_zeroes+1
     endif
    end do
-   call nspline(x,z,L2,z2,err_report)                                ! generate zxDAT
-   allocate (knots(NP/2),knotsz(NP/2),knotsz2(NP/2))
+
+!   call nspline(x,z,L2,z2,err_report)                                ! generate zxDAT
+   allocate (knots(L2/2),knotsz(L2/2),knotsz2(L2/2))
 !  natural spline; csr and LAPACK not superlu is fastest for these matrix sizes
    call LSQspline(x, z, L2, knots, knotsz, knotsz2, L2/2, err_report, .false., .true., .false.)
    if (err_report .ne. 0) write(*,*) 'Error in LSQspline',err_report
 !   makes zigzags, larger z2
 !   call LSQ_DC2FIT(x, z, L2, knots, knotsz, knotsz2, L2/2, err_report)
 !   if (err_report .ne. 0) write(*,*) 'Error in LSQ_DC2FIT',err_report
-!  repopulate
+!  repopulate z,  generate z2 with lsqspline not nspline
    do j=1,L2
     call SplineEval(0,knots,knotsz,knotsz2,L2/2,x(j),z(j),fp,z2(j))
    end do
-   deallocate(knots,knotsz,knotsz2)
+  deallocate(knots,knotsz,knotsz2)
+
   Skyline%DAT(i,1:L2)=z(1:L2)
   Skyline%z2DAT(i,1:L2)=z2(1:L2)
   end do 
@@ -425,21 +427,48 @@ subroutine RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)      ! initial
      do kk=1,L2            ! fTmp has to align with y; but ftmp starts at Skyline%first_row, y starts at 1 for calculation
       y(kk)=700.0-((kk-1+offset)*1400.0)/(NP-1.0)
      end do
-     call nspline(y(1:L2),fTmp(1:L2),L2,f2Tmp(1:L2),err_report)             ! spline in Y of f
 
-
+!     call nspline(y(1:L2),fTmp(1:L2),L2,f2Tmp(1:L2),err_report)             ! spline in Y of f
+     allocate (knots(L2/2),knotsz(L2/2),knotsz2(L2/2))
+!    natural spline; csr and LAPACK not superlu is fastest for these matrix sizes
+     call LSQspline(y(1:L2), fTmp(1:L2), L2, knots, knotsz, knotsz2, L2/2, err_report, .false., .true., .false.)
+     if (err_report .ne. 0) write(*,*) 'Error in LSQspline',err_report
+!    repopulate z,  generate z2 with lsqspline not nspline
+     do kk=1,L2
+      call SplineEval(0,knots,knotsz,knotsz2,L2/2,y(kk),fTmp(kk),fp,f2Tmp(kk))
+     end do
+     deallocate(knots,knotsz,knotsz2)
 
 
 
      if (err_report .ne. 0) write(*,*) 'Error in RadSlope_eq_Skyline f(Y)'
+
      call SplineEval(2,y(1:L2),fTmp(1:L2),f2Tmp(1:L2),L2,v,secondcheck)  ! first parameter = 2 extrapolation check
      if (secondcheck /= 0) then
-      call nspline(y(1:L2),fxTmp(1:L2),L2,fx2Tmp(1:L2),err_report)           ! spline in Y of fx to get fxy (only for ELE files)
-
+!      call nspline(y(1:L2),fxTmp(1:L2),L2,fx2Tmp(1:L2),err_report)           ! spline in Y of fx to get fxy (only for ELE files)
+      allocate (knots(L2/2),knotsz(L2/2),knotsz2(L2/2))
+ !    natural spline; csr and LAPACK not superlu is fastest for these matrix sizes
+      call LSQspline(y(1:L2), fxTmp(1:L2), L2, knots, knotsz, knotsz2, L2/2, err_report, .false., .true., .false.)
+      if (err_report .ne. 0) write(*,*) 'Error in LSQspline',err_report
+ !    repopulate z,  generate z2 with lsqspline not nspline
+      do kk=1,L2
+       call SplineEval(0,knots,knotsz,knotsz2,L2/2,y(kk),fxTmp(kk),fp,fx2Tmp(kk))
+      end do
+      deallocate(knots,knotsz,knotsz2)
 
 
       if (err_report .ne. 0) write(*,*) 'Error in RadSlope_eq_Skyline fx(Y)'
-      call nspline(y(1:L2),fxxTmp(1:L2),L2,fxx2Tmp(1:L2),err_report)          ! spline in Y of fxx to get fxx (only for ELE files)
+
+!      call nspline(y(1:L2),fxxTmp(1:L2),L2,fxx2Tmp(1:L2),err_report)          ! spline in Y of fxx to get fxx (only for ELE files)
+      allocate (knots(L2/2),knotsz(L2/2),knotsz2(L2/2))
+ !    natural spline; csr and LAPACK not superlu is fastest for these matrix sizes
+      call LSQspline(y(1:L2), fxxTmp(1:L2), L2, knots, knotsz, knotsz2, L2/2, err_report, .false., .true., .false.)
+      if (err_report .ne. 0) write(*,*) 'Error in LSQspline',err_report
+ !    repopulate z,  generate z2 with lsqspline not nspline
+      do kk=1,L2
+       call SplineEval(0,knots,knotsz,knotsz2,L2/2,y(kk),fxxTmp(kk),fp,fxx2Tmp(kk))
+      end do
+      deallocate(knots,knotsz,knotsz2)
 
       if (err_report .ne. 0) write(*,*) 'Error in RadSlope_eq_Skyline fxx(Y)'
       call SplineEval(0,y(1:L2),fTmp(1:L2),f2Tmp(1:L2),L2,v,DAT,fy,fyy)  ! first parameter = 0 nonperiodic
