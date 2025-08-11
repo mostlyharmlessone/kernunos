@@ -2,6 +2,8 @@ things to do
 
 CorneaCopia
 
+not up to date!
+
 lsqspline works with periodic no (yes has predictable edge effects)
  csr no csr yes->issues in dhbc_eq_list_of_triplets (sparse = true) or in coocsr dcsr_eq_list_of_triplets (sparse = false)
 sparse either
@@ -12,6 +14,9 @@ make driverPieceWiseCubic a drop in replacement for nspline or pspli; possibly u
 need a radial version and a periodic version (should only affect two numbers in constraints)
 do 1d lsq spline, use existing splineval on lsq spline, then lsq (periodic) spline the second part and use existing splineeval
 make a drop in replacement from math77 DC2FIT for comparison
+
+
+
 
 need to cleanup gitmodules/submodules that may no longer exit or are not in the project 
 test assimp now that added as submodule to keep up to date
