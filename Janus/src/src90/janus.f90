@@ -13,7 +13,7 @@
   IMPLICIT NONE
   integer :: i, j, k, ii, kk, m, nn, i1, j1, ierr, info, nrhs
   integer,save :: MM, N ,M1, N1, Power_Rings_Count
-  integer,save :: TestData             ! TestData: -1=test, 0=EyeSys, 1=Atlas, (2-5)=Penta
+  integer,save :: TestData             ! TestData: -1=test, 0=EyeSys, 1=Atlas, (2-5)=Penta, 6=Nidek
   integer,save :: NP                   ! PentaCam=141
   integer :: unitno1
   character(c_char), INTENT(IN), DIMENSION(4096) :: file_from_C
@@ -48,7 +48,9 @@
   real(wp) :: ctr_circle_x, ctr_circle_y, R_global, Theta_global, R_MV, R_TST, P_TEMP
   real(wp) :: gaussian,meanpower,princ1,princ2,astigm
   real(wp), allocatable :: temp(:,:)
+  logical :: lsq
 
+err_janus = 0
 !write(*,*) 'flag to Fortran:',flag
 !write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
 !! last two digits are the program function
@@ -600,7 +602,7 @@ if (mod(flag,100) == 0) then
 ! set inputfile1 for _ELE.CSV or .ELE,
 ! set inputfile2 for _CUR.CSV or .CUR
 ! For CSV but not _ELE.CSV or _CUR.CSV set inputfile1 to Atlas file
- file_idx=index(inputfile1, "RA")+index(inputfile1, "XX")
+ file_idx=index(inputfile1, "RA")+index(inputfile1, "XX")+index(inputfile1, "ED")
    if( file_idx == 0)then
       file_idx=index(inputfile1, ".CSV")
       if( file_idx == 0) then
@@ -657,13 +659,18 @@ if (mod(flag,100) == 0) then
        endif
       endif
    else
-!  EyeSys
+!  EyeSys or Nidek
       file_idx=index(inputfile1, "XX")  !index(inputfile1, "XX", back)
       if (file_idx /= 0) then
 !       write(*,*) 'prefix is found at index: ',file_idx,"length: ",len(inputfile1)
 !       write(*,*) 'prefix:',inputfile1(file_idx:file_idx+1)
        write(*,*) 'EyeSys XX file: ',inputfile1
        inputfile2=replacestr(string=inputfile1,search="XX",substitute="RA")
+       inquire(file=trim(inputfile2), exist=exists)
+       if(exists) then
+        TestData=0 ; MM=360; N=16   ! EyeSys
+        write(*,*) "Matching EyeSys RA file",inputfile2
+       endif
        inputfile3=replacestr(string=inputfile1,search="XX",substitute="PU")
        inputfile4=replacestr(string=inputfile1,search="XX",substitute="HX")
        file_idx=index(inputfile4, ".")
@@ -681,6 +688,11 @@ if (mod(flag,100) == 0) then
        inquire(file=trim(inputfile2), exist=exists)
        if(.NOT.exists) then
         inputfile2=replacestr(string=inputfile1,search="/XX",substitute="/RA")
+        inquire(file=trim(inputfile2), exist=exists)
+        if(exists) then
+         TestData=0 ; MM=360; N=16   ! EyeSys
+         write(*,*) "Matching EyeSys RA file",inputfile2
+        endif
         inputfile3=replacestr(string=inputfile1,search="/XX",substitute="/PU")
         inputfile4=replacestr(string=inputfile1,search="/XX",substitute="/HX")
         file_idx=index(inputfile4, ".")
@@ -706,31 +718,36 @@ if (mod(flag,100) == 0) then
       else
        file_idx=index(inputfile1, "RA") !index(inputfile1, "RA", back)
        if (file_idx /= 0) then
-        write(*,*) 'EyeSys RA file: ',inputfile1
+        write(*,*) 'EyeSys or Nidek RA file: ',inputfile1
         inputfile2=inputfile1
         inputfile1=replacestr(string=inputfile2,search="RA",substitute="XX")
-        inputfile3=replacestr(string=inputfile2,search="RA",substitute="PU")
-        inputfile4=replacestr(string=inputfile2,search="RA",substitute="HX")
-        file_idx=index(inputfile4, ".")
-!          write(*,*) 'suffix is found at index: ',file_idx,"length: ",len(inputfile4)
-!          write(*,*) 'suffix:',inputfile4(file_idx:len(inputfile4))
-        inputfile4=inputfile4(1:file_idx) // "HDR"
-        inquire(file=trim(inputfile4), exist=exists)
-        if(exists) then
-         write(*,*) "Matching EyeSys HX/HDR file found"
-        endif
-        inquire(file=trim(inputfile3), exist=exists)
-        if(exists) then
-         write(*,*) "Matching EyeSys PU file found"
-        endif
         inquire(file=trim(inputfile1), exist=exists)
         if(.NOT.exists) then
-         inputfile1=replacestr(string=inputfile2,search="/RA",substitute="/XX")
-         inputfile3=replacestr(string=inputfile2,search="/RA",substitute="/PU")
-         inputfile4=replacestr(string=inputfile2,search="/RA",substitute="/HX")
+         inputfile1=replacestr(string=inputfile2,search="RA",substitute="ED")
+         inquire(file=trim(inputfile1), exist=exists)
+         if(.NOT.exists) then
+          write(*,*) 'Error: EyeSys and Nidek files have to be in pairs, or file name has RA other than prefix'
+          write(*,*) 'No corresponding',inputfile1,'for',inputfile2,'found'
+          err_janus=-1
+          return
+         else
+          write(*,*) 'Matching Nidek ED file: ',inputfile1
+          TestData=6 ; MM=360; N=23   ! Nidek
+          inputfile3=replacestr(string=inputfile2,search="RA",substitute="HT")
+          inputfile4=replacestr(string=inputfile2,search="RA",substitute="PE")
+          inquire(file=trim(inputfile3), exist=exists)
+          if(exists) then
+           write(*,*) "Matching Nidek HT file found"
+          endif
+         endif
+        else
+         TestData=0 ; MM=360; N=16   ! EyeSys
+         write(*,*) 'Matching EyeSys XX file: ',inputfile1
+         inputfile3=replacestr(string=inputfile2,search="RA",substitute="PU")
+         inputfile4=replacestr(string=inputfile2,search="RA",substitute="HX")
          file_idx=index(inputfile4, ".")
-!           write(*,*) 'suffix is found at index: ',file_idx,"length: ",len(inputfile4)
-!           write(*,*) 'suffix:',inputfile4(file_idx:len(inputfile4))
+!          write(*,*) 'suffix is found at index: ',file_idx,"length: ",len(inputfile4)
+!          write(*,*) 'suffix:',inputfile4(file_idx:len(inputfile4))
          inputfile4=inputfile4(1:file_idx) // "HDR"
          inquire(file=trim(inputfile4), exist=exists)
          if(exists) then
@@ -740,39 +757,91 @@ if (mod(flag,100) == 0) then
          if(exists) then
           write(*,*) "Matching EyeSys PU file found"
          endif
+        endif
+
+        inquire(file=trim(inputfile1), exist=exists)
+        if(.NOT.exists) then
+         inputfile1=replacestr(string=inputfile2,search="/RA",substitute="/XX")
          inquire(file=trim(inputfile1), exist=exists)
          if(.NOT.exists) then
-          write(*,*) 'Error: EyeSys files have to be in pairs, or file name has RA other than prefix'
-          write(*,*) 'No corresponding',inputfile1,'for',inputfile2,'found'
-          err_janus=-1
-          return
+          inputfile1=replacestr(string=inputfile2,search="/RA",substitute="/ED")
+          inquire(file=trim(inputfile1), exist=exists)
+          if(.NOT.exists) then
+           write(*,*) 'Error: EyeSys and Nidek files have to be in pairs, or file name has RA other than prefix'
+           write(*,*) 'No corresponding',inputfile1,'for',inputfile2,'found'
+           err_janus=-1
+           return
+          else
+           write(*,*) 'Matching Nidek ED file: ',inputfile1
+           TestData=6 ; MM=360; N=23   ! Nidek
+           inputfile3=replacestr(string=inputfile2,search="/RA",substitute="/HT")
+           inputfile4=replacestr(string=inputfile2,search="/RA",substitute="/PE")
+           inquire(file=trim(inputfile3), exist=exists)
+           if(exists) then
+            write(*,*) "Matching Nidek HT file found"
+           endif
+          endif
+         else
+          TestData=0 ; MM=360; N=16   ! EyeSys
+          write(*,*) 'Matching EyeSys XX file: ',inputfile1
+          inputfile3=replacestr(string=inputfile2,search="/RA",substitute="/PU")
+          inputfile4=replacestr(string=inputfile2,search="/RA",substitute="/HX")
+          file_idx=index(inputfile4, ".")
+!           write(*,*) 'suffix is found at index: ',file_idx,"length: ",len(inputfile4)
+!           write(*,*) 'suffix:',inputfile4(file_idx:len(inputfile4))
+          inputfile4=inputfile4(1:file_idx) // "HDR"
+          inquire(file=trim(inputfile4), exist=exists)
+          if(exists) then
+           write(*,*) "Matching EyeSys HX/HDR file found"
+          endif
+          inquire(file=trim(inputfile3), exist=exists)
+          if(exists) then
+           write(*,*) "Matching EyeSys PU file found"
+          endif
          endif
         endif
        else
-        write(*,*) 'Error parsing EyeSys file name'
-        err_janus=-1
-        return
+        file_idx=index(inputfile1, "ED") !index(inputfile1, "ED", back)
+        if (file_idx /= 0) then
+         write(*,*) 'Nidek ED file: ',inputfile1
+         inputfile2=replacestr(string=inputfile1,search="ED",substitute="RA")
+         inquire(file=trim(inputfile2), exist=exists)
+         if(.NOT.exists) then
+          write(*,*) 'Error: EyeSys and Nidek files have to be in pairs, or file name has RA other than prefix'
+          write(*,*) 'No corresponding',inputfile2,'for',inputfile1,'found'
+          err_janus=-1
+          return
+         else
+          write(*,*) 'Matching Nidek RA file: ',inputfile2
+          TestData=6 ; MM=360; N=23   ! Nidek
+          inputfile3=replacestr(string=inputfile2,search="RA",substitute="HT")
+          inputfile4=replacestr(string=inputfile2,search="RA",substitute="PE")
+          inquire(file=trim(inputfile3), exist=exists)
+          if(exists) then
+           write(*,*) "Matching Nidek HT file found"
+          endif
+         endif
+        else
+         write(*,*) 'Error parsing EyeSys file name'
+         err_janus=-1
+         return
+        endif
        endif
       endif
-     TestData=0 ; MM=360; N=16   ! EyeSys
+
+
      inquire(file=trim(inputfile3), exist=exists)
      if(.NOT.exists) then
-      write(*,*) "EyeSys files: ",inputfile1," ",inputfile2
+      write(*,*) "EyeSys/Nidek files: ",inputfile1," ",inputfile2
      else
-      write(*,*) "EyeSys files: ",inputfile1," ",inputfile2," ",inputfile3
+      write(*,*) "EyeSys/Nidek files: ",inputfile1," ",inputfile2," ",inputfile3
      endif
     endif
+!    write(*,*)  "TestData,MM,N",TestData,MM,N
  endif ! (mod(flag,100) == 0) parsing the file name,assigning TestData type and MM,N
 
 if (TestData .eq. 0) then
  MM=360 ; N=16 ! EyeSys if file not read; should not be necessary as should agree with previous value.
- ! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
- if (allocated(RadSlope%r)) then
-  RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
-  call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
- else
-  call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
- endif
  if (mod(flag,100) == 0) then !read the files
 ! READ THE EYESYS DATA
 ! XX????? ARE THE AXIAL DIST. RX???? ARE THE MIRE RADII  
@@ -807,9 +876,64 @@ if (TestData .eq. 0) then
     return
    endif
   endif  !(mod(flag,100) = 0
+  ! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
+  if (allocated(RadSlope%r)) then
+   RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
+   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
+  else
+   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
+  endif
 ! Generate the slope matrix using ZFCT
   RadSlope=EyeSys
 endif
+
+if (TestData .eq. 6) then
+ MM=360 ; N=23 ! Nidek if file not read; should not be necessary as should agree with previous value.
+ if (mod(flag,100) == 0) then !read the files
+! READ THE Nidek DATA
+! RA????? ARE THE AXIAL DIST. ED???? ARE THE MIRE RADII
+   call CPU_TIME(time_start)
+   read_error=0
+   if(.not.allocated(EyeSys%RA)) then
+    call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
+   else
+    EyeSys = 0
+    call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
+   endif
+   inquire(file=trim(inputfile3), exist=exists)
+   if(.NOT.exists) then
+    call RCNVRTN(read_error,inputfile2,inputfile1)
+   else
+    inquire(file=trim(inputfile4), exist=exists)
+    if(.NOT.exists) then
+     call RCNVRTN(read_error,inputfile2,inputfile1,inputfile3)
+    else
+     call RCNVRTN(read_error,inputfile2,inputfile1,inputfile3,inputfile4)
+    endif
+!   pupil conversion if any
+    JMatrix%Pupil_Center=EyeSys%Pupil_Center/10.
+    do i=1,MM/2
+     JMatrix%PU(i)=(EyeSys%PU(2*i-1)+EyeSys%PU(2*i))/40.  !2x2x10 average,diameter->radius,factor of 10
+    end do
+   endif
+   call CPU_TIME(time_end)
+   write(*,*) 'Time to read EyeSys files: ',(time_end-time_start)*1000
+   if (read_error > 0) then
+    err_janus=read_error*10
+    return
+   endif
+  endif  !(mod(flag,100) = 0
+  ! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
+  if (allocated(RadSlope%r)) then
+   RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
+   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
+  else
+   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
+  endif
+! Generate the slope matrix using ZFCT
+  RadSlope=EyeSys
+endif
+
 
 ! READ THE ATLAS DATA
 if (TestData .eq. 1) then
@@ -888,13 +1012,6 @@ endif ! end (TestData == 1)
  if (TestData .ge. 2 .AND. TestData .le. 5) then
   call CPU_TIME(time_start)
   MM=180; N=22; NP=141   ! PentaCam
-! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
-  if (allocated(RadSlope%r)) then
-   RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
-   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
-  else
-   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
-  endif
 ! ELE are elevations, CUR are "sagittal" curvatures in a 141x141 -7 to 7 mm square -1 is no data
 ! _ELE.CSV or _CUR.CSV versions have less text but use semicolons (;) instead of -1
   if (mod(flag,100) == 0) then ! read the files
@@ -923,7 +1040,13 @@ endif ! end (TestData == 1)
      JMatrix%PU(i)=sqrt(X1*X1+X2*X2)/10.
     end do
   endif  !(mod(flag,100) /= 0,99,2,3 must be 1 or 4-7, reload the original data
-
+! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
+  if (allocated(RadSlope%r)) then
+   RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
+   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
+  else
+   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
+  endif
   ! Easiest decentering for Penta elevation files is by shifting the Penta data; limited to 0.1 mm increments
   if (btest(dat,5)) then
    new_path = " "
@@ -961,9 +1084,10 @@ endif ! end (TestData == 1)
 
 ! arrange the data
   Skyline=Penta
+  lsq = .false.
 ! convert to polar with splining; makes round rings as above with 180x22 - also already has either center value Z0(1) or SAGC0(1)
   ! RadSlope_eq_Skyline puts elevation into JMatrix%Z(j,i) and possibly populates JMatrix%Z(j,i) with crap
-  call RadSlope_eq_Skyline(JMatrix, RadSlope, Skyline, Penta)  !needs Penta for border check populates RadSlope with ZFCT
+  call RadSlope_eq_Skyline(lsq,JMatrix, RadSlope, Skyline, Penta)  !needs Penta for border check populates RadSlope with ZFCT
   call CPU_TIME(time_end)
   write(*,*) 'Time to convert Penta: ',(time_end-time_start)*1000
   if (TestData.eq.2 .or. TestData.eq.4) then ! ELE or ELE.CSV PentaCam files, put elevation into Zp for splining without integration
@@ -981,18 +1105,18 @@ endif ! end (TestData == 1)
 ! OR GENERATE Fake EyeSys data
 if (TestData .lt. 0) then
  MM=360; N=16   ! fake EyeSys
-! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
- if (allocated(RadSlope%r)) then
-  RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
-  call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
- else
-  call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
- endif
  if(.not.allocated(EyeSys%RA)) then
   call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
  endif
   if (mod(flag,100) == 0) then !read the files
    call RCNVRTT(MM,N)
+  endif !(mod(flag,100) == 0)
+! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
+  if (allocated(RadSlope%r)) then
+   RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
+   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
+  else
+   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
   endif
 ! Generate the slope matrix using ZFCT
   RadSlope=EyeSys
@@ -1293,7 +1417,7 @@ endif
    DiaSlope%Zpd2 = .n. DiaSlope
   endif
 
-  if ( Testdata .le.1 ) then     ! only for test/Atlas/EyeSys at present
+  if ( Testdata .le.1 .or. Testdata .eq. 6) then     ! only for test/Atlas/EyeSys/Nidek at present
    call MakeRadSplineCenter(0)   ! remakes RadSplineCenter(1,:)
   else
    RadSplineCenter(1,:)=0      ! pentacam by definition is at 0

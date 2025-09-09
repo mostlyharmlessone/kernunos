@@ -12,6 +12,7 @@
 ! The 2N unknowns are the N z values and N z" second derivatives of the functions at the
 ! ends of the each breakpoint interval (the knots); the natural spline condition sets the end points = 0,
 ! removing 2 of the unknowns and making two constraints trivial; in the periodic case, there are 2N constraints and 2N unknowns
+! periodic == .true. uses periodic conditions; .false. implies natural spline conditions
 
 ! the design matric A (Mx2N) is for the LSQ solution to A*x=b (M data points) with constraint C*(z,z")=d as
 ! as either (2N x N)  constraints on the continuity of the first derivatives at the knots, h are the Lagrange multipliers
@@ -26,6 +27,7 @@
 
 ! The matrix B has dimension (3N x 3N) but has the possibly ill-conditioned Gram product ATA.
 ! The constraint is C*y=d with h Lagrange multipliers
+! csr == .true.  uses the 3N x 3N matrix above, csr = .false. uses the (3N+M) x (3N+M) version below
 
 ! The extension of H&H to avoid the normal equations is using
 ! The matrix B with dimension (M+3N)x(M+3N) and r residuals is
@@ -43,6 +45,9 @@
 !                [C :  0  :  0  ][ h ]   [ d ] N
 !                 2N    M     N
 
+! The matrices are sparse, whether M x 2N or the Gram 3Nx3N version, however depending on the size of M, N, provision is made to convert to a dense form and solve with LAPACK
+! as opposed to solving with superlu.
+! sparse == .true. uses superlu ; sparse == .false. converts to dense matrix and uses LAPACK/DGESV
 
       USE set_precision, ONLY: wp
       USE sparseTypes, ONLY: dpTriplet, dpTripletList, dpCSRSparseMatrix, &
@@ -422,6 +427,7 @@
     a_csr = 0
     a_csr = s
     s = 0
+! convert the sparse matrix to a dense matrix
     dense = a_csr
     call DGESV(size(dense,1), 1, dense, size(dense,1), IPIV, rhs, size(dense,1), info ) ! rhs is overwritten
     if (info .ne. 0) err_report = info

@@ -85,8 +85,8 @@
 using namespace QtConcurrent;
 
 // global settings
-const unsigned int SCR_WIDTH = 1800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 2400;
+const unsigned int SCR_HEIGHT = 1000;
 
 // flag xxxxxxxx dat,fct,map,action used to communicate between cpp and fortran code calculation options
 // first two digits are Placido disk data fillin and/or center-node tweaks
@@ -358,7 +358,7 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
 {
    ui.infoLabel->setText(tr("Invoked <b>File|Open</b>"));
    flag=flag-(flag%100)+0;  // last two digits of flag=0; need to reset this
-   QString filter = "Topography files (*.CUR *.ELE *_CUR.CSV *_ELE.CSV RA*.* XX*.* *OD.CSV *OS.CSV) ;; PentaCam (*.CUR *.ELE *_CUR.CSV *_ELE.CSV);;EyeSys (RA*.* XX*.*);;Atlas (*OD.CSV *OS.CSV);;All (*)";
+   QString filter = "Topography files (*.CUR *.ELE *_CUR.CSV *_ELE.CSV RA*.* XX*.* ED*.* *OD.CSV *OS.CSV) ;; PentaCam (*.CUR *.ELE *_CUR.CSV *_ELE.CSV);;EyeSys (RA*.* XX*.*);;Nidek (RA*.* ED*.*);;Atlas (*OD.CSV *OS.CSV);;All (*)";
    QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
    if (fileName.isEmpty())
        return;
@@ -379,7 +379,17 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
            if(FILE *file = fopen(str2.c_str(),"r")) {
                fclose(file); eyesys = true;
            }}};
-   if (!pentacam && !atlas && !eyesys) return;   //no supported file format
+   bool nidek = false;               //if substituting ED for RA or RA for ED results in an openable file, then probably Nidek
+   std::string str3(filename);
+   if(replace(str3,"RA","ED")) {
+       if(FILE *file = fopen(str3.c_str(),"r")) {
+           fclose(file); nidek = true;}
+   }else{
+       if(replace(str3,"ED","RA")) {
+           if(FILE *file = fopen(str3.c_str(),"r")) {
+               fclose(file); nidek = true;
+           }}};
+   if (!pentacam && !atlas && !eyesys && !nidek ) return;   //no supported file format
    if (pentacam) {
        centerAct->setEnabled(true);
        ShowZernAct->setEnabled(false);
@@ -403,7 +413,7 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
        LSQfillinAct->setEnabled(true);
        lsqvssplineAct->setEnabled(true);
    };
-   if (eyesys) {
+   if (eyesys || nidek) {
        ShowZernAct->setEnabled(false);
        centerAct->setEnabled(true);       
        ringsAct->setEnabled(false);
@@ -526,7 +536,17 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
                if(FILE *file = fopen(str2.c_str(),"r")) {
                    fclose(file); eyesys = true;
                }}};
-       if (!pentacam && !atlas && !eyesys) {m_GLwidget->DataLoad(fileName, false); return;}  //cube   //no supported file format
+       bool nidek = false;               //if substituting ED for RA or RA for ED results in an openable file, then probably Nidek
+       std::string str3(filename);
+       if(replace(str3,"RA","ED")) {
+           if(FILE *file = fopen(str3.c_str(),"r")) {
+               fclose(file); nidek = true;}
+       }else{
+           if(replace(str3,"ED","RA")) {
+               if(FILE *file = fopen(str3.c_str(),"r")) {
+                   fclose(file); nidek = true;
+               }}};
+       if (!pentacam && !atlas && !eyesys && !nidek) {m_GLwidget->DataLoad(fileName, false); return;}  //cube   //no supported file format
        if (pentacam){
            centerAct->setEnabled(true);  //change to false to not allow for pentacam, center deviations only for Placido
            ShowZernAct->setEnabled(false);
