@@ -2,6 +2,11 @@ things to do
 
 CorneaCopia
 
+TopCon CA-800 in SA
+
+nidek only uses 23 mires; can adjust to have it read number of mire data points by reading a line as header and counting decimal points "."? 
+test is broken
+HT data not used yet for Nidek: neg numbers are nondata
 
 lsqspline doesn't fix decentering/multiple zero issues in ELE files, look at decentering again, run some test beds
 
@@ -144,7 +149,7 @@ They are similar to EyeSys dat files.
 The binary files may simply be compressed; they appear to be a 30-50% smaller than the uncompressed versions & the opd-iii manual describes "compressed vs uncompressed database"
 However, if so, not very good nonstandard compression, for example AR*.DAT files ASCII are about 25Kbytes, binary versions are 14Kybes but using gzip on ASCII gives 3.7Kbytes
 
-Try using the simplest PE/PR files to break the encoding scheme
+Try using the simplest PE/PR or AR files to break the encoding scheme
 
 There are only 23 mires in the uncompressed files; the manual says the number of rings is adjustable up to 33
 Nidek RA seems to be 7.xx curvatures (corresponding to EyeSys XX file) 

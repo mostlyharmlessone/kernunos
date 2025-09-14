@@ -85,8 +85,8 @@
 using namespace QtConcurrent;
 
 // global settings
-const unsigned int SCR_WIDTH = 2400;
-const unsigned int SCR_HEIGHT = 1000;
+const unsigned int SCR_WIDTH = 1800;
+const unsigned int SCR_HEIGHT = 800;
 
 // flag xxxxxxxx dat,fct,map,action used to communicate between cpp and fortran code calculation options
 // first two digits are Placido disk data fillin and/or center-node tweaks
@@ -358,7 +358,7 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
 {
    ui.infoLabel->setText(tr("Invoked <b>File|Open</b>"));
    flag=flag-(flag%100)+0;  // last two digits of flag=0; need to reset this
-   QString filter = "Topography files (*.CUR *.ELE *_CUR.CSV *_ELE.CSV RA*.* XX*.* ED*.* *OD.CSV *OS.CSV) ;; PentaCam (*.CUR *.ELE *_CUR.CSV *_ELE.CSV);;EyeSys (RA*.* XX*.*);;Nidek (RA*.* ED*.*);;Atlas (*OD.CSV *OS.CSV);;All (*)";
+   QString filter = "Topography files (*.CUR *.ELE *_CUR.CSV *_ELE.CSV RA*.* XX*.* ED*.* *OD.CSV *OS.CSV) ;; PentaCam (*.CUR *.ELE *_CUR.CSV *_ELE.CSV);;EyeSys (XX*.*);;Nidek (ED*.*);;Atlas (*OD.CSV *OS.CSV);;EyeSys/Nidek (RA*.* ED*.* XX*.*);;All (*)";
    QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
    if (fileName.isEmpty())
        return;

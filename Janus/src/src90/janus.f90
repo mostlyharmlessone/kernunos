@@ -911,9 +911,9 @@ if (TestData .eq. 6) then
      call RCNVRTN(read_error,inputfile2,inputfile1,inputfile3,inputfile4)
     endif
 !   pupil conversion if any
-    JMatrix%Pupil_Center=EyeSys%Pupil_Center/10.
+    JMatrix%Pupil_Center=EyeSys%Pupil_Center*50.
     do i=1,MM/2
-     JMatrix%PU(i)=(EyeSys%PU(2*i-1)+EyeSys%PU(2*i))/40.  !2x2x10 average,diameter->radius,factor of 10
+     JMatrix%PU(i)=(EyeSys%PU(2*i-1)+EyeSys%PU(2*i))*50.
     end do
    endif
    call CPU_TIME(time_end)

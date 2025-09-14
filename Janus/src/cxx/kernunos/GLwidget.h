@@ -552,8 +552,8 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     QMatrix4x4 m_camera;
     QMatrix4x4 m_world;
     int scale = 50;
-    int lightdist = 9000;
-    int position = 9000;
+    int lightdist = 18000;
+    int position = 18000;
 
     static bool m_transparent;
     static bool m_normal;

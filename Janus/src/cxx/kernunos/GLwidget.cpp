@@ -761,14 +761,14 @@ void GLwidget::paintGL(void)
         if (!LoadSurfaceToBuffer(nV[i-1], nE[i-1], vertexbuffers[i], elementbuffers[i], vertices2, elements2)) return;
         mMVP.setToIdentity();
         mMVP.scale(scale*QVector3D(1.0,1.0,1.0)/10000.0);
-        mMVP.translate(QVector3D(-900,0,-position));
+        mMVP.translate(QVector3D(-1200,0,-position));
         m_alpha = QVector4D(0,0,0,1.0);
     }
     if (i == 3) {
         if (!LoadSurfaceToBuffer(nV[i-1], nE[i-1], vertexbuffers[i], elementbuffers[i], vertices3, elements3)) return;
         mMVP.setToIdentity();
         mMVP.scale(scale*QVector3D(1.0,1.0,1.0)/10000.0);
-        mMVP.translate(QVector3D(900,0,-position));
+        mMVP.translate(QVector3D(1200,0,-position));
         m_alpha = QVector4D(0,0,0,1.0);
     }
     if (i == 4 && m_pupilshow) {

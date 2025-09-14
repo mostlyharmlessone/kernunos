@@ -380,10 +380,15 @@ end subroutine rcnvrtp
 subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
 ! NIDEK VERSION
 ! only have seen uncompressed version with headers which are the filename with path ending with a semicolon
+! this version only works with 23 mires
+! only reads ED, RA, HT and PE files
+! uses EyeSys cornea_array storage files
   USE io_functions, ONLY : get_new_fileunit
   USE set_precision, ONLY : wp
   USE cornea_arrays, ONLY : EyeSys
   USE special_fct, ONLY : replacestr
+  use c_interfaces, ONLY : charcount
+  USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_null_char
   implicit none
   logical :: exists
   character(len=*), intent(in) :: RANAME,EDNAME
@@ -393,6 +398,7 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
   integer, intent(out) :: read_error
   REAL(wp) :: ZX(23),YX(23),PX,CX,CY
   INTEGER :: I,J,ITH,unitno1,unitno2,unitno3,unitno4,MM,N,ierr
+  integer(c_int) :: periodcount
   MM=360
   N=23
   inquire(file=trim(EDNAME), exist=exists)
@@ -442,10 +448,27 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
        read_error=11
        return
       endif
+
+     write(*,*) 'count'
+
+!   segfaults
+     call charcount(periodcount,semicolon1//c_null_char)
+     write(*,*) 'periodcount',periodcount
+
+
       open(unitno1, file=trim(semicolon1), action="read", iostat=ierr)
       open(unitno2, file=trim(semicolon2), action="read", iostat=ierr)
       READ (unitno1,*) header
       READ (unitno2,*) header
+
+!!!experimental read
+! ?replace : with , above with sed and header with ITH below
+
+      READ (unitno1,*) header,header_space
+      write(*,*) header,header_space
+      rewind(unitno1)
+      READ (unitno1,*) header
+
       do I=1,MM
        if (file_idx1>0 .and. file_idx2>0) then
         READ(unitno1,*,iostat=readerr) header,ZX(:)
@@ -620,7 +643,6 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
         return
        endif
       endif
-
       else
          print*, "Error ", ierr ," attempting to open file ", trim(RANAME)
          read_error=3

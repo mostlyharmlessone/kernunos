@@ -356,6 +356,7 @@ add_library( splia ${lib_sources90} ${math77_lib} ${interface})
 
 set(PROJECT_SOURCES
                    src/c/kernunos/logc.c src/c/kernunos/logc.h
+                   src/c/kernunos/charcount.c
                    src/c/kernunos/Ccounter.c src/c/kernunos/counter.h
                    src/c/kernunos/ConvertPLYtoBIN.c
                    gnuplot-iostream/gnuplot-iostream.h

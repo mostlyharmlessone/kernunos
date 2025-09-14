@@ -48,6 +48,12 @@ USE, INTRINSIC :: iso_c_binding, ONLY : c_char,c_null_char
  CHARACTER(c_char), INTENT(IN), dimension(*) :: message
 end subroutine LogC
 
+subroutine CharCount(number,iname) BIND(C,name='charcount')
+USE, INTRINSIC :: iso_c_binding, ONLY : c_char, c_int, ,c_null_char
+ CHARACTER(c_char), INTENT(IN), dimension(*) :: iname
+ integer(c_int),INTENT(INOUT) :: number
+end subroutine CharCount
+
 subroutine Ccounter(inc, iname) BIND(C,name='Ccounter')
 USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_char,c_null_char
  integer(c_int), INTENT(IN) :: inc
