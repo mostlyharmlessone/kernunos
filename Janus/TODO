@@ -8,6 +8,8 @@ nidek only uses 23 mires; can adjust to have it read number of mire data points 
 test is broken
 HT data not used yet for Nidek: neg numbers are nondata
 
+
+
 lsqspline doesn't fix decentering/multiple zero issues in ELE files, look at decentering again, run some test beds
 
 built framework for decenter; both involve moving elevation data points, either, 
@@ -154,6 +156,7 @@ Try using the simplest PE/PR or AR files to break the encoding scheme
 There are only 23 mires in the uncompressed files; the manual says the number of rings is adjustable up to 33
 Nidek RA seems to be 7.xx curvatures (corresponding to EyeSys XX file) 
 ED 0.40 to 4.x ? radii (corresponding to EyeSys RA file) 
+but ED*.DAT has 3 sets ofnumbers, after db_v3, after DB_V4...?
 HT* files seem to be elevation from 0.01- > 2.x
 QV* files are Q values for CL fitting per the manual.
 

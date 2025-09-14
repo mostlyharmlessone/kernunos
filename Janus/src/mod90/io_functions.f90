@@ -396,11 +396,11 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
   character(1000) header,header_space,semicolon1,semicolon2
   integer :: file_idx1,file_idx2,file_idx3,file_idx4,readerr,io
   integer, intent(out) :: read_error
-  REAL(wp) :: ZX(23),YX(23),PX,CX,CY
+  REAL(wp), ALLOCATABLE :: ZX(:),YX(:)
+  REAL(wp) :: PX,CX,CY
   INTEGER :: I,J,ITH,unitno1,unitno2,unitno3,unitno4,MM,N,ierr
   integer(c_int) :: periodcount
   MM=360
-  N=23
   inquire(file=trim(EDNAME), exist=exists)
   if (exists) then
    unitno1 = get_new_fileunit()
@@ -411,7 +411,6 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
      unitno2 = get_new_fileunit()
      open(unitno2, file=trim(RANAME), action="read", iostat=ierr)
      if (ierr .eq. 0) then
-
       READ (unitno1,*) header
       file_idx1=index(trim(header),EDNAME(index(EDNAME,"ED"):len(EDNAME)) // ";")
       if (file_idx1 > 0) then
@@ -427,7 +426,7 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
       endif
       close(unitno1)
       close(unitno2)
-      semicolon1 = EDNAME
+      semicolon1 = trim(EDNAME)
       write(*,*) 'Remove the semicolons with sed because Fortran hates them'
       semicolon1=replacestr(string=EDNAME,search=".DAT",substitute=".TMP")
     !  write(*,*) 'sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1
@@ -438,7 +437,7 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
        read_error=11
        return
       endif
-      semicolon2 = RANAME
+      semicolon2 = trim(RANAME)
       semicolon2=replacestr(string=RANAME,search=".DAT",substitute=".TMP")
     !  write(*,*) 'sed "s/;/ /g" ' // RANAME // ' > ' // semicolon2
       call system('sed "s/;/ /g" ' // RANAME // ' > ' // semicolon2, io)
@@ -448,39 +447,28 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
        read_error=11
        return
       endif
-
-     write(*,*) 'count'
-
-!   segfaults
-     call charcount(periodcount,semicolon1//c_null_char)
-     write(*,*) 'periodcount',periodcount
-
-
+      periodcount=charcount(trim(RANAME)//c_null_char)
+      write(*,*) 'Number of Nidek mires read: ',(periodcount-1)/360
+      N=(periodcount-1)/360
+      allocate(ZX(N),YX(N))
       open(unitno1, file=trim(semicolon1), action="read", iostat=ierr)
       open(unitno2, file=trim(semicolon2), action="read", iostat=ierr)
       READ (unitno1,*) header
       READ (unitno2,*) header
-
-!!!experimental read
-! ?replace : with , above with sed and header with ITH below
-
-      READ (unitno1,*) header,header_space
-      write(*,*) header,header_space
-      rewind(unitno1)
-      READ (unitno1,*) header
-
       do I=1,MM
        if (file_idx1>0 .and. file_idx2>0) then
         READ(unitno1,*,iostat=readerr) header,ZX(:)
         if (readerr .ne. 0) then
          WRITE (*,*) 'Error on input Nidek RA/XX files on', I,'row'
          read_error=3
+         if (allocated(ZX)) deallocate(ZX,YX)
          return
         endif
         READ(unitno2,*,iostat=readerr) header,YX(:)
         if (readerr .ne. 0) then
          WRITE (*,*) 'Error on input Nidek RA/XX files on', I,'row'
          read_error=3
+         if (allocated(ZX)) deallocate(ZX,YX)
          return
         endif
         ITH=I-1
@@ -494,14 +482,16 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
           WRITE (*,*) 'Error on input Nidek RA/XX files ArcTan'
           read_error=1
           return
-          endif
+          if (allocated(ZX)) deallocate(ZX,YX)
          endif
+        endif
        end do
        if (ITH == (I-1)) then
         EyeSys%DEG(i)=ITH
        else
         WRITE (*,*) 'Error on input Nidek RA/XX files with ITH'
         read_error=2
+        if (allocated(ZX)) deallocate(ZX,YX)
         return
        endif
       end do
@@ -514,6 +504,7 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
        if (io > 0) then
         write (*,*) 'failed system command to remove tmp file',semicolon1
         read_error=12
+        if (allocated(ZX)) deallocate(ZX,YX)
         return
        endif
       endif
@@ -524,6 +515,7 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
        if (io > 0) then
         write (*,*) 'failed system command to remove tmp file',semicolon2
         read_error=12
+        if (allocated(ZX)) deallocate(ZX,YX)
         return
        endif
       endif
@@ -540,6 +532,7 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
          else
           write(*,*) 'No HT Nidek headers detected'
           close(unitno4)
+          if (allocated(ZX)) deallocate(ZX,YX)
           return
          endif
          semicolon2 = HTNAME
@@ -550,6 +543,7 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
           write (*,*) 'system command to sed failed'
           write (*,*) 'Consider using your text editor to search/replace all semicolons in data statements in',RANAME
           read_error=11
+          if (allocated(ZX)) deallocate(ZX,YX)
           return
          endif
          open(unitno4, file=trim(semicolon2), action="read", iostat=ierr)
@@ -560,6 +554,7 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
            if (readerr .ne. 0) then
             WRITE (*,*) 'Error on input Nidek HT files on', I,'row'
             read_error=3
+            if (allocated(ZX)) deallocate(ZX,YX)
             return
            endif
            ITH=I-1
@@ -608,6 +603,7 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
           write (*,*) 'system command to sed failed'
           write (*,*) 'Consider using your text editor to search/replace all semicolons in data statements in',RANAME
           read_error=11
+          if (allocated(ZX)) deallocate(ZX,YX)
           return
          endif
          open(unitno3, file=trim(semicolon2), action="read", iostat=ierr)
@@ -619,6 +615,7 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
            if (readerr .ne. 0) then
            WRITE (*,*) 'Error on input Nidek PE file on', I,'row'
            read_error=7
+           if (allocated(ZX)) deallocate(ZX,YX)
            return
           endif
          endif
@@ -632,6 +629,7 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
           call system('rm ' // semicolon2, io)
           if (io > 0) then
            write (*,*) 'failed system command to remove tmp file',semicolon2
+           if(allocated(ZX)) deallocate(ZX,YX)
            read_error=12
            return
           endif
@@ -644,8 +642,8 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
        endif
       endif
       else
-         print*, "Error ", ierr ," attempting to open file ", trim(RANAME)
-         read_error=3
+        print*, "Error ", ierr ," attempting to open file ", trim(RANAME)
+        read_error=3
         return
       endif
      else

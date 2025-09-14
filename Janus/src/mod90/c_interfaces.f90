@@ -27,9 +27,6 @@ END SUBROUTINE Janus
  subroutine ConvertOFFtoSTL_C(INAME,ONAME,deftype) bind(C,name='ConvertOFFtoSTL_C_')
 ! Reads OFF file created by WriteOFF and generates ASCII and binary STL files 
 ! modified to be called from C/C++
-  use io_functions, only : get_new_fileunit
-  use special_fct, only : surface_normal,rgb2attr
-  use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32 
   use, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
   implicit none
   character(c_char), INTENT(INOUT), DIMENSION(4096) :: INAME,ONAME
@@ -48,11 +45,11 @@ USE, INTRINSIC :: iso_c_binding, ONLY : c_char,c_null_char
  CHARACTER(c_char), INTENT(IN), dimension(*) :: message
 end subroutine LogC
 
-subroutine CharCount(number,iname) BIND(C,name='charcount')
-USE, INTRINSIC :: iso_c_binding, ONLY : c_char, c_int, ,c_null_char
+function CharCount(iname) BIND(C,name='charcount')
+USE, INTRINSIC :: iso_c_binding, ONLY : c_char, c_int, c_null_char
  CHARACTER(c_char), INTENT(IN), dimension(*) :: iname
- integer(c_int),INTENT(INOUT) :: number
-end subroutine CharCount
+ integer(c_int) :: charcount
+end function CharCount
 
 subroutine Ccounter(inc, iname) BIND(C,name='Ccounter')
 USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_char,c_null_char
