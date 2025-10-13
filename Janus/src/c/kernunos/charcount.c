@@ -9,16 +9,16 @@
 #include <stdbool.h>
 
 int charcount(const char *filename) {
-    LogC("Open a file for counting periods");
+//    LogC("Open a file for counting periods");
     LogC(filename);
     FILE *fp = fopen(filename, "r");
     if (fp == NULL) {
-     LogC("Failure");
+     LogC("Failure to open file for counting periods");
      perror("fopen");
      return(-1);
     }
-    if (fp != NULL) {
-    LogC("Success");
+    else {
+//    LogC("Success");
     int count = 0;
     int c;
     while ((c = getc(fp)) != EOF) {

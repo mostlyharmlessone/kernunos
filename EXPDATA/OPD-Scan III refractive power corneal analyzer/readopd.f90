@@ -59,8 +59,8 @@
 
  print*,trim(compiler_version())
  inquire(iolength=record_length) ch
- OPEN(NEWUNIT=unit1, file="RAOPD.DAT", status='old', ACCESS='stream')
-! OPEN(NEWUNIT=unit1, file="EDOPD.DAT", status='old', ACCESS='stream')
+! OPEN(NEWUNIT=unit1, file="RAOPD.DAT", status='old', ACCESS='stream')
+ OPEN(NEWUNIT=unit1, file="EDOPD.DAT", status='old', ACCESS='stream')
 ! OPEN(NEWUNIT=unit1, file="AROPD.DAT", status='old', ACCESS='stream') 
 ! OPEN(NEWUNIT=unit1, file="PROPD.DAT", status='old', ACCESS='stream')
 ! OPEN(NEWUNIT=unit1, file="PEOPD.DAT", status='old', ACCESS='stream')
@@ -135,7 +135,8 @@
   POS=POS+1 
   if (readerr == 0 ) then
 !  acculmulate ch, save the read
-   write(*,'(z0,a,i0,a,i0)') ch,'    ',pos-i,'    ',iachar(ch) 
+!   write(*,'(z0,a,i0,a,i0)') ch,'    ',pos-i,'    ',iachar(ch) 
+   write(*,'(z0)') ch 
    line(pos-i)=iachar(ch)
    if (line(pos-i) .eq. 10 .and. line(pos-i-1) .eq. 13) then  !  0D 0A ends each line
 !  found the 0D 0A  

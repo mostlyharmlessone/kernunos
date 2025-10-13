@@ -2284,8 +2284,8 @@ void MainWindow::createActions()
    ringsAct->setEnabled(false);
    connect(ringsAct, &QAction::triggered, this, &MainWindow::rings);
 
-   consistencyAct = new QAction(tr("&Check spline consistency (Atlas only)"), this);
-   consistencyAct->setStatusTip(tr("Check spline consistency (Atlas only)"));
+   consistencyAct = new QAction(tr("&Check spline consistency (Atlas/NIDEK only)"), this);
+   consistencyAct->setStatusTip(tr("Check spline consistency (Atlas/NIDEK only)"));
    consistencyAct->setEnabled(true);
    consistencyAct->setCheckable(true);
    connect(consistencyAct, &QAction::triggered, this, &MainWindow::consistency);

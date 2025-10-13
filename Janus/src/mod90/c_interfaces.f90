@@ -1,5 +1,4 @@
 module c_interfaces
- ! alphabetical order
  ! gathering all the interfaces for c/fortran interaction
  INTERFACE
 
@@ -35,23 +34,27 @@ end subroutine ConvertOFFtoSTL_C
 
 ! call from fortran to c
 subroutine ConvertPLYtoBIN(iname, oname) BIND(C,name='ConvertPLYtoBIN')
+! Reads ASCII PLY and makes binary PLY
 USE, INTRINSIC :: iso_c_binding, ONLY : c_char,c_null_char
  CHARACTER(c_char), INTENT(IN), dimension(*) :: iname
  CHARACTER(c_char), INTENT(OUT), dimension(*) :: oname
 end subroutine ConvertPLYtoBIN
 
 subroutine LogC(message) BIND(C,name='LogC')
+! logs a message to a file
 USE, INTRINSIC :: iso_c_binding, ONLY : c_char,c_null_char
  CHARACTER(c_char), INTENT(IN), dimension(*) :: message
 end subroutine LogC
 
 function CharCount(iname) BIND(C,name='charcount')
+! counts the periods "." in a file for determinng mire number
 USE, INTRINSIC :: iso_c_binding, ONLY : c_char, c_int, c_null_char
  CHARACTER(c_char), INTENT(IN), dimension(*) :: iname
  integer(c_int) :: charcount
 end function CharCount
 
 subroutine Ccounter(inc, iname) BIND(C,name='Ccounter')
+! used to show progression of calculation and print zernike result when done
 USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_char,c_null_char
  integer(c_int), INTENT(IN) :: inc
  CHARACTER(c_char), INTENT(IN), dimension(*) :: iname

@@ -380,7 +380,7 @@ end subroutine rcnvrtp
 subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
 ! NIDEK VERSION
 ! only have seen uncompressed version with headers which are the filename with path ending with a semicolon
-! this version only works with 23 mires
+! duplicates Janus in counting mires for 23 to 33
 ! only reads ED, RA, HT and PE files
 ! uses EyeSys cornea_array storage files
   USE io_functions, ONLY : get_new_fileunit
@@ -447,9 +447,15 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
        read_error=11
        return
       endif
+!     Calculate number of mires by counting the floating point periods in the file, subtracting the header file extension, and dividing by 360
       periodcount=charcount(trim(RANAME)//c_null_char)
       write(*,*) 'Number of Nidek mires read: ',(periodcount-1)/360
       N=(periodcount-1)/360
+      if (N .lt. 23 )then
+       WRITE (*,*) 'Error on mire count in rcnvrtn'
+       read_error=-1
+       return
+      endif
       allocate(ZX(N),YX(N))
       open(unitno1, file=trim(semicolon1), action="read", iostat=ierr)
       open(unitno2, file=trim(semicolon2), action="read", iostat=ierr)

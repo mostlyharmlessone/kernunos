@@ -62,8 +62,8 @@
 ! OPEN(NEWUNIT=unit1, file="RAOPD.DAT", status='old', ACCESS='stream')
 ! OPEN(NEWUNIT=unit1, file="EDOPD.DAT", status='old', ACCESS='stream')
 ! OPEN(NEWUNIT=unit1, file="AROPD.DAT", status='old', ACCESS='stream') 
- OPEN(NEWUNIT=unit1, file="PROPD.DAT", status='old', ACCESS='stream')
-! OPEN(NEWUNIT=unit1, file="PEOPD.DAT", status='old', ACCESS='stream')
+! OPEN(NEWUNIT=unit1, file="PROPD.DAT", status='old', ACCESS='stream')
+ OPEN(NEWUNIT=unit1, file="PEOPD.DAT", status='old', ACCESS='stream')
  POS=0 ; ch = ' ' ;   x = join(c(ch,x)) ; i=0 ; j= 0
 ! READ the header
  DO

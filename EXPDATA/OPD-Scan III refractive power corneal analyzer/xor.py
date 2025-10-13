@@ -13,8 +13,11 @@ def xor_decompress(compressed_data, key):
     return bytes(decompressed_data)
 
 # Example usage
-data = b"Hello, world!"
-key = 0x5A  # Example key
+#data = b"Hello, world!"
+#key = 0x5A  # Example key
+data = 0x4CA693
+data = 3.150
+key = 0x5A
 
 compressed = xor_compress(data, key)
 decompressed = xor_decompress(compressed, key)

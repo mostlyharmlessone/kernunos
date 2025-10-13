@@ -8,7 +8,7 @@
   use spline_interfaces
   use,intrinsic :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
   use,intrinsic :: ieee_arithmetic
-  use c_interfaces, ONLY : LogC, Ccounter, ConvertPLYtoBIN
+  use c_interfaces, ONLY : LogC, Ccounter, ConvertPLYtoBIN, charcount
   use omp_lib
   IMPLICIT NONE
   integer :: i, j, k, ii, kk, m, nn, i1, j1, ierr, info, nrhs
@@ -49,6 +49,7 @@
   real(wp) :: gaussian,meanpower,princ1,princ2,astigm
   real(wp), allocatable :: temp(:,:)
   logical :: lsq
+  integer(c_int) :: periodcount
 
 err_janus = 0
 !write(*,*) 'flag to Fortran:',flag
@@ -732,7 +733,7 @@ if (mod(flag,100) == 0) then
           return
          else
           write(*,*) 'Matching Nidek ED file: ',inputfile1
-          TestData=6 ; MM=360; N=23   ! Nidek
+          TestData=6 ; MM=360   ! Nidek
           inputfile3=replacestr(string=inputfile2,search="RA",substitute="HT")
           inputfile4=replacestr(string=inputfile2,search="RA",substitute="PE")
           inquire(file=trim(inputfile3), exist=exists)
@@ -813,7 +814,7 @@ if (mod(flag,100) == 0) then
           return
          else
           write(*,*) 'Matching Nidek RA file: ',inputfile2
-          TestData=6 ; MM=360; N=23   ! Nidek
+          TestData=6 ; MM=360   ! Nidek
           inputfile3=replacestr(string=inputfile2,search="RA",substitute="HT")
           inputfile4=replacestr(string=inputfile2,search="RA",substitute="PE")
           inquire(file=trim(inputfile3), exist=exists)
@@ -888,10 +889,18 @@ if (TestData .eq. 0) then
 endif
 
 if (TestData .eq. 6) then
- MM=360 ; N=23 ! Nidek if file not read; should not be necessary as should agree with previous value.
+   MM=360 ! Nidek
+ ! Calculate number of mires by counting the floating point periods in the file, subtracting the header file extension, and dividing by 360
+   periodcount=charcount(trim(inputfile2)//c_null_char)
+   N=(periodcount-1)/360
+   if (N .lt. 23 )then
+    WRITE (*,*) 'Error on mire count in janus'
+    read_error=-1
+    return
+   endif
  if (mod(flag,100) == 0) then !read the files
 ! READ THE Nidek DATA
-! RA????? ARE THE AXIAL DIST. ED???? ARE THE MIRE RADII
+! RA????? ARE THE AXIAL DIST. ED???? ARE THE MIRE RADII; use the first set of 360 from ED**.DAT
    call CPU_TIME(time_start)
    read_error=0
    if(.not.allocated(EyeSys%RA)) then
@@ -917,7 +926,7 @@ if (TestData .eq. 6) then
     end do
    endif
    call CPU_TIME(time_end)
-   write(*,*) 'Time to read EyeSys files: ',(time_end-time_start)*1000
+   write(*,*) 'Time to read Nidek files: ',(time_end-time_start)*1000
    if (read_error > 0) then
     err_janus=read_error*10
     return
@@ -1101,22 +1110,21 @@ endif ! end (TestData == 1)
 !  JMatrix%Z(:,:) = 0
  endif
 
-
 ! OR GENERATE Fake EyeSys data
 if (TestData .lt. 0) then
  MM=360; N=16   ! fake EyeSys
  if(.not.allocated(EyeSys%RA)) then
   call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
  endif
-  if (mod(flag,100) == 0) then !read the files
-   call RCNVRTT(MM,N)
-  endif !(mod(flag,100) == 0)
 ! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
   if (allocated(RadSlope%r)) then
    RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
    call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
   else
    call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
+  endif
+  if (mod(flag,100) == 0) then !read the files
+   call RCNVRTT(MM,N)
   endif
 ! Generate the slope matrix using ZFCT
   RadSlope=EyeSys
@@ -1213,10 +1221,10 @@ if (mod(flag,100) .ne. 9 ) then
    iflag=1
   endif
  endif
- ! lsq instead of circumferential spline
- if (btest(dat, 8)) then
-  iflag =iflag+100
- endif
+ ! lsq instead of circumferential spline do not want to do for spline test
+ !if (btest(dat, 8)) then
+ ! iflag =iflag+100
+ !endif
   k=0 ; powmax2 = 0 ; powmax =0  ! Use these temporarily
  ! find max elevation from Atlas file
   do i=1,M1
@@ -1234,13 +1242,54 @@ if (mod(flag,100) .ne. 9 ) then
       k=k+1
       powmax2=powmax2+ABS(Y-powmax+100*Atlas%AY(i,j))
      endif
-!   checks that power at knots is correct at knts
+!   checks that power at knots is correct at knots; since this is a spline without LSQ it should be.
      if (ABS(Atlas%AP(i,j)-pow) > EPS .and. (Atlas%AP(i,j) .gt. 0) .and. (Atlas%AD(i,j) .gt. 0) .and. (Atlas%AY(i,j) .gt. 0) .AND. (Atlas%AR(i,j) > 0)) then
       write(*,*) 'Atlas power spline error in janus: ',j,i,Atlas%AP(i,j),pow
      endif
     end do
    end do
    write(*,*) 'Atlas avg abs elevation percent error : ',(100*powmax2/k)/powmax
+ endif
+
+! NIDEK spline consistency computation of elevation by power calc by slope vs elevation in file HT
+ if ( Testdata .eq. 6 .and. btest(dat,7) ) then
+ if (btest(dat, 2)) then
+  if (btest(dat,0)) then
+   iflag=12
+  else
+   iflag=2
+  endif
+ else
+  if (btest(dat,0)) then
+   iflag=11
+  else
+   iflag=1
+  endif
+ endif
+  k=0 ; powmax2 = 0 ; powmax =0  ! Use these temporarily
+ ! find max elevation from Atlas file
+  do i=1,M1
+   do j=1,RadSlope%MV(i)
+    if (EyeSys%HT(i,j) > powmax) powmax=EyeSys%HT(i,j)
+    end do
+   end do
+ ! check spline power & elevation at knots
+   do i=1,M1
+    do j=1,RadSlope%MV(i)
+    call SplineEval1Dx1D(iflag,EyeSys%RA(i,j),PI*(i-1)/90.0_wp,Y,YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
+!   skip missing elevation points to compute (cumulative) average error
+    if (EyeSys%HT(i,j) > 0) then
+      k=k+1
+      powmax2=powmax2+ABS(Y-powmax+EyeSys%HT(i,j))
+!     EyeSys%HT data has few significant digits, is quite flat and deviates more in the center rings
+!     skip the two center rings and show errors greater tha 5%
+      if (ABS(100*(Y-EyeSys%HT(i,j))/EyeSys%HT(i,j)) > 5.0 .and. j > 2 ) then
+       write(*,*) j,(i-1),Y,EyeSys%HT(i,j),100*(Y-EyeSys%HT(i,j))/EyeSys%HT(i,j)
+      endif
+     endif
+    end do
+   end do
+   write(*,*) 'NIDEK avg abs elevation percent error : ',(100*powmax2/k)/powmax
  endif
 
 ! Make JMatrix
