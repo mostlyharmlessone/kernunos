@@ -2106,6 +2106,18 @@ void MainWindow::colorPerceptualUniformpalette()
    };
 }
 
+/*
+// almost works, has a problem with atomic_base fetch
+void MainWindow::aboutbuild()
+{
+    QString sglVer = "Kernunos built with\n";
+    char compiler_name;
+    get_compiler_name_(&compiler_name);
+    QString compiler_string = tr(&compiler_name);
+    QMessageBox::about(this, tr("About Kernunos"),compiler_string);
+}
+*/
+
 void MainWindow::about()
 {
    // https://www.modernescpp.com/index.php/asynchronous-callable-wrappers

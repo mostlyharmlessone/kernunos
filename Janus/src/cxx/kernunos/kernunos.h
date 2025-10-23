@@ -15,6 +15,8 @@ extern const unsigned int SCR_HEIGHT;
 extern int flag;
 extern char *filename;
 
+extern char compiler_name;
+
 extern bool success;
 extern bool paintme;
 
@@ -82,6 +84,11 @@ extern "C" {
 void Ccounter (int *inc,const char *iname);
 };
 
+extern "C" {
+void get_compiler_name_(char *compiler_name);
+};
+// needs an underscore despite c_interface.f90 bind C declaration
+
 // external cpp code
 int lioc(const char *iname);
 
@@ -117,6 +124,7 @@ protected:
     void closeEvent(QCloseEvent *event) override;
 
 private slots:
+//  void aboutbuild();
     bool replace(std::string& str,const std::string& from,const std::string& to);
     void open();
     void test();

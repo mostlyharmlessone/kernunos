@@ -367,6 +367,7 @@ set(PROJECT_SOURCES
                    src/cxx/kernunos/gnuplot_load.cpp
                    src/cxx/kernunos/mainwindow.ui
                    src/src90/ConvertOFFtoSTL_C.f90
+                   src/src90/get_compiler_name.f90
                    src/src90/janus.f90 
                    ${TS_FILES}
                    )

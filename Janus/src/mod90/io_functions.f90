@@ -184,11 +184,6 @@ end function getArg
  end do
  end function
 
- function get_compiler_name()
-  use iso_fortran_env
-  print*,trim(compiler_version())
- end function
-
 end module io_functions
 
 !https://fortran-lang.discourse.group/t/joining-strings-problem-with-gfortran/492
@@ -752,12 +747,12 @@ if (exists) then
     READ (unitno1,*) header
     file_idx1=index(trim(header),EDNAME(index(EDNAME,"ED"):len(EDNAME)) // ";")
     if (file_idx1 > 0) then
-     write(*,*) 'ASCII ED Nidek header detected: ',trim(header)
+!     write(*,*) 'ASCII ED Nidek header detected: ',trim(header)
     endif
     READ (unitno2,*) header
     file_idx2=index(trim(header),RANAME(index(RANAME,"RA"):len(RANAME)) // ";")
     if (file_idx2 > 0) then
-     write(*,*) 'ASCII RA Nidek header detected: ',trim(header)
+!     write(*,*) 'ASCII RA Nidek header detected: ',trim(header)
     else
      write(*,*) 'No ASCII RA/ED Nidek headers detected'
      read_error = 2
@@ -768,7 +763,7 @@ if (exists) then
  endif
  close(unitno1)
  close(unitno2)
- ! This will also detect ASCII headers
+ ! This will also detect ASCII headers, but I only want to run it if ASCII headers weren't detected
  if (read_error == 2) then
   read_error = 0
   inquire(iolength=record_length) ch
