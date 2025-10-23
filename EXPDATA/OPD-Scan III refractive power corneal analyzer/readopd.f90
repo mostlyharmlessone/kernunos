@@ -22,8 +22,8 @@
   function c(x1,x2) result(vec)
 ! return character array containing present arguments
   character (len=*)  , intent(in), optional    :: x1,x2
-  character (len=100)            , allocatable :: vec(:)
-  character (len=100)            , allocatable :: vec_(:)
+  character (len=1000)            , allocatable :: vec(:)
+  character (len=1000)            , allocatable :: vec_(:)
   integer                                      :: n
   allocate (vec_(2))
   if (present(x1))  vec_(1)  = x1
@@ -32,7 +32,6 @@
   if (n > 0) vec = vec_(:n)
   end function c
  end module util_mod
-
 
 
  program main
@@ -49,8 +48,8 @@
   character(1000) header,header_space
   integer :: file_idx1,file_idx2,file_idx3,file_idx4
 !  integer, intent(out) :: read_error
-  integer :: degree
-  REAL :: ZX(16),YX(16),PX,CX,CY
+  integer :: degree, e_idx
+  REAL :: ZX(39),YX(39),PX,CX,CY
   integer(INT8) :: IZX(4)
   integer(kind=2) :: IX,JX
   integer(kind=1) ::  i1,i2,i3
@@ -60,7 +59,8 @@
  print*,trim(compiler_version())
  inquire(iolength=record_length) ch
 ! OPEN(NEWUNIT=unit1, file="RAOPD.DAT", status='old', ACCESS='stream')
- OPEN(NEWUNIT=unit1, file="EDOPD.DAT", status='old', ACCESS='stream')
+! OPEN(NEWUNIT=unit1, file="EDOPD.DAT", status='old', ACCESS='stream')
+ OPEN(NEWUNIT=unit1, file="edtest11L.DAT", status='old', ACCESS='stream')
 ! OPEN(NEWUNIT=unit1, file="AROPD.DAT", status='old', ACCESS='stream') 
 ! OPEN(NEWUNIT=unit1, file="PROPD.DAT", status='old', ACCESS='stream')
 ! OPEN(NEWUNIT=unit1, file="PEOPD.DAT", status='old', ACCESS='stream')
@@ -84,6 +84,7 @@
    exit
   endif
  END DO
+ x = ""
 ! READ the data
  POS=0 
  DO
@@ -136,17 +137,50 @@
   if (readerr == 0 ) then
 !  acculmulate ch, save the read
 !   write(*,'(z0,a,i0,a,i0)') ch,'    ',pos-i,'    ',iachar(ch) 
-   write(*,'(z0)') ch 
+   write(header,'(z0)') ch 
+   x = join(c(x,trim(header)))
    line(pos-i)=iachar(ch)
    if (line(pos-i) .eq. 10 .and. line(pos-i-1) .eq. 13) then  !  0D 0A ends each line
 !  found the 0D 0A  
 
-    write(*,*) 'pos,', pos,pos-i  
+!    write(*,*) 'pos,', pos,pos-i  
 
 !  clear accumulated ch buffer
-   write(*,*) line(1:pos-i)
-   line(1:pos-i)=0 
+!   write(*,*) line(1:pos-i)
+!   line(1:pos-i)=0 
+!   write(*,*) pos-i, x
 
+! here's where to read the C's and E's and divide into 24 bit pieces
+   i = 1
+   ix = 1
+   do while (i .lt. len(trim(x)))
+    write(*,*) x(i:i+5)
+!  Assumes "2C2222" is the baseline for zero for all Multibyte codes, converts ASCII to hex subtract and leave as decimal digit
+    if (iachar(x(i:i)) .lt. 58) zx(ix)= iachar(x(i:i))-50
+    if (iachar(x(i:i)) .ge. 65) zx(ix)= iachar(x(i:i))-57
+    if (iachar(x(i+2:i+2)) .lt. 58) zx(ix)= zx(ix)+(iachar(x(i+2:i+2))-50)*0.1
+    if (iachar(x(i+2:i+2)) .ge. 65) zx(ix)= zx(ix)+(iachar(x(i+2:i+2))-57)*0.1
+    if (iachar(x(i+3:i+3)) .lt. 58) zx(ix)= zx(ix)+(iachar(x(i+3:i+3))-50)*0.01
+    if (iachar(x(i+3:i+3)) .ge. 65) zx(ix)= zx(ix)+(iachar(x(i+3:i+3))-57)*0.01
+    if (iachar(x(i+4:i+4)) .lt. 58) zx(ix)= zx(ix)+(iachar(x(i+4:i+4))-50)*0.001
+    if (iachar(x(i+4:i+4)) .ge. 65) zx(ix)= zx(ix)+(iachar(x(i+4:i+4))-57)*0.001
+    if (iachar(x(i+5:i+5)) .lt. 58) zx(ix)= zx(ix)+(iachar(x(i+5:i+5))-50)*0.0001
+    if (iachar(x(i+5:i+5)) .ge. 65) zx(ix)= zx(ix)+(iachar(x(i+5:i+5))-57)*0.0001
+    i=i+7 
+    ix=ix+1
+!  Assumes "D" is the only other code added, could also consider "F"
+    if ( x(i:i) == "D") i=i+1   
+   end do
+
+   write(*,*) zx(:)
+   write(*,*) x(:)
+
+!  need something like ths
+!        EyeSys%RA(i,j)=100*ZX(j)
+!        EyeSys%XX(i,j)=100*YX(j)
+! not this j, this is total   write(*,*) j
+   x = ""
+ 
 !   exit   !exit after the first record
 
     i=pos
@@ -174,77 +208,6 @@
 
  close(unit=unit1)
 
-!IEEE 754
-!    The most significant bit (MSB) is used to store the sign of the number.
-!    The next 8 bits are used to store the exponent.
-!    The remaining 23 bits are used to store the mantissa.
-!Converting 65.125 to Binary form, we get:
-!65     = 1000001
-!0.125  = 001
-!So, 
-!65.125 = 1000001.001
-!       = 1.000001001 x 106
-!Normalized Mantissa = 000001001
-
-!Now, according to the standard,
-!we will get the biased exponent by adding the exponent to 127,
-!       = 127 + 6 = 133
-!Biased exponent = 10000101
-
-!And the signed bit is 0 (positive)
-
-!So, the IEEE 754 representation of 65.125 is,
-!0 10000101 00000100100000000000000
-! 0100 0010 1000 0010 0100 0000 0000 0000
-! 42 82 40 00 
-
-
-!char=>1 byte (ASCII uses 7 bits, the 8th is zero)
-!int4=int=4 bytes
-!real=4 bytes
-!int2=2 bytes
-! two hex-digits represent an 8-bit pattern, i.e. a byte.
-!The one-byte logical data type, LOGICAL*1, which has the synonym, BYTE, can hold any of the following:
-!    One character
-!    An integer between -128 and 127
-!    The logical values .TRUE. or .FALSE.
-!The value is as defined for LOGICAL, but it can hold a character or small integer. An example:
-!	LOGICAL*1 		Bit3 / 8 /, C1 / 'W' /, 
-!& 			Counter / 0 /, Switch / .FALSE. / 
-!A LOGICAL*1 item occupies one byte of storage
-!LOGICAL*1 is aligned on one-byte boundaries.
-
-!test writes
-! fp  00 00 00 40 -> 2.  00 00 4c 42 -> 51
-!RAOPD -> AC 24 63 EA C2 56 4E
-!PEOPD 1st normal data segment-> 4C 22 96 (0D 0A)
-
- OPEN(NEWUNIT=unit2, file="TEST.DAT", status='old', ACCESS='stream')
-
-     PX=40.0
-      J=40
-      ix=i
-     cx=30
-!      write(unit2,iostat=readerr)
-
-! ?formatted stream ?possibly written from C/C++ but hopefully IEEE standard
-!  : = 3A =58 isn't part of the file structure above
-!   
-!	write(unit2,iostat=readerr) "r000078|R|0730074445|7.77 Test angle|||||angle||15d|\n"
-!        write(unit2,iostat=readerr) "002: 51 75 100 130 153 182 207 237 262 292 318 347 375 0 405 436"
-	write(unit2,iostat=readerr) 2, 0, 51, 75, 100, 130, 153, 182, 207, 237, 262, 292, 318, 347, 375, 0, 405, 436
-!	write(unit2,iostat=readerr) 1, 51, 75, 100, 130, 153, 182, 207, 237, 262, 292, 318, 347, 375, 0, 405, 436
-	write(unit2,iostat=readerr) 2.,0., 51., 75., 100., 130., 153., 182., 207., 237., 262., 292., 318., 347., 375., 0., 405., 436.
-	write(unit2,iostat=readerr) "r000078|R|0730074445|7.77 Test angle|||||angle||15d|"
-!	write(unit2,iostat=readerr) 2._dp,0._dp, 51.235_dp, 75.176_dp, 100.28_dp, 130.516_dp, 153.978_dp, 182.31_dp, 207.11_dp, 237.87_dp, 262.92_dp, 292.112_dp, 318.3_dp, 347.76_dp, 375.44_dp, 0.22_dp, 405.21_dp, 436.13_dp
-
-
-
-
-
-
-
- close(unit2)
 
 
  

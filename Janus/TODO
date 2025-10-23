@@ -2,18 +2,19 @@ things to do
 
 CorneaCopia
 
+Nidek binary: tried insane BCD calculation
 
+readopd.f90 crashes at end on one file for unknwon reason
 
-Nidek ASCII
+check ASCII version against binary version now that I have copies of both for same target: clearly BCD schem doesn't generate the same numbers; perhaps some modification
+******probably not the same 1000011L...the end of the binary doen't hve the proper zero sequence.
+******so maybe insane BCD is on; try displaying some shapes
 
-HT data not used yet for Nidek: neg numbers are nondata, but all read into EyeSys%HT
-
-Nidek binary: try insane BCD calculation: need to write reading routine based on readopd then with computation, then incorporate detection of these types of files and add to menu
 
 TopCon CA-800 in SA -> all binary
 
-lsqspline doesn't fix decentering/multiple zero issues in ELE files, look at decentering again, run some test beds
 
+lsqspline doesn't fix decentering/multiple zero issues in ELE files, look at decentering again, run some test beds
 
 built framework for decenter; both involve moving elevation data points, either, 
 then resplining on that basis, just like an ELE file, in fact, for an ELE/ELE.CSV file, adjust the data before the first spline

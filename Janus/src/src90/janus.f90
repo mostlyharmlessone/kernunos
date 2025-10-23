@@ -890,12 +890,21 @@ endif
 
 if (TestData .eq. 6) then
    MM=360 ! Nidek
- ! Calculate number of mires by counting the floating point periods in the file, subtracting the header file extension, and dividing by 360
-   periodcount=charcount(trim(inputfile2)//c_null_char)
-   N=(periodcount-1)/360
-   if (N .lt. 23 )then
-    WRITE (*,*) 'Error on mire count in janus'
-    read_error=-1
+   read_error=0
+   call RCNVRTN_binary_detect(read_error,inputfile2,inputfile1)
+   if (read_error == 0) then
+ !  Only use on ASCII, might crash on binary NIDEK
+ !  Calculate number of mires by counting the floating point periods in the file, subtracting the header file extension, and dividing by 360
+    periodcount=charcount(trim(inputfile2)//c_null_char)
+    N=(periodcount-1)/360
+    if (N .lt. 23 )then
+     WRITE (*,*) 'Error on mire count in janus'
+     read_error=-1
+     return
+    endif
+   else
+    N=39 !mires in binary
+    write(*,*) 'Set mires to 39'
     return
    endif
  if (mod(flag,100) == 0) then !read the files

@@ -80,6 +80,12 @@ module io_functions
      integer, intent(out) :: read_error
     end subroutine
 
+    subroutine rcnvrtn_binary_detect(read_error,EDNAME,RANAME)
+     USE set_precision, ONLY : wp
+     character(len=*), intent(in) :: RANAME,EDNAME
+     integer, intent(out) :: read_error
+    end subroutine
+
     subroutine rcnvrtp(TestData,filename,read_error)
      USE cornea_arrays, ONLY : Penta
      character(len=*), intent(in) :: filename
@@ -177,8 +183,50 @@ end function getArg
   f = f + 1
  end do
  end function
-  
+
+ function get_compiler_name()
+  use iso_fortran_env
+  print*,trim(compiler_version())
+ end function
+
 end module io_functions
+
+!https://fortran-lang.discourse.group/t/joining-strings-problem-with-gfortran/492
+
+module util_mod
+implicit none
+contains
+ function join(words) result(str)
+! trim and concatenate a vector of character variables
+ character (len=*), intent(in) :: words(:)
+ character(:), allocatable :: str
+ integer :: i,nw
+ allocate(character(sum(len_trim(words)))::str)
+ nw  = size(words)
+ str = ""
+ if (nw < 1) then
+  return
+ else
+  str = words(1)
+ end if
+ do i=2,nw
+  str = trim(str) // words(i)
+ end do
+ end function join
+
+ function c(x1,x2) result(vec)
+! return character array containing present arguments
+ character (len=*)  , intent(in), optional    :: x1,x2
+ character (len=1000)            , allocatable :: vec(:)
+ character (len=1000)            , allocatable :: vec_(:)
+ integer                                      :: n
+ allocate (vec_(2))
+ if (present(x1))  vec_(1)  = x1
+ if (present(x2))  vec_(2)  = x2
+ n = count([present(x1),present(x2)])
+ if (n > 0) vec = vec_(:n)
+ end function c
+end module util_mod
 
 subroutine rcnvrtp(TestData,filename,read_error)
 ! PENTACAM VERSION FOR ALL
@@ -668,6 +716,93 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
     return
    endif
 end subroutine rcnvrtn
+
+subroutine rcnvrtn_binary_detect(read_error,RANAME,EDNAME)
+! NIDEK VERSION, binary, experimental
+! These all have an ASCII header with the file name including the location in the directory tree
+! detects binary
+USE io_functions, ONLY : get_new_fileunit
+USE set_precision, ONLY : wp
+use util_mod
+USE special_fct, ONLY : replacestr
+use c_interfaces, ONLY : charcount
+USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_null_char
+implicit none
+logical :: exists
+character(len=*), intent(in) :: RANAME,EDNAME
+character(1000) header
+character :: ch
+character(:), allocatable :: x
+integer :: file_idx1,file_idx2,file_idx3,file_idx4,io,record_length
+integer, intent(out) :: read_error
+INTEGER :: I,J,ITH,unitno1,unitno2,unitno3,unitno4,MM,N,ierr,pos
+integer(c_int) :: periodcount
+MM=360
+ read_error = 0
+inquire(file=trim(EDNAME), exist=exists)
+if (exists) then
+ unitno1 = get_new_fileunit()
+ open(unitno1, file=trim(EDNAME), action="read", iostat=ierr)
+ if (ierr .eq. 0) then
+  inquire(file=trim(RANAME), exist=exists)
+  if (exists) then
+   unitno2 = get_new_fileunit()
+   open(unitno2, file=trim(RANAME), action="read", iostat=ierr)
+   if (ierr .eq. 0) then
+    READ (unitno1,*) header
+    file_idx1=index(trim(header),EDNAME(index(EDNAME,"ED"):len(EDNAME)) // ";")
+    if (file_idx1 > 0) then
+     write(*,*) 'ASCII ED Nidek header detected: ',trim(header)
+    endif
+    READ (unitno2,*) header
+    file_idx2=index(trim(header),RANAME(index(RANAME,"RA"):len(RANAME)) // ";")
+    if (file_idx2 > 0) then
+     write(*,*) 'ASCII RA Nidek header detected: ',trim(header)
+    else
+     write(*,*) 'No ASCII RA/ED Nidek headers detected'
+     read_error = 2
+    endif
+   endif
+  endif
+ endif
+ endif
+ close(unitno1)
+ close(unitno2)
+ ! This will also detect ASCII headers
+ if (read_error == 2) then
+  read_error = 0
+  inquire(iolength=record_length) ch
+  unitno1 = get_new_fileunit()
+  open(unitno1, file=trim(EDNAME), status='old', ACCESS='stream', iostat=ierr)
+! READ the header
+  ch = ' ' ;   x = join(c(ch,x))
+  DO WHILE (ierr == 0)
+   READ(unitno1,iostat=ierr) ch
+   if (ierr == 0 ) then
+    if (iachar(ch) .ne. 10) then  !  0D 0A ends each line
+     x = join(c(x,ch))
+    else
+!   found the 0D
+     write(*,*) 'Binary header ', x
+     exit
+    endif
+   else
+!  EOF or other read error
+    exit
+   endif
+  END DO
+! READ to see f the rest is Non_ASCII
+  do i=1,20
+   READ(unitno1,iostat=ierr) ch
+   if (ichar(ch) < 0 .or. ichar(ch) > 127 .and. read_error == 0) then
+    write(*,*) 'Non_ASCII characters detected'
+    read_error = 1
+   endif
+  end do
+  close(unitno1)
+ endif
+
+end subroutine rcnvrtn_binary_detect
 
 
 subroutine rcnvrte(read_error,RANAME,XXNAME,PUNAME,HXNAME)
