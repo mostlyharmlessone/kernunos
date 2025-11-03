@@ -10,10 +10,11 @@
 
 int charcount(const char *filename) {
 //    LogC("Open a file for counting periods");
-    LogC(filename);
+//    LogC(filename);
     FILE *fp = fopen(filename, "r");
     if (fp == NULL) {
      LogC("Failure to open file for counting periods");
+     LogC(filename);
      perror("fopen");
      return(-1);
     }

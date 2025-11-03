@@ -2,13 +2,14 @@ things to do
 
 CorneaCopia
 
-Nidek binary: tried insane BCD calculation
+Nidek binary: tried insane packed BCD calculation
+uniform curvature test displays with LSQFT but errors with singular matrix, crashes with spline/dctsv less gracefully
 
-readopd.f90 crashes at end on one file for unknwon reason
-
-check ASCII version against binary version now that I have copies of both for same target: clearly BCD schem doesn't generate the same numbers; perhaps some modification
-******probably not the same 1000011L...the end of the binary doen't hve the proper zero sequence.
-******so maybe insane BCD is on; try displaying some shapes
+ascii version fails too
+ ED Nidek header detected: C:\RK-3\Data\PA000001\ED0000010009R.DAT;
+ RA Nidek header detected: C:\RK-3\Data\PA000001\RA0000010009R.DAT;
+ Remove the semicolons with sed because Fortran hates them
+ system command to sed failed
 
 
 TopCon CA-800 in SA -> all binary
@@ -59,6 +60,8 @@ IMPROVEMENTS
 
 in kernunos menu actions do some key bindings?
 setShortcuts(QKeySequence::UnknownKey);
+
+can't call get_compiler_name from C++; might try C intermediary.... 
 
 QFileDialog messages in kernunos.cpp are in an unnoticeable font at the top of the Window...
 

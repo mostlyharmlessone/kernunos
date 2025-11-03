@@ -80,10 +80,11 @@ module io_functions
      integer, intent(out) :: read_error
     end subroutine
 
-    subroutine rcnvrtn_binary_detect(read_error,EDNAME,RANAME)
+    subroutine rcnvrtn_binary(read_error,mirecount,EDNAME,RANAME)
      USE set_precision, ONLY : wp
      character(len=*), intent(in) :: RANAME,EDNAME
      integer, intent(out) :: read_error
+     integer, intent(out) :: mirecount
     end subroutine
 
     subroutine rcnvrtp(TestData,filename,read_error)
@@ -422,7 +423,7 @@ end subroutine rcnvrtp
 
 subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
 ! NIDEK VERSION
-! only have seen uncompressed version with headers which are the filename with path ending with a semicolon
+! ASCII version
 ! duplicates Janus in counting mires for 23 to 33
 ! only reads ED, RA, HT and PE files
 ! uses EyeSys cornea_array storage files
@@ -471,12 +472,13 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
       close(unitno2)
       semicolon1 = trim(EDNAME)
       write(*,*) 'Remove the semicolons with sed because Fortran hates them'
-      semicolon1=replacestr(string=EDNAME,search=".DAT",substitute=".TMP")
+      semicolon1=replacestr(string=semicolon1,search=".DAT",substitute=".TMP")
     !  write(*,*) 'sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1
       call system('sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1, io)
       if (io > 0) then
        write (*,*) 'system command to sed failed'
        write (*,*) 'Consider using your text editor to search/replace all semicolons in data statements in',EDNAME
+       write (*,*) 'sed also fails on pathnames with spaces'
        read_error=11
        return
       endif
@@ -487,6 +489,7 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
       if (io > 0) then
        write (*,*) 'system command to sed failed'
        write (*,*) 'Consider using your text editor to search/replace all semicolons in data statements in',RANAME
+       write (*,*) 'sed also fails on pathnames with spaces'
        read_error=11
        return
       endif
@@ -495,7 +498,7 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
       write(*,*) 'Number of Nidek mires read: ',(periodcount-1)/360
       N=(periodcount-1)/360
       if (N .lt. 23 )then
-       WRITE (*,*) 'Error on mire count in rcnvrtn'
+       WRITE (*,*) 'Error on mire count in rcnvrtn:',N
        read_error=-1
        return
       endif
@@ -591,6 +594,7 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
          if (io > 0) then
           write (*,*) 'system command to sed failed'
           write (*,*) 'Consider using your text editor to search/replace all semicolons in data statements in',RANAME
+          write (*,*) 'sed also fails on pathnames with spaces'
           read_error=11
           if (allocated(ZX)) deallocate(ZX,YX)
           return
@@ -651,6 +655,7 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
          if (io > 0) then
           write (*,*) 'system command to sed failed'
           write (*,*) 'Consider using your text editor to search/replace all semicolons in data statements in',RANAME
+          write (*,*) 'sed also fails on pathnames with spaces'
           read_error=11
           if (allocated(ZX)) deallocate(ZX,YX)
           return
@@ -712,62 +717,94 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
    endif
 end subroutine rcnvrtn
 
-subroutine rcnvrtn_binary_detect(read_error,RANAME,EDNAME)
-! NIDEK VERSION, binary, experimental
+subroutine rcnvrtn_binary(read_error,mirecount,RANAME,EDNAME)
+! NIDEK VERSION, binary, experimental, assumes peculiar packed BCD scheme for data
 ! These all have an ASCII header with the file name including the location in the directory tree
 ! detects binary
+! assumes, but checks 39 mires, as all versions of binary seen have that number
+! only reads ED, RA files
+! uses EyeSys cornea_array storage files
 USE io_functions, ONLY : get_new_fileunit
 USE set_precision, ONLY : wp
 use util_mod
+USE cornea_arrays, ONLY : EyeSys
 USE special_fct, ONLY : replacestr
 use c_interfaces, ONLY : charcount
 USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_null_char
 implicit none
-logical :: exists
 character(len=*), intent(in) :: RANAME,EDNAME
-character(1000) header
-character :: ch
-character(:), allocatable :: x
-integer :: file_idx1,file_idx2,file_idx3,file_idx4,io,record_length
 integer, intent(out) :: read_error
+integer, intent(out) :: mirecount
+character(1000) header,header2
+character :: ch, ych
+character(:), allocatable :: x, y
+integer :: file_idx1,file_idx2,file_idx3,file_idx4,io
+logical :: exists
 INTEGER :: I,J,ITH,unitno1,unitno2,unitno3,unitno4,MM,N,ierr,pos
-integer(c_int) :: periodcount
-MM=360
+REAL :: ZX(39),YX(39) ! should be maximum needed for mires
+integer line(145),line2(145),ix,iy
+ x = "" ;   y = ""
  read_error = 0
-inquire(file=trim(EDNAME), exist=exists)
-if (exists) then
- unitno1 = get_new_fileunit()
- open(unitno1, file=trim(EDNAME), action="read", iostat=ierr)
- if (ierr .eq. 0) then
-  inquire(file=trim(RANAME), exist=exists)
-  if (exists) then
-   unitno2 = get_new_fileunit()
-   open(unitno2, file=trim(RANAME), action="read", iostat=ierr)
-   if (ierr .eq. 0) then
-    READ (unitno1,*) header
-    file_idx1=index(trim(header),EDNAME(index(EDNAME,"ED"):len(EDNAME)) // ";")
-    if (file_idx1 > 0) then
-!     write(*,*) 'ASCII ED Nidek header detected: ',trim(header)
-    endif
-    READ (unitno2,*) header
-    file_idx2=index(trim(header),RANAME(index(RANAME,"RA"):len(RANAME)) // ";")
-    if (file_idx2 > 0) then
-!     write(*,*) 'ASCII RA Nidek header detected: ',trim(header)
+! check that files exist and have a Nidek style header
+ inquire(file=trim(EDNAME), exist=exists)
+ if (exists) then
+  unitno1 = get_new_fileunit()
+  open(unitno1, file=trim(EDNAME), action="read", iostat=ierr)
+  if (ierr .eq. 0) then
+   inquire(file=trim(RANAME), exist=exists)
+   if (exists) then
+    unitno2 = get_new_fileunit()
+    open(unitno2, file=trim(RANAME), action="read", iostat=ierr)
+    if (ierr .eq. 0) then
+     READ (unitno1,*) header
+     file_idx1=index(trim(header),EDNAME(index(EDNAME,"ED"):len(EDNAME)) // ";")
+     if (file_idx1 > 0) then
+      write(*,*) 'ASCII ED Nidek header detected: ',trim(header)
+     endif
+     READ (unitno2,*) header
+     file_idx2=index(trim(header),RANAME(index(RANAME,"RA"):len(RANAME)) // ";")
+     if (file_idx2 > 0) then
+      write(*,*) 'ASCII RA Nidek header detected: ',trim(header)
+     else
+      write(*,*) 'No ASCII RA/ED Nidek headers detected'
+      read_error = 2
+     endif
     else
-     write(*,*) 'No ASCII RA/ED Nidek headers detected'
-     read_error = 2
+     print*, "Error ", ierr ," attempting to open file ", trim(RANAME)
+     read_error=3
+     return
     endif
+   else
+    print*, "Error -- cannot find file: ", trim(RANAME)
+    read_error=4
+    return
    endif
-  endif
- endif
- endif
+   else
+    print*, "Error ", ierr ," attempting to open file ", trim(EDNAME)
+    read_error=5
+    return
+   endif
+   else
+    print*, "Error -- cannot find file: ", trim(EDNAME)
+    read_error=6
+    return
+   endif
  close(unitno1)
  close(unitno2)
- ! This will also detect ASCII headers, but I only want to run it if ASCII headers weren't detected
+! Check if binary file despite if ASCII header detected...
+ open(unitno1, file=trim(EDNAME), status='old', ACCESS='stream', iostat=ierr)
+ do i=1,50
+   READ(unitno1,iostat=ierr) ch
+!  Detect if Non_ASCII
+   if (ichar(ch) < 0 .or. ichar(ch) > 127 .and. read_error == 0) then
+    write(*,*) 'Non_ASCII characters detected in', trim(EDNAME)
+    read_error = 2
+   endif
+ end do
+ close(unitno1)
+ ! This will also read ASCII headers, but I only want to run it if the file is a binary Nidek
  if (read_error == 2) then
-  read_error = 0
-  inquire(iolength=record_length) ch
-  unitno1 = get_new_fileunit()
+  read_error = 1
   open(unitno1, file=trim(EDNAME), status='old', ACCESS='stream', iostat=ierr)
 ! READ the header
   ch = ' ' ;   x = join(c(ch,x))
@@ -778,7 +815,7 @@ if (exists) then
      x = join(c(x,ch))
     else
 !   found the 0D
-     write(*,*) 'Binary header ', x
+     write(*,*) 'Nidek header ', x
      exit
     endif
    else
@@ -786,18 +823,142 @@ if (exists) then
     exit
    endif
   END DO
-! READ to see f the rest is Non_ASCII
-  do i=1,20
-   READ(unitno1,iostat=ierr) ch
-   if (ichar(ch) < 0 .or. ichar(ch) > 127 .and. read_error == 0) then
-    write(*,*) 'Non_ASCII characters detected'
-    read_error = 1
-   endif
-  end do
+  x = ""
+! READ the data
+   POS=0 ; i=0 ; j=0 ; mirecount = 0
+   DO
+    READ(unitno1,iostat=ierr) ch
+    POS=POS+1
+    if (ierr == 0 ) then
+     write(header,'(z0)') ch
+     x = join(c(x,trim(header)))
+     line(pos-i)=iachar(ch)
+     if (pos-i-1 .ge. 1) then
+      if (line(pos-i) .eq. 10 .and. line(pos-i-1) .eq. 13) then  !  0D 0A ends each line
+  ! here's where to read the C's and E's and divide into 24 bit pieces
+       j = j+1
+       i = 1
+      ix = 1
+      do while (i .lt. len(trim(x)))
+  !  Assumes "2C2222" is the baseline for zero for all Multibyte codes, converts ASCII to hex subtract and leave as decimal digit
+       if (iachar(x(i:i)) .lt. 58) zx(ix)= iachar(x(i:i))-50
+       if (iachar(x(i:i)) .ge. 65) zx(ix)= iachar(x(i:i))-57
+       if (iachar(x(i+2:i+2)) .lt. 58) zx(ix)= zx(ix)+(iachar(x(i+2:i+2))-50)*0.1
+       if (iachar(x(i+2:i+2)) .ge. 65) zx(ix)= zx(ix)+(iachar(x(i+2:i+2))-57)*0.1
+       if (iachar(x(i+3:i+3)) .lt. 58) zx(ix)= zx(ix)+(iachar(x(i+3:i+3))-50)*0.01
+       if (iachar(x(i+3:i+3)) .ge. 65) zx(ix)= zx(ix)+(iachar(x(i+3:i+3))-57)*0.01
+       if (iachar(x(i+4:i+4)) .lt. 58) zx(ix)= zx(ix)+(iachar(x(i+4:i+4))-50)*0.001
+       if (iachar(x(i+4:i+4)) .ge. 65) zx(ix)= zx(ix)+(iachar(x(i+4:i+4))-57)*0.001
+       if (iachar(x(i+5:i+5)) .lt. 58) zx(ix)= zx(ix)+(iachar(x(i+5:i+5))-50)*0.0001
+       if (iachar(x(i+5:i+5)) .ge. 65) zx(ix)= zx(ix)+(iachar(x(i+5:i+5))-57)*0.0001
+       i=i+7
+       ix=ix+1
+  !  Assumes "D" is the only other code added, could also consider "F"
+       if ( x(i:i) == "D") i=i+1
+      end do
+      EyeSys%RA(j,:)=100*ZX(:)
+      mirecount = max(ix,mirecount)
+      x = ""
+      i=1 ; pos=1
+     endif
+     endif
+    else
+  !  EOF or other read error
+     write(*,*) j,'radials'
+     mirecount = mirecount -1
+     write(*,*) mirecount, ' mires counted'
+     exit
+    endif
+   end do
   close(unitno1)
  endif
-
-end subroutine rcnvrtn_binary_detect
+ ! Check that I read Non-ASCII above
+ if (read_error == 1) then
+  open(unitno2, file=trim(RANAME), status='old', ACCESS='stream', iostat=ierr)
+! READ the header
+  ych = ' ' ;  y = join(c(ych,y))
+  DO WHILE (ierr == 0)
+   READ(unitno2,iostat=ierr) ych
+   if (ierr == 0 ) then
+    if (iachar(ych) .ne. 10) then  !  0D 0A ends each line
+     y = join(c(y,ych))
+    else
+!   found the 0D
+     write(*,*) 'Binary header ', y
+     exit
+    endif
+   else
+!  EOF or other read error
+    exit
+   endif
+  END DO
+  y = ""
+! READ the data
+   POS=0 ; ith=0 ; j=0
+   DO
+    READ(unitno2,iostat=ierr) ych
+    POS=POS+1
+    if (ierr == 0 ) then
+     write(header2,'(z0)') ych
+     y = join(c(y,trim(header2)))
+     line2(pos-ith)=iachar(ych)
+     if (pos-ith-1 .ge. 1) then
+      if (line2(pos-ith) .eq. 10 .and. line2(pos-ith-1) .eq. 13) then  !  0D 0A ends each line
+  ! here's where to read the C's and E's and divide into 24 bit pieces
+      j = j+1
+      ith = 1
+      iy = 1
+      do while (ith .lt. len(trim(y)))
+ !   Assumes "2C2222" is the baseline for zero for all Multibyte codes, converts ASCII to hex subtract and leave as decimal digit
+       if (iachar(y(ith:ith)) .lt. 58) yx(iy)= iachar(y(ith:ith))-50
+       if (iachar(y(ith:ith)) .ge. 65) yx(iy)= iachar(y(ith:ith))-57
+       if (iachar(y(ith+2:ith+2)) .lt. 58) yx(iy)= yx(iy)+(iachar(y(ith+2:ith+2))-50)*0.1
+       if (iachar(y(ith+2:ith+2)) .ge. 65) yx(iy)= yx(iy)+(iachar(y(ith+2:ith+2))-57)*0.1
+       if (iachar(y(ith+3:ith+3)) .lt. 58) yx(iy)= yx(iy)+(iachar(y(ith+3:ith+3))-50)*0.01
+       if (iachar(y(ith+3:ith+3)) .ge. 65) yx(iy)= yx(iy)+(iachar(y(ith+3:ith+3))-57)*0.01
+       if (iachar(y(ith+4:ith+4)) .lt. 58) yx(iy)= yx(iy)+(iachar(y(ith+4:ith+4))-50)*0.001
+       if (iachar(y(ith+4:ith+4)) .ge. 65) yx(iy)= yx(iy)+(iachar(y(ith+4:ith+4))-57)*0.001
+       if (iachar(y(ith+5:ith+5)) .lt. 58) yx(iy)= yx(iy)+(iachar(y(ith+5:ith+5))-50)*0.0001
+       if (iachar(y(ith+5:ith+5)) .ge. 65) yx(iy)= yx(iy)+(iachar(y(ith+5:ith+5))-57)*0.0001
+       ith=ith+7
+       iy=iy+1
+ !  Assumes "D" is the only other code added, could also consider "F"
+       if ( y(ith:ith) == "D") ith=ith+1
+      end do
+      EyeSys%XX(j,:)=100*YX(:)
+      mirecount = max(iy,mirecount)
+      y = ""
+      ith=1 ; pos=1
+     endif
+     endif
+    else
+  !  EOF or other read error
+     write(*,*) j,'radials'
+     MM = j
+     mirecount = mirecount -1
+     write(*,*) mirecount, ' mires counted'
+     N = mirecount
+     exit
+    endif
+   end do
+  close(unitno2)
+ endif
+ do i=1,MM
+  do J=1,N
+   ZX(j)=EyeSys%RA(i,j)/100
+   YX(j)=EyeSys%XX(i,j)/100
+!  Sanity check on file data
+   if (YX(J) > 0 .AND. ZX(J) > 0) then
+    if (YX(J) <= ZX(J)) then
+     WRITE (*,*) 'Error on input Nidek RA/XX files ArcTan'
+     read_error=-1
+     return
+    endif
+   endif
+  end do
+  EyeSys%DEG(I)=I-1
+ end do
+end subroutine rcnvrtn_binary
 
 
 subroutine rcnvrte(read_error,RANAME,XXNAME,PUNAME,HXNAME)

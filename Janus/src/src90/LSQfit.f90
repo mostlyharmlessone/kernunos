@@ -39,7 +39,14 @@ REAL(wp), intent(out) ::c(M2)
 !  if (info .ne. 0) write(*,*) 'Error in lsqfit: dgels',info
 !  c=zwork(1:M2)
   call dgetrf(M2,M2,XTX,M2,ipvt,info)
-  if (info .ne. 0) write(*,*) 'Error in lsqfit: dgetrf',info
+  if (info .ne. 0) then
+
+   write(*,*) 'Error in lsqfit: dgetrf',info
+   write(*,*) t
+   write(*,*) z
+   stop
+
+  endif
   call dgetrs('N',M2,1,XTX,M2,ipvt,zpX,M2,info)
   if (info .ne. 0) write(*,*) 'Error in lsqfit: dgetrs',info
 ! deallocate(WORK1)

@@ -889,28 +889,11 @@ if (TestData .eq. 0) then
 endif
 
 if (TestData .eq. 6) then
-   MM=360 ! Nidek
-   read_error=0
-   call RCNVRTN_binary_detect(read_error,inputfile2,inputfile1)
-   if (read_error == 0) then
- !  Only use on ASCII, might crash on binary NIDEK
- !  Calculate number of mires by counting the floating point periods in the file, subtracting the header file extension, and dividing by 360
-    periodcount=charcount(trim(inputfile2)//c_null_char)
-    N=(periodcount-1)/360
-    if (N .lt. 23 )then
-     WRITE (*,*) 'Error on mire count in janus'
-     read_error=-1
-     return
-    endif
-   else
-    N=39 !mires in binary
-    write(*,*) 'Set mires to 39'
-    return
-   endif
  if (mod(flag,100) == 0) then !read the files
 ! READ THE Nidek DATA
-! RA????? ARE THE AXIAL DIST. ED???? ARE THE MIRE RADII; use the first set of 360 from ED**.DAT
+! RA????? ARE THE AXIAL DIST. ED???? ARE THE MIRE RADII; use the first set of 360 from ASCII ED**.DAT
    call CPU_TIME(time_start)
+   MM=360 ; N=39 ! Nidek binary default
    read_error=0
    if(.not.allocated(EyeSys%RA)) then
     call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
@@ -918,29 +901,56 @@ if (TestData .eq. 6) then
     EyeSys = 0
     call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
    endif
-   inquire(file=trim(inputfile3), exist=exists)
-   if(.NOT.exists) then
-    call RCNVRTN(read_error,inputfile2,inputfile1)
-   else
-    inquire(file=trim(inputfile4), exist=exists)
-    if(.NOT.exists) then
-     call RCNVRTN(read_error,inputfile2,inputfile1,inputfile3)
-    else
-     call RCNVRTN(read_error,inputfile2,inputfile1,inputfile3,inputfile4)
+   call RCNVRTN_binary(read_error,N,inputfile2,inputfile1)
+   if (read_error == 0) then  ! ASCII
+    EyeSys = 0 ! deallocate, then reallocate after charcount
+ !  Only use on ASCII, might crash/give incorrect result on binary NIDEK
+ !  Calculate number of mires by counting the floating point periods in the file, subtracting the header file extension, and dividing by 360
+    periodcount=charcount(trim(inputfile2)//c_null_char)
+    N=(periodcount-1)/360
+    if (N .lt. 23 )then
+     WRITE (*,*) 'Error on mire count in janus: ',N
+     read_error=-1
+     return
     endif
-!   pupil conversion if any
-    JMatrix%Pupil_Center=EyeSys%Pupil_Center*50.
-    do i=1,MM/2
-     JMatrix%PU(i)=(EyeSys%PU(2*i-1)+EyeSys%PU(2*i))*50.
-    end do
-   endif
-   call CPU_TIME(time_end)
-   write(*,*) 'Time to read Nidek files: ',(time_end-time_start)*1000
-   if (read_error > 0) then
-    err_janus=read_error*10
-    return
+!   ASCII
+    if(.not.allocated(EyeSys%RA)) then
+     call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
+    else
+     EyeSys = 0
+     call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
+    endif
+    inquire(file=trim(inputfile3), exist=exists)
+    if(.NOT.exists) then
+     call RCNVRTN(read_error,inputfile2,inputfile1)
+    else
+     inquire(file=trim(inputfile4), exist=exists)
+     if(.NOT.exists) then
+      call RCNVRTN(read_error,inputfile2,inputfile1,inputfile3)
+     else
+      call RCNVRTN(read_error,inputfile2,inputfile1,inputfile3,inputfile4)
+     endif
+!    pupil conversion if any
+     JMatrix%Pupil_Center=EyeSys%Pupil_Center*50.
+     do i=1,MM/2
+      JMatrix%PU(i)=(EyeSys%PU(2*i-1)+EyeSys%PU(2*i))*50.
+     end do
+    endif
+   else
+    if (N .ne. 39) then
+     write(*,*) 'Mires set to ', N
+     EyeSys = 0
+     call init_mat_EyeSys(MM,N,EyeSys) ! reallocate the EyeSys matrices
+     call RCNVRTN_binary(read_error,N,inputfile2,inputfile1)
+    endif
    endif
   endif  !(mod(flag,100) = 0
+  call CPU_TIME(time_end)
+  write(*,*) 'Time to read Nidek files: ',(time_end-time_start)*1000
+  if (read_error .ne. 0 .and. read_error .ne. 1 ) then
+   err_janus=read_error*10
+   return
+  endif
   ! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
   if (allocated(RadSlope%r)) then
    RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
@@ -950,8 +960,7 @@ if (TestData .eq. 6) then
   endif
 ! Generate the slope matrix using ZFCT
   RadSlope=EyeSys
-endif
-
+ endif
 
 ! READ THE ATLAS DATA
 if (TestData .eq. 1) then
@@ -970,6 +979,7 @@ if (TestData .eq. 1) then
    if (io > 0) then
     write (*,*) 'system command to sed failed'
     write (*,*) 'Consider using your text editor to search/replace all semicolons with commas in',inputfile1
+    write (*,*) 'sed also fails on pathnames with spaces'
     err_janus=11
     return
    else
