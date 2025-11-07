@@ -445,7 +445,7 @@ end subroutine PolarTranslate
 !! string/character functions
 !!https://stackoverflow.com/questions/58938347/how-do-i-replace-a-character-in-the-string-with-another-charater-in-fortran
 
-pure recursive function replaceStr(string,search,substitute) result(modifiedString)
+pure recursive function replacestr(string,search,substitute) result(modifiedString)
         implicit none
         character(len=*), intent(in)  :: string, search, substitute
         character(len=:), allocatable :: modifiedString
@@ -462,7 +462,7 @@ pure recursive function replaceStr(string,search,substitute) result(modifiedStri
         i = 1
         do
             if (string(i:i+searchLen-1)==search) then
-                modifiedString = string(1:i-1) // substitute // replaceStr(string(i+searchLen:stringLen),search,substitute)
+                modifiedString = string(1:i-1) // substitute // replacestr(string(i+searchLen:stringLen),search,substitute)
                 exit
             end if
             if (i+searchLen>stringLen) then
@@ -472,7 +472,7 @@ pure recursive function replaceStr(string,search,substitute) result(modifiedStri
             i = i + 1
             cycle
         end do
-    end function replaceStr
+    end function replacestr
 
 !! epsilon & factorial functions
 ! needed for zernike functions

@@ -32,7 +32,7 @@
   real(c_float), INTENT(INOUT) :: zern(*)
   real(c_float) :: dist
   character(len=4096) :: new_path
-  character(:),save, ALLOCATABLE :: inputfile1,inputfile2,inputfile3,inputfile4,BigPlot,gnu_instruct
+  character(:),save, ALLOCATABLE :: inputfile1,inputfile2,inputfile3,inputfile4,BigPlot,gnu_instruct,cab_inputfile1,cab_inputfile2,cab_inputfile3,cab_inputfile4
   character(:),save, ALLOCATABLE :: logfile
   integer ::  nblines, file_idx,read_error,io
   integer,allocatable :: MV(:)
@@ -124,6 +124,11 @@ if (mod(flag,100) == 99) then
      deallocate(inputfile1)
      deallocate(inputfile2)
      deallocate(logfile)
+    endif
+    if (allocated(cab_inputfile1)) then
+     deallocate(cab_inputfile1)
+     deallocate(cab_inputfile2)
+     deallocate(cab_inputfile3)
     endif
     if (allocated(MV)) then
      deallocate(MV)
@@ -727,7 +732,7 @@ if (mod(flag,100) == 0) then
          inputfile1=replacestr(string=inputfile2,search="RA",substitute="ED")
          inquire(file=trim(inputfile1), exist=exists)
          if(.NOT.exists) then
-          write(*,*) 'Error: EyeSys and Nidek files have to be in pairs, or file name has RA other than prefix'
+          write(*,*) 'Error: EyeSys and Nidek files have to be in pairs RA/XX or RA/ED, or file name has RA other than prefix'
           write(*,*) 'No corresponding',inputfile1,'for',inputfile2,'found'
           err_janus=-1
           return
@@ -739,6 +744,10 @@ if (mod(flag,100) == 0) then
           inquire(file=trim(inputfile3), exist=exists)
           if(exists) then
            write(*,*) "Matching Nidek HT file found"
+          endif
+          inquire(file=trim(inputfile4), exist=exists)
+          if(exists) then
+           write(*,*) "Matching Nidek PE file found ",inputfile4
           endif
          endif
         else
@@ -759,7 +768,6 @@ if (mod(flag,100) == 0) then
           write(*,*) "Matching EyeSys PU file found"
          endif
         endif
-
         inquire(file=trim(inputfile1), exist=exists)
         if(.NOT.exists) then
          inputfile1=replacestr(string=inputfile2,search="/RA",substitute="/XX")
@@ -829,8 +837,6 @@ if (mod(flag,100) == 0) then
         endif
        endif
       endif
-
-
      inquire(file=trim(inputfile3), exist=exists)
      if(.NOT.exists) then
       write(*,*) "EyeSys/Nidek files: ",inputfile1," ",inputfile2
@@ -901,7 +907,57 @@ if (TestData .eq. 6) then
     EyeSys = 0
     call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
    endif
-   call RCNVRTN_binary(read_error,N,inputfile2,inputfile1)
+!  test for compressed cabinet files
+   file_idx=index(inputfile1, ".CAB")
+   if ( file_idx .ne. 0 )  then
+    allocate(character(nblines) :: cab_inputfile1)
+    allocate(character(nblines) :: cab_inputfile2)
+    allocate(character(nblines) :: cab_inputfile3)
+    allocate(character(nblines) :: cab_inputfile4)
+    cab_inputfile1=replacestr(string=inputfile1,search=".CAB",substitute=".DAT")
+    call system('cabextract ' // inputfile1, io)
+    if (io == 0) then
+     inputfile1 = cab_inputfile1
+    else
+     write(*,*) 'Error opening cabinet file',inputfile1
+    endif
+    cab_inputfile2=replacestr(string=inputfile2,search=".CAB",substitute=".DAT")
+    call system('cabextract ' // inputfile2, io)
+    if (io == 0) then
+     inputfile2 = cab_inputfile2
+    else
+     write(*,*) 'Error opening cabinet file',inputfile2
+    endif
+    inquire(file=trim(inputfile4), exist=exists)
+    if (exists) then
+     cab_inputfile4=replacestr(string=inputfile4,search=".CAB",substitute=".DAT")
+     call system('cabextract ' // inputfile4, io)
+     if (io == 0) then
+      inputfile4 = cab_inputfile4
+     else
+      write(*,*) 'Error opening cabinet file',inputfile4
+     endif
+    endif
+   endif
+
+write(*,*) inputfile1
+write(*,*) inputfile2
+write(*,*) inputfile4
+
+
+
+   inquire(file=trim(inputfile4), exist=exists)
+   if(.NOT.exists) then
+    call RCNVRTN_binary(read_error,N,inputfile2,inputfile1)
+   else
+    call RCNVRTN_binary(read_error,N,inputfile2,inputfile1,inputfile4)
+   endif
+
+write(*,*) 'here',read_error
+if (read_error .eq. -1000) stop
+
+
+
    if (read_error == 0) then  ! ASCII
     EyeSys = 0 ! deallocate, then reallocate after charcount
  !  Only use on ASCII, might crash/give incorrect result on binary NIDEK
@@ -930,20 +986,25 @@ if (TestData .eq. 6) then
      else
       call RCNVRTN(read_error,inputfile2,inputfile1,inputfile3,inputfile4)
      endif
-!    pupil conversion if any
-     JMatrix%Pupil_Center=EyeSys%Pupil_Center*50.
-     do i=1,MM/2
-      JMatrix%PU(i)=(EyeSys%PU(2*i-1)+EyeSys%PU(2*i))*50.
-     end do
     endif
    else
     if (N .ne. 39) then
      write(*,*) 'Mires set to ', N
      EyeSys = 0
      call init_mat_EyeSys(MM,N,EyeSys) ! reallocate the EyeSys matrices
-     call RCNVRTN_binary(read_error,N,inputfile2,inputfile1)
+     inquire(file=trim(inputfile4), exist=exists)
+     if(.NOT.exists) then
+      call RCNVRTN_binary(read_error,N,inputfile2,inputfile1)
+     else
+      call RCNVRTN_binary(read_error,N,inputfile2,inputfile1,inputfile4)
+     endif
     endif
    endif
+!  pupil conversion if any
+   JMatrix%Pupil_Center=EyeSys%Pupil_Center*50.
+   do i=1,MM/2
+    JMatrix%PU(i)=(EyeSys%PU(2*i-1)+EyeSys%PU(2*i))*50.
+   end do
   endif  !(mod(flag,100) = 0
   call CPU_TIME(time_end)
   write(*,*) 'Time to read Nidek files: ',(time_end-time_start)*1000
@@ -965,7 +1026,7 @@ if (TestData .eq. 6) then
 ! READ THE ATLAS DATA
 if (TestData .eq. 1) then
  MM=180
- if (mod(flag,100) == 0) then !read the files
+ if (mod(flag,100) == 0) then  !read the files
   read_error=0
   call CPU_TIME(time_start)
  ! determine the type, prior to allocating Atlas

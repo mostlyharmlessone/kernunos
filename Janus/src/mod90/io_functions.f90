@@ -80,9 +80,10 @@ module io_functions
      integer, intent(out) :: read_error
     end subroutine
 
-    subroutine rcnvrtn_binary(read_error,mirecount,EDNAME,RANAME)
+    subroutine rcnvrtn_binary(read_error,mirecount,EDNAME,RANAME,PENAME)
      USE set_precision, ONLY : wp
      character(len=*), intent(in) :: RANAME,EDNAME
+     character(len=*), intent(in), optional :: PENAME
      integer, intent(out) :: read_error
      integer, intent(out) :: mirecount
     end subroutine
@@ -717,7 +718,7 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
    endif
 end subroutine rcnvrtn
 
-subroutine rcnvrtn_binary(read_error,mirecount,RANAME,EDNAME)
+subroutine rcnvrtn_binary(read_error,mirecount,RANAME,EDNAME,PENAME)
 ! NIDEK VERSION, binary, experimental, assumes peculiar packed BCD scheme for data
 ! These all have an ASCII header with the file name including the location in the directory tree
 ! detects binary
@@ -733,16 +734,18 @@ use c_interfaces, ONLY : charcount
 USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_null_char
 implicit none
 character(len=*), intent(in) :: RANAME,EDNAME
+character(len=*), intent(in), optional :: PENAME
 integer, intent(out) :: read_error
 integer, intent(out) :: mirecount
 character(1000) header,header2
 character :: ch, ych
+character(len=100) :: ioerrmsg
 character(:), allocatable :: x, y
-integer :: file_idx1,file_idx2,file_idx3,file_idx4,io
-logical :: exists
+integer :: file_idx1,file_idx2,file_idx3,file_idx4,io,posmax
+logical :: exists, negative
 INTEGER :: I,J,ITH,unitno1,unitno2,unitno3,unitno4,MM,N,ierr,pos
-REAL :: ZX(39),YX(39) ! should be maximum needed for mires
-integer line(145),line2(145),ix,iy
+REAL (wp) :: ZX(39),YX(39) ! should be maximum needed for mires
+integer line(200),line2(200),ix,iy
  x = "" ;   y = ""
  read_error = 0
 ! check that files exist and have a Nidek style header
@@ -825,7 +828,7 @@ integer line(145),line2(145),ix,iy
   END DO
   x = ""
 ! READ the data
-   POS=0 ; i=0 ; j=0 ; mirecount = 0
+   POS=0 ; i=0 ; j=0 ; mirecount = 0 ; posmax = 0
    DO
     READ(unitno1,iostat=ierr) ch
     POS=POS+1
@@ -840,7 +843,7 @@ integer line(145),line2(145),ix,iy
        i = 1
       ix = 1
       do while (i .lt. len(trim(x)))
-  !  Assumes "2C2222" is the baseline for zero for all Multibyte codes, converts ASCII to hex subtract and leave as decimal digit
+  !  Assumes "2C2222" is the baseline for zero for all PackedBCD codes, converts ASCII to hex subtract and leave as decimal digit
        if (iachar(x(i:i)) .lt. 58) zx(ix)= iachar(x(i:i))-50
        if (iachar(x(i:i)) .ge. 65) zx(ix)= iachar(x(i:i))-57
        if (iachar(x(i+2:i+2)) .lt. 58) zx(ix)= zx(ix)+(iachar(x(i+2:i+2))-50)*0.1
@@ -853,6 +856,7 @@ integer line(145),line2(145),ix,iy
        if (iachar(x(i+5:i+5)) .ge. 65) zx(ix)= zx(ix)+(iachar(x(i+5:i+5))-57)*0.0001
        i=i+7
        ix=ix+1
+       posmax=max(posmax,pos-i)
   !  Assumes "D" is the only other code added, could also consider "F"
        if ( x(i:i) == "D") i=i+1
       end do
@@ -867,6 +871,13 @@ integer line(145),line2(145),ix,iy
      write(*,*) j,'radials'
      mirecount = mirecount -1
      write(*,*) mirecount, ' mires counted'
+     write(*,*) posmax, ' maximum data places per line'
+     if (j .ne. 360) then
+      read_error = -1000
+      write(*,*) 'FATAL Error reading NIDEK binary', EDNAME
+      close(unitno1)
+      exit
+     endif
      exit
     endif
    end do
@@ -894,7 +905,7 @@ integer line(145),line2(145),ix,iy
   END DO
   y = ""
 ! READ the data
-   POS=0 ; ith=0 ; j=0
+   POS=0 ; ith=0 ; j=0 ; posmax = 0
    DO
     READ(unitno2,iostat=ierr) ych
     POS=POS+1
@@ -909,7 +920,7 @@ integer line(145),line2(145),ix,iy
       ith = 1
       iy = 1
       do while (ith .lt. len(trim(y)))
- !   Assumes "2C2222" is the baseline for zero for all Multibyte codes, converts ASCII to hex subtract and leave as decimal digit
+ !   Assumes "2C2222" is the baseline for zero for all PackedBCD codes, converts ASCII to hex subtract and leave as decimal digit
        if (iachar(y(ith:ith)) .lt. 58) yx(iy)= iachar(y(ith:ith))-50
        if (iachar(y(ith:ith)) .ge. 65) yx(iy)= iachar(y(ith:ith))-57
        if (iachar(y(ith+2:ith+2)) .lt. 58) yx(iy)= yx(iy)+(iachar(y(ith+2:ith+2))-50)*0.1
@@ -922,6 +933,7 @@ integer line(145),line2(145),ix,iy
        if (iachar(y(ith+5:ith+5)) .ge. 65) yx(iy)= yx(iy)+(iachar(y(ith+5:ith+5))-57)*0.0001
        ith=ith+7
        iy=iy+1
+       posmax=max(posmax,pos-i)
  !  Assumes "D" is the only other code added, could also consider "F"
        if ( y(ith:ith) == "D") ith=ith+1
       end do
@@ -938,10 +950,118 @@ integer line(145),line2(145),ix,iy
      mirecount = mirecount -1
      write(*,*) mirecount, ' mires counted'
      N = mirecount
+     write(*,*) posmax, ' maximum data places per line'
      exit
     endif
    end do
   close(unitno2)
+ endif
+ ! Pupil data from PE
+ ! Check that I read Non-ASCII above
+ if (read_error == 1) then
+  inquire(file=trim(PENAME), exist=exists)
+  if (exists) then
+   unitno3 = get_new_fileunit()
+   open(unitno3, file=trim(PENAME), status='old', ACCESS='stream', iostat=ierr)
+ ! READ the header
+   ych = ' ' ;  y = join(c(ych,y))
+
+   DO  WHILE (ierr == 0)
+    READ(unitno3,iostat=ierr,iomsg=ioerrmsg) ych
+    if (ierr == 0 ) then
+     if (iachar(ych) .ne. 10) then  !  0D 0A ends each line
+      y = join(c(y,ych))
+     else
+ !   found the 0D
+      write(*,*) 'Binary header ', y
+      exit
+     endif
+    else
+ !  EOF or other read error
+     write (*,*) ioerrmsg
+     exit
+    endif
+   END DO
+   y = ""
+ ! READ the data
+    POS=1 ; ith=0 ; j=0 ; posmax = 0
+    DO
+     READ(unitno3,iostat=ierr) ych
+     POS=POS+1
+     if (ierr == 0 ) then
+      write(header2,'(z0)') ych
+      y = join(c(y,trim(header2)))
+      line2(pos-ith)=iachar(ych)
+      if (pos-ith-1 .ge. 1) then
+       if (line2(pos-ith) .eq. 10 .and. line2(pos-ith-1) .eq. 13) then  !  0D 0A ends each line
+   ! here's the 24 bit packed BCD section, slightly different for PENAME
+        j = j+1
+        iy = 1
+!       One positive float
+        if (len(trim(y)) .eq. 8) then
+           ith = 1 ; iy = j-1
+!   Assumes "2C2222" is the baseline for zero for all PackedBCD codes, converts ASCII to hex subtract and leave as decimal digit
+           if (iachar(y(ith:ith)) .lt. 58) EyeSys%PU(iy)= iachar(y(ith:ith))-50
+           if (iachar(y(ith:ith)) .ge. 65) EyeSys%PU(iy)= iachar(y(ith:ith))-57
+           if (iachar(y(ith+2:ith+2)) .lt. 58) EyeSys%PU(iy)= EyeSys%PU(iy)+(iachar(y(ith+2:ith+2))-50)*0.1
+           if (iachar(y(ith+2:ith+2)) .ge. 65) EyeSys%PU(iy)= EyeSys%PU(iy)+(iachar(y(ith+2:ith+2))-57)*0.1
+           if (iachar(y(ith+3:ith+3)) .lt. 58) EyeSys%PU(iy)= EyeSys%PU(iy)+(iachar(y(ith+3:ith+3))-50)*0.01
+           if (iachar(y(ith+3:ith+3)) .ge. 65) EyeSys%PU(iy)= EyeSys%PU(iy)+(iachar(y(ith+3:ith+3))-57)*0.01
+           if (iachar(y(ith+4:ith+4)) .lt. 58) EyeSys%PU(iy)= EyeSys%PU(iy)+(iachar(y(ith+4:ith+4))-50)*0.001
+           if (iachar(y(ith+4:ith+4)) .ge. 65) EyeSys%PU(iy)= EyeSys%PU(iy)+(iachar(y(ith+4:ith+4))-57)*0.001
+           if (iachar(y(ith+5:ith+5)) .lt. 58) EyeSys%PU(iy)= EyeSys%PU(iy)+(iachar(y(ith+5:ith+5))-50)*0.0001
+           if (iachar(y(ith+5:ith+5)) .ge. 65) EyeSys%PU(iy)= EyeSys%PU(iy)+(iachar(y(ith+5:ith+5))-57)*0.0001
+           EyeSys%PU(iy)=1.0*EyeSys%PU(iy)
+        else
+!        Two signed floats
+          if (len(trim(y)) .ne. 16) write(*,*) 'Error in reading: ', PENAME
+!        first float
+         if ( y(1:1) == "D" .or. y(1:1) == "B") then   ! sign prefix
+          negative = .true.
+          ith = 2
+         else
+          negative = .false.
+          ith = 1
+          endif
+! put first two floats in EyeSys%Pupil_Center
+          do iy=1,2
+!   Assumes "2C2222" is the baseline for zero for all PackedBCD codes, converts ASCII to hex subtract and leave as decimal digit
+           if (iachar(y(ith:ith)) .lt. 58) EyeSys%Pupil_Center(iy)= iachar(y(ith:ith))-50
+           if (iachar(y(ith:ith)) .ge. 65) EyeSys%Pupil_Center(iy)= iachar(y(ith:ith))-57
+           if (iachar(y(ith+2:ith+2)) .lt. 58) EyeSys%Pupil_Center(iy)= EyeSys%Pupil_Center(iy)+(iachar(y(ith+2:ith+2))-50)*0.1
+           if (iachar(y(ith+2:ith+2)) .ge. 65) EyeSys%Pupil_Center(iy)= EyeSys%Pupil_Center(iy)+(iachar(y(ith+2:ith+2))-57)*0.1
+           if (iachar(y(ith+3:ith+3)) .lt. 58) EyeSys%Pupil_Center(iy)= EyeSys%Pupil_Center(iy)+(iachar(y(ith+3:ith+3))-50)*0.01
+           if (iachar(y(ith+3:ith+3)) .ge. 65) EyeSys%Pupil_Center(iy)= EyeSys%Pupil_Center(iy)+(iachar(y(ith+3:ith+3))-57)*0.01
+           if (iachar(y(ith+4:ith+4)) .lt. 58) EyeSys%Pupil_Center(iy)= EyeSys%Pupil_Center(iy)+(iachar(y(ith+4:ith+4))-50)*0.001
+           if (iachar(y(ith+4:ith+4)) .ge. 65) EyeSys%Pupil_Center(iy)= EyeSys%Pupil_Center(iy)+(iachar(y(ith+4:ith+4))-57)*0.001
+           if (iachar(y(ith+5:ith+5)) .lt. 58) EyeSys%Pupil_Center(iy)= EyeSys%Pupil_Center(iy)+(iachar(y(ith+5:ith+5))-50)*0.0001
+           if (iachar(y(ith+5:ith+5)) .ge. 65) EyeSys%Pupil_Center(iy)= EyeSys%Pupil_Center(iy)+(iachar(y(ith+5:ith+5))-57)*0.0001
+           if ( negative ) then
+            EyeSys%Pupil_Center(iy) = -1.0 * EyeSys%Pupil_Center(iy)
+           else
+            EyeSys%Pupil_Center(iy) =  1.0 * EyeSys%Pupil_Center(iy)
+           endif
+           ith = ith + 7
+           if ( y(ith-1:ith-1) == "D" .or. y(ith-1:ith-1) == "B") then
+            negative = .true.
+           else
+            negative = .false.
+           endif
+          end do
+         endif
+         posmax=max(posmax,pos-i)
+       y = ""
+       ith=1 ; pos=1
+      endif
+      endif
+     else
+   !  EOF or other read error
+      write(*,*) posmax, ' maximum data places per line'
+      exit
+     endif
+    end do
+   close(unitno3)
+  endif
  endif
  do i=1,MM
   do J=1,N

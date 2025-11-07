@@ -2,15 +2,7 @@ things to do
 
 CorneaCopia
 
-Nidek binary: tried insane packed BCD calculation
-uniform curvature test displays with LSQFT but errors with singular matrix, crashes with spline/dctsv less gracefully
-
-ascii version fails too
- ED Nidek header detected: C:\RK-3\Data\PA000001\ED0000010009R.DAT;
- RA Nidek header detected: C:\RK-3\Data\PA000001\RA0000010009R.DAT;
- Remove the semicolons with sed because Fortran hates them
- system command to sed failed
-
+system call to cabextract to support *.CAB ?
 
 TopCon CA-800 in SA -> all binary
 
