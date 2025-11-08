@@ -914,15 +914,30 @@ if (TestData .eq. 6) then
     allocate(character(nblines) :: cab_inputfile2)
     allocate(character(nblines) :: cab_inputfile3)
     allocate(character(nblines) :: cab_inputfile4)
-    cab_inputfile1=replacestr(string=inputfile1,search=".CAB",substitute=".DAT")
-    call system('cabextract ' // inputfile1, io)
+
+    cab_inputfile1=inputfile1
+    cab_inputfile2=inputfile2
+    cab_inputfile3=inputfile3
+    cab_inputfile4=inputfile4
+
+    inputfile1=replacestr(string=inputfile1,search=".CAB",substitute=".DAT")
+    file_idx=index(inputfile1, "/RA")
+    inputfile1=inputfile1(file_idx:len(inputfile1)
+
+    call execute_command_line ('cabextract ' // cab_inputfile1, exitstat=io)
     if (io == 0) then
-     inputfile1 = cab_inputfile1
+
+
+
+!needs language to make get local file made by cab_extract as the file to open
+! also need to remember that I used CAB files to cleanup these temp local *.dat files
+
+
     else
      write(*,*) 'Error opening cabinet file',inputfile1
     endif
     cab_inputfile2=replacestr(string=inputfile2,search=".CAB",substitute=".DAT")
-    call system('cabextract ' // inputfile2, io)
+    call execute_command_line ('cabextract ' // inputfile2, exitstat=io)
     if (io == 0) then
      inputfile2 = cab_inputfile2
     else
@@ -931,7 +946,7 @@ if (TestData .eq. 6) then
     inquire(file=trim(inputfile4), exist=exists)
     if (exists) then
      cab_inputfile4=replacestr(string=inputfile4,search=".CAB",substitute=".DAT")
-     call system('cabextract ' // inputfile4, io)
+     call execute_command_line ('cabextract ' // inputfile4, exitstat=io)
      if (io == 0) then
       inputfile4 = cab_inputfile4
      else
@@ -939,19 +954,13 @@ if (TestData .eq. 6) then
      endif
     endif
    endif
-
-write(*,*) inputfile1
-write(*,*) inputfile2
-write(*,*) inputfile4
-
-
-
    inquire(file=trim(inputfile4), exist=exists)
    if(.NOT.exists) then
     call RCNVRTN_binary(read_error,N,inputfile2,inputfile1)
    else
     call RCNVRTN_binary(read_error,N,inputfile2,inputfile1,inputfile4)
    endif
+
 
 write(*,*) 'here',read_error
 if (read_error .eq. -1000) stop
@@ -1036,7 +1045,7 @@ if (TestData .eq. 1) then
    write(*,*) 'Possible semicolon delimited Atlas file, try sed'
    inputfile2=replacestr(string=inputfile1,search=".CSV",substitute=".TMP")
 !   write(*,*) 'sed "s/;/,/g" ' // inputfile1 // ' > ' // inputfile2
-   call system('sed "s/;/,/g" ' // inputfile1 // ' > ' // inputfile2, io)
+   call execute_command_line ('sed "s/;/,/g" ' // inputfile1 // ' > ' // inputfile2, exitstat=io)
    if (io > 0) then
     write (*,*) 'system command to sed failed'
     write (*,*) 'Consider using your text editor to search/replace all semicolons with commas in',inputfile1
@@ -1049,7 +1058,7 @@ if (TestData .eq. 1) then
      write (*,*) 'temp Atlas file read error, probably not because semicolon delimited'
      file_idx=index(inputfile2, ".TMP")
      if (file_idx .ne. 0) then
-      call system('rm ' // inputfile2, io)
+      call execute_command_line ('rm ' // inputfile2, exitstat=io)
       if (io > 0) write (*,*) 'system command to remove tmp file failed'
      endif
      err_janus=read_error*100
@@ -1069,7 +1078,7 @@ if (TestData .eq. 1) then
   err_janus=read_error*100
   file_idx=index(inputfile2, ".TMP")
   if (file_idx .ne. 0) then
-   call system('rm ' // inputfile2, io)
+   call execute_command_line ('rm ' // inputfile2, exitstat=io)
    if (io > 0) write (*,*) 'system command to remove tmp file failed'
   endif
   call CPU_TIME(time_end)

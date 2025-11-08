@@ -474,8 +474,8 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
       semicolon1 = trim(EDNAME)
       write(*,*) 'Remove the semicolons with sed because Fortran hates them'
       semicolon1=replacestr(string=semicolon1,search=".DAT",substitute=".TMP")
-    !  write(*,*) 'sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1
-      call system('sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1, io)
+!      write(*,*) 'sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1
+      call execute_command_line ('sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1, exitstat=io)
       if (io > 0) then
        write (*,*) 'system command to sed failed'
        write (*,*) 'Consider using your text editor to search/replace all semicolons in data statements in',EDNAME
@@ -485,11 +485,11 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
       endif
       semicolon2 = trim(RANAME)
       semicolon2=replacestr(string=RANAME,search=".DAT",substitute=".TMP")
-    !  write(*,*) 'sed "s/;/ /g" ' // RANAME // ' > ' // semicolon2
-      call system('sed "s/;/ /g" ' // RANAME // ' > ' // semicolon2, io)
+!      write(*,*) 'sed "s/;/ /g" ' // RANAME // ' > ' // semicolon2
+      call execute_command_line ('sed "s/;/ /g" ' // RANAME // ' > ' // semicolon2, exitstat=io)
       if (io > 0) then
        write (*,*) 'system command to sed failed'
-       write (*,*) 'Consider using your text editor to search/replace all semicolons in data statements in',RANAME
+       write (*,*) 'Consider using your text editor to search/replace all semicolons in data statements in',EDNAME
        write (*,*) 'sed also fails on pathnames with spaces'
        read_error=11
        return
@@ -553,7 +553,7 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
       file_idx1=index(semicolon1, ".TMP")
       write(*,*) 'Erasing semicolonless tmp file',semicolon1,file_idx1
       if (file_idx1 .ne. 0) then
-       call system('rm ' // semicolon1, io)
+       call execute_command_line ('rm ' // semicolon1, exitstat=io)
        if (io > 0) then
         write (*,*) 'failed system command to remove tmp file',semicolon1
         read_error=12
@@ -564,7 +564,7 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
       file_idx2=index(semicolon2, ".TMP")
       write(*,*) 'Erasing semicolonless tmp file',semicolon2,file_idx1
       if (file_idx2 .ne. 0) then
-       call system('rm ' // semicolon2, io)
+       call execute_command_line ('rm ' // semicolon2, exitstat=io)
        if (io > 0) then
         write (*,*) 'failed system command to remove tmp file',semicolon2
         read_error=12
@@ -590,11 +590,11 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
          endif
          semicolon2 = HTNAME
          semicolon2=replacestr(string=HTNAME,search=".DAT",substitute=".TMP")
-       !  write(*,*) 'sed "s/;/ /g" ' // HTNAME // ' > ' // semicolon2
-         call system('sed "s/;/ /g" ' // HTNAME // ' > ' // semicolon2, io)
+!         write(*,*) 'sed "s/;/ /g" ' // HTNAME // ' > ' // semicolon2
+         call execute_command_line ('sed "s/;/ /g" ' // HTNAME // ' > ' // semicolon2, exitstat=io)
          if (io > 0) then
           write (*,*) 'system command to sed failed'
-          write (*,*) 'Consider using your text editor to search/replace all semicolons in data statements in',RANAME
+          write (*,*) 'Consider using your text editor to search/replace all semicolons in data statements in',HTNAME
           write (*,*) 'sed also fails on pathnames with spaces'
           read_error=11
           if (allocated(ZX)) deallocate(ZX,YX)
@@ -622,7 +622,7 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
         file_idx2=index(semicolon2, ".TMP")
         write(*,*) 'Erasing semicolonless tmp file',semicolon2,file_idx1
         if (file_idx2 .ne. 0) then
-         call system('rm ' // semicolon2, io)
+         call execute_command_line ('rm ' // semicolon2, exitstat=io)
          if (io > 0) then
           write (*,*) 'failed system command to remove tmp file',semicolon2
           read_error=12
@@ -651,8 +651,8 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
          close(unitno3)
          semicolon2 = PENAME
          semicolon2=replacestr(string=PENAME,search=".DAT",substitute=".TMP")
-       !  write(*,*) 'sed "s/;/ /g" ' // PENAME // ' > ' // semicolon2
-         call system('sed "s/;/ /g" ' // PENAME // ' > ' // semicolon2, io)
+!         write(*,*) 'sed "s/;/ /g" ' // PENAME // ' > ' // semicolon2
+         call execute_command_line ('sed "s/;/ /g" ' // PENAME // ' > ' // semicolon2, exitstat=io)
          if (io > 0) then
           write (*,*) 'system command to sed failed'
           write (*,*) 'Consider using your text editor to search/replace all semicolons in data statements in',RANAME
@@ -681,7 +681,7 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
          file_idx2=index(semicolon2, ".TMP")
          write(*,*) 'Erasing semicolonless tmp file',semicolon2,file_idx1
          if (file_idx2 .ne. 0) then
-          call system('rm ' // semicolon2, io)
+          call execute_command_line ('rm ' // semicolon2, exitstat=io)
           if (io > 0) then
            write (*,*) 'failed system command to remove tmp file',semicolon2
            if(allocated(ZX)) deallocate(ZX,YX)
