@@ -911,46 +911,42 @@ if (TestData .eq. 6) then
    file_idx=index(inputfile1, ".CAB")
    if ( file_idx .ne. 0 )  then
     allocate(character(nblines) :: cab_inputfile1)
-    allocate(character(nblines) :: cab_inputfile2)
-    allocate(character(nblines) :: cab_inputfile3)
-    allocate(character(nblines) :: cab_inputfile4)
-
     cab_inputfile1=inputfile1
-    cab_inputfile2=inputfile2
-    cab_inputfile3=inputfile3
-    cab_inputfile4=inputfile4
-
-    inputfile1=replacestr(string=inputfile1,search=".CAB",substitute=".DAT")
-    file_idx=index(inputfile1, "/RA")
-    inputfile1=inputfile1(file_idx:len(inputfile1)
-
     call execute_command_line ('cabextract ' // cab_inputfile1, exitstat=io)
     if (io == 0) then
-
-
-
-!needs language to make get local file made by cab_extract as the file to open
-! also need to remember that I used CAB files to cleanup these temp local *.dat files
-
-
+     inputfile1=replacestr(string=inputfile1,search=".CAB",substitute=".DAT")
+     file_idx=1+index(inputfile1, "/ED")
+     inputfile1=inputfile1(file_idx:len(inputfile1))
     else
      write(*,*) 'Error opening cabinet file',inputfile1
+     deallocate(cab_inputfile1)
+     return
     endif
-    cab_inputfile2=replacestr(string=inputfile2,search=".CAB",substitute=".DAT")
-    call execute_command_line ('cabextract ' // inputfile2, exitstat=io)
+    allocate(character(nblines) :: cab_inputfile2)
+    cab_inputfile2=inputfile2
+    call execute_command_line ('cabextract ' // cab_inputfile2, exitstat=io)
     if (io == 0) then
-     inputfile2 = cab_inputfile2
+     inputfile2=replacestr(string=inputfile2,search=".CAB",substitute=".DAT")
+     file_idx=1+index(inputfile2, "/RA")
+     inputfile2=inputfile2(file_idx:len(inputfile2))
     else
      write(*,*) 'Error opening cabinet file',inputfile2
+     deallocate(cab_inputfile2)
+     return
     endif
     inquire(file=trim(inputfile4), exist=exists)
     if (exists) then
-     cab_inputfile4=replacestr(string=inputfile4,search=".CAB",substitute=".DAT")
-     call execute_command_line ('cabextract ' // inputfile4, exitstat=io)
+     allocate(character(nblines) :: cab_inputfile4)
+     cab_inputfile4=inputfile4
+     call execute_command_line ('cabextract ' // cab_inputfile4, exitstat=io)
      if (io == 0) then
-      inputfile4 = cab_inputfile4
+      inputfile4=replacestr(string=inputfile4,search=".CAB",substitute=".DAT")
+      file_idx=1+index(inputfile4, "/PE")
+      inputfile4=inputfile4(file_idx:len(inputfile4))
      else
       write(*,*) 'Error opening cabinet file',inputfile4
+      deallocate(cab_inputfile4)
+      return
      endif
     endif
    endif
@@ -960,13 +956,7 @@ if (TestData .eq. 6) then
    else
     call RCNVRTN_binary(read_error,N,inputfile2,inputfile1,inputfile4)
    endif
-
-
-write(*,*) 'here',read_error
-if (read_error .eq. -1000) stop
-
-
-
+   if (read_error .eq. -1000) stop
    if (read_error == 0) then  ! ASCII
     EyeSys = 0 ! deallocate, then reallocate after charcount
  !  Only use on ASCII, might crash/give incorrect result on binary NIDEK
@@ -1014,6 +1004,30 @@ if (read_error .eq. -1000) stop
    do i=1,MM/2
     JMatrix%PU(i)=(EyeSys%PU(2*i-1)+EyeSys%PU(2*i))*50.
    end do
+   if(allocated(cab_inputfile1)) then
+    call execute_command_line ('rm ' // inputfile1, exitstat=io)
+    if (io > 0) then
+     write (*,*) 'failed system command to remove tmp file',inputfile1
+     read_error=12
+    endif
+    deallocate(cab_inputfile1)
+   endif
+   if(allocated(cab_inputfile2)) then
+    call execute_command_line ('rm ' // inputfile2, exitstat=io)
+    if (io > 0) then
+     write (*,*) 'failed system command to remove tmp file',inputfile2
+     read_error=12
+    endif
+    deallocate(cab_inputfile2)
+   endif
+   if(allocated(cab_inputfile4)) then
+    call execute_command_line ('rm ' // inputfile4, exitstat=io)
+    if (io > 0) then
+     write (*,*) 'failed system command to remove tmp file',inputfile4
+     read_error=12
+    endif
+    deallocate(cab_inputfile4)
+   endif
   endif  !(mod(flag,100) = 0
   call CPU_TIME(time_end)
   write(*,*) 'Time to read Nidek files: ',(time_end-time_start)*1000
