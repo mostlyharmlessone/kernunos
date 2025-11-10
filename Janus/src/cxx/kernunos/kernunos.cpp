@@ -1919,12 +1919,12 @@ void MainWindow::tweaklsqvsspline()
     if (GLwidget::islsqvsspline()) {
         GLwidget::setlsqvsspline(false);
         lsqvssplineAct->setChecked(GLwidget::islsqvsspline());
-        make2dsplineAct->setChecked(GLwidget::is2dspline());
+        makeLSQsplineAct->setChecked(GLwidget::isLSQspline());
     } else {
         GLwidget::set2dspline(false);
         GLwidget::setlsqvsspline(true);
         lsqvssplineAct->setChecked(GLwidget::islsqvsspline());
-        make2dsplineAct->setChecked(GLwidget::is2dspline());
+        makeLSQsplineAct->setChecked(GLwidget::isLSQspline());
     };
     if (GLwidget::isRedraw()) {
         redraw();
@@ -1933,15 +1933,15 @@ void MainWindow::tweaklsqvsspline()
 
 void MainWindow::tweak2dspline()
 {
-    if (GLwidget::is2dspline()) {
+    if (GLwidget::isLSQspline()) {
         GLwidget::set2dspline(false);
         lsqvssplineAct->setChecked(GLwidget::islsqvsspline());
-        make2dsplineAct->setChecked(GLwidget::is2dspline());
+        makeLSQsplineAct->setChecked(GLwidget::isLSQspline());
     } else {
         GLwidget::set2dspline(true);
         GLwidget::setlsqvsspline(false);
         lsqvssplineAct->setChecked(GLwidget::islsqvsspline());
-        make2dsplineAct->setChecked(GLwidget::is2dspline());
+        makeLSQsplineAct->setChecked(GLwidget::isLSQspline());
     };
     if (GLwidget::isRedraw()) {
         redraw();
@@ -2272,9 +2272,9 @@ void MainWindow::createActions()
    connect(lsqvssplineAct, &QAction::triggered, this, &MainWindow::tweaklsqvsspline);
    lsqvssplineAct->setChecked(GLwidget::islsqvsspline());  //check initially because default is true
 
-   make2dsplineAct=new QAction(tr("&Use 2-D LSQ spline instead of 1Dx1D/LSQ"), this);
-   make2dsplineAct->setCheckable(true);
-   connect(make2dsplineAct, &QAction::triggered, this, &MainWindow::tweak2dspline);
+   makeLSQsplineAct=new QAction(tr("&Use a LSQ spline instead of linear spline"), this);
+   makeLSQsplineAct->setCheckable(true);
+   connect(makeLSQsplineAct, &QAction::triggered, this, &MainWindow::tweak2dspline);
 
    axisymmetricAct=new QAction(tr("&Impose Axisymmetry assumption in calculations"), this);
    axisymmetricAct->setCheckable(true);
@@ -2525,7 +2525,7 @@ void MainWindow::createMenus()
    tweaksMenu->addAction(LSQfillinAct);
    tweaksMenu->addAction(SplinefillinAct);
    tweaksMenu->addAction(lsqvssplineAct);
-   tweaksMenu->addAction(make2dsplineAct);
+   tweaksMenu->addAction(makeLSQsplineAct);
    helpMenu = menuBar()->addMenu(tr("&About"));
    helpMenu->addAction(HelpAct);
    helpMenu->addAction(aboutAct);

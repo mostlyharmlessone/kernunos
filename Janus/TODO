@@ -6,13 +6,20 @@ TopCon CA-800 in SA -> all binary
 
 
 lsqspline doesn't fix decentering/multiple zero issues in ELE files, look at decentering again, run some test beds
-
 built framework for decenter; both involve moving elevation data points, either, 
 then resplining on that basis, just like an ELE file, in fact, for an ELE/ELE.CSV file, adjust the data before the first spline
 
-It'd be helpful to have axes/angles for orientation is moving the figure; perhaps a info box or three displaying angles?
+
+
+It'd be helpful to have axes/angles for orientation is moving the figure; perhaps a info box or three displaying angles? In View? with geometry option?
+
+
+
 make 3D option for all functions, with scale Z value max and min
 this will affect Geom,WriteGeomPLY/OFF
+
+
+
 
 make cartesian grid display option; convert polar to grid, display pentacam directly
 
@@ -50,8 +57,6 @@ IMPROVEMENTS
 
 in kernunos menu actions do some key bindings?
 setShortcuts(QKeySequence::UnknownKey);
-
-can't call get_compiler_name from C++; might try C intermediary.... 
 
 QFileDialog messages in kernunos.cpp are in an unnoticeable font at the top of the Window...
 

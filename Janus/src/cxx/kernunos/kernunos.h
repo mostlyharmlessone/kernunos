@@ -281,7 +281,7 @@ private:
     QAction *SplinefillinAct;
     QAction *decenterAct;
     QAction *lsqvssplineAct;
-    QAction *make2dsplineAct;
+    QAction *makeLSQsplineAct;
     QAction *axisymmetricAct;
 
     QMenu *helpMenu;

@@ -7,6 +7,7 @@
   use io_functions
   use spline_interfaces
   use,intrinsic :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
+  use, intrinsic :: iso_fortran_env
   use,intrinsic :: ieee_arithmetic
   use c_interfaces, ONLY : LogC, Ccounter, ConvertPLYtoBIN, charcount
   use omp_lib
@@ -84,7 +85,7 @@ map=mod((flag-mod(flag,100))/100,100)  ! last two digits are tweaks
 ! dat = seventh binary bit 0/1 pupilregister tweak ie btest(dat,6) = .true.
 ! dat = eighth binary bit 0/1 atlas spline consistency check tweak ie btest(dat,7) = .true.
 ! dat = ninth binary bit 0/1 lsq instead of circumferential spline tweak ie btest(dat,8) = .true.
-! dat = tenth binary bit 0/1 2d vs 1d x 1d spline tweak ie btest(dat,9) = .true.
+! dat = tenth binary bit 0/1 lsqspline tweak ie btest(dat,9) = .true.
 ! dat = eleventh binary bit 0/1 axisymmetric tweak ie btest(dat,10) = .true.
 
 ! iflag passing of dat to SplineEval1Dx1D centernode splines, integration of splines and LSQ vs circumferential splining
@@ -1193,10 +1194,13 @@ endif ! end (TestData == 1)
     JMatrix%PU(i)=sqrt(X1*X1+X2*X2)/10.
    end do
    endif
-
 ! arrange the data
   Skyline=Penta
-  lsq = .false.
+  if (btest(dat,9) ) then
+   lsq = .false.
+  else
+   lsq = .true.
+  endif
 ! convert to polar with splining; makes round rings as above with 180x22 - also already has either center value Z0(1) or SAGC0(1)
   ! RadSlope_eq_Skyline puts elevation into JMatrix%Z(j,i) and possibly populates JMatrix%Z(j,i) with crap
   call RadSlope_eq_Skyline(lsq,JMatrix, RadSlope, Skyline, Penta)  !needs Penta for border check populates RadSlope with ZFCT
@@ -1311,23 +1315,23 @@ if (mod(flag,100) .ne. 9 ) then
 
 ! Atlas spline consistency check and computation of elevation by power vs elevation in file
  if ( Testdata .eq. 1 .and. btest(dat,7) ) then
- if (btest(dat, 2)) then
-  if (btest(dat,0)) then
-   iflag=12
+  if (btest(dat, 2)) then
+   if (btest(dat,0)) then
+    iflag=12
+   else
+    iflag=2
+   endif
   else
-   iflag=2
+   if (btest(dat,0)) then
+    iflag=11
+   else
+    iflag=1
+   endif
   endif
- else
-  if (btest(dat,0)) then
-   iflag=11
-  else
-   iflag=1
-  endif
- endif
  ! lsq instead of circumferential spline do not want to do for spline test
- !if (btest(dat, 8)) then
+ ! if (btest(dat, 8)) then
  ! iflag =iflag+100
- !endif
+ ! endif
   k=0 ; powmax2 = 0 ; powmax =0  ! Use these temporarily
  ! find max elevation from Atlas file
   do i=1,M1
@@ -2148,9 +2152,8 @@ endif
 ! eigenvalues show shape of RadSlope without make_rings but with FillArray 7 elevations
 !  atmp=pca(2,RadSlope)
 !  atmp=pca(3,RadSlope)
-
-!  write(*,*) "Done: janus"
-!  call LogC("Done: janus"//c_null_char)  !has to be C and declared, not cpp
+  write(*,*) trim(compiler_version())
+  call LogC(trim(compiler_version()) // c_null_char)  !has to be C and declared, not cpp
 
   return        
 

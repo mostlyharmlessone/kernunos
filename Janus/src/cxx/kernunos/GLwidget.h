@@ -218,20 +218,20 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
         if(t) {dat |= 1UL << 8;
             m_lsqvsspline = true;
             dat &= ~(1UL << 9);
-            m_2dspline = false;}
+            m_LSQspline = false;}
         else { dat &= ~(1UL << 8);
             m_lsqvsspline = false;}  //set/unset 8th ie. ninth bit
         flag=1000000*dat+(flag%1000000);}
 
-    static bool is2dspline() { return m_2dspline; }
-    static void set2dspline(bool t) { m_2dspline = t;
+    static bool isLSQspline() { return m_LSQspline; }
+    static void set2dspline(bool t) { m_LSQspline = t;
         int dat=(flag-(flag%1000000))/1000000;
         if(t) {dat |= 1UL << 9;
-            m_2dspline = true;
+            m_LSQspline = true;
             dat &= ~(1UL << 8);
             m_lsqvsspline = false;}
         else { dat &= ~(1UL << 9);
-            m_2dspline = false;}  //set/unset 9th ie. tenth bit
+            m_LSQspline = false;}  //set/unset 9th ie. tenth bit
         flag=1000000*dat+(flag%1000000);}
 
     static bool isaxisymmetric() { return m_axisymmetric; }
@@ -570,7 +570,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     static bool m_pupilregister;
     static bool m_consistency;
     static bool m_lsqvsspline;
-    static bool m_2dspline;
+    static bool m_LSQspline;
     static bool m_axisymmetric;
 
     static bool m_Axial;

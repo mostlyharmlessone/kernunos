@@ -891,8 +891,8 @@ subroutine Atlas_LSQfillin(Atlas,b,a)
     endif
    end do
   end do
+! generate lsq fillin values; uses cosines and sines, not splines
   call lsqfit(t,z,M1,M2,c)
-! generate lsq fillin values
   do k=1,M1
 !   changed this to a smoothing routine with relatively low M2 (10), as LSQ is terrible at discontinuities.
 !    if (ABS(b(k,i)) .gt. 0) then ! means it is  =/ 0

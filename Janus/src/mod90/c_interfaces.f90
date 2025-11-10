@@ -53,11 +53,6 @@ USE, INTRINSIC :: iso_c_binding, ONLY : c_char, c_int, c_null_char
  integer(c_int) :: charcount
 end function CharCount
 
-subroutine get_compiler_name(f)
- use, intrinsic :: iso_fortran_env
- character(80), intent(INOUT) :: f
-end subroutine
-
 subroutine Ccounter(inc, iname) BIND(C,name='Ccounter')
 ! used to show progression of calculation and print zernike result when done
 USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_char,c_null_char
