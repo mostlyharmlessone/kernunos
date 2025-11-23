@@ -2272,7 +2272,7 @@ void MainWindow::createActions()
    connect(lsqvssplineAct, &QAction::triggered, this, &MainWindow::tweaklsqvsspline);
    lsqvssplineAct->setChecked(GLwidget::islsqvsspline());  //check initially because default is true
 
-   makeLSQsplineAct=new QAction(tr("&Use a LSQ spline instead of linear spline"), this);
+   makeLSQsplineAct=new QAction(tr("&Use a LSQ spline instead of linear spline for PentaCam conversion"), this);
    makeLSQsplineAct->setCheckable(true);
    connect(makeLSQsplineAct, &QAction::triggered, this, &MainWindow::tweak2dspline);
 

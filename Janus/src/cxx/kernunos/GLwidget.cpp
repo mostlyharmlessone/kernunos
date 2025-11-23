@@ -2,6 +2,7 @@
 #include "kernunos.h"
 #include "qtconcurrentrun.h"
 
+using std::vector;
 
 static const GLchar* vertexSource = R"glsl(
     #version 330 core
@@ -198,8 +199,8 @@ void GLwidget::cleanup()
   if (shaderProgram == nullptr)
             return;
   makeCurrent();
-  glDeleteBuffers(4,vertexbuffers);
-  glDeleteBuffers(4,elementbuffers);
+  glDeleteBuffers(5,vertexbuffers);
+  glDeleteBuffers(5,elementbuffers);
   killTimer(timerID);
   delete shaderProgram;
   shaderProgram = nullptr;
@@ -270,8 +271,8 @@ void GLwidget::initializeGL()
   m_vao.bind();
 
   // Create buffers
-  glGenBuffers(4, vertexbuffers);
-  glGenBuffers(4, elementbuffers);
+  glGenBuffers(5, vertexbuffers);
+  glGenBuffers(5, elementbuffers);
 
   m_parent->SetGLString(sglVer);
   shaderProgram = new QOpenGLShaderProgram;
@@ -363,7 +364,6 @@ void GLwidget::initializeGL()
   shaderGeoProgram->release();
 
   m_vao.release();
-
 }
 
 bool GLwidget::Swap()
@@ -660,7 +660,7 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
       for (int i=0; i< nL; ++i){
           legend2[i]=legend[i];       //
       }
-     }
+     }    
     paintme=true;
   return true;
 }
@@ -709,6 +709,57 @@ bool GLwidget::LoadSurfaceToBuffer(int nV, int nE, GLuint vertexbuffer, GLuint e
                                                           // offset 6 because colors start after 3 positions + 3 normals
 
 //    checkGLError();
+
+    // Unbind buffer
+    glBindBuffer(vertexbuffer,0);
+    glBindBuffer(elementbuffer,0);
+
+    return true;
+}
+
+bool GLwidget::LoadLinesToBuffer(int nV, int nE, GLuint vertexbuffer, GLuint elementbuffer, GLfloat* vertices, GLuint* elements)
+{
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+    GLint data_size_in_bytes = sizeof(GLfloat)*nV;                              // 4-bytes per float x number of vertices
+    glBufferData(GL_ARRAY_BUFFER, data_size_in_bytes, vertices, GL_STATIC_DRAW);
+    GLint size = 0;
+    glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+    if(data_size_in_bytes != size)
+    {
+        glDeleteBuffers(1, &vertexbuffer);
+        std::cout << "Error in vertices buffer: " << data_size_in_bytes << ", " << size << std::endl;
+        return false;
+    }
+    if (!glIsBuffer(vertexbuffer)) return false;
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+    data_size_in_bytes = sizeof(GLuint)*nE;                // 4-bytes per int x number of elements
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, data_size_in_bytes, elements, GL_STATIC_DRAW);
+    size = 0;
+    glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+    if(data_size_in_bytes != size)
+    {
+        glDeleteBuffers(1, &elementbuffer);
+        std::cout << "Error in element buffer: " << data_size_in_bytes << ", " << size << std::endl;
+        return false;
+    }
+    if (!glIsBuffer(elementbuffer)) return false;
+
+    // positions, colors and normals all stored as floats: 9 * sizeof(GLfloat) = 3 x 3 floats
+    // vertex position
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), nullptr);
+    // offset 0, 9 floats = 3 positions + 3 normals+ 3 colors per vertex
+    // vertex normals
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), reinterpret_cast<void *>(3 * sizeof(GLfloat)));
+    // offset 3 because normals start after 3 positions.
+    // color attribute
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), reinterpret_cast<void *>(6 * sizeof(GLfloat)));
+    // offset 6 because colors start after 3 positions + 3 normals
+
+    //    checkGLError();
 
     // Unbind buffer
     glBindBuffer(vertexbuffer,0);
@@ -771,6 +822,7 @@ void GLwidget::paintGL(void)
         mMVP.translate(QVector3D(1200,0,-position));
         m_alpha = QVector4D(0,0,0,1.0);
     }
+/*
     if (i == 4 && m_pupilshow) {
         if(!LoadSurfaceToBuffer(pupil_nV, pupil_nE, vertexbuffers[i-4], elementbuffers[i-4], pupil_vertices, pupil_elements)) return;
         m_world.setToIdentity();
@@ -788,7 +840,57 @@ void GLwidget::paintGL(void)
         // Unbind shader
         shaderProgram->release();
     }
+*/
 
+//    if (i == 5 && m_pupilshow) {
+    if (i == 4 && m_pupilshow) {
+        // what a f* of a lot of trouble to assign values to a vector for passing..
+        std::vector<GLfloat> axis_Vertices;
+        std::vector<GLuint> axis_Elements;
+/*
+        GLfloat array_axis_vertices[] = {0,0,0,0,0,1,0,0,0,0,0,100,0,0,1,0,0,0,0,100,0,0,0,1,0,0,0,100,0,0,0,0,1,0,0,0};
+        axis_Vertices.assign (array_axis_vertices,array_axis_vertices+36);   // assigning from array.
+*/
+        GLuint array_axis_elements[] = {0,1,0,2,0,3};
+        axis_Elements.assign (array_axis_elements,array_axis_elements+6);
+
+        GLfloat array_axis_vertices[] = {0,0,0, 100,0,0, 0,100,0, 0,0,100};
+        axis_Vertices.assign (array_axis_vertices,array_axis_vertices+12);   // assigning from array.
+
+        GLfloat* axis_vertices = axis_Vertices.data();
+        GLuint* axis_elements = axis_Elements.data();
+        int axis_NE = 3;
+        int axis_NV = 4;
+        int j = 5;
+        m_world.setToIdentity();
+        m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
+        m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
+        m_world.rotate(m_zRot / 16.0f, 0, 0, 1);
+        mMVP =  mViewMatrix  * m_world;
+        m_alpha = QVector4D(0,0,0,1.0);
+        shaderProgram->bind();
+        shaderProgram->setUniformValue(m_viewMatrixLoc, mMVP);
+        //only the regular shader has the adjustable transparency for one buffer
+        shaderProgram->setUniformValue(m_alphaLoc, m_alpha);
+        shaderProgram->setUniformValue(m_projMatrixLoc, projectionMatrix);
+        if(!LoadSurfaceToBuffer(pupil_nV, pupil_nE, vertexbuffers[i-4], elementbuffers[i-4], pupil_vertices, pupil_elements)) return;
+        glDrawElements(GL_TRIANGLES, pupil_nE, GL_UNSIGNED_INT, 0);
+        if(!LoadLinesToBuffer(axis_NV, axis_NE, vertexbuffers[j], elementbuffers[j], axis_vertices, axis_elements)) return;
+        glDrawArrays(GL_LINES,0,2);
+        glDrawElements(GL_LINES, 3, GL_UNSIGNED_INT, 0);
+//          renderText(double x, double y, double z, QString str)
+/*        QPainter painter(this);
+        painter.setPen(Qt::black);
+        painter.setFont(QFont("Arial", 16));
+        painter.drawText(0, 0, width(), height(), Qt::AlignCenter, "Hello World!");
+        painter.end();
+*/
+
+        // Unbind shader
+        shaderProgram->release();
+    }
+
+//  not pupil
     if (i > 0) {
         // Use shader or shaderNormal
         if (m_lighting) {
@@ -797,8 +899,8 @@ void GLwidget::paintGL(void)
             shaderNormalProgram->setUniformValue(m_projMatrixLoc, projectionMatrix);
             glDrawElements(GL_TRIANGLES, nE[i-1], GL_UNSIGNED_INT, 0);
             // Unbind shader
-            shaderNormalProgram->release();
-        } else {
+            shaderNormalProgram->release();}
+            else {
             shaderProgram->bind();
             shaderProgram->setUniformValue(m_viewMatrixLoc, mMVP);
             //only the regular shader has the adjustable transparency for one buffer
@@ -808,6 +910,7 @@ void GLwidget::paintGL(void)
             // Unbind shader
             shaderProgram->release();
         };
+
         // draw normals here
         if (m_normal) {
             shaderGeoProgram->bind();

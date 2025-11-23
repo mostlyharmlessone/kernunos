@@ -2,16 +2,21 @@ things to do
 
 CorneaCopia
 
+
+working on axes in GLwidget.cpp
+It'd be helpful to have axes/angles for orientation is moving the figure; perhaps a info box or three displaying angles? In View? with geometry option?
+
+
+
 TopCon CA-800 in SA -> all binary
 
 
+
+changed tweak to allow LSQspline for PentaCam conversion
 lsqspline doesn't fix decentering/multiple zero issues in ELE files, look at decentering again, run some test beds
 built framework for decenter; both involve moving elevation data points, either, 
 then resplining on that basis, just like an ELE file, in fact, for an ELE/ELE.CSV file, adjust the data before the first spline
 
-
-
-It'd be helpful to have axes/angles for orientation is moving the figure; perhaps a info box or three displaying angles? In View? with geometry option?
 
 
 
@@ -20,8 +25,6 @@ this will affect Geom,WriteGeomPLY/OFF
 
 
 
-
-make cartesian grid display option; convert polar to grid, display pentacam directly
 
 compare is broken with zernike; also so is opening 2nd file with zernike selected and zernike 
 

@@ -530,9 +530,10 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     QMatrix4x4 projectionMatrix;
     QMatrix4x4 mViewMatrix;
     bool LoadSurfaceToBuffer(int nV, int nE, GLuint vertexbuffer,  GLuint elementbuffer, GLfloat *vertices, GLuint *elements);
+    bool LoadLinesToBuffer(int nV, int nE, GLuint vertexbuffer,  GLuint elementbuffer, GLfloat *vertices, GLuint *elements);
 
-    GLuint elementbuffers[4];
-    GLuint vertexbuffers[4];
+    GLuint elementbuffers[5];
+    GLuint vertexbuffers[5];
     int timerID;
 
     void setupVertexAttribs();
