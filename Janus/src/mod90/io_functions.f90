@@ -472,7 +472,7 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
       close(unitno1)
       close(unitno2)
       semicolon1 = trim(EDNAME)
-      write(*,*) 'Remove the semicolons with sed because Fortran hates them'
+      write(*,*) 'Remove the semicolons with sed because formatted Fortran reads hate them'
       semicolon1=replacestr(string=semicolon1,search=".DAT",substitute=".TMP")
 !      write(*,*) 'sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1
       call execute_command_line ('sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1, exitstat=io)

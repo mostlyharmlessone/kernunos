@@ -7,6 +7,9 @@ working on axes in GLwidget.cpp
 It'd be helpful to have axes/angles for orientation is moving the figure; perhaps a info box or three displaying angles? In View? with geometry option?
 
 
+ReDraw is broken
+Swap doesn't swap pupil data...
+
 
 TopCon CA-800 in SA -> all binary
 
@@ -104,11 +107,11 @@ bad data here is implicitly assuming axisymmetery for Placido reflection, but if
 simple difference between d/dx and 1/r(d/dr) axisymmetry is not linear ==> lost battle with IRIS paper circles are not squares, spheres are not cubes
 
 needs section on handling bad data:
-shift discontinuity in 900 and others: how to best address: document as opposed to missing data...discontinuities affect global fitting ie lsq but not local ie spline
+shift discontinuity in Atlas 900 and others: how to best address: document as opposed to missing data...discontinuities affect global fitting ie lsq but not local ie spline
 spline better at filling in locally (it's interpolation after all) whereas LSQ can be used as a smoothing operation. See also early chapter in spline text, and reference it:
-   from LSQ Bspline paper as well as others interpolation vs fitting
+from LSQ Bspline paper as well as others interpolation vs fitting
 rings function can demonstrate difference. Discontinuity in all data circumferentially affects theta derivatives, all the more with splining.
-multiple zeroes in ELE and adjacent identical points in general.
+multiple zeroes in ELE/HT files and adjacent identical points in general.
 
 hamming's motto "The purpose of computing is insight, not numbers"
 
@@ -119,10 +122,12 @@ dosbox-x DXSCSI1, then select drive in menu to map DXSCSI2 to E:, go to E:\WINDO
 Export as EPS.
 mean curvature and monge astigmatism, need taylor series for limit at origin
 
+README (not the markdown/html) needs a file manifest; eventually generate with git or ls -l
+
 
 POLISHING
 
-analyze fowler sauna patient: arvo poster
+analyze fowler sauna patient: arvo poster introduction
 
 Optimizing:
 1)valgrind/profiling can also try helegrind for cyclic 4 way slow down
@@ -137,10 +142,6 @@ Passing an assumed-shape array or array pointer to an explicit-shape array can s
 Spline routines seem to have explicit shape, and are passed possibly assumed-shape
 
 include these and similar notes in io_functions.f90
-
-Notes on EyeSys files, RA, XX, PU, HDR 
-RA == ?Radii of rings in EyeSys terms, increasing in magnitude from 40's to 400's with the EyeSys XX files being the sagittal curvature given in diopters 700's because R=(n-1)/D
-EyeSys EY*.DAT file is not an image
 
 Misc notes
 

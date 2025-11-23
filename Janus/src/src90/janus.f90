@@ -897,7 +897,7 @@ endif
 
 if (TestData .eq. 6) then
  if (mod(flag,100) == 0) then !read the files
-! READ THE Nidek DATA
+! READ THE NIDEK DATA
 ! RA????? ARE THE AXIAL DIST. ED???? ARE THE MIRE RADII; use the first set of 360 from ASCII ED**.DAT
    call CPU_TIME(time_start)
    MM=360 ; N=39 ! Nidek binary default
@@ -920,6 +920,7 @@ if (TestData .eq. 6) then
      inputfile1=inputfile1(file_idx:len(inputfile1))
     else
      write(*,*) 'Error opening cabinet file',inputfile1
+     write(*,*) 'Make sure you have cab_extract installed and/or manually check/decompress the CAB file(s).'
      deallocate(cab_inputfile1)
      return
     endif
@@ -932,6 +933,7 @@ if (TestData .eq. 6) then
      inputfile2=inputfile2(file_idx:len(inputfile2))
     else
      write(*,*) 'Error opening cabinet file',inputfile2
+     write(*,*) 'Make sure you have cab_extract installed and/or manually check/decompress the CAB file(s).'
      deallocate(cab_inputfile2)
      return
     endif
@@ -946,6 +948,7 @@ if (TestData .eq. 6) then
       inputfile4=inputfile4(file_idx:len(inputfile4))
      else
       write(*,*) 'Error opening cabinet file',inputfile4
+      write(*,*) 'Make sure you have cab_extract installed and/or manually check/decompress the CAB file(s).'
       deallocate(cab_inputfile4)
       return
      endif
@@ -1029,13 +1032,13 @@ if (TestData .eq. 6) then
     endif
     deallocate(cab_inputfile4)
    endif
+   call CPU_TIME(time_end)
+   write(*,*) 'Time to read Nidek files: ',(time_end-time_start)*1000
+   if (read_error .ne. 0 .and. read_error .ne. 1 ) then
+    err_janus=read_error*10
+    return
+   endif
   endif  !(mod(flag,100) = 0
-  call CPU_TIME(time_end)
-  write(*,*) 'Time to read Nidek files: ',(time_end-time_start)*1000
-  if (read_error .ne. 0 .and. read_error .ne. 1 ) then
-   err_janus=read_error*10
-   return
-  endif
   ! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
   if (allocated(RadSlope%r)) then
    RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
