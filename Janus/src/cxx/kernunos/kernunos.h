@@ -44,6 +44,13 @@ extern std::vector<GLfloat> pupil_Vertices;
 extern GLfloat* pupil_vertices;
 extern GLuint* pupil_elements;
 
+extern int pupil_nV2;
+extern int pupil_nE2;
+extern std::vector<GLuint> pupil_Elements2;
+extern std::vector<GLfloat> pupil_Vertices2;
+extern GLfloat* pupil_vertices2;
+extern GLuint* pupil_elements2;
+
 extern std::vector<float> legendVector;
 extern float* legend;
 extern int nL;

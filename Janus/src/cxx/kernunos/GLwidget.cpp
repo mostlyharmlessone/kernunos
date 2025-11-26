@@ -186,12 +186,12 @@ GLwidget::~GLwidget()
   cleanup();
 }
 
-void GLwidget::checkGLError()
-{
+//Use by inserting:  checkGLError(__FILE__, __LINE__);
+void GLwidget::checkGLError(const char* file, int line) {
     GLenum err;
-    while(((err = glGetError()) != GL_NO_ERROR)){
-            std::cout << err << std::endl;
-        }
+    while ((err = glGetError()) != GL_NO_ERROR) {
+        std::cout << "OpenGL Error " << err << "  at " << file << ":" << line << std::endl;
+    }
 }
 
 void GLwidget::cleanup()
@@ -240,7 +240,7 @@ void GLwidget::initializeGL()
   sglVer += "\nRenderer: ";
   sglVer += reinterpret_cast<const char *>(GLrenderer);
 
-  // all this below to track OpenGl errors becasuse Qt doesnt have glDebugMessageCallback
+  // all this below to track OpenGl errors
   QSurfaceFormat format;
   format.setMajorVersion(4);
   format.setMinorVersion(5);
@@ -259,8 +259,9 @@ void GLwidget::initializeGL()
   qDebug() << message;
   qDebug() << "You started kernunos from a commandline";  //this only shows up if starting from a commandline
 
-  glEnable              ( GL_DEBUG_OUTPUT );
-//  glDebugMessageCallback( MessageCallback, 0 );   //weird that Qt can't seem to find glDebugMessageCallback and defining MessageCallback in header leads to linking error
+  // During init, enable debug output
+  glEnable ( GL_DEBUG_OUTPUT );
+//  QOpenGLExtraFunctions::glDebugMessageCallback(MessageCallback, 0 ); //cant get this work
 
   glClearColor(0.2f, 0.3f, 0.3f, m_transparent ? 0 : 1);
   // Enable depth test; Accept fragment if it is closer to the camera than the former one
@@ -389,6 +390,19 @@ bool GLwidget::Swap()
     for (int i=0; i< 26130; ++i){
         elements2[i]=elements3[i];
     }
+
+    //pupil data wiped out
+
+    pupil_nV2=pupil_nV; pupil_nE2=pupil_nE;
+    for (int i=0; i < pupil_nV; ++i){
+        pupil_vertices2[i]=pupil_vertices[i];
+        pupil_vertices[i]=0;
+    }
+    for (int i=0; i< pupil_nE; ++i){
+        pupil_elements2[i]=pupil_elements[i];
+        pupil_elements[i]=0;
+    }
+
 
     //  the demo cube
     int nV_cube = 72;
@@ -668,6 +682,7 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
 
 bool GLwidget::LoadSurfaceToBuffer(int nV, int nE, GLuint vertexbuffer, GLuint elementbuffer, GLfloat* vertices, GLuint* elements)
 {
+    makeCurrent();
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
     GLint data_size_in_bytes = sizeof(GLfloat)*nV;                              // 4-bytes per float x number of vertices
     glBufferData(GL_ARRAY_BUFFER, data_size_in_bytes, vertices, GL_STATIC_DRAW);
@@ -707,18 +722,15 @@ bool GLwidget::LoadSurfaceToBuffer(int nV, int nE, GLuint vertexbuffer, GLuint e
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), reinterpret_cast<void *>(6 * sizeof(GLfloat)));
                                                           // offset 6 because colors start after 3 positions + 3 normals
-
-//    checkGLError();
-
-    // Unbind buffer
-    glBindBuffer(vertexbuffer,0);
-    glBindBuffer(elementbuffer,0);
-
+    // Unbind buffer; do not do this per Qt https://doc.qt.io/qt-6/qopenglwidget.html
+//    glBindBuffer(vertexbuffer,0);
+//    glBindBuffer(elementbuffer,0);
     return true;
 }
 
 bool GLwidget::LoadLinesToBuffer(int nV, int nE, GLuint vertexbuffer, GLuint elementbuffer, GLfloat* vertices, GLuint* elements)
 {
+    makeCurrent();
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
     GLint data_size_in_bytes = sizeof(GLfloat)*nV;                              // 4-bytes per float x number of vertices
     glBufferData(GL_ARRAY_BUFFER, data_size_in_bytes, vertices, GL_STATIC_DRAW);
@@ -748,22 +760,8 @@ bool GLwidget::LoadLinesToBuffer(int nV, int nE, GLuint vertexbuffer, GLuint ele
     // positions, colors and normals all stored as floats: 9 * sizeof(GLfloat) = 3 x 3 floats
     // vertex position
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), nullptr);
-    // offset 0, 9 floats = 3 positions + 3 normals+ 3 colors per vertex
-    // vertex normals
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), reinterpret_cast<void *>(3 * sizeof(GLfloat)));
-    // offset 3 because normals start after 3 positions.
-    // color attribute
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), reinterpret_cast<void *>(6 * sizeof(GLfloat)));
-    // offset 6 because colors start after 3 positions + 3 normals
-
-    //    checkGLError();
-
-    // Unbind buffer
-    glBindBuffer(vertexbuffer,0);
-    glBindBuffer(elementbuffer,0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), nullptr);
+    // offset 0, 3 floats = 3 positions
 
     return true;
 }
@@ -774,6 +772,7 @@ void GLwidget::paintGL(void)
     if ( !paintme ) return;  //not until nV, nE, vertices, elements are loaded
     if ( err_janus != 0 ) return;
 
+    makeCurrent();
     // Clear the screen    
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -792,7 +791,7 @@ void GLwidget::paintGL(void)
     m_vao.bind();
 
     // do them in this order for transparency overlay
-    for (int i=4; i > 0 ; i--)
+    for (int i=5; i > 0 ; i--)
     {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertexbuffers[i]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffers[i]);
@@ -822,7 +821,7 @@ void GLwidget::paintGL(void)
         mMVP.translate(QVector3D(1200,0,-position));
         m_alpha = QVector4D(0,0,0,1.0);
     }
-/*
+
     if (i == 4 && m_pupilshow) {
         if(!LoadSurfaceToBuffer(pupil_nV, pupil_nE, vertexbuffers[i-4], elementbuffers[i-4], pupil_vertices, pupil_elements)) return;
         m_world.setToIdentity();
@@ -840,28 +839,36 @@ void GLwidget::paintGL(void)
         // Unbind shader
         shaderProgram->release();
     }
-*/
 
-//    if (i == 5 && m_pupilshow) {
-    if (i == 4 && m_pupilshow) {
+     if (i == 5 && m_pupilshow) {
         // what a f* of a lot of trouble to assign values to a vector for passing..
+         /* Printing std vectors of integers (int) to console, isn't cpp straightforward? */
+         //       https://stackoverflow.com/questions/10750057/how-do-i-print-out-the-contents-of-a-vector
+         //        std::copy(axis_Vertices.begin(), axis_Vertices.end(), std::ostream_iterator<int>(std::cout, " "));
+         //        std::copy(pupil_Vertices.begin(), pupil_Vertices.end(), std::ostream_iterator<int>(std::cout, " "));
+         //        coming to C++ 23, not yet apparently supported, (Fortran has had vector printing for 50 years)
+         //        std::print("{}", axis_Vertices);
         std::vector<GLfloat> axis_Vertices;
         std::vector<GLuint> axis_Elements;
-/*
-        GLfloat array_axis_vertices[] = {0,0,0,0,0,1,0,0,0,0,0,100,0,0,1,0,0,0,0,100,0,0,0,1,0,0,0,100,0,0,0,0,1,0,0,0};
-        axis_Vertices.assign (array_axis_vertices,array_axis_vertices+36);   // assigning from array.
-*/
-        GLuint array_axis_elements[] = {0,1,0,2,0,3};
-        axis_Elements.assign (array_axis_elements,array_axis_elements+6);
+        int axis_NE = 6;
 
-        GLfloat array_axis_vertices[] = {0,0,0, 100,0,0, 0,100,0, 0,0,100};
-        axis_Vertices.assign (array_axis_vertices,array_axis_vertices+12);   // assigning from array.
+//        int axis_NV = 12;
 
+        int axis_NV = 36;
+        GLfloat array_axis_vertices[] = {0.0f, 0.0f, -100.0f,  0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,  // Red/G/B/White (x,y,z,nx,ny,nz,r,g,b)
+                                        700.0f, 0.0f, -100.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+                                        0.0f, 700.0f, -100.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+                                         0.0f, 0.0f, 600.0f,    0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f};
+
+
+
+ //       GLfloat array_axis_vertices[] = {0.0f, 0.0f, -100.0f,   700.0f, 0.0f, -100.0f,   0.0f, 700.0f, -100.0f,   0.0f, 0.0f, 600.0f};
+        axis_Vertices.assign (array_axis_vertices,array_axis_vertices+axis_NV);   // assigning from array
+        GLuint array_axis_elements[] = {0,1,  0,2,  0,3};
+        axis_Elements.assign (array_axis_elements,array_axis_elements+axis_NE);
         GLfloat* axis_vertices = axis_Vertices.data();
         GLuint* axis_elements = axis_Elements.data();
-        int axis_NE = 3;
-        int axis_NV = 4;
-        int j = 5;
+
         m_world.setToIdentity();
         m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
         m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
@@ -873,18 +880,23 @@ void GLwidget::paintGL(void)
         //only the regular shader has the adjustable transparency for one buffer
         shaderProgram->setUniformValue(m_alphaLoc, m_alpha);
         shaderProgram->setUniformValue(m_projMatrixLoc, projectionMatrix);
-        if(!LoadSurfaceToBuffer(pupil_nV, pupil_nE, vertexbuffers[i-4], elementbuffers[i-4], pupil_vertices, pupil_elements)) return;
-        glDrawElements(GL_TRIANGLES, pupil_nE, GL_UNSIGNED_INT, 0);
-        if(!LoadLinesToBuffer(axis_NV, axis_NE, vertexbuffers[j], elementbuffers[j], axis_vertices, axis_elements)) return;
-        glDrawArrays(GL_LINES,0,2);
-        glDrawElements(GL_LINES, 3, GL_UNSIGNED_INT, 0);
-//          renderText(double x, double y, double z, QString str)
+//      axes
+        if(!LoadSurfaceToBuffer(axis_NV, axis_NE, vertexbuffers[i], elementbuffers[i], axis_vertices, axis_elements)) return;
+ //       if(!LoadLinesToBuffer(axis_NV, axis_NE, vertexbuffers[i], elementbuffers[i], axis_vertices, axis_elements)) return;
+         glDrawElements(GL_LINES, axis_NE, GL_UNSIGNED_INT, 0);
+
+
+//      doesn't rotate and destroys clipping/depth
 /*        QPainter painter(this);
         painter.setPen(Qt::black);
         painter.setFont(QFont("Arial", 16));
+        painter.translate(100,100);
+        painter.setWorldTransform(mMVP.toTransform(),true);
         painter.drawText(0, 0, width(), height(), Qt::AlignCenter, "Hello World!");
         painter.end();
 */
+
+        checkGLError(__FILE__, __LINE__);
 
         // Unbind shader
         shaderProgram->release();
@@ -920,9 +932,10 @@ void GLwidget::paintGL(void)
             // Unbind shader
             shaderGeoProgram->release();
         };
-    // Unbind buffers
-    glBindBuffer(vertexbuffers[i],0);
-    glBindBuffer(elementbuffers[i],0);
+    // Unbind buffer; do not do this per Qt https://doc.qt.io/qt-6/qopenglwidget.html
+ //   glBindBuffer(vertexbuffers[i],0);
+ //   glBindBuffer(elementbuffers[i],0);
+
     }
     m_vao.release();
     }
@@ -936,6 +949,7 @@ void GLwidget::timerEvent(QTimerEvent*)
 
 void GLwidget::resizeGL(int w, int h)
 {
+  makeCurrent();
   projectionMatrix.setToIdentity();
   projectionMatrix.perspective(5.0f, GLfloat(w) / h, 0.01f, 20000.0f);  // I really don't want to have the side images appear too tilted away from the center
   update();
@@ -943,7 +957,8 @@ void GLwidget::resizeGL(int w, int h)
 
 void GLwidget::keyPressEvent(QKeyEvent *e)
 {
-  switch (e->key())
+    makeCurrent();
+    switch (e->key())
   {
     case Qt::Key_Escape:  /*  Escape Key */
      exit(0);
@@ -989,7 +1004,7 @@ void GLwidget::keyPressEvent(QKeyEvent *e)
 void GLwidget::wheelEvent(QWheelEvent *e)
 {
     QPoint numPixels = e->pixelDelta();
-
+    makeCurrent();
          if (numPixels.y() > 0) {
          mViewMatrix.translate(scale*QVector3D(0,0,-1.0));
          update();
@@ -1003,11 +1018,13 @@ void GLwidget::wheelEvent(QWheelEvent *e)
 
 void GLwidget::mousePressEvent(QMouseEvent *e)
 {
+    makeCurrent();
     m_lastPos = e->position().toPoint();
 }
 
 void GLwidget::mouseMoveEvent(QMouseEvent *e)
 {
+    makeCurrent();
     int dx = e->position().toPoint().x() - m_lastPos.x();
     int dy = e->position().toPoint().y() - m_lastPos.y();
 
@@ -1024,17 +1041,18 @@ void GLwidget::mouseMoveEvent(QMouseEvent *e)
 
 QSize GLwidget::minimumSizeHint() const
 {
-   return QSize(500, 250);
+    return QSize(500, 250);
 }
 
 QSize GLwidget::sizeHint() const
 {
-   return QSize(SCR_WIDTH, SCR_HEIGHT);
+
+    return QSize(SCR_WIDTH, SCR_HEIGHT);
 }
 
 static void qNormalizeAngle(int &angle)
 {
-   while (angle < 0)
+    while (angle < 0)
        angle += 360 * 16;
    while (angle > 360 * 16)
        angle -= 360 * 16;
@@ -1042,7 +1060,8 @@ static void qNormalizeAngle(int &angle)
 
 void GLwidget::setXRotation(int angle)
 {
-   qNormalizeAngle(angle);
+    makeCurrent();
+    qNormalizeAngle(angle);
    if (angle != m_xRot) {
        m_xRot = angle;
        emit xRotationChanged(angle);
@@ -1052,7 +1071,8 @@ void GLwidget::setXRotation(int angle)
 
 void GLwidget::setYRotation(int angle)
 {
-   qNormalizeAngle(angle);
+    makeCurrent();
+    qNormalizeAngle(angle);
    if (angle != m_yRot) {
        m_yRot = angle;
        emit yRotationChanged(angle);
@@ -1062,7 +1082,8 @@ void GLwidget::setYRotation(int angle)
 
 void GLwidget::setZRotation(int angle)
 {
-   qNormalizeAngle(angle);
+    makeCurrent();
+    qNormalizeAngle(angle);
    if (angle != m_zRot) {
        m_zRot = angle;
        emit zRotationChanged(angle);
@@ -1072,6 +1093,7 @@ void GLwidget::setZRotation(int angle)
 
 void GLwidget::settransparency(int percent)
 {
+    makeCurrent();
     float percent_fract=percent/100.0;
     if (percent_fract != m_alpha_value) {
         m_alpha_value = percent_fract;

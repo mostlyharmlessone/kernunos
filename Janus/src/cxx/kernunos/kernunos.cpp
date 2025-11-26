@@ -186,6 +186,12 @@ std::vector<GLfloat> pupil_Vertices(pupil_nV);
 GLfloat* pupil_vertices = pupil_Vertices.data();
 GLuint* pupil_elements = pupil_Elements.data();
 
+int pupil_nV2 = 1629;
+int pupil_nE2 = 540;
+std::vector<GLuint> pupil_Elements2(pupil_nE2);
+std::vector<GLfloat> pupil_Vertices2(pupil_nV2);
+GLfloat* pupil_vertices2 = pupil_Vertices2.data();
+GLuint* pupil_elements2 = pupil_Elements2.data();
 
 // data vector for legend value & colors
 int nL = 26*4;

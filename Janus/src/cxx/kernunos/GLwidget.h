@@ -46,6 +46,7 @@
 
 #include <qt6/QtCore/qtmetamacros.h>
 
+
 // global variables
 extern const unsigned int SCR_WIDTH;
 extern const unsigned int SCR_HEIGHT;
@@ -80,6 +81,13 @@ extern std::vector<GLfloat> pupil_Vertices;
 extern GLfloat* pupil_vertices;
 extern GLuint* pupil_elements;
 
+extern int pupil_nV2;
+extern int pupil_nE2;
+extern std::vector<GLuint> pupil_Elements2;
+extern std::vector<GLfloat> pupil_Vertices2;
+extern GLfloat* pupil_vertices2;
+extern GLuint* pupil_elements2;
+
 extern "C" {
 void janus_(int *flag,char *filename,GLuint *elements,GLfloat *vertices,float *legend,float *zern,int *nV,int *nE,int *nL,GLuint *pupil_elements,GLfloat *pupil_vertices,int *pupil_nV, int *pupil_nE, int *err_janus);
 // needs an underscore despite c_interface.f90 bind C declaration
@@ -94,19 +102,12 @@ extern QString *m_GLString;
 extern QString glstring_global;
 
 /*
-void GLAPIENTRY
-MessageCallback( GLenum source,
-                GLenum type,
-                GLuint id,
-                GLenum severity,
-                GLsizei length,
-                const GLchar* message,
-                const void* userParam )
+void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *msg, const void *data)
 {
     fprintf( stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
             ( type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ),
-            type, severity, message );
-}
+            type, severity, msg );
+};
 */
 
 QT_BEGIN_NAMESPACE
@@ -537,8 +538,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     int timerID;
 
     void setupVertexAttribs();
-
-    void checkGLError();
+    void checkGLError(const char* file, int line);
 
     int m_xRot = 0;
     int m_yRot = 0;
