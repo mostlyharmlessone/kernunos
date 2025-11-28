@@ -141,6 +141,12 @@ find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core Gui Charts OpenGLWidgets Open
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Charts OpenGLWidgets OpenGL Widgets LinguistTools)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Concurrent REQUIRED)
 
+# Find the FreeType2 package
+set(FREETYPE_DIR "/usr/include/freetype2")
+find_package(Freetype REQUIRED)
+  message(STATUS "Found Freetype in ${FREETYPE_INCLUDE_DIRS}")
+  message(STATUS "Found Freetype in ${FREETYPE_DIR}")
+
 set(TS_FILES src/cxx/kernunos/kernunos_en_US.ts)
 
 
@@ -271,7 +277,7 @@ endif(WIN32)
 add_library( libmath77 ${math77_lib})
 
 # external libraries
-    set(LIBS ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${SUPERLU_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} ${GFORTRAN_LIBRARY})
+    set(LIBS ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${SUPERLU_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} freetype ${GFORTRAN_LIBRARY})
 
 # need this so that GLwidget.h can be found by AUTOUIC and ui.mainwindow.h, and for rply and assimp
 include_directories(src/cxx/kernunos src/c/rply)
@@ -416,6 +422,10 @@ target_link_libraries(gnuplot_iostream INTERFACE
     Boost::iostreams
     Boost::system
     Boost::filesystem)
+
+# Freetype
+target_include_directories(kernunos PUBLIC FREETYPE_INCLUDE_DIRS)
+target_include_directories(kernunos PUBLIC /usr/include/freetype2)
 
 target_link_libraries(kernunos
                PRIVATE OpenMP::OpenMP_CXX Qt6::Concurrent

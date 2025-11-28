@@ -23,6 +23,10 @@
 #include <memory>
 #include <functional>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <QOpenGLWidget>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLFunctions>
@@ -128,6 +132,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
   public:
     GLwidget( QWidget *parent = nullptr );
     ~GLwidget();
+
 
 //  These are all independent boolean choices
     static bool isTransparent() { return m_transparent; }
@@ -528,10 +533,12 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     QOpenGLShaderProgram *shaderProgram = nullptr;
     QOpenGLShaderProgram *shaderGeoProgram = nullptr;
     QOpenGLShaderProgram *shaderNormalProgram = nullptr;
+    QOpenGLShaderProgram *shaderTextProgram = nullptr;
     QMatrix4x4 projectionMatrix;
     QMatrix4x4 mViewMatrix;
     bool LoadSurfaceToBuffer(int nV, int nE, GLuint vertexbuffer,  GLuint elementbuffer, GLfloat *vertices, GLuint *elements);
     bool LoadLinesToBuffer(int nV, int nE, GLuint vertexbuffer,  GLuint elementbuffer, GLfloat *vertices, GLuint *elements);
+    void RenderText(QOpenGLShaderProgram shader, std::string text, float x, float y, float scale, glm::vec3 color);
 
     GLuint elementbuffers[5];
     GLuint vertexbuffers[5];
