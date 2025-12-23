@@ -124,6 +124,29 @@ static const GLchar* fragmentColorNormal = R"glsl(
     }
 )glsl";
 
+
+static const GLchar* textfsrc = R"glsl(
+    varying vec2 texpos;
+    uniform sampler2D tex;
+    uniform vec4 color;
+
+    void main(void) {
+     gl_FragColor = vec4(1, 1, 1, texture2D(tex, texpos).a) * color;
+    }
+)glsl";
+
+static const GLchar* textvsrc = R"glsl(
+    attribute vec4 coord;
+    varying vec2 texpos;
+    uniform mat4 projectionMatrix;
+
+    void main(void) {
+    gl_Position = vec4(coord.xy, 0, 1);
+    texpos = coord.zw;
+    }
+)glsl";
+
+
 static const GLchar* textfragsource = R"glsl(
     #version 330 core
     in vec2 TexCoords;
@@ -144,10 +167,13 @@ static const GLchar* textvertsource = R"glsl(
     uniform mat4 projectionMatrix;
     void main()
     {
-    gl_Position = projectionMatrix * vec4(vertex.xy, 0.0, 1.0);
+
+    gl_Position = vec4(vertex.xy, 0, 1);
     TexCoords = vertex.zw;
     }
 )glsl";
+
+
 
 
 // defaults
@@ -201,6 +227,8 @@ bool GLwidget::m_perceptualuniformfixed = false;
 bool GLwidget::m_USSpalette = false;
 bool GLwidget::m_perceptualuniformpalette = false;
 
+
+
 // https://learnopengl.com/code_viewer_gh.php?code=src/7.in_practice/2.text_rendering/text_rendering.cpp
 // Holds all state information relevant to a character as loaded using FreeType
 struct Character {
@@ -210,6 +238,31 @@ struct Character {
     unsigned int Advance;   // Horizontal offset to advance to next glyph
 };
 std::map<GLchar, Character> Characters;
+
+
+GLint attribute_coord;
+GLint uniform_tex;
+GLint uniform_color;
+
+struct point {
+    GLfloat x;
+    GLfloat y;
+    GLfloat s;
+    GLfloat t;
+};
+
+FT_Library ft;
+FT_Face face;
+
+//float width = QGuiApplication::screens()[0]->size().width();
+//float height = QGuiApplication::screens()[0]->size().height();
+
+//float sx = 2.0 / width;
+//float sy = 2.0 / height;
+
+float sx = 0.005;
+float sy = 0.005;
+
 
 GLwidget::GLwidget ( QWidget *parent ) : QOpenGLWidget(parent)
 {
@@ -242,8 +295,8 @@ void GLwidget::cleanup()
   if (shaderProgram == nullptr)
             return;
   makeCurrent();
-  glDeleteBuffers(5,vertexbuffers);
-  glDeleteBuffers(5,elementbuffers);
+  glDeleteBuffers(6,vertexbuffers);
+  glDeleteBuffers(6,elementbuffers);
   killTimer(timerID);
   delete shaderProgram;
   shaderProgram = nullptr;
@@ -315,19 +368,21 @@ void GLwidget::initializeGL()
   m_vao.bind();
 
   // Create buffers
-  glGenBuffers(5, vertexbuffers);
-  glGenBuffers(5, elementbuffers);
+  glGenBuffers(6, vertexbuffers);
+  glGenBuffers(6, elementbuffers);
 
   m_parent->SetGLString(sglVer);
   shaderProgram = new QOpenGLShaderProgram;
   shaderGeoProgram = new QOpenGLShaderProgram;
   shaderNormalProgram = new QOpenGLShaderProgram;
   shaderTextProgram = new QOpenGLShaderProgram;
+  shaderText2Program = new QOpenGLShaderProgram;
   // load and compile vertex shaders
   success = shaderProgram->addShaderFromSourceCode(QOpenGLShader::Vertex,vertexSource);
   success = success && shaderNormalProgram->addShaderFromSourceCode(QOpenGLShader::Vertex,vertexSource);
   success = success && shaderGeoProgram->addShaderFromSourceCode(QOpenGLShader::Vertex,vertexGeoSource);
   success = success && shaderTextProgram->addShaderFromSourceCode(QOpenGLShader::Vertex,textvertsource);
+  success = success && shaderText2Program->addShaderFromSourceCode(QOpenGLShader::Vertex,textvsrc);
   //if (success) std::cout << "Compiled vertex shader" << std::endl;
   if (!success)
   {
@@ -350,6 +405,7 @@ void GLwidget::initializeGL()
   success = success && shaderNormalProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, fragmentColorNormal);
   success = success && shaderGeoProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, fragmentGeoSource);
   success = success && shaderTextProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, textfragsource);
+  success = success && shaderText2Program->addShaderFromSourceCode(QOpenGLShader::Fragment,textfsrc);
   //if (success) std::cout << "Compiled fragment shader" << std::endl;
   if (!success)
   {
@@ -365,7 +421,7 @@ void GLwidget::initializeGL()
   shaderProgram->link();
   shaderNormalProgram->link();
   shaderGeoProgram->link();
-  shaderTextProgram->link();
+  shaderText2Program->link();
 
   //set regular shader program up
   shaderProgram->bindAttributeLocation("position", 0);
@@ -385,8 +441,19 @@ void GLwidget::initializeGL()
 
   // set up Text shader program
   shaderTextProgram->bind();
-  m_projMatrixLoc = shaderProgram->uniformLocation("projectionMatrix");
-  shaderProgram->release();
+  shaderTextProgram->bindAttributeLocation("textColor",0);
+   glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(SCR_WIDTH), 0.0f, static_cast<float>(SCR_HEIGHT));
+  glUniformMatrix4fv(glGetUniformLocation(shaderTextProgram->programId(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+  shaderTextProgram->bindAttributeLocation("projection",1);
+  m_projMatrixLoc = shaderTextProgram->uniformLocation("projectionMatrix");
+
+  // set up Text shader program
+  shaderText2Program->bind();
+  attribute_coord = shaderText2Program->uniformLocation("coord");
+  uniform_tex = shaderText2Program->uniformLocation("tex");
+  uniform_color = shaderText2Program->uniformLocation("color");
+  m_projMatrixLoc = shaderText2Program->uniformLocation("projectionMatrix");
+
 
   // from https://learnopengl.com/code_viewer_gh.php?code=src/7.in_practice/2.text_rendering/text_rendering.cpp
   // FreeType
@@ -399,7 +466,7 @@ void GLwidget::initializeGL()
       return;
   }
   // find path to font
-  std::string font_name = FileSystem::getPath("resources/fonts/Antonio-Bold.ttf");
+  std::string font_name = "/usr/share/fonts/liberation/LiberationMono-Regular.ttf";
   if (font_name.empty())
   {
       std::cout << "ERROR::FREETYPE: Failed to load font_name" << std::endl;
@@ -447,7 +514,9 @@ void GLwidget::initializeGL()
           glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
           glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
           glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
           // now store character for later use
+
           Character character = {
               texture,
               glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
@@ -455,12 +524,14 @@ void GLwidget::initializeGL()
               static_cast<unsigned int>(face->glyph->advance.x)
           };
           Characters.insert(std::pair<char, Character>(c, character));
+
       }
-      glBindTexture(GL_TEXTURE_2D, 0);
+//      glBindTexture(GL_TEXTURE_2D, 0);  we don't unbind in Qt
   }
   // destroy FreeType once we're finished
   FT_Done_Face(face);
   FT_Done_FreeType(ft);
+  shaderTextProgram->release();
 
 
   //set light/normal shader program up
@@ -492,45 +563,6 @@ void GLwidget::initializeGL()
   shaderGeoProgram->release();
 
   m_vao.release();
-}
-
-// render line of text
-// -------------------
-void GLwidget::RenderText(QOpenGLShaderProgram shader, std::string text, float x, float y, float scale, glm::vec3 color){
-    // activate corresponding render state
-    glActiveTexture(GL_TEXTURE0);
-    glUniform3f(glGetUniformLocation(shader, "textColor"), color.x, color.y, color.z);
-    // iterate through all characters
-    std::string::const_iterator c;
-    for (c = text.begin(); c != text.end(); c++)
-    {
-        Character ch = Characters[*c];
-        float xpos = x + ch.Bearing.x * scale;
-        float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
-
-        float w = ch.Size.x * scale;
-        float h = ch.Size.y * scale;
-        // update VBO for each character
-        float vertices[6][4] = {
-            { xpos,     ypos + h,   0.0f, 0.0f },
-            { xpos,     ypos,       0.0f, 1.0f },
-            { xpos + w, ypos,       1.0f, 1.0f },
-
-            { xpos,     ypos + h,   0.0f, 0.0f },
-            { xpos + w, ypos,       1.0f, 1.0f },
-            { xpos + w, ypos + h,   1.0f, 0.0f }
-        };
-        // render glyph texture over quad
-        glBindTexture(GL_TEXTURE_2D, ch.TextureID);
-        // update content of VBO memory
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); // be sure to use glBufferSubData and not glBufferData
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        // render quad
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-        x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
-    }
 }
 
 
@@ -614,8 +646,6 @@ bool GLwidget::Swap()
     paintme=true;
     return true;
 }
-
-
 
 bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cube
 {
@@ -895,6 +925,7 @@ bool GLwidget::LoadSurfaceToBuffer(int nV, int nE, GLuint vertexbuffer, GLuint e
     return true;
 }
 
+// simplified version that just does lines with vertices and elements without normals or colors
 bool GLwidget::LoadLinesToBuffer(int nV, int nE, GLuint vertexbuffer, GLuint elementbuffer, GLfloat* vertices, GLuint* elements)
 {
     makeCurrent();
@@ -933,6 +964,215 @@ bool GLwidget::LoadLinesToBuffer(int nV, int nE, GLuint vertexbuffer, GLuint ele
     return true;
 }
 
+
+// render line of text
+// -------------------
+bool GLwidget::RenderText(GLuint vertexbuffer, std::string text, float x, float y, float scale, glm::vec3 color){
+
+    makeCurrent();
+    glUseProgram(shaderTextProgram->programId());
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glUniform3f(glGetUniformLocation(shaderTextProgram->programId(), "textColor"), color.x, color.y, color.z);
+    glActiveTexture(GL_TEXTURE0);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), nullptr);
+
+    // iterate through all characters
+    std::string::const_iterator c;
+    for (c = text.begin(); c != text.end(); c++)
+    {
+        Character ch = Characters[*c];
+        GLfloat xpos = x + ch.Bearing.x * scale;
+        GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+
+        GLfloat w = ch.Size.x * scale;
+        GLfloat h = ch.Size.y * scale;
+        // update VBO for each character
+        GLfloat glyph_vertices[6][4] = {
+            { xpos,     ypos + h,   0.0f, 0.0f },
+            { xpos,     ypos,       0.0f, 1.0f },
+            { xpos + w, ypos,       1.0f, 1.0f },
+
+            { xpos,     ypos + h,   0.0f, 0.0f },
+            { xpos + w, ypos,       1.0f, 1.0f },
+            { xpos + w, ypos + h,   1.0f, 0.0f }
+        };
+        // render glyph texture over quad
+        glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+        // update content of VBO memory
+        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glyph_vertices), glyph_vertices); // be sure to use glBufferSubData and not glBufferData
+
+        if (!glIsBuffer(vertexbuffer)) {
+            glDeleteBuffers(1, &vertexbuffer);
+            std::cout << "Error in vertex buffer in RenderText"  << std::endl;
+            return false;}
+//        glBindBuffer(GL_ARRAY_BUFFER, 0);  //do not unbind in Qt
+
+        // render quad
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+        x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
+    }
+        return true;
+}
+
+
+void GLwidget::render_text(GLuint vertexbuffer, const char *text, float x, float y, float sx, float sy) {
+
+    makeCurrent();
+
+     /* Create a texture that will be used to hold one "glyph" */
+    GLuint tex;
+    glActiveTexture(GL_TEXTURE0);
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glUniform1i(tex, 0);
+
+    /* We require 1 byte alignment when uploading texture data */
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    /* Clamping to edges is important to prevent artifacts when scaling */
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    /* Linear filtering usually looks best for text */
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    /* Set up the VBO for our vertex data */
+    glEnableVertexAttribArray(attribute_coord);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+    glVertexAttribPointer(attribute_coord, 4, GL_FLOAT, GL_FALSE, 0, 0);
+
+
+    // FreeType
+    // --------
+    FT_Library ft;
+    // All functions return a value different than 0 whenever an error occurred
+    if (FT_Init_FreeType(&ft))
+    {
+        std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+        return;
+    }
+    // find path to font
+    std::string font_name = "/usr/share/fonts/liberation/LiberationMono-Regular.ttf";
+    if (font_name.empty())
+    {
+        std::cout << "ERROR::FREETYPE: Failed to load font_name" << std::endl;
+        return;
+    }
+    // load font as face
+    FT_Face face;
+    if (FT_New_Face(ft, font_name.c_str(), 0, &face)) {
+        std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+        return;
+    }
+    else {
+        // set size to load glyphs as
+        FT_Set_Pixel_Sizes(face, 0, 48);
+
+        // disable byte-alignment restriction
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+
+            // Load character glyph
+
+
+        const char *p;
+        FT_GlyphSlot g = face->glyph;
+
+        /* Loop through all characters */
+        for (p = text; *p; p++) {
+          /* Try to load and render the character */
+
+            if (FT_Load_Char(face, *p, FT_LOAD_RENDER))
+             {
+               std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+               continue;
+             }
+
+            /* Upload the "bitmap", which contains an 8-bit grayscale image, as an alpha texture */
+             glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, g->bitmap.width, g->bitmap.rows, 0, GL_ALPHA, GL_UNSIGNED_BYTE, g->bitmap.buffer);
+             /* Calculate the vertex and texture coordinates */
+             float x2 = x + g->bitmap_left * sx;
+             float y2 = -y - g->bitmap_top * sy;
+             float w = g->bitmap.width * sx;
+             float h = g->bitmap.rows * sy;
+
+             point box[4] = {
+                             {x2, -y2, 0, 0},
+                             {x2 + w, -y2, 1, 0},
+                             {x2, -y2 - h, 0, 1},
+                             {x2 + w, -y2 - h, 1, 1},
+                             };
+
+
+             /* Draw the character on the screen */
+              glBufferData(GL_ARRAY_BUFFER, sizeof box, box, GL_DYNAMIC_DRAW);
+              glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+             /* Advance the cursor to the start of the next character */
+               x += (g->advance.x >> 6) * sx;
+               y += (g->advance.y >> 6) * sy;
+            }
+
+            // set texture options
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    }
+    glDisableVertexAttribArray(attribute_coord);
+    glDeleteTextures(1, &tex);
+}
+
+Qt3DCore::QEntity *createScene()
+{
+
+
+    Qt3DCore::QEntity *rootEntity = new Qt3DCore::QEntity;
+    auto *text2D = new Qt3DExtras::QText2DEntity(rootEntity);
+    text2D->setFont(QFont("Courier New", 10));
+    text2D->setHeight(20);
+    text2D->setWidth(100);
+    text2D->setText("hello world");
+    text2D->setColor(Qt::yellow);
+
+
+    auto *textTransform = new Qt3DCore::QTransform(text2D);
+    textTransform->setScale3D(QVector3D(1.5, 1, 0.5));
+    textTransform->setRotation(QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), 45.0f));
+    textTransform->setScale(0.125f);
+
+
+
+
+/*
+    auto *text2D = new Qt3DExtras::QText2DEntity(rootEntity);
+    text2D->setFont(QFont("Courier New", 4));
+    text2D->setHeight(30);
+    text2D->setWidth(200);
+    text2D->setText("hello world");
+    text2D->setColor(Qt::blue);
+
+    Qt3DCore::QTransform *textTransform = new Qt3DCore::QTransform;
+    OrbitTransformController *tcontroller = new OrbitTransformController(textTransform);
+    tcontroller->setTarget(textTransform);
+    tcontroller->setRadius(10.0f);
+
+    text2D->addComponent(textTransform);
+
+*/
+    return rootEntity;
+
+
+}
+
+
 void GLwidget::paintGL(void)
 {
     if ( !success ) return;  //not until shaders are built
@@ -942,6 +1182,7 @@ void GLwidget::paintGL(void)
     makeCurrent();
     // Clear the screen    
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 
     if(!m_normal) {
         glEnable(GL_BLEND);
@@ -958,7 +1199,7 @@ void GLwidget::paintGL(void)
     m_vao.bind();
 
     // do them in this order for transparency overlay
-    for (int i=5; i > 0 ; i--)
+    for (int i=6; i > 0 ; i--)
     {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertexbuffers[i]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffers[i]);
@@ -1018,22 +1259,16 @@ void GLwidget::paintGL(void)
         std::vector<GLfloat> axis_Vertices;
         std::vector<GLuint> axis_Elements;
         int axis_NE = 6;
+        int axis_NV = 54;
+        GLfloat array_axis_vertices[] = {0.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,  // Red/G/B (x,y,z,nx,ny,nz,r,g,b)
+                                         0.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+                                         0.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+                                        700.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+                                        0.0f, 700.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+                                        0.0f, 0.0f, 700.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
 
-//        int axis_NV = 12;
-
-        int axis_NV = 36;
-        GLfloat array_axis_vertices[] = {0.0f, 0.0f, -100.0f,  0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,  // Red/G/B/White (x,y,z,nx,ny,nz,r,g,b)
-                                        700.0f, 0.0f, -100.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-                                        0.0f, 700.0f, -100.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-                                         0.0f, 0.0f, 600.0f,    0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f};
-
-// needs triple vertex at zero for colors
-
-
-
- //       GLfloat array_axis_vertices[] = {0.0f, 0.0f, -100.0f,   700.0f, 0.0f, -100.0f,   0.0f, 700.0f, -100.0f,   0.0f, 0.0f, 600.0f};
         axis_Vertices.assign (array_axis_vertices,array_axis_vertices+axis_NV);   // assigning from array
-        GLuint array_axis_elements[] = {0,1,  0,2,  0,3};
+        GLuint array_axis_elements[] = {0,3,  1,4,  2,5};
         axis_Elements.assign (array_axis_elements,array_axis_elements+axis_NE);
         GLfloat* axis_vertices = axis_Vertices.data();
         GLuint* axis_elements = axis_Elements.data();
@@ -1051,32 +1286,86 @@ void GLwidget::paintGL(void)
         shaderProgram->setUniformValue(m_projMatrixLoc, projectionMatrix);
 //      axes
         if(!LoadSurfaceToBuffer(axis_NV, axis_NE, vertexbuffers[i], elementbuffers[i], axis_vertices, axis_elements)) return;
- //       if(!LoadLinesToBuffer(axis_NV, axis_NE, vertexbuffers[i], elementbuffers[i], axis_vertices, axis_elements)) return;
          glDrawElements(GL_LINES, axis_NE, GL_UNSIGNED_INT, 0);
         shaderProgram->release();
+     }
 
-        shaderTextProgram->bind();
+     if (i == 6 && m_pupilshow) {
 
-//      doesn't rotate and destroys clipping/depth
-/*        QPainter painter(this);
-        painter.setPen(Qt::black);
-        painter.setFont(QFont("Arial", 16));
-        painter.translate(100,100);
-        painter.setWorldTransform(mMVP.toTransform(),true);
-        painter.drawText(0, 0, width(), height(), Qt::AlignCenter, "Hello World!");
-        painter.end();
+         glEnable(GL_BLEND);
+         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+         GLfloat black[4] = { 0, 0, 0, 1 };
+//         GLfloat red[4] = { 1, 0, 0, 1 };
+//         GLfloat transparent_green[4] = { 0, 1, 0, 0.5 };
+
+         m_world.setToIdentity();
+         m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
+         m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
+         m_world.rotate(m_zRot / 16.0f, 0, 0, 1);
+         mMVP =  mViewMatrix  * m_world;
+         m_alpha = QVector4D(0,0,0,1.0);
+
+
+//         shaderTextProgram->bind();
+
+//         if(!RenderText(shaderTextProgram->programId(), "This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f))) return;
+//         if(!RenderText(vertexbuffers[i],"(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f))) return;
+
+         checkGLError(__FILE__, __LINE__);
+//         shaderTextProgram->release();
+
+//      deprecated Qt3D calls, don't want to use QML in my code
+/*
+         auto m_text2dLabel = new Qt3DExtras::QText2DEntity();
+         auto *textEntity = new Qt3DCore::QEntity();
+
+         auto *textMaterial = new Qt3DExtras::QPhongMaterial(textEntity);
+         textMaterial->setDiffuse(QColor(Qt::yellow));
+
+         auto *textMesh = new Qt3DExtras::QExtrudedTextMesh();
+         textMesh->setText("Qt 3D Text");
+         textMesh->setDepth(1.0f); // Extrusion depth
+
+         auto *textTransform = new Qt3DCore::QTransform();
+         textTransform->setTranslation(QVector3D(0.0f, 40.0f, 0.0f));
+         textTransform->setScale(0.125f); // Scale the text
+
+         textEntity->addComponent(textMesh);
+         textEntity->addComponent(textMaterial);
+         textEntity->addComponent(textTransform);
+
+
+         Qt3DCore::QEntity *createScene()
+         {
+         Qt3DCore::QEntity *rootEntity = new Qt3DCore::QEntity;
+         auto *text2D = new Qt3DExtras::QText2DEntity(rootEntity);
+         text2D->setFont(QFont("monospace"));
+         text2D->setHeight(20);
+         text2D->setWidth(100);
+         text2D->setText("monospace");
+         text2D->setColor(Qt::yellow);
+         auto *textTransform = new Qt3DCore::QTransform(text2D);
+         textTransform->setRotation(QQuaternion::fromAxisAndAngle({ 1, 0, 0 }, 90.0f));
+         textTransform->setScale(0.125f);
+         text2D->addComponent(textTransform);
+         }
 */
 
-         RenderText("This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
-         RenderText("(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f));
+//         Qt3DCore::QEntity *scene = createScene();
+//         Qt3DExtras::Qt3DWindow view;
+//         view.setRootEntity(scene);
 
-         glBindTexture(GL_TEXTURE_2D, 0);
+//         shaderText2Program->bind();
+         /* Set font size to 48 pixels, color to black */
+//         FT_Set_Pixel_Sizes(face, 0, 48);
+//         glUniform4fv(uniform_color, 1, black);
 
-        checkGLError(__FILE__, __LINE__);
+//         render_text(vertexbuffers[i],"The Quick Brown Fox Jumps Over The Lazy Dog", -1 + 8 * sx, 1 - 50 * sy, sx, sy);
 
-        // Unbind shader
-        shaderTextProgram->release();
-    }
+         checkGLError(__FILE__, __LINE__);
+//         shaderText2Program->release();
+     }
 
 //  not pupil
     if (i > 0) {

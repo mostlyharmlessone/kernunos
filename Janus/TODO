@@ -4,7 +4,10 @@ CorneaCopia
 
 
 working on axes in GLwidget.cpp
-It'd be helpful to have axes/angles for orientation is moving the figure; perhaps a info box or three displaying angles? In View? with geometry option?
+It'd be helpful to have axes/angles for orientation is moving the figure
+two render text; one writes and has a GL error 1282
+it also doesn't rotate
+the other doesn't and has no error 
 
 Swap erases pupil data...
 

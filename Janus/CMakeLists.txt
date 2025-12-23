@@ -21,7 +21,7 @@ enable_language(C)
 #set(CMAKE_CROSSCOMPILING true)
 #set(CMAKE_SYSTEM_NAME Windows)
 #set(CMAKE_SYSTEM_VERSION 10.0)
-set(QT_CREATOR_SKIP_MAINTENANCE_TOOL_PROVIDER ON)
+set(QT_CREATOR_SKIP_MAINTENANCE_TOOL_PROVIDER on)
 set(CMAKE_CXX_STANDARD 17) # doesn't apply to win32
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
@@ -133,12 +133,13 @@ link_directories(${CMAKE_SOURCE_DIR}/lib)
 #endif()
 
 # Qt
+set(QT_CREATOR_SKIP_MAINTENANCE_TOOL_PROVIDER ON)
 #SET(Qt5_DIR "/usr/lib/x86_64-linux-gnu/qt5")
 SET(Qt6_DIR "/usr/lib/x86_64-linux-gnu/qt6")
 #find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets OpenGL)
 #find_package(Qt6 REQUIRED COMPONENTS Core Gui Charts OpenGLWidgets OpenGL Widgets LinguistTools)
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core Gui Charts OpenGLWidgets OpenGL Widgets LinguistTools)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Charts OpenGLWidgets OpenGL Widgets LinguistTools)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Charts OpenGLWidgets OpenGL Widgets LinguistTools 3DCore 3DExtras)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Concurrent REQUIRED)
 
 # Find the FreeType2 package
@@ -167,13 +168,13 @@ find_package (PkgConfig REQUIRED)
 
 find_library(GFORTRAN_LIBRARY NAMES gfortran)  # trying to fix ISO_Fortran_binding.h not found error, doesn't solve it, might be Intel compiler only
 ADD_COMPILE_DEFINITIONS(ASSIMP_VERSION="${ASSIMP_VERSION}")
-find_package(BLAS)
+find_package(BLAS QUIET)
  if ( BLAS_FOUND )
   message(STATUS "BLAS found at ${BLAS_LIBRARIES}")
  else()
   set(BLAS_LIBRARIES "/usr/lib/libblas.so")
  endif()
-find_package(LAPACK)
+find_package(LAPACK QUIET)
  if ( LAPACK_FOUND )
   message(STATUS "LAPACK found at ${LAPACK_LIBRARIES}")
  else()
@@ -198,9 +199,8 @@ if(CUDAToolkit_FOUND)
     message("CUDA version: ${CUDAToolkit_VERSION}")
 endif()
 find_package(OpenMP)
-#  boost, needed for gnuplot-iostream
-find_package(Boost REQUIRED COMPONENTS iostreams system filesystem)
-
+#  boost, needed for gnuplot-iostream NOT system, edited also CmakeLists.txt in gnuplot-iostreams
+find_package(Boost REQUIRED COMPONENTS iostreams filesystem)
 # from learnopengl: attempt to make buildable apple/win32 too
 if(APPLE)
   find_package(Freetype REQUIRED)
@@ -369,6 +369,7 @@ set(PROJECT_SOURCES
                    src/cxx/kernunos/kernunos.cpp src/cxx/kernunos/kernunos.h
                    src/cxx/kernunos/GLwidget.cpp src/cxx/kernunos/GLwidget.h
                    src/cxx/kernunos/assistant.cpp src/cxx/kernunos/assistant.h
+ #                  src/cxx/kernunos/shader_utils.cpp src/cxx/kernunos/shader_utils.h
                    src/cxx/kernunos/gnuplot_lioc.cpp
                    src/cxx/kernunos/gnuplot_load.cpp
                    src/cxx/kernunos/mainwindow.ui
@@ -420,7 +421,6 @@ target_include_directories(gnuplot_iostream INTERFACE
     $<INSTALL_INTERFACE:>)
 target_link_libraries(gnuplot_iostream INTERFACE
     Boost::iostreams
-    Boost::system
     Boost::filesystem)
 
 # Freetype
@@ -438,6 +438,8 @@ target_link_libraries(kernunos
                       Qt${QT_VERSION_MAJOR}::Gui
                       Qt${QT_VERSION_MAJOR}::Widgets
                       Qt${QT_VERSION_MAJOR}::OpenGL
+                      Qt${QT_VERSION_MAJOR}::3DCore
+                      Qt${QT_VERSION_MAJOR}::3DExtras
                       assimp modules splia rply_includes ${LIBS}
            )
 

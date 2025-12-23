@@ -22,6 +22,10 @@
 #include <vector>
 #include <memory>
 #include <functional>
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
+#include <algorithm>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -43,6 +47,17 @@
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
 
+// Using deprecated functions, apparently the future solution is QML instead of C==
+
+#include <Qt3DCore/QEntity>
+#include <Qt3DExtras/QText2DEntity>
+#include <Qt3DExtras/QExtrudedTextMesh>
+#include <Qt3DExtras/QPhongMaterial>
+#include <Qt3DRender/qcamera.h>
+#include <Qt3DCore/qentity.h>
+#include <Qt3DRender/qcameralens.h>
+#include "qt3dwindow.h"
+
 #include <QCommandLineParser>
 #include <QCommandLineOption>
 #include <QLocale>
@@ -52,6 +67,7 @@
 
 
 // global variables
+
 extern const unsigned int SCR_WIDTH;
 extern const unsigned int SCR_HEIGHT;
 
@@ -534,14 +550,16 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     QOpenGLShaderProgram *shaderGeoProgram = nullptr;
     QOpenGLShaderProgram *shaderNormalProgram = nullptr;
     QOpenGLShaderProgram *shaderTextProgram = nullptr;
+    QOpenGLShaderProgram *shaderText2Program = nullptr;
     QMatrix4x4 projectionMatrix;
     QMatrix4x4 mViewMatrix;
     bool LoadSurfaceToBuffer(int nV, int nE, GLuint vertexbuffer,  GLuint elementbuffer, GLfloat *vertices, GLuint *elements);
     bool LoadLinesToBuffer(int nV, int nE, GLuint vertexbuffer,  GLuint elementbuffer, GLfloat *vertices, GLuint *elements);
-    void RenderText(QOpenGLShaderProgram shader, std::string text, float x, float y, float scale, glm::vec3 color);
+    bool RenderText(GLuint vertexbuffer, std::string text, float x, float y, float scale, glm::vec3 color);
+    void render_text(GLuint vertexbuffer,const char *text, float x, float y, float sx, float sy);
 
-    GLuint elementbuffers[5];
-    GLuint vertexbuffers[5];
+    GLuint elementbuffers[6];
+    GLuint vertexbuffers[6];
     int timerID;
 
     void setupVertexAttribs();
@@ -557,6 +575,10 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     int m_viewMatrixLoc = 0;
     int m_lightPosLoc = 0;
     int m_alphaLoc = 0;
+    int attribute_coord = 0;
+    int uniform_tex = 0;
+    int uniform_color = 0;
+
     QMatrix4x4 m_camera;
     QMatrix4x4 m_world;
     int scale = 50;
