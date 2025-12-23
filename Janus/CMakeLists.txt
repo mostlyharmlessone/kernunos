@@ -21,6 +21,11 @@ enable_language(C)
 #set(CMAKE_CROSSCOMPILING true)
 #set(CMAKE_SYSTEM_NAME Windows)
 #set(CMAKE_SYSTEM_VERSION 10.0)
+
+if(POLICY CMP0167)
+cmake_policy(SET CMP0167 NEW)
+endif(POLICY CMP0167)
+
 set(QT_CREATOR_SKIP_MAINTENANCE_TOOL_PROVIDER on)
 set(CMAKE_CXX_STANDARD 17) # doesn't apply to win32
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -423,7 +428,7 @@ target_link_libraries(gnuplot_iostream INTERFACE
     Boost::iostreams
     Boost::filesystem)
 
-# Freetype
+# Target Freetype
 target_include_directories(kernunos PUBLIC FREETYPE_INCLUDE_DIRS)
 target_include_directories(kernunos PUBLIC /usr/include/freetype2)
 
@@ -431,7 +436,6 @@ target_link_libraries(kernunos
                PRIVATE OpenMP::OpenMP_CXX Qt6::Concurrent
                gnuplot_iostream
                boost_iostreams
-               boost_system
                boost_filesystem
                PUBLIC Qt${QT_VERSION_MAJOR}::Core
                       Qt${QT_VERSION_MAJOR}::OpenGLWidgets

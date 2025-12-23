@@ -819,7 +819,7 @@ void MainWindow::zerncompute()
     }
     QTemporaryFile FILE;
     FILE.setAutoRemove(true);
-    FILE.open();
+    if(!FILE.open()) return;
     QString filenamelocal = FILE.fileName();
     filenamelocal = filenamelocal.append(".gnu");
     QByteArray ba = filenamelocal.toLocal8Bit();
@@ -865,7 +865,7 @@ void MainWindow::showzern()
     }
     QTemporaryFile FILE;
     FILE.setAutoRemove(true);
-    FILE.open();
+    if(!FILE.open()) return;
     QString filenamelocal = FILE.fileName();
     filenamelocal = filenamelocal.append(".gnu");
     QByteArray ba = filenamelocal.toLocal8Bit();
@@ -889,7 +889,7 @@ void MainWindow::importexport()
     //make temporary PLY file name
     QTemporaryFile FILE;
     FILE.setAutoRemove(true);
-    FILE.open();
+    if(!FILE.open()) return;
     QString filenamelocal = FILE.fileName();
     filenamelocal = filenamelocal.append(".ply");
     QByteArray ba = filenamelocal.toLocal8Bit();
@@ -1075,7 +1075,7 @@ void MainWindow::ply2bin()
     */
     QTemporaryFile FILE;
     FILE.setAutoRemove(true);
-    FILE.open();
+    if(!FILE.open()) return;
     QString filenamelocal = FILE.fileName();
     filenamelocal = filenamelocal.append(".ply");
     ba = filenamelocal.toLocal8Bit();
@@ -1110,7 +1110,7 @@ void MainWindow::off2stl()
     */
    QTemporaryFile FILE;
    FILE.setAutoRemove(true);  //doesnt do anything
-   FILE.open();
+   if(!FILE.open()) return;
    QString filenamelocal = FILE.fileName();
    filenamelocal = filenamelocal.append(".off");
    ba = filenamelocal.toLocal8Bit();
@@ -1183,7 +1183,7 @@ void MainWindow::LinesofCurvature()
 {
     QTemporaryFile FILE;
     FILE.setAutoRemove(true);  //does not do anything
-    FILE.open();
+    if(!FILE.open()) return;
     QString filenamelocal = FILE.fileName();
     filenamelocal = filenamelocal.append(".car");
     QByteArray ba = filenamelocal.toLocal8Bit();
@@ -1209,7 +1209,7 @@ void MainWindow::gnuplotsplot() {
    }
    QTemporaryFile FILE;
    FILE.setAutoRemove(true);  //does not do anything
-   FILE.open();
+   if(!FILE.open()) return;
    QString filenamelocal = FILE.fileName();
    filenamelocal = filenamelocal.append(".gnu");
    QByteArray ba = filenamelocal.toLocal8Bit();
@@ -1242,7 +1242,7 @@ void MainWindow::center() {
    }
    QTemporaryFile FILE;
    FILE.setAutoRemove(true);  //does not do anything
-   FILE.open();
+   if(!FILE.open()) return;
    QString filenamelocal = FILE.fileName();
    filenamelocal = filenamelocal.append(".gnu");
    QByteArray ba = filenamelocal.toLocal8Bit();
@@ -1314,7 +1314,7 @@ void MainWindow::rings() {
     }
     QTemporaryFile FILE;
     FILE.setAutoRemove(true);  //does not do anything
-    FILE.open();
+    if(!FILE.open()) return;
     QString filenamelocal = FILE.fileName();
     filenamelocal = filenamelocal.append(".gnu");
     QByteArray ba = filenamelocal.toLocal8Bit();
