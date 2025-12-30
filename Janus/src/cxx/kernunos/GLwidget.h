@@ -47,17 +47,6 @@
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
 
-// Using deprecated functions, apparently the future solution is QML instead of C==
-
-#include <Qt3DCore/QEntity>
-#include <Qt3DExtras/QText2DEntity>
-#include <Qt3DExtras/QExtrudedTextMesh>
-#include <Qt3DExtras/QPhongMaterial>
-#include <Qt3DRender/qcamera.h>
-#include <Qt3DCore/qentity.h>
-#include <Qt3DRender/qcameralens.h>
-#include "qt3dwindow.h"
-
 #include <QCommandLineParser>
 #include <QCommandLineOption>
 #include <QLocale>
@@ -555,15 +544,14 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     QMatrix4x4 mViewMatrix;
     bool LoadSurfaceToBuffer(int nV, int nE, GLuint vertexbuffer,  GLuint elementbuffer, GLfloat *vertices, GLuint *elements);
     bool LoadLinesToBuffer(int nV, int nE, GLuint vertexbuffer,  GLuint elementbuffer, GLfloat *vertices, GLuint *elements);
-    bool RenderText(GLuint vertexbuffer, std::string text, float x, float y, float scale, glm::vec3 color);
     void render_text(GLuint vertexbuffer,const char *text, float x, float y, float sx, float sy);
 
-    GLuint elementbuffers[6];
-    GLuint vertexbuffers[6];
+    GLuint elementbuffers[7];  //i 0 to 6
+    GLuint vertexbuffers[7];   //i 0 to 6
     int timerID;
 
     void setupVertexAttribs();
-    void checkGLError(const char* file, int line);
+    bool checkGLError(const char* file, int line);
 
     int m_xRot = 0;
     int m_yRot = 0;
