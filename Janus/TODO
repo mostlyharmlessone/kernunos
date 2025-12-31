@@ -5,9 +5,9 @@ CorneaCopia
 
 working on axes in GLwidget.cpp
 It'd be helpful to have axes/angles for orientation is moving the figure
-two render text; one writes and has a GL error 1282
-it also doesn't rotate
-the other doesn't and has no error 
+need selection menu and stop leaning on show pupil for axes and scale, or both together
+need loop/routine to generate numbers in a circle with render_text
+
 
 Swap erases pupil data...
 

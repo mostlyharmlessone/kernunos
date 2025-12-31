@@ -138,11 +138,11 @@ static const GLchar* textfsrc = R"glsl(
 static const GLchar* textvsrc = R"glsl(
     attribute vec4 coord;
     varying vec2 texpos;
-    uniform mat4 projectionMatrix;
+    uniform mat4 mMVP;
 
     void main(void) {
-    gl_Position = vec4(coord.xy, 0, 1);
-    texpos = coord.zw;
+     gl_Position = mMVP * vec4(coord.xy, 0, 1.0);
+     texpos = coord.zw;
     }
 )glsl";
 
@@ -213,14 +213,15 @@ struct point {
 FT_Library ft;
 FT_Face face;
 
-//float width = QGuiApplication::screens()[0]->size().width();
-//float height = QGuiApplication::screens()[0]->size().height();
+float width = QGuiApplication::screens().size();
+float height = QGuiApplication::screens().size();
+
 
 //float sx = 2.0 / width;
 //float sy = 2.0 / height;
 
-float sx = 0.005;
-float sy = 0.005;
+float sx = 0.001;
+float sy = 0.001;
 
 
 GLwidget::GLwidget ( QWidget *parent ) : QOpenGLWidget(parent)
@@ -284,7 +285,6 @@ void GLwidget::initializeGL()
 {
   // initialize OpenGL
   initializeOpenGLFunctions();
-
   // Get the GL version
   QString sglVer = "\nUsing OpenGL version: ";
   const GLubyte* GLversion = glGetString(GL_VERSION);
@@ -402,7 +402,7 @@ void GLwidget::initializeGL()
   attribute_coord = shaderText2Program->attributeLocation("coord");
   uniform_tex = shaderText2Program->uniformLocation("tex");
   uniform_color = shaderText2Program->uniformLocation("color");
-  m_projMatrixLoc = shaderText2Program->uniformLocation("projectionMatrix");
+  m_viewMatrixLoc = shaderText2Program->uniformLocation("mMVP");
   shaderText2Program->release();
 
   //set light/normal shader program up
@@ -837,6 +837,12 @@ bool GLwidget::LoadLinesToBuffer(int nV, int nE, GLuint vertexbuffer, GLuint ele
 
 
 //https://gitlab.com/wikibooks-opengl/modern-tutorials/-/blob/master/text01_intro/text.cpp?ref_type=heads
+/*
+ * Render text using the currently loaded font and currently set font size.
+ * Rendering starts at coordinates (x, y), z is always 0.
+ * The pixel coordinates that the FreeType2 library uses are scaled by (sx, sy).
+ */
+
 void GLwidget::render_text(GLuint vertexbuffer, const char *text, float x, float y, float sx, float sy) {
 
     makeCurrent();
@@ -1070,24 +1076,25 @@ void GLwidget::paintGL(void)
          glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
          GLfloat black[4] = { 0, 0, 0, 1 };
-//         GLfloat red[4] = { 1, 0, 0, 1 };
-//         GLfloat transparent_green[4] = { 0, 1, 0, 0.5 };
+         GLfloat red[4] = { 1, 0, 0, 1 };
 
          m_world.setToIdentity();
          m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
          m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
          m_world.rotate(m_zRot / 16.0f, 0, 0, 1);
-         mMVP =  mViewMatrix  * m_world;
-         m_alpha = QVector4D(0,0,0,1.0);
+         mMVP =  m_world;
 
          shaderText2Program->bind();
+         shaderText2Program->setUniformValue(m_viewMatrixLoc, mMVP);
          /* Set font size to 48 pixels, color to black */
          FT_Set_Pixel_Sizes(face, 0, 48);
          glUniform4fv(uniform_color, 1, black);
-
          render_text(vertexbuffers[i],"The Quick Brown Fox Jumps Over The Lazy Dog", -1 + 8 * sx, 1 - 50 * sy, sx, sy);
+         glUniform4fv(uniform_color, 1, red);
+         render_text(vertexbuffers[i],"The Quick Brown Fox Jumps Over The Lazy Dog", -1 + 80 * sx, 1 - 250 * sy, sx, sy);
 
          checkGLError(__FILE__, __LINE__);
+
          shaderText2Program->release();
      }
 
