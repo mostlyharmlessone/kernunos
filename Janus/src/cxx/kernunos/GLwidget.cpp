@@ -139,9 +139,10 @@ static const GLchar* textvsrc = R"glsl(
     attribute vec4 coord;
     varying vec2 texpos;
     uniform mat4 mMVP;
+    uniform mat4 projection;
 
     void main(void) {
-     gl_Position = mMVP * vec4(coord.xy, 0, 1.0);
+     gl_Position = projection * mMVP * vec4(coord.xy, 0, 1.0);
      texpos = coord.zw;
     }
 )glsl";
@@ -152,6 +153,7 @@ bool GLwidget::m_transparent = false;
 bool GLwidget::m_normal = false;
 bool GLwidget::m_lighting = false;
 bool GLwidget::m_pupilshow = false;
+bool GLwidget::m_axesshow = false;
 bool GLwidget::m_redraw = false;
 
 bool GLwidget::m_centerNode = false;
@@ -213,16 +215,15 @@ struct point {
 FT_Library ft;
 FT_Face face;
 
-float width = QGuiApplication::screens().size();
-float height = QGuiApplication::screens().size();
+float sx = 1.0 / SCR_WIDTH ;
+float sy = 1.0 / SCR_HEIGHT;
 
-
-//float sx = 2.0 / width;
-//float sy = 2.0 / height;
-
-float sx = 0.001;
-float sy = 0.001;
-
+//https://stackoverflow.com/questions/2125880/convert-float-to-stdstring-in-c
+template <typename T> std::string to_str(const T& t) {
+    std::ostringstream os;
+    os<<t;
+    return os.str();
+}
 
 GLwidget::GLwidget ( QWidget *parent ) : QOpenGLWidget(parent)
 {
@@ -243,12 +244,11 @@ GLwidget::~GLwidget()
 }
 
 //Use by inserting:  checkGLError(__FILE__, __LINE__);
-bool GLwidget::checkGLError(const char* file, int line) {
+void GLwidget::checkGLError(const char* file, int line) {
     GLenum err;
     while ((err = glGetError()) != GL_NO_ERROR) {
         std::cout << "OpenGL Error " << err << "  at " << file << ":" << line << std::endl;
     }
-    return (glGetError() != GL_NO_ERROR);
 }
 
 void GLwidget::cleanup()
@@ -402,7 +402,8 @@ void GLwidget::initializeGL()
   attribute_coord = shaderText2Program->attributeLocation("coord");
   uniform_tex = shaderText2Program->uniformLocation("tex");
   uniform_color = shaderText2Program->uniformLocation("color");
-  m_viewMatrixLoc = shaderText2Program->uniformLocation("mMVP");
+  m_viewMatrix2Loc = shaderText2Program->uniformLocation("mMVP");
+  m_projectionLoc = shaderText2Program->uniformLocation("projection");
   shaderText2Program->release();
 
   //set light/normal shader program up
@@ -835,14 +836,13 @@ bool GLwidget::LoadLinesToBuffer(int nV, int nE, GLuint vertexbuffer, GLuint ele
     return true;
 }
 
-
-//https://gitlab.com/wikibooks-opengl/modern-tutorials/-/blob/master/text01_intro/text.cpp?ref_type=heads
+// https://gitlab.com/wikibooks-opengl/modern-tutorials/-/blob/master/text01_intro/text.cpp?ref_type=heads
 /*
  * Render text using the currently loaded font and currently set font size.
  * Rendering starts at coordinates (x, y), z is always 0.
  * The pixel coordinates that the FreeType2 library uses are scaled by (sx, sy).
  */
-
+ // doen't handle rotation around z very well.
 void GLwidget::render_text(GLuint vertexbuffer, const char *text, float x, float y, float sx, float sy) {
 
     makeCurrent();
@@ -850,31 +850,24 @@ void GLwidget::render_text(GLuint vertexbuffer, const char *text, float x, float
     shaderText2Program->bind();
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
      /* Create a texture that will be used to hold one "glyph" */
     GLuint tex;
     glActiveTexture(GL_TEXTURE0);
     glGenTextures(1, &tex);
     glBindTexture(GL_TEXTURE_2D, tex);
     glUniform1i(uniform_tex, 0);
-
     /* We require 1 byte alignment when uploading texture data */
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
     /* Clamping to edges is important to prevent artifacts when scaling */
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
     /* Linear filtering usually looks best for text */
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
     /* Set up the VBO for our vertex data */
-
     glEnableVertexAttribArray(attribute_coord);
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
     glVertexAttribPointer(attribute_coord, 4, GL_FLOAT, GL_FALSE, 0, 0);
-
     // FreeType
     // --------
     FT_Library ft;
@@ -900,24 +893,19 @@ void GLwidget::render_text(GLuint vertexbuffer, const char *text, float x, float
     else {
         // set size to load glyphs as
         FT_Set_Pixel_Sizes(face, 0, 48);
-
         // disable byte-alignment restriction
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
         // Load character glyph
         const char *p;
         FT_GlyphSlot g = face->glyph;
-
         /* Loop through all characters */
         for (p = text; *p; p++) {
           /* Try to load and render the character */
-
             if (FT_Load_Char(face, *p, FT_LOAD_RENDER))
              {
                std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
                continue;
              }
-
             /* Upload the "bitmap", which contains an 8-bit grayscale image, as an alpha texture */
              glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, g->bitmap.width, g->bitmap.rows, 0, GL_ALPHA, GL_UNSIGNED_BYTE, g->bitmap.buffer);
              /* Calculate the vertex and texture coordinates */
@@ -933,11 +921,9 @@ void GLwidget::render_text(GLuint vertexbuffer, const char *text, float x, float
                              {x2 + w, -y2 - h, 1, 1},
                              };
 
-
              /* Draw the character on the screen */
               glBufferData(GL_ARRAY_BUFFER, sizeof box, box, GL_DYNAMIC_DRAW);
               glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
              /* Advance the cursor to the start of the next character */
                x += (g->advance.x >> 6) * sx;
                y += (g->advance.y >> 6) * sy;
@@ -947,7 +933,6 @@ void GLwidget::render_text(GLuint vertexbuffer, const char *text, float x, float
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
     }
     glDeleteTextures(1, &tex);
 }
@@ -1028,7 +1013,7 @@ void GLwidget::paintGL(void)
         shaderProgram->release();
     }
 
-     if (i == 5 && m_pupilshow) {
+     if (i == 5 && m_axesshow) {
         // what a f* of a lot of trouble to assign values to a vector for passing..
          /* Printing std vectors of integers (int) to console, isn't cpp straightforward? */
          //       https://stackoverflow.com/questions/10750057/how-do-i-print-out-the-contents-of-a-vector
@@ -1070,31 +1055,31 @@ void GLwidget::paintGL(void)
         shaderProgram->release();
      }
 
-     if (i == 6 && m_pupilshow) {
+     if (i == 6 && m_axesshow) {
 
          glEnable(GL_BLEND);
          glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-         GLfloat black[4] = { 0, 0, 0, 1 };
-         GLfloat red[4] = { 1, 0, 0, 1 };
-
+         GLfloat white[4] = { 1, 1, 1, 1 };
+//         GLfloat black[4] = { 0, 0, 0, 1 };
+//         GLfloat red[4] = { 1, 0, 0, 1 };
          m_world.setToIdentity();
          m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
          m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
          m_world.rotate(m_zRot / 16.0f, 0, 0, 1);
-         mMVP =  m_world;
+         glm::mat4 projection = glm::ortho(-static_cast<float>(SCR_WIDTH)/SCR_HEIGHT, static_cast<float>(SCR_WIDTH)/SCR_HEIGHT, -1.0f, 1.0f);
+         mMVP = m_world;
 
          shaderText2Program->bind();
-         shaderText2Program->setUniformValue(m_viewMatrixLoc, mMVP);
-         /* Set font size to 48 pixels, color to black */
-         FT_Set_Pixel_Sizes(face, 0, 48);
-         glUniform4fv(uniform_color, 1, black);
-         render_text(vertexbuffers[i],"The Quick Brown Fox Jumps Over The Lazy Dog", -1 + 8 * sx, 1 - 50 * sy, sx, sy);
-         glUniform4fv(uniform_color, 1, red);
-         render_text(vertexbuffers[i],"The Quick Brown Fox Jumps Over The Lazy Dog", -1 + 80 * sx, 1 - 250 * sy, sx, sy);
+         shaderText2Program->setUniformValue(m_viewMatrix2Loc, mMVP);
+         glUniformMatrix4fv(glGetUniformLocation(shaderText2Program->programId(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+         glUniform4fv(uniform_color, 1, white);
+
+         for (int j=0; j < 12; ++j){
+             std::string degrees  = to_str(180.0*j/6.0);
+             render_text(vertexbuffers[i],degrees.c_str(), 0.8*cos(3.1415*j/6.0), 0.8*sin(3.1415*j/6.0), sx, sy);
+         }
 
          checkGLError(__FILE__, __LINE__);
-
          shaderText2Program->release();
      }
 

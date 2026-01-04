@@ -2,13 +2,6 @@ things to do
 
 CorneaCopia
 
-
-working on axes in GLwidget.cpp
-It'd be helpful to have axes/angles for orientation is moving the figure
-need selection menu and stop leaning on show pupil for axes and scale, or both together
-need loop/routine to generate numbers in a circle with render_text
-
-
 Swap erases pupil data...
 
 TopCon CA-800 in SA -> all binary

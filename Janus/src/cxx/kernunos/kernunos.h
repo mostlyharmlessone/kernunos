@@ -153,6 +153,7 @@ private slots:
     void checkfctsflags();
     void light();
     void pupil();
+    void axes();
     void redrawOption();
     void about();
     void aboutQt();
@@ -271,6 +272,7 @@ private:
     QAction *lightAct;
     QAction *normalAct;
     QAction *pupilAct;
+    QAction *axesAct;
 
     QMenu *analyzeMenu;
     QAction *zernAct;

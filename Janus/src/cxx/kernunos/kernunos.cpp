@@ -1437,6 +1437,17 @@ void MainWindow::pupil()
     };
 }
 
+void MainWindow::axes()
+{
+    if (GLwidget::isAxes()) {
+        GLwidget::setAxes(false);
+        ui.infoLabel->setText(tr("Set <b>View:Axes false</b>"));
+    } else {
+        GLwidget::setAxes(true);
+        ui.infoLabel->setText(tr("Set <b>View:Axes true</b>"));
+    };
+}
+
 
 void MainWindow::fctAxial()
 {
@@ -2253,6 +2264,10 @@ void MainWindow::createActions()
    connect(pupilAct, &QAction::triggered, this, &MainWindow::pupil);
    pupilAct->setCheckable(true);
 
+   axesAct = new QAction(tr("&Show Axes"), this);
+   connect(axesAct, &QAction::triggered, this, &MainWindow::axes);
+   axesAct->setCheckable(true);
+
    centernodeAct=new QAction(tr("&Create center node to force MinMax at origin"), this);
    centernodeAct->setCheckable(true);
    connect(centernodeAct, &QAction::triggered, this, &MainWindow::tweakcenterNode);
@@ -2523,6 +2538,7 @@ void MainWindow::createMenus()
    viewMenu->addAction(lightAct);
    viewMenu->addAction(normalAct);
    viewMenu->addAction(pupilAct);
+   viewMenu->addAction(axesAct);
    tweaksMenu = menuBar()->addMenu(tr("&Placido data tweaks"));
    tweaksMenu->addAction(axisymmetricAct);
    tweaksMenu->addAction(centernodeAct);

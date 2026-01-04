@@ -152,6 +152,9 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     static bool isPupil() { return m_pupilshow; }
     static void setPupil(bool t) { m_pupilshow = t; }
 
+    static bool isAxes() { return m_axesshow; }
+    static void setAxes(bool t) { m_axesshow = t; }
+
     static bool isRedraw() { return m_redraw; }
     static void setRedraw(bool t) { m_redraw = t; }
 
@@ -551,7 +554,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     int timerID;
 
     void setupVertexAttribs();
-    bool checkGLError(const char* file, int line);
+    void checkGLError(const char* file, int line);
 
     int m_xRot = 0;
     int m_yRot = 0;
@@ -561,6 +564,8 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     QOpenGLVertexArrayObject m_vao;
     int m_projMatrixLoc = 0;
     int m_viewMatrixLoc = 0;
+    int m_viewMatrix2Loc = 0;
+    int m_projectionLoc = 0;
     int m_lightPosLoc = 0;
     int m_alphaLoc = 0;
     int attribute_coord = 0;
@@ -577,6 +582,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     static bool m_normal;
     static bool m_lighting;
     static bool m_pupilshow;
+    static bool m_axesshow;
     static bool m_redraw;
 
     static bool m_centerNode;

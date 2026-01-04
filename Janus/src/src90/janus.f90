@@ -1601,7 +1601,7 @@ endif
    if (TestData.ne.2 .and. TestData.ne.4) then
     JMatrix%Z0(1)=P_TEMP
    else
-    write(*,*) 'JMatrix%Z0(1) already set in RadSlope_eq_Skyline: center elevation supplied, average calculated',JMatrix%Z0(1),P_TEMP
+    write(*,*) 'Central elevation already set in RadSlope_eq_Skyline: center elevation supplied, average calculated',JMatrix%Z0(1),P_TEMP
    endif
    if (JMatrix%Z0(1) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z0(1)
    if (JMatrix%Z0(1) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z0(1)
@@ -1640,7 +1640,7 @@ endif
    if (TestData.ne.3 .and. TestData.ne.5) then
     JMatrix%SAGC0(1)=P_TEMP
    else
-    write(*,*) 'JMatrix%SAGC0(1) already set in RadSlope_eq_Skyline, center power supplied, average calculated',JMatrix%SAGC0(1),P_TEMP
+    write(*,*) 'Central Axial Power already set in RadSlope_eq_Skyline, center power supplied, average calculated',JMatrix%SAGC0(1),P_TEMP
    endif
    if (JMatrix%SAGC0(1) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC0(1)
    if (JMatrix%SAGC0(1) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC0(1)
