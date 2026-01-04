@@ -373,6 +373,8 @@ void GLwidget::initializeGL()
   mViewMatrix.setToIdentity();
   mViewMatrix.scale(scale*QVector3D(1.0,1.0,1.0)/10000.0);
   mViewMatrix.translate(QVector3D(0,0,-position));
+  //unscaled version for text
+   mUnscaledViewMatrix.setToIdentity();
 
   //link the programs
   shaderProgram->link();
@@ -972,6 +974,7 @@ void GLwidget::paintGL(void)
     QMatrix4x4 mMVP;
     QVector4D m_alpha;
     if (i == 1) {
+        // draws central image, rotates. translates, scales
         if (!LoadSurfaceToBuffer(nV[i-1], nE[i-1], vertexbuffers[i], elementbuffers[i], vertices, elements)) return;
         m_world.setToIdentity();
         m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
@@ -981,6 +984,7 @@ void GLwidget::paintGL(void)
         m_alpha = QVector4D(0,0,0,m_alpha_value);
     }
     if (i == 2) {
+        //draws last image, does not rotate. translate, scale
         if (!LoadSurfaceToBuffer(nV[i-1], nE[i-1], vertexbuffers[i], elementbuffers[i], vertices2, elements2)) return;
         mMVP.setToIdentity();
         mMVP.scale(scale*QVector3D(1.0,1.0,1.0)/10000.0);
@@ -988,6 +992,7 @@ void GLwidget::paintGL(void)
         m_alpha = QVector4D(0,0,0,1.0);
     }
     if (i == 3) {
+        //draws comparison, does not rotate. translate, scale
         if (!LoadSurfaceToBuffer(nV[i-1], nE[i-1], vertexbuffers[i], elementbuffers[i], vertices3, elements3)) return;
         mMVP.setToIdentity();
         mMVP.scale(scale*QVector3D(1.0,1.0,1.0)/10000.0);
@@ -996,6 +1001,7 @@ void GLwidget::paintGL(void)
     }
 
     if (i == 4 && m_pupilshow) {
+        // displays pupil data as black 2D image arbitrarily behind corneal data, rotates. translates, scales
         if(!LoadSurfaceToBuffer(pupil_nV, pupil_nE, vertexbuffers[i-4], elementbuffers[i-4], pupil_vertices, pupil_elements)) return;
         m_world.setToIdentity();
         m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
@@ -1014,6 +1020,7 @@ void GLwidget::paintGL(void)
     }
 
      if (i == 5 && m_axesshow) {
+        // draws a set of three cartesian axes x=red, y= green, z = blue, rotates. translates, scales
         // what a f* of a lot of trouble to assign values to a vector for passing..
          /* Printing std vectors of integers (int) to console, isn't cpp straightforward? */
          //       https://stackoverflow.com/questions/10750057/how-do-i-print-out-the-contents-of-a-vector
@@ -1037,7 +1044,6 @@ void GLwidget::paintGL(void)
         axis_Elements.assign (array_axis_elements,array_axis_elements+axis_NE);
         GLfloat* axis_vertices = axis_Vertices.data();
         GLuint* axis_elements = axis_Elements.data();
-
         m_world.setToIdentity();
         m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
         m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
@@ -1056,7 +1062,7 @@ void GLwidget::paintGL(void)
      }
 
      if (i == 6 && m_axesshow) {
-
+//       draws a circle with degrees at each clock hour, not compatible with Normals, rotates. translates, scales
          glEnable(GL_BLEND);
          glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
          GLfloat white[4] = { 1, 1, 1, 1 };
@@ -1067,19 +1073,15 @@ void GLwidget::paintGL(void)
          m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
          m_world.rotate(m_zRot / 16.0f, 0, 0, 1);
          glm::mat4 projection = glm::ortho(-static_cast<float>(SCR_WIDTH)/SCR_HEIGHT, static_cast<float>(SCR_WIDTH)/SCR_HEIGHT, -1.0f, 1.0f);
-         mMVP = m_world;
-
+         mMVP = mUnscaledViewMatrix * m_world;
          shaderText2Program->bind();
          shaderText2Program->setUniformValue(m_viewMatrix2Loc, mMVP);
          glUniformMatrix4fv(glGetUniformLocation(shaderText2Program->programId(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
          glUniform4fv(uniform_color, 1, white);
-
          for (int j=0; j < 12; ++j){
              std::string degrees  = to_str(180.0*j/6.0);
              render_text(vertexbuffers[i],degrees.c_str(), 0.8*cos(3.1415*j/6.0), 0.8*sin(3.1415*j/6.0), sx, sy);
          }
-
-         checkGLError(__FILE__, __LINE__);
          shaderText2Program->release();
      }
 
@@ -1103,7 +1105,6 @@ void GLwidget::paintGL(void)
             // Unbind shader
             shaderProgram->release();
         };
-
         // draw normals here
         if (m_normal) {
             shaderGeoProgram->bind();
@@ -1113,10 +1114,11 @@ void GLwidget::paintGL(void)
             // Unbind shader
             shaderGeoProgram->release();
         };
+
+        checkGLError(__FILE__, __LINE__);
     // Unbind buffer; do not do this per Qt https://doc.qt.io/qt-6/qopenglwidget.html
  //   glBindBuffer(vertexbuffers[i],0);
  //   glBindBuffer(elementbuffers[i],0);
-
     }
     m_vao.release();
     }
@@ -1146,34 +1148,43 @@ void GLwidget::keyPressEvent(QKeyEvent *e)
     break;
     case Qt::Key_M:  /*  M Key */
      mViewMatrix.scale(0.7*QVector3D(1.0,1.0,1.0)/scale);
+     mUnscaledViewMatrix.scale(0.7*QVector3D(1.0,1.0,1.0)/scale);
      update();
     break;
     case Qt::Key_N:  /*  N Key */
      mViewMatrix.scale(QVector3D(1.0,1.0,1.0)*scale);
+     mUnscaledViewMatrix.scale(QVector3D(1.0,1.0,1.0)*scale);
      update();
     break;    
     case Qt::Key_Q:  /*  Q Key */
-     mViewMatrix.translate(scale*QVector3D(0,0,-0.1));
+     mViewMatrix.scale(QVector3D(1.0,1.0,1.0)/1.1);
+     mUnscaledViewMatrix.scale(QVector3D(1.0,1.0,1.0)/1.1);
      update();
       break;
   case Qt::Key_S:  /*  S Key */
-     mViewMatrix.translate(scale*QVector3D(0,0,0.1));
+     mViewMatrix.scale(1.1*QVector3D(1.0,1.0,1.0));
+     mUnscaledViewMatrix.scale(1.1*QVector3D(1.0,1.0,1.0));
      update();
       break;
+  //try to match speed of degree circle with images
   case Qt::Key_W:  /*  W Key */
      mViewMatrix.translate(scale*QVector3D(0,0.1,0));
+     mUnscaledViewMatrix.translate(0.063*QVector3D(0,0.1,0));
      update();
       break;
   case Qt::Key_X:  /*  X Key */
      mViewMatrix.translate(scale*QVector3D(0,-0.1,0));
+     mUnscaledViewMatrix.translate(0.063*QVector3D(0,-0.1,0));
      update();
       break;
   case Qt::Key_A:  /*  A Key */
      mViewMatrix.translate(scale*QVector3D(-0.1,0,0));
+     mUnscaledViewMatrix.translate(0.063*QVector3D(-0.1,0,0));
      update();
       break;
   case Qt::Key_D:  /*  D Key */
      mViewMatrix.translate(scale*QVector3D(0.1,0,0));
+     mUnscaledViewMatrix.translate(0.063*QVector3D(0.1,0,0));
      update();
       break;
     default:
@@ -1187,11 +1198,13 @@ void GLwidget::wheelEvent(QWheelEvent *e)
     QPoint numPixels = e->pixelDelta();
     makeCurrent();
          if (numPixels.y() > 0) {
-         mViewMatrix.translate(scale*QVector3D(0,0,-1.0));
+         mViewMatrix.scale(QVector3D(1.0,1.0,1.0)/1.1);
+         mUnscaledViewMatrix.scale(QVector3D(1.0,1.0,1.0)/1.1);
          update();
          }
          else {
-         mViewMatrix.translate(scale*QVector3D(0,0,1.0));
+         mViewMatrix.scale(1.1*QVector3D(1.0,1.0,1.0));
+         mUnscaledViewMatrix.scale(1.1*QVector3D(1.0,1.0,1.0));
          update();
          }
     e->accept();

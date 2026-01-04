@@ -545,6 +545,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     QOpenGLShaderProgram *shaderText2Program = nullptr;
     QMatrix4x4 projectionMatrix;
     QMatrix4x4 mViewMatrix;
+    QMatrix4x4 mUnscaledViewMatrix;
     bool LoadSurfaceToBuffer(int nV, int nE, GLuint vertexbuffer,  GLuint elementbuffer, GLfloat *vertices, GLuint *elements);
     bool LoadLinesToBuffer(int nV, int nE, GLuint vertexbuffer,  GLuint elementbuffer, GLfloat *vertices, GLuint *elements);
     void render_text(GLuint vertexbuffer,const char *text, float x, float y, float sx, float sy);
@@ -565,6 +566,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     int m_projMatrixLoc = 0;
     int m_viewMatrixLoc = 0;
     int m_viewMatrix2Loc = 0;
+    int m_UnscaledViewMatrix=0;
     int m_projectionLoc = 0;
     int m_lightPosLoc = 0;
     int m_alphaLoc = 0;
