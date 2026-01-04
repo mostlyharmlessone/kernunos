@@ -15,12 +15,15 @@ this will affect Geom,WriteGeomPLY/OFF
 
 compare is broken with zernike; also so is opening 2nd file with zernike selected and zernike 
 
+
 need a 2-D picture output other than gnuplot version
 make mathematica plot output?, just like ply,off etc.
+
 
 need to cleanup gitmodules/submodules that may no longer exit or are not in the project 
 test assimp now that added as submodule to keep up to date
 ie math77
+
 
 https://docs.nersc.gov/performance/readiness/
 nvidia compiler flags -fast -mp=gpu -gpu=cc80  (openMP offload to gpu, source NSERC, 
