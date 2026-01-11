@@ -2,9 +2,8 @@ things to do
 
 CorneaCopia
 
-Swap erases pupil data...
-
-TopCon CA-800 in SA -> all binary
+decentering needs dialog box to show it is working
+Swap erases pupil data...and if you decenter, it uses the original data, not the swapped
 
 lsqspline doesn't fix decentering/multiple zero issues in ELE files, look at decentering again, run some test beds
 built framework for decenter; both involve moving elevation data points, either, 
@@ -15,15 +14,15 @@ this will affect Geom,WriteGeomPLY/OFF
 
 compare is broken with zernike; also so is opening 2nd file with zernike selected and zernike 
 
-
 need a 2-D picture output other than gnuplot version
 make mathematica plot output?, just like ply,off etc.
-
 
 need to cleanup gitmodules/submodules that may no longer exit or are not in the project 
 test assimp now that added as submodule to keep up to date
 ie math77
 
+
+TopCon CA-800 in SA -> all binary
 
 https://docs.nersc.gov/performance/readiness/
 nvidia compiler flags -fast -mp=gpu -gpu=cc80  (openMP offload to gpu, source NSERC, 
@@ -121,11 +120,11 @@ Optimizing:
 1)valgrind/profiling can also try helegrind for cyclic 4 way slow down
 2)need to relook at integration to see if can eliminate extra function calls
 
-MSYS2 for Windows app build etc
-https://wiki.wxwidgets.org/Cross-Compiling_Under_Linux
-https://github.com/Zeranoe/mingw-w64-build
-
 Investigate:
+
+GCC F2018 compliant with deferred length character with Bind C used in janus.f90
+GCC11 problem, ISO_Fortran_binding.h nt available or C++ not C?
+
 Passing an assumed-shape array or array pointer to an explicit-shape array can slow run-time performance. https://www.cita.utoronto.ca/~merz/intel_f10b/main_for/mergedProjects/optaps_for/fortran/optaps_prg_arrs_f.htm
 Spline routines seem to have explicit shape, and are passed possibly assumed-shape
 
@@ -137,6 +136,8 @@ PentaCam U12 file looks like it has binary data separated by blocks of zero, pos
 iTrace 8640 points = 360 x 24; has "Data" binary compressed with gzip
 Topcon CA-800 binary files 49928 bytes = 8 x 6241 ; 24 rings "6200 measured points" suggests 8 byte floats 24 x 256 = 6144 and 41 bytes header or footer?
 8 byte segments seem to alternate?
+
+
 
 
 

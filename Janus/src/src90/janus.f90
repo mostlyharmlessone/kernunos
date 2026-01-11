@@ -202,8 +202,9 @@ if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3) then
 !  only need new file name if opening a file or printing, or compare for degree information and
 !  local save of inputfile1,inputfile2,logfile
 !  write(*,*) 'file from kernunos: ',file_from_C  ! this will have a lot of extra random non ASCII stuff after the file name
-!! need this because GCC11 isn't F2018 compliant with deferred length character with Bind C
-!! ie. can't do CHARACTER(*,c_char), INTENT(IN) :: file_from_C_1 with BIND(C) with GCC11
+!! did this because GCC11 isn't F2018 compliant with deferred length character with Bind C
+!! ie. can't do CHARACTER(*,c_char), INTENT(IN) :: file_from_C_1 with BIND(C) with GCC
+!! Or is it that ISO_Fortran_binding.h isn't available, or C++ not C?
 !! declaring character(len=12), dimension(:), allocatable :: args with args(1) works too, but limited in length
 !   Converting C char array to Fortran character.
     new_path = " "
@@ -478,6 +479,94 @@ if (mod(flag,100) == 11) then
   return
  endif
 endif
+
+! decenter is compare without a second scan
+if (btest(dat,5)) then
+ new_path = " "
+ do i=1, 4096
+   if ( file_from_C (i) == c_null_char ) then
+       exit
+   else
+       new_path (i:i) = file_from_C (i)
+   end if
+ end do
+! write(*,*) 'file from kernunos: ',trim(new_path)
+new_path=trim(new_path)
+read(new_path,*) dvert,dhoriz
+!generate new JMatrix
+ JMatrix3=JMatrix
+  ctr_circle_x=JMatrix%Pupil_Center(1)-dhoriz
+  ctr_circle_y=JMatrix%Pupil_Center(2)-dvert
+  write(*,*) 'Decentering by',ctr_circle_x,ctr_circle_y
+  call PolarTranslate(ctr_circle_x,ctr_circle_y,0.0_wp,0.0_wp,JMatrix3%R0,JMatrix3%THT0)
+  do i=1,M1
+   do j=1,JMatrix%MV(i)
+    call PolarTranslate(ctr_circle_x, ctr_circle_y,JMatrix%R(j,i),JMatrix%THT(i),JMatrix3%R(j,i),JMatrix3%THT(i))
+   end do
+  end do
+! regenerates based on new R/tht
+  call selectfunction(1,JMatrix3,flag,powctr,powmin,powmax)
+  ! have to re-do min/max
+   JMatrix3%SAGC0(2)=1E30   ;  JMatrix3%SAGC0(3)=-1E30
+   JMatrix3%Warp0(2)=1E30   ;  JMatrix3%Warp0(3)=-1E30
+   JMatrix3%Z0(2)=1E30      ;  JMatrix3%Z0(3)=-1E30
+   JMatrix3%INSTC0(2)=1E30  ;  JMatrix3%INSTC0(3)=-1E30
+   JMatrix3%GAUSSC0(2)=1E30 ;  JMatrix3%GAUSSC0(3)=-1E30
+   JMatrix3%MEANC0(2)=1E30  ;  JMatrix3%MEANC0(3)=-1E30
+   JMatrix3%MONGEA0(2)=1E30 ;  JMatrix3%MONGEA0(3)=-1E30
+   JMatrix3%ZC0(2,:)=1E30   ;  JMatrix3%ZC0(3,:)=-1E30
+
+  if (JMatrix3%INSTC0(1) <= JMatrix3%INSTC0(2)) JMatrix3%INSTC0(2)=JMatrix3%INSTC0(1)
+  if (JMatrix3%INSTC0(1) >= JMatrix3%INSTC0(3)) JMatrix3%INSTC0(3)=JMatrix3%INSTC0(1)
+  if (JMatrix3%GAUSSC0(1) <= JMatrix3%GAUSSC0(2)) JMatrix3%GAUSSC0(2)=JMatrix3%GAUSSC0(1)
+  if (JMatrix3%GAUSSC0(1) >= JMatrix3%GAUSSC0(3)) JMatrix3%GAUSSC0(3)=JMatrix3%GAUSSC0(1)
+  if (JMatrix3%Z0(1) <= JMatrix3%Z0(2)) JMatrix3%Z0(2)=JMatrix3%Z0(1)
+  if (JMatrix3%Z0(1) >= JMatrix3%Z0(3)) JMatrix3%Z0(3)=JMatrix3%Z0(1)
+  if (JMatrix3%SAGC0(1) <= JMatrix3%SAGC0(2)) JMatrix3%SAGC0(2)=JMatrix3%SAGC0(1)
+  if (JMatrix3%SAGC0(1) >= JMatrix3%SAGC0(3)) JMatrix3%SAGC0(3)=JMatrix3%SAGC0(1)
+  if (JMatrix3%Warp0(1) <= JMatrix3%Warp0(2)) JMatrix3%Warp0(2)=JMatrix3%Warp0(1)
+  if (JMatrix3%Warp0(1) >= JMatrix3%Warp0(3)) JMatrix3%Warp0(3)=JMatrix3%Warp0(1)
+  if (JMatrix3%MEANC0(1) <= JMatrix3%MEANC0(2)) JMatrix3%MEANC0(2)=JMatrix3%MEANC0(1)
+  if (JMatrix3%MEANC0(1) >= JMatrix3%MEANC0(3)) JMatrix3%MEANC0(3)=JMatrix3%MEANC0(1)
+  if (JMatrix3%MONGEA0(1) <= JMatrix3%MONGEA0(2)) JMatrix3%MONGEA0(2)=JMatrix3%MONGEA0(1)
+  if (JMatrix3%MONGEA0(1) >= JMatrix3%MONGEA0(3)) JMatrix3%MONGEA0(3)=JMatrix3%MONGEA0(1)
+
+  do k = 1,15
+   if (JMatrix3%ZC0(1,k) <= JMatrix3%ZC0(2,k)) JMatrix3%ZC0(2,k)=JMatrix3%ZC0(1,k)
+   if (JMatrix3%ZC0(1,k) >= JMatrix3%ZC0(3,k)) JMatrix3%ZC0(3,k)=JMatrix3%ZC0(1,k)
+  end do
+  do i=1,M1
+   do j=1,JMatrix3%MV(i)
+    if (JMatrix3%INSTC(j,i) <= JMatrix3%INSTC0(2)) JMatrix3%INSTC0(2)=JMatrix3%INSTC(j,i)
+    if (JMatrix3%INSTC(j,i) >= JMatrix3%INSTC0(3)) JMatrix3%INSTC0(3)=JMatrix3%INSTC(j,i)
+    if (JMatrix3%GAUSSC(j,i) <= JMatrix3%GAUSSC0(2)) JMatrix3%GAUSSC0(2)=JMatrix3%GAUSSC(j,i)
+    if (JMatrix3%GAUSSC(j,i) >= JMatrix3%GAUSSC0(3)) JMatrix3%GAUSSC0(3)=JMatrix3%GAUSSC(j,i)
+    if (JMatrix3%Z(j,i) <= JMatrix3%Z0(2)) JMatrix3%Z0(2)=JMatrix3%Z(j,i)
+    if (JMatrix3%Z(j,i) >= JMatrix3%Z0(3)) JMatrix3%Z0(3)=JMatrix3%Z(j,i)
+    if (JMatrix3%SAGC(j,i) <= JMatrix3%SAGC0(2)) JMatrix3%SAGC0(2)=JMatrix3%SAGC(j,i)
+    if (JMatrix3%SAGC(j,i) >= JMatrix3%SAGC0(3)) JMatrix3%SAGC0(3)=JMatrix3%SAGC(j,i)
+    if (JMatrix3%Warp(j,i) <= JMatrix3%Warp0(2)) JMatrix3%Warp0(2)=JMatrix3%Warp(j,i)
+    if (JMatrix3%Warp(j,i) >= JMatrix3%Warp0(3)) JMatrix3%Warp0(3)=JMatrix3%Warp(j,i)
+    if (JMatrix3%MEANC(j,i) <= JMatrix3%MEANC0(2)) JMatrix3%MEANC0(2)=JMatrix3%MEANC(j,i)
+    if (JMatrix3%MEANC(j,i) >= JMatrix3%MEANC0(3)) JMatrix3%MEANC0(3)=JMatrix3%MEANC(j,i)
+    if (JMatrix3%MONGEA(j,i) <= JMatrix3%MONGEA0(2)) JMatrix3%MONGEA0(2)=JMatrix3%MONGEA(j,i)
+    if (JMatrix3%MONGEA(j,i) >= JMatrix3%MONGEA0(3)) JMatrix3%MONGEA0(3)=JMatrix3%MONGEA(j,i)
+    do k = 1,15
+     if (JMatrix3%ZC(j,i,k) <= JMatrix3%ZC0(2,k)) JMatrix3%ZC0(2,k)=JMatrix3%ZC(j,i,k)
+     if (JMatrix3%ZC(j,i,k) >= JMatrix3%ZC0(3,k)) JMatrix3%ZC0(3,k)=JMatrix3%ZC(j,i,k)
+    end do
+   end do
+  end do
+  donut = .FALSE.
+  elements(1:nE) = 0
+  vertices(1:nV) = 0
+  call selectfunction(0,JMatrix3,flag,powctr,powmin,powmax)
+  call Geom(flag, JMatrix3, donut, powmin, powmax, elements, vertices, nV, nE)
+  call makelegend(flag, powmin, powmax, legend, nL)
+  JMatrix=JMatrix3
+  return
+endif
+
 
 ! simple difference/subtraction with compare
 if (mod(flag,100) == 10) then
@@ -1164,7 +1253,8 @@ endif ! end (TestData == 1)
    call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
   endif
   ! Easiest decentering for Penta elevation files is by shifting the Penta data; limited to 0.1 mm increments
-  if (btest(dat,5)) then
+  if (.false.) then !disabled
+  ! if (btest(dat,5)) then
    new_path = " "
    do i=1, 4096
       if ( file_from_C (i) == c_null_char ) then
@@ -1175,7 +1265,7 @@ endif ! end (TestData == 1)
    end do
   ! write(*,*) 'file from kernunos: ',trim(new_path)
    new_path=trim(new_path)
-   read(new_path,*) dhoriz,dvert
+   read(new_path,*) dvert,dhoriz
    if (TestData .eq. 2 .or. Testdata .eq. 4 .and. allocated(Penta%DAT) ) then
     if(.not.allocated(temp)) then
      allocate(temp(NP,NP))

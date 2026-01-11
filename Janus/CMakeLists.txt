@@ -1,13 +1,5 @@
 cmake_minimum_required(VERSION 3.30)
 cmake_policy(VERSION 3.30)
-set (CMAKE_Fortran_COMPILER_ID "gfortran")
-set (CMAKE_Fortran_COMPILER "gfortran")
-set (CMAKE_C_COMPILER "gcc")
-# these don't override system environment, unfortunately
-set (FC "gfortran")
-set (CXX "g++")
-set (CC "gcc")
-
 project(kernunos VERSION 0.1.0 LANGUAGES C CXX Fortran)
 set(CMAKE_MODULE_PATH cmake)
 include(cmake/FortranEnvironment.cmake)
@@ -18,9 +10,42 @@ enable_language(C)
 # /opt/cuda/bin/nvcc is the compiler
 #enable_language(ASM)
 
-#set(CMAKE_CROSSCOMPILING true)
+set (CMAKE_Fortran_COMPILER_ID "gfortran")
+set (CMAKE_Fortran_COMPILER "gfortran")
+set (CMAKE_C_COMPILER "gcc")
+# these don't override system environment, unfortunately
+set (FC "gfortran")
+set (CXX "g++")
+set (CC "gcc")
+
+# toolchain-mingw64.cmake
 #set(CMAKE_SYSTEM_NAME Windows)
+#set(CMAKE_SYSTEM_PROCESSOR x86_64)
+#set(CMAKE_CROSSCOMPILING true)
 #set(CMAKE_SYSTEM_VERSION 10.0)
+
+# specify the cross compiler
+#set(CMAKE_C_COMPILER x86_64-w64-mingw32-gcc)
+#set(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++)
+#set(CMAKE_RC_COMPILER x86_64-w64-mingw32-windres)
+
+# where is the target environment
+#set(CMAKE_FIND_ROOT_PATH /usr/x86_64-w64-mingw32)
+
+# search for programs in the build host directories
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+# for libraries and headers in the target directories
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+
+if(MINGW)
+    message(STATUS "Building with MinGW")
+else()
+    message(STATUS "Not building with MinGW")
+endif()
+
+
+
 
 if(POLICY CMP0167)
 cmake_policy(SET CMP0167 NEW)
@@ -412,9 +437,9 @@ endif()
 
 
 set_target_properties(kernunos PROPERTIES
-    MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
-    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+#    MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
+#    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+#    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
 )

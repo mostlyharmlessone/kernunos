@@ -41,37 +41,3 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-GPL3 and LGPLv3
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-Lapack:
-
-Copyright (c) 1992-2013 The University of Tennessee and The University
-                        of Tennessee Research Foundation.  All rights
-                        reserved.
-Copyright (c) 2000-2013 The University of California Berkeley. All
-                        rights reserved.
-Copyright (c) 2006-2013 The University of Colorado Denver.  All rights
-
-mpl-colormaps by Nathaniel Smith & Stefan van der Walt
-
-To the extent possible under law, the persons who associated CC0 with
-mpl-colormaps have waived all copyright and related or neighboring rights
-to mpl-colormaps.
-
-You should have received a copy of the CC0 legalcode along with this
-work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
-
