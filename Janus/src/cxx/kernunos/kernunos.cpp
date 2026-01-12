@@ -758,25 +758,32 @@ void MainWindow::decenter()
     double ydist = 0.0;
     //  polar vs cartesian is sent through changing dat
         if (reply == QMessageBox::Yes){
-            GLwidget::setdecenter(true);  //set decenter flag (chnages dat)
+            GLwidget::setdecenter(true);  //set decenter flag (changes dat)
             bool ok;
             if (decenterDialogOptionsWidget->value()){
-
              dist = QInputDialog::getDouble(this, tr("Distance "),
-                                           tr("mm:"), dist, 0.0, 0.5, 2, &ok,
+                                           tr("mm:"), dist, 0.0, 10.0, 2, &ok,
                                            Qt::WindowFlags());
+                if (!ok){GLwidget::setdecenter(false);
+                    return;};
              degrees = QInputDialog::getInt(this, tr("Rotation "),
                                            tr("Degrees:"), degrees, 0, 360, 1, &ok,
                                            Qt::WindowFlags());
-            if (ok){
-                xdist = dist * cos(3.1415926*degrees/180.0);
-                ydist = dist * sin(3.1415926*degrees/180.0);}
-             }
+                if (!ok){GLwidget::setdecenter(false);
+                    return;};
+                if (ok){
+                     xdist = dist * cos(3.1415926*degrees/180.0);
+                     ydist = dist * sin(3.1415926*degrees/180.0);}
+                 }
              else {
             xdist = QInputDialog::getDouble(this, tr("x dist "),
-                         tr("mm:"), xdist, -0.5, 0.5, 2, &ok, Qt::WindowFlags());
+                         tr("mm:"), xdist, -10.0, 10.0, 2, &ok, Qt::WindowFlags());
+             if (!ok){GLwidget::setdecenter(false);
+                 return;};
             ydist = QInputDialog::getDouble(this, tr("y dist "),
-                         tr("mm:"), ydist, -0.5, 0.5, 2, &ok, Qt::WindowFlags());}
+                         tr("mm:"), ydist, -10.0, 10.0, 2, &ok, Qt::WindowFlags());}
+             if (!ok){GLwidget::setdecenter(false);
+                 return;};
             }
 
         else {
@@ -795,7 +802,7 @@ void MainWindow::decenter()
         update();
         GLwidget::setdecenter(false);}   //reset decenter flag
     else {
-        //        ui.infoLabel->setText(tr("Cancel"));
+         GLwidget::setdecenter(false);
         return;
      }
 }

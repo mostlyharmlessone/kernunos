@@ -491,34 +491,39 @@ if (btest(dat,5)) then
    end if
  end do
 ! write(*,*) 'file from kernunos: ',trim(new_path)
-new_path=trim(new_path)
-read(new_path,*) dhoriz, dvert
+ new_path=trim(new_path)
+ read(new_path,*) dhoriz, dvert
 !generate new JMatrix
  JMatrix3=JMatrix
 
 
-dhoriz =0.0 ; dvert =0.0
+!!!!!!!!!
+! need to clarify difference between JMatrix3%R0,JMatrix3%THT0, JMatrix%R0,JMatrix%THT0, JMatrix%Pupil_Center(1), JMatrix%Pupil_Center(2) etc.
+! seems to work different for ELE or EyeSys and not for Test
 
+ ctr_circle_x = dhoriz
+ ctr_circle_y = dvert
 
-  ctr_circle_x=JMatrix%Pupil_Center(1)-dhoriz
-  ctr_circle_y=JMatrix%Pupil_Center(2)-dvert
-
-  JMatrix3%Pupil_Center(1)=ctr_circle_x
-  JMatrix3%Pupil_Center(2)=ctr_circle_y
+ JMatrix3%Pupil_Center(1)=JMatrix%Pupil_Center(1)-dhoriz
+ JMatrix3%Pupil_Center(2)=JMatrix%Pupil_Center(2)-dvert
 
   write(*,*) 'Decentering by',ctr_circle_x,ctr_circle_y
 
-write(*,*) JMatrix%Pupil_Center(1),JMatrix%Pupil_Center(2)
-write(*,*) dhoriz,dvert
-write(*,*) ctr_circle_x,ctr_circle_y
-write(*,*) ' '
+ write(*,*) JMatrix%Pupil_Center(1),JMatrix%Pupil_Center(2)
+ write(*,*) dhoriz,dvert
+ write(*,*) ' '
+! subroutine PolarTranslate(ctr_circle_x,ctr_circle_y,rlocal,tht_local,R_global,Theta_global)
 
   call PolarTranslate(ctr_circle_x,ctr_circle_y,0.0_wp,0.0_wp,JMatrix3%R0,JMatrix3%THT0)
+
+
   do i=1,M1
    do j=1,JMatrix%MV(i)
     call PolarTranslate(ctr_circle_x, ctr_circle_y,JMatrix%R(j,i),JMatrix%THT(i),JMatrix3%R(j,i),JMatrix3%THT(i))
    end do
   end do
+
+
 ! regenerates based on new R/tht
   call selectfunction(1,JMatrix3,flag,powctr,powmin,powmax)
   ! have to re-do min/max

@@ -48,6 +48,7 @@
         maximum =67.5
        END SELECT
 
+!       Evenly placed steps; if there are uneven steps with peripheral extensions eg, this needs modifications
         do k=1,nL/4
          pow=maximum-(maximum-minimum)*(k-1)/(nL/4-1)
          if (ieee_is_finite(pow)) then         

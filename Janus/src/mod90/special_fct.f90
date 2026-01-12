@@ -179,7 +179,7 @@ REAL (wp) :: col(26),minimum,maximum
 INTEGER, dimension(3,26) :: palette
 INTEGER(int16) :: rgbv(3) ! rgbv={r,g,b}
 !Smolek et al Ophthalmology Feb 2002 Table 4. USS scale from 67.5 to 30 every 1.5 D
-!simulated NIDEK extension 9 to 101.5, may not be exactly NIDEK scheme, not documented
+!simulated NIDEK extension 9 to 101.5, evenly spaced intervals, not exactly NIDEK scheme, not documented
 if (fixedrange) then
  if (extendedNIDEK) then
   minimum =9
