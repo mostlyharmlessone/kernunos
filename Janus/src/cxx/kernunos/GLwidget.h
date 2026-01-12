@@ -286,6 +286,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
       m_USSfixed = false;
       m_perceptualuniformfixed = false;
       m_USSpalette = false;
+      m_USSNIDEK = false;
       m_perceptualuniformpalette = false;
     }
 
@@ -493,6 +494,13 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
       setAllmapsfalse();
       m_USSpalette = t;}
 
+    static bool isUSSNIDEK() { return m_USSNIDEK; }
+    static void setUSSNIDEK(bool t) {
+        int map=(flag-(flag%100))/100%100 ;
+        flag=flag+100*(9-map) ; // 7 sets palette to USS palette
+        setAllmapsfalse();
+        m_USSNIDEK = t;}
+
     static bool isperceptualuniformpalette() { return m_perceptualuniformpalette; }
     static void setperceptualuniformpalette(bool t) {
       int map=(flag-(flag%100))/100%100 ;
@@ -629,6 +637,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     static bool m_USSfixed;
     static bool m_perceptualuniformfixed;
     static bool m_USSpalette;
+    static bool m_USSNIDEK;
     static bool m_perceptualuniformpalette;
 
 };

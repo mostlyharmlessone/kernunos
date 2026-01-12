@@ -102,15 +102,17 @@ function colormap(x,minimum, maximum,map) result(rgbv)
    CASE (4)
       rgbv=gplotpalette(x,minimum,maximum)
    CASE (5)
-      rgbv=USSpalette(.true.,x,minimum,maximum)
+      rgbv=USSpalette(.true.,.false.,x,minimum,maximum)
    CASE (6)
       rgbv=PerceptuallyUniformPalette(.true.,x,minimum,maximum)
    CASE (7)
-      rgbv=USSpalette(.false.,x,minimum,maximum)
+      rgbv=USSpalette(.false.,.false.,x,minimum,maximum)
    CASE (8)
       rgbv=PerceptuallyUniformPalette(.false.,x,minimum,maximum)
+   CASE (9)
+      rgbv=USSpalette(.true.,.true.,x,minimum,maximum)
    CASE DEFAULT
-      rgbv=USSpalette(.true.,x,minimum,maximum)
+      rgbv=USSpalette(.true.,.false.,x,minimum,maximum)
 END SELECT
 end function colormap
 
@@ -169,24 +171,30 @@ call bsearch(x,col,9,high,low)
 end function PerceptuallyUniformPalette
 
 ! fixed discrete diopteric palette: The Uniform Standard Scale
-function USSpalette(fixedrange,x,powmin, powmax) result(rgbv)
+function USSpalette(fixedrange,extendedNIDEK,x,powmin, powmax) result(rgbv)
 REAL (wp), INTENT (IN) :: powmin,powmax,x
-LOGICAL, INTENT(IN) :: fixedrange
+LOGICAL, INTENT(IN) :: fixedrange,extendedNIDEK
 INTEGER :: i,high,low
 REAL (wp) :: col(26),minimum,maximum
 INTEGER, dimension(3,26) :: palette
 INTEGER(int16) :: rgbv(3) ! rgbv={r,g,b}
 !Smolek et al Ophthalmology Feb 2002 Table 4. USS scale from 67.5 to 30 every 1.5 D
+!simulated NIDEK extension 9 to 101.5, may not be exactly NIDEK scheme, not documented
 if (fixedrange) then
- minimum =30
- maximum =67.5
+ if (extendedNIDEK) then
+  minimum =9
+  maximum =101.5
+ else
+  minimum =30
+  maximum =67.5
+ endif
 else
  minimum=powmin
  maximum=powmax
 endif
-do i=1,26
- col(i)=maximum-((i-1)/25.0)*(maximum-minimum)
-end do
+ do i=1,26
+  col(i)=maximum-((i-1)/25.0)*(maximum-minimum)
+ end do
 palette=reshape((/&
 255, 238, 248, &
 255, 217, 227, &
@@ -230,6 +238,7 @@ call bsearch(x,col,26,high,low)
    rgbv(:)=int((/0,0,0/),kind=int3d)
   endif
  endif
+
 end function USSpalette
 
 ! makes a noncontinuous/discrete interval 12 color palette similar to the one in printgraph using gnuplot/splot

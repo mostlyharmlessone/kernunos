@@ -200,6 +200,7 @@ private slots:
     void colorPerceptualUniformfixed();
     void colorPerceptualUniformpalette();
     void colorUSSpalettefixed();
+    void colorUSSpaletteNIDEK();
     void colorUSSpalette();
 
 private:
@@ -248,6 +249,7 @@ private:
     QAction *hsbrgbAct;
     QAction *gplotpaletteAct;
     QAction *USSfixedAct;
+    QAction *USSNIDEKAct;
     QAction *USSPaletteAct;
     QAction *PerceptualfixedAct;
     QAction *PerceptuallyUniformPaletteAct;

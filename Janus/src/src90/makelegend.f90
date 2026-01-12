@@ -40,6 +40,9 @@
        CASE (8)
         minimum=powmin
         maximum=powmax
+        CASE (9)
+         minimum =9
+         maximum =101.5
        CASE DEFAULT
         minimum =30
         maximum =67.5

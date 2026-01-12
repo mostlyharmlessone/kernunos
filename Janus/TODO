@@ -3,16 +3,24 @@ things to do
 CorneaCopia
 
 decentering needs dialog box to show it is working
+
+saying no on decenter triggers reload!
+decenter decenters to center circle even with zero values
+LSQ spline errors seems to run on ELE even thought not checked, get Errors on findInterval in LSQSpline without checked box using LSQSpline
+lsqspline doesn't fix decentering/multiple zero issues in ELE files, look at decentering again, run some test beds
+
 Swap erases pupil data...and if you decenter, it uses the original data, not the swapped
 
-lsqspline doesn't fix decentering/multiple zero issues in ELE files, look at decentering again, run some test beds
-built framework for decenter; both involve moving elevation data points, either, 
-then resplining on that basis, just like an ELE file, in fact, for an ELE/ELE.CSV file, adjust the data before the first spline
 
 make 3D option for all functions, with scale Z value max and min
 this will affect Geom,WriteGeomPLY/OFF
 
 compare is broken with zernike; also so is opening 2nd file with zernike selected and zernike 
+
+"Smolek-Klyce" = Universal Scale 30-67.5, 1.5 d increments; 
+"Nidek" absolute (extended) 9 to 101.5 with peripheral increments extended 
+
+units id D or mm for elevation
 
 need a 2-D picture output other than gnuplot version
 make mathematica plot output?, just like ply,off etc.
@@ -20,7 +28,6 @@ make mathematica plot output?, just like ply,off etc.
 need to cleanup gitmodules/submodules that may no longer exit or are not in the project 
 test assimp now that added as submodule to keep up to date
 ie math77
-
 
 TopCon CA-800 in SA -> all binary
 
@@ -34,9 +41,8 @@ OpenMP 5.0
 #pragma omp target teams loop
 for (int i = 0; i < N; i++) a[i]=b[i]+ scalar * c[i];)
 
-"Smolek-Klyce" = Universal Scale 30-67.5, 1.5 d increments; 
-"Nidek" absolute (extended) 9 to 101.5 with peripheral increments extended 
-units id D or mm for elevation
+
+
 ? needs extreme value filter; or histogram of values for median and color scale  like OPDIII
 resurrect old noise reduction code to help out monge-astig and meanc for real data?
 need lapack or open version of numrec fourn:  fftpack

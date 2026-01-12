@@ -140,6 +140,7 @@ const unsigned int SCR_HEIGHT = 800;
 // 6 = Perceptually Uniform Palette discrete map with linear interpolation between 9 shades with ANSI Z80.3 fixed range
 // 7 = USSpalette
 // 8 = Perceptually Uniform Palette
+// 9 = Uniform Standard Scale (USS)palette discrete map with linear interpolation between 26 colors with fixed range for sagittal/axial power, NIDEK extension
 // last two digits are the program function
 // 0 = open a file, display
 // 99 = deallocate arrays for program closure
@@ -724,6 +725,7 @@ void MainWindow::compare()
     if (map == 6) GLwidget::setperceptualuniformfixed(true);
     if (map == 7) GLwidget::setUSSpalette(true);
     if (map == 8) GLwidget::setperceptualuniformpalette(true);
+    if (map == 9) GLwidget::setUSSNIDEK(true);
     checkmapsflags();
     update();}
     else {
@@ -1377,6 +1379,7 @@ void MainWindow::checkmapsflags(){
     gplotpaletteAct->setChecked(GLwidget::isgplotpalette());
     USSPaletteAct->setChecked(GLwidget::isUSSpalette());
     USSfixedAct->setChecked(GLwidget::isUSSfixed());
+    USSNIDEKAct->setChecked(GLwidget::isUSSNIDEK());
     PerceptuallyUniformPaletteAct->setChecked(GLwidget::isperceptualuniformpalette());
     PerceptualfixedAct->setChecked(GLwidget::isperceptualuniformfixed());
 }
@@ -2069,6 +2072,24 @@ void MainWindow::colorUSSpalettefixed()
    };
 }
 
+void MainWindow::colorUSSpaletteNIDEK()
+{
+    if (GLwidget::isUSSNIDEK()) {
+        GLwidget::setUSSNIDEK(false);    //cannot turn off without turning something else on
+        GLwidget::setUSSfixed(true);
+        USSfixedAct->setChecked(GLwidget::isUSSNIDEK());
+        ui.infoLabel->setText(tr("Set <b>View:USS Palette fixed range is default, deselect by setting another</b>"));
+    } else {
+        GLwidget::setAllmapsfalse();
+        GLwidget::setUSSNIDEK(true);
+        checkmapsflags();
+        ui.infoLabel->setText(tr("Set <b>View:View:USS Palette fixed range true</b>"));
+        if (GLwidget::isRedraw()) {
+            redraw();
+        };
+    };
+}
+
 void MainWindow::colorUSSpalette()
 {
    if (GLwidget::isUSSpalette()) {
@@ -2463,6 +2484,10 @@ void MainWindow::createActions()
    connect(USSfixedAct, &QAction::triggered, this, &MainWindow::colorUSSpalettefixed);
    USSfixedAct->setChecked(GLwidget::isUSSfixed());  //needs this here to check initially because it is the default
 
+   USSNIDEKAct=new QAction(tr("&Uniform Standard Scale (NIDEK extension) discrete map with linear interpolation between 26 colors with fixed range for sagittal/axial powers"), this);
+   USSNIDEKAct->setCheckable(true);
+   connect(USSNIDEKAct, &QAction::triggered, this, &MainWindow::colorUSSpaletteNIDEK);
+
    USSPaletteAct=new QAction(tr("&Uniform Standard Scale (Smolek-Klyce) discrete map with linear interpolation between 26 colors"), this);
    USSPaletteAct->setCheckable(true);
    connect(USSPaletteAct, &QAction::triggered, this, &MainWindow::colorUSSpalette);
@@ -2485,6 +2510,7 @@ void MainWindow::createMenus()
    fileMenu->addAction(compareAct);
    fileMenu->addAction(decenterAct);
    fileMenu->addAction(swapAct);
+   fileMenu->addAction(redrawAct);
    exportMenu = fileMenu->addMenu(tr("&Export"));
    exportMenu->addAction(makeplyAct);
    exportMenu->addAction(ply2binAct);
@@ -2493,7 +2519,6 @@ void MainWindow::createMenus()
    exportMenu->addAction(importexportAct);
    fileMenu->addSeparator();
    fileMenu->addAction(exitAct);
-   menuBar()->addAction(redrawAct);
    analyzeMenu = menuBar()->addMenu(tr("&Analyze"));
    analyzeMenu->addAction(zernAct);
    analyzeMenu->addAction(ShowZernAct);
@@ -2530,6 +2555,7 @@ void MainWindow::createMenus()
    colorMenu->addAction(hsbrgbAct);
    colorMenu->addAction(gplotpaletteAct);
    colorMenu->addAction(USSfixedAct);
+   colorMenu->addAction(USSNIDEKAct);
    colorMenu->addAction(USSPaletteAct);
    colorMenu->addAction(PerceptualfixedAct);
    colorMenu->addAction(PerceptuallyUniformPaletteAct);

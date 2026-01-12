@@ -198,6 +198,7 @@ bool GLwidget::m_gplotpalette = false;
 bool GLwidget::m_USSfixed = true;
 bool GLwidget::m_perceptualuniformfixed = false;
 bool GLwidget::m_USSpalette = false;
+bool GLwidget::m_USSNIDEK = false;
 bool GLwidget::m_perceptualuniformpalette = false;
 
 

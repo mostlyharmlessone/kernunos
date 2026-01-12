@@ -492,12 +492,27 @@ if (btest(dat,5)) then
  end do
 ! write(*,*) 'file from kernunos: ',trim(new_path)
 new_path=trim(new_path)
-read(new_path,*) dvert,dhoriz
+read(new_path,*) dhoriz, dvert
 !generate new JMatrix
  JMatrix3=JMatrix
+
+
+dhoriz =0.0 ; dvert =0.0
+
+
   ctr_circle_x=JMatrix%Pupil_Center(1)-dhoriz
   ctr_circle_y=JMatrix%Pupil_Center(2)-dvert
+
+  JMatrix3%Pupil_Center(1)=ctr_circle_x
+  JMatrix3%Pupil_Center(2)=ctr_circle_y
+
   write(*,*) 'Decentering by',ctr_circle_x,ctr_circle_y
+
+write(*,*) JMatrix%Pupil_Center(1),JMatrix%Pupil_Center(2)
+write(*,*) dhoriz,dvert
+write(*,*) ctr_circle_x,ctr_circle_y
+write(*,*) ' '
+
   call PolarTranslate(ctr_circle_x,ctr_circle_y,0.0_wp,0.0_wp,JMatrix3%R0,JMatrix3%THT0)
   do i=1,M1
    do j=1,JMatrix%MV(i)
