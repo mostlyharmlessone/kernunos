@@ -2,14 +2,21 @@ things to do
 
 CorneaCopia
 
-decentering needs dialog box to show it is working
+FIXES
 
-saying no on decenter triggers reload!
-decenter decenters to center circle even with zero values
-LSQ spline errors seems to run on ELE even thought not checked, get Errors on findInterval in LSQSpline without checked box using LSQSpline
+decenter can continue ro decenter even with zero values once decentered sufficiently
+this does NOT do what I want? compare to manual decenter with Penta ELE files.
+see notes in janus.f90; need to rewirite decenter to regenerate based on ELE starting around lin 1580, might be best to break that out as a routine and or refactor selectfunction and rename that too
+
+
+LSQ spline errors seems to run on ELE even though not checked in Menu, get Errors on findInterval in LSQSpline without checked box using LSQSpline
 lsqspline doesn't fix decentering/multiple zero issues in ELE files, look at decentering again, run some test beds
 
-decentering not an option with Test (as opposed to Load file
+decentering not an option with Test (as opposed to Load file)
+
+compare will allow compare with the cube if you've done decenter first
+
+legend rounds values too much for small numbers
 
 Swap erases pupil data...and if you decenter, it uses the original data, not the swapped
 
@@ -19,39 +26,19 @@ this will affect Geom,WriteGeomPLY/OFF
 
 compare is broken with zernike; also so is opening 2nd file with zernike selected and zernike 
 
-units id D or mm for elevation
+units in D or mm for elevation
 
 need a 2-D picture output other than gnuplot version
 make mathematica plot output?, just like ply,off etc.
 
-need to cleanup gitmodules/submodules that may no longer exit or are not in the project 
-test assimp now that added as submodule to keep up to date
-ie math77
+FREETYPE_INCLUDE_DIRS added because Free type seems hard to find
 
-TopCon CA-800 in SA -> all binary
-
-https://docs.nersc.gov/performance/readiness/
-nvidia compiler flags -fast -mp=gpu -gpu=cc80  (openMP offload to gpu, source NSERC, 
-also recommend "teams" directive not  "target parallel for" in c++
-OpenMP 4 
-#pragma omp target teams distribute parallel for 
-for (int i = 0; i < N; i++) a[i]=b[i]+ scalar * c[i]; 
-OpenMP 5.0
-#pragma omp target teams loop
-for (int i = 0; i < N; i++) a[i]=b[i]+ scalar * c[i];)
-
-
+if Oculus comes through, change README #Usage and #Contributing
 
 ? needs extreme value filter; or histogram of values for median and color scale  like OPDIII
 resurrect old noise reduction code to help out monge-astig and meanc for real data?
 need lapack or open version of numrec fourn:  fftpack
 extreme value filter for scales
-
-try going back to splineeval1dx1d and removing extra calls to splineeval, aka back to trial that spawned current branch
-also try finding a way to use only local natural splines instead of generating whole circular spline and using pspli
-
-
-IMPROVEMENTS
 
 in kernunos menu actions do some key bindings?
 setShortcuts(QKeySequence::UnknownKey);
@@ -72,6 +59,24 @@ try to (b)lock opening another file while Zernike is computing to avoid crash ? 
 you can run other Analyze ie center gnusplotplot, lioc, and move the picture
 probably can run kernunos but not janus?
 consider adding sound to play after zernike compute, but might need option to turn off http://github.com/zserge/beep or get fancy with .ogg
+
+
+NEW MACHINE DATA IMPORTS
+
+PentaCam U12 file looks like it has binary data separated by blocks of zero, possibly readable.
+iTrace 8640 points = 360 x 24; has "Data" binary compressed with gzip
+Topcon CA-800 binary files 49928 bytes = 8 x 6241 ; 24 rings "6200 measured points" suggests 8 byte floats 24 x 256 = 6144 and 41 bytes header or footer?
+8 byte segments seem to alternate?
+
+
+Optimizing:
+
+1)valgrind/profiling 
+
+2)need to relook at integration to see if can eliminate extra function calls
+try going back to splineeval1dx1d and removing extra calls to splineeval, aka back to trial that spawned current branch
+also try finding a way to use only local natural splines instead of generating whole circular spline and using pspli
+
 
 
 DOCUMENTATION
@@ -116,14 +121,17 @@ mean curvature and monge astigmatism, need taylor series for limit at origin
 
 README (not the markdown/html) needs a file manifest; eventually generate with git or ls -l
 
-
-POLISHING
+POLISHING/PRESENTATION/LAUNCH
 
 analyze fowler sauna patient: arvo poster introduction
 
-Optimizing:
-1)valgrind/profiling can also try helegrind for cyclic 4 way slow down
-2)need to relook at integration to see if can eliminate extra function calls
+Windows:  try cross-compile toolchain, again; also look into tools on Windows, free version of VS, nvidia compiler, or even as a WSL app  
+MacOS: need to do reseach on compiles with Xcode, darwin tools, Qt on iMac, possibly also in Mac VM, or as a Parallels/Docker app.
+
+need to cleanup gitmodules/submodules that may no longer exit or are not in the project ie math77
+test assimp now that added as submodule to keep up to date
+
+push to github
 
 Investigate:
 
@@ -135,12 +143,22 @@ Spline routines seem to have explicit shape, and are passed possibly assumed-sha
 
 include these and similar notes in io_functions.f90
 
-Misc notes
 
-PentaCam U12 file looks like it has binary data separated by blocks of zero, possibly readable.
-iTrace 8640 points = 360 x 24; has "Data" binary compressed with gzip
-Topcon CA-800 binary files 49928 bytes = 8 x 6241 ; 24 rings "6200 measured points" suggests 8 byte floats 24 x 256 = 6144 and 41 bytes header or footer?
-8 byte segments seem to alternate?
+Misc
+
+https://docs.nersc.gov/performance/readiness/
+maybe try this for cyclic band tests on other project
+can also try helegrind for cyclic 4 way slow down
+nvidia compiler flags -fast -mp=gpu -gpu=cc80  (openMP offload to gpu, source NSERC, 
+also recommend "teams" directive not  "target parallel for" in c++
+OpenMP 4 
+#pragma omp target teams distribute parallel for 
+for (int i = 0; i < N; i++) a[i]=b[i]+ scalar * c[i]; 
+OpenMP 5.0
+#pragma omp target teams loop
+for (int i = 0; i < N; i++) a[i]=b[i]+ scalar * c[i];)
+
+
 
 
 

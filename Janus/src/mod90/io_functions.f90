@@ -149,7 +149,7 @@ module io_functions
 
 ! https://community.intel.com/t5/Intel-Fortran-Compiler/Trouble-reading-a-csv-file/m-p/1034136
 ! modified to output formatted real, as unformatted reads with semicolons seems broken to me with gcc-fortran/gfortran
-function getArg(n) result(argn)
+ function getArg(n) result(argn)
     implicit none
     character(10) :: arg
     real :: argn

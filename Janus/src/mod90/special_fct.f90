@@ -495,7 +495,7 @@ function eps2(m) result(e) !eps2(0)=2, eps2(m)=1 m /=0
  endif    
 end function eps2
 
-recursive function fact(n)  result(f) ! classic recursive factorial
+ recursive function fact(n)  result(f) ! classic recursive factorial
  INTEGER :: f
  INTEGER, INTENT(IN) :: n
  if (n < 0) then
@@ -513,7 +513,7 @@ recursive function fact(n)  result(f) ! classic recursive factorial
  endif
 end function fact
 
-function binomial(n,k)  result (m)
+ function binomial(n,k)  result (m)
  INTEGER :: m
  INTEGER, INTENT(IN) :: n,k
 ! m = fact(n)/(fact(k)*fact(n-k)) ! inefficient
@@ -524,7 +524,7 @@ function binomial(n,k)  result (m)
  endif
 end function binomial
 
-function pfact(n,k)  result(f) ! partial factorial k+1 to n: pfact(n,1)=pfact(n,0)=fact(n)
+ function pfact(n,k)  result(f) ! partial factorial k+1 to n: pfact(n,1)=pfact(n,0)=fact(n)
  INTEGER :: f,i
  INTEGER, INTENT(IN) :: n,k
  if (n < 0 .OR. k < 0) then
@@ -551,104 +551,104 @@ end function pfact
 
 !! zernike radial functions
 
-function R00(rho) result (m)
+ function R00(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=1
 end function R00
 
-function R11(rho) result (m)
+ function R11(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=rho
 end function R11
 
-function R20(rho) result (m)
+ function R20(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=2*rho*rho-1
 end function R20
 
-function R22(rho) result (m)
+ function R22(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=rho*rho
 end function R22
 
-function R31(rho) result (m)
+ function R31(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=3**rho*rho*rho-2*rho
 end function R31
 
-function R33(rho) result (m)
+ function R33(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=rho*rho*rho
 end function R33
 
-function R40(rho) result (m)
+ function R40(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=6*rho*rho*rho*rho-6*rho*rho+1
 end function R40
 
-function R42(rho) result (m)
+ function R42(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=4**rho*rho*rho*rho-3*rho*rho
 end function R42
 
-function R44(rho) result (m)
+ function R44(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=rho*rho*rho*rho
 end function R44
 
-function R51(rho) result (m)
+ function R51(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=10*rho*rho*rho*rho*rho-12*rho*rho*rho+3*rho
 end function R51
 
-function R53(rho) result (m)
+ function R53(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=5*rho*rho*rho*rho*rho-4*rho*rho*rho
 end function R53
 
-function R55(rho) result (m)
+ function R55(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=rho*rho*rho*rho*rho
 end function R55
 
-function R60(rho) result (m)
+ function R60(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=20*rho*rho*rho*rho*rho*rho-30*rho*rho*rho*rho+12*rho*rho-1
 end function R60
 
-function R62(rho) result (m)
+ function R62(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=15*rho*rho*rho*rho*rho*rho-20*rho*rho*rho*rho+6*rho*rho
 end function R62
 
-function R64(rho) result (m)
+ function R64(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=6*rho*rho*rho*rho*rho*rho-5*rho*rho*rho*rho
 end function R64
 
-function R66(rho) result (m)
+ function R66(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=rho*rho*rho*rho*rho*rho
 end function R66
 
 ! if n >= m >= 0 n-m even ie mod(n-m)=0
-recursive function Rzern(n,m,p)  result(f) ! radial zernike polynomial
+ recursive function Rzern(n,m,p)  result(f) ! radial zernike polynomial
  REAL(wp) :: f
  INTEGER, INTENT(IN) :: n,m
  REAL(wp),INTENT(IN) :: p
@@ -679,7 +679,7 @@ recursive function Rzern(n,m,p)  result(f) ! radial zernike polynomial
 end function Rzern
 
 ! if n >= 0 ABS(m) <= n
-function zernfct(n,m,p,phi) result(f)
+ function zernfct(n,m,p,phi) result(f)
  INTEGER, INTENT(IN) :: n,m
  REAL(wp) :: f
  REAL(wp),INTENT(IN) :: p,phi

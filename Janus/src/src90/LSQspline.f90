@@ -67,6 +67,7 @@
        INTEGER, INTENT(IN) :: n
        REAL(wp), INTENT(IN) :: u, a(*)
        REAL(wp), INTENT(IN) :: delta
+       INTEGER :: k
        END FUNCTION findInterval
       END INTERFACE
 

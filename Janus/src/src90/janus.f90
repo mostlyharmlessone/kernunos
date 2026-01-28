@@ -494,39 +494,25 @@ if (btest(dat,5)) then
  new_path=trim(new_path)
  read(new_path,*) dhoriz, dvert
 !generate new JMatrix
- JMatrix3=JMatrix
-
-
-!!!!!!!!!
-! need to clarify difference between JMatrix3%R0,JMatrix3%THT0, JMatrix%R0,JMatrix%THT0, JMatrix%Pupil_Center(1), JMatrix%Pupil_Center(2) etc.
-! seems to work different for ELE or EyeSys and not for Test
-
- ctr_circle_x = dhoriz
- ctr_circle_y = dvert
-
- JMatrix3%Pupil_Center(1)=JMatrix%Pupil_Center(1)-dhoriz
- JMatrix3%Pupil_Center(2)=JMatrix%Pupil_Center(2)-dvert
-
+  JMatrix3=JMatrix
+  ctr_circle_x = dhoriz
+  ctr_circle_y = dvert
   write(*,*) 'Decentering by',ctr_circle_x,ctr_circle_y
-
- write(*,*) JMatrix%Pupil_Center(1),JMatrix%Pupil_Center(2)
- write(*,*) dhoriz,dvert
- write(*,*) ' '
-! subroutine PolarTranslate(ctr_circle_x,ctr_circle_y,rlocal,tht_local,R_global,Theta_global)
-
   call PolarTranslate(ctr_circle_x,ctr_circle_y,0.0_wp,0.0_wp,JMatrix3%R0,JMatrix3%THT0)
-
-
   do i=1,M1
    do j=1,JMatrix%MV(i)
     call PolarTranslate(ctr_circle_x, ctr_circle_y,JMatrix%R(j,i),JMatrix%THT(i),JMatrix3%R(j,i),JMatrix3%THT(i))
    end do
   end do
-
-
 ! regenerates based on new R/tht
-  call selectfunction(1,JMatrix3,flag,powctr,powmin,powmax)
-  ! have to re-do min/max
+
+  call selectfunction(2,JMatrix3,flag,powctr,powmin,powmax)
+
+!!!!remade Z, now have to re-derive the rest based on Z
+
+!!! have to get to line 1580  to remake everything c iflag pretending ELE files; might be best to break things out into Yet Another Ugly subroutine, perhaps modify selectfunction and rename it
+
+! have to re-do min/max
    JMatrix3%SAGC0(2)=1E30   ;  JMatrix3%SAGC0(3)=-1E30
    JMatrix3%Warp0(2)=1E30   ;  JMatrix3%Warp0(3)=-1E30
    JMatrix3%Z0(2)=1E30      ;  JMatrix3%Z0(3)=-1E30
@@ -580,10 +566,14 @@ if (btest(dat,5)) then
   donut = .FALSE.
   elements(1:nE) = 0
   vertices(1:nV) = 0
-  call selectfunction(0,JMatrix3,flag,powctr,powmin,powmax)
+  call selectfunction(0,JMatrix3,flag,powctr,powmin,powmax)  !with 0 only loads powctr, powmin, powmax
   call Geom(flag, JMatrix3, donut, powmin, powmax, elements, vertices, nV, nE)
   call makelegend(flag, powmin, powmax, legend, nL)
   JMatrix=JMatrix3
+
+
+
+
   return
 endif
 
@@ -1585,6 +1575,10 @@ if (mod(flag,100) .ne. 9 ) then
     end do
    endif
   end do
+
+
+!!!!!!!!need to get here
+
 
 ! Generate the ring
   do i=1,M1

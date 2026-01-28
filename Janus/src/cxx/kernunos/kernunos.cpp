@@ -762,7 +762,7 @@ void MainWindow::decenter()
             bool ok;
             if (decenterDialogOptionsWidget->value()){
              dist = QInputDialog::getDouble(this, tr("Distance "),
-                                           tr("mm:"), dist, 0.0, 10.0, 2, &ok,
+                                           tr("mm:"), dist, 0.0, 100.0, 2, &ok,
                                            Qt::WindowFlags());
                 if (!ok){GLwidget::setdecenter(false);
                     return;};
@@ -777,11 +777,11 @@ void MainWindow::decenter()
                  }
              else {
             xdist = QInputDialog::getDouble(this, tr("x dist "),
-                         tr("mm:"), xdist, -10.0, 10.0, 2, &ok, Qt::WindowFlags());
+                         tr("mm:"), xdist, -100.0, 100.0, 2, &ok, Qt::WindowFlags());
              if (!ok){GLwidget::setdecenter(false);
                  return;};
             ydist = QInputDialog::getDouble(this, tr("y dist "),
-                         tr("mm:"), ydist, -10.0, 10.0, 2, &ok, Qt::WindowFlags());}
+                         tr("mm:"), ydist, -100.0, 100.0, 2, &ok, Qt::WindowFlags());}
              if (!ok){GLwidget::setdecenter(false);
                  return;};
             }
@@ -2206,8 +2206,8 @@ void MainWindow::createActions()
    testAct->setStatusTip(tr("Generate some fake data"));
    connect(testAct, &QAction::triggered, this, &MainWindow::test);
 
-   compareAct = new QAction(tr("&Compare..."), this);
-   compareAct->setStatusTip(tr("Compare to previous file"));
+   compareAct = new QAction(tr("&Compare/Difference Map..."), this);
+   compareAct->setStatusTip(tr("Compare to previous file/Generate a difference map"));
    compareAct->setEnabled(false);
    connect(compareAct, &QAction::triggered, this, &MainWindow::compare);
 

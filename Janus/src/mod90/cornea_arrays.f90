@@ -742,7 +742,7 @@ subroutine RadSlope_eq_DiaSlope(RadSlope,DiaSlope)
 end subroutine RadSlope_eq_DiaSlope
 
 ! spline b%rd(:,i),b%Zpd(:,i)
-function DiaSpline(b) result(a) 
+ function DiaSpline(b) result(a)
  TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b
  integer :: M1,N1,i,err_report
  real(wp) :: a(size(b%rd,1),size(b%rd,2))
@@ -758,7 +758,7 @@ function DiaSpline(b) result(a)
   end do
 end function DiaSpline
 
-function DiaSplineCenter(b) result(a)
+ function DiaSplineCenter(b) result(a)
  TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b
  real(wp) :: a(size(b%rd,1),size(b%rd,2))
  integer :: M1,N1,i, err_report
@@ -823,7 +823,7 @@ subroutine Atlas_SplineFillin(Atlas,b,a)
 end subroutine Atlas_SplineFillin
 
 ! this version is for matrices that are NxM, ie. JMatrix
-function splinefillintranspose(b) result(a)
+ function splinefillintranspose(b) result(a)
  real(wp),INTENT(IN) :: b(:,:)
  TYPE(wpsplinevect) :: spline
  integer :: M1,N1,i,j,k, err_report
@@ -905,7 +905,7 @@ subroutine Atlas_LSQfillin(Atlas,b,a)
 end subroutine Atlas_LSQfillin
 
 
-function pca(M3,b) result(a) 
+ function pca(M3,b) result(a)
  use set_precision, ONLY : wp
  TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
  TYPE(wpRadSlopeMatrix) :: a
@@ -1107,6 +1107,9 @@ end subroutine LIOC_Fortran
 
 ! world's ugliest hack
 ! select function, respline JMatrix
+! iflag = 0 just load powmin powmax,powctr for legend
+! iflag = 1 remake selected function
+! ilag = 2 just remake elevaation Z
 subroutine selectfunction(iflag,b,flag,powctr,powmin,powmax)
 implicit none
 integer(c_int), intent(in) :: flag
@@ -1392,7 +1395,7 @@ SELECT CASE (fct)
 END SELECT
 endif
 ! always do Z to display the geometry
-if (iflag == 1) then ! iflag == 1 remake JMatrix (b) including center
+if (iflag == 1 .or. iflag ==2) then ! iflag == 1 remake JMatrix (b) including center
  do i=1,M1
   do j=1,RadSlope%MV(i)
     RadSlope%Zp(j,i)=b%Z(j,i)
@@ -1418,6 +1421,11 @@ if (iflag == 1) then ! iflag == 1 remake JMatrix (b) including center
  endif
  if (b%Z0(1) <= b%Z0(2)) b%Z0(2)=b%Z0(1)
  if (b%Z0(1) >= b%Z0(3)) b%Z0(3)=b%Z0(1)
+endif
+if (iflag == 0) then ! iflag == 0 load center/min/max into powctr/powmin/powmax
+ powctr=b%Z0(1)
+ powmin=b%Z0(2)
+ powmax=b%Z0(3)
 endif
 endsubroutine selectfunction
 
