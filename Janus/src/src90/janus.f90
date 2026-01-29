@@ -507,62 +507,84 @@ if (btest(dat,5)) then
 ! regenerates based on new R/tht
 
   call selectfunction(2,JMatrix3,flag,powctr,powmin,powmax)
+  RadSlope=0
+  DiaSlope=0
+  deallocate(RadSplineCenter)
+! reinitialize with M1 and N1
+  call init_mat(M1,N1,RadSlope,DiaSlope,RadSplineCenter)
+  RadSlope = JMatrix3
+  if (btest(dat,0)) then   !centernode
+   iflag=10
+  else
+   iflag=0
+  endif
+! lsq instead of circumferential spline
+  if (btest(dat, 8)) then
+   iflag = iflag+100
+  endif
 
-!!!!remade Z, now have to re-derive the rest based on Z
+! determine the boundary
+  do i=1,M1                             ! every 2 degrees
+   JMatrix%THT(i)=PI*(i-1)/90.0_wp
+   JMatrix%MV(i)=N1
+   j=N1
+   if (MM == 360) then  ! original EyeSys RadSlope or fake data
+    ii=2*i
+   else  ! MM==180
+    ii=i
+   endif
+   R_TST=RadSlope%r(RadSlope%MV(ii),ii)
+   if (R_TST > 0) then
+   R_MV=rBo
+    do while (R_MV .gt. R_TST)
+     JMatrix%MV(i)=JMatrix%MV(i)-1
+     j=j-1
+     R_MV=(rBi+(j-1)*(rBo-rBi)/(N1-1))
+    end do
+   else
+    R_MV=-rBo
+    do while (R_MV .lt. R_TST)
+     JMatrix%MV(i)=JMatrix%MV(i)-1
+     j=j-1
+     R_MV=-(rBi+(j-1)*(rBo-rBi)/(N1-1))
+    end do
+   endif
+  end do
+
+! this can probably be in a sub also, used twice, might make the coce cleaner and easier to fixup later
+
+! Generate the ring
+  do i=1,M1
+   do j=1,JMatrix%MV(i) ! does not include center point
+    JMatrix%R(j,i)=(rBi+(j-1)*(rBo-rBi)/(N1-1))
+!   generate elevations and derivatives; iflag no integration if .ELE .ELE_CSV file
+    call SplineEval1Dx1D(iflag,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
+
+!   save for vertex normals and for LIOC
+    JMatrix%YPR(j,i)=YPR
+    JMatrix%YPTHETA(j,i)=YPTHETA
+!   powers
+    call AXIALP(JMatrix%R(j,i),YPTHETA/JMatrix%R(j,i),YP2THETA/JMatrix%R(j,i),JMatrix%Warp(j,i))
+
+!....etc
+ end do
+ end do
+
+! this might be one sub for each function with types, but can just move the whole thing into a sub and use twice
+
+! Calculate center values for everything
+! These have MM different values of the center!
+
 
 !!! have to get to line 1580  to remake everything c iflag pretending ELE files; might be best to break things out into Yet Another Ugly subroutine, perhaps modify selectfunction and rename it
 
-! have to re-do min/max
-   JMatrix3%SAGC0(2)=1E30   ;  JMatrix3%SAGC0(3)=-1E30
-   JMatrix3%Warp0(2)=1E30   ;  JMatrix3%Warp0(3)=-1E30
-   JMatrix3%Z0(2)=1E30      ;  JMatrix3%Z0(3)=-1E30
-   JMatrix3%INSTC0(2)=1E30  ;  JMatrix3%INSTC0(3)=-1E30
-   JMatrix3%GAUSSC0(2)=1E30 ;  JMatrix3%GAUSSC0(3)=-1E30
-   JMatrix3%MEANC0(2)=1E30  ;  JMatrix3%MEANC0(3)=-1E30
-   JMatrix3%MONGEA0(2)=1E30 ;  JMatrix3%MONGEA0(3)=-1E30
-   JMatrix3%ZC0(2,:)=1E30   ;  JMatrix3%ZC0(3,:)=-1E30
 
-  if (JMatrix3%INSTC0(1) <= JMatrix3%INSTC0(2)) JMatrix3%INSTC0(2)=JMatrix3%INSTC0(1)
-  if (JMatrix3%INSTC0(1) >= JMatrix3%INSTC0(3)) JMatrix3%INSTC0(3)=JMatrix3%INSTC0(1)
-  if (JMatrix3%GAUSSC0(1) <= JMatrix3%GAUSSC0(2)) JMatrix3%GAUSSC0(2)=JMatrix3%GAUSSC0(1)
-  if (JMatrix3%GAUSSC0(1) >= JMatrix3%GAUSSC0(3)) JMatrix3%GAUSSC0(3)=JMatrix3%GAUSSC0(1)
-  if (JMatrix3%Z0(1) <= JMatrix3%Z0(2)) JMatrix3%Z0(2)=JMatrix3%Z0(1)
-  if (JMatrix3%Z0(1) >= JMatrix3%Z0(3)) JMatrix3%Z0(3)=JMatrix3%Z0(1)
-  if (JMatrix3%SAGC0(1) <= JMatrix3%SAGC0(2)) JMatrix3%SAGC0(2)=JMatrix3%SAGC0(1)
-  if (JMatrix3%SAGC0(1) >= JMatrix3%SAGC0(3)) JMatrix3%SAGC0(3)=JMatrix3%SAGC0(1)
-  if (JMatrix3%Warp0(1) <= JMatrix3%Warp0(2)) JMatrix3%Warp0(2)=JMatrix3%Warp0(1)
-  if (JMatrix3%Warp0(1) >= JMatrix3%Warp0(3)) JMatrix3%Warp0(3)=JMatrix3%Warp0(1)
-  if (JMatrix3%MEANC0(1) <= JMatrix3%MEANC0(2)) JMatrix3%MEANC0(2)=JMatrix3%MEANC0(1)
-  if (JMatrix3%MEANC0(1) >= JMatrix3%MEANC0(3)) JMatrix3%MEANC0(3)=JMatrix3%MEANC0(1)
-  if (JMatrix3%MONGEA0(1) <= JMatrix3%MONGEA0(2)) JMatrix3%MONGEA0(2)=JMatrix3%MONGEA0(1)
-  if (JMatrix3%MONGEA0(1) >= JMatrix3%MONGEA0(3)) JMatrix3%MONGEA0(3)=JMatrix3%MONGEA0(1)
 
-  do k = 1,15
-   if (JMatrix3%ZC0(1,k) <= JMatrix3%ZC0(2,k)) JMatrix3%ZC0(2,k)=JMatrix3%ZC0(1,k)
-   if (JMatrix3%ZC0(1,k) >= JMatrix3%ZC0(3,k)) JMatrix3%ZC0(3,k)=JMatrix3%ZC0(1,k)
-  end do
-  do i=1,M1
-   do j=1,JMatrix3%MV(i)
-    if (JMatrix3%INSTC(j,i) <= JMatrix3%INSTC0(2)) JMatrix3%INSTC0(2)=JMatrix3%INSTC(j,i)
-    if (JMatrix3%INSTC(j,i) >= JMatrix3%INSTC0(3)) JMatrix3%INSTC0(3)=JMatrix3%INSTC(j,i)
-    if (JMatrix3%GAUSSC(j,i) <= JMatrix3%GAUSSC0(2)) JMatrix3%GAUSSC0(2)=JMatrix3%GAUSSC(j,i)
-    if (JMatrix3%GAUSSC(j,i) >= JMatrix3%GAUSSC0(3)) JMatrix3%GAUSSC0(3)=JMatrix3%GAUSSC(j,i)
-    if (JMatrix3%Z(j,i) <= JMatrix3%Z0(2)) JMatrix3%Z0(2)=JMatrix3%Z(j,i)
-    if (JMatrix3%Z(j,i) >= JMatrix3%Z0(3)) JMatrix3%Z0(3)=JMatrix3%Z(j,i)
-    if (JMatrix3%SAGC(j,i) <= JMatrix3%SAGC0(2)) JMatrix3%SAGC0(2)=JMatrix3%SAGC(j,i)
-    if (JMatrix3%SAGC(j,i) >= JMatrix3%SAGC0(3)) JMatrix3%SAGC0(3)=JMatrix3%SAGC(j,i)
-    if (JMatrix3%Warp(j,i) <= JMatrix3%Warp0(2)) JMatrix3%Warp0(2)=JMatrix3%Warp(j,i)
-    if (JMatrix3%Warp(j,i) >= JMatrix3%Warp0(3)) JMatrix3%Warp0(3)=JMatrix3%Warp(j,i)
-    if (JMatrix3%MEANC(j,i) <= JMatrix3%MEANC0(2)) JMatrix3%MEANC0(2)=JMatrix3%MEANC(j,i)
-    if (JMatrix3%MEANC(j,i) >= JMatrix3%MEANC0(3)) JMatrix3%MEANC0(3)=JMatrix3%MEANC(j,i)
-    if (JMatrix3%MONGEA(j,i) <= JMatrix3%MONGEA0(2)) JMatrix3%MONGEA0(2)=JMatrix3%MONGEA(j,i)
-    if (JMatrix3%MONGEA(j,i) >= JMatrix3%MONGEA0(3)) JMatrix3%MONGEA0(3)=JMatrix3%MONGEA(j,i)
-    do k = 1,15
-     if (JMatrix3%ZC(j,i,k) <= JMatrix3%ZC0(2,k)) JMatrix3%ZC0(2,k)=JMatrix3%ZC(j,i,k)
-     if (JMatrix3%ZC(j,i,k) >= JMatrix3%ZC0(3,k)) JMatrix3%ZC0(3,k)=JMatrix3%ZC(j,i,k)
-    end do
-   end do
-  end do
+
+  call minmax(JMatrix3)
+
+
+
   donut = .FALSE.
   elements(1:nE) = 0
   vertices(1:nV) = 0
@@ -1576,10 +1598,6 @@ if (mod(flag,100) .ne. 9 ) then
    endif
   end do
 
-
-!!!!!!!!need to get here
-
-
 ! Generate the ring
   do i=1,M1
    do j=1,JMatrix%MV(i) ! does not include center point
@@ -1640,29 +1658,42 @@ endif
 !     call MEANP(JMatrix%THT(i),JMatrix%R(j,i),ABS(YPR),YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
 !    endif
 
-    if (JMatrix%INSTC(j,i) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC(j,i)
-    if (JMatrix%INSTC(j,i) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC(j,i)
-    if (JMatrix%GAUSSC(j,i) <= JMatrix%GAUSSC0(2)) JMatrix%GAUSSC0(2)=JMatrix%GAUSSC(j,i)
-    if (JMatrix%GAUSSC(j,i) >= JMatrix%GAUSSC0(3)) JMatrix%GAUSSC0(3)=JMatrix%GAUSSC(j,i)
-    if (JMatrix%Z(j,i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z(j,i)
-    if (JMatrix%Z(j,i) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z(j,i)
-    if (JMatrix%SAGC(j,i) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC(j,i)
-    if (JMatrix%SAGC(j,i) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC(j,i)
-    if (JMatrix%Warp(j,i) <= JMatrix%Warp0(2)) JMatrix%Warp0(2)=JMatrix%Warp(j,i)
-    if (JMatrix%Warp(j,i) >= JMatrix%Warp0(3)) JMatrix%Warp0(3)=JMatrix%Warp(j,i)
+
+!!!!!temp commented to test minmax
+
+ !   if (JMatrix%INSTC(j,i) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC(j,i)
+!    if (JMatrix%INSTC(j,i) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC(j,i)
+!    if (JMatrix%GAUSSC(j,i) <= JMatrix%GAUSSC0(2)) JMatrix%GAUSSC0(2)=JMatrix%GAUSSC(j,i)
+!    if (JMatrix%GAUSSC(j,i) >= JMatrix%GAUSSC0(3)) JMatrix%GAUSSC0(3)=JMatrix%GAUSSC(j,i)
+!    if (JMatrix%Z(j,i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z(j,i)
+!    if (JMatrix%Z(j,i) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z(j,i)
+!    if (JMatrix%SAGC(j,i) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC(j,i)
+!    if (JMatrix%SAGC(j,i) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC(j,i)
+!    if (JMatrix%Warp(j,i) <= JMatrix%Warp0(2)) JMatrix%Warp0(2)=JMatrix%Warp(j,i)
+!    if (JMatrix%Warp(j,i) >= JMatrix%Warp0(3)) JMatrix%Warp0(3)=JMatrix%Warp(j,i)
+
+!!!!!temp commented to test minmax
+
+
    end do
   end do !end JMatrix ring generation
 ! spline over problematic limits at x-axis
 !  JMatrix%MEANC=splinefillintranspose(JMatrix%MEANC)
 !  JMatrix%MONGEA=splinefillintranspose(JMatrix%MONGEA)
-  do i=1,M1
-   do j=1,JMatrix%MV(i)
-    if (JMatrix%MEANC(j,i) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC(j,i)
-    if (JMatrix%MEANC(j,i) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC(j,i)
-    if (JMatrix%MONGEA(j,i) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA(j,i)
-    if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
-   end do
-  end do
+
+!!!!!temp commented to test minmax
+
+!  do i=1,M1
+!   do j=1,JMatrix%MV(i)
+!    if (JMatrix%MEANC(j,i) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC(j,i)
+!    if (JMatrix%MEANC(j,i) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC(j,i)
+!    if (JMatrix%MONGEA(j,i) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA(j,i)
+!    if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
+!   end do
+!  end do
+
+!!!!!temp commented to test minmax
+
 
 ! Calculate center values for everything
 ! These have MM different values of the center!
@@ -1707,8 +1738,8 @@ endif
    else
     write(*,*) 'Central elevation already set in RadSlope_eq_Skyline: center elevation supplied, average calculated',JMatrix%Z0(1),P_TEMP
    endif
-   if (JMatrix%Z0(1) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z0(1)
-   if (JMatrix%Z0(1) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z0(1)
+!   if (JMatrix%Z0(1) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z0(1)
+!   if (JMatrix%Z0(1) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z0(1)
 
 
 !   write(*,*) 'sagc'
@@ -1746,8 +1777,8 @@ endif
    else
     write(*,*) 'Central Axial Power already set in RadSlope_eq_Skyline, center power supplied, average calculated',JMatrix%SAGC0(1),P_TEMP
    endif
-   if (JMatrix%SAGC0(1) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC0(1)
-   if (JMatrix%SAGC0(1) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC0(1)
+!   if (JMatrix%SAGC0(1) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC0(1)
+!   if (JMatrix%SAGC0(1) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC0(1)
 
 
 !   write(*,*) 'Warp'
@@ -1769,8 +1800,8 @@ endif
      JMatrix%Warp0(1)=(i*JMatrix%Warp0(1)+JMatrix%Warp(N1+1,i))/(i+1)      ! cumulative average
      endif
     end do
-    if (JMatrix%Warp0(1) <= JMatrix%Warp0(2)) JMatrix%Warp0(2)=JMatrix%Warp0(1)
-    if (JMatrix%Warp0(1) >= JMatrix%Warp0(3)) JMatrix%Warp0(3)=JMatrix%Warp0(1)
+!    if (JMatrix%Warp0(1) <= JMatrix%Warp0(2)) JMatrix%Warp0(2)=JMatrix%Warp0(1)
+!    if (JMatrix%Warp0(1) >= JMatrix%Warp0(3)) JMatrix%Warp0(3)=JMatrix%Warp0(1)
 !   endif
 
 !  write(*,*) 'INSTC'
@@ -1792,8 +1823,8 @@ endif
     JMatrix%INSTC0(1)=(i*JMatrix%INSTC0(1)+JMatrix%INSTC(N1+1,i))/(i+1)      ! cumulative average
    endif
   end do
-  if (JMatrix%INSTC0(1) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC0(1)
-  if (JMatrix%INSTC0(1) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC0(1)
+ ! if (JMatrix%INSTC0(1) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC0(1)
+ ! if (JMatrix%INSTC0(1) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC0(1)
 
 !   write(*,*) 'GAUSSC'
 ! GAUSSC
@@ -1814,8 +1845,8 @@ endif
     JMatrix%GAUSSC0(1)=(i*JMatrix%GAUSSC0(1)+JMatrix%GAUSSC(N1+1,i))/(i+1)      ! cumulative average
    endif
   end do
-  if (JMatrix%GAUSSC0(1) <= JMatrix%GAUSSC0(2)) JMatrix%GAUSSC0(2)=JMatrix%GAUSSC0(1)
-  if (JMatrix%GAUSSC0(1) >= JMatrix%GAUSSC0(3)) JMatrix%GAUSSC0(3)=JMatrix%GAUSSC0(1)
+ ! if (JMatrix%GAUSSC0(1) <= JMatrix%GAUSSC0(2)) JMatrix%GAUSSC0(2)=JMatrix%GAUSSC0(1)
+ ! if (JMatrix%GAUSSC0(1) >= JMatrix%GAUSSC0(3)) JMatrix%GAUSSC0(3)=JMatrix%GAUSSC0(1)
 
 ! MEANC
 ! Reload RadSlope & respline
@@ -1835,8 +1866,8 @@ endif
     JMatrix%MEANC0(1)=(i*JMatrix%MEANC0(1)+JMatrix%MEANC(N1+1,i))/(i+1)      ! cumulative average
    endif
   end do
-  if (JMatrix%MEANC0(1) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC0(1)
-  if (JMatrix%MEANC0(1) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC0(1)
+!  if (JMatrix%MEANC0(1) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC0(1)
+!  if (JMatrix%MEANC0(1) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC0(1)
 
 !  write(*,*) 'MONGEA'
 ! MONGEA
@@ -1857,9 +1888,11 @@ endif
    JMatrix%MONGEA0(1)=(i*JMatrix%MONGEA0(1)+JMatrix%MONGEA(N1+1,i))/(i+1)      ! cumulative average
   endif
  end do
- if (JMatrix%MONGEA0(1) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA0(1)
- if (JMatrix%MONGEA0(1) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA0(1)
+! if (JMatrix%MONGEA0(1) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA0(1)
+! if (JMatrix%MONGEA0(1) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA0(1)
 ! end populating JMatrix
+
+ call minmax(JMatrix)
 
 ! Penta file(s) consistency check ELE vs. matching CUR
 ! simple difference/subtraction with compare for elevation consistency

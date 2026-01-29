@@ -606,6 +606,64 @@ subroutine RadSlope_eq_JMatrix(RadSlope,JMatrix)
     end do
 end subroutine RadSlope_eq_JMatrix
 
+! finds the minmax values of the JMatrix
+subroutine minmax(JMatrix)
+  TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
+  INTEGER :: i,j,k,M1
+  M1=size(JMatrix%R,2)
+  JMatrix%SAGC0(2)=1E30   ;  JMatrix%SAGC0(3)=-1E30
+  JMatrix%Warp0(2)=1E30   ;  JMatrix%Warp0(3)=-1E30
+  JMatrix%Z0(2)=1E30      ;  JMatrix%Z0(3)=-1E30
+  JMatrix%INSTC0(2)=1E30  ;  JMatrix%INSTC0(3)=-1E30
+  JMatrix%GAUSSC0(2)=1E30 ;  JMatrix%GAUSSC0(3)=-1E30
+  JMatrix%MEANC0(2)=1E30  ;  JMatrix%MEANC0(3)=-1E30
+  JMatrix%MONGEA0(2)=1E30 ;  JMatrix%MONGEA0(3)=-1E30
+  JMatrix%ZC0(2,:)=1E30   ;  JMatrix%ZC0(3,:)=-1E30
+
+  if (JMatrix%INSTC0(1) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC0(1)
+  if (JMatrix%INSTC0(1) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC0(1)
+  if (JMatrix%GAUSSC0(1) <= JMatrix%GAUSSC0(2)) JMatrix%GAUSSC0(2)=JMatrix%GAUSSC0(1)
+  if (JMatrix%GAUSSC0(1) >= JMatrix%GAUSSC0(3)) JMatrix%GAUSSC0(3)=JMatrix%GAUSSC0(1)
+  if (JMatrix%Z0(1) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z0(1)
+  if (JMatrix%Z0(1) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z0(1)
+  if (JMatrix%SAGC0(1) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC0(1)
+  if (JMatrix%SAGC0(1) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC0(1)
+  if (JMatrix%Warp0(1) <= JMatrix%Warp0(2)) JMatrix%Warp0(2)=JMatrix%Warp0(1)
+  if (JMatrix%Warp0(1) >= JMatrix%Warp0(3)) JMatrix%Warp0(3)=JMatrix%Warp0(1)
+  if (JMatrix%MEANC0(1) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC0(1)
+  if (JMatrix%MEANC0(1) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC0(1)
+  if (JMatrix%MONGEA0(1) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA0(1)
+  if (JMatrix%MONGEA0(1) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA0(1)
+
+  do k = 1,15
+  if (JMatrix%ZC0(1,k) <= JMatrix%ZC0(2,k)) JMatrix%ZC0(2,k)=JMatrix%ZC0(1,k)
+  if (JMatrix%ZC0(1,k) >= JMatrix%ZC0(3,k)) JMatrix%ZC0(3,k)=JMatrix%ZC0(1,k)
+  end do
+  do i=1,M1
+  do j=1,JMatrix%MV(i)
+   if (JMatrix%INSTC(j,i) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC(j,i)
+   if (JMatrix%INSTC(j,i) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC(j,i)
+   if (JMatrix%GAUSSC(j,i) <= JMatrix%GAUSSC0(2)) JMatrix%GAUSSC0(2)=JMatrix%GAUSSC(j,i)
+   if (JMatrix%GAUSSC(j,i) >= JMatrix%GAUSSC0(3)) JMatrix%GAUSSC0(3)=JMatrix%GAUSSC(j,i)
+   if (JMatrix%Z(j,i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z(j,i)
+   if (JMatrix%Z(j,i) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z(j,i)
+   if (JMatrix%SAGC(j,i) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC(j,i)
+   if (JMatrix%SAGC(j,i) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC(j,i)
+   if (JMatrix%Warp(j,i) <= JMatrix%Warp0(2)) JMatrix%Warp0(2)=JMatrix%Warp(j,i)
+   if (JMatrix%Warp(j,i) >= JMatrix%Warp0(3)) JMatrix%Warp0(3)=JMatrix%Warp(j,i)
+   if (JMatrix%MEANC(j,i) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC(j,i)
+   if (JMatrix%MEANC(j,i) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC(j,i)
+   if (JMatrix%MONGEA(j,i) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA(j,i)
+   if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
+   do k = 1,15
+    if (JMatrix%ZC(j,i,k) <= JMatrix%ZC0(2,k)) JMatrix%ZC0(2,k)=JMatrix%ZC(j,i,k)
+    if (JMatrix%ZC(j,i,k) >= JMatrix%ZC0(3,k)) JMatrix%ZC0(3,k)=JMatrix%ZC(j,i,k)
+   end do
+  end do
+  end do
+end subroutine minmax
+
+
 ! aka SLOPE2POWER using AXIALP converts lhs to rhs
 subroutine Atlas_eq_RadSlope(Atlas,RadSlope)
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope

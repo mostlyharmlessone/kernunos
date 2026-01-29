@@ -6,7 +6,7 @@ FIXES
 
 decenter can continue ro decenter even with zero values once decentered sufficiently
 this does NOT do what I want? compare to manual decenter with Penta ELE files.
-see notes in janus.f90; need to rewirite decenter to regenerate based on ELE starting around lin 1580, might be best to break that out as a routine and or refactor selectfunction and rename that too
+see notes in janus.f90; need to rewirite decenter line 512 to regenerate based on ELE starting around lin 1580, might be best to break that out as a routine and or refactor selectfunction and rename that too
 
 
 LSQ spline errors seems to run on ELE even though not checked in Menu, get Errors on findInterval in LSQSpline without checked box using LSQSpline
