@@ -1661,7 +1661,7 @@ endif
 
 !!!!!temp commented to test minmax
 
- !   if (JMatrix%INSTC(j,i) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC(j,i)
+!    if (JMatrix%INSTC(j,i) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC(j,i)
 !    if (JMatrix%INSTC(j,i) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC(j,i)
 !    if (JMatrix%GAUSSC(j,i) <= JMatrix%GAUSSC0(2)) JMatrix%GAUSSC0(2)=JMatrix%GAUSSC(j,i)
 !    if (JMatrix%GAUSSC(j,i) >= JMatrix%GAUSSC0(3)) JMatrix%GAUSSC0(3)=JMatrix%GAUSSC(j,i)
@@ -1802,7 +1802,6 @@ endif
     end do
 !    if (JMatrix%Warp0(1) <= JMatrix%Warp0(2)) JMatrix%Warp0(2)=JMatrix%Warp0(1)
 !    if (JMatrix%Warp0(1) >= JMatrix%Warp0(3)) JMatrix%Warp0(3)=JMatrix%Warp0(1)
-!   endif
 
 !  write(*,*) 'INSTC'
 !  INSTC
@@ -1845,8 +1844,8 @@ endif
     JMatrix%GAUSSC0(1)=(i*JMatrix%GAUSSC0(1)+JMatrix%GAUSSC(N1+1,i))/(i+1)      ! cumulative average
    endif
   end do
- ! if (JMatrix%GAUSSC0(1) <= JMatrix%GAUSSC0(2)) JMatrix%GAUSSC0(2)=JMatrix%GAUSSC0(1)
- ! if (JMatrix%GAUSSC0(1) >= JMatrix%GAUSSC0(3)) JMatrix%GAUSSC0(3)=JMatrix%GAUSSC0(1)
+!  if (JMatrix%GAUSSC0(1) <= JMatrix%GAUSSC0(2)) JMatrix%GAUSSC0(2)=JMatrix%GAUSSC0(1)
+!  if (JMatrix%GAUSSC0(1) >= JMatrix%GAUSSC0(3)) JMatrix%GAUSSC0(3)=JMatrix%GAUSSC0(1)
 
 ! MEANC
 ! Reload RadSlope & respline
@@ -2292,8 +2291,9 @@ endif
 ! eigenvalues show shape of RadSlope without make_rings but with FillArray 7 elevations
 !  atmp=pca(2,RadSlope)
 !  atmp=pca(3,RadSlope)
-  write(*,*) trim(compiler_version())
-  call LogC(trim(compiler_version()) // c_null_char)  !has to be C and declared, not cpp
+
+  write(*,*) "Computations run under ",trim(compiler_version())
+  call LogC("Computations run under " // trim(compiler_version()) // c_null_char)  !has to be C and declared, not cpp
 
   return        
 

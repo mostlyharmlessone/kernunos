@@ -1480,11 +1480,7 @@ if (iflag == 1 .or. iflag ==2) then ! iflag == 1 remake JMatrix (b) including ce
  if (b%Z0(1) <= b%Z0(2)) b%Z0(2)=b%Z0(1)
  if (b%Z0(1) >= b%Z0(3)) b%Z0(3)=b%Z0(1)
 endif
-if (iflag == 0) then ! iflag == 0 load center/min/max into powctr/powmin/powmax
- powctr=b%Z0(1)
- powmin=b%Z0(2)
- powmax=b%Z0(3)
-endif
+
 endsubroutine selectfunction
 
 END MODULE cornea_arrays

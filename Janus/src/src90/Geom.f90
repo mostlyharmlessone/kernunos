@@ -1,16 +1,16 @@
 !      Generates matrices for openGL
 
        subroutine Geom(flag, b, donut, powmin, powmax, elements, vertices, nV, nE)
-       use cornea_arrays, ONLY : wpJMatrix
+       use cornea_arrays, ONLY : wpJMatrix, minmax, selectfunction
        use set_precision, ONLY : wp
        use special_fct, only : colormap
        use, intrinsic :: iso_c_binding, ONLY : c_float,c_int
        use, intrinsic ::  ieee_arithmetic
        use ISO_FORTRAN_ENV, only: stdin=>input_unit     ! for the pause read(stdin,*)
        IMPLICIT NONE
-       TYPE(wpJMatrix),INTENT(IN) :: b      
+       TYPE(wpJMatrix),INTENT(INOUT) :: b
        real(wp), intent(INOUT) :: powmin,powmax
-       real(wp) :: X1,X2,X3
+       real(wp) :: X1,X2,X3,powctr
        real(wp) :: vert1,vert2,vert3,nrm1,nrm2,nrm3,normal
        real(c_float) :: c_vert(3),c_rgbv(3),c_norm(3)
        real(wp) :: pow
@@ -185,8 +185,8 @@
          vert2 = real(ABS(X2)*SIN(X1),kind=4)
          vert3 = real(X3,kind=4)  
          if (ieee_is_finite(vert3) .and. ieee_is_finite(vert2) .and. &
-             ieee_is_finite(vert1) .and. ieee_is_finite(pow) .and. ieee_is_finite(nrm3)) then
-          c_rgbv=colormap(pow,powmin,powmax,map)/255.0  !openGL wants scale of 1.0 not 255
+             ieee_is_finite(vert1) .and. ieee_is_finite(pow) .and. ieee_is_finite(nrm3)) then             
+           c_rgbv=colormap(pow,powmin,powmax,map)/255.0  !openGL wants scale of 1.0 not 255
          else
           vert1 = 0        ! for out of bound values
           vert2 = 0        ! for out of bound values

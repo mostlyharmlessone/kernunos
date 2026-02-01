@@ -80,13 +80,14 @@ subroutine pspli(t,z,n,zt2,err_report)
  REAL(wp) :: d(n),a(n),b(n),c(n)
 end subroutine
  
- subroutine SplineCenter(dat,jj,r,z,zr2,n,u)
+ subroutine SplineCenter(dat,jj,r,z,zr2,n,u,err_report)
  use set_precision, only : wp
  use, INTRINSIC :: iso_c_binding, ONLY : c_int
   integer(c_int), INTENT(IN) :: dat
   integer, INTENT(IN) :: n,jj
   real(wp), INTENT(IN) ::  r(n),z(n),zr2(n)
   real(wp), INTENT(OUT) :: u
+  integer, INTENT(OUT) :: err_report
  end subroutine
       
  subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)

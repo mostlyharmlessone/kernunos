@@ -32,30 +32,39 @@ subroutine SplineEvalCenter(ii,x,y,y2,n,u,f,fp,fpp,fppp)
    allocate(xx(n+1),yy(n+1),yy2(n+1))
 !  find center
    call bsearch(0.0_wp,x,n,high,low)
-   if (low .eq. high ) then ! 0.0 == x(n)
+   if (low .eq. high ) then ! already has a centerpoint
     write(*,*) 'Unexpected error in SplineEvalCenter'
-    stop
-   endif
-   do i=1,low
-    xx(i)=x(i)
-    yy(i)=y(i)
-    yy2(i)=y2(i)
-   end do
-!  add a centerpoint at origin with zero slope
-    xx(low+1)=0_wp
-    yy(low+1)=RadSplineCenter(2,ii)
-    yy2(low+1)=RadSplineCenter(3,ii)
-   do i=high,n  ! high=low+1
-    xx(i+1)=x(i)
-    yy(i+1)=y(i)
-    yy2(i+1)=y2(i)
-   end do
-    call bsearch(u,xx,n+1,i1,i) ! binary search
-    if (i1 .eq. i) then ! if on the knot
-     if (i .ne. (n+1)) then  ! last knot for non-cyclic spline
-      i1=i+1
-     else
-      i1=n+1; i=n
+    xx(1:n)=x(1:n)
+    yy(1:n)=y(1:n)
+    yy2(1:n)=y2(1:n)
+    if (high .ne. n) then  ! last knot for non-cyclic spline
+     i1=low+1
+     i=low
+    else
+     i1=n+1; i=n
+    endif
+   else
+    do i=1,low
+     xx(i)=x(i)
+     yy(i)=y(i)
+     yy2(i)=y2(i)
+    end do
+!   add a centerpoint at origin with zero slope
+     xx(low+1)=0_wp
+     yy(low+1)=RadSplineCenter(2,ii)
+     yy2(low+1)=RadSplineCenter(3,ii)
+     do i=high,n  ! high=low+1
+      xx(i+1)=x(i)
+      yy(i+1)=y(i)
+      yy2(i+1)=y2(i)
+     end do
+     call bsearch(u,xx,n+1,i1,i) ! binary search
+     if (i1 .eq. i) then ! if on the knot
+      if (i .ne. (n+1)) then  ! last knot for non-cyclic spline
+       i1=i+1
+      else
+       i1=n+1; i=n
+      endif
      endif
     endif
     dr=xx(i1)-xx(i)
