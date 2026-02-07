@@ -95,6 +95,13 @@ module io_functions
      integer, intent(out) :: read_error
     end subroutine
 
+    subroutine rcnvrtk(read_error,CURVNAME,ELEVNAME,PUPILNAME,CENTERNAME)
+     USE set_precision, ONLY : wp
+     USE cornea_arrays, ONLY : Oculus
+     integer, intent(out) :: read_error
+     character(len=*), intent(in), optional :: CURVNAME,ELEVNAME,PUPILNAME,CENTERNAME
+    end subroutine rcnvrtk
+
     subroutine RCNVRTT(MM,N)
      USE set_precision, ONLY : wp
      USE cornea_arrays
@@ -421,6 +428,24 @@ subroutine rcnvrtp(TestData,filename,read_error)
 !    end do
 !   endif
 end subroutine rcnvrtp
+
+subroutine rcnvrtk(read_error,CURVNAME,ELEVNAME,PUPILNAME,CENTERNAME)
+! Oculus Keratograph version
+  USE io_functions, ONLY : get_new_fileunit
+  USE set_precision, ONLY : wp
+  USE cornea_arrays, ONLY : Oculus
+  USE special_fct, ONLY : replacestr
+  use c_interfaces, ONLY : charcount
+  USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_null_char
+  implicit none
+  logical :: exists
+  character(len=*), intent(in), optional :: CURVNAME,ELEVNAME,PUPILNAME,CENTERNAME
+  integer, intent(out) :: read_error
+
+
+
+
+ end subroutine rcnvrtk
 
 subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
 ! NIDEK VERSION

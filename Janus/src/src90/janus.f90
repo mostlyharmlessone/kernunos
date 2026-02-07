@@ -14,7 +14,7 @@
   IMPLICIT NONE
   integer :: i, j, k, ii, kk, m, nn, i1, j1, ierr, info, nrhs
   integer,save :: MM, N ,M1, N1, Power_Rings_Count
-  integer,save :: TestData             ! TestData: -1=test, 0=EyeSys, 1=Atlas, (2-5)=Penta, 6=Nidek
+  integer,save :: TestData             ! TestData: -1=test, 0=EyeSys, 1=Atlas, (2-5)=Penta, 6=Nidek, 7=Keratograph
   integer,save :: NP                   ! PentaCam=141
   integer :: unitno1
   character(c_char), INTENT(IN), DIMENSION(4096) :: file_from_C
@@ -725,11 +725,11 @@ endif
 ! last two digits of flag == 0 parse file name, assign TestData type and MM,N
 if (mod(flag,100) == 0) then
  call CCounter(0,inputfile1//c_null_char)
-! From either RA?.? or XX?.?, set inputfile1 to the XX version, inputfile2 to the RA version, inputfile3 to the PU version,
-! For PentaCam
-! set inputfile1 for _ELE.CSV or .ELE,
-! set inputfile2 for _CUR.CSV or .CUR
+! For EyeSys either RA?.? or XX?.?, set inputfile1 to the XX version, inputfile2 to the RA version, inputfile3 to the PU version,
+! For NIDEK either RA?.? or ED?.?, set inputfile1 to the XX version, inputfile2 to the RA version, inputfile3 to the HT version, inputfile4 to PE
+! For PentaCam set inputfile1 for _ELE.CSV or .ELE, set inputfile2 for _CUR.CSV or .CUR
 ! For CSV but not _ELE.CSV or _CUR.CSV set inputfile1 to Atlas file
+! For Oculus Keratograph files ending in .OD or .OS set inputfile1 to CURVAT or CURVAT_F, inputfile2 to CORNEA or CORNEA_F, inputfile3 to PUPIL, inputfile4 to CENTER
  file_idx=index(inputfile1, "RA")+index(inputfile1, "XX")+index(inputfile1, "ED")
    if( file_idx == 0)then
       file_idx=index(inputfile1, ".CSV")
@@ -738,8 +738,95 @@ if (mod(flag,100) == 0) then
        if( file_idx == 0) then
         file_idx=index(inputfile1, ".ELE")
         if( file_idx == 0) then
+
+         file_idx=index(inputfile1, ".OD")+index(inputfile1, ".OS")
+         if( file_idx == 0) then
          write(*,*) 'Unknown file type: make some test data, flag = ',flag
          TestData=-1; MM=360; N=16 ; NP=141
+         else
+         TestData=7; MM=100; N=60 ; NP=141
+         file_idx=index(inputfile1, ".OS")
+         if( file_idx == 0) then !OD file
+          inputfile3="PUPIL.OD" ;inputfile4="CENTER.OD"
+          file_idx=index(inputfile1, "CURVAT")
+          if( file_idx == 0) then ! a CORNEA file
+          file_idx=index(inputfile1, "CORNEA")
+          if( file_idx == 0) then
+           write(*,*) 'Error in finding Keratograph file'
+           return
+          endif
+          file_idx=index(inputfile1, "_F")
+           if( file_idx == 0) then
+            inputfile1="CORNEA.OD"
+           else
+            inputfile1="CORNEA_F.OD"
+           endif
+           ! default option for inputfile2 is CURVAT_F
+           inquire(file="CURVAT.OD", exist=exists)
+            if (exists) then
+             inputfile2="CURVAT.OD"
+            else
+             inputfile2="CURVAT_F.OD"
+            endif
+           else ! a CURVAT file
+            file_idx=index(inputfile1, "_F")
+            if( file_idx == 0) then
+             inputfile2="CURVAT.OD"
+            else
+             inputfile2="CURVAT_F.OD"
+            endif
+            ! default option for inputfile2 is CORNEA_F
+            inquire(file="CORNEA.OD", exist=exists)
+             if (exists) then
+              inputfile1="CORNEA.OD"
+             else
+              inputfile1="CORNEA_F.OD"
+             endif
+           endif !cornea or curvat
+          else ! OS
+          file_idx=index(inputfile1, ".OS")
+          if( file_idx == 0) then
+           write(*,*) 'Error in finding Keratograph file'
+           return
+          endif
+          inputfile3="PUPIL.OS" ;inputfile4="CENTER.OS"
+          file_idx=index(inputfile1, "CURVAT")
+          if( file_idx == 0) then ! a CORNEA file
+          file_idx=index(inputfile1, "CORNEA")
+          if( file_idx == 0) then
+           write(*,*) 'Error in finding Keratograph file'
+           return
+          endif
+          file_idx=index(inputfile1, "_F")
+           if( file_idx == 0) then
+            inputfile1="CORNEA.OS"
+           else
+            inputfile1="CORNEA_F.OS"
+           endif
+           ! default option for inputfile2 is CURVAT_F
+           inquire(file="CURVAT.OS", exist=exists)
+            if (exists) then
+             inputfile2="CURVAT.OS"
+            else
+             inputfile2="CURVAT_F.OS"
+            endif
+           else ! a CURVAT file
+            file_idx=index(inputfile1, "_F")
+            if( file_idx == 0) then
+             inputfile2="CURVAT.OS"
+            else
+             inputfile2="CURVAT_F.OS"
+            endif
+            ! default option for inputfile2 is CORNEA_F
+            inquire(file="CORNEA.OS", exist=exists)
+             if (exists) then
+              inputfile1="CORNEA.OS"
+             else
+              inputfile1="CORNEA_F.OS"
+             endif
+           endif !cornea or curvat
+          endif !end eyes
+         endif
         else
         inputfile2=replacestr(string=inputfile1,search=".ELE",substitute=".CUR")
         write(*,*) "PentaCam .ELE file",inputfile1
@@ -1014,6 +1101,46 @@ if (TestData .eq. 0) then
   endif
 ! Generate the slope matrix using ZFCT
   RadSlope=EyeSys
+endif
+
+if (TestData .eq. 7) then
+ if (mod(flag,100) == 0) then !read the files
+! READ THE KERATOGRAPH DATA
+  call CPU_TIME(time_start)
+  MM=100 ; N=60 ! Keratograph
+  read_error=0
+  if(.not.allocated(Oculus%SAGC)) then
+   call init_mat_Oculus(MM,N,Oculus) ! allocate the matrices
+  else
+   Oculus = 0
+   call init_mat_Oculus(MM,N,Oculus) ! allocate the matrices
+  endif
+  !  test for compressed cabinet files
+  file_idx=index(inputfile1, ".ZIP")
+  if ( file_idx .ne. 0 )  then
+! do something here to uncompress, but how did you get here withour .OS or .OD ?? perhaps this goes higher up before TestData
+  endif
+  ! RCNVRTK has to decide wheter files exist too.
+  inquire(file=trim(inputfile3), exist=exists)
+  if(.NOT.exists) then
+   call RCNVRTK(read_error,inputfile1,inputfile2)
+  else
+   inquire(file=trim(inputfile4), exist=exists)
+   if(.NOT.exists) then
+    call RCNVRTK(read_error,inputfile1,inputfile2,inputfile3)
+   else
+    call RCNVRTK(read_error,inputfile1,inputfile2,inputfile3,inputfile4)
+   endif
+ endif !(mod(flag,100) = 0
+ ! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
+ if (allocated(RadSlope%r)) then
+  RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
+  call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
+ else
+  call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
+ endif
+! Generate the slope matrix using ZFCT
+ RadSlope=Oculus
 endif
 
 if (TestData .eq. 6) then
@@ -1499,7 +1626,7 @@ if (mod(flag,100) .ne. 9 ) then
   endif
  endif
   k=0 ; powmax2 = 0 ; powmax =0  ! Use these temporarily
- ! find max elevation from Atlas file
+ ! find max elevation from Nidek file
   do i=1,M1
    do j=1,RadSlope%MV(i)
     if (EyeSys%HT(i,j) > powmax) powmax=EyeSys%HT(i,j)
@@ -1523,6 +1650,47 @@ if (mod(flag,100) .ne. 9 ) then
    end do
    write(*,*) 'NIDEK avg abs elevation percent error : ',(100*powmax2/k)/powmax
  endif
+
+ ! Keratograph spline consistency computation of elevation by power calc by slope vs elevation in file HT
+  if ( Testdata .eq. 7 .and. btest(dat,7) ) then
+  if (btest(dat, 2)) then
+   if (btest(dat,0)) then
+    iflag=12
+   else
+    iflag=2
+   endif
+  else
+   if (btest(dat,0)) then
+    iflag=11
+   else
+    iflag=1
+   endif
+  endif
+   k=0 ; powmax2 = 0 ; powmax =0  ! Use these temporarily
+  ! find max elevation from Oculus file
+   do i=1,M1
+    do j=1,RadSlope%MV(i)
+     if (Oculus%ELE(i,j) > powmax) powmax=Oculus%ELE(i,j)
+     end do
+    end do
+  ! check spline power & elevation at knots
+    do i=1,MM
+     do j=1,RadSlope%MV(i)
+     call SplineEval1Dx1D(iflag,Oculus%Y(i,j),PI*Oculus%SEG(i)/9000.0_wp,Y,YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
+ !   skip missing elevation points to compute (cumulative) average error
+     if (Oculus%ELE(i,j) > 0) then
+       k=k+1
+       powmax2=powmax2+ABS(Y-powmax+Oculus%ELE(i,j))
+ !     Oculus%ELE data has few significant digits, is quite flat and deviates more in the center rings
+ !     skip the two center rings and show errors greater tha 5%
+       if (ABS(100*(Y-Oculus%ELE(i,j))/Oculus%ELE(i,j)) > 5.0 .and. j > 2 ) then
+        write(*,*) j,(i-1),Y,Oculus%ELE(i,j),100*(Y-Oculus%ELE(i,j))/Oculus%ELE(i,j)
+       endif
+      endif
+     end do
+    end do
+    write(*,*) 'KERATOGRAPH avg abs elevation percent error : ',(100*powmax2/k)/powmax
+  endif
 
 ! Make JMatrix
 
@@ -1659,41 +1827,11 @@ endif
 !    endif
 
 
-!!!!!temp commented to test minmax
-
-!    if (JMatrix%INSTC(j,i) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC(j,i)
-!    if (JMatrix%INSTC(j,i) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC(j,i)
-!    if (JMatrix%GAUSSC(j,i) <= JMatrix%GAUSSC0(2)) JMatrix%GAUSSC0(2)=JMatrix%GAUSSC(j,i)
-!    if (JMatrix%GAUSSC(j,i) >= JMatrix%GAUSSC0(3)) JMatrix%GAUSSC0(3)=JMatrix%GAUSSC(j,i)
-!    if (JMatrix%Z(j,i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z(j,i)
-!    if (JMatrix%Z(j,i) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z(j,i)
-!    if (JMatrix%SAGC(j,i) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC(j,i)
-!    if (JMatrix%SAGC(j,i) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC(j,i)
-!    if (JMatrix%Warp(j,i) <= JMatrix%Warp0(2)) JMatrix%Warp0(2)=JMatrix%Warp(j,i)
-!    if (JMatrix%Warp(j,i) >= JMatrix%Warp0(3)) JMatrix%Warp0(3)=JMatrix%Warp(j,i)
-
-!!!!!temp commented to test minmax
-
-
    end do
   end do !end JMatrix ring generation
 ! spline over problematic limits at x-axis
 !  JMatrix%MEANC=splinefillintranspose(JMatrix%MEANC)
 !  JMatrix%MONGEA=splinefillintranspose(JMatrix%MONGEA)
-
-!!!!!temp commented to test minmax
-
-!  do i=1,M1
-!   do j=1,JMatrix%MV(i)
-!    if (JMatrix%MEANC(j,i) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC(j,i)
-!    if (JMatrix%MEANC(j,i) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC(j,i)
-!    if (JMatrix%MONGEA(j,i) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA(j,i)
-!    if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
-!   end do
-!  end do
-
-!!!!!temp commented to test minmax
-
 
 ! Calculate center values for everything
 ! These have MM different values of the center!
@@ -1721,6 +1859,8 @@ endif
    call AdjustRadSplineCenter     ! changes r only
    DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
   endif
+
+  write(*,*) 'janus 1695',dat
   call MakeRadSplineCenter(dat)        ! generates spline centers with tweaks
 
 !  Z
@@ -1738,8 +1878,6 @@ endif
    else
     write(*,*) 'Central elevation already set in RadSlope_eq_Skyline: center elevation supplied, average calculated',JMatrix%Z0(1),P_TEMP
    endif
-!   if (JMatrix%Z0(1) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z0(1)
-!   if (JMatrix%Z0(1) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z0(1)
 
 
 !   write(*,*) 'sagc'
@@ -1777,8 +1915,6 @@ endif
    else
     write(*,*) 'Central Axial Power already set in RadSlope_eq_Skyline, center power supplied, average calculated',JMatrix%SAGC0(1),P_TEMP
    endif
-!   if (JMatrix%SAGC0(1) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC0(1)
-!   if (JMatrix%SAGC0(1) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC0(1)
 
 
 !   write(*,*) 'Warp'
@@ -1800,8 +1936,6 @@ endif
      JMatrix%Warp0(1)=(i*JMatrix%Warp0(1)+JMatrix%Warp(N1+1,i))/(i+1)      ! cumulative average
      endif
     end do
-!    if (JMatrix%Warp0(1) <= JMatrix%Warp0(2)) JMatrix%Warp0(2)=JMatrix%Warp0(1)
-!    if (JMatrix%Warp0(1) >= JMatrix%Warp0(3)) JMatrix%Warp0(3)=JMatrix%Warp0(1)
 
 !  write(*,*) 'INSTC'
 !  INSTC
@@ -1822,8 +1956,6 @@ endif
     JMatrix%INSTC0(1)=(i*JMatrix%INSTC0(1)+JMatrix%INSTC(N1+1,i))/(i+1)      ! cumulative average
    endif
   end do
- ! if (JMatrix%INSTC0(1) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC0(1)
- ! if (JMatrix%INSTC0(1) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC0(1)
 
 !   write(*,*) 'GAUSSC'
 ! GAUSSC
@@ -1844,8 +1976,6 @@ endif
     JMatrix%GAUSSC0(1)=(i*JMatrix%GAUSSC0(1)+JMatrix%GAUSSC(N1+1,i))/(i+1)      ! cumulative average
    endif
   end do
-!  if (JMatrix%GAUSSC0(1) <= JMatrix%GAUSSC0(2)) JMatrix%GAUSSC0(2)=JMatrix%GAUSSC0(1)
-!  if (JMatrix%GAUSSC0(1) >= JMatrix%GAUSSC0(3)) JMatrix%GAUSSC0(3)=JMatrix%GAUSSC0(1)
 
 ! MEANC
 ! Reload RadSlope & respline
@@ -1865,8 +1995,6 @@ endif
     JMatrix%MEANC0(1)=(i*JMatrix%MEANC0(1)+JMatrix%MEANC(N1+1,i))/(i+1)      ! cumulative average
    endif
   end do
-!  if (JMatrix%MEANC0(1) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC0(1)
-!  if (JMatrix%MEANC0(1) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC0(1)
 
 !  write(*,*) 'MONGEA'
 ! MONGEA
@@ -1887,8 +2015,6 @@ endif
    JMatrix%MONGEA0(1)=(i*JMatrix%MONGEA0(1)+JMatrix%MONGEA(N1+1,i))/(i+1)      ! cumulative average
   endif
  end do
-! if (JMatrix%MONGEA0(1) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA0(1)
-! if (JMatrix%MONGEA0(1) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA0(1)
 ! end populating JMatrix
 
  call minmax(JMatrix)

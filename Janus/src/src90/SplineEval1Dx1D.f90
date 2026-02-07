@@ -15,7 +15,7 @@
       real(wp) :: fTmp(size(RadSlope%r,2)),frTmp(size(RadSlope%r,2)),frrTmp(size(RadSlope%r,2))
       real(wp) :: thta(size(RadSlope%r,2)),fttTmp(size(RadSlope%r,2)),frttTmp(size(RadSlope%r,2)),frrttTmp(size(RadSlope%r,2))
       real(wp) :: r(2*size(RadSlope%r,1)),z(2*size(RadSlope%r,1)),zr2(2*size(RadSlope%r,1)),c(M2)
-      integer :: L2,j,L,MM,N,i,i1,k,k1,err_report
+      integer :: L2,L,MM,N,i,i1,err_report
 !      logical :: IsInf
 
       MM=size(RadSlope%r,2)
@@ -72,7 +72,6 @@
         return
        endif
       endif
-
 !     1D x 1D splining needed if ft,frt, or ftt are needed or if theta is not on a knot
 !     generate all the radials at u for circumferential splining
       do i=1,MM/2

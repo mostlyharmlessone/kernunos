@@ -56,6 +56,13 @@ MODULE cornea_arrays
    REAL (wp) :: Pupil_Center(2)
  END TYPE wpPentaMatrix
 
+ TYPE wpOculusMatrix
+ ! for the Oculus Keratograph 5M
+ !  sagittal/axial, tangential curvature or elevation in mm, radial position, usually 100 segments corresponding to every 4 grads, with 60 points each
+   REAL (wp), ALLOCATABLE :: SAGC(:,:),INSTC(:,:),ELE(:,:),PU(:,:),Y(:,:),SEG(:)
+   REAL (wp) :: Pupil_Center(2)
+ END TYPE wpOculusMatrix
+
  TYPE wpSkyline
 !  DAT is sagittal/axial curvature or elevation in mm, on 141x141 grid of -7.00 mm to +7.00 mm, no data=-1 or 0
    REAL (wp), ALLOCATABLE :: DAT(:,:),x(:,:),y(:,:),z2DAT(:,:)
@@ -88,9 +95,11 @@ INTERFACE ASSIGNMENT (=)
  MODULE PROCEDURE DiaSlope_eq_RadSlope
  MODULE PROCEDURE RadSlope_eq_DiaSlope
  MODULE PROCEDURE RadSlope_eq_JMatrix
+ MODULE PROCEDURE RadSlope_eq_Oculus
  ! Type(oneofthesebelow) = INTEGER(0) deallocates the matrix
  MODULE PROCEDURE destroy_EyeSys
  MODULE PROCEDURE destroy_Penta
+ MODULE PROCEDURE destroy_Oculus
  MODULE PROCEDURE destroy_Atlas
  MODULE PROCEDURE destroy_RadSlope
  MODULE PROCEDURE destroy_DiaSlope
@@ -115,6 +124,7 @@ END INTERFACE
  TYPE(wpAtlasMatrix) :: Atlas
  TYPE(wpAtlasMatrix) :: AtlasSave
  TYPE(wpPentaMatrix) :: Penta
+ TYPE(wpOculusMatrix) :: Oculus
  TYPE(wpSkyline) :: Skyline
  TYPE(wpDiaSlopeMatrix) :: DiaSlope
 
@@ -146,6 +156,14 @@ subroutine init_mat_Penta(NP,Penta,Skyline) ! allocate PentaCam arrays
   Skyline%L2y(:)=0
   Skyline%index_col(:)=0
 end subroutine init_mat_Penta
+
+subroutine init_mat_Oculus(MM,N,Oculus) ! allocate Oculus arrays
+  INTEGER, INTENT(IN) :: MM,N
+  TYPE(wpOculusMatrix) :: Oculus
+  allocate (Oculus%SAGC(MM,N),Oculus%INSTC(MM,N),Oculus%ELE(MM,N),Oculus%PU(MM,N),Oculus%Y(MM,N),Oculus%SEG(MM))
+  Oculus%SAGC(:,:)=0 ; Oculus%INSTC(:,:)=0 ; Oculus%ELE(:,:)=0 ; Oculus%PU(:,:)=0 ; Oculus%Y(:,:)=0 ; Oculus%SEG(:)=0
+  Oculus%Pupil_Center=0
+end subroutine init_mat_Oculus
 
 subroutine init_mat_JMatrix(MM,N,b) ! allocate common storage arrays
   INTEGER, INTENT(IN) :: MM,N
@@ -207,6 +225,14 @@ subroutine destroy_EyeSys(EyeSys,iflag)
    deallocate (EyeSys%RA,EyeSys%XX,EyeSys%PU,EyeSys%DEG,EyeSys%HT)
   ENDIF
 end subroutine destroy_EyeSys
+
+subroutine destroy_Oculus(Oculus,iflag)
+  TYPE(wpOculusMatrix), INTENT(INOUT) :: Oculus
+  INTEGER, INTENT (IN) :: iflag
+  IF (iflag==0) THEN
+   deallocate (Oculus%SAGC,Oculus%INSTC,Oculus%ELE,Oculus%PU,Oculus%Y,Oculus%SEG)
+  ENDIF
+end subroutine destroy_Oculus
 
 subroutine destroy_Atlas(Atlas,iflag)
   TYPE(wpAtlasMatrix), INTENT(INOUT) :: Atlas
@@ -561,6 +587,13 @@ subroutine RadSlope_eq_EyeSys(RadSlope,EyeSys) ! initially populates r, thta, Zp
       RadSlope%MV(i)=imv(i)
    end do
 end subroutine RadSlope_eq_EyeSys
+
+subroutine RadSlope_eq_Oculus(RadSlope,Oculus)
+  TYPE(wpOculusMatrix), INTENT(INOUT) :: Oculus
+  TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
+  INTEGER :: i,j,MM,N
+! does nothing yet
+end subroutine RadSlope_eq_Oculus
 
 subroutine RadSlope_eq_JMatrix(RadSlope,JMatrix) 
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope

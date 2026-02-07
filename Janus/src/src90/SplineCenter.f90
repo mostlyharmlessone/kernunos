@@ -18,6 +18,7 @@
   call bsearch(0.0_wp,r,n,high,low)
   if (low .eq. high) then ! 0.0 should never be a value or knot of r
    write(*,*) 'Unusual error in SplineCenter, setting u=r(low)'
+   u=r(low)
    err_report = 1
    return
   endif
@@ -43,7 +44,7 @@
   endif
    if (ABS(gr) < EPS*EPS) then        ! gr is the first derivative, if it gets small as g/gr gets small there might be an overflow
     u=(r(high)+r(low))/2.0_wp     ! just make it in the center; no guarantee of a local root
-    write(*,*) 'no guarantee of a local root in SplineCenter',g/gr,gr,btest(dat, 0)
+    write(*,*) 'no guarantee of a local root in SplineCenter, setting u=(r(high)+r(low))/2.0_wp',g,gr,btest(dat, 0)
     err_report = 3
     return
    endif
@@ -56,9 +57,7 @@
    err_report = 4
    return
   endif
- 
   else     ! the origin isn't between a positive and negative value, so if the slope changes sign, there's a minmax
-
 !  First time through RadSplineCenter == 0
    if (btest(dat, 0) ) then ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
     call SplineEvalCenter(jj,r,z,zr2,n,r(high),g,slopeh)
