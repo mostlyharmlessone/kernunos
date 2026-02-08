@@ -95,7 +95,7 @@ module io_functions
      integer, intent(out) :: read_error
     end subroutine
 
-    subroutine rcnvrtk(read_error,CURVNAME,ELEVNAME,PUPILNAME,CENTERNAME)
+    subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME)
      USE set_precision, ONLY : wp
      USE cornea_arrays, ONLY : Oculus
      integer, intent(out) :: read_error
@@ -429,22 +429,191 @@ subroutine rcnvrtp(TestData,filename,read_error)
 !   endif
 end subroutine rcnvrtp
 
-subroutine rcnvrtk(read_error,CURVNAME,ELEVNAME,PUPILNAME,CENTERNAME)
+subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME)
 ! Oculus Keratograph version
   USE io_functions, ONLY : get_new_fileunit
   USE set_precision, ONLY : wp
-  USE cornea_arrays, ONLY : Oculus
+  USE cornea_arrays, ONLY : Oculus, EPS
   USE special_fct, ONLY : replacestr
   use c_interfaces, ONLY : charcount
   USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_null_char
   implicit none
   logical :: exists
-  character(len=*), intent(in), optional :: CURVNAME,ELEVNAME,PUPILNAME,CENTERNAME
+  character(len=*), intent(in), optional :: ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME
   integer, intent(out) :: read_error
+  integer :: i,j,read_front,ierr,unitno1,grad,file_idx
+  real(wp) :: rsag,rtan,ytemp,xtemp
+  Character(len=1000) :: someline,somecharacter
+     inquire(file=trim(CURVNAME), exist=exists)
+     if (exists) then
+      write(*,*) 'Found ',CURVNAME
+      unitno1 = get_new_fileunit()
+      open(unitno1, file=trim(CURVNAME), action="read", iostat=ierr)
+      if (ierr .eq. 0) then
+       read_front=0
+       i=0
+       do
+        i=i+1
+        read(unitno1, '(A)', iostat=ierr) someline
+!       should look like this
+!       Seg: 0  y= 0.00  r(Sag)=  8.11  r(Tan)=  8.00
+        if (ierr .eq. 0) then
+         somecharacter=replacestr(string=someline,search="Seg:",substitute="")
+         somecharacter=replacestr(string=somecharacter,search="y=",substitute=",")
+         somecharacter=replacestr(string=somecharacter,search="r(Sag)=",substitute=",")
+         somecharacter=replacestr(string=somecharacter,search="r(Tan)=",substitute=",")
+         read(somecharacter,*,iostat=ierr) grad,ytemp,rsag,rtan
+         Oculus%SEG(grad+1)=grad+1
+         j=INT(10*ytemp)+1
+         if (ABS(10*ytemp+1-j) .gt. EPS) then  ! y should always be between 0.0 and 6.0 at 0.1 intervals
+          write(*,*) 'Error reading Keratograph'
+          return
+         endif
+         Oculus%Y(grad+1,j) = ytemp
+         Oculus%SAGC(grad+1,j)=rsag
+         Oculus%INSTC(grad+1,j)=rtan
+!         write(*,*) someline
+!         write(*,*) somecharacter
+!         write(*,*) Oculus%SEG(grad+1),j,i,Oculus%Y(grad+1,j),Oculus%SAGC(grad+1,j),Oculus%INSTC(grad+1,j)
+        else
+          exit  !EOF
+        endif
+       end do
+       close(unitno1)
+      else
+       write(*,*) "Error Reading ",CURVNAME
+       return
+      endif
+     else
+      write(*,*) "No Keratograph CURVAT file ",CURVNAME
+     endif
 
+     inquire(file=trim(ELEVNAME), exist=exists)
+     if (exists) then
+      write(*,*) 'Found ',ELEVNAME
+      unitno1 = get_new_fileunit()
+      open(unitno1, file=trim(ELEVNAME), action="read", iostat=ierr)
+      if (ierr .eq. 0) then
+       read_front=0
+       i=0
+       do
+        i=i+1
+        read(unitno1, '(A)', iostat=ierr) someline
+!       should look like this
+!       Seg: 0 y= 0.00 x= 0.000000000000
+        if (ierr .eq. 0) then
+         somecharacter=replacestr(string=someline,search="Seg:",substitute="")
+         somecharacter=replacestr(string=somecharacter,search="y=",substitute=",")
+         somecharacter=replacestr(string=somecharacter,search="x=",substitute=",")
+         read(somecharacter,*,iostat=ierr) grad,ytemp,xtemp
+         Oculus%SEG(grad+1)=grad+1
+         j=INT(10*ytemp)+1
+         if (ABS(10*ytemp+1-j) .gt. EPS) then  ! y should always be between 0.0 and 6.0 at 0.1 intervals
+          write(*,*) 'Error reading Keratograph'
+          return
+         endif
+         Oculus%Y(grad+1,j) = ytemp
+         Oculus%ELE(grad+1,j)=xtemp
+!         write(*,*) someline
+!         write(*,*) somecharacter
+!         write(*,*) Oculus%SEG(grad+1),j,i,Oculus%Y(grad+1,j),Oculus%ELE(grad+1,j)
+        else
+          exit  !EOF
+        endif
+       end do
+       close(unitno1)
+      else
+       write(*,*) "Error Reading ",ELEVNAME
+       return
+      endif
+     else
+      write(*,*) "No Keratograph CORNEA file ",ELEVNAME
+     endif
 
+     inquire(file=trim(PUPILNAME), exist=exists)
+     if (exists) then
+      write(*,*) 'Found ',PUPILNAME
+      unitno1 = get_new_fileunit()
+      open(unitno1, file=trim(PUPILNAME), action="read", iostat=ierr)
+      if (ierr .eq. 0) then
+       read_front=0
+       i=0
+       do
+        i=i+1
+        read(unitno1, '(A)', iostat=ierr) someline
+!       should look like this
+!       Seg: 0 y= 1.89
+        if (ierr .eq. 0) then
+         somecharacter=replacestr(string=someline,search="Seg:",substitute="")
+         somecharacter=replacestr(string=somecharacter,search="y=",substitute=",")
+         read(somecharacter,*,iostat=ierr) grad,ytemp
+         Oculus%SEG(grad+1)=grad+1
+         Oculus%PU(grad+1) = ytemp
+!         write(*,*) someline
+!         write(*,*) somecharacter
+!         write(*,*) Oculus%SEG(grad+1),j,i,Oculus%PU(grad+1)
+        else
+          exit  !EOF
+        endif
+       end do
+       close(unitno1)
+      else
+       write(*,*) "Error Reading ",PUPILNAME
+       return
+      endif
+     else
+      write(*,*) "No Keratograph PUPIL file ",PUPILNAME
+     endif
 
-
+     inquire(file=trim(CENTERNAME), exist=exists)
+     if (exists) then
+      write(*,*) 'Found ',CENTERNAME
+      unitno1 = get_new_fileunit()
+      open(unitno1, file=trim(CENTERNAME), action="read", iostat=ierr)
+      if (ierr .eq. 0) then
+       read_front=0
+       i=0
+       do
+        i=i+1
+        read(unitno1, '(A)', iostat=ierr) someline
+!       should look like this
+!       Iris Center : x=-0.34
+!       Iris Center : y=-0.26
+!       Iris Diameter : 11.45
+!       Pupil Center : x=-0.49
+!       Pupil Center : y=0.49
+!       Pupil Diameter : 4.85
+        if (ierr .eq. 0) then
+         file_idx=index(someline, "Pupil Center : x=")
+         if (file_idx .ne. 0) then
+          somecharacter=replacestr(string=someline,search="Pupil Center : x=",substitute="")
+          read(somecharacter,*,iostat=ierr) Oculus%Pupil_Center(1)
+         endif
+         file_idx=index(someline, "Pupil Center : y=")
+         if (file_idx .ne. 0) then
+          somecharacter=replacestr(string=someline,search="Pupil Center : y=",substitute="")
+          read(somecharacter,*,iostat=ierr) Oculus%Pupil_Center(2)
+         endif
+         file_idx=index(someline, "Pupil Diameter :")
+         if (file_idx .ne. 0) then
+          somecharacter=replacestr(string=someline,search="Pupil Diameter : ",substitute="")
+          read(somecharacter,*,iostat=ierr) Oculus%Pupil_Center(3)
+         endif
+!         write(*,*) someline
+!         write(*,*) somecharacter
+!         write(*,*) Oculus%Pupil_Center(1),Oculus%Pupil_Center(2),Oculus%Pupil_Center(3)
+        else
+          exit  !EOF
+        endif
+       end do
+       close(unitno1)
+      else
+       write(*,*) "Error Reading ",CENTERNAME
+       return
+      endif
+     else
+      write(*,*) "No Keratograph CENTER file ",CENTERNAME
+     endif
  end subroutine rcnvrtk
 
 subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)

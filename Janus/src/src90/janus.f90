@@ -729,7 +729,7 @@ if (mod(flag,100) == 0) then
 ! For NIDEK either RA?.? or ED?.?, set inputfile1 to the XX version, inputfile2 to the RA version, inputfile3 to the HT version, inputfile4 to PE
 ! For PentaCam set inputfile1 for _ELE.CSV or .ELE, set inputfile2 for _CUR.CSV or .CUR
 ! For CSV but not _ELE.CSV or _CUR.CSV set inputfile1 to Atlas file
-! For Oculus Keratograph files ending in .OD or .OS set inputfile1 to CURVAT or CURVAT_F, inputfile2 to CORNEA or CORNEA_F, inputfile3 to PUPIL, inputfile4 to CENTER
+! For Oculus Keratograph files ending in .OD or .OS set inputfile2 to CURVAT or CURVAT_F, inputfile1 to CORNEA or CORNEA_F, inputfile3 to PUPIL, inputfile4 to CENTER
  file_idx=index(inputfile1, "RA")+index(inputfile1, "XX")+index(inputfile1, "ED")
    if( file_idx == 0)then
       file_idx=index(inputfile1, ".CSV")
@@ -738,95 +738,65 @@ if (mod(flag,100) == 0) then
        if( file_idx == 0) then
         file_idx=index(inputfile1, ".ELE")
         if( file_idx == 0) then
-
          file_idx=index(inputfile1, ".OD")+index(inputfile1, ".OS")
          if( file_idx == 0) then
          write(*,*) 'Unknown file type: make some test data, flag = ',flag
          TestData=-1; MM=360; N=16 ; NP=141
          else
-         TestData=7; MM=100; N=60 ; NP=141
-         file_idx=index(inputfile1, ".OS")
-         if( file_idx == 0) then !OD file
-          inputfile3="PUPIL.OD" ;inputfile4="CENTER.OD"
+         TestData=7; MM=100; N=62 ; NP=141
           file_idx=index(inputfile1, "CURVAT")
           if( file_idx == 0) then ! a CORNEA file
-          file_idx=index(inputfile1, "CORNEA")
-          if( file_idx == 0) then
-           write(*,*) 'Error in finding Keratograph file'
-           return
-          endif
-          file_idx=index(inputfile1, "_F")
+           file_idx=index(inputfile1, "CORNEA")
            if( file_idx == 0) then
-            inputfile1="CORNEA.OD"
-           else
-            inputfile1="CORNEA_F.OD"
+            write(*,*) 'Error in finding Keratograph file'
+            return
            endif
-           ! default option for inputfile2 is CURVAT_F
-           inquire(file="CURVAT.OD", exist=exists)
-            if (exists) then
-             inputfile2="CURVAT.OD"
-            else
-             inputfile2="CURVAT_F.OD"
-            endif
+           file_idx=index(inputfile1, "_F")
+           if( file_idx == 0) then
+            inputfile2=replacestr(string=inputfile1,search="CORNEA",substitute="CURVAT")
+            inquire(file=trim(inputfile2), exist=exists)
+             if (.not. exists) then
+              inputfile2=replacestr(string=inputfile1,search="CORNEA",substitute="CURVAT_F")
+             endif
+             inputfile3=replacestr(string=inputfile1,search="CORNEA",substitute="PUPIL")
+             inputfile4=replacestr(string=inputfile1,search="CORNEA",substitute="CENTER")
+           else
+            inputfile2=replacestr(string=inputfile1,search="CORNEA_F",substitute="CURVAT")
+            inquire(file=trim(inputfile2), exist=exists)
+             if (.not. exists) then
+              inputfile2=replacestr(string=inputfile1,search="CORNEA_F",substitute="CURVAT_F")
+             endif
+              inputfile3=replacestr(string=inputfile1,search="CORNEA_F",substitute="PUPIL")
+              inputfile4=replacestr(string=inputfile1,search="CORNEA_F",substitute="CENTER")
+           endif
            else ! a CURVAT file
-            file_idx=index(inputfile1, "_F")
+            file_idx=index(inputfile1, "CURVAT")
             if( file_idx == 0) then
-             inputfile2="CURVAT.OD"
-            else
-             inputfile2="CURVAT_F.OD"
+             write(*,*) 'Error in finding Keratograph file'
+             return
             endif
-            ! default option for inputfile2 is CORNEA_F
-            inquire(file="CORNEA.OD", exist=exists)
-             if (exists) then
-              inputfile1="CORNEA.OD"
+            file_idx=index(inputfile1, "_F")
+             if( file_idx == 0) then
+              inputfile2 = inputfile1
+              inputfile1=replacestr(string=inputfile1,search="CURVAT",substitute="CORNEA")
+              inquire(file=trim(inputfile1), exist=exists)
+               if (.not. exists) then
+                inputfile1=replacestr(string=inputfile2,search="CURVAT",substitute="CORNEA_F")
+               endif
+               inputfile3=replacestr(string=inputfile2,search="CURVAT",substitute="PUPIL")
+               inputfile4=replacestr(string=inputfile2,search="CURVAT",substitute="CENTER")
              else
-              inputfile1="CORNEA_F.OD"
+              inputfile2 = inputfile1
+              inputfile1=replacestr(string=inputfile2,search="CURVAT_F",substitute="CORNEA")
+              inquire(file=trim(inputfile1), exist=exists)
+              if (.not. exists) then
+               inputfile1=replacestr(string=inputfile2,search="CURVAT_F",substitute="CORNEA_F")
+               endif
+              inputfile3=replacestr(string=inputfile2,search="CURVAT_F",substitute="PUPIL")
+              inputfile4=replacestr(string=inputfile2,search="CURVAT_F",substitute="CENTER")
              endif
            endif !cornea or curvat
-          else ! OS
-          file_idx=index(inputfile1, ".OS")
-          if( file_idx == 0) then
-           write(*,*) 'Error in finding Keratograph file'
-           return
-          endif
-          inputfile3="PUPIL.OS" ;inputfile4="CENTER.OS"
-          file_idx=index(inputfile1, "CURVAT")
-          if( file_idx == 0) then ! a CORNEA file
-          file_idx=index(inputfile1, "CORNEA")
-          if( file_idx == 0) then
-           write(*,*) 'Error in finding Keratograph file'
-           return
-          endif
-          file_idx=index(inputfile1, "_F")
-           if( file_idx == 0) then
-            inputfile1="CORNEA.OS"
-           else
-            inputfile1="CORNEA_F.OS"
-           endif
-           ! default option for inputfile2 is CURVAT_F
-           inquire(file="CURVAT.OS", exist=exists)
-            if (exists) then
-             inputfile2="CURVAT.OS"
-            else
-             inputfile2="CURVAT_F.OS"
-            endif
-           else ! a CURVAT file
-            file_idx=index(inputfile1, "_F")
-            if( file_idx == 0) then
-             inputfile2="CURVAT.OS"
-            else
-             inputfile2="CURVAT_F.OS"
-            endif
-            ! default option for inputfile2 is CORNEA_F
-            inquire(file="CORNEA.OS", exist=exists)
-             if (exists) then
-              inputfile1="CORNEA.OS"
-             else
-              inputfile1="CORNEA_F.OS"
-             endif
-           endif !cornea or curvat
-          endif !end eyes
-         endif
+         endif !Keratograph
         else
         inputfile2=replacestr(string=inputfile1,search=".ELE",substitute=".CUR")
         write(*,*) "PentaCam .ELE file",inputfile1
@@ -1107,7 +1077,7 @@ if (TestData .eq. 7) then
  if (mod(flag,100) == 0) then !read the files
 ! READ THE KERATOGRAPH DATA
   call CPU_TIME(time_start)
-  MM=100 ; N=60 ! Keratograph
+  MM=100 ; N=62 ! Keratograph
   read_error=0
   if(.not.allocated(Oculus%SAGC)) then
    call init_mat_Oculus(MM,N,Oculus) ! allocate the matrices
@@ -1131,6 +1101,7 @@ if (TestData .eq. 7) then
    else
     call RCNVRTK(read_error,inputfile1,inputfile2,inputfile3,inputfile4)
    endif
+  endif
  endif !(mod(flag,100) = 0
  ! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
  if (allocated(RadSlope%r)) then
@@ -1651,7 +1622,7 @@ if (mod(flag,100) .ne. 9 ) then
    write(*,*) 'NIDEK avg abs elevation percent error : ',(100*powmax2/k)/powmax
  endif
 
- ! Keratograph spline consistency computation of elevation by power calc by slope vs elevation in file HT
+! Keratograph spline consistency computation of elevation by power calc by slope vs elevation in file HT
   if ( Testdata .eq. 7 .and. btest(dat,7) ) then
   if (btest(dat, 2)) then
    if (btest(dat,0)) then

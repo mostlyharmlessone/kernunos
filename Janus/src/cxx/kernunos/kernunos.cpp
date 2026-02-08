@@ -365,7 +365,7 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
 {
    ui.infoLabel->setText(tr("Invoked <b>File|Open</b>"));
    flag=flag-(flag%100)+0;  // last two digits of flag=0; need to reset this
-   QString filter = "Topography files (*.CUR *.ELE *_CUR.CSV *_ELE.CSV RA*.* XX*.* ED*.* *OD.CSV *OS.CSV) ;; PentaCam (*.CUR *.ELE *_CUR.CSV *_ELE.CSV);;EyeSys (XX*.*);;Nidek (ED*.*);;Atlas (*OD.CSV *OS.CSV);;EyeSys/Nidek (RA*.* ED*.* XX*.*);;All (*)";
+   QString filter = "Topography files (*.CUR *.ELE *_CUR.CSV *_ELE.CSV RA*.* XX*.* ED*.* *OD.CSV *OS.CSV *.OD *.OS) ;; PentaCam (*.CUR *.ELE *_CUR.CSV *_ELE.CSV);; Keratograph (*.OS *.OD);; EyeSys (XX*.*);;Nidek (ED*.*);;Atlas (*OD.CSV *OS.CSV);;EyeSys/Nidek (RA*.* ED*.* XX*.*);;All (*)";
    QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
    if (fileName.isEmpty())
        return;
@@ -385,7 +385,10 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
        if(replace(str2,"XX","RA")) {
            if(FILE *file = fopen(str2.c_str(),"r")) {
                fclose(file); eyesys = true;
-           }}};
+           }}};   
+   bool kerato = false;
+   std::string str4(filename);
+   kerato = str4.find("CORNEA")!= std::string::npos || str4.find("CURVAT") != std::string::npos;
    bool nidek = false;               //if substituting ED for RA or RA for ED results in an openable file, then probably Nidek
    std::string str3(filename);
    if(replace(str3,"RA","ED")) {
@@ -396,7 +399,7 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
            if(FILE *file = fopen(str3.c_str(),"r")) {
                fclose(file); nidek = true;
            }}};
-   if (!pentacam && !atlas && !eyesys && !nidek ) return;   //no supported file format
+   if (!pentacam && !atlas && !eyesys && !nidek && !kerato) return;   //no supported file format
    if (pentacam) {
        centerAct->setEnabled(true);
        ShowZernAct->setEnabled(false);
@@ -420,7 +423,7 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
        LSQfillinAct->setEnabled(true);
        lsqvssplineAct->setEnabled(true);
    };
-   if (eyesys || nidek) {
+   if (eyesys || nidek || kerato) {
        ShowZernAct->setEnabled(false);
        centerAct->setEnabled(true);       
        ringsAct->setEnabled(false);
@@ -543,6 +546,9 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
                if(FILE *file = fopen(str2.c_str(),"r")) {
                    fclose(file); eyesys = true;
                }}};
+       bool kerato = false;
+       std::string str4(filename);
+       kerato = str4.find("CORNEA")!= std::string::npos || str4.find("CURVAT") != std::string::npos;
        bool nidek = false;               //if substituting ED for RA or RA for ED results in an openable file, then probably Nidek
        std::string str3(filename);
        if(replace(str3,"RA","ED")) {
@@ -553,7 +559,7 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
                if(FILE *file = fopen(str3.c_str(),"r")) {
                    fclose(file); nidek = true;
                }}};
-       if (!pentacam && !atlas && !eyesys && !nidek) {m_GLwidget->DataLoad(fileName, false); return;}  //cube   //no supported file format
+       if (!pentacam && !atlas && !eyesys && !nidek && !kerato) {m_GLwidget->DataLoad(fileName, false); return;}  //cube   //no supported file format
        if (pentacam){
            centerAct->setEnabled(true);  //change to false to not allow for pentacam, center deviations only for Placido
            ShowZernAct->setEnabled(false);
@@ -577,7 +583,7 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
            LSQfillinAct->setEnabled(true);
            lsqvssplineAct->setEnabled(true);
        };
-       if (eyesys) {
+       if (eyesys || nidek || kerato) {
            ShowZernAct->setEnabled(false);
            centerAct->setEnabled(true);
            ringsAct->setEnabled(false);

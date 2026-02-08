@@ -59,8 +59,9 @@ MODULE cornea_arrays
  TYPE wpOculusMatrix
  ! for the Oculus Keratograph 5M
  !  sagittal/axial, tangential curvature or elevation in mm, radial position, usually 100 segments corresponding to every 4 grads, with 60 points each
-   REAL (wp), ALLOCATABLE :: SAGC(:,:),INSTC(:,:),ELE(:,:),PU(:,:),Y(:,:),SEG(:)
-   REAL (wp) :: Pupil_Center(2)
+   REAL (wp), ALLOCATABLE :: SAGC(:,:),INSTC(:,:),ELE(:,:),PU(:),Y(:,:)
+   INTEGER, ALLOCATABLE :: SEG(:)
+   REAL (wp) :: Pupil_Center(3)  !includes diameter as #3
  END TYPE wpOculusMatrix
 
  TYPE wpSkyline
@@ -160,8 +161,8 @@ end subroutine init_mat_Penta
 subroutine init_mat_Oculus(MM,N,Oculus) ! allocate Oculus arrays
   INTEGER, INTENT(IN) :: MM,N
   TYPE(wpOculusMatrix) :: Oculus
-  allocate (Oculus%SAGC(MM,N),Oculus%INSTC(MM,N),Oculus%ELE(MM,N),Oculus%PU(MM,N),Oculus%Y(MM,N),Oculus%SEG(MM))
-  Oculus%SAGC(:,:)=0 ; Oculus%INSTC(:,:)=0 ; Oculus%ELE(:,:)=0 ; Oculus%PU(:,:)=0 ; Oculus%Y(:,:)=0 ; Oculus%SEG(:)=0
+  allocate (Oculus%SAGC(MM,N),Oculus%INSTC(MM,N),Oculus%ELE(MM,N),Oculus%PU(MM),Oculus%Y(MM,N),Oculus%SEG(MM))
+  Oculus%SAGC(:,:)=0 ; Oculus%INSTC(:,:)=0 ; Oculus%ELE(:,:)=0 ; Oculus%PU(:)=0 ; Oculus%Y(:,:)=0 ; Oculus%SEG(:)=0
   Oculus%Pupil_Center=0
 end subroutine init_mat_Oculus
 
