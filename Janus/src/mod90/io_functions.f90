@@ -429,17 +429,17 @@ subroutine rcnvrtp(TestData,filename,read_error)
 !   endif
 end subroutine rcnvrtp
 
-subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME)
+subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME)
 ! Oculus Keratograph version
   USE io_functions, ONLY : get_new_fileunit
   USE set_precision, ONLY : wp
-  USE cornea_arrays, ONLY : Oculus, EPS
+  USE cornea_arrays, ONLY : Oculus, EPS, JMatrix
   USE special_fct, ONLY : replacestr
   use c_interfaces, ONLY : charcount
   USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_null_char
   implicit none
   logical :: exists
-  character(len=*), intent(in), optional :: ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME
+  character(len=*), intent(in), optional :: ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
   integer, intent(out) :: read_error
   integer :: i,j,read_front,ierr,unitno1,grad,file_idx
   real(wp) :: rsag,rtan,ytemp,xtemp
@@ -614,6 +614,60 @@ subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME)
      else
       write(*,*) "No Keratograph CENTER file ",CENTERNAME
      endif
+
+     inquire(file=trim(ZERNIKENAME), exist=exists)
+     if (exists) then
+      write(*,*) 'Found ',ZERNIKENAME
+      unitno1 = get_new_fileunit()
+      open(unitno1, file=trim(ZERNIKENAME), action="read", iostat=ierr)
+
+!!      READ(unitno1,*,IOSTAT=io)
+!      IF (KH1(1:7) .EQ. 'Zernike') THEN
+!       if (ITH .lt. 0 .or. ITH .gt. 7) then
+!        WRITE(*,*) 'ZERNIKE READ ERROR'
+!        read_error=9
+!        exit
+!       endif
+!       WRITE(*,*) 'Zernike coefficients present, order',ITH
+!       if (ITH .eq. 7) JTH=35
+!       if (ITH .eq. 6) JTH=27
+!       if (ITH .eq. 5) JTH=20
+!       if (ITH .eq. 4) JTH=14
+!       if (ITH .eq. 3) JTH=9
+!       if (ITH .eq. 2) JTH=5
+!       if (ITH .eq. 1) JTH=2
+!!       if (ITH .eq. 0) JTH=0
+!       READ(unitno,*,END=100,IOSTAT=io) KH1,KH2,KH3,Z
+! !          WRITE(*,*) 'Zernike Fit Zone',Z
+!       READ(unitno,*,END=100,IOSTAT=io) KH1,KH2
+!       READ(unitno,*,END=100,IOSTAT=io) KH1,I,Z
+!       JMatrix%ZC0(1,7)=Z
+!       DO K=1,JTH
+!        READ(unitno,*,END=100,IOSTAT=io) KH1,I,J,Z
+! !          only store the 4th order Zernikes at this point for display, uncomment to write all to log
+! !          WRITE(*,*) trim(KH1),I,J,Z
+!        if (I .eq. 1 .and. J .eq. 1 ) JMatrix%ZC0(1,10)=Z
+!        if (I .eq. 1 .and. J .eq. -1 ) JMatrix%ZC0(1,5)=Z
+!        if (I .eq. 2 .and. J .eq. -2 ) JMatrix%ZC0(1,3)=Z
+!        if (I .eq. 2 .and. J .eq. 0 ) JMatrix%ZC0(1,8)=Z
+!        if (I .eq. 2 .and. J .eq. 2 ) JMatrix%ZC0(1,12)=Z
+!        if (I .eq. 3 .and. J .eq. -3 ) JMatrix%ZC0(1,2)=Z
+!        if (I .eq. 3 .and. J .eq. -1 ) JMatrix%ZC0(1,6)=Z
+!        if (I .eq. 3 .and. J .eq. 1 ) JMatrix%ZC0(1,11)=Z
+!        if (I .eq. 3 .and. J .eq. 3 ) JMatrix%ZC0(1,14)=Z
+!        if (I .eq. 4 .and. J .eq. -4 ) JMatrix%ZC0(1,1)=Z
+!        if (I .eq. 4 .and. J .eq. -2 ) JMatrix%ZC0(1,4)=Z
+!        if (I .eq. 4 .and. J .eq. 0 ) JMatrix%ZC0(1,9)=Z
+!        if (I .eq. 4 .and. J .eq. 2 ) JMatrix%ZC0(1,13)=Z
+!        if (I .eq. 4 .and. J .eq. 4 ) JMatrix%ZC0(1,15)=Z
+!       END DO
+!      ENDIF
+!      close(unitno1)
+     else
+      write(*,*) "No Keratograph ZERNIKE file ",ZERNIKENAME
+     endif
+
+
  end subroutine rcnvrtk
 
 subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
@@ -1648,7 +1702,7 @@ subroutine rcnvrta(KXNAME,N,read_error)
           if (ITH .lt. 0 .or. ITH .gt. 7) then
            WRITE(*,*) 'ZERNIKE READ ERROR'
            read_error=9
-           goto 100
+           exit
           endif
           WRITE(*,*) 'Zernike coefficients present, order',ITH
           if (ITH .eq. 7) JTH=35

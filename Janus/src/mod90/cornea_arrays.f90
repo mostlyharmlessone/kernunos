@@ -96,7 +96,7 @@ INTERFACE ASSIGNMENT (=)
  MODULE PROCEDURE DiaSlope_eq_RadSlope
  MODULE PROCEDURE RadSlope_eq_DiaSlope
  MODULE PROCEDURE RadSlope_eq_JMatrix
- MODULE PROCEDURE RadSlope_eq_Oculus
+ MODULE PROCEDURE RadSlope_eq_Oculus  !this is actually a subroutine with 4 args, so this doesn't apply
  ! Type(oneofthesebelow) = INTEGER(0) deallocates the matrix
  MODULE PROCEDURE destroy_EyeSys
  MODULE PROCEDURE destroy_Penta
@@ -561,6 +561,7 @@ subroutine RadSlope_eq_Skyline(lsq,JMatrix, RadSlope, Skyline, Penta)      ! ini
 end subroutine RadSlope_eq_Skyline
 
 ! uses ZFCT converts lhs to rhs
+! skips over every other degree in going from 360 to 180
 subroutine RadSlope_eq_EyeSys(RadSlope,EyeSys) ! initially populates r, thta, Zp, MV
   TYPE(wpEyeSysMatrix), INTENT(INOUT) :: EyeSys
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
@@ -589,11 +590,69 @@ subroutine RadSlope_eq_EyeSys(RadSlope,EyeSys) ! initially populates r, thta, Zp
    end do
 end subroutine RadSlope_eq_EyeSys
 
-subroutine RadSlope_eq_Oculus(RadSlope,Oculus)
+! make version of this for EyeSys rather than skipping degrees
+subroutine RadSlope_eq_Oculus(RadSlope,Oculus,dat,iflag)
   TYPE(wpOculusMatrix), INTENT(INOUT) :: Oculus
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
-  INTEGER :: i,j,MM,N
+  integer(c_int), INTENT(IN) :: dat
+  integer, INTENT(INOUT) :: iflag
+  INTEGER :: i,j,k,MM,N
+  real(wp) :: Y,YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA
+  real(wp) :: powmax, powmax2
 ! does nothing yet
+! needs version for Oculus ELE,INSTC,SAG
+! load Oculus into RadSlope c 100 x 61
+  MM = 100 ; N=62
+! wipe RadSlope/DiaSlope clean
+  if (allocated(RadSlope%r)) then
+   RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
+   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
+  else
+   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
+  endif
+
+! generate imv(MM) for 100
+! load Radslope int DiaSlope c 50 x 122
+  DiaSlope=RadSlope
+! interpolate IMV(100)->IMV(180)
+! Use SplineEval1Dx1D to build JMatrix or other RadSlope 180 x 22
+! assuming
+  if (btest(dat, 2)) then
+   if (btest(dat,0)) then
+    iflag=12
+   else
+    iflag=2
+   endif
+  else
+   if (btest(dat,0)) then
+    iflag=11
+   else
+    iflag=1
+   endif
+  endif
+  do i=1,MM
+   do j=1,RadSlope%MV(i)
+
+!!!!!!!have to store somewhere; perhaps go straight to JMatrix
+
+   call SplineEval1Dx1D(iflag,Oculus%Y(i,j),PI*Oculus%SEG(i)/9000.0_wp,Y,YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
+  !   skip missing elevation points to compute (cumulative) average error
+   if (Oculus%ELE(i,j) > 0) then
+     k=k+1
+     powmax2=powmax2+ABS(Y-powmax+Oculus%ELE(i,j))
+
+      write(*,*) j,(i-1),Y,Oculus%ELE(i,j),100*(Y-Oculus%ELE(i,j))/Oculus%ELE(i,j)
+
+    endif
+   end do
+  end do
+! now I need a 180 x 22 RadSlope
+  RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
+  call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
+  RadSlope=JMatrix
+
+
+
 end subroutine RadSlope_eq_Oculus
 
 subroutine RadSlope_eq_JMatrix(RadSlope,JMatrix) 
@@ -611,7 +670,7 @@ subroutine RadSlope_eq_JMatrix(RadSlope,JMatrix)
        if (ZIX > ABS(JMatrix%R(j,i)) ) then
         call ZFCT(MM,i,ABS(JMatrix%R(j,i)),ZIX,X2A1,YA3)
        else
-        if (i > (MM/2)) then  ! > PI negative R
+        if (i > (MM/2)) then  ! > PI negative
          RadSlope%r(j,i)=-JMatrix%R(j,i)
         else
          RadSlope%r(j,i)=JMatrix%R(j,i)

@@ -365,7 +365,7 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
 {
    ui.infoLabel->setText(tr("Invoked <b>File|Open</b>"));
    flag=flag-(flag%100)+0;  // last two digits of flag=0; need to reset this
-   QString filter = "Topography files (*.CUR *.ELE *_CUR.CSV *_ELE.CSV RA*.* XX*.* ED*.* *OD.CSV *OS.CSV *.OD *.OS) ;; PentaCam (*.CUR *.ELE *_CUR.CSV *_ELE.CSV);; Keratograph (*.OS *.OD);; EyeSys (XX*.*);;Nidek (ED*.*);;Atlas (*OD.CSV *OS.CSV);;EyeSys/Nidek (RA*.* ED*.* XX*.*);;All (*)";
+   QString filter = "Topography files (*.CUR *.ELE *_CUR.CSV *_ELE.CSV RA*.* XX*.* ED*.* *OD.CSV *OS.CSV *.OD *.OS *.zip) ;; PentaCam (*.CUR *.ELE *_CUR.CSV *_ELE.CSV);; Keratograph (*.OS *.OD *.zip);; EyeSys (XX*.*);;Nidek (ED*.*);;Atlas (*OD.CSV *OS.CSV);;EyeSys/Nidek (RA*.* ED*.* XX*.*);;All (*)";
    QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
    if (fileName.isEmpty())
        return;
@@ -388,7 +388,20 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
            }}};   
    bool kerato = false;
    std::string str4(filename);
-   kerato = str4.find("CORNEA")!= std::string::npos || str4.find("CURVAT") != std::string::npos;
+   if (str4.find("EXP_Topo") != std::string::npos){  //compressed Keratograph file, warn that uncompressing will overwrite previous files
+       QMessageBox msgBox(QMessageBox::Question, tr("Compressed Keratograph file"),
+                          tr("Uncompressing will overwrite previous Keratograph uncompressed files: Proceed?"), { }, this);
+       msgBox.setInformativeText(tr("Allows compressed Keratograph files " ));
+       msgBox.addButton(QMessageBox::Yes);
+       msgBox.addButton(QMessageBox::No);
+       msgBox.addButton(QMessageBox::Cancel);
+       msgBox.setDefaultButton(QMessageBox::No);
+       int reply = msgBox.exec();
+       if (reply /= QMessageBox::Yes){
+           return;
+      }
+   }
+   kerato = str4.find("CORNEA")!= std::string::npos || str4.find("CURVAT") != std::string::npos || str4.find("EXP_Topo") != std::string::npos;
    bool nidek = false;               //if substituting ED for RA or RA for ED results in an openable file, then probably Nidek
    std::string str3(filename);
    if(replace(str3,"RA","ED")) {
