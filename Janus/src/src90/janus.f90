@@ -746,25 +746,21 @@ if (mod(flag,100) == 0) then
          TestData=7; MM=100; N=62 ; NP=141
           file_idx=index(inputfile1, "EXP_Topo")
           if( file_idx .ne. 0) then ! uncompress
+            allocate(character(nblines) :: cab_inputfile1)
             cab_inputfile1=inputfile1
-            call execute_command_line ('unzip -o ' // cab_inputfile1, exitstat=io)  !overwrites any exiting files in the directory
+            call execute_command_line ('unzip -o ' // cab_inputfile1 // "CORNEA.OD", exitstat=io)  !overwrites any exiting files in the directory
            if (io == 0) then
-            inputfile1=replacestr(string=inputfile1,search="EXP_Topo_OD.zip",substitute="CORNEA_F.OD")
-            inputfile2=replacestr(string=inputfile1,search="EXP_Topo_OD.zip",substitute="CURVAT_F.OD")
-            inputfile3=replacestr(string=inputfile1,search="EXP_Topo_OD.zip",substitute="PUPIL.OD")
-            inputfile4=replacestr(string=inputfile1,search="EXP_Topo_OD.zip",substitute="CENTER.OD")
-            inputfile1=replacestr(string=inputfile1,search="EXP_Topo_OS.zip",substitute="CORNEA_F.OS")
-            inputfile2=replacestr(string=inputfile1,search="EXP_Topo_OS.zip",substitute="CURVAT_F.OS")
-            inputfile3=replacestr(string=inputfile1,search="EXP_Topo_OS.zip",substitute="PUPIL.OS")
-            inputfile4=replacestr(string=inputfile1,search="EXP_Topo_OS.zip",substitute="CENTER.OS")
-            inputfile1=replacestr(string=inputfile1,search="EXP_Topo_OD.ZIP",substitute="CORNEA_F.OD")
-            inputfile2=replacestr(string=inputfile1,search="EXP_Topo_OD.ZIP",substitute="CURVAT_F.OD")
-            inputfile3=replacestr(string=inputfile1,search="EXP_Topo_OD.ZIP",substitute="PUPIL.OD")
-            inputfile4=replacestr(string=inputfile1,search="EXP_Topo_OD.ZIP",substitute="CENTER.OD")
-            inputfile1=replacestr(string=inputfile1,search="EXP_Topo_OS.ZIP",substitute="CORNEA_F.OS")
-            inputfile2=replacestr(string=inputfile1,search="EXP_Topo_OS.ZIP",substitute="CURVAT_F.OS")
-            inputfile3=replacestr(string=inputfile1,search="EXP_Topo_OS.ZIP",substitute="PUPIL.OS")
-            inputfile4=replacestr(string=inputfile1,search="EXP_Topo_OS.ZIP",substitute="CENTER.OS")
+            file_idx=index(inputfile1, "EXP_Topo_OD")
+            if( file_idx .ne. 0) then
+             inputfile1="CORNEA_F.OD"
+             inputfile2="CURVAT_F.OD"
+             inputfile3="PUPIL.OD"
+             inputfile4="CENTER.OD"
+            else
+            inputfile1="CORNEA_F.OS"
+            inputfile2="CURVAT_F.OS"
+            inputfile3="PUPIL.OS"
+            inputfile4="CENTER.OS"
            endif
           endif
           file_idx=index(inputfile1, "CURVAT")
@@ -1124,6 +1120,22 @@ if (TestData .eq. 7) then
    else
     call RCNVRTK(read_error,inputfile1,inputfile2,inputfile3,inputfile4)
    endif
+   if(allocated(cab_inputfile1)) then
+    call execute_command_line ('rm ' // inputfile1, exitstat=io)
+    read_error=io
+    call execute_command_line ('rm ' // inputfile1, exitstat=io)
+    read_error=read_error+io
+    call execute_command_line ('rm ' // inputfile1, exitstat=io)
+    read_error=read_error+io
+    call execute_command_line ('rm ' // inputfile1, exitstat=io)
+    read_error=read_error+io
+    if (read_error > 0) then
+     write (*,*) 'failed system command to remove one of tmp files ',inputfile1,inputfile,inputfile3,inputfile4
+     read_error=13
+    endif
+    deallocate(cab_inputfile1)
+   endif
+
   endif
  endif !(mod(flag,100) = 0
  ! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment

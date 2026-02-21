@@ -389,18 +389,36 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
    bool kerato = false;
    std::string str4(filename);
    if (str4.find("EXP_Topo") != std::string::npos){  //compressed Keratograph file, warn that uncompressing will overwrite previous files
-       QMessageBox msgBox(QMessageBox::Question, tr("Compressed Keratograph file"),
-                          tr("Uncompressing will overwrite previous Keratograph uncompressed files: Proceed?"), { }, this);
-       msgBox.setInformativeText(tr("Allows compressed Keratograph files " ));
-       msgBox.addButton(QMessageBox::Yes);
-       msgBox.addButton(QMessageBox::No);
-       msgBox.addButton(QMessageBox::Cancel);
+       QMessageBox msgBox;
+       msgBox.setInformativeText( "Uncompressing will overwrite previous Keratograph uncompressed files: Proceed?");
+       msgBox.setText(tr("Allows compressed Keratograph files " ));
+       msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
        msgBox.setDefaultButton(QMessageBox::No);
-       int reply = msgBox.exec();
-       if (reply /= QMessageBox::Yes){
+       int extrap = 1;
+
+       QSpacerItem *horizontalspacer = new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
+       QGridLayout *layout =(QGridLayout*)msgBox.layout();
+       layout->addItem(horizontalspacer,layout->rowCount(),0,1,layout->columnCount());
+       keratoDialogOptionsWidget = new DialogOptionsWidget;
+       keratoDialogOptionsWidget->addCheckBox(tr("Extrapolated data?"), extrap);
+       layout->addWidget(keratoDialogOptionsWidget);
+       int ret = msgBox.exec();
+       switch(ret){
+        case QMessageBox::Yes:
+           if (keratoDialogOptionsWidget->value()){
+                std::cout << "option 1" << std::endl;
+           }
+           else {
+                std::cout << "option 2" << std::endl;
+           }
+           break;
+        case QMessageBox::No:
            return;
-      }
+        case QMessageBox::Cancel:
+           return;
+       }
    }
+
    kerato = str4.find("CORNEA")!= std::string::npos || str4.find("CURVAT") != std::string::npos || str4.find("EXP_Topo") != std::string::npos;
    bool nidek = false;               //if substituting ED for RA or RA for ED results in an openable file, then probably Nidek
    std::string str3(filename);
