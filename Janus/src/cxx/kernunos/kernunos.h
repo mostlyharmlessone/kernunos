@@ -310,7 +310,7 @@ private:
     QErrorMessage *errorMessageDialog;
     DialogOptionsWidget *compareDialogOptionsWidget;
     DialogOptionsWidget *decenterDialogOptionsWidget;
-
+    DialogOptionsWidget *keratoDialogOptionsWidget;
 };
 
 QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)

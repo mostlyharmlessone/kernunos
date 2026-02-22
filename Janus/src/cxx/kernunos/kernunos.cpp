@@ -395,7 +395,6 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
        msgBox.setDefaultButton(QMessageBox::No);
        int extrap = 1;
-
        QSpacerItem *horizontalspacer = new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
        QGridLayout *layout =(QGridLayout*)msgBox.layout();
        layout->addItem(horizontalspacer,layout->rowCount(),0,1,layout->columnCount());
@@ -406,10 +405,28 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
        switch(ret){
         case QMessageBox::Yes:
            if (keratoDialogOptionsWidget->value()){
-                std::cout << "option 1" << std::endl;
+               std::cout << "Extrapolated data files" << std::endl;
+               system(("unzip -o " + str4 + " CORNEA_F.*").c_str());
+               system(("unzip -o " + str4 + " CURVAT_F.*" ).c_str());
+               system(("unzip -o " + str4 + " PUPIL.*" ).c_str());
+               system(("unzip -o " + str4 + " CENTER.*" ).c_str());
+             if (str4.find("OS") != std::string::npos){
+                 fileName = QString::fromStdString("CURVAT_F.OS");}
+             else {
+                 fileName = QString::fromStdString("CURVAT_F.OD");
+             }
            }
            else {
-                std::cout << "option 2" << std::endl;
+               std::cout << "No extrapolation" << std::endl;
+               system(("unzip -o " + str4 + " CORNEA.*" ).c_str());
+               system(("unzip -o " + str4 + " CURVAT.*" ).c_str());
+               system(("unzip -o " + str4 + " PUPIL.*" ).c_str());
+               system(("unzip -o " + str4 + " CENTER.*" ).c_str());
+             if (str4.find("OS") != std::string::npos){
+                 fileName = QString::fromStdString("CURVAT.OS");}
+             else {
+                 fileName = QString::fromStdString("CURVAT.OD");
+             }
            }
            break;
         case QMessageBox::No:
@@ -418,7 +435,6 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
            return;
        }
    }
-
    kerato = str4.find("CORNEA")!= std::string::npos || str4.find("CURVAT") != std::string::npos || str4.find("EXP_Topo") != std::string::npos;
    bool nidek = false;               //if substituting ED for RA or RA for ED results in an openable file, then probably Nidek
    std::string str3(filename);

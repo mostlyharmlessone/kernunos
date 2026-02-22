@@ -738,31 +738,12 @@ if (mod(flag,100) == 0) then
        if( file_idx == 0) then
         file_idx=index(inputfile1, ".ELE")
         if( file_idx == 0) then
-         file_idx=index(inputfile1, ".OD")+index(inputfile1, ".OS")+index(inputfile1, "EXP_Topo")
+         file_idx=index(inputfile1, ".OD")+index(inputfile1, ".OS")
          if( file_idx == 0) then
          write(*,*) 'Unknown file type: make some test data, flag = ',flag
          TestData=-1; MM=360; N=16 ; NP=141
          else
          TestData=7; MM=100; N=62 ; NP=141
-          file_idx=index(inputfile1, "EXP_Topo")
-          if( file_idx .ne. 0) then ! uncompress
-            allocate(character(nblines) :: cab_inputfile1)
-            cab_inputfile1=inputfile1
-            call execute_command_line ('unzip -o ' // cab_inputfile1 // "CORNEA.OD", exitstat=io)  !overwrites any exiting files in the directory
-           if (io == 0) then
-            file_idx=index(inputfile1, "EXP_Topo_OD")
-            if( file_idx .ne. 0) then
-             inputfile1="CORNEA_F.OD"
-             inputfile2="CURVAT_F.OD"
-             inputfile3="PUPIL.OD"
-             inputfile4="CENTER.OD"
-            else
-            inputfile1="CORNEA_F.OS"
-            inputfile2="CURVAT_F.OS"
-            inputfile3="PUPIL.OS"
-            inputfile4="CENTER.OS"
-           endif
-          endif
           file_idx=index(inputfile1, "CURVAT")
           if( file_idx == 0) then ! a CORNEA file
            file_idx=index(inputfile1, "CORNEA")
@@ -1130,7 +1111,7 @@ if (TestData .eq. 7) then
     call execute_command_line ('rm ' // inputfile1, exitstat=io)
     read_error=read_error+io
     if (read_error > 0) then
-     write (*,*) 'failed system command to remove one of tmp files ',inputfile1,inputfile,inputfile3,inputfile4
+     write (*,*) 'failed system command to remove one of tmp files ',inputfile1,inputfile2,inputfile3,inputfile4
      read_error=13
     endif
     deallocate(cab_inputfile1)
