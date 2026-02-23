@@ -410,11 +410,6 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
                system(("unzip -o " + str4 + " CURVAT_F.*" ).c_str());
                system(("unzip -o " + str4 + " PUPIL.*" ).c_str());
                system(("unzip -o " + str4 + " CENTER.*" ).c_str());
-             if (str4.find("OS") != std::string::npos){
-                 fileName = QString::fromStdString("CURVAT_F.OS");}
-             else {
-                 fileName = QString::fromStdString("CURVAT_F.OD");
-             }
            }
            else {
                std::cout << "No extrapolation" << std::endl;
@@ -422,11 +417,6 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
                system(("unzip -o " + str4 + " CURVAT.*" ).c_str());
                system(("unzip -o " + str4 + " PUPIL.*" ).c_str());
                system(("unzip -o " + str4 + " CENTER.*" ).c_str());
-             if (str4.find("OS") != std::string::npos){
-                 fileName = QString::fromStdString("CURVAT.OS");}
-             else {
-                 fileName = QString::fromStdString("CURVAT.OD");
-             }
            }
            break;
         case QMessageBox::No:

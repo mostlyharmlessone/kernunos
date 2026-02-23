@@ -123,12 +123,29 @@ if (mod(flag,100) == 99) then
     endif
     if (allocated(inputfile1)) then
      deallocate(inputfile1)
+    endif
+    if (allocated(inputfile2)) then
      deallocate(inputfile2)
+    endif
+    if (allocated(inputfile3)) then
+     deallocate(inputfile3)
+    endif
+    if (allocated(inputfile4)) then
+     deallocate(inputfile4)
+    endif
+    if (allocated(inputfile5)) then
+     deallocate(inputfile5)
+    endif
+    if (allocated(logfile)) then
      deallocate(logfile)
     endif
     if (allocated(cab_inputfile1)) then
      deallocate(cab_inputfile1)
+    endif
+    if (allocated(cab_inputfile2)) then
      deallocate(cab_inputfile2)
+    endif
+    if (allocated(cab_inputfile3)) then
      deallocate(cab_inputfile3)
     endif
     if (allocated(MV)) then
@@ -222,6 +239,7 @@ if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3) then
   deallocate(inputfile2)
   deallocate(inputfile3)
   deallocate(inputfile4)
+  deallocate(inputfile5)
   deallocate(logfile)
  endif
  allocate(character(nblines) :: inputfile1)
@@ -230,6 +248,7 @@ if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3) then
  allocate(character(nblines) :: inputfile2)
  allocate(character(nblines) :: inputfile3)
  allocate(character(nblines+3) :: inputfile4)
+ allocate(character(nblines+3) :: inputfile5)
 endif  ! mod(flag,100) == 0, 10, 2, or 3
 
 
@@ -738,12 +757,44 @@ if (mod(flag,100) == 0) then
        if( file_idx == 0) then
         file_idx=index(inputfile1, ".ELE")
         if( file_idx == 0) then
-         file_idx=index(inputfile1, ".OD")+index(inputfile1, ".OS")
+         file_idx=index(inputfile1, ".OD")+index(inputfile1, ".OS")+index(inputfile1, "EXP_Topo")
          if( file_idx == 0) then
          write(*,*) 'Unknown file type: make some test data, flag = ',flag
          TestData=-1; MM=360; N=16 ; NP=141
          else
          TestData=7; MM=100; N=62 ; NP=141
+          file_idx=index(inputfile1, "EXP_Topo")
+          if( file_idx .ne. 0) then    !set the files to the decompressed versions in the base directory
+           if (allocated(cab_inputfile1)) then
+            deallocate(cab_inputfile1)
+           endif
+           allocate(character(nblines) :: cab_inputfile1)
+           cab_inputfile1=inputfile1
+           file_idx=index(inputfile1, "_OS.")
+           if (file_idx == 0 ) then  !OD
+            inquire(file="CURVAT_F.OD", exist=exists)
+            if (exists) then
+             inputfile2="CURVAT_F.OD"
+             inputfile1="CORNEA_F.OD"
+            else
+             inputfile2="CURVAT.OD"
+             inputfile1="CORNEA.OD"
+            endif
+            inputfile3="PUPIL.OD"
+            inputfile4="CENTER.OD"
+           else  !OS
+           inquire(file="CURVAT_F.OS", exist=exists)
+            if (exists) then
+             inputfile2="CURVAT_F.OS"
+             inputfile1="CORNEA_F.OS"
+            else
+             inputfile2="CURVAT.OS"
+             inputfile1="CORNEA.OS"
+            endif
+            inputfile3="PUPIL.OS"
+            inputfile4="CENTER.OS"
+           endif
+          else   !not compressed
           file_idx=index(inputfile1, "CURVAT")
           if( file_idx == 0) then ! a CORNEA file
            file_idx=index(inputfile1, "CORNEA")
@@ -796,6 +847,7 @@ if (mod(flag,100) == 0) then
               inputfile4=replacestr(string=inputfile2,search="CURVAT_F",substitute="CENTER")
              endif
            endif !cornea or curvat
+          endif
          endif !Keratograph
         else
         inputfile2=replacestr(string=inputfile1,search=".ELE",substitute=".CUR")
@@ -1085,11 +1137,6 @@ if (TestData .eq. 7) then
    Oculus = 0
    call init_mat_Oculus(MM,N,Oculus) ! allocate the matrices
   endif
-  !  test for compressed cabinet files
-  file_idx=index(inputfile1, ".ZIP")
-  if ( file_idx .ne. 0 )  then
-! do something here to uncompress, but how did you get here withour .OS or .OD ?? perhaps this goes higher up before TestData
-  endif
   ! RCNVRTK has to decide wheter files exist too.
   inquire(file=trim(inputfile3), exist=exists)
   if(.NOT.exists) then
@@ -1101,22 +1148,24 @@ if (TestData .eq. 7) then
    else
     call RCNVRTK(read_error,inputfile1,inputfile2,inputfile3,inputfile4)
    endif
-   if(allocated(cab_inputfile1)) then
-    call execute_command_line ('rm ' // inputfile1, exitstat=io)
-    read_error=io
-    call execute_command_line ('rm ' // inputfile1, exitstat=io)
-    read_error=read_error+io
-    call execute_command_line ('rm ' // inputfile1, exitstat=io)
-    read_error=read_error+io
-    call execute_command_line ('rm ' // inputfile1, exitstat=io)
-    read_error=read_error+io
-    if (read_error > 0) then
-     write (*,*) 'failed system command to remove one of tmp files ',inputfile1,inputfile2,inputfile3,inputfile4
-     read_error=13
+   if (cab_inputfile1 .ne. inputfile1) then
+    if(allocated(cab_inputfile1)) then
+     write(*,*) "Removing temp files"
+     call execute_command_line ('rm ' // inputfile1, exitstat=io)
+     read_error=io
+     call execute_command_line ('rm ' // inputfile2, exitstat=io)
+     read_error=read_error+io
+     call execute_command_line ('rm ' // inputfile3, exitstat=io)
+     read_error=read_error+io
+     call execute_command_line ('rm ' // inputfile4, exitstat=io)
+     read_error=read_error+io
+     if (read_error > 0) then
+      write (*,*) 'failed system command to remove one of tmp files ',inputfile1,inputfile2,inputfile3,inputfile4
+      read_error=13
+     endif
+     deallocate(cab_inputfile1)
     endif
-    deallocate(cab_inputfile1)
    endif
-
   endif
  endif !(mod(flag,100) = 0
  ! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment

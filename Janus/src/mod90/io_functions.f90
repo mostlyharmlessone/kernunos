@@ -95,11 +95,11 @@ module io_functions
      integer, intent(out) :: read_error
     end subroutine
 
-    subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME)
+    subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME)
      USE set_precision, ONLY : wp
      USE cornea_arrays, ONLY : Oculus
      integer, intent(out) :: read_error
-     character(len=*), intent(in), optional :: CURVNAME,ELEVNAME,PUPILNAME,CENTERNAME
+     character(len=*), intent(in), optional :: CURVNAME,ELEVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
     end subroutine rcnvrtk
 
     subroutine RCNVRTT(MM,N)
@@ -444,6 +444,8 @@ subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
   integer :: i,j,read_front,ierr,unitno1,grad,file_idx
   real(wp) :: rsag,rtan,ytemp,xtemp
   Character(len=1000) :: someline,somecharacter
+
+    if(present(CURVNAME)) then
      inquire(file=trim(CURVNAME), exist=exists)
      if (exists) then
       write(*,*) 'Found ',CURVNAME
@@ -487,7 +489,9 @@ subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
      else
       write(*,*) "No Keratograph CURVAT file ",CURVNAME
      endif
+    endif
 
+    if(present(ELEVNAME)) then
      inquire(file=trim(ELEVNAME), exist=exists)
      if (exists) then
       write(*,*) 'Found ',ELEVNAME
@@ -529,7 +533,9 @@ subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
      else
       write(*,*) "No Keratograph CORNEA file ",ELEVNAME
      endif
+    endif
 
+    if(present(PUPILNAME)) then
      inquire(file=trim(PUPILNAME), exist=exists)
      if (exists) then
       write(*,*) 'Found ',PUPILNAME
@@ -564,7 +570,9 @@ subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
      else
       write(*,*) "No Keratograph PUPIL file ",PUPILNAME
      endif
+    endif
 
+    if(present(CENTERNAME)) then
      inquire(file=trim(CENTERNAME), exist=exists)
      if (exists) then
       write(*,*) 'Found ',CENTERNAME
@@ -614,7 +622,9 @@ subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
      else
       write(*,*) "No Keratograph CENTER file ",CENTERNAME
      endif
+    endif
 
+    if(present(ZERNIKENAME)) then
      inquire(file=trim(ZERNIKENAME), exist=exists)
      if (exists) then
       write(*,*) 'Found ',ZERNIKENAME
@@ -666,7 +676,7 @@ subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
      else
       write(*,*) "No Keratograph ZERNIKE file ",ZERNIKENAME
      endif
-
+    endif
 
  end subroutine rcnvrtk
 
