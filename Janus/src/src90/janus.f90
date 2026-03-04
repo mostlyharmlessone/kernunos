@@ -782,6 +782,7 @@ if (mod(flag,100) == 0) then
             endif
             inputfile3="PUPIL.OD"
             inputfile4="CENTER.OD"
+            inputfile5=replacestr(string=cab_inputfile1,search="EXP_Topo_OD.zip",substitute="ZERNIKE.CSV")
            else  !OS
            inquire(file="CURVAT_F.OS", exist=exists)
             if (exists) then
@@ -793,6 +794,7 @@ if (mod(flag,100) == 0) then
             endif
             inputfile3="PUPIL.OS"
             inputfile4="CENTER.OS"
+            inputfile5=replacestr(string=cab_inputfile1,search="EXP_Topo_OS.zip",substitute="ZERNIKE.CSV")
            endif
           else   !not compressed
           file_idx=index(inputfile1, "CURVAT")
@@ -847,6 +849,14 @@ if (mod(flag,100) == 0) then
               inputfile4=replacestr(string=inputfile2,search="CURVAT_F",substitute="CENTER")
              endif
            endif !cornea or curvat
+           file_idx=index(inputfile1, ".OD")
+           if (file_idx .ne.0) then
+            inputfile5=replacestr(string=inputfile3,search="PUPIL.OD",substitute="ZERNIKE.CSV")
+           endif
+           file_idx=index(inputfile1, ".OS")
+           if (file_idx .ne.0) then
+            inputfile5=replacestr(string=inputfile3,search="PUPIL.OS",substitute="ZERNIKE.CSV")
+           endif
           endif
          endif !Keratograph
         else
@@ -1146,7 +1156,12 @@ if (TestData .eq. 7) then
    if(.NOT.exists) then
     call RCNVRTK(read_error,inputfile1,inputfile2,inputfile3)
    else
-    call RCNVRTK(read_error,inputfile1,inputfile2,inputfile3,inputfile4)
+    inquire(file=trim(inputfile5), exist=exists)
+    if (exists) then
+     call RCNVRTK(read_error,inputfile1,inputfile2,inputfile3,inputfile4,inputfile5)
+    else
+     call RCNVRTK(read_error,inputfile1,inputfile2,inputfile3,inputfile4)
+    endif
    endif
    if (cab_inputfile1 .ne. inputfile1) then
     if(allocated(cab_inputfile1)) then

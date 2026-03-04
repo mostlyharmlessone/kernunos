@@ -434,6 +434,7 @@ subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
   USE io_functions, ONLY : get_new_fileunit
   USE set_precision, ONLY : wp
   USE cornea_arrays, ONLY : Oculus, EPS, JMatrix
+  use util_mod
   USE special_fct, ONLY : replacestr
   use c_interfaces, ONLY : charcount
   USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_null_char
@@ -444,6 +445,14 @@ subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
   integer :: i,j,read_front,ierr,unitno1,grad,file_idx
   real(wp) :: rsag,rtan,ytemp,xtemp
   Character(len=1000) :: someline,somecharacter
+  integer :: linecount
+  character(1000) header
+  character :: ch
+  character(:), allocatable :: x, y
+  integer :: posmax
+  INTEGER :: pos
+  REAL (wp) :: ZX(45)
+  integer line(200),ix,iy
 
     if(present(CURVNAME)) then
      inquire(file=trim(CURVNAME), exist=exists)
@@ -624,38 +633,108 @@ subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
      endif
     endif
 
+!   first line is semicolon and colon delimited categories
+!   semicolon delimited file with 49 columns, last 45 are Zernike coefficents, only need to read 2nd row
     if(present(ZERNIKENAME)) then
      inquire(file=trim(ZERNIKENAME), exist=exists)
      if (exists) then
       write(*,*) 'Found ',ZERNIKENAME
       unitno1 = get_new_fileunit()
-      open(unitno1, file=trim(ZERNIKENAME), action="read", iostat=ierr)
+!     read as binary because of the semicolons
+      open(unitno1, file=trim(ZERNIKENAME), status='old', ACCESS='stream', iostat=ierr)
+      if (ierr .eq. 0) then
+            ch = ' ' ;   x=""
+            x = join(c(ch,x)) ; pos = 0
+            DO WHILE (ierr == 0)
+             READ(unitno1,iostat=ierr) ch
+             if (ierr == 0 ) then
+              if (iachar(ch) .ne. 10) then  !  0D 0A ends each line
+               x = join(c(x,ch))
+               pos = pos + 1
+              else
+          !   found the 0D
+               if (x(1:9) .eq. 'LastName:') write(*,*) 'Zernike header found'
+               write(*,*) 'Zernike header ', x
+               x=trim(x)
+               do i=1,len(x)-1
+                READ(x(i:i+1),*,iostat=ierr) ch
+                if (ierr == 0) then
+                 write(*,*) ch
+                else
+                 exit
+                endif
+               end do
 
-!!      READ(unitno1,*,IOSTAT=io)
-!      IF (KH1(1:7) .EQ. 'Zernike') THEN
-!       if (ITH .lt. 0 .or. ITH .gt. 7) then
-!        WRITE(*,*) 'ZERNIKE READ ERROR'
-!        read_error=9
-!        exit
-!       endif
-!       WRITE(*,*) 'Zernike coefficients present, order',ITH
-!       if (ITH .eq. 7) JTH=35
-!       if (ITH .eq. 6) JTH=27
-!       if (ITH .eq. 5) JTH=20
-!       if (ITH .eq. 4) JTH=14
-!       if (ITH .eq. 3) JTH=9
-!       if (ITH .eq. 2) JTH=5
-!       if (ITH .eq. 1) JTH=2
-!!       if (ITH .eq. 0) JTH=0
-!       READ(unitno,*,END=100,IOSTAT=io) KH1,KH2,KH3,Z
-! !          WRITE(*,*) 'Zernike Fit Zone',Z
-!       READ(unitno,*,END=100,IOSTAT=io) KH1,KH2
-!       READ(unitno,*,END=100,IOSTAT=io) KH1,I,Z
-!       JMatrix%ZC0(1,7)=Z
-!       DO K=1,JTH
-!        READ(unitno,*,END=100,IOSTAT=io) KH1,I,J,Z
+
+               exit
+              endif
+             else
+          !  EOF or other read error
+              exit
+             endif
+            END DO
+            x = ""
+          ! READ the data
+             pos = 0 ; i=0 ; j=0 ; linecount = 0 ; posmax = 0
+             DO
+              READ(unitno1,iostat=ierr) ch
+              POS=POS+1
+              if (ierr == 0 ) then
+               write(header,'(z0)') ch
+               x = join(c(x,trim(header)))
+               line(pos-i)=iachar(ch)
+               if (pos-i-1 .ge. 1) then
+                if (line(pos-i) .eq. 59 .or. (line(pos-i) .eq. 10 .and. line(pos-i-1) .eq. 13) ) then  !  3B = ; semicolon delimited data or EOL
+                 j = j+1
+                 i = 1
+!                 Converts ASCII to hex subtract and leave as decimal digit
+                  y=""
+                  do ix=0,len(trim(x))-2,2
+                   y= join(c(y,achar(iy)))
+                   read(x(i+ix:i+ix+1),'(z2)') iy
+                  end do
+                ! only read the first line of Zernike data
+                  if (mod(j-1,93)+1 .ge. 49 .and. linecount .eq. 1) then
+                   read(y(2:len(trim(y))),*) zx(mod(j-1,93)-47)
+                  endif
+!                  write(*,*) j,mod(j-1,93)+1,linecount
+!                  write(*,*) y(2:len(trim(y)))
+                 posmax=max(posmax,pos-i)
+                 if (line(pos-i) .eq. 10 .and. line(pos-i-1) .eq. 13) linecount=linecount+1
+                 x ="" ; i=1 ; pos=1 ; y=""
+                endif
+               endif
+              else
+            !  EOF or other read error
+               if (j/linecount .ne. 93) then
+                read_error = -1000
+                write(*,*) 'FATAL Error reading file ', ZERNIKENAME
+                close(unitno1)
+                exit
+               endif
+               write(*,*) j,'data items'
+               write(*,*) linecount, ' lines read'
+               write(*,*) j/linecount, ' items per line'
+               write(*,*) posmax, ' maximum data size per item'
+               exit
+              endif
+             end do
+       else
+        print*, "Error ", ierr ," attempting to open file ", trim(ZERNIKENAME)
+        read_error=5
+        return
+       endif
+     else
+      print*, "Error -- cannot find file: ", trim(ZERNIKENAME)
+      read_error=6
+      return
+     endif
+     write(*,*) 'Read file ', trim(ZERNIKENAME)
+     close(unitno1)
+
+!        zx index vs i,j
+
 ! !          only store the 4th order Zernikes at this point for display, uncomment to write all to log
-! !          WRITE(*,*) trim(KH1),I,J,Z
 !        if (I .eq. 1 .and. J .eq. 1 ) JMatrix%ZC0(1,10)=Z
 !        if (I .eq. 1 .and. J .eq. -1 ) JMatrix%ZC0(1,5)=Z
 !        if (I .eq. 2 .and. J .eq. -2 ) JMatrix%ZC0(1,3)=Z
@@ -670,13 +749,13 @@ subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
 !        if (I .eq. 4 .and. J .eq. 0 ) JMatrix%ZC0(1,9)=Z
 !        if (I .eq. 4 .and. J .eq. 2 ) JMatrix%ZC0(1,13)=Z
 !        if (I .eq. 4 .and. J .eq. 4 ) JMatrix%ZC0(1,15)=Z
-!       END DO
-!      ENDIF
-!      close(unitno1)
+
+
+
+
      else
       write(*,*) "No Keratograph ZERNIKE file ",ZERNIKENAME
      endif
-    endif
 
  end subroutine rcnvrtk
 
@@ -696,7 +775,7 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
   logical :: exists
   character(len=*), intent(in) :: RANAME,EDNAME
   character(len=*), intent(in), optional :: PENAME,HTNAME
-  character(1000) header,header_space,semicolon1,semicolon2
+  character(1000) header,semicolon1,semicolon2
   integer :: file_idx1,file_idx2,file_idx3,file_idx4,readerr,io
   integer, intent(out) :: read_error
   REAL(wp), ALLOCATABLE :: ZX(:),YX(:)
@@ -999,9 +1078,9 @@ character(1000) header,header2
 character :: ch, ych
 character(len=100) :: ioerrmsg
 character(:), allocatable :: x, y
-integer :: file_idx1,file_idx2,file_idx3,file_idx4,io,posmax
+integer :: file_idx1,file_idx2,file_idx3,file_idx4,posmax
 logical :: exists, negative
-INTEGER :: I,J,ITH,unitno1,unitno2,unitno3,unitno4,MM,N,ierr,pos
+INTEGER :: I,J,ITH,unitno1,unitno2,unitno3,MM,N,ierr,pos
 REAL (wp) :: ZX(39),YX(39) ! should be maximum needed for mires
 integer line(200),line2(200),ix,iy
  x = "" ;   y = ""
