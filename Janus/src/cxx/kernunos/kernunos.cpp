@@ -410,6 +410,8 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
                system(("unzip -o " + str4 + " CURVAT_F.*" ).c_str());
                system(("unzip -o " + str4 + " PUPIL.*" ).c_str());
                system(("unzip -o " + str4 + " CENTER.*" ).c_str());
+               system(("unzip -o " + str4 + " PATIENT.TXT" ).c_str());
+               system(("unzip -o " + str4 + " EXAM.TXT" ).c_str());
            }
            else {
                std::cout << "No extrapolation" << std::endl;
@@ -417,6 +419,8 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
                system(("unzip -o " + str4 + " CURVAT.*" ).c_str());
                system(("unzip -o " + str4 + " PUPIL.*" ).c_str());
                system(("unzip -o " + str4 + " CENTER.*" ).c_str());
+               system(("unzip -o " + str4 + " PATIENT.TXT" ).c_str());
+               system(("unzip -o " + str4 + " EXAM.TXT" ).c_str());
            }
            break;
         case QMessageBox::No:

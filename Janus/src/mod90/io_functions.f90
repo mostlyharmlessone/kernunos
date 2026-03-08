@@ -95,11 +95,11 @@ module io_functions
      integer, intent(out) :: read_error
     end subroutine
 
-    subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME)
+    subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME,PATIENTNAME,EXAMNAME)
      USE set_precision, ONLY : wp
-     USE cornea_arrays, ONLY : Oculus
+     USE cornea_arrays, ONLY : Oculus, EPS, JMatrix
      integer, intent(out) :: read_error
-     character(len=*), intent(in), optional :: CURVNAME,ELEVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
+     character(len=*), intent(in), optional :: CURVNAME,ELEVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME,PATIENTNAME,EXAMNAME
     end subroutine rcnvrtk
 
     subroutine RCNVRTT(MM,N)
@@ -429,7 +429,7 @@ subroutine rcnvrtp(TestData,filename,read_error)
 !   endif
 end subroutine rcnvrtp
 
-subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME)
+subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME,PATIENTNAME,EXAMNAME)
 ! Oculus Keratograph version
   USE io_functions, ONLY : get_new_fileunit
   USE set_precision, ONLY : wp
@@ -439,10 +439,10 @@ subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
   use c_interfaces, ONLY : charcount
   USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_null_char
   implicit none
-  logical :: exists
-  character(len=*), intent(in), optional :: ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
+  logical :: exists, exists2, exists3, valid, name_match, date_match
+  character(len=*), intent(in), optional :: ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME,PATIENTNAME,EXAMNAME
   integer, intent(out) :: read_error
-  integer :: i,j,read_front,ierr,unitno1,grad,file_idx
+  integer :: i,j,read_front,ierr,unitno1,unitno2,unitno3,grad,file_idx
   real(wp) :: rsag,rtan,ytemp,xtemp
   Character(len=1000) :: someline,somecharacter
   integer :: linecount
@@ -633,13 +633,41 @@ subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
      endif
     endif
 
-!   first line is semicolon and colon delimited categories
-!   semicolon delimited file with 49 columns, last 45 are Zernike coefficents, only need to read 2nd row
-    if(present(ZERNIKENAME)) then
+!   first row is semicolon and colon delimited categories
+!   semicolon delimited file with 49 columns, last 45 are 8th order Zernike coefficents
+!   assumes at least one set of data points
+!   only reads 2nd row with first set of data points, no way to select date of data points at this time on 3rd or 4the row etc. if present
+!   if presented with time/date stamp on other Keratograph files, then could pick a date.
+!   have to read Right eye/left eye and correlate with OD or OS; also could read PATIENT.TXT and EXAM.TXT to verify name and time of exam
+    if(present(ZERNIKENAME) .and. present(PATIENTNAME) .and. present(EXAMNAME)) then
      inquire(file=trim(ZERNIKENAME), exist=exists)
-     if (exists) then
-      write(*,*) 'Found ',ZERNIKENAME
+     inquire(file=trim(PATIENTNAME), exist=exists2)
+     inquire(file=trim(EXAMNAME), exist=exists3)
+     if (exists .and. exists2 .and. exists3) then
+      write(*,*) 'Found ',ZERNIKENAME,' ',PATIENTNAME,' ',EXAMNAME
       unitno1 = get_new_fileunit()
+      unitno2 = get_new_fileunit()
+      unitno3 = get_new_fileunit()
+      open(unitno2, file=trim(PATIENTNAME), action="read", iostat=ierr)
+      if (ierr .eq. 0) then
+       read(unitno2, '(A)', iostat=ierr) someline
+       close(unitno2)
+      else
+       write(*,*) 'Error reading ',PATIENTNAME
+       read_error=5
+       return
+      endif
+      open(unitno3, file=trim(EXAMNAME), action="read", iostat=ierr)
+      if (ierr .eq. 0) then
+       read(unitno3, '(A)', iostat=ierr) somecharacter
+       close(unitno3)
+      else
+       write(*,*) 'Error reading ',EXAMNAME
+       read_error=5
+       return
+      endif
+      write(*,*) 'Patient name ',trim(someline)
+      write(*,*) 'Exam date ',trim(somecharacter)
 !     read as binary because of the semicolons
       open(unitno1, file=trim(ZERNIKENAME), status='old', ACCESS='stream', iostat=ierr)
       if (ierr .eq. 0) then
@@ -653,19 +681,25 @@ subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
                pos = pos + 1
               else
           !   found the 0D
-               if (x(1:9) .eq. 'LastName:') write(*,*) 'Zernike header found'
-               write(*,*) 'Zernike header ', x
-               x=trim(x)
+               if (x(1:9) .eq. 'LastName:') then
+                write(*,*) 'Zernike header found'
+!               write(*,*) 'Zernike header ', x
+               else
+                write(*,*) 'FATAL Error: Unexpected Zernike header found'
+                read_error = -1000
+                close(unitno1)
+                return
+               endif
+               x=trim(x) ; j = 0
                do i=1,len(x)-1
                 READ(x(i:i+1),*,iostat=ierr) ch
                 if (ierr == 0) then
-                 write(*,*) ch
+                if (ch .eq. ';') j=j+1
+!                 write(*,*) ch,i,j
                 else
                  exit
                 endif
                end do
-
-
                exit
               endif
              else
@@ -673,6 +707,7 @@ subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
               exit
              endif
             END DO
+            write(*,*) 'Zernike header length, items',pos,j
             x = ""
           ! READ the data
              pos = 0 ; i=0 ; j=0 ; linecount = 0 ; posmax = 0
@@ -684,23 +719,57 @@ subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
                x = join(c(x,trim(header)))
                line(pos-i)=iachar(ch)
                if (pos-i-1 .ge. 1) then
-                if (line(pos-i) .eq. 59 .or. (line(pos-i) .eq. 10 .and. line(pos-i-1) .eq. 13) ) then  !  3B = ; semicolon delimited data or EOL
+                if (line(pos-i) .eq. 59 .or. line(pos-i) .eq. 10  ) then  !  3B = ; semicolon delimited data or EOL .and. line(pos-i-1) .eq. 13 removed because edited file under linux may only have 0A
                  j = j+1
                  i = 1
 !                 Converts ASCII to hex subtract and leave as decimal digit
                   y=""
                   do ix=0,len(trim(x))-2,2
-                   y= join(c(y,achar(iy)))
+                   y = join(c(y,achar(iy)))
                    read(x(i+ix:i+ix+1),'(z2)') iy
                   end do
-                ! only read the first line of Zernike data
-                  if (mod(j-1,93)+1 .ge. 49 .and. linecount .eq. 1) then
+                  if (mod(j-1,93) .eq. 0) then
+!                   write(*,*) 'Name found: ', y(2:len(trim(y)))
+                   name_match = (y(2:len(trim(y))) .eq. trim(someline))
+                  endif
+                  if (mod(j-1,93) .eq. 5) then
+                   date_match = (index(trim(somecharacter),replacestr(string=(y(2:len(trim(y))-4)//y(len(trim(y))-1:len(trim(y)))),search="/",substitute=".")) .gt. 0)
+                  endif
+                  if (mod(j-1,93) .eq. 7) then
+!                   write(*,*) 'Eye: ',y(2:len(trim(y)))
+                   if (y(2:len(trim(y))) .eq. 'Right') then
+                    if (index(PUPILNAME, 'OD') .gt. 0) then
+                     valid = .true.
+                    else
+                     valid = .false.
+                    endif
+                    else
+                    if (y(2:len(trim(y))) .eq. 'Left') then
+                     if (index(PUPILNAME, 'OS') .gt. 0) then
+                      valid = .true.
+                     else
+                      valid = .false.
+                     endif
+                    else
+                     write(*,*) 'Error reading right or left ',ZERNIKENAME
+                    endif
+                   endif
+                  endif
+!                 Only reads the Zernike data if correct eye and same name as PATIENT.TXT
+!                 Converts ASCII to hex subtract and leave as decimal digit
+                  if (mod(j-1,93)+1 .ge. 49 .and. valid .and. name_match) then
                    read(y(2:len(trim(y))),*) zx(mod(j-1,93)-47)
                   endif
 !                  write(*,*) j,mod(j-1,93)+1,linecount
 !                  write(*,*) y(2:len(trim(y)))
                  posmax=max(posmax,pos-i)
-                 if (line(pos-i) .eq. 10 .and. line(pos-i-1) .eq. 13) linecount=linecount+1
+                 if (line(pos-i) .eq. 10 ) then ! .and. line(pos-i-1) .eq. 13  removed because edited file under linux may only have 0A
+                  linecount=linecount+1
+                  if (valid .and. name_match .and. date_match) then
+                    write(*,*) 'Zernike Data read with valid name, eye and date'
+                    exit
+                  endif
+                 endif
                  x ="" ; i=1 ; pos=1 ; y=""
                 endif
                endif
@@ -716,14 +785,16 @@ subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
                write(*,*) linecount, ' lines read'
                write(*,*) j/linecount, ' items per line'
                write(*,*) posmax, ' maximum data size per item'
+               if (.not. date_match) write(*,*) 'Zernike data date does not match exam date'
+               if (.not. valid) write(*,*) 'Zernike data not read, no matching eye'
                exit
               endif
              end do
-       else
+      else
         print*, "Error ", ierr ," attempting to open file ", trim(ZERNIKENAME)
         read_error=5
         return
-       endif
+      endif
      else
       print*, "Error -- cannot find file: ", trim(ZERNIKENAME)
       read_error=6
@@ -731,32 +802,27 @@ subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
      endif
      write(*,*) 'Read file ', trim(ZERNIKENAME)
      close(unitno1)
-
-!        zx index vs i,j
-
-! !          only store the 4th order Zernikes at this point for display, uncomment to write all to log
-!        if (I .eq. 1 .and. J .eq. 1 ) JMatrix%ZC0(1,10)=Z
-!        if (I .eq. 1 .and. J .eq. -1 ) JMatrix%ZC0(1,5)=Z
-!        if (I .eq. 2 .and. J .eq. -2 ) JMatrix%ZC0(1,3)=Z
-!        if (I .eq. 2 .and. J .eq. 0 ) JMatrix%ZC0(1,8)=Z
-!        if (I .eq. 2 .and. J .eq. 2 ) JMatrix%ZC0(1,12)=Z
-!        if (I .eq. 3 .and. J .eq. -3 ) JMatrix%ZC0(1,2)=Z
-!        if (I .eq. 3 .and. J .eq. -1 ) JMatrix%ZC0(1,6)=Z
-!        if (I .eq. 3 .and. J .eq. 1 ) JMatrix%ZC0(1,11)=Z
-!        if (I .eq. 3 .and. J .eq. 3 ) JMatrix%ZC0(1,14)=Z
-!        if (I .eq. 4 .and. J .eq. -4 ) JMatrix%ZC0(1,1)=Z
-!        if (I .eq. 4 .and. J .eq. -2 ) JMatrix%ZC0(1,4)=Z
-!        if (I .eq. 4 .and. J .eq. 0 ) JMatrix%ZC0(1,9)=Z
-!        if (I .eq. 4 .and. J .eq. 2 ) JMatrix%ZC0(1,13)=Z
-!        if (I .eq. 4 .and. J .eq. 4 ) JMatrix%ZC0(1,15)=Z
-
-
-
-
-     else
-      write(*,*) "No Keratograph ZERNIKE file ",ZERNIKENAME
-     endif
-
+!    only store the 4th order Zernikes at this point for display
+!    zx index vs i,j
+!    first number comes from header position, 48 is offset for zx array
+     JMatrix%ZC0(1,15)=zx(59-48)  !4,4
+     JMatrix%ZC0(1,13)=zx(60-48)  !4,2
+     JMatrix%ZC0(1,9) =zx(61-48)  !4,0
+     JMatrix%ZC0(1,4) =zx(62-48)  !4,-2
+     JMatrix%ZC0(1,1) =zx(63-48)  !4,-4
+     JMatrix%ZC0(1,14)=zx(55-48)  !3,3
+     JMatrix%ZC0(1,11)=zx(56-48)  !3,1
+     JMatrix%ZC0(1,6)= zx(57-48)  !3,-1
+     JMatrix%ZC0(1,2)= zx(58-48)  !3,-3
+     JMatrix%ZC0(1,12)=zx(52-48)  !2,2
+     JMatrix%ZC0(1,8)= zx(53-48)  !2,0
+     JMatrix%ZC0(1,3)= zx(54-48)  !2,-2
+     JMatrix%ZC0(1,10)=zx(50-48)  !1,1
+     JMatrix%ZC0(1,5)= zx(51-48)  !1,-1
+     JMatrix%ZC0(1,7)= zx(49-48)  !0,0
+    else
+     write(*,*) 'Missing ',ZERNIKENAME,' ',PATIENTNAME,' ',EXAMNAME
+    endif
  end subroutine rcnvrtk
 
 subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)

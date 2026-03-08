@@ -7,7 +7,9 @@ FIXES
 REFACTOR!!!!!! for bottom two things
 
 oculus keratograph files are work in progress: need to make import rcnvrtk and radSlope_eq_oculus (skeletons exist), then needs test also with fake files, 
-and also a ZERNIKE files need support both reading and importing to begin with
+and also a ZERNIKE files: these are multidate files, so also need PATIENT.TXT and EXAM.TXT to collect name, date of exam; still need to make sure we have the correct eye
+
+
 
 
 decenter can continue ro decenter even with zero values once decentered sufficiently

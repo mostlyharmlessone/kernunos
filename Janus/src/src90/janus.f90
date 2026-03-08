@@ -33,8 +33,8 @@
   real(c_float), INTENT(INOUT) :: zern(*)
   real(c_float) :: dist
   character(len=4096) :: new_path
-  character(:),save, ALLOCATABLE :: inputfile1,inputfile2,inputfile3,inputfile4,inputfile5,BigPlot,gnu_instruct,cab_inputfile1,cab_inputfile2,cab_inputfile3,cab_inputfile4
-  character(:),save, ALLOCATABLE :: logfile
+  character(:),save, ALLOCATABLE :: inputfile1,inputfile2,inputfile3,inputfile4,inputfile5,inputfile6,inputfile7
+  character(:),save, ALLOCATABLE :: logfile,BigPlot,gnu_instruct,cab_inputfile1,cab_inputfile2,cab_inputfile3,cab_inputfile4
   integer ::  nblines, file_idx,read_error,io
   integer,allocatable :: MV(:)
   real(8) :: time_start, time_end
@@ -135,6 +135,12 @@ if (mod(flag,100) == 99) then
     endif
     if (allocated(inputfile5)) then
      deallocate(inputfile5)
+    endif
+    if (allocated(inputfile6)) then
+     deallocate(inputfile6)
+    endif
+    if (allocated(inputfile7)) then
+     deallocate(inputfile7)
     endif
     if (allocated(logfile)) then
      deallocate(logfile)
@@ -783,6 +789,8 @@ if (mod(flag,100) == 0) then
             inputfile3="PUPIL.OD"
             inputfile4="CENTER.OD"
             inputfile5=replacestr(string=cab_inputfile1,search="EXP_Topo_OD.zip",substitute="ZERNIKE.CSV")
+            inputfile6="PATIENT.TXT"
+            inputfile7="EXAM.TXT"
            else  !OS
            inquire(file="CURVAT_F.OS", exist=exists)
             if (exists) then
@@ -795,6 +803,8 @@ if (mod(flag,100) == 0) then
             inputfile3="PUPIL.OS"
             inputfile4="CENTER.OS"
             inputfile5=replacestr(string=cab_inputfile1,search="EXP_Topo_OS.zip",substitute="ZERNIKE.CSV")
+            inputfile6="PATIENT.TXT"
+            inputfile7="EXAM.TXT"
            endif
           else   !not compressed
           file_idx=index(inputfile1, "CURVAT")
@@ -852,10 +862,14 @@ if (mod(flag,100) == 0) then
            file_idx=index(inputfile1, ".OD")
            if (file_idx .ne.0) then
             inputfile5=replacestr(string=inputfile3,search="PUPIL.OD",substitute="ZERNIKE.CSV")
+            inputfile6=replacestr(string=inputfile3,search="PUPIL.OD",substitute="PATIENT.TXT")
+            inputfile7=replacestr(string=inputfile3,search="PUPIL.OD",substitute="EXAM.TXT")
            endif
            file_idx=index(inputfile1, ".OS")
            if (file_idx .ne.0) then
             inputfile5=replacestr(string=inputfile3,search="PUPIL.OS",substitute="ZERNIKE.CSV")
+            inputfile6=replacestr(string=inputfile3,search="PUPIL.OS",substitute="PATIENT.TXT")
+            inputfile7=replacestr(string=inputfile3,search="PUPIL.OS",substitute="EXAM.TXT")
            endif
           endif
          endif !Keratograph
@@ -1147,7 +1161,7 @@ if (TestData .eq. 7) then
    Oculus = 0
    call init_mat_Oculus(MM,N,Oculus) ! allocate the matrices
   endif
-  ! RCNVRTK has to decide wheter files exist too.
+  ! RCNVRTK has to decide whether files exist too.
   inquire(file=trim(inputfile3), exist=exists)
   if(.NOT.exists) then
    call RCNVRTK(read_error,inputfile1,inputfile2)
@@ -1156,9 +1170,15 @@ if (TestData .eq. 7) then
    if(.NOT.exists) then
     call RCNVRTK(read_error,inputfile1,inputfile2,inputfile3)
    else
-    inquire(file=trim(inputfile5), exist=exists)
+    inquire(file=trim(inputfile5), exist=exists)  !?ZERNIKE
     if (exists) then
-     call RCNVRTK(read_error,inputfile1,inputfile2,inputfile3,inputfile4,inputfile5)
+     inquire(file=trim(inputfile6), exist=exists) !?PATIENT.TXT (need PATIENT AND EXAM to read ZERNIKE)
+     if (exists) then
+      inquire(file=trim(inputfile7), exist=exists) !?EXAM.TXT
+      if (exists) then
+       call RCNVRTK(read_error,inputfile1,inputfile2,inputfile3,inputfile4,inputfile5,inputfile6,inputfile7)
+      endif
+     endif
     else
      call RCNVRTK(read_error,inputfile1,inputfile2,inputfile3,inputfile4)
     endif
@@ -2315,7 +2335,6 @@ deallocate(zernC,rlocal,thtlocal)
  return ! if last digits of flag==1 and not allocated do nothing
  endif
 endif  ! end of flag=1
-
 
 ! plot Zernike central coefficients with gnuplot
 if (mod(flag,100) == 1 .or. mod(flag,100) == 9) then

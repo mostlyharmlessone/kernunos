@@ -596,10 +596,12 @@ subroutine RadSlope_eq_Oculus(RadSlope,Oculus,dat,iflag)
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
   integer(c_int), INTENT(IN) :: dat
   integer, INTENT(INOUT) :: iflag
-  INTEGER :: i,j,k,MM,N
+  INTEGER :: i,j,k,MM,N,imv(100)
   real(wp) :: Y,YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA
   real(wp) :: powmax, powmax2
-! does nothing yet
+  REAL(wp) :: ZIX,ZJX,YA3,X2A1
+  REAL(wp) :: DIST,R,POW
+! does nothing yet.do I need two Radslopes
 ! needs version for Oculus ELE,INSTC,SAG
 ! load Oculus into RadSlope c 100 x 61
   MM = 100 ; N=62
@@ -610,10 +612,38 @@ subroutine RadSlope_eq_Oculus(RadSlope,Oculus,dat,iflag)
   else
    call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
   endif
-
-! generate imv(MM) for 100
-! load Radslope int DiaSlope c 50 x 122
+! make a temporary Radslope based on Oculus Keratograph geometry
+! this is same as RadSlope=Atlas
+! Oculus%SAGC(MM,N),Oculus%INSTC(MM,N),Oculus%ELE(MM,N),Oculus%PU(MM),Oculus%Y(MM,N),Oculus%SEG(MM)
+! seg is angle in grads associated with measurement. have to check if continuous
+! might want to correlate ZERNIKE with CORNEA/CURVAT by checking name in associated PATIENT.TXT
+  imv=0
+  do j=1,N
+   do i=1,MM
+    RadSlope%thta(i)=PI*Oculus%SEG(i)/200.0_wp
+    if ((Oculus%SAGC(i,j) > 0) .AND. (Oculus%INSTC(i,j) > 0) .AND. (Oculus%ELE(i,j) > 0) .AND. (Oculus%Y(i,j) > 0)) then    ! Only for Oculus with valid data /= 0
+     DIST=Oculus%Y(i,j)
+     POW=Oculus%SAGC(i,j)
+!    this formula only works for sagittal/axial curvatures
+     ZIX=RFCT/POW
+     ZJX=DIST*100
+     if (ZIX > ZJX) then
+      imv(i)=imv(i)+1
+      CALL ZFCT(MM,i,ZJX,ZIX,X2A1,YA3)
+     else
+      cycle
+     endif
+     RadSlope%r(imv(i),i)=X2A1
+     RadSlope%Zp(imv(i),i)=YA3
+  !  The range might be incompatible
+     RadSlope%Z(imv(i),i)=Oculus%ELE(i,j)
+     RadSlope%Zp2(imv(i),i)=1/803.0_wp ! fallback value before splining
+    endif
+   end do
+  end do
+  RadSlope%MV(:)=imv(:)
   DiaSlope=RadSlope
+
 ! interpolate IMV(100)->IMV(180)
 ! Use SplineEval1Dx1D to build JMatrix or other RadSlope 180 x 22
 ! assuming
@@ -630,11 +660,10 @@ subroutine RadSlope_eq_Oculus(RadSlope,Oculus,dat,iflag)
     iflag=1
    endif
   endif
+
   do i=1,MM
    do j=1,RadSlope%MV(i)
-
-!!!!!!!have to store somewhere; perhaps go straight to JMatrix
-
+!  compute error based on tegration as quality check
    call SplineEval1Dx1D(iflag,Oculus%Y(i,j),PI*Oculus%SEG(i)/9000.0_wp,Y,YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
   !   skip missing elevation points to compute (cumulative) average error
    if (Oculus%ELE(i,j) > 0) then
@@ -647,6 +676,7 @@ subroutine RadSlope_eq_Oculus(RadSlope,Oculus,dat,iflag)
    end do
   end do
 ! now I need a 180 x 22 RadSlope
+
   RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
   RadSlope=JMatrix
