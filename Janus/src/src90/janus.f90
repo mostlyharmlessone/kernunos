@@ -1194,8 +1194,14 @@ if (TestData .eq. 7) then
      read_error=read_error+io
      call execute_command_line ('rm ' // inputfile4, exitstat=io)
      read_error=read_error+io
+     call execute_command_line ('rm ' // inputfile5, exitstat=io)
+     read_error=read_error+io
+     call execute_command_line ('rm ' // inputfile6, exitstat=io)
+     read_error=read_error+io
+     call execute_command_line ('rm ' // inputfile7, exitstat=io)
+     read_error=read_error+io
      if (read_error > 0) then
-      write (*,*) 'failed system command to remove one of tmp files ',inputfile1,inputfile2,inputfile3,inputfile4
+      write (*,*) 'failed system command to remove one of temporary uncompressed keratograph files '
       read_error=13
      endif
      deallocate(cab_inputfile1)

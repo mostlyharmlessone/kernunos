@@ -786,7 +786,6 @@ subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
                write(*,*) j/linecount, ' items per line'
                write(*,*) posmax, ' maximum data size per item'
                if (.not. date_match) write(*,*) 'Zernike data date does not match exam date'
-               if (.not. valid) write(*,*) 'Zernike data not read, no matching eye'
                exit
               endif
              end do
