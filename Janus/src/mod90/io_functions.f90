@@ -633,12 +633,10 @@ subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
      endif
     endif
 
-!   first row is semicolon and colon delimited categories
+!   ZERNIKE first row is semicolon and colon delimited categories
 !   semicolon delimited file with 49 columns, last 45 are 8th order Zernike coefficents
 !   assumes at least one set of data points
-!   only reads 2nd row with first set of data points, no way to select date of data points at this time on 3rd or 4the row etc. if present
-!   if presented with time/date stamp on other Keratograph files, then could pick a date.
-!   have to read Right eye/left eye and correlate with OD or OS; also could read PATIENT.TXT and EXAM.TXT to verify name and time of exam
+!   PATIENT.TXT and EXAM.TXT to verify Right eye/left eye and correlate with OD or OS, name and time of exam
     if(present(ZERNIKENAME) .and. present(PATIENTNAME) .and. present(EXAMNAME)) then
      inquire(file=trim(ZERNIKENAME), exist=exists)
      inquire(file=trim(PATIENTNAME), exist=exists2)

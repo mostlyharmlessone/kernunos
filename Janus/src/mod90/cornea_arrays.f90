@@ -663,8 +663,8 @@ subroutine RadSlope_eq_Oculus(RadSlope,Oculus,dat,iflag)
 
   do i=1,MM
    do j=1,RadSlope%MV(i)
-!  compute error based on tegration as quality check
-   call SplineEval1Dx1D(iflag,Oculus%Y(i,j),PI*Oculus%SEG(i)/9000.0_wp,Y,YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
+!  compute error based on integration as quality check
+   call SplineEval1Dx1D(iflag,Oculus%Y(i,j),PI*Oculus%SEG(i)/200.0_wp,Y,YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
   !   skip missing elevation points to compute (cumulative) average error
    if (Oculus%ELE(i,j) > 0) then
      k=k+1
