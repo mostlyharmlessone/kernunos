@@ -60,7 +60,7 @@ MODULE cornea_arrays
  ! for the Oculus Keratograph 5M
  !  sagittal/axial, tangential curvature or elevation in mm, radial position, usually 100 segments corresponding to every 4 grads, with 60 points each
    REAL (wp), ALLOCATABLE :: SAGC(:,:),INSTC(:,:),ELE(:,:),PU(:),Y(:,:)
-   INTEGER, ALLOCATABLE :: SEG(:)
+   INTEGER, ALLOCATABLE :: SEG(:),SAGC0(:),INSTC0(:),ELE0(:),Y0(:)  ! MM values at origin Y0(:) should all be 0.0
    REAL (wp) :: Pupil_Center(3)  !includes diameter as #3
  END TYPE wpOculusMatrix
 
@@ -96,7 +96,7 @@ INTERFACE ASSIGNMENT (=)
  MODULE PROCEDURE DiaSlope_eq_RadSlope
  MODULE PROCEDURE RadSlope_eq_DiaSlope
  MODULE PROCEDURE RadSlope_eq_JMatrix
- MODULE PROCEDURE RadSlope_eq_Oculus  !this is actually a subroutine with 4 args, so this doesn't apply
+ MODULE PROCEDURE RadSlope_eq_Oculus
  ! Type(oneofthesebelow) = INTEGER(0) deallocates the matrix
  MODULE PROCEDURE destroy_EyeSys
  MODULE PROCEDURE destroy_Penta
@@ -162,8 +162,9 @@ subroutine init_mat_Oculus(MM,N,Oculus) ! allocate Oculus arrays
   INTEGER, INTENT(IN) :: MM,N
   TYPE(wpOculusMatrix) :: Oculus
   allocate (Oculus%SAGC(MM,N),Oculus%INSTC(MM,N),Oculus%ELE(MM,N),Oculus%PU(MM),Oculus%Y(MM,N),Oculus%SEG(MM))
+  allocate (Oculus%SAGC0(MM),Oculus%INSTC0(MM),Oculus%ELE0(MM),Oculus%Y0(MM))
   Oculus%SAGC(:,:)=0 ; Oculus%INSTC(:,:)=0 ; Oculus%ELE(:,:)=0 ; Oculus%PU(:)=0 ; Oculus%Y(:,:)=0 ; Oculus%SEG(:)=0
-  Oculus%Pupil_Center=0
+  Oculus%Pupil_Center=0 ; Oculus%SAGC0(:)=0 ; Oculus%INSTC0(:)=0 ; Oculus%ELE0(:)=0 ; Oculus%Y0(:)=0
 end subroutine init_mat_Oculus
 
 subroutine init_mat_JMatrix(MM,N,b) ! allocate common storage arrays
@@ -232,6 +233,7 @@ subroutine destroy_Oculus(Oculus,iflag)
   INTEGER, INTENT (IN) :: iflag
   IF (iflag==0) THEN
    deallocate (Oculus%SAGC,Oculus%INSTC,Oculus%ELE,Oculus%PU,Oculus%Y,Oculus%SEG)
+   deallocate (Oculus%SAGC0,Oculus%INSTC0,Oculus%ELE0,Oculus%Y0)
   ENDIF
 end subroutine destroy_Oculus
 
@@ -590,43 +592,28 @@ subroutine RadSlope_eq_EyeSys(RadSlope,EyeSys) ! initially populates r, thta, Zp
    end do
 end subroutine RadSlope_eq_EyeSys
 
-! make version of this for EyeSys rather than skipping degrees
-subroutine RadSlope_eq_Oculus(RadSlope,Oculus,dat,iflag)
+
+subroutine RadSlope_eq_Oculus(RadSlope,Oculus)
   TYPE(wpOculusMatrix), INTENT(INOUT) :: Oculus
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
-  integer(c_int), INTENT(IN) :: dat
-  integer, INTENT(INOUT) :: iflag
   INTEGER :: i,j,k,MM,N,imv(100)
   real(wp) :: Y,YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA
   real(wp) :: powmax, powmax2
   REAL(wp) :: ZIX,ZJX,YA3,X2A1
   REAL(wp) :: DIST,R,POW
-! does nothing yet.do I need two Radslopes
-! needs version for Oculus ELE,INSTC,SAG
-! load Oculus into RadSlope c 100 x 61
-  MM = 100 ; N=62
-! wipe RadSlope/DiaSlope clean
-  if (allocated(RadSlope%r)) then
-   RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
-   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
-  else
-   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
-  endif
-! make a temporary Radslope based on Oculus Keratograph geometry
-! this is same as RadSlope=Atlas
+! uses SAGC not ELE or INSTC
+! load Oculus into RadSlope c 100 x 60
+  MM = 100 ; N=60
+  ! except there are 60 points not including the center in Oculus
 ! Oculus%SAGC(MM,N),Oculus%INSTC(MM,N),Oculus%ELE(MM,N),Oculus%PU(MM),Oculus%Y(MM,N),Oculus%SEG(MM)
 ! seg is angle in grads associated with measurement. have to check if continuous
-! might want to correlate ZERNIKE with CORNEA/CURVAT by checking name in associated PATIENT.TXT
   imv=0
   do j=1,N
    do i=1,MM
-    RadSlope%thta(i)=PI*Oculus%SEG(i)/200.0_wp
+    RadSlope%thta(i)=PI*Oculus%SEG(i)/50.0_wp
     if ((Oculus%SAGC(i,j) > 0) .AND. (Oculus%INSTC(i,j) > 0) .AND. (Oculus%ELE(i,j) > 0) .AND. (Oculus%Y(i,j) > 0)) then    ! Only for Oculus with valid data /= 0
-     DIST=Oculus%Y(i,j)
-     POW=Oculus%SAGC(i,j)
-!    this formula only works for sagittal/axial curvatures
-     ZIX=RFCT/POW
-     ZJX=DIST*100
+     ZJX=100*Oculus%Y(i,j)
+     ZIX=100*Oculus%SAGC(i,j)
      if (ZIX > ZJX) then
       imv(i)=imv(i)+1
       CALL ZFCT(MM,i,ZJX,ZIX,X2A1,YA3)
@@ -637,53 +624,12 @@ subroutine RadSlope_eq_Oculus(RadSlope,Oculus,dat,iflag)
      RadSlope%Zp(imv(i),i)=YA3
   !  The range might be incompatible
      RadSlope%Z(imv(i),i)=Oculus%ELE(i,j)
-     RadSlope%Zp2(imv(i),i)=1/803.0_wp ! fallback value before splining
+     RadSlope%Zp2(imv(i),i)=0.01*(sqrt(1+YA3*YA3)**3)/Oculus%INSTC(i,j)
     endif
    end do
   end do
   RadSlope%MV(:)=imv(:)
-  DiaSlope=RadSlope
-
-! interpolate IMV(100)->IMV(180)
-! Use SplineEval1Dx1D to build JMatrix or other RadSlope 180 x 22
-! assuming
-  if (btest(dat, 2)) then
-   if (btest(dat,0)) then
-    iflag=12
-   else
-    iflag=2
-   endif
-  else
-   if (btest(dat,0)) then
-    iflag=11
-   else
-    iflag=1
-   endif
-  endif
-
-  do i=1,MM
-   do j=1,RadSlope%MV(i)
-!  compute error based on integration as quality check
-   call SplineEval1Dx1D(iflag,Oculus%Y(i,j),PI*Oculus%SEG(i)/200.0_wp,Y,YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
-  !   skip missing elevation points to compute (cumulative) average error
-   if (Oculus%ELE(i,j) > 0) then
-     k=k+1
-     powmax2=powmax2+ABS(Y-powmax+Oculus%ELE(i,j))
-
-      write(*,*) j,(i-1),Y,Oculus%ELE(i,j),100*(Y-Oculus%ELE(i,j))/Oculus%ELE(i,j)
-
-    endif
-   end do
-  end do
-! now I need a 180 x 22 RadSlope
-
-  RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
-  call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
-  RadSlope=JMatrix
-
-
-
-end subroutine RadSlope_eq_Oculus
+ end subroutine RadSlope_eq_Oculus
 
 subroutine RadSlope_eq_JMatrix(RadSlope,JMatrix) 
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
@@ -1200,6 +1146,13 @@ subroutine AXIALP(X2,Y1X,Y2X,SAGC)
   SAGC=RFCT*Y1X/(X2*SQRT(1+Y1X**2))
  endif     
 end subroutine AXIALP
+
+! tangential power from slope and derivatives
+subroutine TANGENTP(X2,Y1X,Y2X,INSTC)
+ real(wp), INTENT(IN) :: X2,Y1X,Y2X
+ real(wp), INTENT(OUT) :: INSTC
+  INSTC=RFCT*Y2X/(SQRT(1+Y1X**2)**3)
+end subroutine TANGENTP
 
 ! principal curvature calculations
 subroutine principal(t,r,hr,ht,hrt,htt,hrr,K,H,k1,k2,A)

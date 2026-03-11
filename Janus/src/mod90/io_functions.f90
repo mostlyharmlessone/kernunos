@@ -475,14 +475,20 @@ subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
          somecharacter=replacestr(string=somecharacter,search="r(Tan)=",substitute=",")
          read(somecharacter,*,iostat=ierr) grad,ytemp,rsag,rtan
          Oculus%SEG(grad+1)=grad+1
-         j=INT(10*ytemp)+1
-         if (ABS(10*ytemp+1-j) .gt. EPS) then  ! y should always be between 0.0 and 6.0 at 0.1 intervals
+         j=INT(10*ytemp)
+         if (ABS(10*ytemp-j) .gt. EPS) then  ! y should always be between 0.0 and 6.0 at 0.1 intervals
           write(*,*) 'Error reading Keratograph'
           return
          endif
-         Oculus%Y(grad+1,j) = ytemp
-         Oculus%SAGC(grad+1,j)=rsag
-         Oculus%INSTC(grad+1,j)=rtan
+         if (ytemp .gt. 0) then
+          Oculus%Y(grad+1,j) = ytemp
+          Oculus%SAGC(grad+1,j)=rsag
+          Oculus%INSTC(grad+1,j)=rtan
+         else
+          Oculus%Y0(grad+1) = ytemp
+          Oculus%SAGC0(grad+1)=rsag
+          Oculus%INSTC0(grad+1)=rtan
+         endif
 !         write(*,*) someline
 !         write(*,*) somecharacter
 !         write(*,*) Oculus%SEG(grad+1),j,i,Oculus%Y(grad+1,j),Oculus%SAGC(grad+1,j),Oculus%INSTC(grad+1,j)
@@ -520,13 +526,18 @@ subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
          somecharacter=replacestr(string=somecharacter,search="x=",substitute=",")
          read(somecharacter,*,iostat=ierr) grad,ytemp,xtemp
          Oculus%SEG(grad+1)=grad+1
-         j=INT(10*ytemp)+1
-         if (ABS(10*ytemp+1-j) .gt. EPS) then  ! y should always be between 0.0 and 6.0 at 0.1 intervals
+         j=INT(10*ytemp)
+         if (ABS(10*ytemp-j) .gt. EPS) then  ! y should always be between 0.0 and 6.0 at 0.1 intervals
           write(*,*) 'Error reading Keratograph'
           return
          endif
-         Oculus%Y(grad+1,j) = ytemp
-         Oculus%ELE(grad+1,j)=xtemp
+         if (ytemp .gt. 0) then
+          Oculus%Y(grad+1,j) = ytemp
+          Oculus%ELE(grad+1,j)=xtemp
+         else
+          Oculus%Y0(grad+1) = ytemp
+          Oculus%ELE0(grad+1)=xtemp
+         endif
 !         write(*,*) someline
 !         write(*,*) somecharacter
 !         write(*,*) Oculus%SEG(grad+1),j,i,Oculus%Y(grad+1,j),Oculus%ELE(grad+1,j)
@@ -818,7 +829,7 @@ subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
      JMatrix%ZC0(1,5)= zx(51-48)  !1,-1
      JMatrix%ZC0(1,7)= zx(49-48)  !0,0
     else
-     write(*,*) 'Missing ',ZERNIKENAME,' ',PATIENTNAME,' ',EXAMNAME
+     write(*,*) 'No ZERNIKE files',ZERNIKENAME,' ',PATIENTNAME,' ',EXAMNAME
     endif
  end subroutine rcnvrtk
 

@@ -4,17 +4,11 @@ CorneaCopia
 
 FIXES
 
-REFACTOR!!!!!! for bottom two things
-
-oculus keratograph files are work in progress: need to make import rcnvrtk and radSlope_eq_oculus (skeletons exist), then needs test also with fake files, 
-and also a ZERNIKE files: these are multidate files, so also need PATIENT.TXT and EXAM.TXT to collect name, date of exam; still need to make sure we have the correct eye
-
-
-
-
+REFACTOR!!!!!! for 
 decenter can continue ro decenter even with zero values once decentered sufficiently
 this does NOT do what I want? compare to manual decenter with Penta ELE files.
 see notes in janus.f90; need to rewrite decenter line 512 to regenerate based on ELE starting around lin 1580, might be best to break that out as a routine and or refactor selectfunction and rename that too
+
 
 
  EyeSys/Nidek files: /home/debeus/Janus/EYESYS/SAUNA.GRP/RIGHT.UNK/XX149.11
@@ -24,7 +18,6 @@ first centernode tweak  no guarantee of a local root in SplineCenter            
 
 LSQ spline errors seems to run on ELE even though not checked in Menu, get Errors on findInterval in LSQSpline without checked box using LSQSpline
 lsqspline doesn't fix decentering/multiple zero issues in ELE files, look at decentering again, run some test beds
-
 
 
 decentering not an option with Test (as opposed to Load file)

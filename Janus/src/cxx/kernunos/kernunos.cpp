@@ -395,6 +395,7 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
        msgBox.setDefaultButton(QMessageBox::No);
        int extrap = 1;
+       int ierr = 0;
        QSpacerItem *horizontalspacer = new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
        QGridLayout *layout =(QGridLayout*)msgBox.layout();
        layout->addItem(horizontalspacer,layout->rowCount(),0,1,layout->columnCount());
@@ -406,21 +407,29 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
         case QMessageBox::Yes:
            if (keratoDialogOptionsWidget->value()){
                std::cout << "Extrapolated data files" << std::endl;
-               system(("unzip -o " + str4 + " CORNEA_F.*").c_str());
-               system(("unzip -o " + str4 + " CURVAT_F.*" ).c_str());
-               system(("unzip -o " + str4 + " PUPIL.*" ).c_str());
-               system(("unzip -o " + str4 + " CENTER.*" ).c_str());
-               system(("unzip -o " + str4 + " PATIENT.TXT" ).c_str());
-               system(("unzip -o " + str4 + " EXAM.TXT" ).c_str());
+               ierr = system(("unzip -o " + str4 + " CORNEA_F.*").c_str());
+               ierr = ierr + system(("unzip -o " + str4 + " CURVAT_F.*" ).c_str());
+               ierr = ierr + system(("unzip -o " + str4 + " PUPIL.*" ).c_str());
+               ierr = ierr + system(("unzip -o " + str4 + " CENTER.*" ).c_str());
+               ierr = ierr + system(("unzip -o " + str4 + " PATIENT.TXT" ).c_str());
+               ierr = ierr + system(("unzip -o " + str4 + " EXAM.TXT" ).c_str());
+               if (ierr > 0) {
+                  LogC("Error unzipping data files");
+                  return;
+               };
            }
            else {
                std::cout << "No extrapolation" << std::endl;
-               system(("unzip -o " + str4 + " CORNEA.*" ).c_str());
-               system(("unzip -o " + str4 + " CURVAT.*" ).c_str());
-               system(("unzip -o " + str4 + " PUPIL.*" ).c_str());
-               system(("unzip -o " + str4 + " CENTER.*" ).c_str());
-               system(("unzip -o " + str4 + " PATIENT.TXT" ).c_str());
-               system(("unzip -o " + str4 + " EXAM.TXT" ).c_str());
+               ierr = system(("unzip -o " + str4 + " CORNEA.*" ).c_str());
+               ierr = ierr + system(("unzip -o " + str4 + " CURVAT.*" ).c_str());
+               ierr = ierr + system(("unzip -o " + str4 + " PUPIL.*" ).c_str());
+               ierr = ierr + system(("unzip -o " + str4 + " CENTER.*" ).c_str());
+               ierr = ierr + system(("unzip -o " + str4 + " PATIENT.TXT" ).c_str());
+               ierr = ierr + system(("unzip -o " + str4 + " EXAM.TXT" ).c_str());
+               if (ierr > 0) {
+                   LogC("Error unzipping data files");
+                   return;
+               };
            }
            break;
         case QMessageBox::No:
@@ -464,9 +473,19 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
        LSQfillinAct->setEnabled(true);
        lsqvssplineAct->setEnabled(true);
    };
-   if (eyesys || nidek || kerato) {
+   if (kerato) {
+       ShowZernAct->setEnabled(true);
+       centerAct->setEnabled(true);
+       ringsAct->setEnabled(false);
+       centernodeAct->setEnabled(true);
+       adjustradiiAct->setEnabled(true);
+       SplinefillinAct->setEnabled(false);
+       LSQfillinAct->setEnabled(false);
+       lsqvssplineAct->setEnabled(true);
+   };
+   if (eyesys || nidek) {
        ShowZernAct->setEnabled(false);
-       centerAct->setEnabled(true);       
+       centerAct->setEnabled(true);
        ringsAct->setEnabled(false);
        centernodeAct->setEnabled(true);
        adjustradiiAct->setEnabled(true);
@@ -589,7 +608,57 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
                }}};
        bool kerato = false;
        std::string str4(filename);
-       kerato = str4.find("CORNEA")!= std::string::npos || str4.find("CURVAT") != std::string::npos;
+       if (str4.find("EXP_Topo") != std::string::npos){  //compressed Keratograph file, warn that uncompressing will overwrite previous files
+           QMessageBox msgBox;
+           msgBox.setInformativeText( "Uncompressing will overwrite previous Keratograph uncompressed files: Proceed?");
+           msgBox.setText(tr("Allows compressed Keratograph files " ));
+           msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+           msgBox.setDefaultButton(QMessageBox::No);
+           int extrap = 1;
+           int ierr = 0;
+           QSpacerItem *horizontalspacer = new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
+           QGridLayout *layout =(QGridLayout*)msgBox.layout();
+           layout->addItem(horizontalspacer,layout->rowCount(),0,1,layout->columnCount());
+           keratoDialogOptionsWidget = new DialogOptionsWidget;
+           keratoDialogOptionsWidget->addCheckBox(tr("Extrapolated data?"), extrap);
+           layout->addWidget(keratoDialogOptionsWidget);
+           int ret = msgBox.exec();
+           switch(ret){
+           case QMessageBox::Yes:
+               if (keratoDialogOptionsWidget->value()){
+                   std::cout << "Extrapolated data files" << std::endl;
+                   ierr = system(("unzip -o " + str4 + " CORNEA_F.*").c_str());
+                   ierr = ierr + system(("unzip -o " + str4 + " CURVAT_F.*" ).c_str());
+                   ierr = ierr + system(("unzip -o " + str4 + " PUPIL.*" ).c_str());
+                   ierr = ierr + system(("unzip -o " + str4 + " CENTER.*" ).c_str());
+                   ierr = ierr + system(("unzip -o " + str4 + " PATIENT.TXT" ).c_str());
+                   ierr = ierr + system(("unzip -o " + str4 + " EXAM.TXT" ).c_str());
+                   if (ierr > 0) {
+                       LogC("Error unzipping data files");
+                       return;
+                   };
+               }
+               else {
+                   std::cout << "No extrapolation" << std::endl;
+                   ierr = system(("unzip -o " + str4 + " CORNEA.*" ).c_str());
+                   ierr = ierr + system(("unzip -o " + str4 + " CURVAT.*" ).c_str());
+                   ierr = ierr + system(("unzip -o " + str4 + " PUPIL.*" ).c_str());
+                   ierr = ierr + system(("unzip -o " + str4 + " CENTER.*" ).c_str());
+                   ierr = ierr + system(("unzip -o " + str4 + " PATIENT.TXT" ).c_str());
+                   ierr = ierr + system(("unzip -o " + str4 + " EXAM.TXT" ).c_str());
+                   if (ierr > 0) {
+                       LogC("Error unzipping data files");
+                       return;
+                   };
+               }
+               break;
+           case QMessageBox::No:
+               return;
+           case QMessageBox::Cancel:
+               return;
+           }
+       }
+       kerato = str4.find("CORNEA")!= std::string::npos || str4.find("CURVAT") != std::string::npos || str4.find("EXP_Topo") != std::string::npos;
        bool nidek = false;               //if substituting ED for RA or RA for ED results in an openable file, then probably Nidek
        std::string str3(filename);
        if(replace(str3,"RA","ED")) {
@@ -624,7 +693,17 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
            LSQfillinAct->setEnabled(true);
            lsqvssplineAct->setEnabled(true);
        };
-       if (eyesys || nidek || kerato) {
+       if (kerato) {
+           ShowZernAct->setEnabled(true);
+           centerAct->setEnabled(true);
+           ringsAct->setEnabled(false);
+           centernodeAct->setEnabled(true);
+           adjustradiiAct->setEnabled(true);
+           SplinefillinAct->setEnabled(false);
+           LSQfillinAct->setEnabled(false);
+           lsqvssplineAct->setEnabled(true);
+       };
+       if (eyesys || nidek) {
            ShowZernAct->setEnabled(false);
            centerAct->setEnabled(true);
            ringsAct->setEnabled(false);
@@ -2392,8 +2471,8 @@ void MainWindow::createActions()
    ringsAct->setEnabled(false);
    connect(ringsAct, &QAction::triggered, this, &MainWindow::rings);
 
-   consistencyAct = new QAction(tr("&Check spline consistency (Atlas/NIDEK only)"), this);
-   consistencyAct->setStatusTip(tr("Check spline consistency (Atlas/NIDEK only)"));
+   consistencyAct = new QAction(tr("&Check spline consistency (Atlas/NIDEK/Keratograph only)"), this);
+   consistencyAct->setStatusTip(tr("Check spline consistency (Atlas/NIDEK/Keratograph only)"));
    consistencyAct->setEnabled(true);
    consistencyAct->setCheckable(true);
    connect(consistencyAct, &QAction::triggered, this, &MainWindow::consistency);

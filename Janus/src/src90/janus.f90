@@ -166,6 +166,9 @@ if (mod(flag,100) == 99) then
     if (allocated(Atlas%AR)) then
      Atlas=0
     endif
+    if (allocated(Oculus%Y)) then
+     Oculus=0
+    endif
     if (allocated(Penta%DAT)) then
      Penta=0
     endif
@@ -768,7 +771,7 @@ if (mod(flag,100) == 0) then
          write(*,*) 'Unknown file type: make some test data, flag = ',flag
          TestData=-1; MM=360; N=16 ; NP=141
          else
-         TestData=7; MM=100; N=62 ; NP=141
+         TestData=7; MM=100; N=60 ; NP=141
           file_idx=index(inputfile1, "EXP_Topo")
           if( file_idx .ne. 0) then    !set the files to the decompressed versions in the base directory
            if (allocated(cab_inputfile1)) then
@@ -1153,7 +1156,7 @@ if (TestData .eq. 7) then
  if (mod(flag,100) == 0) then !read the files
 ! READ THE KERATOGRAPH DATA
   call CPU_TIME(time_start)
-  MM=100 ; N=62 ! Keratograph
+  MM=100 ; N=60 ! Keratograph
   read_error=0
   if(.not.allocated(Oculus%SAGC)) then
    call init_mat_Oculus(MM,N,Oculus) ! allocate the matrices
@@ -1185,7 +1188,7 @@ if (TestData .eq. 7) then
    endif
    if (cab_inputfile1 .ne. inputfile1) then
     if(allocated(cab_inputfile1)) then
-     write(*,*) "Removing temp files"
+     write(*,*) "Removing temp files"  ! do not remove ZERNIKE inputfile5
      call execute_command_line ('rm ' // inputfile1, exitstat=io)
      read_error=io
      call execute_command_line ('rm ' // inputfile2, exitstat=io)
@@ -1193,8 +1196,6 @@ if (TestData .eq. 7) then
      call execute_command_line ('rm ' // inputfile3, exitstat=io)
      read_error=read_error+io
      call execute_command_line ('rm ' // inputfile4, exitstat=io)
-     read_error=read_error+io
-     call execute_command_line ('rm ' // inputfile5, exitstat=io)
      read_error=read_error+io
      call execute_command_line ('rm ' // inputfile6, exitstat=io)
      read_error=read_error+io
@@ -1217,7 +1218,7 @@ if (TestData .eq. 7) then
   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
  endif
 ! Generate the slope matrix using ZFCT
- call RadSlope_eq_Oculus(RadSlope,Oculus,dat,iflag)
+ RadSlope=Oculus
 endif
 
 if (TestData .eq. 6) then
@@ -1715,7 +1716,7 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
 !   skip missing elevation points to compute (cumulative) average error
     if (EyeSys%HT(i,j) > 0) then
       k=k+1
-      powmax2=powmax2+ABS(Y-powmax+EyeSys%HT(i,j))
+      powmax2=powmax2+ABS(100*(Y-EyeSys%HT(i,j))/EyeSys%HT(i,j))
 !     EyeSys%HT data has few significant digits, is quite flat and deviates more in the center rings
 !     skip the two center rings and show errors greater tha 5%
       if (ABS(100*(Y-EyeSys%HT(i,j))/EyeSys%HT(i,j)) > 5.0 .and. j > 2 ) then
@@ -1724,11 +1725,14 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
      endif
     end do
    end do
-   write(*,*) 'NIDEK avg abs elevation percent error : ',(100*powmax2/k)/powmax
+   if (k .gt. 1)
+    write(*,*) 'NIDEK avg abs elevation percent error : ',powmax2/k
+   else
+    write(*,*) 'No NIDEK elevation data (Hint: no HT file)'
+   endif
  endif
 
-! untested
-! Keratograph spline consistency computation of elevation by power calc by slope vs elevation in file HT
+! Keratograph spline consistency computation of elevation by power calc by Power in file CURVAT vs elevation in file CORNEA
   if ( Testdata .eq. 7 .and. btest(dat,7) ) then
   if (btest(dat, 2)) then
    if (btest(dat,0)) then
@@ -1745,28 +1749,32 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
   endif
    k=0 ; powmax2 = 0 ; powmax =0  ! Use these temporarily
   ! find max elevation from Oculus file
-   do i=1,M1
+   do i=1,MM
     do j=1,RadSlope%MV(i)
-     if (Oculus%ELE(i,j) > powmax) powmax=Oculus%ELE(i,j)
+     if (100*Oculus%ELE(i,j) > powmax) powmax=100*Oculus%ELE(i,j)
      end do
     end do
   ! check spline power & elevation at knots
     do i=1,MM
      do j=1,RadSlope%MV(i)
-     call SplineEval1Dx1D(iflag,Oculus%Y(i,j),PI*Oculus%SEG(i)/9000.0_wp,Y,YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
+     call SplineEval1Dx1D(iflag,100*Oculus%Y(i,j),PI*Oculus%SEG(i)/9000.0_wp,Y,YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
  !   skip missing elevation points to compute (cumulative) average error
      if (Oculus%ELE(i,j) > 0) then
        k=k+1
-       powmax2=powmax2+ABS(Y-powmax+Oculus%ELE(i,j))
+       powmax2=powmax2+ABS(100*(Y/100.0-Oculus%ELE(i,j))/Oculus%ELE(i,j))
  !     Oculus%ELE data has few significant digits, is quite flat and deviates more in the center rings
  !     skip the two center rings and show errors greater tha 5%
-       if (ABS(100*(Y-Oculus%ELE(i,j))/Oculus%ELE(i,j)) > 5.0 .and. j > 2 ) then
-        write(*,*) j,(i-1),Y,Oculus%ELE(i,j),100*(Y-Oculus%ELE(i,j))/Oculus%ELE(i,j)
+       if (ABS(100*(Y/100.0-Oculus%ELE(i,j))/Oculus%ELE(i,j)) > 5.0 .and. j > 2 ) then
+        write(*,*) j,(i-1),Y,100*Oculus%ELE(i,j),100*(Y/100.0-Oculus%ELE(i,j))/Oculus%ELE(i,j)
        endif
       endif
      end do
     end do
-    write(*,*) 'KERATOGRAPH avg abs elevation percent error : ',(100*powmax2/k)/powmax
+    if (k .gt. 1)
+     write(*,*) 'KERATOGRAPH avg abs elevation percent error : ',powmax2/k
+    else
+     write(*,*) 'No KERATOGRAPH elevation data (Hint: no CORNEA file)'
+    endif
   endif
 
 ! Make JMatrix
@@ -1820,10 +1828,14 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
    JMatrix%THT(i)=PI*(i-1)/90.0_wp
    JMatrix%MV(i)=N1
    j=N1
-   if (MM == 360) then  ! original EyeSys RadSlope or fake data
-    ii=2*i
-   else  ! MM==180
-    ii=i
+   if (MM == 360) then  ! original EyeSys RadSlope or fake data, every degree
+    ii=2*i   ! MM =360
+   else
+    if (MM == 100) then ! Oculus every 4 grads
+     ii=max(int(5*i/9),1)   ! MM =100
+    else
+     ii=i   ! MM = 180
+    endif
    endif
    R_TST=RadSlope%r(RadSlope%MV(ii),ii)
    if (R_TST > 0) then
@@ -1874,15 +1886,16 @@ if (abs(YP2THETA) .gt. 2000) then
 
 write(*,*) ABS(JMatrix%R(j,i))*COS(JMatrix%THT(i)),ABS(JMatrix%R(j,i))*SIN(JMatrix%THT(i)),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA,ABS(JMatrix%R(j,i))
 !nb only for mm=60
+! needs modification for oculus
 if (i .gt. M1/2) then
  ii=2*(i-M1/2)
 else
  ii=2*i
 endif
 write(*,*) 'abs(YP2THETA) .gt. 2000'
-write(*,*) RadSlope%r(1:N,ii)
+!write(*,*) RadSlope%r(1:N,ii)
 write(*,*) j,i,ii
-write(*,*) DiaSlope%rd(1:2*N,ii/2)
+!write(*,*) DiaSlope%rd(1:2*N,ii/2)
 
 endif
 
@@ -1937,7 +1950,7 @@ endif
    DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
   endif
 
-  write(*,*) 'janus 1695',dat
+  write(*,*) 'janus 1943',dat
   call MakeRadSplineCenter(dat)        ! generates spline centers with tweaks
 
 !  Z
