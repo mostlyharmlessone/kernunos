@@ -827,10 +827,10 @@ if (mod(flag,100) == 0) then
              inputfile3=replacestr(string=inputfile1,search="CORNEA",substitute="PUPIL")
              inputfile4=replacestr(string=inputfile1,search="CORNEA",substitute="CENTER")
            else
-            inputfile2=replacestr(string=inputfile1,search="CORNEA_F",substitute="CURVAT")
+            inputfile2=replacestr(string=inputfile1,search="CORNEA_F",substitute="CURVAT_F")
             inquire(file=trim(inputfile2), exist=exists)
              if (.not. exists) then
-              inputfile2=replacestr(string=inputfile1,search="CORNEA_F",substitute="CURVAT_F")
+              inputfile2=replacestr(string=inputfile1,search="CORNEA_F",substitute="CURVAT")
              endif
               inputfile3=replacestr(string=inputfile1,search="CORNEA_F",substitute="PUPIL")
               inputfile4=replacestr(string=inputfile1,search="CORNEA_F",substitute="CENTER")
@@ -853,10 +853,10 @@ if (mod(flag,100) == 0) then
                inputfile4=replacestr(string=inputfile2,search="CURVAT",substitute="CENTER")
              else
               inputfile2 = inputfile1
-              inputfile1=replacestr(string=inputfile2,search="CURVAT_F",substitute="CORNEA")
+              inputfile1=replacestr(string=inputfile2,search="CURVAT_F",substitute="CORNEA_F")
               inquire(file=trim(inputfile1), exist=exists)
               if (.not. exists) then
-               inputfile1=replacestr(string=inputfile2,search="CURVAT_F",substitute="CORNEA_F")
+               inputfile1=replacestr(string=inputfile2,search="CURVAT_F",substitute="CORNEA")
                endif
               inputfile3=replacestr(string=inputfile2,search="CURVAT_F",substitute="PUPIL")
               inputfile4=replacestr(string=inputfile2,search="CURVAT_F",substitute="CENTER")
@@ -1725,7 +1725,7 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
      endif
     end do
    end do
-   if (k .gt. 1)
+   if (k .gt. 1) then
     write(*,*) 'NIDEK avg abs elevation percent error : ',powmax2/k
    else
     write(*,*) 'No NIDEK elevation data (Hint: no HT file)'
@@ -1770,7 +1770,7 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
       endif
      end do
     end do
-    if (k .gt. 1)
+    if (k .gt. 1) then
      write(*,*) 'KERATOGRAPH avg abs elevation percent error : ',powmax2/k
     else
      write(*,*) 'No KERATOGRAPH elevation data (Hint: no CORNEA file)'
@@ -1805,7 +1805,7 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
    if (btest(dat, 8)) then
     iflag = iflag+100
    endif
-! make round rings and if needed convert 360x16 or 180x25 to 180x22
+! make round rings and if needed convert 360x16 or 180x25 or 100x60 to 180x22
 ! donut
 ! Find maximum radius from data in RadSlope
   rBo = 0
@@ -1813,6 +1813,10 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
    j=RadSlope%MV(i)
    if (ABS(RadSlope%r(j,i)) >= rBo) rBo=ABS(RadSlope%r(j,i))
   end do
+! extrapolated keratogrpah data needs trimming at edges
+  if (index(inputfile1, "_F") .gt. 0) then
+   rBo=0.80*rBo
+  endif
   rBi=0.05*rBo
 !  min and max bounds
   JMatrix%SAGC0(2)=1E30   ;  JMatrix%SAGC0(3)=-1E30
@@ -1837,7 +1841,7 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
      ii=i   ! MM = 180
     endif
    endif
-   R_TST=RadSlope%r(RadSlope%MV(ii),ii)
+   R_TST=ABS(RadSlope%r(RadSlope%MV(ii),ii))
    if (R_TST > 0) then
    R_MV=rBo
     do while (R_MV .gt. R_TST)
