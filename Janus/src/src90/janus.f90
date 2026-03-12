@@ -1733,6 +1733,7 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
  endif
 
 ! Keratograph spline consistency computation of elevation by power calc by Power in file CURVAT vs elevation in file CORNEA
+! also can check INSTC calculated vs supplied, SAGC is regarded as primary given placido disk technology
   if ( Testdata .eq. 7 .and. btest(dat,7) ) then
   if (btest(dat, 2)) then
    if (btest(dat,0)) then
@@ -1748,30 +1749,29 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
    endif
   endif
    k=0 ; powmax2 = 0 ; powmax =0  ! Use these temporarily
-  ! find max elevation from Oculus file
-   do i=1,MM
-    do j=1,RadSlope%MV(i)
-     if (100*Oculus%ELE(i,j) > powmax) powmax=100*Oculus%ELE(i,j)
-     end do
-    end do
   ! check spline power & elevation at knots
     do i=1,MM
      do j=1,RadSlope%MV(i)
      call SplineEval1Dx1D(iflag,100*Oculus%Y(i,j),PI*Oculus%SEG(i)/9000.0_wp,Y,YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
- !   skip missing elevation points to compute (cumulative) average error
+ !   skip missing elevation points to compute average error
      if (Oculus%ELE(i,j) > 0) then
        k=k+1
+       powmax=powmax+ABS(100*(YP2R2-RadSlope%zp2(j,i))/RadSlope%zp2(j,i))
        powmax2=powmax2+ABS(100*(Y/100.0-Oculus%ELE(i,j))/Oculus%ELE(i,j))
  !     Oculus%ELE data has few significant digits, is quite flat and deviates more in the center rings
  !     skip the two center rings and show errors greater tha 5%
        if (ABS(100*(Y/100.0-Oculus%ELE(i,j))/Oculus%ELE(i,j)) > 5.0 .and. j > 2 ) then
-        write(*,*) j,(i-1),Y,100*Oculus%ELE(i,j),100*(Y/100.0-Oculus%ELE(i,j))/Oculus%ELE(i,j)
+ !       write(*,*) j,(i-1),Y,100*Oculus%ELE(i,j),100*(Y/100.0-Oculus%ELE(i,j))/Oculus%ELE(i,j)
+       endif
+       if (ABS(100*(YP2R2-RadSlope%zp2(j,i))/RadSlope%zp2(j,i)) > 5.0 .and. j > 2 ) then
+ !       write(*,*) j,(i-1),YP2R2,RadSlope%zp2(j,i),ABS(100*(YP2R2-RadSlope%zp2(j,i))/RadSlope%zp2(j,i))
        endif
       endif
      end do
     end do
     if (k .gt. 1) then
      write(*,*) 'KERATOGRAPH avg abs elevation percent error : ',powmax2/k
+     write(*,*) 'KERATOGRAPH avg abs curvature percent error : ',powmax/k
     else
      write(*,*) 'No KERATOGRAPH elevation data (Hint: no CORNEA file)'
     endif

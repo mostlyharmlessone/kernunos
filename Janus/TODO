@@ -10,7 +10,6 @@ this does NOT do what I want? compare to manual decenter with Penta ELE files.
 see notes in janus.f90; need to rewrite decenter line 512 to regenerate based on ELE starting around lin 1580, might be best to break that out as a routine and or refactor selectfunction and rename that too
 
 
-
  EyeSys/Nidek files: /home/debeus/Janus/EYESYS/SAUNA.GRP/RIGHT.UNK/XX149.11
  with no axisymmetric, cubic integration and with either or both centernode fixes with Unexplained error 
 first centernode tweak  no guarantee of a local root in SplineCenter                       NaN   0.0000000000000000      T
