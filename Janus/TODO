@@ -1,14 +1,9 @@
-things to do
-
-CorneaCopia
-
 FIXES
 
-REFACTOR!!!!!! for 
-decenter can continue ro decenter even with zero values once decentered sufficiently
-this does NOT do what I want? compare to manual decenter with Penta ELE files.
-see notes in janus.f90; need to rewrite decenter line 512 to regenerate based on ELE starting around lin 1580, might be best to break that out as a routine and or refactor selectfunction and rename that too
 
+decenter, seems to work except for positive y values: try to track down issue
+
+decentering not an option with Test (as opposed to Load file)
 
  EyeSys/Nidek files: /home/debeus/Janus/EYESYS/SAUNA.GRP/RIGHT.UNK/XX149.11
  with no axisymmetric, cubic integration and with either or both centernode fixes with Unexplained error 
@@ -19,14 +14,15 @@ LSQ spline errors seems to run on ELE even though not checked in Menu, get Error
 lsqspline doesn't fix decentering/multiple zero issues in ELE files, look at decentering again, run some test beds
 
 
-decentering not an option with Test (as opposed to Load file)
-
 compare will allow compare with the cube if you've done decenter first
 
 legend rounds values too much for small numbers
 
 Swap erases pupil data...and if you decenter, it uses the original data, not the swapped
+Swap with one image duplicates a cube in the compare section
 
+Needs fix:
+zernike computations only for if ( Testdata .le.1 ) then     ! only for test/Atlas/EyeSys at present
 
 make 3D option for all functions, with scale Z value max and min
 this will affect Geom,WriteGeomPLY/OFF
@@ -52,7 +48,7 @@ setShortcuts(QKeySequence::UnknownKey);
 QFileDialog messages in kernunos.cpp are in an unnoticeable font at the top of the Window...
 
 ability to turn stdoutput logging on/off
-replace system calls to sed with c program
+replace system calls to sed with a program
 move fprintf/printf/write to LogC 
 addcomments():
 errorMessageDialog
@@ -69,11 +65,10 @@ consider adding sound to play after zernike compute, but might need option to tu
 
 NEW MACHINE DATA IMPORTS
 
-PentaCam U12 file looks like it has binary data separated by blocks of zero, possibly readable.
 iTrace 8640 points = 360 x 24; has "Data" binary compressed with gzip
 Topcon CA-800 binary files 49928 bytes = 8 x 6241 ; 24 rings "6200 measured points" suggests 8 byte floats 24 x 256 = 6144 and 41 bytes header or footer?
 8 byte segments seem to alternate?
-
+PentaCam U12 file looks like it has binary data separated by blocks of zero, possibly readable.
 
 Optimizing:
 
@@ -87,7 +82,7 @@ also try finding a way to use only local natural splines instead of generating w
 
 DOCUMENTATION
 
-might need to import old brodiemanuscripts for background of monge patch, principal curvature
+might need to import old brodie manuscripts for background of monge patch, principal curvature
 in assistant.cpp look at showDocumentation and substitute docs for this project in appropriate format
 might want to change Cmakelist.txt for the proper install directory for documentation/copy
 when making documents, can edit in Abricotine; regenerate to html, same with spline_monge; open in libreoffice, regenerate into pdf
@@ -150,7 +145,7 @@ Spline routines seem to have explicit shape, and are passed possibly assumed-sha
 include these and similar notes in io_functions.f90
 
 
-Misc
+MISCELLANEOUS
 
 https://docs.nersc.gov/performance/readiness/
 maybe try this for cyclic band tests on other project

@@ -6,7 +6,8 @@
        use,intrinsic :: ieee_arithmetic
 
 !      PERIODIC BOUNDARY CONDITION SPLINE
-       REAL(wp), intent(in) :: t(n),z(n)
+       REAL(wp), intent(in) :: t(n)
+       REAL(wp), intent(in) :: z(n)
        INTEGER, intent(in) :: n
        REAL(wp), intent(out) ::zt2(n)
        integer, INTENT(OUT) :: err_report

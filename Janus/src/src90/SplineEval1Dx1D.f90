@@ -72,6 +72,7 @@
         return
        endif
       endif
+
 !     1D x 1D splining needed if ft,frt, or ftt are needed or if theta is not on a knot
 !     generate all the radials at u for circumferential splining
       do i=1,MM/2
@@ -121,12 +122,19 @@
         frTmp(L)=sign(hr,u)
         frrTmp(L)=hrr
       end do
-
 !     FIRST CALL FOR PERIODIC SPLINE/LSQ OF f0, fttTmp is d2Y/dTHETA2
       if (Present(ftt)) then
        if (mod((iflag-mod(iflag,100))/100,100) == 0) then ! spline
         call pspli(thta,fTmp,MM,fttTmp,err_report)
         call SplineEval(1,thta,fTmp,fttTmp,MM,v,f,ft,ftt) !first parameter = 1 periodic
+
+
+!if ((iflag .eq. 0 .or. iflag .eq. 10) .and. present(frr) .and. u .lt. 24) then  ! selects for decentering
+!write(*,*) '1',u,v,f,MM
+!call SplineEval(3,thta,fTmp,fttTmp,MM,v,f,ft,ftt) !first parameter = 3 testing
+!endif
+
+
        else   ! LSQ  
         call lsqfit(thta,fTmp,MM,M2,c)
         call LSQEval(M2,c,v,f,ft,ftt)

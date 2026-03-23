@@ -604,7 +604,7 @@ subroutine RadSlope_eq_Oculus(RadSlope,Oculus)
 ! uses SAGC not ELE or INSTC
 ! load Oculus into RadSlope c 100 x 60
   MM = 100 ; N=60
-  ! except there are 60 points not including the center in Oculus
+  ! there are 60 points not including the center in Oculus
 ! Oculus%SAGC(MM,N),Oculus%INSTC(MM,N),Oculus%ELE(MM,N),Oculus%PU(MM),Oculus%Y(MM,N),Oculus%SEG(MM)
 ! seg is angle in grads associated with measurement. have to check if continuous
   imv=0
@@ -636,7 +636,7 @@ subroutine RadSlope_eq_JMatrix(RadSlope,JMatrix)
   TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
   REAL(wp) :: ZIX,YA3,X2A1
   INTEGER :: i,j,MM
-    MM=size(RadSlope%r,2)
+    MM=size(JMatrix%R,2)
     RadSlope%thta(:)=JMatrix%THT(:)
     RadSlope%MV(:)=JMatrix%MV(:)
     do i=1,MM
@@ -732,6 +732,201 @@ subroutine minmax(JMatrix)
   end do
 end subroutine minmax
 
+! make new central values for JMatrix by loading each into RadSlope/DiaSlope and splining
+subroutine centersJMatrix(JMatrix,TestData,dat,iflag)
+  TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
+  INTEGER, INTENT(IN) :: TestData
+  INTEGER, INTENT(INOUT) :: iflag
+  integer(c_int), intent(in) :: dat
+  INTEGER :: i,j,k,M1,N1
+  REAL (wp) :: P_TEMP
+  N1=size(JMatrix%R,1)
+  M1=size(JMatrix%R,2)
+  !  Z
+  !   notice that we didn't load Z into Zp and then use iflag=10, and 0, though it should be the same
+      do i=1,M1
+       call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%Z(N1+1,i))  !center value of elevation; needs integration from slopes
+       if (i .eq. 1) then
+        P_TEMP=JMatrix%Z(N1+1,1)
+       else
+        P_TEMP=(i*P_TEMP+JMatrix%Z(N1+1,i))/(i+1)      ! cumulative average
+       endif
+      end do
+     if (TestData.ne.2 .and. TestData.ne.4) then
+      JMatrix%Z0(1)=P_TEMP
+     else
+      write(*,*) 'Central elevation already set in RadSlope_eq_Skyline: center elevation supplied, average calculated',JMatrix%Z0(1),P_TEMP
+     endif
+
+
+  !   write(*,*) 'sagc'
+  !  SAGC
+  !  Reload RadSlope with SAGC & re-spline; can't compute it from surface because ill-defined at origin
+      do i=1,M1
+       do j=1,RadSlope%MV(i)
+        RadSlope%Zp(j,i)=JMatrix%SAGC(j,i)
+       end do
+      end do
+      DiaSlope=RadSlope              ! move to diagonal format
+
+  !   reset iflag for centers: no integration when splining
+
+      if (btest(dat,0)) then
+       iflag=10
+       DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+      else
+       iflag=0
+       DiaSlope%Zpd2 = .n. DiaSlope
+      endif
+  !   lsq instead of circumferential spline
+      if (btest(dat, 8)) then
+       iflag = iflag+100
+      endif
+      do i=1,M1
+       call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%SAGC(N1+1,i))  ! center value
+       if (i .eq. 1) then
+        P_TEMP=JMatrix%SAGC(N1+1,1)
+       else
+        P_TEMP=(i*P_TEMP+JMatrix%SAGC(N1+1,i))/(i+1)      ! cumulative average
+       endif
+      end do
+     if (TestData.ne.3 .and. TestData.ne.5) then
+      JMatrix%SAGC0(1)=P_TEMP
+     else
+      write(*,*) 'Central Axial Power already set in RadSlope_eq_Skyline, center power supplied, average calculated',JMatrix%SAGC0(1),P_TEMP
+     endif
+
+
+  !   write(*,*) 'Warp'
+  !  Warp
+  !  Reload RadSlope & re-spline; can't compute it from surface because ill-defined at origin
+      do i=1,M1
+       do j=1,RadSlope%MV(i)
+        RadSlope%Zp(j,i)=JMatrix%Warp(j,i)
+       end do
+      end do
+      DiaSlope=RadSlope              ! move to diagonal format
+      if (btest(dat,0)) then
+       iflag=10
+       DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+      else
+       iflag=0
+       DiaSlope%Zpd2 = .n. DiaSlope
+      endif
+
+      do i=1,M1
+       call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%Warp(N1+1,i))  ! center value
+       if (i .eq. 1) then
+        JMatrix%Warp0(1)=JMatrix%Warp(N1+1,1)
+       else
+       JMatrix%Warp0(1)=(i*JMatrix%Warp0(1)+JMatrix%Warp(N1+1,i))/(i+1)      ! cumulative average
+       endif
+      end do
+
+  !  write(*,*) 'INSTC'
+  !  INSTC
+  !  Reload RadSlope & respline
+     do i=1,M1
+      do j=1,RadSlope%MV(i)
+       RadSlope%Zp(j,i)=JMatrix%INSTC(j,i)
+      end do
+     end do
+     DiaSlope=RadSlope              ! move to diagonal format
+     if (btest(dat,0)) then
+      iflag=10
+      DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+     else
+      iflag=0
+      DiaSlope%Zpd2 = .n. DiaSlope
+     endif
+
+     do i=1,M1
+      call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC(N1+1,i))  ! center value
+     if (i .eq. 1) then
+      JMatrix%INSTC0(1)=JMatrix%INSTC(N1+1,1)
+     else
+      JMatrix%INSTC0(1)=(i*JMatrix%INSTC0(1)+JMatrix%INSTC(N1+1,i))/(i+1)      ! cumulative average
+     endif
+    end do
+
+  !   write(*,*) 'GAUSSC'
+  ! GAUSSC
+  ! Reload RadSlope & respline
+    do i=1,M1
+     do j=1,RadSlope%MV(i)
+      RadSlope%Zp(j,i)=JMatrix%GAUSSC(j,i)
+     end do
+    end do
+    DiaSlope=RadSlope              ! move to diagonal format
+    if (btest(dat,0)) then
+     iflag=10
+     DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+    else
+     iflag=0
+     DiaSlope%Zpd2 = .n. DiaSlope
+    endif
+
+    do i=1,M1
+     call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%GAUSSC(N1+1,i))  ! center value
+     if (i .eq. 1) then
+      JMatrix%GAUSSC0(1)=JMatrix%GAUSSC(N1+1,1)
+     else
+      JMatrix%GAUSSC0(1)=(i*JMatrix%GAUSSC0(1)+JMatrix%GAUSSC(N1+1,i))/(i+1)      ! cumulative average
+     endif
+    end do
+
+  ! MEANC
+  ! Reload RadSlope & respline
+    do i=1,M1
+     do j=1,RadSlope%MV(i)
+      RadSlope%Zp(j,i)=JMatrix%MEANC(j,i)
+     end do
+    end do
+    DiaSlope=RadSlope              ! move to diagonal format
+    if (btest(dat,0)) then
+     iflag=10
+     DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+    else
+     iflag=0
+     DiaSlope%Zpd2 = .n. DiaSlope
+    endif
+
+    do i=1,M1
+     call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%MEANC(N1+1,i))  ! center value
+     if (i .eq. 1) then
+      JMatrix%MEANC0(1)=JMatrix%MEANC(N1+1,1)
+     else
+      JMatrix%MEANC0(1)=(i*JMatrix%MEANC0(1)+JMatrix%MEANC(N1+1,i))/(i+1)      ! cumulative average
+     endif
+    end do
+
+  !  write(*,*) 'MONGEA'
+  ! MONGEA
+  ! Reload RadSlope & respline
+    do i=1,M1
+     do j=1,RadSlope%MV(i)
+      RadSlope%Zp(j,i)=JMatrix%MONGEA(j,i)
+     end do
+    end do
+    DiaSlope=RadSlope              ! move to diagonal format
+    if (btest(dat,0)) then
+     iflag=10
+     DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+    else
+     iflag=0
+     DiaSlope%Zpd2 = .n. DiaSlope
+    endif
+
+    do i=1,M1
+     call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%MONGEA(N1+1,i))  ! center value
+    if (i .eq. 1) then
+     JMatrix%MONGEA0(1)=JMatrix%MONGEA(N1+1,1)
+    else
+     JMatrix%MONGEA0(1)=(i*JMatrix%MONGEA0(1)+JMatrix%MONGEA(N1+1,i))/(i+1)      ! cumulative average
+    endif
+   end do
+
+end subroutine centersJMatrix
 
 ! aka SLOPE2POWER using AXIALP converts lhs to rhs
 subroutine Atlas_eq_RadSlope(Atlas,RadSlope)
@@ -1240,10 +1435,10 @@ end subroutine LIOC_Fortran
   end subroutine sagc2
 
 ! world's ugliest hack
-! select function, respline JMatrix
+! select function (fct), respline JMatrix of that function
 ! iflag = 0 just load powmin powmax,powctr for legend
-! iflag = 1 remake selected function
-! ilag = 2 just remake elevaation Z
+! iflag = 1 respline selected function
+! iflag = 2 just respline elevation Z regardless of fct
 subroutine selectfunction(iflag,b,flag,powctr,powmin,powmax)
 implicit none
 integer(c_int), intent(in) :: flag
@@ -1267,10 +1462,14 @@ if (fct .lt. 16 .and. fct .gt. 0) then
     end do
    end do
    DiaSlope=RadSlope              ! move to diagonal format
-   DiaSlope%Zpd2 = .n. DiaSlope
+   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+    DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+   else
+    DiaSlope%Zpd2 = .n. DiaSlope
+   endif
    do i=1,M1
     do j=1,b%MV(i)
-     if (btest(dat,0)) then                                    !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+     if (btest(dat,0)) then                                    !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
       call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%ZC(j,i,fct))
      else
       call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%ZC(j,i,fct))
@@ -1279,7 +1478,7 @@ if (fct .lt. 16 .and. fct .gt. 0) then
      if (b%ZC(j,i,fct) >= b%ZC0(3,fct)) b%ZC0(3,fct)=b%ZC(j,i,fct)
     end do
    end do
-   if (btest(dat,0)) then                                      !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+   if (btest(dat,0)) then                                      !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
     call SplineEval1Dx1D(10,b%R0,b%THT0,b%ZC0(1,fct))  ! center value
    else
     call SplineEval1Dx1D(0,b%R0,b%THT0,b%ZC0(1,fct))  ! center value
@@ -1302,10 +1501,14 @@ SELECT CASE (fct)
     end do
    end do
    DiaSlope=RadSlope              ! move to diagonal format
-   DiaSlope%Zpd2 = .n. DiaSlope
+   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+    DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+   else
+    DiaSlope%Zpd2 = .n. DiaSlope
+   endif
    do i=1,M1
     do j=1,b%MV(i)
-     if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+     if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
       call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%SAGC(j,i))
      else
       call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%SAGC(j,i))
@@ -1314,7 +1517,7 @@ SELECT CASE (fct)
      if (b%SAGC(j,i) >= b%SAGC0(3)) b%SAGC0(3)=b%SAGC(j,i)
     end do
    end do
-   if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+   if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
     call SplineEval1Dx1D(10,b%R0,b%THT0,b%SAGC0(1))  ! center value
    else
     call SplineEval1Dx1D(0,b%R0,b%THT0,b%SAGC0(1))  ! center value
@@ -1335,10 +1538,14 @@ SELECT CASE (fct)
     end do
    end do
    DiaSlope=RadSlope              ! move to diagonal format
-   DiaSlope%Zpd2 = .n. DiaSlope
+   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+    DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+   else
+    DiaSlope%Zpd2 = .n. DiaSlope
+   endif
    do i=1,M1
     do j=1,b%MV(i)
-     if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+     if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
       call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%INSTC(j,i))
      else
       call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%INSTC(j,i))
@@ -1347,7 +1554,7 @@ SELECT CASE (fct)
      if (b%INSTC(j,i) >= b%INSTC0(3)) b%INSTC0(3)=b%INSTC(j,i)
     end do
    end do
-   if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+   if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
     call SplineEval1Dx1D(10,b%R0,b%THT0,b%INSTC0(1))  ! center value
    else
     call SplineEval1Dx1D(0,b%R0,b%THT0,b%INSTC0(1))  ! center value
@@ -1368,10 +1575,14 @@ SELECT CASE (fct)
     end do
    end do
    DiaSlope=RadSlope              ! move to diagonal format
-   DiaSlope%Zpd2 = .n. DiaSlope
+   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+    DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+   else
+    DiaSlope%Zpd2 = .n. DiaSlope
+   endif
    do i=1,M1
     do j=1,b%MV(i)
-     if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+     if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
       call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%GAUSSC(j,i))
      else
       call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%GAUSSC(j,i))
@@ -1380,7 +1591,7 @@ SELECT CASE (fct)
      if (b%GAUSSC(j,i) >= b%GAUSSC0(3)) b%GAUSSC0(3)=b%GAUSSC(j,i)
     end do
    end do
-   if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+   if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
     call SplineEval1Dx1D(10,b%R0,b%THT0,b%GAUSSC0(1))  ! center value
    else
     call SplineEval1Dx1D(0,b%R0,b%THT0,b%GAUSSC0(1))  ! center value
@@ -1401,10 +1612,14 @@ SELECT CASE (fct)
     end do
    end do
    DiaSlope=RadSlope              ! move to diagonal format
-   DiaSlope%Zpd2 = .n. DiaSlope
+   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+    DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+   else
+    DiaSlope%Zpd2 = .n. DiaSlope
+   endif
    do i=1,M1
     do j=1,b%MV(i)
-     if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+     if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
       call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%MEANC(j,i))
      else
       call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%MEANC(j,i))
@@ -1413,7 +1628,7 @@ SELECT CASE (fct)
      if (b%MEANC(j,i) >= b%MEANC0(3)) b%MEANC0(3)=b%MEANC(j,i)
     end do
    end do
-   if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+   if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
     call SplineEval1Dx1D(10,b%R0,b%THT0,b%MEANC0(1))  ! center value
    else
     call SplineEval1Dx1D(0,b%R0,b%THT0,b%MEANC0(1))  ! center value
@@ -1434,10 +1649,14 @@ SELECT CASE (fct)
     end do
    end do
    DiaSlope=RadSlope              ! move to diagonal format
-   DiaSlope%Zpd2 = .n. DiaSlope
+   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+    DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+   else
+    DiaSlope%Zpd2 = .n. DiaSlope
+   endif
    do i=1,M1
     do j=1,b%MV(i)
-     if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+     if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
       call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%MONGEA(j,i))
      else
       call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%MONGEA(j,i))
@@ -1446,7 +1665,7 @@ SELECT CASE (fct)
      if (b%MONGEA(j,i) >= b%MONGEA0(3)) b%MONGEA0(3)=b%MONGEA(j,i)
     end do
    end do
-   if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+   if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
     call SplineEval1Dx1D(10,b%R0,b%THT0,b%MONGEA0(1))  ! center value
    else
     call SplineEval1Dx1D(0,b%R0,b%THT0,b%MONGEA0(1))  ! center value
@@ -1473,10 +1692,14 @@ SELECT CASE (fct)
     end do
    end do
    DiaSlope=RadSlope              ! move to diagonal format
-   DiaSlope%Zpd2 = .n. DiaSlope
+   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+    DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+   else
+    DiaSlope%Zpd2 = .n. DiaSlope
+   endif
    do i=1,M1
     do j=1,b%MV(i)
-     if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+     if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
       call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%Warp(j,i))
      else
       call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%Warp(j,i))
@@ -1485,7 +1708,7 @@ SELECT CASE (fct)
      if (b%Warp(j,i) >= b%Warp0(3)) b%Warp0(3)=b%Warp(j,i)
     end do
    end do
-   if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+   if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
     call SplineEval1Dx1D(10,b%R0,b%THT0,b%Warp0(1))  ! center value
    else
     call SplineEval1Dx1D(0,b%R0,b%THT0,b%Warp0(1))  ! center value
@@ -1506,10 +1729,14 @@ SELECT CASE (fct)
     end do
    end do
    DiaSlope=RadSlope              ! move to diagonal format
-   DiaSlope%Zpd2 = .n. DiaSlope
+   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+    DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+   else
+    DiaSlope%Zpd2 = .n. DiaSlope
+   endif
    do i=1,M1
     do j=1,b%MV(i)
-     if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+     if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
       call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%SAGC(j,i))
      else
       call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%SAGC(j,i))
@@ -1518,7 +1745,7 @@ SELECT CASE (fct)
      if (b%SAGC(j,i) >= b%SAGC0(3)) b%SAGC0(3)=b%SAGC(j,i)
     end do
    end do
-   if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+   if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
     call SplineEval1Dx1D(10,b%R0,b%THT0,b%SAGC0(1))  ! center value
    else
     call SplineEval1Dx1D(0,b%R0,b%THT0,b%SAGC0(1))  ! center value
@@ -1529,17 +1756,21 @@ SELECT CASE (fct)
 END SELECT
 endif
 ! always do Z to display the geometry
-if (iflag == 1 .or. iflag ==2) then ! iflag == 1 remake JMatrix (b) including center
+if (iflag == 1 .or. iflag ==2) then ! iflag == 1 iflag ==2 just elevation remake JMatrix (b) including center
  do i=1,M1
   do j=1,RadSlope%MV(i)
     RadSlope%Zp(j,i)=b%Z(j,i)
   end do
  end do
  DiaSlope=RadSlope              ! move to diagonal format
- DiaSlope%Zpd2 = .n. DiaSlope
+ if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+  DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+ else
+  DiaSlope%Zpd2 = .n. DiaSlope
+ endif
  do i=1,M1
   do j=1,b%MV(i)
-   if (btest(dat,0)) then                                    !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+   if (btest(dat,0)) then                                    !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
     call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%Z(j,i))
    else
     call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%Z(j,i))
@@ -1548,7 +1779,7 @@ if (iflag == 1 .or. iflag ==2) then ! iflag == 1 remake JMatrix (b) including ce
    if (b%Z(j,i) >= b%Z0(3)) b%Z0(3)=b%Z(j,i)
   end do
  end do
- if (btest(dat,0)) then                                      !!!(btest(dat,0)  selectfuncton SplineEval1Dx1D without ft!
+ if (btest(dat,0)) then                                      !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
   call SplineEval1Dx1D(10,b%R0,b%THT0,b%Z0(1))  ! center value
  else
   call SplineEval1Dx1D(0,b%R0,b%THT0,b%Z0(1))  ! center value

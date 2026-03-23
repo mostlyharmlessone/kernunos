@@ -9,7 +9,8 @@ module spline_interfaces
  subroutine CubicSplineQuad(ii,iflag,rv,zv,z2v,n,r,z) !Forsythe p.90 cubic spline integration
   use set_precision, only : wp
   integer, INTENT(IN) :: n,iflag,ii
-  real(wp), INTENT(IN) ::  rv(n),zv(n),z2v(n),r
+  real(wp), INTENT(INOUT) ::  rv(n)
+  real(wp), INTENT(IN) ::  zv(n),z2v(n),r
   real(wp), INTENT(OUT) :: z
  end subroutine 
 
@@ -56,7 +57,8 @@ module spline_interfaces
  subroutine nspline(r,z,n,z2,err_report)
   USE set_precision, ONLY : wp
   integer, INTENT(IN) :: n
-  real(wp), INTENT(IN) ::  r(n),z(n)
+  real(wp), INTENT(IN) ::  r(n)
+  real(wp), INTENT(IN) ::  z(n)
   real(wp), INTENT(OUT) :: z2(n)
   integer, INTENT(OUT) :: err_report
  end subroutine
@@ -72,7 +74,8 @@ module spline_interfaces
 
 subroutine pspli(t,z,n,zt2,err_report)
  use set_precision, only :  wp
- REAL(wp), intent(in) :: t(n),z(n)
+ REAL(wp), intent(in) :: t(n)
+REAL(wp), intent(in) :: z(n)
  INTEGER, intent(in) :: n
  REAL(wp), intent(out) ::zt2(n)
  integer, INTENT(OUT) :: err_report
@@ -85,7 +88,8 @@ end subroutine
  use, INTRINSIC :: iso_c_binding, ONLY : c_int
   integer(c_int), INTENT(IN) :: dat
   integer, INTENT(IN) :: n,jj
-  real(wp), INTENT(IN) ::  r(n),z(n),zr2(n)
+  real(wp), INTENT(IN) ::  r(n)
+  real(wp), INTENT(IN) ::  z(n),zr2(n)
   real(wp), INTENT(OUT) :: u
   integer, INTENT(OUT) :: err_report
  end subroutine
@@ -128,7 +132,8 @@ end subroutine
 
  subroutine trapez(ii,iflag,rv,zv,z2v,n,r,z) !trapezoidal rule for spline integration
   use set_precision, only : wp
-  real(wp), INTENT(IN) ::  rv(*),zv(*),z2v(*),r
+  real(wp), INTENT(IN) ::  rv(*)
+  real(wp), INTENT(IN) ::  zv(*),z2v(*),r
   integer, INTENT(IN) :: n,iflag,ii
   real(wp), INTENT(OUT) :: z
  end subroutine

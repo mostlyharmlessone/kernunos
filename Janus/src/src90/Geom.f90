@@ -1,7 +1,7 @@
 !      Generates matrices for openGL
 
        subroutine Geom(flag, b, donut, powmin, powmax, elements, vertices, nV, nE)
-       use cornea_arrays, ONLY : wpJMatrix, minmax, selectfunction
+       use cornea_arrays, ONLY : wpJMatrix !, minmax, selectfunction !!aspirational for future use
        use set_precision, ONLY : wp
        use special_fct, only : colormap
        use, intrinsic :: iso_c_binding, ONLY : c_float,c_int

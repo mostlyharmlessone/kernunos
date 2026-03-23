@@ -4,7 +4,8 @@
  use spline_interfaces, only : thomas
  use,intrinsic :: ieee_arithmetic
   integer, INTENT(IN) :: n
-  real(wp), INTENT(IN) ::  r(n),z(n) 
+  real(wp), INTENT(IN) ::  r(n)
+  real(wp), INTENT(IN) ::  z(n)
   real(wp), INTENT(OUT) :: z2(n) 
   integer, INTENT(OUT) :: err_report
   real(wp),allocatable ::  a(:),b(:),c(:),d(:),zz2(:),a_short(:)
@@ -22,6 +23,7 @@
   if ( n == 2 ) then
    write(*,*) "Warning degenerate nspline",r,z
    err_report=-1
+   stop
    return  ! degenerate case  
   else 
     allocate (a(n-2),b(n-2),c(n-2),d(n-2),zz2(n-2))

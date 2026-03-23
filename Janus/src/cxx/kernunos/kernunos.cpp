@@ -2471,8 +2471,8 @@ void MainWindow::createActions()
    ringsAct->setEnabled(false);
    connect(ringsAct, &QAction::triggered, this, &MainWindow::rings);
 
-   consistencyAct = new QAction(tr("&Check spline consistency (Atlas/NIDEK/Keratograph only)"), this);
-   consistencyAct->setStatusTip(tr("Check spline consistency (Atlas/NIDEK/Keratograph only)"));
+   consistencyAct = new QAction(tr("&Check spline consistency (PentaCam will load two images for this))"), this);
+   consistencyAct->setStatusTip(tr("Check spline consistency"));
    consistencyAct->setEnabled(true);
    consistencyAct->setCheckable(true);
    connect(consistencyAct, &QAction::triggered, this, &MainWindow::consistency);

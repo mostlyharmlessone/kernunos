@@ -8,7 +8,8 @@
  use,intrinsic :: ieee_arithmetic 
   integer(c_int), INTENT(IN) :: dat
   integer, INTENT(IN) :: n,jj
-  real(wp), INTENT(IN) ::  r(n),z(n),zr2(n)
+  real(wp), INTENT(IN) ::  r(n)
+  real(wp), INTENT(IN) ::  z(n),zr2(n)
   real(wp), INTENT(OUT) :: u
   integer, INTENT(OUT) :: err_report
   real(wp) :: g,gr,grr,slopeh,slopel

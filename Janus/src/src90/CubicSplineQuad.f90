@@ -5,7 +5,8 @@ subroutine CubicSplineQuad(ii,iflag,rv,zv,z2v,n,r,z)
  use spline_interfaces, ONLY : SplineEval, SplineEvalCenter
  use special_fct, ONLY : bsearch
   integer, INTENT(IN) :: n,iflag,ii
-  real(wp), INTENT(IN) ::  rv(n),zv(n),z2v(n),r
+  real(wp), INTENT(IN) ::  rv(n)
+  real(wp), INTENT(IN) ::  zv(n),z2v(n),r
   real(wp), INTENT(OUT) :: z
   real(wp) :: QUAD,z1,z2
   integer :: i, high, low

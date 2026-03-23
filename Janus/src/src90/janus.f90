@@ -179,7 +179,7 @@ if (mod(flag,100) == 99) then
 endif
 
 ! allocate JMatrix needed for file import
-!  JMatrix is 180x22 to make importing from Atlas easier.
+!  JMatrix was picked to be 180x22 to make importing from Atlas easier.
 !  M1,N1 avoid overwriting MM,N at this point
    M1=180
    N1=22
@@ -534,13 +534,6 @@ if (btest(dat,5)) then
   end do
 ! regenerates based on new R/tht
 
-  call selectfunction(2,JMatrix3,flag,powctr,powmin,powmax)
-  RadSlope=0
-  DiaSlope=0
-  deallocate(RadSplineCenter)
-! reinitialize with M1 and N1
-  call init_mat(M1,N1,RadSlope,DiaSlope,RadSplineCenter)
-  RadSlope = JMatrix3
   if (btest(dat,0)) then   !centernode
    iflag=10
   else
@@ -551,80 +544,87 @@ if (btest(dat,5)) then
    iflag = iflag+100
   endif
 
-! determine the boundary
-  do i=1,M1                             ! every 2 degrees
-   JMatrix%THT(i)=PI*(i-1)/90.0_wp
-   JMatrix%MV(i)=N1
-   j=N1
-   if (MM == 360) then  ! original EyeSys RadSlope or fake data
-    ii=2*i
-   else  ! MM==180
-    ii=i
-   endif
-   R_TST=RadSlope%r(RadSlope%MV(ii),ii)
-   if (R_TST > 0) then
-   R_MV=rBo
-    do while (R_MV .gt. R_TST)
-     JMatrix%MV(i)=JMatrix%MV(i)-1
-     j=j-1
-     R_MV=(rBi+(j-1)*(rBo-rBi)/(N1-1))
-    end do
-   else
-    R_MV=-rBo
-    do while (R_MV .lt. R_TST)
-     JMatrix%MV(i)=JMatrix%MV(i)-1
-     j=j-1
-     R_MV=-(rBi+(j-1)*(rBo-rBi)/(N1-1))
-    end do
-   endif
+! make the elevation based on the rings above and the original RadSlope for Z
+  call selectfunction(2,JMatrix3,flag,powctr,powmin,powmax)
+
+! remake Radslope/DiaSlope based on new JMatrix only on elevations, just like ELE or ELE_CSV
+  RadSlope=0
+  DiaSlope=0
+  deallocate(RadSplineCenter)
+! reinitialize with M1 and N1
+  call init_mat(M1,N1,RadSlope,DiaSlope,RadSplineCenter)
+
+! put elevation into Zp for splining without integration
+  RadSlope = JMatrix3
+! RadSlope%Zp(:,:)=0 ; JMatrix%SAGC(:,:) = 0 ; JMatrix%SAGC0(:) = 0 ! should not have anything in Zp or SAGC yet
+  do i=1,M1
+   do j=1,RadSlope%MV(i)
+     RadSlope%Zp(j,i)=JMatrix3%Z(j,i) ! = RadSlope%Z(j,i) ! at this point
+   end do
+  end do
+  DiaSlope = RadSlope
+! use elevations, no integration
+  if (btest(dat,0)) then
+   iflag=10
+   DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+  else
+   iflag=0
+   DiaSlope%Zpd2 = .n. DiaSlope
+  endif
+
+  if ( Testdata .le.1 .or. Testdata .eq. 6) then     ! not for Oculus PentaCam or Keratograph
+   call MakeRadSplineCenter(0)   ! remakes RadSplineCenter(1,:)
+  else
+   RadSplineCenter(1,:)=0      ! pentacam and keratograph by definition is at 0
+  endif
+
+  if (btest(dat, 1)) then          ! moving each meridian to align curves
+   call AdjustRadSplineCenter     ! changes r only
+   DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+  endif
+
+  call MakeRadSplineCenter(dat)        ! generates spline centers with tweaks
+
+! Generate the surface
+  do i=1,M1
+   do j=1,JMatrix3%MV(i) ! does not include center point
+!   generate elevations and derivatives; iflag no integration
+    call SplineEval1Dx1D(iflag,JMatrix3%R(j,i),JMatrix3%THT(i),JMatrix3%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
+!   save for vertex normals and for LIOC
+    JMatrix3%YPR(j,i)=YPR
+    JMatrix3%YPTHETA(j,i)=YPTHETA
+!   powers
+    call AXIALP(JMatrix3%R(j,i),YPTHETA/JMatrix3%R(j,i),YP2THETA/JMatrix3%R(j,i),JMatrix3%Warp(j,i))
+!   not elevations
+    if (btest(dat,10)) then
+     call axisymmetric_principal(JMatrix%R(j,i),YPR,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
+    else
+     call principal(JMatrix3%THT(i),JMatrix3%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
+    endif
+    JMatrix3%MONGEA(j,i)=RFCT*astigm
+    JMatrix3%MEANC(j,i)=RFCT*meanpower
+    JMatrix3%INSTC(j,i)=RFCT*princ1
+    JMatrix3%SAGC(j,i)=RFCT*princ2
+    JMatrix3%GAUSSC(j,i)=RFCT*gaussian
+   end do
   end do
 
-! this can probably be in a sub also, used twice, might make the coce cleaner and easier to fixup later
+! make new central values
+  call centersJMatrix(JMatrix3,TestData,dat,iflag)
 
-! Generate the ring
-  do i=1,M1
-   do j=1,JMatrix%MV(i) ! does not include center point
-    JMatrix%R(j,i)=(rBi+(j-1)*(rBo-rBi)/(N1-1))
-!   generate elevations and derivatives; iflag no integration if .ELE .ELE_CSV file
-    call SplineEval1Dx1D(iflag,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
-
-!   save for vertex normals and for LIOC
-    JMatrix%YPR(j,i)=YPR
-    JMatrix%YPTHETA(j,i)=YPTHETA
-!   powers
-    call AXIALP(JMatrix%R(j,i),YPTHETA/JMatrix%R(j,i),YP2THETA/JMatrix%R(j,i),JMatrix%Warp(j,i))
-
-!....etc
- end do
- end do
-
-! this might be one sub for each function with types, but can just move the whole thing into a sub and use twice
-
-! Calculate center values for everything
-! These have MM different values of the center!
-
-
-!!! have to get to line 1580  to remake everything c iflag pretending ELE files; might be best to break things out into Yet Another Ugly subroutine, perhaps modify selectfunction and rename it
-
-
-
-
+! find min and maximum
   call minmax(JMatrix3)
-
-
-
+! draw
   donut = .FALSE.
   elements(1:nE) = 0
   vertices(1:nV) = 0
   call selectfunction(0,JMatrix3,flag,powctr,powmin,powmax)  !with 0 only loads powctr, powmin, powmax
   call Geom(flag, JMatrix3, donut, powmin, powmax, elements, vertices, nV, nE)
   call makelegend(flag, powmin, powmax, legend, nL)
+ !reset
   JMatrix=JMatrix3
-
-
-
-
   return
+
 endif
 
 
@@ -653,7 +653,7 @@ if (mod(flag,100) == 10) then
   call selectfunction(1,JMatrix3,flag,powctr,powmin,powmax)
  endif
 
- rotationdegrees=mod(270-rotationdegrees/2,180) ! makes 180 no rotation without risk of negative indices, odd rotationdegrees get floor
+ rotationdegrees=mod(270-rotationdegrees/2,180) ! makes 180 no rotation without risk of negative indices, odd rotation degrees get floor
  if (rotationdegrees .ne. 0) then
   do i=1,M1
    j = mod(i + rotationdegrees,180)
@@ -773,7 +773,7 @@ if (mod(flag,100) == 0) then
          else
          TestData=7; MM=100; N=60 ; NP=141
           file_idx=index(inputfile1, "EXP_Topo")
-          if( file_idx .ne. 0) then    !set the files to the decompressed versions in the base directory
+          if( file_idx .ne. 0) then    !set the files to versions in the base directory that were decompressed by kernunos.cpp
            if (allocated(cab_inputfile1)) then
             deallocate(cab_inputfile1)
            endif
@@ -1148,7 +1148,7 @@ if (TestData .eq. 0) then
   else
    call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
   endif
-! Generate the slope matrix using ZFCT
+! Generate the slope matrix
   RadSlope=EyeSys
 endif
 
@@ -1217,7 +1217,7 @@ if (TestData .eq. 7) then
  else
   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
  endif
-! Generate the slope matrix using ZFCT
+! Generate the slope matrix
  RadSlope=Oculus
 endif
 
@@ -1286,7 +1286,10 @@ if (TestData .eq. 6) then
    else
     call RCNVRTN_binary(read_error,N,inputfile2,inputfile1,inputfile4)
    endif
-   if (read_error .eq. -1000) stop
+   if (read_error .eq. -1000) then
+    write(*,*) 'FATAL error reading NIDEK file'
+    return
+   endif
    if (read_error == 0) then  ! ASCII
     EyeSys = 0 ! deallocate, then reallocate after charcount
  !  Only use on ASCII, might crash/give incorrect result on binary NIDEK
@@ -1563,7 +1566,7 @@ if (TestData .lt. 0) then
   if (mod(flag,100) == 0) then !read the files
    call RCNVRTT(MM,N)
   endif
-! Generate the slope matrix using ZFCT
+! Generate the slope matrix
   RadSlope=EyeSys
  endif
 
@@ -1859,7 +1862,7 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
    endif
   end do
 
-! Generate the ring
+! Generate the surface
   do i=1,M1
    do j=1,JMatrix%MV(i) ! does not include center point
     JMatrix%R(j,i)=(rBi+(j-1)*(rBo-rBi)/(N1-1))
@@ -1923,195 +1926,41 @@ endif
 
    end do
   end do !end JMatrix ring generation
+
 ! spline over problematic limits at x-axis
 !  JMatrix%MEANC=splinefillintranspose(JMatrix%MEANC)
 !  JMatrix%MONGEA=splinefillintranspose(JMatrix%MONGEA)
 
-! Calculate center values for everything
-! These have MM different values of the center!
+! make RadSplineCenter
   RadSlope=0
   DiaSlope=0
   deallocate(RadSplineCenter)
 ! reinitialize with M1 and N1
   call init_mat(M1,N1,RadSlope,DiaSlope,RadSplineCenter)
   RadSlope=JMatrix
-
   DiaSlope=RadSlope              ! move to diagonal format
   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
    DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
   else
    DiaSlope%Zpd2 = .n. DiaSlope
   endif
-
-  if ( Testdata .le.1 .or. Testdata .eq. 6) then     ! only for test/Atlas/EyeSys/Nidek at present
+  if ( Testdata .le.1 .or. Testdata .eq. 6) then     ! not for Oculus PentaCam or Keratograph
    call MakeRadSplineCenter(0)   ! remakes RadSplineCenter(1,:)
   else
-   RadSplineCenter(1,:)=0      ! pentacam by definition is at 0
+   RadSplineCenter(1,:)=0      ! pentacam and keratograph by definition is at 0
   endif
-
   if (btest(dat, 1)) then          ! moving each meridian to align curves
    call AdjustRadSplineCenter     ! changes r only
    DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
   endif
-
-  write(*,*) 'janus 1943',dat
   call MakeRadSplineCenter(dat)        ! generates spline centers with tweaks
 
-!  Z
-!   notice that we didn't load Z into Zp and then use iflag=10, and 0, though it should be the same
-    do i=1,M1
-     call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%Z(N1+1,i))  !center value of elevation; needs integration from slopes
-     if (i .eq. 1) then
-      P_TEMP=JMatrix%Z(N1+1,1)
-     else
-      P_TEMP=(i*P_TEMP+JMatrix%Z(N1+1,i))/(i+1)      ! cumulative average
-     endif
-    end do
-   if (TestData.ne.2 .and. TestData.ne.4) then
-    JMatrix%Z0(1)=P_TEMP
-   else
-    write(*,*) 'Central elevation already set in RadSlope_eq_Skyline: center elevation supplied, average calculated',JMatrix%Z0(1),P_TEMP
-   endif
-
-
-!   write(*,*) 'sagc'
-!  SAGC
-!  Reload RadSlope with SAGC & re-spline; can't compute it from surface because ill-defined at origin
-    do i=1,M1
-     do j=1,RadSlope%MV(i)
-      RadSlope%Zp(j,i)=JMatrix%SAGC(j,i)
-     end do
-    end do
-    DiaSlope=RadSlope              ! move to diagonal format
-
-!   reset iflag for centers: no integration
-    if (btest(dat,0)) then
-     iflag=10
-     DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
-    else
-     iflag=0
-     DiaSlope%Zpd2 = .n. DiaSlope
-    endif
-!   lsq instead of circumferential spline
-    if (btest(dat, 8)) then
-     iflag = iflag+100
-    endif
-    do i=1,M1
-     call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%SAGC(N1+1,i))  ! center value
-     if (i .eq. 1) then
-      P_TEMP=JMatrix%SAGC(N1+1,1)
-     else
-      P_TEMP=(i*P_TEMP+JMatrix%SAGC(N1+1,i))/(i+1)      ! cumulative average
-     endif
-    end do
-   if (TestData.ne.3 .and. TestData.ne.5) then
-    JMatrix%SAGC0(1)=P_TEMP
-   else
-    write(*,*) 'Central Axial Power already set in RadSlope_eq_Skyline, center power supplied, average calculated',JMatrix%SAGC0(1),P_TEMP
-   endif
-
-
-!   write(*,*) 'Warp'
-!  Warp
-!  Reload RadSlope & re-spline; can't compute it from surface because ill-defined at origin
-    do i=1,M1
-     do j=1,RadSlope%MV(i)
-      RadSlope%Zp(j,i)=JMatrix%Warp(j,i)
-     end do
-    end do
-    DiaSlope=RadSlope              ! move to diagonal format
-    DiaSlope%Zpd2 = .n. DiaSlope
-
-    do i=1,M1
-     call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%Warp(N1+1,i))  ! center value
-     if (i .eq. 1) then
-      JMatrix%Warp0(1)=JMatrix%Warp(N1+1,1)
-     else
-     JMatrix%Warp0(1)=(i*JMatrix%Warp0(1)+JMatrix%Warp(N1+1,i))/(i+1)      ! cumulative average
-     endif
-    end do
-
-!  write(*,*) 'INSTC'
-!  INSTC
-!  Reload RadSlope & respline
-   do i=1,M1
-    do j=1,RadSlope%MV(i)
-     RadSlope%Zp(j,i)=JMatrix%INSTC(j,i)
-    end do
-   end do
-   DiaSlope=RadSlope              ! move to diagonal format
-   DiaSlope%Zpd2 = .n. DiaSlope
-
-   do i=1,M1
-    call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC(N1+1,i))  ! center value
-   if (i .eq. 1) then
-    JMatrix%INSTC0(1)=JMatrix%INSTC(N1+1,1)
-   else
-    JMatrix%INSTC0(1)=(i*JMatrix%INSTC0(1)+JMatrix%INSTC(N1+1,i))/(i+1)      ! cumulative average
-   endif
-  end do
-
-!   write(*,*) 'GAUSSC'
-! GAUSSC
-! Reload RadSlope & respline
-  do i=1,M1
-   do j=1,RadSlope%MV(i)
-    RadSlope%Zp(j,i)=JMatrix%GAUSSC(j,i)
-   end do
-  end do
-  DiaSlope=RadSlope              ! move to diagonal format
-  DiaSlope%Zpd2 = .n. DiaSlope
-
-  do i=1,M1
-   call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%GAUSSC(N1+1,i))  ! center value
-   if (i .eq. 1) then
-    JMatrix%GAUSSC0(1)=JMatrix%GAUSSC(N1+1,1)
-   else
-    JMatrix%GAUSSC0(1)=(i*JMatrix%GAUSSC0(1)+JMatrix%GAUSSC(N1+1,i))/(i+1)      ! cumulative average
-   endif
-  end do
-
-! MEANC
-! Reload RadSlope & respline
-  do i=1,M1
-   do j=1,RadSlope%MV(i)
-    RadSlope%Zp(j,i)=JMatrix%MEANC(j,i)
-   end do
-  end do
-  DiaSlope=RadSlope              ! move to diagonal format
-  DiaSlope%Zpd2 = .n. DiaSlope
-
-  do i=1,M1
-   call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%MEANC(N1+1,i))  ! center value
-   if (i .eq. 1) then
-    JMatrix%MEANC0(1)=JMatrix%MEANC(N1+1,1)
-   else
-    JMatrix%MEANC0(1)=(i*JMatrix%MEANC0(1)+JMatrix%MEANC(N1+1,i))/(i+1)      ! cumulative average
-   endif
-  end do
-
-!  write(*,*) 'MONGEA'
-! MONGEA
-! Reload RadSlope & respline
-  do i=1,M1
-   do j=1,RadSlope%MV(i)
-    RadSlope%Zp(j,i)=JMatrix%MONGEA(j,i)
-   end do
-  end do
-  DiaSlope=RadSlope              ! move to diagonal format
-  DiaSlope%Zpd2 = .n. DiaSlope
-
-  do i=1,M1
-   call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%MONGEA(N1+1,i))  ! center value
-  if (i .eq. 1) then
-   JMatrix%MONGEA0(1)=JMatrix%MONGEA(N1+1,1)
-  else
-   JMatrix%MONGEA0(1)=(i*JMatrix%MONGEA0(1)+JMatrix%MONGEA(N1+1,i))/(i+1)      ! cumulative average
-  endif
- end do
+! Calculate center values for everything
+! These have MM different values of the center!
+  call centersJMatrix(JMatrix,TestData,dat,iflag)
+! find min max of everything
+  call minmax(JMatrix)
 ! end populating JMatrix
-
- call minmax(JMatrix)
 
 ! Penta file(s) consistency check ELE vs. matching CUR
 ! simple difference/subtraction with compare for elevation consistency
@@ -2134,6 +1983,8 @@ endif
   end do
   write(*,*) 'Penta avg abs elevation percent error : ',(100*powmax2/k)/powmax
  endif
+
+
 endif !mod(flag,100) /= 9
 
 !zernike coefficents

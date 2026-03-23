@@ -4,7 +4,8 @@ subroutine trapez(ii,iflag,rv,zv,z2v,n,r,z)
    use set_precision, only : wp
    use spline_interfaces, only : SplineEval, SplineEvalCenter
    use special_fct, ONLY : bsearch
-   real(wp), INTENT(IN) ::  rv(*),zv(*),z2v(*),r
+   real(wp), INTENT(IN) ::  rv(*)
+   real(wp), INTENT(IN) ::  zv(*),z2v(*),r
    integer, INTENT(IN) :: n,iflag,ii
    real(wp), INTENT(OUT) :: z
    real(wp) :: TRAP
