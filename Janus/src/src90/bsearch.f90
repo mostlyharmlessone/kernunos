@@ -1,4 +1,5 @@
 ! (usually) binary search for r in rv
+! this has gotten quite ugly and there is no doubt some better/quicker solution
 subroutine bsearch(r,rv,n,high,low)
  use set_precision, only : wp
  use cornea_arrays, only : eps, PI
@@ -164,8 +165,9 @@ subroutine bsearch(r,rv,n,high,low)
 ! if not in the interval and not a knot and not a reverse sequence but still not starting with minimum value
 ! then almost certainly actually is in interval but one boundary is the periodic one  .or. (r < rv(low)), so don't check for that
  if ( (r > rv(high) .and. abs(2*PI-r) > rv(high) ) .and. (i0 > 1) .and. (direction > 0) .and. (high .ne. low) ) then
-   write(*,*) 'Warning possible index error in bsearch',low,high,rv(low),r,abs(2*PI-r),rv(high),direction>0,m,i0
+  write(*,*) 'FATAL possible index error in bsearch',low,high,rv(low),r,abs(2*PI-r),rv(high),direction>0,m,i0
   write(*,*) rv
+  stop
  endif
 
 return

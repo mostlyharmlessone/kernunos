@@ -20,7 +20,7 @@
                                               !   if btest(dat,0) = .true., needs call to DiaSplineCenter=.nc.->nsplinecenter first
         if (err_report .ne. 0) then
          if( j .eq. 18 .and. dat .ne. 0) then
-          write(*,*) 'Warning, error in MakeRadSplineCenter',j,L2,dat
+          write(*,*) 'FATAL, error in MakeRadSplineCenter',j,L2,dat
           write(*,*) r
           write(*,*) z
           write(*,*) zr2

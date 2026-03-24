@@ -224,26 +224,20 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
         if(t) {dat |= 1UL << 6;} else { dat &= ~(1UL << 6);}  //set/unset 6th ie. seventh bit
         flag=1000000*dat+(flag%1000000);}
 
-    // these two are mutually exclusive but can both be false, ie default is 1dx1d splines
-
     static bool islsqvsspline() { return m_lsqvsspline; }
     static void setlsqvsspline(bool t) { m_lsqvsspline = t;
         int dat=(flag-(flag%1000000))/1000000;
         if(t) {dat |= 1UL << 8;
-            m_lsqvsspline = true;
-            dat &= ~(1UL << 9);
-            m_LSQspline = false;}
+            m_lsqvsspline = true;}
         else { dat &= ~(1UL << 8);
             m_lsqvsspline = false;}  //set/unset 8th ie. ninth bit
         flag=1000000*dat+(flag%1000000);}
 
     static bool isLSQspline() { return m_LSQspline; }
-    static void set2dspline(bool t) { m_LSQspline = t;
+    static void setLSQspline(bool t) { m_LSQspline = t;
         int dat=(flag-(flag%1000000))/1000000;
         if(t) {dat |= 1UL << 9;
-            m_LSQspline = true;
-            dat &= ~(1UL << 8);
-            m_lsqvsspline = false;}
+            m_LSQspline = true;}
         else { dat &= ~(1UL << 9);
             m_LSQspline = false;}  //set/unset 9th ie. tenth bit
         flag=1000000*dat+(flag%1000000);}

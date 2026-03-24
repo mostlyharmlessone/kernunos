@@ -316,6 +316,7 @@ MainWindow::MainWindow(QMainWindow *parent) : assistant(new Assistant)
 // starting defaults
    GLwidget::setaxisymmetric(true);
    GLwidget::setlsqvsspline(true);
+   GLwidget::setLSQspline(true);
    centerAct->setEnabled(false);
    ShowZernAct->setEnabled(false);
    ringsAct->setEnabled(false);
@@ -561,6 +562,7 @@ void MainWindow::test()
 {
     QString fileName = QString::fromStdString("test");
     ShowZernAct->setEnabled(false);
+    decenterAct->setEnabled(true);
     centerAct->setEnabled(true);
     ringsAct->setEnabled(false);
     centernodeAct->setEnabled(true);
@@ -2072,28 +2074,22 @@ void MainWindow::tweaklsqvsspline()
     if (GLwidget::islsqvsspline()) {
         GLwidget::setlsqvsspline(false);
         lsqvssplineAct->setChecked(GLwidget::islsqvsspline());
-        makeLSQsplineAct->setChecked(GLwidget::isLSQspline());
     } else {
-        GLwidget::set2dspline(false);
         GLwidget::setlsqvsspline(true);
         lsqvssplineAct->setChecked(GLwidget::islsqvsspline());
-        makeLSQsplineAct->setChecked(GLwidget::isLSQspline());
     };
     if (GLwidget::isRedraw()) {
         redraw();
     };
 }
 
-void MainWindow::tweak2dspline()
+void MainWindow::tweakLSQspline()
 {
     if (GLwidget::isLSQspline()) {
-        GLwidget::set2dspline(false);
-        lsqvssplineAct->setChecked(GLwidget::islsqvsspline());
+        GLwidget::setLSQspline(false);
         makeLSQsplineAct->setChecked(GLwidget::isLSQspline());
     } else {
-        GLwidget::set2dspline(true);
-        GLwidget::setlsqvsspline(false);
-        lsqvssplineAct->setChecked(GLwidget::islsqvsspline());
+        GLwidget::setLSQspline(true);
         makeLSQsplineAct->setChecked(GLwidget::isLSQspline());
     };
     if (GLwidget::isRedraw()) {
@@ -2449,7 +2445,8 @@ void MainWindow::createActions()
 
    makeLSQsplineAct=new QAction(tr("&Use a LSQ spline instead of linear spline for PentaCam conversion"), this);
    makeLSQsplineAct->setCheckable(true);
-   connect(makeLSQsplineAct, &QAction::triggered, this, &MainWindow::tweak2dspline);
+   connect(makeLSQsplineAct, &QAction::triggered, this, &MainWindow::tweakLSQspline);
+   makeLSQsplineAct->setChecked(GLwidget::isLSQspline());  //check initially because default is true
 
    axisymmetricAct=new QAction(tr("&Impose Axisymmetry assumption in calculations"), this);
    axisymmetricAct->setCheckable(true);

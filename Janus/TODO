@@ -1,17 +1,12 @@
 FIXES
 
 
-decenter, seems to work except for positive y values: try to track down issue
-
-decentering not an option with Test (as opposed to Load file)
-
  EyeSys/Nidek files: /home/debeus/Janus/EYESYS/SAUNA.GRP/RIGHT.UNK/XX149.11
  with no axisymmetric, cubic integration and with either or both centernode fixes with Unexplained error 
 first centernode tweak  no guarantee of a local root in SplineCenter                       NaN   0.0000000000000000      T
 
+fatal error in MakeRadSplineCenter also from atlas file with cubic and some centernode fix
 
-LSQ spline errors seems to run on ELE even though not checked in Menu, get Errors on findInterval in LSQSpline without checked box using LSQSpline
-lsqspline doesn't fix decentering/multiple zero issues in ELE files, look at decentering again, run some test beds
 
 
 compare will allow compare with the cube if you've done decenter first

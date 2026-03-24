@@ -510,17 +510,18 @@ endif
 
 ! decenter is compare without a second scan
 if (btest(dat,5)) then
- new_path = " "
- do i=1, 4096
+ if (.true.) then  ! in case I can check need for valid data prior to running
+  new_path = " "
+  do i=1, 4096
    if ( file_from_C (i) == c_null_char ) then
        exit
    else
        new_path (i:i) = file_from_C (i)
    end if
- end do
+  end do
 ! write(*,*) 'file from kernunos: ',trim(new_path)
- new_path=trim(new_path)
- read(new_path,*) dhoriz, dvert
+  new_path=trim(new_path)
+  read(new_path,*) dhoriz, dvert
 !generate new JMatrix
   JMatrix3=JMatrix
   ctr_circle_x = dhoriz
@@ -624,7 +625,7 @@ if (btest(dat,5)) then
  !reset
   JMatrix=JMatrix3
   return
-
+ endif
 endif
 
 
@@ -1529,13 +1530,9 @@ endif ! end (TestData == 1)
    endif
 ! arrange the data
   Skyline=Penta
-  if (btest(dat,9) ) then
-   lsq = .false.
-  else
-   lsq = .true.
-  endif
+  lsq = btest(dat,9)
 ! convert to polar with splining; makes round rings as above with 180x22 - also already has either center value Z0(1) or SAGC0(1)
-  ! RadSlope_eq_Skyline puts elevation into JMatrix%Z(j,i) and possibly populates JMatrix%Z(j,i) with crap
+! RadSlope_eq_Skyline puts elevation into JMatrix%Z(j,i) and possibly populates JMatrix%Z(j,i) with crap
   call RadSlope_eq_Skyline(lsq,JMatrix, RadSlope, Skyline, Penta)  !needs Penta for border check populates RadSlope with ZFCT
   call CPU_TIME(time_end)
   write(*,*) 'Time to convert Penta: ',(time_end-time_start)*1000

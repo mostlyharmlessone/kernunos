@@ -190,7 +190,7 @@ private slots:
     void tweakcubic();
     void tweakLSQfill();
     void tweakSplinefill();
-    void tweak2dspline();
+    void tweakLSQspline();
     void tweaklsqvsspline();
     void tweakaxisymmetric();
     void colorrgb2();

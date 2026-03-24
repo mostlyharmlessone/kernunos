@@ -165,7 +165,7 @@ bool GLwidget::m_pupilregister = false;
 bool GLwidget::m_decenter = false;
 bool GLwidget::m_consistency = false;
 bool GLwidget::m_lsqvsspline = true;
-bool GLwidget::m_LSQspline = false;
+bool GLwidget::m_LSQspline = true;
 bool GLwidget::m_axisymmetric = true;
 
 bool GLwidget::m_Axial = true;
