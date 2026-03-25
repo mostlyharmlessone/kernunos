@@ -766,6 +766,15 @@ if (mod(flag,100) == 10) then
 endif
 
 ! last two digits of flag == 0 parse file name, assign TestData type and MM,N
+! TestData -1  Test, no data file
+! TestData 0 EyeSys file
+! TestData 1 Zeiss Atlas file
+! TestData 2 Oculus PentaCam .ELE file
+! TestData 3 Oculus PentaCam .CUR file
+! TestData 4 Oculus PentaCam _ELE.CSV file
+! TestData 5 Oculus PentaCam _ELE.CSV file
+! TestData 6 NIDEK
+! TestData 7 Oculus Keratograph 5M
 if (mod(flag,100) == 0) then
  call CCounter(0,inputfile1//c_null_char)
 ! For EyeSys either RA?.? or XX?.?, set inputfile1 to the XX version, inputfile2 to the RA version, inputfile3 to the PU version,
@@ -1640,6 +1649,60 @@ if (TestData .eq. 1) then
  endif
 endif  !Atlas fillin
 
+!  FILL IN MISSING EYESYS/NIDEK DATA, only use sple, LSQ has problem with the one broken EyeSys file I've seen
+!  probably becasuse I'm making RA and XX now powers, get duplicate radii and slopes at the end points, which break nspline
+if (TestData .eq. 0 .or. TestData .eq. 6) then
+ if (btest(dat, 4) ) then !.or. btest(dat, 3)) then
+! make sure I have a backup of EyeSys the same size as EyeSys before fillin
+  if(allocated(EyeSysSave%RA)) EyeSysSave=0
+  N=size(EyeSys%RA,2)
+  MM=size(EyeSys%RA,1)
+  call init_mat_EyeSys(MM,N,EyeSysSave)
+ endif
+ if (btest(dat, 4)) then
+  EyeSysSave=EyeSys
+  call EyeSys_SplineFillin(EyeSysSave,EyeSysSave%RA,EyeSys%RA)
+  call EyeSys_SplineFillin(EyeSysSave,EyeSysSave%XX,EyeSys%XX)
+  inquire(file=trim(inputfile3), exist=exists)
+  if(exists .and. TestData .eq. 6) call EyeSys_SplineFillin(EyeSysSave,EyeSysSave%HT,EyeSys%HT)
+ endif
+!  FILL IN MISSING EYESYS RING DATA USING LSQ Fourier series
+ if (.false. ) then ! btest(dat, 3)) then
+  EyeSysSave=EyeSys
+  call EyeSys_LSQFillin(EyeSysSave,EyeSysSave%RA,EyeSys%RA)
+  call EyeSys_LSQFillin(EyeSysSave,EyeSysSave%XX,EyeSys%XX)
+  inquire(file=trim(inputfile3), exist=exists)
+  if(exists .and. TestData .eq. 6) call EyeSys_LSQFillin(EyeSysSave,EyeSysSave%HT,EyeSys%HT)
+ endif
+
+ ! gnuplot rings output and exit
+  if (mod(flag,100) .eq. 8 ) then
+ ! generate data file
+   unitno1 = get_new_fileunit()
+   BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".plt")
+   open(unitno1, file = BigPlot, action="write", iostat=ierr)
+ ! Look at these rings using gnuplot set polar
+ ! gnuplot 'plot 'datafile dumped with' u 1:2'
+    do j=1,size(EyeSys%RA,2)
+     do i=1,M1
+     if ((EyeSys%RA(i,j) > 0) .AND. (EyeSys%XX(i,j) > 0) ) then ! Only for EyeSys with valid data /= 0
+       write(unitno1,*) PI*(i-1)/180.0_wp,EyeSys%RA(i,j)
+      endif
+     end do
+    end do
+    CLOSE (unitno1)
+    if (btest(dat, 4) .or. btest(dat, 3)) then
+     RadSlope=EyeSys
+     EyeSys=EyeSysSave  ! restore EyeSys after using it to show rings
+    endif
+    return
+   endif ! end (mod(flag,100) .eq. 8)
+ if (btest(dat, 4)) then ! .or. btest(dat, 3)) then
+  RadSlope=EyeSys
+  EyeSys=EyeSysSave  ! restore Atlas after using it to define RadSlope
+ endif
+endif  ! EyeSys fillin
+
 ! skip all this if we're just displaying zernike coefficients again
 if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
  DiaSlope=RadSlope              ! move to diagonal format
@@ -1884,7 +1947,6 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
     JMatrix%R(j,i)=(rBi+(j-1)*(rBo-rBi)/(N1-1))
 !   generate elevations and derivatives; iflag no integration if .ELE .ELE_CSV file
     call SplineEval1Dx1D(iflag,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
-
 !   save for vertex normals and for LIOC
     JMatrix%YPR(j,i)=YPR
     JMatrix%YPTHETA(j,i)=YPTHETA

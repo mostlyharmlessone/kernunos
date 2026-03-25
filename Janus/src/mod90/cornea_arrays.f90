@@ -124,6 +124,7 @@ END INTERFACE
  TYPE(wpRadSlopeMatrix) :: RadSlope
  TYPE(wpAtlasMatrix) :: Atlas
  TYPE(wpAtlasMatrix) :: AtlasSave
+  TYPE(wpEyeSysMatrix) :: EyeSysSave
  TYPE(wpPentaMatrix) :: Penta
  TYPE(wpOculusMatrix) :: Oculus
  TYPE(wpSkyline) :: Skyline
@@ -1066,7 +1067,7 @@ end subroutine RadSlope_eq_DiaSlope
 ! spline b%rd(:,i),b%Zpd(:,i)
  function DiaSpline(b) result(a)
  TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b
- integer :: M1,N1,i,err_report
+ integer :: M1,N1,i,k,err_report
  real(wp) :: a(size(b%rd,1),size(b%rd,2))
  N1=size(b%rd,1) !N1=2*N*M
  M1=size(b%rd,2) !M1=MM/2
@@ -1143,6 +1144,55 @@ subroutine Atlas_SplineFillin(Atlas,b,a)
  end associate
  deallocate (spline%r,spline%z,spline%zp2,spline%mvjr)
 end subroutine Atlas_SplineFillin
+
+subroutine EyeSys_SplineFillin(EyeSys,b,a)
+  TYPE(wpEyeSysMatrix), INTENT(INOUT) :: EyeSys
+  real(wp),INTENT(IN) :: b(:,:)
+  real(wp), intent(out) :: a(size(b,1),size(b,2))
+  TYPE(wpsplinevect) :: spline
+  integer :: M1,N1,i,j,k,err_report
+  real(wp) :: tht(size(b,1)),RTEMP,Q,radianK
+ ! if EyeSys then  size(b,2)->N and size(b,1)->M
+  N1=size(b,2) !N1=N
+  M1=size(b,1) !M1=MM
+  a=b ; tht=0  !initialize else the damn thing will fill with NaN
+  allocate (spline%r(M1),spline%z(M1),spline%zp2(M1),spline%mvjr(N1))
+  associate (t=>spline%r,z=>spline%z,zt2=>spline%zp2,mvjr=>spline%mvjr)
+   mvjr=0
+   do j=1,M1
+    tht(j)=PI*(j-1)/180.0_wp  ! every degrees for EyeSys/NIDEK
+   end do
+   do i=1,N1
+    do j=1,M1
+     Q=b(j,i)
+     if ((EyeSys%RA(j,i) > 0) .AND. (EyeSys%XX(j,i) > 0) ) then ! eliminate all the bad points, assumes if HT exists that it is the same
+ !    if (ABS(Q) > 0.) then
+      mvjr(i)=mvjr(i)+1
+      t(mvjr(i))=tht(j)
+      z(mvjr(i))=Q
+     endif
+    end do
+ !  no splining if less than half the points available
+    if (mvjr(i) .gt. (M1/2)) then
+     call pspli(t,z,mvjr(i),zt2,err_report)
+    else
+     cycle
+    endif
+    do k=1,M1
+     radianK=tht(k)
+     call SplineEval(1,t,z,zt2,mvjr(i),radianK,RTEMP)
+     if(ABS(b(k,i)-RTEMP) > EPS) then
+      if ((EyeSys%RA(k,i) > 0) .AND. (EyeSys%XX(k,i) > 0) ) then ! eliminate all the bad points, assumes if HT exists that it is the same
+ !     if(ABS(b(k,i)) > EPS) then
+       write(*,*) 'spline error in cornea_arrays EyeSys fillin',K,I,b(K,I),RTEMP
+      endif
+      a(k,i)=RTEMP
+     endif
+    end do
+   end do
+  end associate
+  deallocate (spline%r,spline%z,spline%zp2,spline%mvjr)
+end subroutine EyeSys_SplineFillin
 
 ! this version is for matrices that are NxM, ie. JMatrix
  function splinefillintranspose(b) result(a)
@@ -1225,6 +1275,41 @@ subroutine Atlas_LSQfillin(Atlas,b,a)
   end do
  end do
 end subroutine Atlas_LSQfillin
+
+subroutine EyeSys_LSQfillin(EyeSys,b,a)
+ TYPE(wpEyeSysMatrix), INTENT(INOUT) :: EyeSys
+ real(wp),INTENT(IN) :: b(:,:)
+ real(wp), intent(out) :: a(size(b,1),size(b,2))
+ integer :: M1,N1,i,j,k
+ real(wp) ::t(size(b,1)),z(size(b,1))
+ real(wp) :: c(M2)
+ N1=size(b,2) !N1=N
+ M1=size(b,1) !M1=MM
+ a=0  !initialize else the damn thing will fill with NaN
+ z=0
+ t=0
+ do i=1,N1
+  do j=1,M2
+   do k=1,M1
+    if ((EyeSys%RA(k,i) > 0) .AND. (EyeSys%XX(k,i) > 0) ) then ! eliminate all the bad points, assumes if HT exists that it is the same
+!    if (ABS(b(k,i)) .gt. 0) then ! means it is  =/ 0
+     z(k)=b(k,i)
+     t(k)=PI*(k-1)/180.0_wp  ! every degrees
+    endif
+   end do
+  end do
+! generate lsq fillin values; uses cosines and sines, not splines
+  call lsqfit(t,z,M1,M2,c)
+  do k=1,M1
+!  changed this to a smoothing routine with relatively low M2 (10), as LSQ is terrible at discontinuities.
+!    if (ABS(b(k,i)) .gt. 0) then ! means it is  =/ 0
+!     a(k,i)=b(k,i)   ! retain old values where they exist, this is a fill-in, not a smoothing routine.
+!    else
+    call LSQEval(M2,c,t(k),a(k,i))
+!    endif
+  end do
+ end do
+end subroutine EyeSys_LSQfillin
 
 
  function pca(M3,b) result(a)

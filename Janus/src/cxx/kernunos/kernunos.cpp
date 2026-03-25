@@ -487,10 +487,10 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
    if (eyesys || nidek) {
        ShowZernAct->setEnabled(false);
        centerAct->setEnabled(true);
-       ringsAct->setEnabled(false);
+       ringsAct->setEnabled(true);
        centernodeAct->setEnabled(true);
        adjustradiiAct->setEnabled(true);
-       SplinefillinAct->setEnabled(false);
+       SplinefillinAct->setEnabled(true);
        LSQfillinAct->setEnabled(false);
        lsqvssplineAct->setEnabled(true);
    };
@@ -708,10 +708,10 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
        if (eyesys || nidek) {
            ShowZernAct->setEnabled(false);
            centerAct->setEnabled(true);
-           ringsAct->setEnabled(false);
+           ringsAct->setEnabled(true);
            centernodeAct->setEnabled(true);
            adjustradiiAct->setEnabled(true);
-           SplinefillinAct->setEnabled(false);
+           SplinefillinAct->setEnabled(true);
            LSQfillinAct->setEnabled(false);
            lsqvssplineAct->setEnabled(true);
        };
@@ -2430,11 +2430,11 @@ void MainWindow::createActions()
    cubicAct->setCheckable(true);
    connect(cubicAct, &QAction::triggered, this, &MainWindow::tweakcubic);
 
-   LSQfillinAct=new QAction(tr("&Fill in missing Atlas data by circumferential LSQ"), this);
+   LSQfillinAct=new QAction(tr("&Fill in missing Placido data by circumferential LSQ"), this);
    LSQfillinAct->setCheckable(true);
    connect(LSQfillinAct, &QAction::triggered, this, &MainWindow::tweakLSQfill);
 
-   SplinefillinAct=new QAction(tr("&Fill in missing Atlas data by circumferential spline"), this);
+   SplinefillinAct=new QAction(tr("&Fill in missing Placido data by circumferential spline"), this);
    SplinefillinAct->setCheckable(true);
    connect(SplinefillinAct, &QAction::triggered, this, &MainWindow::tweakSplinefill);
 

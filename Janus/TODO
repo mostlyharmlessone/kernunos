@@ -1,29 +1,24 @@
 FIXES
 
-At line 12 of file /home/debeus/Janus/Janus/src/src90/bsearch.f90
-Fortran runtime error: Index '1' of dimension 1 of array 'rv' above upper bound of 0
-loaded file, swapped,tried to compare, loaded new file
-
-compare will allow compare with the cube if you've done decenter first
-need to block swap and compare with cube
+Look at broken EyeSys file ".17" for Atlas fixes; change FAQ describing tweaks
 
 legend rounds values too much for small numbers
 
 Swap erases pupil data...and if you decenter, it uses the original data, not the swapped
-Swap with one image duplicates a cube in the compare section
+
 
 Needs fix:
-zernike computations only for if ( Testdata .le.1 ) then     ! only for test/Atlas/EyeSys at present
 
 make 3D option for all functions, with scale Z value max and min
 this will affect Geom,WriteGeomPLY/OFF
 
-compare is broken with zernike; also so is opening 2nd file with zernike selected and zernike 
-
-units in D or mm for elevation
+ units in D or mm for elevation
 
 need a 2-D picture output other than gnuplot version
 make mathematica plot output?, just like ply,off etc.
+
+zernike computations only for if ( Testdata .le.1 ) then     ! only for test/Atlas/EyeSys at present
+compare is broken with zernike; also so is opening 2nd file with zernike selected and zernike
 
 FREETYPE_INCLUDE_DIRS added because Free type seems hard to find
 
