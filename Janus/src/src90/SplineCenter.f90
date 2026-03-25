@@ -11,14 +11,14 @@
   real(wp), INTENT(IN) ::  r(n)
   real(wp), INTENT(IN) ::  z(n),zr2(n)
   real(wp), INTENT(OUT) :: u
-  integer, INTENT(OUT) :: err_report
+  integer(c_int), INTENT(OUT) :: err_report
   real(wp) :: g,gr,grr,slopeh,slopel
   integer :: high, low, j
   err_report = 0
 ! bracket the origin between r values and get their indices
   call bsearch(0.0_wp,r,n,high,low)
   if (low .eq. high) then ! 0.0 should never be a value or knot of r
-   write(*,*) 'Unusual error in SplineCenter, setting u=r(low)'
+   write(*,*) 'Unusual error in SplineCenter, setting u=r(low)',r(low),high,low
    u=r(low)
    err_report = 1
    return

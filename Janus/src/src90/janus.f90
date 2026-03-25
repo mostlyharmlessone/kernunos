@@ -13,7 +13,7 @@
   use omp_lib
   IMPLICIT NONE
   integer :: i, j, k, ii, kk, m, nn, i1, j1, ierr, info, nrhs
-  integer,save :: MM, N ,M1, N1, Power_Rings_Count
+  integer,save :: MM, N ,M1, N1, Power_Rings_Count, loaded_files
   integer,save :: TestData             ! TestData: -1=test, 0=EyeSys, 1=Atlas, (2-5)=Penta, 6=Nidek, 7=Keratograph
   integer,save :: NP                   ! PentaCam=141
   integer :: unitno1
@@ -42,7 +42,7 @@
   logical :: donut, exists
   real(wp) :: Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo,dvert,dhoriz
   integer :: k_max, kk_max, iflag, LWORK, rotationdegrees
-  integer(c_int) :: dat, fct, map
+  integer(c_int) :: dat, fct, map, error_report
   real(wp), allocatable :: zernC(:,:), B_Matrix(:,:), rlocal(:), thtlocal(:), WORK(:)
   real(wp), allocatable :: UT(:,:),VT(:,:) !,XTX(:,:),EE(:,:)
 !  integer, allocatable :: IPIV(:)
@@ -52,7 +52,8 @@
   logical :: lsq
   integer(c_int) :: periodcount
 
-err_janus = 0
+err_janus = 0 ; error_report = 0
+if (loaded_files .le. 0) loaded_files = 0
 !write(*,*) 'flag to Fortran:',flag
 !write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
 !! last two digits are the program function
@@ -106,6 +107,7 @@ map=mod((flag-mod(flag,100))/100,100)  ! last two digits are tweaks
 
 ! mod(flag,100) == 99 Deallocate
 if (mod(flag,100) == 99) then
+    loaded_files = 0
     if (allocated(JMatrix%R)) then
      JMatrix=0
     endif
@@ -195,7 +197,8 @@ endif
 if (.not.allocated(JMatrix3%R)) then
  call init_mat_JMatrix(M1,N1,JMatrix3)
 endif
-if (mod(flag,100) /= 10 .and. mod(flag,100) /= 11) then  !store last JMatrix if not doing swap or compare
+
+if (mod(flag,100) == 0 ) then  !store last JMatrix when reading in new
  JMatrix1%R(:,:)=JMatrix%R(:,:)
  JMatrix1%PU(:)=JMatrix%PU(:)
  JMatrix1%Pupil_Center(:)=JMatrix%Pupil_Center(:)
@@ -388,7 +391,10 @@ RadSlope=JMatrix
 DiaSlope=RadSlope              ! move to diagonal format
 DiaSlope%Zpd2 = .n. DiaSlope
  if ( Testdata .le.1 ) then     ! only for test/Atlas/EyeSys at present
-  call MakeRadSplineCenter(0)   ! remakes RadSplineCenter(1,:)
+  call MakeRadSplineCenter(0,error_report)   ! remakes RadSplineCenter(1,:)
+  if (error_report .ne. 0) then
+   write(*,*)' janus line number: ',__LINE__
+  endif
  else
   RadSplineCenter(1,:)=0      ! pentacam by definition is at 0
  endif
@@ -399,8 +405,10 @@ DiaSlope%Zpd2 = .n. DiaSlope
   call AdjustRadSplineCenter     ! changes r only
   DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
  endif
-  call MakeRadSplineCenter(dat)        ! generates spline centers with tweaks
-
+  call MakeRadSplineCenter(dat,error_report)        ! generates spline centers with tweaks
+  if (error_report .ne. 0) then
+   write(*,*)' janus line number: ',__LINE__
+  endif
 ! WriteCenter shows where the spline of slopes is zero, it should be close to zero for a concave center with a unique maximum
  BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".plt")
  call WriteCenter(RadSlope,BigPlot)! biggest deviation with nSplineCenter zero slope forced at origin,
@@ -496,7 +504,7 @@ endif
 
 ! simple swap
 if (mod(flag,100) == 11) then
- if (allocated(JMatrix2%R)) then
+ if (allocated(JMatrix2%R) .and. loaded_files .ge. 2) then
   JMatrix2=JMatrix
   JMatrix=JMatrix1
   JMatrix1=JMatrix2
@@ -574,7 +582,10 @@ if (btest(dat,5)) then
   endif
 
   if ( Testdata .le.1 .or. Testdata .eq. 6) then     ! not for Oculus PentaCam or Keratograph
-   call MakeRadSplineCenter(0)   ! remakes RadSplineCenter(1,:)
+   call MakeRadSplineCenter(0,error_report)   ! remakes RadSplineCenter(1,:)
+   if (error_report .ne. 0) then
+    write(*,*)' janus line number: ',__LINE__
+   endif
   else
    RadSplineCenter(1,:)=0      ! pentacam and keratograph by definition is at 0
   endif
@@ -584,7 +595,10 @@ if (btest(dat,5)) then
    DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
   endif
 
-  call MakeRadSplineCenter(dat)        ! generates spline centers with tweaks
+  call MakeRadSplineCenter(dat,error_report)        ! generates spline centers with tweaks
+  if (error_report .ne. 0) then
+   write(*,*)' janus line number: ',__LINE__
+  endif
 
 ! Generate the surface
   do i=1,M1
@@ -633,7 +647,7 @@ endif
 if (mod(flag,100) == 10) then
 !generate new JMatrix
  JMatrix3=JMatrix
- if (allocated(JMatrix2%R)) then
+  if (allocated(JMatrix2%R) .and. loaded_files .ge. 2) then
 ! use geometry from current JMatrix to populate
   JMatrix2%R(:,:)=JMatrix%R(:,:) ! might have zeroes if smaller, but should be caught by MV below
   JMatrix2%THT(:)=JMatrix%THT(:)
@@ -1630,7 +1644,10 @@ endif  !Atlas fillin
 if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
  DiaSlope=RadSlope              ! move to diagonal format
  DiaSlope%Zpd2 = .n. DiaSlope
- call MakeRadSplineCenter(0)   ! remakes RadSplineCenter(1,:)
+ call MakeRadSplineCenter(0,error_report)   ! remakes RadSplineCenter(1,:)
+ if (error_report .ne. 0) then
+  write(*,*)' janus line number: ',__LINE__
+ endif
  if (TestData.eq.3 .or. TestData.eq.5 ) RadSplineCenter(1,:)=0   ! pentacam data provided
  if (TestData.eq.2 .or. TestData.eq.4 ) RadSplineCenter(1,:)=0
  if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
@@ -1640,8 +1657,10 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
   call AdjustRadSplineCenter     ! changes r only
   DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
  endif
- call MakeRadSplineCenter(dat)        ! generates spline centers with tweaks
-
+ call MakeRadSplineCenter(dat,error_report)        ! generates spline centers with tweaks
+ if (error_report .ne. 0) then
+  write(*,*)' janus line number: ',__LINE__
+ endif
 ! Atlas spline consistency check and computation of elevation by power vs elevation in file
  if ( Testdata .eq. 1 .and. btest(dat,7) ) then
   if (btest(dat, 2)) then
@@ -1942,7 +1961,10 @@ endif
    DiaSlope%Zpd2 = .n. DiaSlope
   endif
   if ( Testdata .le.1 .or. Testdata .eq. 6) then     ! not for Oculus PentaCam or Keratograph
-   call MakeRadSplineCenter(0)   ! remakes RadSplineCenter(1,:)
+   call MakeRadSplineCenter(0,error_report)   ! remakes RadSplineCenter(1,:)
+   if (error_report .ne. 0) then
+    write(*,*)' MakeRadSpline Error janus line number: ',__LINE__
+   endif
   else
    RadSplineCenter(1,:)=0      ! pentacam and keratograph by definition is at 0
   endif
@@ -1950,8 +1972,10 @@ endif
    call AdjustRadSplineCenter     ! changes r only
    DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
   endif
-  call MakeRadSplineCenter(dat)        ! generates spline centers with tweaks
-
+  call MakeRadSplineCenter(dat,error_report)        ! generates spline centers with tweaks
+  if (error_report .ne. 0) then
+   write(*,*)' janus line number: ',__LINE__
+  endif
 ! Calculate center values for everything
 ! These have MM different values of the center!
   call centersJMatrix(JMatrix,TestData,dat,iflag)
@@ -2000,7 +2024,10 @@ if (mod(flag,100) == 1) then
   DiaSlope=RadSlope              ! move to diagonal format
   DiaSlope%Zpd2 = .n. DiaSlope
  if ( Testdata .le.1 ) then     ! only for test/Atlas/EyeSys at present
-   call MakeRadSplineCenter(0)   ! remakes RadSplineCenter(1,:)
+   call MakeRadSplineCenter(0,error_report)   ! remakes RadSplineCenter(1,:)
+   if (error_report .ne. 0) then
+    write(*,*)' janus line number: ',__LINE__
+   endif
   else
    RadSplineCenter(1,:)=0      ! pentacam by definition is at 0
   endif
@@ -2011,8 +2038,11 @@ if (mod(flag,100) == 1) then
    call AdjustRadSplineCenter     ! changes r only
    DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
   endif
-  call MakeRadSplineCenter(dat)        ! generates spline centers with tweaks
-
+  call MakeRadSplineCenter(dat,error_report)        ! generates spline centers with tweaks
+    write(*,*) dat,error_report,__LINE__
+  if (error_report .ne. 0) then
+   write(*,*)' janus line number: ',__LINE__
+  endif
 ! reset iflag for generating local elevations for computations
 if (btest(dat, 2)) then
  if (btest(dat,0)) then
@@ -2358,7 +2388,8 @@ endif
 ! eigenvalues show shape of RadSlope without make_rings but with FillArray 7 elevations
 !  atmp=pca(2,RadSlope)
 !  atmp=pca(3,RadSlope)
-
+  if (mod(flag,100) == 0) loaded_files = loaded_files + 1
+  write(*,*) "Files loaded this session: ", loaded_files
   write(*,*) "Computations run under ",trim(compiler_version())
   call LogC("Computations run under " // trim(compiler_version()) // c_null_char)  !has to be C and declared, not cpp
 

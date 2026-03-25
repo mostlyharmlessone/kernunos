@@ -1,15 +1,11 @@
 FIXES
 
-
- EyeSys/Nidek files: /home/debeus/Janus/EYESYS/SAUNA.GRP/RIGHT.UNK/XX149.11
- with no axisymmetric, cubic integration and with either or both centernode fixes with Unexplained error 
-first centernode tweak  no guarantee of a local root in SplineCenter                       NaN   0.0000000000000000      T
-
-fatal error in MakeRadSplineCenter also from atlas file with cubic and some centernode fix
-
-
+At line 12 of file /home/debeus/Janus/Janus/src/src90/bsearch.f90
+Fortran runtime error: Index '1' of dimension 1 of array 'rv' above upper bound of 0
+loaded file, swapped,tried to compare, loaded new file
 
 compare will allow compare with the cube if you've done decenter first
+need to block swap and compare with cube
 
 legend rounds values too much for small numbers
 
@@ -120,6 +116,8 @@ README (not the markdown/html) needs a file manifest; eventually generate with g
 POLISHING/PRESENTATION/LAUNCH
 
 analyze fowler sauna patient: arvo poster introduction
+search for
+Thermally Induced Reversible Corneal Molding after Sauna Use on PubMed
 
 Windows:  try cross-compile toolchain, again; also look into tools on Windows, free version of VS, nvidia compiler, or even as a WSL app  
 MacOS: need to do reseach on compiles with Xcode, darwin tools, Qt on iMac, possibly also in Mac VM, or as a Parallels/Docker app.

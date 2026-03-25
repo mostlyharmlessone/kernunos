@@ -48,10 +48,11 @@ module spline_interfaces
      integer, INTENT(OUT) :: err_report
  end subroutine
 
- subroutine MakeRadSplineCenter(dat)
+ subroutine MakeRadSplineCenter(dat,error_report)
   use, INTRINSIC :: iso_c_binding, ONLY : c_int
   use set_precision, ONLY : wp
   integer(c_int), INTENT(IN) :: dat
+  integer(c_int), INTENT(OUT) :: error_report
  end subroutine
 
  subroutine nspline(r,z,n,z2,err_report)
@@ -91,7 +92,7 @@ end subroutine
   real(wp), INTENT(IN) ::  r(n)
   real(wp), INTENT(IN) ::  z(n),zr2(n)
   real(wp), INTENT(OUT) :: u
-  integer, INTENT(OUT) :: err_report
+  integer(c_int), INTENT(OUT) :: err_report
  end subroutine
       
  subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)

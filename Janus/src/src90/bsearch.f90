@@ -9,8 +9,6 @@ subroutine bsearch(r,rv,n,high,low)
  integer, intent(out) :: high, low
  integer ::  i, m, direction, i0
  real(wp) :: rmin
- low = 1 ; i0 = 1 ; rmin = rv(1)
- high = n
  if ( n < 1 ) then
   write(*,*) 'FATAL Error in bsearch, n < 1',n
   stop
@@ -21,7 +19,8 @@ subroutine bsearch(r,rv,n,high,low)
   write(*,*) 'Warning: degenerate bsearch',r,rv
   return
  endif
-
+ low = 1 ; i0 = 1 ; rmin = rv(1)
+ high = n
 ! reverse sequences are an issue
 ! modified for cyclic rv where rv(1) may not be the beginning.
 ! binary search for rolodex with two possible directions

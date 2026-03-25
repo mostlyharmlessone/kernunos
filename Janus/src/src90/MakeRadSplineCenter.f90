@@ -1,13 +1,15 @@
 !     diagnostic to see where each splines center is, perhaps a measure of decentration 
-      subroutine MakeRadSplineCenter(dat)
+      subroutine MakeRadSplineCenter(dat,error_report)
       use, INTRINSIC :: iso_c_binding, ONLY : c_int
       USE cornea_arrays, ONLY : DiaSlope, RadSlope, RadSplineCenter
       USE set_precision, ONLY : wp
       USE spline_interfaces, ONLY : SplineCenter
       implicit none
       integer(c_int), INTENT(IN) :: dat
+      integer(c_int), INTENT(OUT) :: error_report
       real(wp) :: r(2*size(RadSlope%r,1)),z(2*size(RadSlope%r,1)),zr2(2*size(RadSlope%r,1)),w
-      integer :: L2,j,L,MM,N,err_report
+      integer :: L2,j,L,MM,N
+      integer(c_int) :: err_report
       err_report = 0
       MM=size(RadSlope%r,2)
       N=size(RadSlope%r,1)
@@ -19,17 +21,9 @@
         call SplineCenter(dat,j,r,z,zr2,L2,w,err_report) !each call can potentionally have a call to read RadSplineCenter(:,j)
                                               !   if btest(dat,0) = .true., needs call to DiaSplineCenter=.nc.->nsplinecenter first
         if (err_report .ne. 0) then
-         if( j .eq. 18 .and. dat .ne. 0) then
-          write(*,*) 'FATAL, error in MakeRadSplineCenter',j,L2,dat
-          write(*,*) r
-          write(*,*) z
-          write(*,*) zr2
-          write(*,*) RadSlope%r(N:1:-1,j+MM/2),RadSlope%r(1:N,j)
-          write(*,*) RadSlope%zp(N:1:-1,j+MM/2),RadSlope%zp(1:N,j)
-          stop
-         endif
+!         write(*,*) 'Error in MakeRadSplineCenter'
+          error_report = -1
         endif
-
         RadSplineCenter(1,j)=w
 !       odd as it seems, each angle j is also angle L since we're on a diagonal 
         L=j+MM/2

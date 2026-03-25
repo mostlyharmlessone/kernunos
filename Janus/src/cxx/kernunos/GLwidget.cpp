@@ -443,6 +443,8 @@ void GLwidget::initializeGL()
 
 bool GLwidget::Swap()
 {
+// Avoid swapping with the cube
+   if (nV[1] > 100) {
     nV[2]=nV[0]; nE[2]=nE[0];
     for (int i=0; i < 51840; ++i){
         vertices3[i]=vertices[i];
@@ -520,6 +522,10 @@ bool GLwidget::Swap()
 
     paintme=true;
     return true;
+    }
+    else {
+     std::cout << "No swapping with the cube" << std::endl;
+     return false;}
 }
 
 bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cube
