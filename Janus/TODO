@@ -1,6 +1,7 @@
 FIXES
 
-Look at broken EyeSys file ".17" for Atlas fixes; change FAQ describing tweaks
+assimp crashes on second file converters
+
 
 legend rounds values too much for small numbers
 
@@ -40,6 +41,7 @@ addcomments():
 errorMessageDialog
 
 enable the tweaks prior to loading the file? but not with auto redraw
+Look at broken EyeSys file ".17" for why LSQ fillin doesnt work and makes duplicate radii
 
 enforce, or have a warning having to make new zernike after loading new data, also if tweaks changed
 
@@ -52,8 +54,10 @@ consider adding sound to play after zernike compute, but might need option to tu
 NEW MACHINE DATA IMPORTS
 
 iTrace 8640 points = 360 x 24; has "Data" binary compressed with gzip
+
 Topcon CA-800 binary files 49928 bytes = 8 x 6241 ; 24 rings "6200 measured points" suggests 8 byte floats 24 x 256 = 6144 and 41 bytes header or footer?
 8 byte segments seem to alternate?
+
 PentaCam U12 file looks like it has binary data separated by blocks of zero, possibly readable.
 
 Optimizing:

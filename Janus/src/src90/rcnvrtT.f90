@@ -15,16 +15,20 @@ logical :: IsInf
     RadSlope%thta(i)=PI*EyeSys%DEG(i)/180.0_wp
     do j=1,N+1        
        if (j > N) then
-        R=55.0_wp
-        A=50.0_wp
-        B=45.0_wp
+        R=40.0_wp
+        A=42.0_wp
+        B=44.0_wp
+!       sphere
+!        A = 42 ; B = 42 ; R = 42
         D=0.0_wp ; X=0.0_wp
        else 
         DIST=0.2_wp+(j-1)*0.25_wp
 !       ELLIPSOID WITH ASTIGMATISM Z=R-R*SQRT(1-(rCOSt/A)^2-(rSINt)/B)^2)
-        R=55.0_wp
-        A=50.0_wp
-        B=45.0_wp
+        R=40.0_wp
+        A=42.0_wp
+        B=44.0_wp
+!       sphere
+!        A = 42 ; B = 42 ; R = 42
         X=DIST*A/4.0
         D=X
        endif 

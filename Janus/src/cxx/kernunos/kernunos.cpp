@@ -1063,6 +1063,7 @@ void MainWindow::importexport()
    Assimp::Exporter Exporter;
    const aiImporterDesc *iformat = nullptr;
    const aiExportFormatDesc *format;
+   const aiScene *aiscene;
    // Check and validate the specified model file extension.
    // only obj,dae,ascii ply,binary and ascii stl,3ds,x and fbx verified to be importable
    // in meshlab using ply as import file
@@ -1073,7 +1074,7 @@ void MainWindow::importexport()
    if (extstring == binarystl) {
        //because stlb is not recognized, and neither is bin.stl as binary stl
        std::cout << "\tReading file using ASSIMP" << std::endl;
-       const aiScene *aiscene = Importer.ReadFile(filename, aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
+       aiscene = Importer.ReadFile(filename, aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
        if (!aiscene) {
             printf("Error parsing '%s': '%s'\n", filename, Importer.GetErrorString()); }
        format = Exporter.GetExportFormatDescription(6);
@@ -1087,7 +1088,7 @@ void MainWindow::importexport()
    if (extstring == binarygl) {
        //because glb is ambiguously recognized together with gltf
        std::cout << "\tReading file using ASSIMP" << std::endl;
-       const aiScene *aiscene = Importer.ReadFile(filename, aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
+       aiscene = Importer.ReadFile(filename, aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
        if (!aiscene) {
            printf("Error parsing '%s': '%s'\n", filename, Importer.GetErrorString()); }
        format = Exporter.GetExportFormatDescription(11); // 13 or 11(glb2) 13 not accepted by meshlab
@@ -1101,7 +1102,7 @@ void MainWindow::importexport()
    if (extstring == asciigl) {
        //because glb is ambiguously recognized together with gltf
        std::cout << "\tReading file using ASSIMP" << std::endl;
-       const aiScene *aiscene = Importer.ReadFile(filename, aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
+       aiscene = Importer.ReadFile(filename, aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
        if (!aiscene) {
            printf("Error parsing '%s': '%s'\n", filename, Importer.GetErrorString()); }
        format = Exporter.GetExportFormatDescription(10);  // 12 or 10(gltf2) 12 not accepted by meshlab
@@ -1117,7 +1118,7 @@ void MainWindow::importexport()
    if (extstring == binaryply) {
        //because plyb is not recognized, and neither is bin.ply as binary ply
        std::cout << "\tReading file using ASSIMP" << std::endl;
-       const aiScene *aiscene = Importer.ReadFile(filename, aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
+       aiscene = Importer.ReadFile(filename, aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
        if (!aiscene) {
             printf("Error parsing '%s': '%s'\n", filename, Importer.GetErrorString()); }
        format = Exporter.GetExportFormatDescription(8);
@@ -1135,7 +1136,7 @@ void MainWindow::importexport()
        return;
    }
    std::cout << "\tReading file using ASSIMP" << std::endl;
-   const aiScene *aiscene = Importer.ReadFile(filename, aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
+   aiscene =  Importer.ReadFile(filename, aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
    if (!aiscene) {
        printf("Error parsing '%s': '%s'\n", filename, Importer.GetErrorString());
        return;}

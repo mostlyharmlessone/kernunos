@@ -41,9 +41,6 @@
 	path = Janus/rply
 	url = https://github.com/diegonehab/rply
         branch = master
-[submodule "Janus/math77"]
-	path = Janus/math77
-	url = https://github.com/jacobwilliams/math77
 [submodule "Janus/assimp"]
 	path = Janus/assimp
 	url = https://github.com/assimp/assimp

@@ -298,13 +298,13 @@ endif(WIN32)
 
 #   Fortran Source
 
-    file(GLOB_RECURSE math77_lib     math77/src/MATH77/*.f)
+#    file(GLOB_RECURSE math77_lib     math77/src/MATH77/*.f)
     file(GLOB_RECURSE lib_sources90  src/src90/*.f90 src/src90/*.f90*.for)
     file(GLOB_RECURSE mod_sources90  src/mod90/*.f90
                                      src/HansonHopkins/set_precision.f90
                                      src/HansonHopkins/LapackInterface.f90)
 
-add_library( libmath77 ${math77_lib})
+#add_library( libmath77 ${math77_lib})
 
 # external libraries
     set(LIBS ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${SUPERLU_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} freetype ${GFORTRAN_LIBRARY})
@@ -388,7 +388,8 @@ set(sparse_sources
 
 add_library( rply_includes ${rply_sources})
 add_library( modules ${mod_sources90} ${interface})
-add_library( splia ${lib_sources90} ${math77_lib} ${interface})
+#add_library( splia ${lib_sources90} ${math77_lib} ${interface})
+add_library( splia ${lib_sources90} ${interface})
 
 set(PROJECT_SOURCES
                    src/c/kernunos/logc.c src/c/kernunos/logc.h

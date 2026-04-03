@@ -1,0 +1,55 @@
+These are found in EXPORT files:  patient_name_birth_date_exam_date_sex.lzh files, which then have possible subdirectories with years, then eyetmp directory, which can have 
+a number of files. One of which is another patient_name directory which can have a IMMAGINI directory, TOPOGRAF directory and eye.mdb JET3 (MicroSoft Access db) file
+
+eye.mdb has a number of headings, can be opened with mdb-tools (LibreOffice Base could not open it) but it has little information
+
+The TOPOGRAF direcotry has two binary files 49928 bytes = 8 x 6241:  CALCA100.DAT and CALCA200.DAT which are identical and a iftg.cfg ASCII file with camera parameter in Italian
+
+The IMMAGINI directory has two nested 00000000.001 directories, then a TOPOGRAF directory, again, as well as another IMMAGINI subdirectory, a "live" directory and a LENTI directory.
+There are also a number of image files *.TGA, *.JPG, a binary *.TOP file, some trivial ASCII *.INF files, some binary *.ORG *.CLT files 
+The "live" diectory has a number of image files in TIFF (.tif) format and BMP format and some ASCII configuration files in Italian as well as a *.TOP binary file
+The IMMAGINI subdirectory has a TOPOR.TOP file (presumably R eye) as well as binary TOPOR.ORG and TOPOL.ORG files and a trivial ASCII TOPO.ini file. 
+
+There's also a binary *.SML file which does not open with fsml or meshlab
+
+TOPOR.ORG and TOPOL.ORG differ from each other, as do other *.ORG files
+*.ORG files hace a JPEG header but do not open
+
+The *.CLT files are 49928 bytes and are identical to each otherother than name, the *.TOP files are 34332 = 6 x 5722 bytes, which seems too small for topography data; the ORG files vary in size.
+
+The *.CLT files are identical to the CALCA100.DAT files
+The *.TOP files are identical to each other whether called 00000001.TOP 00000002.TOP or TOPOR.TOP
+
+TOP files
+the *.TOP files are 34332 = 6 x 5722 bytes = 4 x 8583
+
+*.CLT files are NOT the same as the *.CL3 files
+per http://justsolve.archiveteam.org/wiki/Topcon_CL3
+CL3 binary files begin with the hex values 434C33 or CL3 in ascii.
+CL3 files are supported by AutoDesk[3] software as well as Agisoft Metashape and others.  
+
+CLT/DAT files
+*.CLT files, CALCA100.DAT and CALCA200.DAT which are identical are 49928 bytes = 8 x 6241
+
+ 24 rings "6200 measured points" 
+ suggests 2 (each record should hold two numbers, a radius and a power or curvature) x 4 byte 32-bit floats/records = 24 x 2 x 4 x 32 = 24 x 256
+ 24 x 256 = 6144 and 41 bytes header or footer?
+
+ first 24 "records" of 8 bytes start/terminates in BF 1011 1111, all others start/terminate in 3F 0011 1111
+ maybe my "termination" BF are beginning, with stuff prior to first BF is a header
+ maybe its little endian and things start with 3F or BF in reverse, with the BF being 64 bit
+
+ only when reading every 8 bytes, sequences ending in 3F (63) gives 6228 records = 6144 + 84, does each "point" need two numbers
+ maybe the header values contain all the ring information, with the 6144 only being double precision 64 bit curvature data?
+ reading this way also ends at the EOF, with all the extra 8 byte sequences containing BF in some places instead of 3F being in the header
+
+Maybe... the 64 bit float little endian resolving to nearly 1.00 is correct, with deviations from 1.00 being the distortions of the mires measured from the TIFF image
+Keratoscope cone 24 rings equally distributed on a 43D sphere
+Analyzed points Over 100,000 -> central image data in TIFF file
+Measured points 6,200
+Corneal coverage Up to 9.8mm on a sphere of radius 8.00mm (42.2 diopters with n=1.3375)
+
+compare with NIDEK EY binary images (PNG files)
+
+          
+

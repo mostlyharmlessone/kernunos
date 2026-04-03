@@ -6,12 +6,6 @@ module io_functions
 
    INTERFACE
 
-    subroutine ConvertOFFtoSTL(OFFNAME,STLNAME,STLBINNAME) 
-     use special_fct, only : surface_normal,rgb2attr
-     use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
-     character(len=*), intent(in) :: OFFNAME,STLNAME,STLBINNAME
-    end subroutine
-
     subroutine Geom(flag, b, donut, powmin, powmax, elements, vertices, nV, nE)
      use cornea_arrays
      use set_precision, ONLY : wp
