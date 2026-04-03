@@ -1065,8 +1065,8 @@ void MainWindow::importexport()
    const aiExportFormatDesc *format;
    const aiScene *aiscene;
    // Check and validate the specified model file extension.
-   // only obj,dae,ascii ply,binary and ascii stl,3ds,x and fbx verified to be importable
-   // in meshlab using ply as import file
+   // only obj,dae,ascii ply,binary and ascii,gltf, glb,stl,3ds,x and fbx verified to be importable
+   // in meshlab, see FAQ for latest tests
    // Colors are not always preserved eg. stl
    // this is a special case that precedes the valid extension test
    std::string extstring = extension;
@@ -1192,7 +1192,7 @@ void MainWindow::importexport()
    if (!(aiReturn_SUCCESS == 0)) {
        std::cout << "Error exporting" << filenameout << Exporter.GetErrorString() << "\n" ;
    }
-   aiDetachAllLogStreams();
+//   aiDetachAllLogStreams(); //causes a segfault after the second call
    update();
 }
 

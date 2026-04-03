@@ -1,14 +1,13 @@
 FIXES
 
-assimp crashes on second file converters
-
-
 legend rounds values too much for small numbers
 
 Swap erases pupil data...and if you decenter, it uses the original data, not the swapped
 
 
 Needs fix:
+
+superpose average of values in diopters in 3 x 3 grid over image, as option.
 
 make 3D option for all functions, with scale Z value max and min
 this will affect Geom,WriteGeomPLY/OFF
@@ -55,8 +54,8 @@ NEW MACHINE DATA IMPORTS
 
 iTrace 8640 points = 360 x 24; has "Data" binary compressed with gzip
 
-Topcon CA-800 binary files 49928 bytes = 8 x 6241 ; 24 rings "6200 measured points" suggests 8 byte floats 24 x 256 = 6144 and 41 bytes header or footer?
-8 byte segments seem to alternate?
+Topcon CA-800 binary files CLT/DAT 49928 bytes = 8 x 6241 
+see Notes
 
 PentaCam U12 file looks like it has binary data separated by blocks of zero, possibly readable.
 
