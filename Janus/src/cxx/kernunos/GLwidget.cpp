@@ -154,6 +154,7 @@ bool GLwidget::m_normal = false;
 bool GLwidget::m_lighting = false;
 bool GLwidget::m_pupilshow = false;
 bool GLwidget::m_axesshow = false;
+bool GLwidget::m_anglesshow = false;
 bool GLwidget::m_redraw = false;
 
 bool GLwidget::m_centerNode = false;
@@ -329,8 +330,8 @@ void GLwidget::initializeGL()
   m_vao.bind();
 
   // Create buffers
-  glGenBuffers(6, vertexbuffers);
-  glGenBuffers(6, elementbuffers);
+  glGenBuffers(7, vertexbuffers);
+  glGenBuffers(7, elementbuffers);
 
   m_parent->SetGLString(sglVer);
   shaderProgram = new QOpenGLShaderProgram;
@@ -1068,7 +1069,7 @@ void GLwidget::paintGL(void)
         shaderProgram->release();
      }
 
-     if (i == 6 && m_axesshow) {
+     if (i == 6 && m_anglesshow) {
 //       draws a circle with degrees at each clock hour, not compatible with Normals, rotates. translates, scales
          glEnable(GL_BLEND);
          glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1091,6 +1092,35 @@ void GLwidget::paintGL(void)
          }
          shaderText2Program->release();
      }
+
+     if (i == 7 && m_anglesshow) {
+         //     superpose average of values in diopters in 3 x 3 grid over image
+         glEnable(GL_BLEND);
+         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+         //         GLfloat white[4] = { 1, 1, 1, 1 };
+         GLfloat black[4] = { 0, 0, 0, 1 };
+         //         GLfloat red[4] = { 1, 0, 0, 1 };
+         m_world.setToIdentity();
+         m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
+         m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
+         m_world.rotate(m_zRot / 16.0f, 0, 0, 1);
+         glm::mat4 projection = glm::ortho(-static_cast<float>(SCR_WIDTH)/SCR_HEIGHT, static_cast<float>(SCR_WIDTH)/SCR_HEIGHT, -1.0f, 1.0f);
+         mMVP = mUnscaledViewMatrix * m_world;
+         shaderText2Program->bind();
+         shaderText2Program->setUniformValue(m_viewMatrix2Loc, mMVP);
+         glUniformMatrix4fv(glGetUniformLocation(shaderText2Program->programId(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+         glUniform4fv(uniform_color, 1, black);
+
+// this part needs input of averages and change in layout
+
+         for (int j=0; j < 12; ++j){
+             std::string degrees  = to_str(180.0*j/6.0);
+             render_text(vertexbuffers[i],degrees.c_str(), 0.8*cos(3.1415*j/6.0), 0.8*sin(3.1415*j/6.0), sx, sy);
+         }
+
+         shaderText2Program->release();
+     }
+
 
 //  not pupil
     if (i > 0 && i < 4) {

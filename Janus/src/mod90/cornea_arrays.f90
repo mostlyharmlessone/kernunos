@@ -593,6 +593,33 @@ subroutine RadSlope_eq_EyeSys(RadSlope,EyeSys) ! initially populates r, thta, Zp
    end do
 end subroutine RadSlope_eq_EyeSys
 
+subroutine RadSlope_eq_Visia(RadSlope,Visia) ! initially populates r, thta, Zp, MV
+  TYPE(wpEyeSysMatrix), INTENT(INOUT) :: Visia
+  TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
+  INTEGER :: i,j,MM,N
+  integer :: imv(size(RadSlope%r,2))
+  REAL(wp) :: ZIX,ZJX,YA3,X2A1
+  MM=size(RadSlope%r,2)
+  N=size(RadSlope%r,1)
+  do i=1,MM
+    imv(i)=0
+    RadSlope%thta(i)=PI*Visia%DEG(i)/128.0_wp  ! RadSlope%thta(i)=PI*(i-1)/180.0_wp should always be true for EyeSys
+      do j=1,N
+       ZIX=Visia%XX(i,j)
+       ZJX=Visia%RA(i,j)
+       if (ZIX > 0 .AND. ZJX > 0) then
+        imv(i)=imv(i)+1
+        call ZFCT(MM,i,ZJX,ZIX,X2A1,YA3)
+        RadSlope%Zp(imv(i),i)=YA3
+        RadSlope%r(imv(i),i)=X2A1
+        else
+        RadSlope%Zp(j,i)=0._wp  ! sets border
+       endif
+        RadSlope%Zp2(j,i)=1/803.0_wp ! nonzero fallback value before splining for Atlas=RadSlope
+      end do
+      RadSlope%MV(i)=imv(i)
+   end do
+end subroutine RadSlope_eq_Visia
 
 subroutine RadSlope_eq_Oculus(RadSlope,Oculus)
   TYPE(wpOculusMatrix), INTENT(INOUT) :: Oculus

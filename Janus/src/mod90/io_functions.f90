@@ -1660,6 +1660,121 @@ subroutine rcnvrte(read_error,RANAME,XXNAME,PUNAME,HXNAME)
    endif              
 end subroutine rcnvrte
 
+subroutine rcnvrtV(read_error,RANAME,XXNAME)
+! VISIA VERSION
+  USE io_functions, ONLY : get_new_fileunit
+  USE set_precision, ONLY : wp
+  USE cornea_arrays, ONLY : EyeSys
+  USE special_fct, ONLY : replacestr
+  implicit none
+  logical :: exists
+  character(len=*), intent(in) :: RANAME,XXNAME
+  character(1000) header,header_space
+  integer :: file_idx1,file_idx2,file_idx3,file_idx4,readerr
+  integer, intent(out) :: read_error
+  REAL(wp) :: ZX(24),YX(24),PX,CX,CY
+  INTEGER :: I,J,ITH,unitno1,unitno2,unitno3,unitno4,MM,N,ierr
+  MM=256
+  N=24
+  inquire(file=trim(RANAME), exist=exists)
+  if (exists) then
+   unitno1 = get_new_fileunit()
+   open(unitno1, file=trim(RANAME), action="read", iostat=ierr)
+   if (ierr .eq. 0) then
+    inquire(file=trim(XXNAME), exist=exists)
+    if (exists) then
+     unitno2 = get_new_fileunit()
+     open(unitno2, file=trim(XXNAME), action="read", iostat=ierr)
+     if (ierr .eq. 0) then
+      READ (unitno1,*) header
+      file_idx1=index(trim(header),"|")
+      if (file_idx1 > 0) then
+       write(*,*) 'RA EyeSys header detected: ',trim(header)
+      endif
+      READ (unitno2,*) header
+      file_idx2=index(trim(header),"|")
+      if (file_idx2 > 0) then
+       write(*,*) 'XX EyeSys header detected: ',trim(header)
+      else
+       write(*,*) 'No XX/RA EyeSys headers detected, assuming data only'
+       REWIND(unitno1)
+       REWIND(unitno2)
+      endif
+      do I=1,MM
+       if (file_idx1>0 .and. file_idx2>0) then
+        READ(unitno1,*,iostat=readerr) header,ZX(:)
+        if (readerr .ne. 0) then
+         WRITE (*,*) 'Error on input EyeSys RA/XX files on', I,'row'
+         read_error=3
+         return
+        endif
+        READ(unitno2,*,iostat=readerr) header,YX(:)
+        if (readerr .ne. 0) then
+         WRITE (*,*) 'Error on input EyeSys RA/XX files on', I,'row'
+         read_error=3
+         return
+        endif
+        ITH=I-1
+       else
+        READ(unitno1,*,iostat=readerr) ITH,ZX(:)
+        if (readerr .ne. 0) then
+         WRITE (*,*) 'Error on headerless input EyeSys RA/XX files on', I,'row'
+         read_error=3
+         return
+        endif
+        READ(unitno2,*,iostat=readerr) ITH,YX(:)
+        if (readerr .ne. 0) then
+         WRITE (*,*) 'Error on headerless input EyeSys RA/XX files on', I,'row'
+         read_error=3
+         return
+        endif
+       endif
+       do J=1,N
+        EyeSys%RA(i,j)=ZX(j)
+        EyeSys%XX(i,j)=YX(j)
+!       Sanity check on file data
+        if (YX(J) > 0 .AND. ZX(J) > 0) then
+         if (YX(J) <= ZX(J)) then
+          WRITE (*,*) 'Error on input EyeSys RA/XX files ArcTan',i,j,YX(J),ZX(J)
+          read_error=1
+          return
+          endif
+         endif
+       end do
+       if (ITH == (I-1)) then
+        EyeSys%DEG(i)=ITH
+       else
+        WRITE (*,*) 'Error on input EyeSys RA/XX files with ITH'
+        read_error=2
+        return
+       endif
+      end do
+      CLOSE (unitno1)
+      CLOSE (unitno2)
+      else
+         print*, "Error ", ierr ," attempting to open file ", trim(XXNAME)
+         read_error=3
+        return
+      endif
+     else
+      print*, "Error -- cannot find file: ", trim(XXNAME)
+      read_error=4
+      return
+     endif
+    else
+     print*, "Error ", ierr ," attempting to open file ", trim(RANAME)
+     read_error=5
+     return
+    endif
+   else
+    print*, "Error -- cannot find file: ", trim(RANAME)
+    read_error=6
+    return
+   endif
+end subroutine rcnvrtV
+
+
+
 subroutine rcnvrta_type(KXNAME,N,read_error)
 ! determine ATLAS VERSION if 900 or 9000; N=25 or 22
  use io_functions, only : get_new_fileunit

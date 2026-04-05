@@ -1,27 +1,25 @@
 FIXES
 
-legend rounds values too much for small numbers
+superpose average of values in diopters in 3 x 3 or 5 dice pattern, with major axes? grid over image, as option.
 
-Swap erases pupil data...and if you decenter, it uses the original data, not the swapped
-
-
-Needs fix:
-
-superpose average of values in diopters in 3 x 3 grid over image, as option.
 
 make 3D option for all functions, with scale Z value max and min
 this will affect Geom,WriteGeomPLY/OFF
 
- units in D or mm for elevation
+units in D or mm for elevation; selector in legend part in kernunos
 
-need a 2-D picture output other than gnuplot version
-make mathematica plot output?, just like ply,off etc.
+
+
+search for Visia in source code to strip out or enable eysys version of reading visia if I fix it
+
+
+Needs fix:
+
 
 zernike computations only for if ( Testdata .le.1 ) then     ! only for test/Atlas/EyeSys at present
 compare is broken with zernike; also so is opening 2nd file with zernike selected and zernike
 
-FREETYPE_INCLUDE_DIRS added because Free type seems hard to find
-
+screenshot might need other than tga.
 
 ? needs extreme value filter; or histogram of values for median and color scale  like OPDIII
 resurrect old noise reduction code to help out monge-astig and meanc for real data?
@@ -41,6 +39,7 @@ errorMessageDialog
 
 enable the tweaks prior to loading the file? but not with auto redraw
 Look at broken EyeSys file ".17" for why LSQ fillin doesnt work and makes duplicate radii
+also has weird PU file
 
 enforce, or have a warning having to make new zernike after loading new data, also if tweaks changed
 
@@ -57,11 +56,14 @@ iTrace 8640 points = 360 x 24; has "Data" binary compressed with gzip
 Topcon CA-800 binary files CLT/DAT 49928 bytes = 8 x 6241 
 see Notes
 
-PentaCam U12 file looks like it has binary data separated by blocks of zero, possibly readable.
+PentaCam U12 file looks like it has binary data separated by blocks of zero, possibly readable, could compare with known data?
 
-Optimizing:
+
+OPTIMIZING
 
 1)valgrind/profiling 
+
+https://stackoverflow.com/questions/868568/what-do-the-terms-cpu-bound-and-i-o-bound-mean/33510470#33510470
 
 2)need to relook at integration to see if can eliminate extra function calls
 try going back to splineeval1dx1d and removing extra calls to splineeval, aka back to trial that spawned current branch
@@ -100,7 +102,6 @@ from LSQ Bspline paper as well as others interpolation vs fitting
 rings function can demonstrate difference. Discontinuity in all data circumferentially affects theta derivatives, all the more with splining.
 multiple zeroes in ELE/HT files and adjacent identical points in general.
 
-hamming's motto "The purpose of computing is insight, not numbers"
 
 notes from spline_monge.odt into help/faq OR add docs in pdf to main release files
 incorporate cornea docs from BRODIE, may need to read those old DRW->some converted to eps
@@ -149,6 +150,42 @@ for (int i = 0; i < N; i++) a[i]=b[i]+ scalar * c[i];
 OpenMP 5.0
 #pragma omp target teams loop
 for (int i = 0; i < N; i++) a[i]=b[i]+ scalar * c[i];)
+
+tiff support
+
+https://www.ncbi.nlm.nih.gov/IEB/ToolBox/CPP_DOC/lxr/source/src/util/image/image_io_tiff.cpp
+void CImageIOTiff::WriteImage(const CImage& image, CNcbiOstream& ostr,
+                              size_t x, size_t y, size_t w, size_t h,
+                              CImageIO::ECompress compress)
+{
+    CRef<CImage> subimage(image.GetSubImage(x, y, w, h));
+    WriteImage(*subimage, ostr, compress);
+}
+
+or
+#include "tiffio.h"
+#include <vector>
+
+void saveBufferAsTiff(const char* filename, uint32_t width, uint32_t height, unsigned char* buffer) {
+    TIFF* tif = TIFFOpen(filename, "w");
+    if (!tif) return;
+
+    // Set basic TIFF tags
+    TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, width);
+    TIFFSetField(tif, TIFFTAG_IMAGELENGTH, height);
+    TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 1); // 1 for Grayscale, 3 for RGB
+    TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 8);
+    TIFFSetField(tif, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
+    TIFFSetField(tif, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
+    TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);
+
+    // Write the buffer row by row
+    for (uint32_t row = 0; row < height; row++) {
+        if (TIFFWriteScanline(tif, buffer + (row * width), row, 0) < 0) break;
+    }
+
+    TIFFClose(tif);
+}
 
 
 

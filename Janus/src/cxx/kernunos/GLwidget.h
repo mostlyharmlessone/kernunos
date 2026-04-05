@@ -155,6 +155,9 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     static bool isAxes() { return m_axesshow; }
     static void setAxes(bool t) { m_axesshow = t; }
 
+    static bool isAngles() { return m_anglesshow; }
+    static void setAngles(bool t) { m_anglesshow = t; }
+
     static bool isRedraw() { return m_redraw; }
     static void setRedraw(bool t) { m_redraw = t; }
 
@@ -587,6 +590,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     static bool m_lighting;
     static bool m_pupilshow;
     static bool m_axesshow;
+    static bool m_anglesshow;
     static bool m_redraw;
 
     static bool m_centerNode;

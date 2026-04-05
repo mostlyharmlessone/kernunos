@@ -65,7 +65,6 @@ extern float* legend2;
 extern std::vector<float> zernVector2;
 extern float* zern2;
 
-
 // calling fortran code
 
 extern "C" {
@@ -141,6 +140,7 @@ private slots:
     void compare();
     void decenter();
     void swap();
+    void exportpicture();
     void zerncompute();
     void showzern();
     void ply2bin();
@@ -154,6 +154,7 @@ private slots:
     void light();
     void pupil();
     void axes();
+    void angles();
     void redrawOption();
     void about();
     void aboutQt();
@@ -260,6 +261,7 @@ private:
     QAction *consistencyAct;
     QAction *compareAct;
     QAction *swapAct;
+    QAction *screenshotAct;
     QAction *exitAct;
 
     QMenu *exportMenu;
@@ -275,6 +277,7 @@ private:
     QAction *normalAct;
     QAction *pupilAct;
     QAction *axesAct;
+    QAction *anglesAct;
 
     QMenu *analyzeMenu;
     QAction *zernAct;

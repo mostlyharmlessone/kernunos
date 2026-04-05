@@ -508,6 +508,17 @@ if (mod(flag,100) == 11) then
   JMatrix2=JMatrix
   JMatrix=JMatrix1
   JMatrix1=JMatrix2
+  donut = .FALSE.
+  call selectfunction(0,JMatrix,flag,powctr,powmin,powmax)
+  dist = real(-2*JMatrix%Z0(3),kind=sk)
+! generate buffer data
+  pupil_elements(1:pupil_nE)=0
+  pupil_vertices(1:pupil_nV)=0
+  elements(1:nE) = 0
+  vertices(1:nV) = 0
+  call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
+  call Pupil(JMatrix, dist, pupil_elements, pupil_vertices, pupil_nV, pupil_nE)
+  call makelegend(flag, powmin, powmax, legend, nL)
   return
  else
   write(*,*) "Needs two scans for swap"
@@ -957,6 +968,10 @@ if (mod(flag,100) == 0) then
        inquire(file=trim(inputfile2), exist=exists)
        if(exists) then
         TestData=0 ; MM=360; N=16   ! EyeSys
+
+        TestData=0 ; MM=256; N=24   ! EyeSys
+
+
         write(*,*) "Matching EyeSys RA file",inputfile2
        endif
        inputfile3=replacestr(string=inputfile1,search="XX",substitute="PU")
@@ -979,6 +994,9 @@ if (mod(flag,100) == 0) then
         inquire(file=trim(inputfile2), exist=exists)
         if(exists) then
          TestData=0 ; MM=360; N=16   ! EyeSys
+
+!         TestData=0 ; MM=256; N=24   ! Visia
+
          write(*,*) "Matching EyeSys RA file",inputfile2
         endif
         inputfile3=replacestr(string=inputfile1,search="/XX",substitute="/PU")
@@ -1034,6 +1052,9 @@ if (mod(flag,100) == 0) then
          endif
         else
          TestData=0 ; MM=360; N=16   ! EyeSys
+
+!         TestData=0 ; MM=256; N=24   ! Visia
+
          write(*,*) 'Matching EyeSys XX file: ',inputfile1
          inputfile3=replacestr(string=inputfile2,search="RA",substitute="PU")
          inputfile4=replacestr(string=inputfile2,search="RA",substitute="HX")
@@ -1074,6 +1095,11 @@ if (mod(flag,100) == 0) then
           endif
          else
           TestData=0 ; MM=360; N=16   ! EyeSys
+
+
+!          TestData=0 ; MM=256; N=24   ! Visia
+
+
           write(*,*) 'Matching EyeSys XX file: ',inputfile1
           inputfile3=replacestr(string=inputfile2,search="/RA",substitute="/PU")
           inputfile4=replacestr(string=inputfile2,search="/RA",substitute="/HX")
@@ -1131,6 +1157,9 @@ if (mod(flag,100) == 0) then
 
 if (TestData .eq. 0) then
  MM=360 ; N=16 ! EyeSys if file not read; should not be necessary as should agree with previous value.
+
+! MM=256 ; N=24 ! Visia if file not read; should not be necessary as should agree with previous value.
+
  if (mod(flag,100) == 0) then !read the files
 ! READ THE EYESYS DATA
 ! XX????? ARE THE AXIAL DIST. RX???? ARE THE MIRE RADII  
@@ -1144,7 +1173,13 @@ if (TestData .eq. 0) then
    endif
    inquire(file=trim(inputfile3), exist=exists)
    if(.NOT.exists) then
+
     call RCNVRTE(read_error,inputfile2,inputfile1)
+
+
+!    call RCNVRTV(read_error,inputfile2,inputfile1) !Visia version
+
+
    else
     inquire(file=trim(inputfile4), exist=exists)
     if(.NOT.exists) then
@@ -1173,7 +1208,10 @@ if (TestData .eq. 0) then
    call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
   endif
 ! Generate the slope matrix
+
   RadSlope=EyeSys
+!  call RadSlope_eq_Visia(RadSlope,EyeSys)
+
 endif
 
 if (TestData .eq. 7) then

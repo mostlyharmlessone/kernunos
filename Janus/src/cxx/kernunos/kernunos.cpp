@@ -81,7 +81,6 @@
 #include "../kernunos/counter.h"
 #include "../kernunos/logc.h"
 
-
 using namespace QtConcurrent;
 
 // global settings
@@ -782,14 +781,49 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
    update();
 }
 
+
+// https://stackoverflow.com/questions/59234281/save-opengl-rendering-to-an-image-file
+void MainWindow::exportpicture()
+{
+
+    // get output file name and type
+    QString filter =
+       "Discreet TGA .tga (*.tga) )";
+    QString fileName = QFileDialog::getSaveFileName(this,"Screenshot type", "", filter);
+    if (fileName.isEmpty())
+        return;
+    QByteArray ba = fileName.toLocal8Bit();
+
+    const char *filenameout = ba.data();
+    const char* extension = strrchr(filenameout, '.');
+    std::string extstring = extension;
+
+    int* buffer = new int[ SCR_WIDTH * SCR_HEIGHT * 3 ];
+    glReadPixels( 0, 0, SCR_WIDTH, SCR_HEIGHT, GL_BGR, GL_UNSIGNED_BYTE, buffer );
+
+    std::string tgatype = ".tga"; std::string TGAtype = ".TGA";
+    if (extstring == tgatype || extstring == TGAtype){
+      FILE   *out = fopen(filenameout, "w");
+      short  TGAhead[] = {0, 2, 0, 0, 0, 0, SCR_WIDTH, SCR_HEIGHT, 24};
+      fwrite(&TGAhead, sizeof(TGAhead), 1, out);
+      fwrite(buffer, SCR_WIDTH * SCR_HEIGHT * 3, 1, out);
+      fclose(out);
+    };
+
+    return;
+
+}
+
+
+
 void MainWindow::swap()
 {
+    m_GLwidget->Swap();
     flag=flag-(flag%100)+11;  // flag for swap
     QString fileName = "swap";
     QByteArray ba = fileName.toLocal8Bit();
     filename = ba.data();
     janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
-    m_GLwidget->Swap();
 }
 
 void MainWindow::compare()
@@ -1587,6 +1621,16 @@ void MainWindow::axes()
     };
 }
 
+void MainWindow::angles()
+{
+    if (GLwidget::isAngles()) {
+        GLwidget::setAngles(false);
+        ui.infoLabel->setText(tr("Set <b>View:Angles false</b>"));
+    } else {
+        GLwidget::setAngles(true);
+        ui.infoLabel->setText(tr("Set <b>View:Angles true</b>"));
+    };
+}
 
 void MainWindow::fctAxial()
 {
@@ -2378,6 +2422,10 @@ void MainWindow::createActions()
    importexportAct->setEnabled(false);
    connect(importexportAct, &QAction::triggered, this, &MainWindow::importexport);
 
+   screenshotAct = new QAction(tr("&Screenshot"), this);
+   screenshotAct->setEnabled(true);
+   connect(screenshotAct, &QAction::triggered, this, &MainWindow::exportpicture);
+
    exitAct = new QAction(tr("E&xit"), this);
    exitAct->setShortcuts(QKeySequence::Quit);
    exitAct->setStatusTip(tr("Exit the application"));
@@ -2418,6 +2466,10 @@ void MainWindow::createActions()
    axesAct = new QAction(tr("&Show Axes"), this);
    connect(axesAct, &QAction::triggered, this, &MainWindow::axes);
    axesAct->setCheckable(true);
+
+   anglesAct = new QAction(tr("&Show Angles"), this);
+   connect(anglesAct, &QAction::triggered, this, &MainWindow::angles);
+   anglesAct->setCheckable(true);
 
    centernodeAct=new QAction(tr("&Create center node to force MinMax at origin"), this);
    centernodeAct->setCheckable(true);
@@ -2642,6 +2694,7 @@ void MainWindow::createMenus()
    fileMenu->addAction(decenterAct);
    fileMenu->addAction(swapAct);
    fileMenu->addAction(redrawAct);
+   fileMenu->addAction(screenshotAct);
    exportMenu = fileMenu->addMenu(tr("&Export"));
    exportMenu->addAction(makeplyAct);
    exportMenu->addAction(ply2binAct);
@@ -2696,6 +2749,7 @@ void MainWindow::createMenus()
    viewMenu->addAction(normalAct);
    viewMenu->addAction(pupilAct);
    viewMenu->addAction(axesAct);
+   viewMenu->addAction(anglesAct);
    tweaksMenu = menuBar()->addMenu(tr("&Placido data tweaks"));
    tweaksMenu->addAction(axisymmetricAct);
    tweaksMenu->addAction(centernodeAct);
@@ -2729,16 +2783,17 @@ void MainWindow::updateResult()
                                           legend2[(i-1)*4+2],
                                           legend2[(i-1)*4+3],
                                           255);
-/*
     // write the values
+/*
+        float powmin =legend2[96];
+        float powmax =legend2[0];
         std::cout << "legend[" << (i-1)*4+1 << "]=" <<
                 legend2[(i-1)*4+1] << ";\n" << "legend[" << (i-1)*4+2 << "]=" <<
             legend2[(i-1)*4+2] << ";\n" << "legend[" << (i-1)*4+3 << "]=" <<
             legend2[(i-1)*4+3] << ";\n" << "legend[" <<(i-1)*4+0 << "]=" <<
-            floor(legend2[(i-1)*4]+0.5) << ";\n" <<
+            floor(legend2[(i-1)*4]+0.5) << ";\n" << powmin << "\n" << powmax << "\n" <<
             std::endl;
 */
-
         grBtoY.setColorAt((i-1)/26.0, rgbcolor);
         grBtoY2.setColorAt((i-1)/26.0, rgbcolor2);
     }
@@ -2768,12 +2823,30 @@ void MainWindow::updateResult()
         legendvalues += "\n";
     }
     QString legendvalues2 = "";
+//  adjust so that range is greater than 5 as it may not be for differences
+    float powmin =legend2[96];
+    float powmax =legend2[0];
+    int mult = 1; int logmult = 0;
+    if ((powmax-powmin) > 0) {
+    while (powmax-powmin < 5.0) {
+        mult = mult*10;
+        logmult = logmult + 1;
+        powmin = powmin * mult;
+        powmax = powmax * mult;
+    };};
+    std::string ss = std::to_string(logmult);
+    const char* charArray = ss.c_str();
+
     for (int i = 1; i <= 13; ++i) {
-        float j = floor(legend2[(i-1)*8]+0.5);
+        float j = (mult*legend2[(i-1)*8]); // floor(mult*legend2[(i-1)*8]+0.5); //limits to integer values
         std::string t2 = std::to_string(j);  //stuck with 6 digits output
         char const *n_char2 = t2.c_str();
         legendvalues2 += "\n";
         legendvalues2 += n_char2;
+        if (logmult > 0) {
+        legendvalues2 += "  E-";
+        legendvalues2 += charArray;
+        };
         legendvalues2 += "\n";
         legendvalues2 += "\n";
     }
