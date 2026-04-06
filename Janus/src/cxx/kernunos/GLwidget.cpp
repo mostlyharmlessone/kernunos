@@ -258,8 +258,8 @@ void GLwidget::cleanup()
   if (shaderProgram == nullptr)
             return;
   makeCurrent();
-  glDeleteBuffers(6,vertexbuffers);
-  glDeleteBuffers(6,elementbuffers);
+  glDeleteBuffers(8,vertexbuffers);
+  glDeleteBuffers(8,elementbuffers);
   killTimer(timerID);
   delete shaderProgram;
   shaderProgram = nullptr;
@@ -330,8 +330,8 @@ void GLwidget::initializeGL()
   m_vao.bind();
 
   // Create buffers
-  glGenBuffers(7, vertexbuffers);
-  glGenBuffers(7, elementbuffers);
+  glGenBuffers(8, vertexbuffers);
+  glGenBuffers(8, elementbuffers);
 
   m_parent->SetGLString(sglVer);
   shaderProgram = new QOpenGLShaderProgram;
@@ -550,7 +550,7 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
       // Start the computation.
       paintme=false;
       if ((flag%100) == 10){
-          auto future1 = std::async([&]{return janus_(&flag,filename,elements3,vertices3,legend2,zern,&nV[2],&nE[2],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE, &err_janus);});
+          auto future1 = std::async([&]{return janus_(&flag,filename,elements3,vertices3,legend2,cardinal2,zern,&nV[2],&nE[2],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE, &err_janus);});
           future1.get();}
       else {
 
@@ -562,7 +562,7 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
               elements2[i]=elements[i];
           }
 
-          futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements,vertices,legend,zern,&nV[0],&nE[0],&nL,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE, &err_janus);}));
+          futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE, &err_janus);}));
           // Display the dialog and start the event loop.
           dialog.exec();
           futureWatcher.waitForFinished();
@@ -974,7 +974,7 @@ void GLwidget::paintGL(void)
     m_vao.bind();
 
     // do them in this order for transparency overlay
-    for (int i=6; i > 0 ; i--)
+    for (int i=7; i > 0 ; i--)
     {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertexbuffers[i]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffers[i]);
@@ -1094,12 +1094,12 @@ void GLwidget::paintGL(void)
      }
 
      if (i == 7 && m_anglesshow) {
-         //     superpose average of values in diopters in 3 x 3 grid over image
+         //superpose average of values in diopters in 3 x 3 circular grid over image
          glEnable(GL_BLEND);
          glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-         //         GLfloat white[4] = { 1, 1, 1, 1 };
-         GLfloat black[4] = { 0, 0, 0, 1 };
-         //         GLfloat red[4] = { 1, 0, 0, 1 };
+         GLfloat white[4] = { 1, 1, 1, 1 };
+         // GLfloat black[4] = { 0, 0, 0, 1 };
+         // GLfloat red[4] = { 1, 0, 0, 1 };
          m_world.setToIdentity();
          m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
          m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
@@ -1109,13 +1109,15 @@ void GLwidget::paintGL(void)
          shaderText2Program->bind();
          shaderText2Program->setUniformValue(m_viewMatrix2Loc, mMVP);
          glUniformMatrix4fv(glGetUniformLocation(shaderText2Program->programId(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-         glUniform4fv(uniform_color, 1, black);
+         glUniform4fv(uniform_color, 1, white);
 
-// this part needs input of averages and change in layout
-
-         for (int j=0; j < 12; ++j){
-             std::string degrees  = to_str(180.0*j/6.0);
-             render_text(vertexbuffers[i],degrees.c_str(), 0.8*cos(3.1415*j/6.0), 0.8*sin(3.1415*j/6.0), sx, sy);
+         // central value
+         std::string degrees  = std::to_string(int(cardinal[1]));
+         render_text(vertexbuffers[i],degrees.c_str(), 0.0, 0.0, 2*sx, 2*sy);
+         // cardinal values
+         for (int j=2; j < nC; ++j){
+             std::string degrees  = std::to_string(int(cardinal[j]));
+             render_text(vertexbuffers[i],degrees.c_str(), 0.2*cos(3.14159*(j-1)/4.0), 0.2*sin(3.14159*(j-1)/4.0), 2*sx, 2*sy);
          }
 
          shaderText2Program->release();

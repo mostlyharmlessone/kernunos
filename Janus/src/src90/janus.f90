@@ -1,4 +1,4 @@
-  subroutine Janus(flag,file_from_C,elements,vertices,legend,zern,nV,nE,nL,pupil_elements,pupil_vertices,pupil_nV,pupil_nE,err_janus) bind(C,name='janus_')
+  subroutine Janus(flag,file_from_C,elements,vertices,legend,cardinal,zern,nV,nE,nL,nC,pupil_elements,pupil_vertices,pupil_nV,pupil_nE,err_janus) bind(C,name='janus_')
 ! back end for calculations
   use set_precision, ONLY : wp, sk
   use lapackinterface
@@ -28,8 +28,8 @@
   integer(c_int), INTENT(INOUT) :: err_janus
   real(c_float), INTENT(INOUT) :: pupil_vertices(*)
   integer(c_int), INTENT(INOUT) :: pupil_elements(*)
-  integer(c_int), INTENT(INOUT) :: nL
-  real(c_float), INTENT(INOUT) :: legend(*)
+  integer(c_int), INTENT(INOUT) :: nL,nC
+  real(c_float), INTENT(INOUT) :: legend(*),cardinal(*)
   real(c_float), INTENT(INOUT) :: zern(*)
   real(c_float) :: dist
   character(len=4096) :: new_path
@@ -307,7 +307,7 @@ if (mod(flag,100) .eq. 5 ) then
  if (allocated(JMatrix%R)) then
   donut = .FALSE.
   fct=mod(((flag-mod(flag,10000))/10000),100)
-  call selectfunction(0,JMatrix,flag,powctr,powmin,powmax)
+  call selectfunction(0,JMatrix,flag,powctr,powmin,powmax,cardinal,nC)
  endif
 ! generate data file
   unitno1 = get_new_fileunit()
@@ -466,7 +466,7 @@ file_idx=index(inputfile1, ".ply")
    return
   else
   donut = .FALSE.
-  call selectfunction(0,JMatrix,flag,powctr,powmin,powmax)
+  call selectfunction(0,JMatrix,flag,powctr,powmin,powmax,cardinal,nC)
 !  write(*,*) 'powctr,POWMIN,POWMAX',powctr,POWMIN,POWMAX
   call WriteGeomPLY(flag,JMatrix,donut,powmin,powmax,inputfile1)
   write(*,*) 'Wrote ply file...',inputfile1
@@ -489,7 +489,7 @@ file_idx=index(inputfile1, ".off")
    return
   else
   donut = .FALSE.
-  call selectfunction(0,JMatrix,flag,powctr,powmin,powmax)
+  call selectfunction(0,JMatrix,flag,powctr,powmin,powmax,cardinal,nC)
   write(*,*) 'powctr,POWMIN,POWMAX',powctr,POWMIN,POWMAX
   call WriteGeomOFF(flag,JMatrix,donut,powmin,powmax,inputfile1)
   write(*,*) 'Wrote off file...',inputfile1
@@ -509,7 +509,7 @@ if (mod(flag,100) == 11) then
   JMatrix=JMatrix1
   JMatrix1=JMatrix2
   donut = .FALSE.
-  call selectfunction(0,JMatrix,flag,powctr,powmin,powmax)
+  call selectfunction(0,JMatrix,flag,powctr,powmin,powmax,cardinal,nC)
   dist = real(-2*JMatrix%Z0(3),kind=sk)
 ! generate buffer data
   pupil_elements(1:pupil_nE)=0
@@ -565,7 +565,7 @@ if (btest(dat,5)) then
   endif
 
 ! make the elevation based on the rings above and the original RadSlope for Z
-  call selectfunction(2,JMatrix3,flag,powctr,powmin,powmax)
+  call selectfunction(2,JMatrix3,flag,powctr,powmin,powmax,cardinal,nC)
 
 ! remake Radslope/DiaSlope based on new JMatrix only on elevations, just like ELE or ELE_CSV
   RadSlope=0
@@ -636,7 +636,7 @@ if (btest(dat,5)) then
   end do
 
 ! make new central values
-  call centersJMatrix(JMatrix3,TestData,dat,iflag)
+  call centersJMatrix(JMatrix3,TestData,dat,iflag,cardinal,nC)
 
 ! find min and maximum
   call minmax(JMatrix3)
@@ -644,7 +644,7 @@ if (btest(dat,5)) then
   donut = .FALSE.
   elements(1:nE) = 0
   vertices(1:nV) = 0
-  call selectfunction(0,JMatrix3,flag,powctr,powmin,powmax)  !with 0 only loads powctr, powmin, powmax
+  call selectfunction(0,JMatrix3,flag,powctr,powmin,powmax,cardinal,nC)  !with 0 only loads powctr, powmin, powmax, cardinals
   call Geom(flag, JMatrix3, donut, powmin, powmax, elements, vertices, nV, nE)
   call makelegend(flag, powmin, powmax, legend, nL)
  !reset
@@ -676,7 +676,7 @@ if (mod(flag,100) == 10) then
    end do
   end do
 ! regenerates based on new R/tht
-  call selectfunction(1,JMatrix3,flag,powctr,powmin,powmax)
+  call selectfunction(1,JMatrix3,flag,powctr,powmin,powmax,cardinal,nC)
  endif
 
  rotationdegrees=mod(270-rotationdegrees/2,180) ! makes 180 no rotation without risk of negative indices, odd rotation degrees get floor
@@ -765,7 +765,7 @@ if (mod(flag,100) == 10) then
   donut = .FALSE.
   elements(1:nE) = 0
   vertices(1:nV) = 0
-  call selectfunction(0,JMatrix2,flag,powctr,powmin,powmax)
+  call selectfunction(0,JMatrix2,flag,powctr,powmin,powmax,cardinal,nC)
   call Geom(flag, JMatrix2, donut, powmin, powmax, elements, vertices, nV, nE)
   call makelegend(flag, powmin, powmax, legend, nL)
   return
@@ -2078,7 +2078,7 @@ endif
   endif
 ! Calculate center values for everything
 ! These have MM different values of the center!
-  call centersJMatrix(JMatrix,TestData,dat,iflag)
+  call centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
 ! find min max of everything
   call minmax(JMatrix)
 ! end populating JMatrix
@@ -2469,7 +2469,7 @@ endif
 ! writes values in openGL friendly format to matrices for passing to C/C++
 ! flag/fct determines what to write for elevation and color, just like in flag=2,3 output versions above
   donut = .FALSE.
-  call selectfunction(0,JMatrix,flag,powctr,powmin,powmax)
+  call selectfunction(0,JMatrix,flag,powctr,powmin,powmax,cardinal,nC)
   dist = real(-2*JMatrix%Z0(3),kind=sk)
 ! generate buffer data
   pupil_elements(1:pupil_nE)=0

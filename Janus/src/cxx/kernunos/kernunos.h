@@ -55,6 +55,10 @@ extern std::vector<float> legendVector;
 extern float* legend;
 extern int nL;
 
+extern std::vector<float> cardinalVector;
+extern float* cardinal;
+extern int nC;
+
 extern std::vector<float> zernVector;
 extern float* zern;
 extern int nZ;
@@ -62,13 +66,16 @@ extern int nZ;
 extern std::vector<float> legendVector2;
 extern float* legend2;
 
+extern std::vector<float> cardinalVector2;
+extern float* cardinal2;
+
 extern std::vector<float> zernVector2;
 extern float* zern2;
 
 // calling fortran code
 
 extern "C" {
-void janus_(int *flag,char *filename,GLuint *elements,GLfloat *vertices,float *legend,float *zern,int *nV,int *nE,int *nL,GLuint *pupil_elements,GLfloat *pupil_vertices,int *pupil_nV, int *pupil_nE, int *err_janus);
+void janus_(int *flag,char *filename,GLuint *elements,GLfloat *vertices,float *legend,float *cardinal,float *zern,int *nV,int *nE,int *nL,int *nC,GLuint *pupil_elements,GLfloat *pupil_vertices,int *pupil_nV, int *pupil_nE, int *err_janus);
 // needs an underscore despite c_interface.f90 bind C declaration
 };
 

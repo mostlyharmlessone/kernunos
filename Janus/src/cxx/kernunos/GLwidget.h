@@ -98,7 +98,7 @@ extern GLfloat* pupil_vertices2;
 extern GLuint* pupil_elements2;
 
 extern "C" {
-void janus_(int *flag,char *filename,GLuint *elements,GLfloat *vertices,float *legend,float *zern,int *nV,int *nE,int *nL,GLuint *pupil_elements,GLfloat *pupil_vertices,int *pupil_nV, int *pupil_nE, int *err_janus);
+void janus_(int *flag,char *filename,GLuint *elements,GLfloat *vertices,float *legend,float *cardinal, float *zern,int *nV,int *nE,int *nL,int *nC,GLuint *pupil_elements,GLfloat *pupil_vertices,int *pupil_nV, int *pupil_nE, int *err_janus);
 // needs an underscore despite c_interface.f90 bind C declaration
 };
 
@@ -555,8 +555,8 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     bool LoadLinesToBuffer(int nV, int nE, GLuint vertexbuffer,  GLuint elementbuffer, GLfloat *vertices, GLuint *elements);
     void render_text(GLuint vertexbuffer,const char *text, float x, float y, float sx, float sy);
 
-    GLuint elementbuffers[7];  //i 0 to 6
-    GLuint vertexbuffers[7];   //i 0 to 6
+    GLuint elementbuffers[8];  //i 0 to 7
+    GLuint vertexbuffers[8];   //i 0 to 7
     int timerID;
 
     void setupVertexAttribs();

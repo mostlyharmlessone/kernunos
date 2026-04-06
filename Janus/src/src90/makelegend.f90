@@ -11,7 +11,7 @@
        integer :: k,map
        real(wp) :: pow,maximum,minimum
        real(c_float), INTENT(INOUT) :: legend(*)
-       integer(c_int), INTENT(INOUT) :: flag, nL                        
+       integer(c_int), INTENT(INOUT) :: flag, nL
 
        map=mod((flag-mod(flag,100))/100,100)
 
@@ -59,7 +59,6 @@
          c_pow=real(pow,kind=4)  ! explicitly cast to kind=4 for consistent with c_float
          legend(4*k-3:4*k)=(/c_pow,c_rgbv/)
          end do
-
 
        end subroutine makelegend
 
