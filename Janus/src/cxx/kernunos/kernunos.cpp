@@ -154,7 +154,7 @@ const unsigned int SCR_HEIGHT = 800;
 // 2 = write OFF file
 // 1 = compute zernike coefficients/maps
 
-int flag=500;
+int64_t flag=500;
 int counter=0;
 char *filename;
 bool success=false;
@@ -200,8 +200,8 @@ float* legend = legendVector.data();
 
 // data vector for cardinal values
 int nC = 9;
-std::vector<float> cardinalVector(nL);  //9 central and surrounding 8
-float* cardinal = cardinalVector.data();
+std::vector<double> cardinalVector(nL);  //9 central and surrounding 8
+double* cardinal = cardinalVector.data();
 
 // data vector for zernike graph
 int nZ = 14;
@@ -213,8 +213,8 @@ std::vector<float> legendVector2(nL);  //26 colors =  1 value + 3 rgbv (value,rg
 float* legend2 = legendVector2.data();
 
 // data vector for cardinal values
-std::vector<float> cardinalVector2(nL);  //9 central and surrounding 8
-float* cardinal2 = cardinalVector2.data();
+std::vector<double> cardinalVector2(nL);  //9 central and surrounding 8
+double* cardinal2 = cardinalVector2.data();
 
 // data vector for zernike graph
 std::vector<float> zernVector2(nZ);  //12 zernike and min/max
@@ -322,7 +322,8 @@ MainWindow::MainWindow(QMainWindow *parent) : assistant(new Assistant)
    multiLineTextLabel = new QLabel;
    multiLineTextLabel->setFrameStyle(frameStyle);
 // starting defaults
-   GLwidget::setaxisymmetric(true);
+   GLwidget::setnotelevation(false);
+   GLwidget::setaxisymmetric(true);   
    GLwidget::setlsqvsspline(true);
    GLwidget::setLSQspline(true);
    centerAct->setEnabled(false);
@@ -499,11 +500,12 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
        centernodeAct->setEnabled(true);
        adjustradiiAct->setEnabled(true);
        SplinefillinAct->setEnabled(true);
-       LSQfillinAct->setEnabled(false);
+       LSQfillinAct->setEnabled(true);
        lsqvssplineAct->setEnabled(true);
    };
    compareAct->setEnabled(true);
    decenterAct->setEnabled(true);
+   notelevationAct->setEnabled(true);
    swapAct->setEnabled(true);
    redrawAct->setEnabled(true);
    redrawOptionAct->setEnabled(true);
@@ -571,6 +573,7 @@ void MainWindow::test()
     QString fileName = QString::fromStdString("test");
     ShowZernAct->setEnabled(false);
     decenterAct->setEnabled(true);
+    notelevationAct->setEnabled(true);
     centerAct->setEnabled(true);
     ringsAct->setEnabled(false);
     centernodeAct->setEnabled(true);
@@ -724,6 +727,7 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
            lsqvssplineAct->setEnabled(true);
        };
        compareAct->setEnabled(true);
+       notelevationAct->setEnabled(true);
        decenterAct->setEnabled(true);
        swapAct->setEnabled(true);
        redrawAct->setEnabled(true);
@@ -794,7 +798,6 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
 // https://stackoverflow.com/questions/59234281/save-opengl-rendering-to-an-image-file
 void MainWindow::exportpicture()
 {
-
     // get output file name and type
     QString filter =
        "Discreet TGA .tga (*.tga) )";
@@ -818,11 +821,8 @@ void MainWindow::exportpicture()
       fwrite(buffer, SCR_WIDTH * SCR_HEIGHT * 3, 1, out);
       fclose(out);
     };
-
     return;
-
 }
-
 
 
 void MainWindow::swap()
@@ -1641,6 +1641,17 @@ void MainWindow::angles()
     };
 }
 
+void MainWindow::power()
+{
+    if (GLwidget::isPower()) {
+        GLwidget::setPower(false);
+        ui.infoLabel->setText(tr("Set <b>View:Power false</b>"));
+    } else {
+        GLwidget::setPower(true);
+        ui.infoLabel->setText(tr("Set <b>View:Power true</b>"));
+    };
+}
+
 void MainWindow::fctAxial()
 {
    if (GLwidget::isAxial()) {
@@ -2166,6 +2177,20 @@ void MainWindow::tweakaxisymmetric()
 }
 
 
+void MainWindow::tweaknotelevation()
+{
+    if (GLwidget::isnotelevation()) {
+        GLwidget::setnotelevation(false);
+        notelevationAct->setChecked(GLwidget::isnotelevation());
+    } else {
+        GLwidget::setnotelevation(true);
+        notelevationAct->setChecked(GLwidget::isnotelevation());
+    };
+    if (GLwidget::isRedraw()) {
+        redraw();
+    };
+}
+
 void MainWindow::colorrgb2()
 {
    if (GLwidget::isrgb2()) {
@@ -2480,6 +2505,10 @@ void MainWindow::createActions()
    connect(anglesAct, &QAction::triggered, this, &MainWindow::angles);
    anglesAct->setCheckable(true);
 
+   powerAct = new QAction(tr("&Show Powers"), this);
+   connect(powerAct, &QAction::triggered, this, &MainWindow::power);
+   powerAct->setCheckable(true);
+
    centernodeAct=new QAction(tr("&Create center node to force MinMax at origin"), this);
    centernodeAct->setCheckable(true);
    connect(centernodeAct, &QAction::triggered, this, &MainWindow::tweakcenterNode);
@@ -2515,9 +2544,14 @@ void MainWindow::createActions()
    connect(axisymmetricAct, &QAction::triggered, this, &MainWindow::tweakaxisymmetric);
    axisymmetricAct->setChecked(GLwidget::isaxisymmetric());  //check initially because default is true
 
+   notelevationAct=new QAction(tr("&Scaled power instead of elevation"), this);
+   notelevationAct->setCheckable(true);
+   notelevationAct->setEnabled(true);
+   connect(notelevationAct, &QAction::triggered, this, &MainWindow::tweaknotelevation);
+
    liocAct = new QAction(tr("&Lines of Curvature"), this);
    liocAct->setStatusTip(tr("Show plot of lines of curvature"));
-   liocAct->setEnabled(false);
+   liocAct->setEnabled(false); 
    connect(liocAct, &QAction::triggered, this, &MainWindow::LinesofCurvature);
 
    centerAct = new QAction(tr("&Center deviations"), this);
@@ -2699,6 +2733,7 @@ void MainWindow::createMenus()
    fileMenu->addAction(openAct);
    fileMenu->addAction(testAct);
    fileMenu->addAction(consistencyAct);
+   fileMenu->addAction(makeLSQsplineAct);
    fileMenu->addAction(compareAct);
    fileMenu->addAction(decenterAct);
    fileMenu->addAction(swapAct);
@@ -2759,6 +2794,8 @@ void MainWindow::createMenus()
    viewMenu->addAction(pupilAct);
    viewMenu->addAction(axesAct);
    viewMenu->addAction(anglesAct);
+   viewMenu->addAction(powerAct);
+   viewMenu->addAction(notelevationAct);
    tweaksMenu = menuBar()->addMenu(tr("&Placido data tweaks"));
    tweaksMenu->addAction(axisymmetricAct);
    tweaksMenu->addAction(centernodeAct);
@@ -2767,7 +2804,6 @@ void MainWindow::createMenus()
    tweaksMenu->addAction(LSQfillinAct);
    tweaksMenu->addAction(SplinefillinAct);
    tweaksMenu->addAction(lsqvssplineAct);
-   tweaksMenu->addAction(makeLSQsplineAct);
    helpMenu = menuBar()->addMenu(tr("&About"));
    helpMenu->addAction(HelpAct);
    helpMenu->addAction(aboutAct);

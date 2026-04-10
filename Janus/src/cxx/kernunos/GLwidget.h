@@ -60,7 +60,7 @@
 extern const unsigned int SCR_WIDTH;
 extern const unsigned int SCR_HEIGHT;
 
-extern int flag;
+extern int64_t flag;
 
 extern bool success;
 extern bool paintme;
@@ -98,7 +98,7 @@ extern GLfloat* pupil_vertices2;
 extern GLuint* pupil_elements2;
 
 extern "C" {
-void janus_(int *flag,char *filename,GLuint *elements,GLfloat *vertices,float *legend,float *cardinal, float *zern,int *nV,int *nE,int *nL,int *nC,GLuint *pupil_elements,GLfloat *pupil_vertices,int *pupil_nV, int *pupil_nE, int *err_janus);
+void janus_(int64_t *flag,char *filename,GLuint *elements,GLfloat *vertices,float *legend,double *cardinal, float *zern,int *nV,int *nE,int *nL,int *nC,GLuint *pupil_elements,GLfloat *pupil_vertices,int *pupil_nV, int *pupil_nE, int *err_janus);
 // needs an underscore despite c_interface.f90 bind C declaration
 };
 
@@ -158,32 +158,35 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     static bool isAngles() { return m_anglesshow; }
     static void setAngles(bool t) { m_anglesshow = t; }
 
+    static bool isPower() { return m_powershow; }
+    static void setPower(bool t) { m_powershow = t; }
+
     static bool isRedraw() { return m_redraw; }
     static void setRedraw(bool t) { m_redraw = t; }
 
     static bool isCenterNode() { return m_centerNode; }
     static void setCenterNode(bool t) { m_centerNode = t;
-      int dat=(flag-(flag%1000000))/1000000;
+      int64_t dat=(flag-(flag%1000000))/1000000;
       if(t) {dat |= 1UL << 0;} else { dat &= ~(1UL << 0);}  //set/unset 0th ie. first bit
       // m_centerNode =(dat >> 0) & 1U;  should agree with m_centerNode = t;
       flag=1000000*dat+(flag%1000000); }
 
     static bool isadjustradii() { return m_adjustradii; }
     static void setadjustradii(bool t) { m_adjustradii = t;
-      int dat=(flag-(flag%1000000))/1000000;
+      int64_t dat=(flag-(flag%1000000))/1000000;
       if(t) {dat |= 1UL << 1;} else { dat &= ~(1UL << 1);}  //set/unset 1st ie. second bit
       // m_adjustradii =(dat >> 1) & 1U;  should agree with m_adjustradii = t;
       flag=1000000*dat+(flag%1000000); }
 
     static bool iscubic() { return m_cubic; }   //default is trapez
     static void setcubic(bool t) { m_cubic = t;
-      int dat=(flag-(flag%1000000))/1000000;
+      int64_t dat=(flag-(flag%1000000))/1000000;
       if(t) {dat |= 1UL << 2;} else { dat &= ~(1UL << 2);}  //set/unset 2st ie. third bit
       flag=1000000*dat+(flag%1000000); }
 
     static bool isconsistency() { return m_consistency; }
     static void setconsistency(bool t) { m_consistency = t;
-        int dat=(flag-(flag%1000000))/1000000;
+        int64_t dat=(flag-(flag%1000000))/1000000;
         if(t) {dat |= 1UL << 7;} else { dat &= ~(1UL << 7);}  //set/unset 7th ie. eighth bit
         flag=1000000*dat+(flag%1000000);}
 
@@ -191,7 +194,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
 
     static bool isLSQfillin() { return m_LSQfillin; }
     static void setLSQfillin(bool t) {
-      int dat=(flag-(flag%1000000))/1000000;
+      int64_t dat=(flag-(flag%1000000))/1000000;
       if(t) {dat |= 1UL << 3;
              m_LSQfillin = true;
              dat &= ~(1UL << 4);
@@ -203,7 +206,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
 
     static bool isSplinefillin() { return m_Splinefillin; }
     static void setSplinefillin(bool t) {
-      int dat=(flag-(flag%1000000))/1000000;
+      int64_t dat=(flag-(flag%1000000))/1000000;
       if(t) {dat |= 1UL << 4;
              m_Splinefillin = true;
              dat &= ~(1UL << 3);
@@ -217,19 +220,19 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
 
     static bool isdecenter() { return m_decenter; }
     static void setdecenter(bool t) { m_decenter = t;
-        int dat=(flag-(flag%1000000))/1000000;
+        int64_t dat=(flag-(flag%1000000))/1000000;
         if(t) {dat |= 1UL << 5;} else { dat &= ~(1UL << 5);}  //set/unset 5th ie. sixth bit
         flag=1000000*dat+(flag%1000000);}
 
     static bool ispupilregister() { return m_pupilregister; }
     static void setpupilregister(bool t) { m_pupilregister = t;
-        int dat=(flag-(flag%1000000))/1000000;
+        int64_t dat=(flag-(flag%1000000))/1000000;
         if(t) {dat |= 1UL << 6;} else { dat &= ~(1UL << 6);}  //set/unset 6th ie. seventh bit
         flag=1000000*dat+(flag%1000000);}
 
     static bool islsqvsspline() { return m_lsqvsspline; }
     static void setlsqvsspline(bool t) { m_lsqvsspline = t;
-        int dat=(flag-(flag%1000000))/1000000;
+        int64_t dat=(flag-(flag%1000000))/1000000;
         if(t) {dat |= 1UL << 8;
             m_lsqvsspline = true;}
         else { dat &= ~(1UL << 8);
@@ -238,7 +241,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
 
     static bool isLSQspline() { return m_LSQspline; }
     static void setLSQspline(bool t) { m_LSQspline = t;
-        int dat=(flag-(flag%1000000))/1000000;
+        int64_t dat=(flag-(flag%1000000))/1000000;
         if(t) {dat |= 1UL << 9;
             m_LSQspline = true;}
         else { dat &= ~(1UL << 9);
@@ -247,8 +250,17 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
 
     static bool isaxisymmetric() { return m_axisymmetric; }
     static void setaxisymmetric(bool t) { m_axisymmetric = t;
-        int dat=(flag-(flag%1000000))/1000000;
+        int64_t dat=(flag-(flag%1000000))/1000000;
         if(t) {dat |= 1UL << 10;} else { dat &= ~(1UL << 10);}  //set/unset 10th ie. eleventh bit
+        flag=1000000*dat+(flag%1000000);}
+
+
+////////swapping this bit makes the number negative and screws up the whole scheme.
+
+    static bool isnotelevation() { return m_notelevation; }
+    static void setnotelevation(bool t) { m_notelevation = t;
+        int64_t dat=(flag-(flag%1000000))/1000000;
+        if(t) {dat |= 1UL << 11;} else { dat &= ~(1UL << 11);}  //set/unset 11th ie. twelfth bit
         flag=1000000*dat+(flag%1000000);}
 
     static void setAllfctfalse(){
@@ -591,6 +603,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     static bool m_pupilshow;
     static bool m_axesshow;
     static bool m_anglesshow;
+    static bool m_powershow;
     static bool m_redraw;
 
     static bool m_centerNode;
@@ -604,6 +617,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     static bool m_lsqvsspline;
     static bool m_LSQspline;
     static bool m_axisymmetric;
+    static bool m_notelevation;
 
     static bool m_Axial;
     static bool m_Oblique;

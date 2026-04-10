@@ -6,7 +6,7 @@
   use special_fct
   use io_functions
   use spline_interfaces
-  use,intrinsic :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
+  use,intrinsic :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char,c_int64_t,c_double
   use, intrinsic :: iso_fortran_env
   use,intrinsic :: ieee_arithmetic
   use c_interfaces, ONLY : LogC, Ccounter, ConvertPLYtoBIN, charcount
@@ -18,7 +18,7 @@
   integer,save :: NP                   ! PentaCam=141
   integer :: unitno1
   character(c_char), INTENT(IN), DIMENSION(4096) :: file_from_C
-  integer(c_int), INTENT(INOUT) :: flag
+  integer(c_int64_t), INTENT(INOUT) :: flag
   integer(c_int), INTENT(INOUT) :: nV 
   integer(c_int), INTENT(INOUT) :: nE               
   real(c_float), INTENT(INOUT) :: vertices(*)
@@ -29,7 +29,8 @@
   real(c_float), INTENT(INOUT) :: pupil_vertices(*)
   integer(c_int), INTENT(INOUT) :: pupil_elements(*)
   integer(c_int), INTENT(INOUT) :: nL,nC
-  real(c_float), INTENT(INOUT) :: legend(*),cardinal(*)
+  real(c_float), INTENT(INOUT) :: legend(*)
+  real(c_double), INTENT(INOUT) :: cardinal(*)
   real(c_float), INTENT(INOUT) :: zern(*)
   real(c_float) :: dist
   character(len=4096) :: new_path
@@ -42,7 +43,8 @@
   logical :: donut, exists
   real(wp) :: Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo,dvert,dhoriz
   integer :: k_max, kk_max, iflag, LWORK, rotationdegrees
-  integer(c_int) :: dat, fct, map, error_report
+  integer(c_int64_t) :: dat, fct, map
+  integer(c_int) ::  error_report
   real(wp), allocatable :: zernC(:,:), B_Matrix(:,:), rlocal(:), thtlocal(:), WORK(:)
   real(wp), allocatable :: UT(:,:),VT(:,:) !,XTX(:,:),EE(:,:)
 !  integer, allocatable :: IPIV(:)
@@ -51,8 +53,9 @@
   real(wp), allocatable :: temp(:,:)
   logical :: lsq
   integer(c_int) :: periodcount
+  integer(c_int64_t) :: zero_int64
 
-err_janus = 0 ; error_report = 0
+err_janus = 0 ; error_report = 0 ;
 if (loaded_files .le. 0) loaded_files = 0
 !write(*,*) 'flag to Fortran:',flag
 !write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
@@ -70,24 +73,25 @@ if (loaded_files .le. 0) loaded_files = 0
 !! 2 = write OFF file
 !! 1 = compute zernike coefficients/maps
 !! 0 = open a file, display
-dat=(flag-mod(flag,1000000))/1000000 ! first two digits
-!write(*,*) 'dat to Fortran:',dat
-fct=mod(((flag-mod(flag,10000))/10000),100) ! second two digits, color map functions
+dat=(flag-mod(flag,1000000))/1000000 ! first two digits are tweaks
+!write(*,*) 'dat to Fortran:',dat,btest(dat,0),btest(dat,1),btest(dat,2),btest(dat,3),btest(dat,4),btest(dat,5),btest(dat,6),btest(dat,7),btest(dat,8),btest(dat,9),btest(dat,10),btest(dat,11)
+fct=mod(((flag-mod(flag,10000))/10000),100) ! second two digits, fct to be plotted
 !write(*,*) 'fct to Fortran:',fct
-map=mod((flag-mod(flag,100))/100,100)  ! last two digits are tweaks
+map=mod((flag-mod(flag,100))/100,100)  ! last two digits color map functions
 !write(*,*) 'color(map) to Fortran:',map
 ! dat = first binary bit 0/1 centernode tweak ie btest(dat,0) = .true.
 ! dat = second binary bit 0/1 shift r-values tweak ie btest(dat,1) = .true.
 ! integration of slopes for elevation:
 ! dat = third binary bit 0/1 cubic spline integration (=1)(ie btest(dat,2) = .true.) vs trapezoidal rule (default = 0)
-! dat =fourth binary bit 0/1 fillin2 cannot be combined with splinefillin ie btest(dat,3) = .true.
-! dat =fifth binary bit 0/1 splinefillin cannot be combined with lsqfillin ie btest(dat,4) = .true.
+! dat = fourth binary bit 0/1 fillin2 cannot be combined with splinefillin ie btest(dat,3) = .true.
+! dat = fifth binary bit 0/1 splinefillin cannot be combined with lsqfillin ie btest(dat,4) = .true.
 ! dat = sixth binary bit 0/1 decenter tweak ie btest(dat,5) = .true.
 ! dat = seventh binary bit 0/1 pupilregister tweak ie btest(dat,6) = .true.
 ! dat = eighth binary bit 0/1 atlas spline consistency check tweak ie btest(dat,7) = .true.
 ! dat = ninth binary bit 0/1 lsq instead of circumferential spline tweak ie btest(dat,8) = .true.
 ! dat = tenth binary bit 0/1 lsqspline tweak ie btest(dat,9) = .true.
 ! dat = eleventh binary bit 0/1 axisymmetric tweak ie btest(dat,10) = .true.
+! dat = twelfth binary bit 0/1 elevation is switched for power on 3-D display ie btest(dat,11) = .true.
 
 ! iflag passing of dat to SplineEval1Dx1D centernode splines, integration of splines and LSQ vs circumferential splining
 ! first mod((iflag-mod(iflag,100))/100,100)
@@ -391,7 +395,7 @@ RadSlope=JMatrix
 DiaSlope=RadSlope              ! move to diagonal format
 DiaSlope%Zpd2 = .n. DiaSlope
  if ( Testdata .le.1 ) then     ! only for test/Atlas/EyeSys at present
-  call MakeRadSplineCenter(0,error_report)   ! remakes RadSplineCenter(1,:)
+  call MakeRadSplineCenter(zero_int64,error_report)   ! remakes RadSplineCenter(1,:)
   if (error_report .ne. 0) then
    write(*,*)' janus line number: ',__LINE__
   endif
@@ -593,7 +597,7 @@ if (btest(dat,5)) then
   endif
 
   if ( Testdata .le.1 .or. Testdata .eq. 6) then     ! not for Oculus PentaCam or Keratograph
-   call MakeRadSplineCenter(0,error_report)   ! remakes RadSplineCenter(1,:)
+   call MakeRadSplineCenter(zero_int64,error_report)   ! remakes RadSplineCenter(1,:)
    if (error_report .ne. 0) then
     write(*,*)' janus line number: ',__LINE__
    endif
@@ -1745,7 +1749,7 @@ endif  ! EyeSys fillin
 if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
  DiaSlope=RadSlope              ! move to diagonal format
  DiaSlope%Zpd2 = .n. DiaSlope
- call MakeRadSplineCenter(0,error_report)   ! remakes RadSplineCenter(1,:)
+ call MakeRadSplineCenter(zero_int64,error_report)   ! remakes RadSplineCenter(1,:)
  if (error_report .ne. 0) then
   write(*,*)' janus line number: ',__LINE__
  endif
@@ -2061,7 +2065,7 @@ endif
    DiaSlope%Zpd2 = .n. DiaSlope
   endif
   if ( Testdata .le.1 .or. Testdata .eq. 6) then     ! not for Oculus PentaCam or Keratograph
-   call MakeRadSplineCenter(0,error_report)   ! remakes RadSplineCenter(1,:)
+   call MakeRadSplineCenter(zero_int64,error_report)   ! remakes RadSplineCenter(1,:)
    if (error_report .ne. 0) then
     write(*,*)' MakeRadSpline Error janus line number: ',__LINE__
    endif
@@ -2124,7 +2128,7 @@ if (mod(flag,100) == 1) then
   DiaSlope=RadSlope              ! move to diagonal format
   DiaSlope%Zpd2 = .n. DiaSlope
  if ( Testdata .le.1 ) then     ! only for test/Atlas/EyeSys at present
-   call MakeRadSplineCenter(0,error_report)   ! remakes RadSplineCenter(1,:)
+   call MakeRadSplineCenter(zero_int64,error_report)   ! remakes RadSplineCenter(1,:)
    if (error_report .ne. 0) then
     write(*,*)' janus line number: ',__LINE__
    endif

@@ -12,7 +12,7 @@ QT_FORWARD_DECLARE_CLASS(QPushButton)
 extern const unsigned int SCR_WIDTH;
 extern const unsigned int SCR_HEIGHT;
 
-extern int flag;
+extern int64_t flag;
 extern char *filename;
 
 extern char compiler_name;
@@ -55,8 +55,8 @@ extern std::vector<float> legendVector;
 extern float* legend;
 extern int nL;
 
-extern std::vector<float> cardinalVector;
-extern float* cardinal;
+extern std::vector<double> cardinalVector;
+extern double* cardinal;
 extern int nC;
 
 extern std::vector<float> zernVector;
@@ -66,8 +66,8 @@ extern int nZ;
 extern std::vector<float> legendVector2;
 extern float* legend2;
 
-extern std::vector<float> cardinalVector2;
-extern float* cardinal2;
+extern std::vector<double> cardinalVector2;
+extern double* cardinal2;
 
 extern std::vector<float> zernVector2;
 extern float* zern2;
@@ -75,7 +75,7 @@ extern float* zern2;
 // calling fortran code
 
 extern "C" {
-void janus_(int *flag,char *filename,GLuint *elements,GLfloat *vertices,float *legend,float *cardinal,float *zern,int *nV,int *nE,int *nL,int *nC,GLuint *pupil_elements,GLfloat *pupil_vertices,int *pupil_nV, int *pupil_nE, int *err_janus);
+void janus_(int64_t *flag,char *filename,GLuint *elements,GLfloat *vertices,float *legend,double *cardinal,float *zern,int *nV,int *nE,int *nL,int *nC,GLuint *pupil_elements,GLfloat *pupil_vertices,int *pupil_nV, int *pupil_nE, int *err_janus);
 // needs an underscore despite c_interface.f90 bind C declaration
 };
 
@@ -162,6 +162,7 @@ private slots:
     void pupil();
     void axes();
     void angles();
+    void power();
     void redrawOption();
     void about();
     void aboutQt();
@@ -201,6 +202,7 @@ private slots:
     void tweakLSQspline();
     void tweaklsqvsspline();
     void tweakaxisymmetric();
+    void tweaknotelevation();
     void colorrgb2();
     void colorrgb5();
     void colorhsbrgb();
@@ -285,6 +287,7 @@ private:
     QAction *pupilAct;
     QAction *axesAct;
     QAction *anglesAct;
+    QAction *powerAct;
 
     QMenu *analyzeMenu;
     QAction *zernAct;
@@ -304,6 +307,7 @@ private:
     QAction *lsqvssplineAct;
     QAction *makeLSQsplineAct;
     QAction *axisymmetricAct;
+    QAction *notelevationAct;
 
     QMenu *helpMenu;
     QAction *aboutAct;

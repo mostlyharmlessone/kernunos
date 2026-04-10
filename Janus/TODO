@@ -1,10 +1,10 @@
 FIXES
 
-superpose average of values in diopters in 3 x 3 or 5 dice pattern, with major axes? grid over image, as option.
-
 
 make 3D option for all functions, with scale Z value max and min
 this will affect Geom,WriteGeomPLY/OFF
+
+add more options/overload to "fct"
 
 units in D or mm for elevation; selector in legend part in kernunos
 

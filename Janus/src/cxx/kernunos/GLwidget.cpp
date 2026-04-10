@@ -155,6 +155,7 @@ bool GLwidget::m_lighting = false;
 bool GLwidget::m_pupilshow = false;
 bool GLwidget::m_axesshow = false;
 bool GLwidget::m_anglesshow = false;
+bool GLwidget::m_powershow = false;
 bool GLwidget::m_redraw = false;
 
 bool GLwidget::m_centerNode = false;
@@ -168,6 +169,7 @@ bool GLwidget::m_consistency = false;
 bool GLwidget::m_lsqvsspline = true;
 bool GLwidget::m_LSQspline = true;
 bool GLwidget::m_axisymmetric = true;
+bool GLwidget::m_notelevation = false;
 
 bool GLwidget::m_Axial = true;
 bool GLwidget::m_Oblique = false;
@@ -854,7 +856,6 @@ bool GLwidget::LoadLinesToBuffer(int nV, int nE, GLuint vertexbuffer, GLuint ele
  */
  // doen't handle rotation around z very well.
 void GLwidget::render_text(GLuint vertexbuffer, const char *text, float x, float y, float sx, float sy) {
-
     makeCurrent();
     glUseProgram(shaderText2Program->programId());
     shaderText2Program->bind();
@@ -1093,13 +1094,14 @@ void GLwidget::paintGL(void)
          shaderText2Program->release();
      }
 
-     if (i == 7 && m_anglesshow) {
-         //superpose average of values in diopters in 3 x 3 circular grid over image
+     if (i == 7 && m_powershow) {
+         //superpose values in diopters in 3 x 3 circular grid over image
          glEnable(GL_BLEND);
          glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
          GLfloat white[4] = { 1, 1, 1, 1 };
          // GLfloat black[4] = { 0, 0, 0, 1 };
          // GLfloat red[4] = { 1, 0, 0, 1 };
+         // GLfloat transparent_green[4] = { 0, 1, 0, 0.5 };
          m_world.setToIdentity();
          m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
          m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
@@ -1112,11 +1114,11 @@ void GLwidget::paintGL(void)
          glUniform4fv(uniform_color, 1, white);
 
          // central value
-         std::string degrees  = std::to_string(int(cardinal[1]));
+         std::string degrees  = std::to_string(int(cardinal[0]));
          render_text(vertexbuffers[i],degrees.c_str(), 0.0, 0.0, 2*sx, 2*sy);
          // cardinal values
-         for (int j=2; j < nC; ++j){
-             std::string degrees  = std::to_string(int(cardinal[j]));
+         for (int j=1; j < nC; ++j){
+             degrees  = std::to_string(int(cardinal[j]));
              render_text(vertexbuffers[i],degrees.c_str(), 0.2*cos(3.14159*(j-1)/4.0), 0.2*sin(3.14159*(j-1)/4.0), 2*sx, 2*sy);
          }
 

@@ -4,7 +4,7 @@
        use cornea_arrays, ONLY : wpJMatrix !, minmax, selectfunction !!aspirational for future use
        use set_precision, ONLY : wp
        use special_fct, only : colormap
-       use, intrinsic :: iso_c_binding, ONLY : c_float,c_int
+       use, intrinsic :: iso_c_binding, ONLY : c_float,c_int,c_int64_t
        use, intrinsic ::  ieee_arithmetic
        use ISO_FORTRAN_ENV, only: stdin=>input_unit     ! for the pause read(stdin,*)
        IMPLICIT NONE
@@ -14,17 +14,21 @@
        real(wp) :: vert1,vert2,vert3,nrm1,nrm2,nrm3,normal
        real(c_float) :: c_vert(3),c_rgbv(3),c_norm(3)
        real(wp) :: pow
-       integer :: i,j,k,kk,M1,N1,verts,faces,edges,map,fct
+       integer :: i,j,k,kk,M1,N1,verts,faces,edges
+       integer(c_int64_t) :: map,fct,dat
        integer(c_int) :: ivert1,ivert2,ivert3,ivert4
        integer(c_int), INTENT(INOUT) :: elements(*)                          ! faces x 3   
        real(c_float), INTENT(INOUT) :: vertices(*)                           ! vertices x 6 
-       integer(c_int), INTENT(INOUT) :: flag, nE, nV
+       integer(c_int64_t), INTENT(INOUT) :: flag
+       integer(c_int), INTENT(INOUT) :: nE, nV
        logical, intent(IN) :: donut
        logical :: quad
 
        N1=size(b%r,1)
        M1=size(b%r,2)
        map=mod((flag-mod(flag,100))/100,100)
+       dat=(flag-mod(flag,1000000))/1000000
+       fct=mod(((flag-mod(flag,10000))/10000),100)
 
        quad = .FALSE.
        if (donut .AND. quad) then
@@ -97,8 +101,6 @@
        if (donut .eqv. .FALSE.) then ! add one last vertex at origin
          vert1 = 0      
          vert2 = 0
-         X3=-b%Z0(1)          ! flip it upside down
-         fct=mod(((flag-mod(flag,10000))/10000),100)
          if (fct .lt. 16 .and. fct .gt. 0) then
               pow=b%ZC0(1,fct)
          else
@@ -121,6 +123,10 @@
               pow=b%SAGC0(1)
         END SELECT
         endif
+         X3=-b%Z0(1)          ! flip it upside down
+         if (btest(dat,11)) then  ! substitute scaled function for elevation
+          X3=1000*(pow-powmax)/(powmax-powmin)
+         endif
          vert3 = real(X3,kind=4)
          nrm1=0
          nrm2=0
@@ -141,8 +147,6 @@
         do j=1,N1  !b%MV(i) can't be used because it leads to unpredictable geometry given node placement
          X1=b%THT(i)         ! in radians
          X2=b%R(j,i)
-         X3=-b%Z(j,i)         ! flip it
-         fct=mod(((flag-mod(flag,10000))/10000),100)
          if  ( j <= b%MV(i)) then
          if (fct .lt. 16 .and. fct .gt. 0) then
               pow=b%ZC(j,i,fct)
@@ -168,6 +172,10 @@
         endif
         else
            pow = powmax  ! outside range
+         endif
+         X3=-b%Z(j,i)         ! flip it
+         if (btest(dat,11)) then  ! substitute scaled function for elevation
+          X3=1000*(pow-powmax)/(powmax-powmin)
          endif
          nrm1=-abs(b%YPR(j,i))      !get rid of spurious sign
          nrm2=-b%YPTHETA(j,i)/X2    !polar coordinates

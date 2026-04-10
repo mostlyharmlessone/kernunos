@@ -49,9 +49,9 @@ module spline_interfaces
  end subroutine
 
  subroutine MakeRadSplineCenter(dat,error_report)
-  use, INTRINSIC :: iso_c_binding, ONLY : c_int
+  use, INTRINSIC :: iso_c_binding, ONLY : c_int,c_int64_t
   use set_precision, ONLY : wp
-  integer(c_int), INTENT(IN) :: dat
+  integer(c_int64_t), INTENT(IN) :: dat
   integer(c_int), INTENT(OUT) :: error_report
  end subroutine
 
@@ -86,8 +86,8 @@ end subroutine
  
  subroutine SplineCenter(dat,jj,r,z,zr2,n,u,err_report)
  use set_precision, only : wp
- use, INTRINSIC :: iso_c_binding, ONLY : c_int
-  integer(c_int), INTENT(IN) :: dat
+ use, INTRINSIC :: iso_c_binding, ONLY : c_int,c_int64_t
+  integer(c_int64_t), INTENT(IN) :: dat
   integer, INTENT(IN) :: n,jj
   real(wp), INTENT(IN) ::  r(n)
   real(wp), INTENT(IN) ::  z(n),zr2(n)

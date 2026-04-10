@@ -8,6 +8,7 @@ module special_fct
 use cornea_arrays, ONLY : EPS, PI
 use set_precision, ONLY : wp, sk, int2d, int3d
 use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
+use, INTRINSIC :: iso_c_binding, only : c_int64_t
 use, intrinsic ::  ieee_arithmetic
 use M_color, only : jucolor
 implicit none
@@ -90,7 +91,7 @@ end function surface_normal
 
 function colormap(x,minimum, maximum,map) result(rgbv)
  REAL (wp), INTENT (IN) :: minimum,maximum,x
- INTEGER, INTENT (IN) :: map
+ INTEGER(c_int64_t), INTENT (IN) :: map
  INTEGER(int16) :: rgbv(3) ! rgbv={r,g,b}
  SELECT CASE (map)
    CASE (1)

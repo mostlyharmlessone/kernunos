@@ -6,17 +6,18 @@
        use set_precision, ONLY : wp
        use special_fct, only : colormap
        use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
-       use, intrinsic :: iso_c_binding, ONLY : c_float,c_int      
+       use, intrinsic :: iso_c_binding, ONLY : c_float,c_int, c_int64_t
        use, intrinsic ::  ieee_arithmetic
        TYPE(wpJMatrix),INTENT(IN) :: b
        character(len=*), intent(in) :: OFFNAME
        real(wp), intent(IN) :: powmin,powmax
        logical, intent(IN) :: donut
-       integer(c_int), INTENT(INOUT) :: flag       
+       integer(c_int64_t), INTENT(INOUT) :: flag
        real(wp) :: X1,X2,X3
        real(REAL32) :: vert1,vert2,vert3
        real(wp) :: pow_vert1,pow_vert2,pow_vert3,pow_vert4,pow_face4,pow_face3_1,pow_face3_2
-       integer :: i,j,M1,N1,verts,faces,edges,unitno3,ierr,map,fct
+       integer :: i,j,M1,N1,verts,faces,edges,unitno3,ierr
+       integer(c_int64_t) :: map,fct
        integer(INT32) :: ivert1,ivert2,ivert3,ivert4,vertnum
        logical :: quad
        integer(int16) :: rgbv(3)

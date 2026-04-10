@@ -4,7 +4,7 @@ MODULE cornea_arrays
  USE LapackInterface, ONLY : dgetrf, dgetrs, dgesv, dsyev
  USE spline_interfaces 
  use, intrinsic ::  ieee_arithmetic
- use, intrinsic :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
+ use, intrinsic :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char,c_int64_t,c_double
  IMPLICIT NONE
  REAL(wp), PARAMETER :: PI=3.1415926535897932384626433832795_wp
  REAL(wp), PARAMETER :: RFCT=33750.0_wp
@@ -61,7 +61,7 @@ MODULE cornea_arrays
  ! for the Oculus Keratograph 5M
  !  sagittal/axial, tangential curvature or elevation in mm, radial position, usually 100 segments corresponding to every 4 grads, with 60 points each
    REAL (wp), ALLOCATABLE :: SAGC(:,:),INSTC(:,:),ELE(:,:),PU(:),Y(:,:)
-   INTEGER, ALLOCATABLE :: SEG(:),SAGC0(:),INSTC0(:),ELE0(:),Y0(:)  ! MM values at origin Y0(:) should all be 0.0
+   REAL(wp), ALLOCATABLE :: SEG(:),SAGC0(:),INSTC0(:),ELE0(:),Y0(:)  ! MM values at origin Y0(:) should all be 0.0
    REAL (wp) :: Pupil_Center(3)  !includes diameter as #3
  END TYPE wpOculusMatrix
 
@@ -766,8 +766,8 @@ subroutine centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
   TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
   INTEGER, INTENT(IN) :: TestData
   INTEGER, INTENT(INOUT) :: iflag
-  integer(c_int), intent(in) :: dat
-  real(c_float), INTENT(INOUT) :: cardinal(*)
+  integer(c_int64_t), intent(in) :: dat
+  real(c_double), INTENT(INOUT) :: cardinal(*)
   integer(c_int), INTENT(INOUT) :: nC
   INTEGER :: i,j,k,M1,N1
   REAL (wp) :: P_TEMP
@@ -1590,11 +1590,12 @@ end subroutine LIOC_Fortran
 ! iflag = 2 just respline elevation Z regardless of fct
 subroutine selectfunction(iflag,b,flag,powctr,powmin,powmax,cardinal,nC)
 implicit none
-integer(c_int), intent(in) :: flag
+integer(c_int64_t), intent(in) :: flag
 integer,intent(in) :: iflag
-integer :: dat,fct,i,j,M1
+integer(c_int64_t) :: dat,fct
+integer :: i,j,M1
 real (wp), intent(out) :: powctr,powmin,powmax
-real(c_float), INTENT(INOUT) :: cardinal(*)
+real(c_double), INTENT(INOUT) :: cardinal(*)
 integer(c_int), INTENT(INOUT) :: nC
 TYPE(wpJMatrix), INTENT(INOUT) :: b
 dat=(flag-mod(flag,1000000))/1000000 ! first two digits

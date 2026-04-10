@@ -1,11 +1,11 @@
 !     diagnostic to see where each splines center is, perhaps a measure of decentration 
       subroutine MakeRadSplineCenter(dat,error_report)
-      use, INTRINSIC :: iso_c_binding, ONLY : c_int
+      use, INTRINSIC :: iso_c_binding, ONLY : c_int, c_int64_t
       USE cornea_arrays, ONLY : DiaSlope, RadSlope, RadSplineCenter
       USE set_precision, ONLY : wp
       USE spline_interfaces, ONLY : SplineCenter
       implicit none
-      integer(c_int), INTENT(IN) :: dat
+      integer(c_int64_t), INTENT(IN) :: dat
       integer(c_int), INTENT(OUT) :: error_report
       real(wp) :: r(2*size(RadSlope%r,1)),z(2*size(RadSlope%r,1)),zr2(2*size(RadSlope%r,1)),w
       integer :: L2,j,L,MM,N

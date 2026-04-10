@@ -10,25 +10,27 @@ module io_functions
      use cornea_arrays
      use set_precision, ONLY : wp
      use special_fct, only : rgb2, rgb5
-     use, intrinsic :: iso_c_binding, ONLY : c_float,c_int
+     use, intrinsic :: iso_c_binding, ONLY : c_float,c_int,c_int64_t
      use ISO_FORTRAN_ENV, only: stdin=>input_unit
      TYPE(wpJMatrix),INTENT(IN) :: b
      logical, intent(IN) :: donut
      real(wp), intent(INOUT) :: powmin,powmax
      integer(c_int), INTENT(INOUT) :: elements(*)                          ! faces x 3   index 0
      real(c_float), INTENT(INOUT) :: vertices(*)                           ! vertices x 6
-     integer(c_int), INTENT(INOUT) :: flag, nE, nV                         ! passed from janus to call OpenGL
+     integer(c_int64_t), INTENT(INOUT) :: flag
+     integer(c_int), INTENT(INOUT) ::  nE, nV                         ! passed from janus to call OpenGL
     end subroutine
 
     subroutine makelegend(flag, powmin, powmax, legend, nL)
      use set_precision, ONLY : wp
      use special_fct, only : colormap
-     use, intrinsic :: iso_c_binding, ONLY : c_float,c_int
+     use, intrinsic :: iso_c_binding, ONLY : c_float,c_int,c_int64_t
      use, intrinsic ::  ieee_arithmetic
      use ISO_FORTRAN_ENV, only: stdin=>input_unit     ! for the pause read(stdin,*)
      real(wp), intent(INOUT) :: powmin,powmax
      real(c_float), INTENT(INOUT) :: legend(*)
-     integer(c_int), INTENT(INOUT) :: flag, nL
+     integer(c_int64_t), INTENT(INOUT) :: flag
+     integer(c_int), INTENT(INOUT) :: nL
     end subroutine
 
     subroutine Pupil(b, dist, pupil_elements, pupil_vertices, pupil_nV, pupil_nE)
@@ -105,23 +107,23 @@ module io_functions
     SUBROUTINE WriteGeomOFF(flag,b,donut,powmin,powmax,OFFNAME)
       USE cornea_arrays
       USE set_precision, ONLY : wp
-      use, intrinsic :: iso_c_binding, ONLY : c_float,c_int
+      use, intrinsic :: iso_c_binding, ONLY : c_float,c_int,c_int64_t
       TYPE(wpJMatrix),INTENT(IN) :: b
       character(len=*), intent(in) :: OFFNAME
       real(wp), intent(IN) :: powmin,powmax
       logical, intent(IN) :: donut   
-      integer(c_int), INTENT(INOUT) :: flag      
+      integer(c_int64_t), INTENT(INOUT) :: flag
     END SUBROUTINE  
     
     SUBROUTINE WriteGeomPLY(flag,b,donut,powmin,powmax,PLYNAME)
       USE cornea_arrays
       USE set_precision, ONLY : wp
-      use, intrinsic :: iso_c_binding, ONLY : c_float,c_int
+      use, intrinsic :: iso_c_binding, ONLY : c_float,c_int,c_int64_t
       TYPE(wpJMatrix),INTENT(IN) :: b
       character(len=*), intent(in) :: PLYNAME
       real(wp), intent(IN) :: powmin,powmax
       logical, intent(IN) :: donut   
-      integer(c_int), INTENT(INOUT) :: flag      
+      integer(c_int64_t), INTENT(INOUT) :: flag
     END SUBROUTINE    
     
     subroutine WriteCenter(b,KXNAME)
