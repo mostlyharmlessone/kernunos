@@ -17,12 +17,13 @@
        real(REAL32) :: vert1,vert2,vert3
        real(wp) :: pow_vert1,pow_vert2,pow_vert3,pow_vert4,pow_face4,pow_face3_1,pow_face3_2
        integer :: i,j,M1,N1,verts,faces,edges,unitno3,ierr
-       integer(c_int64_t) :: map,fct
+       integer(c_int64_t) :: map,fct,dat
        integer(INT32) :: ivert1,ivert2,ivert3,ivert4,vertnum
        logical :: quad
        integer(int16) :: rgbv(3)
 
        map=mod((flag-mod(flag,100))/100,100)
+       dat=(flag-mod(flag,1000000))/1000000
        quad = .FALSE.
        if (donut .AND. quad) then
         write(*,*) 'WriteGeom: Cannot have closed disk with quadrilaterals'
@@ -99,7 +100,32 @@
        if (donut .eqv. .FALSE.) then ! add one last vertex at origin
          vert1 = 0_REAL32       
          vert2 = 0_REAL32
+         if (fct .lt. 16 .and. fct .gt. 0) then
+              pow=b%ZC0(1,fct)
+         else
+         SELECT CASE (fct)
+           CASE (0)
+              pow=b%SAGC0(1)
+           CASE (16)
+              pow=b%INSTC0(1)
+           CASE (17)
+              pow=b%GAUSSC0(1)
+           CASE (18)
+              pow=b%MEANC0(1)
+           CASE (19)
+              pow=b%MONGEA0(1)
+           CASE (20)
+              pow=b%Z0(1)
+           CASE (21)
+              pow=b%Warp0(1)
+           CASE DEFAULT
+              pow=b%SAGC0(1)
+        END SELECT
+        endif
          X3=b%Z0(1)
+         if (btest(dat,11)) then  ! substitute scaled function for elevation
+          X3=1000*(pow-powmax)/(powmax-powmin)
+         endif
          vert3 = real(X3,kind=REAL32)
          if (ieee_is_finite(vert3)) then
           ! ok
@@ -113,9 +139,36 @@
         do j=1,N1 
           X1=b%THT(i)
           X2=b%R(j,i)
-          X3=b%Z(j,i)
+          if (btest(dat,11)) then  ! substitute scaled function for elevation
+           if (fct .lt. 16 .and. fct .gt. 0) then
+               pow=b%ZC(j,i,fct)
+           else
+           SELECT CASE (fct)
+            CASE (0)
+               pow=b%SAGC(j,i)
+            CASE (16)
+                pow=b%INSTC(j,i)
+            CASE (17)
+               pow=b%GAUSSC(j,i)
+            CASE (18)
+               pow=b%MEANC(j,i)
+            CASE (19)
+               pow=b%MONGEA(j,i)
+            CASE (20)
+               pow=b%Z(j,i)
+            CASE (21)
+               pow=b%Warp(j,i)
+            CASE DEFAULT
+               pow=b%SAGC(j,i)
+          END SELECT
+          endif
+         endif
           vert1 = real(ABS(X2)*COS(X1),kind=REAL32)
           vert2 = real(ABS(X2)*SIN(X1),kind=REAL32)
+          X3=-b%Z(j,i)
+          if (btest(dat,11)) then  ! substitute scaled function for elevation
+           X3=1000*(pow-powmax)/(powmax-powmin)
+          endif
           vert3 = real(X3,kind=REAL32)
          if (ieee_is_finite(vert1) .AND. ieee_is_finite(vert2) .AND. ieee_is_finite(vert3)) then
           ! ok

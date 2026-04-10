@@ -1,15 +1,5 @@
 FIXES
 
-
-make 3D option for all functions, with scale Z value max and min
-this will affect Geom,WriteGeomPLY/OFF
-
-add more options/overload to "fct"
-
-units in D or mm for elevation; selector in legend part in kernunos
-
-
-
 search for Visia in source code to strip out or enable eysys version of reading visia if I fix it
 
 

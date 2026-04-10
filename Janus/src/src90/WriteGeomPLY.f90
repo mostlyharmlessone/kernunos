@@ -17,13 +17,15 @@
        real(REAL32) :: vert1,vert2,vert3,nrm1,nrm2,nrm3,normal
        real(wp) :: pow
        integer :: i,j,M1,N1,verts,faces,edges,unitno1,ierr
-       integer(c_int64_t) :: map,fct
+       integer(c_int64_t) :: map,fct,dat
        character(400) :: message
        integer(INT32) :: ivert1,ivert2,ivert3,ivert4,vertnum
        logical :: quad
        integer(int16) :: rgbv(3)  
 
        map=mod((flag-mod(flag,100))/100,100)
+       dat=(flag-mod(flag,1000000))/1000000
+       fct=mod(((flag-mod(flag,10000))/10000),100)
        quad = .FALSE.
        if (donut .AND. quad) then
         write(*,*) 'WriteGeomPly: Cannot have closed disk with quadrilaterals'
@@ -123,8 +125,6 @@
        if (donut .eqv. .FALSE.) then ! add one last vertex at origin
          vert1 = 0_REAL32       
          vert2 = 0_REAL32
-         X3=b%Z0(1)
-         fct=mod(((flag-mod(flag,10000))/10000),100)
          if (fct .lt. 16 .and. fct .gt. 0) then
               pow=b%ZC0(1,fct)
          else
@@ -147,6 +147,10 @@
               pow=b%SAGC0(1)
         END SELECT
         endif
+        X3=b%Z0(1)
+        if (btest(dat,11)) then  ! substitute scaled function for elevation
+         X3=1000*(pow-powmax)/(powmax-powmin)
+        endif
          nrm1=0
          nrm2=0
          nrm3=1
@@ -163,8 +167,6 @@
         do j=1,N1
           X1=b%THT(i)
           X2=b%R(j,i)
-          X3=b%Z(j,i)
-          fct=mod(((flag-mod(flag,10000))/10000),100)
           if  ( j <= b%MV(i) ) then
           if (fct .lt. 16 .and. fct .gt. 0) then
                pow=b%ZC(j,i,fct)
@@ -190,6 +192,10 @@
          endif
          else
           pow = powmax  ! outside range
+         endif
+         X3=-b%Z(j,i)
+         if (btest(dat,11)) then  ! substitute scaled function for elevation
+          X3=1000*(pow-powmax)/(powmax-powmin)
          endif
           nrm1=-abs(b%YPR(j,i))      !get rid of spurious sign
           nrm2=-b%YPTHETA(j,i)/X2    !polar coordinates
