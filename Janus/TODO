@@ -1,15 +1,30 @@
 FIXES
 
-search for Visia in source code to strip out or enable eysys version of reading visia if I fix it
+no I'm not reading binary PE files either, with zero places using PEOPD in data_for_test
 
+NIDEK files can be in mixed bunchs? binary RA/ED and ASCII PE? also header may not match file name; at least issue a warning
+p.64 riptutorial fortran.pdf in documentation keyword vs positional referencing of optional pararmeters: make all filetypes optional for rcnvrtn/rctvrtn_binary
+
+Look at broken EyeSys file ".17" for why LSQ fillin doesnt work and makes duplicate radii
+also has weird PU file
+
+search for Visia in source code to strip out or enable eysys version of reading visia if I fix it
+redo- Rowsey curvature?
 
 Needs fix:
 
 
 zernike computations only for if ( Testdata .le.1 ) then     ! only for test/Atlas/EyeSys at present
 compare is broken with zernike; also so is opening 2nd file with zernike selected and zernike
+enforce, or have a warning having to make new zernike after loading new data, also if tweaks changed
 
-screenshot might need other than tga.
+enforce, or have a warning having to make new zernike after loading new data, also if tweaks changed
+
+try to (b)lock opening another file while Zernike is computing to avoid crash ? condition on counter? cannot run Open
+you can run other Analyze ie center gnusplotplot, lioc, and move the picture
+probably can run kernunos but not janus?
+consider adding sound to play after zernike compute, but might need option to turn off http://github.com/zserge/beep or get fancy with .ogg
+
 
 ? needs extreme value filter; or histogram of values for median and color scale  like OPDIII
 resurrect old noise reduction code to help out monge-astig and meanc for real data?
@@ -28,23 +43,17 @@ addcomments():
 errorMessageDialog
 
 enable the tweaks prior to loading the file? but not with auto redraw
-Look at broken EyeSys file ".17" for why LSQ fillin doesnt work and makes duplicate radii
-also has weird PU file
 
-enforce, or have a warning having to make new zernike after loading new data, also if tweaks changed
 
-try to (b)lock opening another file while Zernike is computing to avoid crash ? condition on counter? cannot run Open
-you can run other Analyze ie center gnusplotplot, lioc, and move the picture
-probably can run kernunos but not janus?
-consider adding sound to play after zernike compute, but might need option to turn off http://github.com/zserge/beep or get fancy with .ogg
+NEW MACHINE DATA EXPORTS
 
+screenshot might need other than tga: have some tiff notes; look at Inkscape formats
+
+export Mathematica plots?
 
 NEW MACHINE DATA IMPORTS
 
 iTrace 8640 points = 360 x 24; has "Data" binary compressed with gzip
-
-Topcon CA-800 binary files CLT/DAT 49928 bytes = 8 x 6241 
-see Notes
 
 PentaCam U12 file looks like it has binary data separated by blocks of zero, possibly readable, could compare with known data?
 
@@ -69,6 +78,7 @@ might want to change Cmakelist.txt for the proper install directory for document
 when making documents, can edit in Abricotine; regenerate to html, same with spline_monge; open in libreoffice, regenerate into pdf
 ie use qhelpgenerator kernunos.qhcp kernunos.qhc after making the appropriate changes, need also edit the html files and rewrite the qhp file in documentation
 have to regenerate in directory as dir info is coded in sql files, also make sure source names in qhc/qhcp files match those in assistant.cpp
+
 qhelpgenerator simpletextviewer.qhcp -o simpletextviewer.qhc
 qhelpgenerator simpletextviewer.qhp -o simpletextviewer.qch
 make html files with abricotine export
@@ -83,7 +93,7 @@ look at Phorcides documentation
 Needs a whole section on corneal topography and "powers" with math definitions; 
 1d-2d/2d-3d difference between x and r; possible incorporation of iris equation example ?picture showing skew rays 
 bad data here is implicitly assuming axisymmetery for Placido reflection, but if the machine is reporting true "axial curvatures", it should still be computable (test example)
-simple difference between d/dx and 1/r(d/dr) axisymmetry is not linear ==> lost battle with IRIS paper circles are not squares, spheres are not cubes
+simple difference between d/dx and 1/r(d/dr) axisymmetry is not linear ==> lost battle with IRIS paper 
 
 needs section on handling bad data:
 shift discontinuity in Atlas 900 and others: how to best address: document as opposed to missing data...discontinuities affect global fitting ie lsq but not local ie spline
@@ -96,7 +106,7 @@ multiple zeroes in ELE/HT files and adjacent identical points in general.
 notes from spline_monge.odt into help/faq OR add docs in pdf to main release files
 incorporate cornea docs from BRODIE, may need to read those old DRW->some converted to eps
 instructions on running win3.1, ie designer or mathematica:
-dosbox-x DXSCSI1, then select drive in menu to map DXSCSI2 to E:, go to E:\WINDOWS and run win, select mouse capture in menu
+dosbox-x DXSCSI1, then select drive in menu to map DXSCSI2 to E:, force scaling, normal x2 or normal x3 go to E:\WINDOWS and run win, select mouse capture in menu
 Export as EPS.
 mean curvature and monge astigmatism, need taylor series for limit at origin
 
@@ -110,9 +120,6 @@ Thermally Induced Reversible Corneal Molding after Sauna Use on PubMed
 
 Windows:  try cross-compile toolchain, again; also look into tools on Windows, free version of VS, nvidia compiler, or even as a WSL app  
 MacOS: need to do reseach on compiles with Xcode, darwin tools, Qt on iMac, possibly also in Mac VM, or as a Parallels/Docker app.
-
-need to cleanup gitmodules/submodules that may no longer exit or are not in the project ie math77
-test assimp now that added as submodule to keep up to date
 
 push to github
 

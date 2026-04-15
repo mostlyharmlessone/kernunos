@@ -219,8 +219,8 @@ struct point {
 FT_Library ft;
 FT_Face face;
 
-float sx = 1.0 / SCR_WIDTH ;
-float sy = 1.0 / SCR_HEIGHT;
+float sx = 2.0 / SCR_WIDTH ;
+float sy = 2.0 / SCR_HEIGHT;
 
 //https://stackoverflow.com/questions/2125880/convert-float-to-stdstring-in-c
 template <typename T> std::string to_str(const T& t) {
@@ -936,8 +936,8 @@ void GLwidget::render_text(GLuint vertexbuffer, const char *text, float x, float
               glBufferData(GL_ARRAY_BUFFER, sizeof box, box, GL_DYNAMIC_DRAW);
               glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
              /* Advance the cursor to the start of the next character */
-               x += (g->advance.x >> 6) * sx;
-               y += (g->advance.y >> 6) * sy;
+              x += (g->advance.x/64) * sx;
+              y += (g->advance.y/64) * sy;
             }
             // set texture options
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -1115,11 +1115,11 @@ void GLwidget::paintGL(void)
 
          // central value
          std::string degrees  = std::to_string(int(cardinal[0]));
-         render_text(vertexbuffers[i],degrees.c_str(), 0.0, 0.0, 2*sx, 2*sy);
+         render_text(vertexbuffers[i],degrees.c_str(), 0.0, 0.0, sx, sy);
          // cardinal values
          for (int j=1; j < nC; ++j){
              degrees  = std::to_string(int(cardinal[j]));
-             render_text(vertexbuffers[i],degrees.c_str(), 0.2*cos(3.14159*(j-1)/4.0), 0.2*sin(3.14159*(j-1)/4.0), 2*sx, 2*sy);
+             render_text(vertexbuffers[i],degrees.c_str(), 0.2*cos(3.14159*(j-1)/4.0), 0.2*sin(3.14159*(j-1)/4.0), sx, sy);
          }
 
          shaderText2Program->release();

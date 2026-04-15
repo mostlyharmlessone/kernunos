@@ -125,7 +125,7 @@
         endif
          X3=-b%Z0(1)          ! flip it upside down
          if (btest(dat,11)) then  ! substitute scaled function for elevation
-          X3=1000*(pow-powmax)/(powmax-powmin)
+          X3=500*(pow-powmax)/(powmax-powmin)
          endif
          vert3 = real(X3,kind=4)
          nrm1=0
@@ -175,7 +175,7 @@
          endif
          X3=-b%Z(j,i)         ! flip it
          if (btest(dat,11)) then  ! substitute scaled function for elevation
-          X3=1000*(pow-powmax)/(powmax-powmin)
+          X3=500*(pow-powmax)/(powmax-powmin)
          endif
          nrm1=-abs(b%YPR(j,i))      !get rid of spurious sign
          nrm2=-b%YPTHETA(j,i)/X2    !polar coordinates

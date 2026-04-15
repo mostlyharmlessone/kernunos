@@ -973,7 +973,7 @@ if (mod(flag,100) == 0) then
        if(exists) then
         TestData=0 ; MM=360; N=16   ! EyeSys
 
-        TestData=0 ; MM=256; N=24   ! EyeSys
+!        TestData=0 ; MM=256; N=24   ! Visia
 
 
         write(*,*) "Matching EyeSys RA file",inputfile2
@@ -1047,7 +1047,7 @@ if (mod(flag,100) == 0) then
           inputfile4=replacestr(string=inputfile2,search="RA",substitute="PE")
           inquire(file=trim(inputfile3), exist=exists)
           if(exists) then
-           write(*,*) "Matching Nidek HT file found"
+           write(*,*) "Matching Nidek HT file found",inputfile3
           endif
           inquire(file=trim(inputfile4), exist=exists)
           if(exists) then
@@ -1089,12 +1089,16 @@ if (mod(flag,100) == 0) then
            return
           else
            write(*,*) 'Matching Nidek ED file: ',inputfile1
-           TestData=6 ; MM=360; N=23   ! Nidek
+           TestData=6 ; MM=360    ! Nidek
            inputfile3=replacestr(string=inputfile2,search="/RA",substitute="/HT")
            inputfile4=replacestr(string=inputfile2,search="/RA",substitute="/PE")
            inquire(file=trim(inputfile3), exist=exists)
            if(exists) then
-            write(*,*) "Matching Nidek HT file found"
+            write(*,*) "Matching Nidek HT file found",inputfile3
+           endif
+           inquire(file=trim(inputfile4), exist=exists)
+           if(exists) then
+            write(*,*) "Matching Nidek PE file found ",inputfile4
            endif
           endif
          else
@@ -1139,7 +1143,11 @@ if (mod(flag,100) == 0) then
           inputfile4=replacestr(string=inputfile2,search="RA",substitute="PE")
           inquire(file=trim(inputfile3), exist=exists)
           if(exists) then
-           write(*,*) "Matching Nidek HT file found"
+           write(*,*) "Matching Nidek HT file found",inputfile3
+          endif
+          inquire(file=trim(inputfile4), exist=exists)
+          if(exists) then
+           write(*,*) "Matching Nidek PE file found ",inputfile4
           endif
          endif
         else
@@ -1149,13 +1157,7 @@ if (mod(flag,100) == 0) then
         endif
        endif
       endif
-     inquire(file=trim(inputfile3), exist=exists)
-     if(.NOT.exists) then
-      write(*,*) "EyeSys/Nidek files: ",inputfile1," ",inputfile2
-     else
-      write(*,*) "EyeSys/Nidek files: ",inputfile1," ",inputfile2," ",inputfile3
      endif
-    endif
 !    write(*,*)  "TestData,MM,N",TestData,MM,N
  endif ! (mod(flag,100) == 0) parsing the file name,assigning TestData type and MM,N
 
@@ -1292,7 +1294,7 @@ if (TestData .eq. 6) then
 ! READ THE NIDEK DATA
 ! RA????? ARE THE AXIAL DIST. ED???? ARE THE MIRE RADII; use the first set of 360 from ASCII ED**.DAT
    call CPU_TIME(time_start)
-   MM=360 ; N=39 ! Nidek binary default
+   MM=360 ; N=100 ! Nidek binary default
    read_error=0
    if(.not.allocated(EyeSys%RA)) then
     call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
@@ -1456,10 +1458,15 @@ if (TestData .eq. 1) then
   inputfile2=inputfile1
   if (read_error .eq. 1) then
    write(*,*) 'Possible semicolon delimited Atlas file, try sed'
-   inputfile2=replacestr(string=inputfile1,search=".CSV",substitute=".TMP")
+   if (index(inputfile1,".CSV") > 0) then
+    inputfile2=replacestr(string=inputfile1,search=".CSV",substitute=".TMP")
 !   write(*,*) 'sed "s/;/,/g" ' // inputfile1 // ' > ' // inputfile2
-   call execute_command_line ('sed "s/;/,/g" ' // inputfile1 // ' > ' // inputfile2, exitstat=io)
-   if (io > 0) then
+    call execute_command_line ('sed "s/;/,/g" ' // inputfile1 // ' > ' // inputfile2, exitstat=io)
+   else
+    write(*,*) 'No *.CSV file extension found'
+    io = -1
+   endif
+   if (io /= 0) then
     write (*,*) 'system command to sed failed'
     write (*,*) 'Consider using your text editor to search/replace all semicolons with commas in',inputfile1
     write (*,*) 'sed also fails on pathnames with spaces'

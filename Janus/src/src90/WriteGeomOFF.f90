@@ -124,7 +124,7 @@
         endif
          X3=b%Z0(1)
          if (btest(dat,11)) then  ! substitute scaled function for elevation
-          X3=1000*(pow-powmax)/(powmax-powmin)
+          X3=500*(pow-powmax)/(powmax-powmin)
          endif
          vert3 = real(X3,kind=REAL32)
          if (ieee_is_finite(vert3)) then
@@ -167,7 +167,7 @@
           vert2 = real(ABS(X2)*SIN(X1),kind=REAL32)
           X3=-b%Z(j,i)
           if (btest(dat,11)) then  ! substitute scaled function for elevation
-           X3=1000*(pow-powmax)/(powmax-powmin)
+           X3=500*(pow-powmax)/(powmax-powmin)
           endif
           vert3 = real(X3,kind=REAL32)
          if (ieee_is_finite(vert1) .AND. ieee_is_finite(vert2) .AND. ieee_is_finite(vert3)) then

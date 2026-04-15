@@ -71,14 +71,14 @@ module io_functions
     subroutine rcnvrtn(read_error,EDNAME,RANAME,HTNAME,PENAME)
      USE set_precision, ONLY : wp
      USE cornea_arrays, ONLY : EyeSys
-     character(len=*), intent(in) :: RANAME,EDNAME
+     character(len=*), intent(in), optional :: RANAME,EDNAME
      character(len=*), intent(in), optional :: PENAME,HTNAME
      integer, intent(out) :: read_error
     end subroutine
 
     subroutine rcnvrtn_binary(read_error,mirecount,EDNAME,RANAME,PENAME)
      USE set_precision, ONLY : wp
-     character(len=*), intent(in) :: RANAME,EDNAME
+     character(len=*), intent(in), optional :: RANAME,EDNAME
      character(len=*), intent(in), optional :: PENAME
      integer, intent(out) :: read_error
      integer, intent(out) :: mirecount
@@ -795,12 +795,12 @@ subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
               endif
              end do
       else
-        print*, "Error ", ierr ," attempting to open file ", trim(ZERNIKENAME)
+        print*, "Error ", ierr ," attempting to open ZERNIKE file ", trim(ZERNIKENAME)
         read_error=5
         return
       endif
      else
-      print*, "Error -- cannot find file: ", trim(ZERNIKENAME)
+      print*, "Error -- cannot find ZERNIKE file: ", trim(ZERNIKENAME)
       read_error=6
       return
      endif
@@ -843,7 +843,7 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
   USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_null_char
   implicit none
   logical :: exists
-  character(len=*), intent(in) :: RANAME,EDNAME
+  character(len=*), intent(in), optional :: RANAME,EDNAME
   character(len=*), intent(in), optional :: PENAME,HTNAME
   character(1000) header,semicolon1,semicolon2
   integer :: file_idx1,file_idx2,file_idx3,file_idx4,readerr,io
@@ -853,6 +853,7 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
   INTEGER :: I,J,ITH,unitno1,unitno2,unitno3,unitno4,MM,N,ierr
   integer(c_int) :: periodcount
   MM=360
+  if (present(EDNAME) .and. present(RANAME)) then
   inquire(file=trim(EDNAME), exist=exists)
   if (exists) then
    unitno1 = get_new_fileunit()
@@ -880,10 +881,23 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
       close(unitno2)
       semicolon1 = trim(EDNAME)
       write(*,*) 'Remove the semicolons with sed because formatted Fortran reads hate them'
-      semicolon1=replacestr(string=semicolon1,search=".DAT",substitute=".TMP")
+      if (index(EDNAME,".DAT") > 0) then
+       semicolon1=replacestr(string=semicolon1,search=".DAT",substitute=".TMP")
 !      write(*,*) 'sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1
-      call execute_command_line ('sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1, exitstat=io)
-      if (io > 0) then
+       call execute_command_line ('sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1, exitstat=io)
+      else
+       write(*,*) 'Yikes, no *.DAT file, trying *.dat'
+       io = -1
+       if (index(EDNAME,".dat") > 0) then
+        semicolon1=replacestr(string=semicolon1,search=".dat",substitute=".TMP")
+ !      write(*,*) 'sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1
+        call execute_command_line ('sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1, exitstat=io)
+       else
+        write(*,*) 'Yikes, no *.dat file: '
+        io = -1
+       endif
+      endif
+      if (io /= 0) then
        write (*,*) 'system command to sed failed'
        write (*,*) 'Consider using your text editor to search/replace all semicolons in data statements in',EDNAME
        write (*,*) 'sed also fails on pathnames with spaces'
@@ -891,10 +905,23 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
        return
       endif
       semicolon2 = trim(RANAME)
-      semicolon2=replacestr(string=RANAME,search=".DAT",substitute=".TMP")
+      if (index(RANAME,".DAT") > 0) then
+       semicolon2=replacestr(string=RANAME,search=".DAT",substitute=".TMP")
 !      write(*,*) 'sed "s/;/ /g" ' // RANAME // ' > ' // semicolon2
-      call execute_command_line ('sed "s/;/ /g" ' // RANAME // ' > ' // semicolon2, exitstat=io)
-      if (io > 0) then
+       call execute_command_line ('sed "s/;/ /g" ' // RANAME // ' > ' // semicolon2, exitstat=io)
+      else
+       write(*,*) 'Yikes, no *.DAT file name, trying *.dat'
+       io = -1
+       if (index(RANAME,".dat") > 0) then
+        semicolon2=replacestr(string=RANAME,search=".dat",substitute=".TMP")
+!       write(*,*) 'sed "s/;/ /g" ' // RANAME // ' > ' // semicolon2
+        call execute_command_line ('sed "s/;/ /g" ' // RANAME // ' > ' // semicolon2, exitstat=io)
+       else
+        write(*,*) 'Yikes, no *.dat file name:'
+        io = -1
+       endif
+      endif
+      if (io /= 0) then
        write (*,*) 'system command to sed failed'
        write (*,*) 'Consider using your text editor to search/replace all semicolons in data statements in',EDNAME
        write (*,*) 'sed also fails on pathnames with spaces'
@@ -916,7 +943,7 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
       READ (unitno1,*) header
       READ (unitno2,*) header
       do I=1,MM
-       if (file_idx1>0 .and. file_idx2>0) then
+       if (index(RANAME,"RA")>0 .and. index(EDNAME,"ED")>0) then
         READ(unitno1,*,iostat=readerr) header,ZX(:)
         if (readerr .ne. 0) then
          WRITE (*,*) 'Error on input Nidek RA/XX files on', I,'row'
@@ -979,158 +1006,185 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
         return
        endif
       endif
-      if (Present(HTNAME)) then
-       inquire(file=trim(HTNAME), exist=exists)
-       if (exists) then
-        unitno4 = get_new_fileunit()
-        open(unitno4, file=trim(HTNAME), action="read", iostat=ierr)
-        if (ierr .eq. 0) then
-         READ (unitno4,*) header
-         file_idx4=index(trim(header),HTNAME(index(HTNAME,"HT"):len(HTNAME)) // ";")
-         if (file_idx4 > 0) then
-          write(*,*) 'HT Nidek header detected: ',trim(header)
-         else
-          write(*,*) 'No HT Nidek headers detected'
-          close(unitno4)
-          if (allocated(ZX)) deallocate(ZX,YX)
-          return
-         endif
-         semicolon2 = HTNAME
-         semicolon2=replacestr(string=HTNAME,search=".DAT",substitute=".TMP")
-!         write(*,*) 'sed "s/;/ /g" ' // HTNAME // ' > ' // semicolon2
-         call execute_command_line ('sed "s/;/ /g" ' // HTNAME // ' > ' // semicolon2, exitstat=io)
-         if (io > 0) then
-          write (*,*) 'system command to sed failed'
-          write (*,*) 'Consider using your text editor to search/replace all semicolons in data statements in',HTNAME
-          write (*,*) 'sed also fails on pathnames with spaces'
-          read_error=11
-          if (allocated(ZX)) deallocate(ZX,YX)
-          return
-         endif
-         open(unitno4, file=trim(semicolon2), action="read", iostat=ierr)
-         READ (unitno4,*) header
-         do I=1,MM
-          if (file_idx1>0 .and. file_idx2>0) then
-           READ(unitno4,*,iostat=readerr) header,ZX(:)
-           if (readerr .ne. 0) then
-            WRITE (*,*) 'Error on input Nidek HT files on', I,'row'
-            read_error=3
-            if (allocated(ZX)) deallocate(ZX,YX)
-            return
-           endif
-           ITH=I-1
-          endif
-          do J=1,N
-           EyeSys%HT(i,j)=100*ZX(j)
-          end do
-         end do
-        endif
-        CLOSE(unitno4)
-        file_idx2=index(semicolon2, ".TMP")
-        write(*,*) 'Erasing semicolonless tmp file',semicolon2,file_idx1
-        if (file_idx2 .ne. 0) then
-         call execute_command_line ('rm ' // semicolon2, exitstat=io)
-         if (io > 0) then
-          write (*,*) 'failed system command to remove tmp file',semicolon2
-          read_error=12
-          return
-         endif
-        endif
-       endif
       else
-       print*, "Error -- cannot find file: ", trim(HTNAME)
-       read_error=7
-      endif
-      if (Present(PENAME)) then
-       inquire(file=trim(PENAME), exist=exists)
-       if (exists) then
-        unitno3 = get_new_fileunit()
-        open(unitno3, file=trim(PENAME), action="read", iostat=ierr)
-        if (ierr .eq. 0) then
-         READ (unitno3,*) header
-         file_idx3=index(trim(header),PENAME(index(PENAME,"PE"):len(PENAME)) // ";")
-         if (file_idx3 > 0) then
-          write(*,*) 'PE Nidek header detected: ',trim(header)
-         else
-          write(*,*) 'No PE Nidek header detected'
-          return
-         endif
-         close(unitno3)
-         semicolon2 = PENAME
-         semicolon2=replacestr(string=PENAME,search=".DAT",substitute=".TMP")
-!         write(*,*) 'sed "s/;/ /g" ' // PENAME // ' > ' // semicolon2
-         call execute_command_line ('sed "s/;/ /g" ' // PENAME // ' > ' // semicolon2, exitstat=io)
-         if (io > 0) then
-          write (*,*) 'system command to sed failed'
-          write (*,*) 'Consider using your text editor to search/replace all semicolons in data statements in',RANAME
-          write (*,*) 'sed also fails on pathnames with spaces'
-          read_error=11
-          if (allocated(ZX)) deallocate(ZX,YX)
-          return
-         endif
-         open(unitno3, file=trim(semicolon2), action="read", iostat=ierr)
-         READ (unitno3,*) header
-         READ (unitno3,*) CX,CY ! next line has two numbers
-         do I=1,MM
-          if (file_idx3 > 0) then
-           READ(unitno3,*,iostat=readerr) header,PX
-           if (readerr .ne. 0) then
-           WRITE (*,*) 'Error on input Nidek PE file on', I,'row'
-           read_error=7
-           if (allocated(ZX)) deallocate(ZX,YX)
-           return
-          endif
-         endif
-         EyeSys%PU(i)=PX
-         end do
-         EyeSys%Pupil_Center(1)=CX ; EyeSys%Pupil_Center(1)=CY
-         CLOSE (unitno3)
-         file_idx2=index(semicolon2, ".TMP")
-         write(*,*) 'Erasing semicolonless tmp file',semicolon2,file_idx1
-         if (file_idx2 .ne. 0) then
-          call execute_command_line ('rm ' // semicolon2, exitstat=io)
-          if (io > 0) then
-           write (*,*) 'failed system command to remove tmp file',semicolon2
-           if(allocated(ZX)) deallocate(ZX,YX)
-           read_error=12
-           return
-          endif
-         endif
-        endif
-       else
-        print*, "Error ", ierr ," attempting to open file ", trim(PENAME)
-        read_error=9
-        return
-       endif
-      endif
-      else
-        print*, "Error ", ierr ," attempting to open file ", trim(RANAME)
+        print*, "Error ", ierr ," attempting to open RA file ", trim(RANAME)
         read_error=3
         return
       endif
      else
-      print*, "Error -- cannot find file: ", trim(RANAME)
+      print*, "Error -- cannot find RA file: ", trim(RANAME)
       read_error=4
       return
      endif
     else
-     print*, "Error ", ierr ," attempting to open file ", trim(EDNAME)
+     print*, "Error ", ierr ," attempting to open ED file ", trim(EDNAME)
      read_error=5
      return
     endif
    else
-    print*, "Error -- cannot find file: ", trim(EDNAME)
+    print*, "Error -- cannot find ED file: ", trim(EDNAME)
     read_error=6
     return
    endif
+  endif ! RANAME & EDNAME
+
+  if (Present(HTNAME)) then
+     inquire(file=trim(HTNAME), exist=exists)
+     if (exists) then
+      unitno4 = get_new_fileunit()
+      open(unitno4, file=trim(HTNAME), action="read", iostat=ierr)
+      if (ierr .eq. 0) then
+       READ (unitno4,*) header
+       file_idx4=index(trim(header),HTNAME(index(HTNAME,"HT"):len(HTNAME)) // ";")
+       if (file_idx4 > 0) then
+        write(*,*) 'HT Nidek header matches filename: ',trim(header)," ",HTNAME(index(HTNAME,"HT"):len(HTNAME))
+       else
+        write(*,*) 'HT Nidek does not match filename:',trim(header)," ",HTNAME(index(HTNAME,"HT"):len(HTNAME))
+       endif
+       close(unitno4)
+       semicolon2 = HTNAME
+       if (index(HTNAME,".DAT") > 0) then
+        semicolon2=replacestr(string=HTNAME,search=".DAT",substitute=".TMP")
+  !         write(*,*) 'sed "s/;/ /g" ' // HTNAME // ' > ' // semicolon2
+        call execute_command_line ('sed "s/;/ /g" ' // HTNAME // ' > ' // semicolon2, exitstat=io)
+       else
+        write(*,*) "Yikes, no .DAT file found, trying *.dat"
+        io = -1
+        if (index(HTNAME,".dat") > 0) then
+         semicolon2=replacestr(string=HTNAME,search=".dat",substitute=".TMP")
+ !         write(*,*) 'sed "s/;/ /g" ' // HTNAME // ' > ' // semicolon2
+         call execute_command_line ('sed "s/;/ /g" ' // HTNAME // ' > ' // semicolon2, exitstat=io)
+        else
+         write(*,*) "Yikes, no *.dat file found:"
+         io = -1
+        endif
+       endif
+       if (io /= 0) then
+        write (*,*) 'system command to sed failed'
+        write (*,*) 'Consider using your text editor to search/replace all semicolons in data statements in',HTNAME
+        write (*,*) 'sed also fails on pathnames with spaces'
+        read_error=11
+        if (allocated(ZX)) deallocate(ZX,YX)
+        return
+       endif
+       open(unitno4, file=trim(semicolon2), action="read", iostat=ierr)
+       READ (unitno4,*) header
+       do I=1,MM
+        if (index(HTNAME,"HT") > 0) then
+         READ(unitno4,*,iostat=readerr) header,ZX(:)
+         if (readerr .ne. 0) then
+          WRITE (*,*) 'Error on input Nidek HT files on', I,'row'
+          read_error=3
+          if (allocated(ZX)) deallocate(ZX,YX)
+          close(unitno4)
+          return
+         endif
+         ITH=I-1
+        endif
+        do J=1,N
+         EyeSys%HT(i,j)=100*ZX(j)
+        end do
+       end do
+      endif
+      CLOSE(unitno4)
+      file_idx2=index(semicolon2, ".TMP")
+      write(*,*) 'Erasing semicolonless tmp file',semicolon2,file_idx1
+      if (file_idx2 .ne. 0) then
+       call execute_command_line ('rm ' // semicolon2, exitstat=io)
+       if (io > 0) then
+        write (*,*) 'failed system command to remove tmp file',semicolon2
+        read_error=12
+        return
+       endif
+      endif
+    else
+     print*, "Error -- cannot find HT file: ", trim(HTNAME)
+     read_error=7
+    endif
+   endif  !end HTNAME
+
+   if (Present(PENAME)) then
+    inquire(file=trim(PENAME), exist=exists)
+    if (exists) then
+     unitno3 = get_new_fileunit()
+     open(unitno3, file=trim(PENAME), action="read", iostat=ierr)
+     if (ierr .eq. 0) then
+      READ (unitno3,*) header
+      file_idx3=index(trim(header),PENAME(index(PENAME,"PE"):len(PENAME)) // ";")
+      if (file_idx3 > 0) then
+       write(*,*) 'PE Nidek header matches filename: ',trim(header)," ",PENAME(index(PENAME,"PE"):len(PENAME))
+      else
+       write(*,*) 'PE Nidek header does not match filename: ',trim(header)," ",PENAME(index(PENAME,"PE"):len(PENAME))
+      endif
+      close(unitno3)
+      semicolon2 = PENAME
+      if (index(PENAME,".DAT") > 0) then
+       semicolon2=replacestr(string=PENAME,search=".DAT",substitute=".TMP")
+       call execute_command_line ('sed "s/;/ /g" ' // PENAME // ' > ' // semicolon2, exitstat=io)
+      else
+       write(*,*) 'Yikes no *.DAT filename found, trying *.dat'
+       io = -1
+       if (index(PENAME,".dat") > 0) then
+        semicolon2=replacestr(string=PENAME,search=".dat",substitute=".TMP")
+        call execute_command_line ('sed "s/;/ /g" ' // PENAME // ' > ' // semicolon2, exitstat=io)
+       else
+        write(*,*) 'Yikes no *.dat filename found: '
+        io = -1
+       endif
+      endif
+!     write(*,*) 'sed "s/;/ /g" ' // PENAME // ' > ' // semicolon2
+      if (io /= 0) then
+       write (*,*) 'system command to sed failed'
+       write (*,*) 'Consider using your text editor to search/replace all semicolons in data statements in',RANAME
+       write (*,*) 'sed also fails on pathnames with spaces'
+       read_error=11
+       if (allocated(ZX)) deallocate(ZX,YX)
+       return
+      endif
+      open(unitno3, file=trim(semicolon2), action="read", iostat=ierr)
+      READ (unitno3,*) header
+      READ (unitno3,*) CX,CY ! next line has two numbers
+      do I=1,MM
+       if (index(PENAME,"PE") > 0) then
+        READ(unitno3,*,iostat=readerr) header,PX
+        if (readerr .ne. 0) then
+        WRITE (*,*) 'Error on input Nidek PE file on', I,'row'
+        read_error=7
+        if (allocated(ZX)) deallocate(ZX,YX)
+        return
+       endif
+      endif
+      EyeSys%PU(i)=PX
+      end do
+      EyeSys%Pupil_Center(1)=CX ; EyeSys%Pupil_Center(1)=CY
+      CLOSE (unitno3)
+      file_idx2=index(semicolon2, ".TMP")
+      write(*,*) 'Erasing semicolonless tmp file',semicolon2,file_idx1
+      if (file_idx2 .ne. 0) then
+       call execute_command_line ('rm ' // semicolon2, exitstat=io)
+       if (io > 0) then
+        write (*,*) 'failed system command to remove tmp file',semicolon2
+        if(allocated(ZX)) deallocate(ZX,YX)
+        read_error=12
+        return
+       endif
+      endif
+     endif
+    else
+     print*, "Error ", ierr ," attempting to open PE file ", trim(PENAME)
+     read_error=9
+     return
+    endif
+   endif
 end subroutine rcnvrtn
+
 
 subroutine rcnvrtn_binary(read_error,mirecount,RANAME,EDNAME,PENAME)
 ! NIDEK VERSION, binary, experimental, assumes peculiar packed BCD scheme for data
-! These all have an ASCII header with the file name including the location in the directory tree
+! These all have an ASCII header with a file name including the location in the directory tree
 ! detects binary
 ! assumes, but checks 39 mires, as all versions of binary seen have that number
-! only reads ED, RA files
+! only reads ED, RA and PE files
 ! uses EyeSys cornea_array storage files
 USE io_functions, ONLY : get_new_fileunit
 USE set_precision, ONLY : wp
@@ -1140,7 +1194,7 @@ USE special_fct, ONLY : replacestr
 use c_interfaces, ONLY : charcount
 USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_null_char
 implicit none
-character(len=*), intent(in) :: RANAME,EDNAME
+character(len=*), intent(in), optional :: RANAME,EDNAME
 character(len=*), intent(in), optional :: PENAME
 integer, intent(out) :: read_error
 integer, intent(out) :: mirecount
@@ -1151,8 +1205,18 @@ character(:), allocatable :: x, y
 integer :: file_idx1,file_idx2,file_idx3,file_idx4,posmax
 logical :: exists, negative
 INTEGER :: I,J,ITH,unitno1,unitno2,unitno3,MM,N,ierr,pos
-REAL (wp) :: ZX(39),YX(39) ! should be maximum needed for mires
+REAL (wp) :: ZX(size(EyeSys%RA,2)),YX(size(EyeSys%RA,2)) ! should be maximum needed for mires
 integer line(200),line2(200),ix,iy
+! having to put this in again here is incredibly lame
+ INTERFACE
+ subroutine rcnvrtn(read_error,EDNAME,RANAME,HTNAME,PENAME)
+  USE set_precision, ONLY : wp
+  USE cornea_arrays, ONLY : EyeSys
+  character(len=*), intent(in), optional :: RANAME,EDNAME
+  character(len=*), intent(in), optional :: PENAME,HTNAME
+  integer, intent(out) :: read_error
+ end subroutine
+ END INTERFACE
  x = "" ;   y = ""
  read_error = 0
 ! check that files exist and have a Nidek style header
@@ -1180,22 +1244,22 @@ integer line(200),line2(200),ix,iy
       read_error = 2
      endif
     else
-     print*, "Error ", ierr ," attempting to open file ", trim(RANAME)
+     print*, "Error ", ierr ," attempting to open RA file ", trim(RANAME)
      read_error=3
      return
     endif
    else
-    print*, "Error -- cannot find file: ", trim(RANAME)
+    print*, "Error -- cannot find RA file: ", trim(RANAME)
     read_error=4
     return
    endif
    else
-    print*, "Error ", ierr ," attempting to open file ", trim(EDNAME)
+    print*, "Error ", ierr ," attempting to open ED file ", trim(EDNAME)
     read_error=5
     return
    endif
    else
-    print*, "Error -- cannot find file: ", trim(EDNAME)
+    print*, "Error -- cannot find ED file: ", trim(EDNAME)
     read_error=6
     return
    endif
@@ -1203,14 +1267,20 @@ integer line(200),line2(200),ix,iy
  close(unitno2)
 ! Check if binary file despite if ASCII header detected...
  open(unitno1, file=trim(EDNAME), status='old', ACCESS='stream', iostat=ierr)
- do i=1,50
+ do i=1,100
    READ(unitno1,iostat=ierr) ch
 !  Detect if Non_ASCII
    if (ichar(ch) < 0 .or. ichar(ch) > 127 .and. read_error == 0) then
     write(*,*) 'Non_ASCII characters detected in', trim(EDNAME)
     read_error = 2
+    exit
    endif
  end do
+ if (read_error == 0) then
+  write(*,*) 'Only ASCII characters detected in', trim(EDNAME)
+  close(unitno1)
+  return
+ endif
  close(unitno1)
  ! This will also read ASCII headers, but I only want to run it if the file is a binary Nidek
  if (read_error == 2) then
@@ -1364,15 +1434,34 @@ integer line(200),line2(200),ix,iy
   close(unitno2)
  endif
  ! Pupil data from PE
- ! Check that I read Non-ASCII above
+ ! Check that I read Non-ASCII above for EDNAME
  if (read_error == 1) then
   inquire(file=trim(PENAME), exist=exists)
   if (exists) then
    unitno3 = get_new_fileunit()
    open(unitno3, file=trim(PENAME), status='old', ACCESS='stream', iostat=ierr)
+   do i=1,100
+     READ(unitno3,iostat=ierr) ch
+  !  Detect if Non_ASCII
+     if (ichar(ch) < 0 .or. ichar(ch) > 127) then
+      write(*,*) 'Non_ASCII characters detected in', trim(PENAME)
+      read_error = 4
+      exit
+     endif
+   end do
+   close(unitno3)
+!  recheck if PE is Non-ASCII
+   if (read_error /= 4) then
+! if it is, call the ASCII version just for PE
+    close(unitno3)
+    write(*,*) 'PE ASCII file'
+    call rcnvrtn(read_error,PENAME = trim(PENAME))
+    write(*,*) 'Read ASCII PE file associated with binary ED/RA files'
+    read_error = 1
+   else
+   open(unitno3, file=trim(PENAME), status='old', ACCESS='stream', iostat=ierr)
  ! READ the header
    ych = ' ' ;  y = join(c(ych,y))
-
    DO  WHILE (ierr == 0)
     READ(unitno3,iostat=ierr,iomsg=ioerrmsg) ych
     if (ierr == 0 ) then
@@ -1385,7 +1474,7 @@ integer line(200),line2(200),ix,iy
      endif
     else
  !  EOF or other read error
-     write (*,*) ioerrmsg
+     write (*,*) 'EOF or read error',ioerrmsg
      exit
     endif
    END DO
@@ -1429,7 +1518,7 @@ integer line(200),line2(200),ix,iy
          else
           negative = .false.
           ith = 1
-          endif
+         endif
 ! put first two floats in EyeSys%Pupil_Center
           do iy=1,2
 !   Assumes "2C2222" is the baseline for zero for all PackedBCD codes, converts ASCII to hex subtract and leave as decimal digit
@@ -1463,11 +1552,12 @@ integer line(200),line2(200),ix,iy
       endif
      else
    !  EOF or other read error
-      write(*,*) posmax, ' maximum data places per line'
+      write(*,*) j-1,'pupil radii read'
       exit
      endif
     end do
    close(unitno3)
+   endif
   endif
  endif
  do i=1,MM
@@ -1485,7 +1575,9 @@ integer line(200),line2(200),ix,iy
   end do
   EyeSys%DEG(I)=I-1
  end do
+ read_error = 1                ! means success at binary
 end subroutine rcnvrtn_binary
+
 
 
 subroutine rcnvrte(read_error,RANAME,XXNAME,PUNAME,HXNAME)
@@ -1635,31 +1727,31 @@ subroutine rcnvrte(read_error,RANAME,XXNAME,PUNAME,HXNAME)
          CLOSE (unitno3)
         endif
        else
-        print*, "Error ", ierr ," attempting to open file ", trim(PUNAME)
+        print*, "Error ", ierr ," attempting to open PU file ", trim(PUNAME)
         read_error=9
         return
        endif
       endif
       else
-         print*, "Error ", ierr ," attempting to open file ", trim(XXNAME)
+         print*, "Error ", ierr ," attempting to open XX file ", trim(XXNAME)
          read_error=3
         return
       endif         
      else
-      print*, "Error -- cannot find file: ", trim(XXNAME)
+      print*, "Error -- cannot find XX file: ", trim(XXNAME)
       read_error=4
       return
      endif 
     else
-     print*, "Error ", ierr ," attempting to open file ", trim(RANAME)
+     print*, "Error ", ierr ," attempting to open RA file ", trim(RANAME)
      read_error=5
      return
     endif       
    else
-    print*, "Error -- cannot find file: ", trim(RANAME)
+    print*, "Error -- cannot find RA file: ", trim(RANAME)
     read_error=6
     return
-   endif              
+   endif
 end subroutine rcnvrte
 
 subroutine rcnvrtV(read_error,RANAME,XXNAME)
@@ -1754,22 +1846,22 @@ subroutine rcnvrtV(read_error,RANAME,XXNAME)
       CLOSE (unitno1)
       CLOSE (unitno2)
       else
-         print*, "Error ", ierr ," attempting to open file ", trim(XXNAME)
+         print*, "Error ", ierr ," attempting to open XX file ", trim(XXNAME)
          read_error=3
         return
       endif
      else
-      print*, "Error -- cannot find file: ", trim(XXNAME)
+      print*, "Error -- cannot find XX file: ", trim(XXNAME)
       read_error=4
       return
      endif
     else
-     print*, "Error ", ierr ," attempting to open file ", trim(RANAME)
+     print*, "Error ", ierr ," attempting to open RA file ", trim(RANAME)
      read_error=5
      return
     endif
    else
-    print*, "Error -- cannot find file: ", trim(RANAME)
+    print*, "Error -- cannot find RA file: ", trim(RANAME)
     read_error=6
     return
    endif
@@ -1824,12 +1916,12 @@ subroutine rcnvrta_type(KXNAME,N,read_error)
 !      FINISHED READING ATLAS FILE
 100   CLOSE (unitno)
       else
-       print*, "Error ", ierr ," attempting to open file ", trim(KXNAME)
+       print*, "Error ", ierr ," attempting to open Atlas file ", trim(KXNAME)
        read_error=7
        return
       endif
     else
-     print*, "Error -- cannot find file: ", trim(KXNAME)
+     print*, "Error -- cannot find Atlas file: ", trim(KXNAME)
      read_error=8
      return
     endif
@@ -2019,12 +2111,12 @@ subroutine rcnvrta(KXNAME,N,read_error)
 100   write(*,*) 'Read ',K,' lines in',trim(KXNAME)
       CLOSE (unitno)
       else
-       print*, "Error ", ierr ," attempting to open file ", trim(KXNAME)
+       print*, "Error ", ierr ," attempting to open Atlas file ", trim(KXNAME)
        read_error=7
        return
       endif       
     else
-     print*, "Error -- cannot find file: ", trim(KXNAME)
+     print*, "Error -- cannot find Atlas file: ", trim(KXNAME)
      read_error=8
      return
     endif

@@ -2176,7 +2176,6 @@ void MainWindow::tweakaxisymmetric()
     };
 }
 
-
 void MainWindow::tweaknotelevation()
 {
     if (GLwidget::isnotelevation()) {
