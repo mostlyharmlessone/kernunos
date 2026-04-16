@@ -1,9 +1,5 @@
 FIXES
 
-no I'm not reading binary PE files either, with zero places using PEOPD in data_for_test
-
-NIDEK files can be in mixed bunchs? binary RA/ED and ASCII PE? also header may not match file name; at least issue a warning
-p.64 riptutorial fortran.pdf in documentation keyword vs positional referencing of optional pararmeters: make all filetypes optional for rcnvrtn/rctvrtn_binary
 
 Look at broken EyeSys file ".17" for why LSQ fillin doesnt work and makes duplicate radii
 also has weird PU file
@@ -132,7 +128,6 @@ Passing an assumed-shape array or array pointer to an explicit-shape array can s
 Spline routines seem to have explicit shape, and are passed possibly assumed-shape
 
 include these and similar notes in io_functions.f90
-
 
 MISCELLANEOUS
 
