@@ -1294,7 +1294,7 @@ if (TestData .eq. 6) then
 ! READ THE NIDEK DATA
 ! RA????? ARE THE AXIAL DIST. ED???? ARE THE MIRE RADII; use the first set of 360 from ASCII ED**.DAT
    call CPU_TIME(time_start)
-   MM=360 ; N=100 ! Nidek binary default
+   MM=360 ; N=39 ! Nidek binary default
    read_error=0
    if(.not.allocated(EyeSys%RA)) then
     call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices

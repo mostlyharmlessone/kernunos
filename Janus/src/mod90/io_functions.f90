@@ -1316,11 +1316,20 @@ integer line(200),line2(200),ix,iy
      if (pos-i-1 .ge. 1) then
       if (line(pos-i) .eq. 10 .and. line(pos-i-1) .eq. 13) then  !  0D 0A ends each line
   ! here's where to read the C's and E's and divide into 24 bit pieces
-       j = j+1
-       i = 1
+      j = j+1
+      i = 1
       ix = 1
-      do while (i .lt. len(trim(x)))
-  !  Assumes "2C2222" is the baseline for zero for all PackedBCD codes, converts ASCII to hex subtract and leave as decimal digit
+      do while (i .lt. len(trim(x)) .and. ix .le. 39)  !added second condition as safety for not referencing array outside limit
+ !   Assumes "2C2222" is the baseline for zero for all PackedBCD codes, converts ASCII to hex subtract and leave as decimal digit
+!     something like:
+!     for k=0,2-5 or 1-2,4-6
+!     if (iachar(y(ith+k:ith+k)) .lt. 58) yx(iy)= yx(iy)+(iachar(y(ith:ith))-50)*10.0**(k)
+!     if (iachar(y(ith+k:ith+k)) .ge. 65) yx(iy)= yx(iy)+(iachar(y(ith:ith))-57)*10.0 **(k)
+
+ ! 3-byte numbers have "C" in the second place
+ ! achar(50) == 2 ! achar(57) == 9 ! achar(65) == A
+      zx(ix) = 0
+      if (x(i+1:i+1)=="C") then
        if (iachar(x(i:i)) .lt. 58) zx(ix)= iachar(x(i:i))-50
        if (iachar(x(i:i)) .ge. 65) zx(ix)= iachar(x(i:i))-57
        if (iachar(x(i+2:i+2)) .lt. 58) zx(ix)= zx(ix)+(iachar(x(i+2:i+2))-50)*0.1
@@ -1332,11 +1341,33 @@ integer line(200),line2(200),ix,iy
        if (iachar(x(i+5:i+5)) .lt. 58) zx(ix)= zx(ix)+(iachar(x(i+5:i+5))-50)*0.0001
        if (iachar(x(i+5:i+5)) .ge. 65) zx(ix)= zx(ix)+(iachar(x(i+5:i+5))-57)*0.0001
        i=i+7
-       ix=ix+1
-       posmax=max(posmax,pos-i)
-  !  Assumes "D" is the only other code added, could also consider "F"
+       else
+! 4-byte numbers
+      if (x(i+2:i+2) =="C") then
+       if (iachar(x(i:i)) .lt. 58) zx(ix)= zx(ix)+(iachar(x(i:i))-50)*10.0
+       if (iachar(x(i:i)) .ge. 65) zx(ix)= zx(ix)+(iachar(x(i:i))-57)*10.0
+       if (iachar(x(i+1:i+1)) .lt. 58) zx(ix)= zx(ix)+iachar(x(i+1:i+1))-50
+       if (iachar(x(i+1:i+1)) .ge. 65) zx(ix)= zx(ix)+iachar(x(i+1:i+1))-57
+       if (iachar(x(i+3:i+3)) .lt. 58) zx(ix)= zx(ix)+(iachar(x(i+3:i+3))-50)*0.1
+       if (iachar(x(i+3:i+3)) .ge. 65) zx(ix)= zx(ix)+(iachar(x(i+3:i+3))-57)*0.1
+       if (iachar(x(i+4:i+4)) .lt. 58) zx(ix)= zx(ix)+(iachar(x(i+4:i+4))-50)*0.01
+       if (iachar(x(i+4:i+4)) .ge. 65) zx(ix)= zx(ix)+(iachar(x(i+4:i+4))-57)*0.01
+       if (iachar(x(i+5:i+5)) .lt. 58) zx(ix)= zx(ix)+(iachar(x(i+5:i+5))-50)*0.001
+       if (iachar(x(i+5:i+5)) .ge. 65) zx(ix)= zx(ix)+(iachar(x(i+5:i+5))-57)*0.001
+       if (iachar(x(i+6:i+6)) .lt. 58) zx(ix)= zx(ix)+(iachar(x(i+6:i+6))-50)*0.0001
+       if (iachar(x(i+6:i+6)) .ge. 65) zx(ix)= zx(ix)+(iachar(x(i+6:i+6))-57)*0.0001
+      else
+!     unexpected if neither 2nd or third digit is a "C"
+       zx(ix) = 0
+      endif
+      i=i+8
+     endif
+     ix=ix+1
+     posmax=max(posmax,pos-i)
+!    Assumes "D" is the only other code added, could also consider "F" since it is sometimes in place of final "E"
        if ( x(i:i) == "D") i=i+1
-      end do
+     end do
+
       EyeSys%RA(j,:)=100*ZX(:)
       mirecount = max(ix,mirecount)
       x = ""
@@ -1392,12 +1423,21 @@ integer line(200),line2(200),ix,iy
      line2(pos-ith)=iachar(ych)
      if (pos-ith-1 .ge. 1) then
       if (line2(pos-ith) .eq. 10 .and. line2(pos-ith-1) .eq. 13) then  !  0D 0A ends each line
-  ! here's where to read the C's and E's and divide into 24 bit pieces
+  ! here's where to read the C's and E's and divide into 24-bit or 32-bit pieces
       j = j+1
       ith = 1
       iy = 1
-      do while (ith .lt. len(trim(y)))
+      do while (ith .lt. len(trim(y)) .and. iy .le. 39 ) !added second condition as safety for not referencing array outside limit
  !   Assumes "2C2222" is the baseline for zero for all PackedBCD codes, converts ASCII to hex subtract and leave as decimal digit
+!     something like:
+!     for k=0,2-5 or 1-2,4-6
+!     if (iachar(y(ith+k:ith+k)) .lt. 58) yx(iy)= yx(iy)+(iachar(y(ith:ith))-50)*10.0**(k)
+!     if (iachar(y(ith+k:ith+k)) .ge. 65) yx(iy)= yx(iy)+(iachar(y(ith:ith))-57)*10.0 **(k)
+
+ ! 3-byte numbers have "C" in the second place
+ ! achar(50) == 2 ! achar(57) == 9 ! achar(65) == A
+      yx(iy) = 0
+      if (y(ith+1:ith+1)=="C") then
        if (iachar(y(ith:ith)) .lt. 58) yx(iy)= iachar(y(ith:ith))-50
        if (iachar(y(ith:ith)) .ge. 65) yx(iy)= iachar(y(ith:ith))-57
        if (iachar(y(ith+2:ith+2)) .lt. 58) yx(iy)= yx(iy)+(iachar(y(ith+2:ith+2))-50)*0.1
@@ -1409,11 +1449,33 @@ integer line(200),line2(200),ix,iy
        if (iachar(y(ith+5:ith+5)) .lt. 58) yx(iy)= yx(iy)+(iachar(y(ith+5:ith+5))-50)*0.0001
        if (iachar(y(ith+5:ith+5)) .ge. 65) yx(iy)= yx(iy)+(iachar(y(ith+5:ith+5))-57)*0.0001
        ith=ith+7
-       iy=iy+1
-       posmax=max(posmax,pos-i)
- !  Assumes "D" is the only other code added, could also consider "F"
+       else
+! 4-byte numbers
+      if (y(ith+2:ith+2) =="C") then
+       if (iachar(y(ith:ith)) .lt. 58) yx(iy)= yx(iy)+(iachar(y(ith:ith))-50)*10.0
+       if (iachar(y(ith:ith)) .ge. 65) yx(iy)= yx(iy)+(iachar(y(ith:ith))-57)*10.0
+       if (iachar(y(ith+1:ith+1)) .lt. 58) yx(iy)= yx(iy)+iachar(y(ith+1:ith+1))-50
+       if (iachar(y(ith+1:ith+1)) .ge. 65) yx(iy)= yx(iy)+iachar(y(ith+1:ith+1))-57
+       if (iachar(y(ith+3:ith+3)) .lt. 58) yx(iy)= yx(iy)+(iachar(y(ith+3:ith+3))-50)*0.1
+       if (iachar(y(ith+3:ith+3)) .ge. 65) yx(iy)= yx(iy)+(iachar(y(ith+3:ith+3))-57)*0.1
+       if (iachar(y(ith+4:ith+4)) .lt. 58) yx(iy)= yx(iy)+(iachar(y(ith+4:ith+4))-50)*0.01
+       if (iachar(y(ith+4:ith+4)) .ge. 65) yx(iy)= yx(iy)+(iachar(y(ith+4:ith+4))-57)*0.01
+       if (iachar(y(ith+5:ith+5)) .lt. 58) yx(iy)= yx(iy)+(iachar(y(ith+5:ith+5))-50)*0.001
+       if (iachar(y(ith+5:ith+5)) .ge. 65) yx(iy)= yx(iy)+(iachar(y(ith+5:ith+5))-57)*0.001
+       if (iachar(y(ith+6:ith+6)) .lt. 58) yx(iy)= yx(iy)+(iachar(y(ith+6:ith+6))-50)*0.0001
+       if (iachar(y(ith+6:ith+6)) .ge. 65) yx(iy)= yx(iy)+(iachar(y(ith+6:ith+6))-57)*0.0001
+      else
+!     unexpected if neither 2nd or third digit is a "C"
+       yx(iy) = 0
+      endif
+      ith=ith+8
+     endif
+     iy=iy+1
+     posmax=max(posmax,pos-i)
+!    Assumes "D" is the only other code added, could also consider "F" since it is sometimes in place of final "E"
        if ( y(ith:ith) == "D") ith=ith+1
-      end do
+     end do
+
       EyeSys%XX(j,:)=100*YX(:)
       mirecount = max(iy,mirecount)
       y = ""
@@ -1497,6 +1559,8 @@ integer line(200),line2(200),ix,iy
         if (len(trim(y)) .eq. 8) then
            ith = 1 ; iy = j-1
 !   Assumes "2C2222" is the baseline for zero for all PackedBCD codes, converts ASCII to hex subtract and leave as decimal digit
+          EyeSys%PU(iy) = 0
+          if (y(ith+1:ith+1)=="C") then
            if (iachar(y(ith:ith)) .lt. 58) EyeSys%PU(iy)= iachar(y(ith:ith))-50
            if (iachar(y(ith:ith)) .ge. 65) EyeSys%PU(iy)= iachar(y(ith:ith))-57
            if (iachar(y(ith+2:ith+2)) .lt. 58) EyeSys%PU(iy)= EyeSys%PU(iy)+(iachar(y(ith+2:ith+2))-50)*0.1
@@ -1507,6 +1571,7 @@ integer line(200),line2(200),ix,iy
            if (iachar(y(ith+4:ith+4)) .ge. 65) EyeSys%PU(iy)= EyeSys%PU(iy)+(iachar(y(ith+4:ith+4))-57)*0.001
            if (iachar(y(ith+5:ith+5)) .lt. 58) EyeSys%PU(iy)= EyeSys%PU(iy)+(iachar(y(ith+5:ith+5))-50)*0.0001
            if (iachar(y(ith+5:ith+5)) .ge. 65) EyeSys%PU(iy)= EyeSys%PU(iy)+(iachar(y(ith+5:ith+5))-57)*0.0001
+          endif
            EyeSys%PU(iy)=1.0*EyeSys%PU(iy)
         else
 !        Two signed floats
@@ -1522,6 +1587,8 @@ integer line(200),line2(200),ix,iy
 ! put first two floats in EyeSys%Pupil_Center
           do iy=1,2
 !   Assumes "2C2222" is the baseline for zero for all PackedBCD codes, converts ASCII to hex subtract and leave as decimal digit
+         EyeSys%Pupil_Center(iy) = 0
+          if (y(ith+1:ith+1)=="C") then
            if (iachar(y(ith:ith)) .lt. 58) EyeSys%Pupil_Center(iy)= iachar(y(ith:ith))-50
            if (iachar(y(ith:ith)) .ge. 65) EyeSys%Pupil_Center(iy)= iachar(y(ith:ith))-57
            if (iachar(y(ith+2:ith+2)) .lt. 58) EyeSys%Pupil_Center(iy)= EyeSys%Pupil_Center(iy)+(iachar(y(ith+2:ith+2))-50)*0.1
@@ -1532,6 +1599,7 @@ integer line(200),line2(200),ix,iy
            if (iachar(y(ith+4:ith+4)) .ge. 65) EyeSys%Pupil_Center(iy)= EyeSys%Pupil_Center(iy)+(iachar(y(ith+4:ith+4))-57)*0.001
            if (iachar(y(ith+5:ith+5)) .lt. 58) EyeSys%Pupil_Center(iy)= EyeSys%Pupil_Center(iy)+(iachar(y(ith+5:ith+5))-50)*0.0001
            if (iachar(y(ith+5:ith+5)) .ge. 65) EyeSys%Pupil_Center(iy)= EyeSys%Pupil_Center(iy)+(iachar(y(ith+5:ith+5))-57)*0.0001
+          endif
            if ( negative ) then
             EyeSys%Pupil_Center(iy) = -1.0 * EyeSys%Pupil_Center(iy)
            else
