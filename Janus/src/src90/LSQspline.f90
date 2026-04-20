@@ -84,6 +84,7 @@
 ! sparse = true means using superlu to solve the system, false means converting to a dense matrix and using LAPACK
 ! obviously sparse = true is suitable for large n
       LOGICAL, INTENT(IN) :: periodic, csr , sparse
+
 ! error reporting 
       integer, INTENT(OUT) :: err_report
 

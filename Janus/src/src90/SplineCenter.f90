@@ -58,7 +58,8 @@
    err_report = 4
    return
   endif
-  else     ! the origin isn't between a positive and negative value, so if the slope changes sign, there's a minmax
+  else
+!  the origin isn't between a positive and negative value, so if the slope changes sign, there's a minmax
 !  First time through RadSplineCenter == 0
    if (btest(dat, 0) ) then ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
     call SplineEvalCenter(jj,r,z,zr2,n,r(high),g,slopeh)
@@ -70,20 +71,35 @@
   
    if (slopeh*slopel <= 0) then   ! find a minmax, the slope changes sign   
     j=0
+    gr=(slopeh+slopel)/2.0_wp
     u=(r(high)+r(low))/2.0_wp
-    gr=2*g/(r(high)-r(low))
     grr=2*gr/(r(high)-r(low))
-    do while ((j < 10) .AND. (ABS(gr/grr) > eps)) 
-     j=j+1    
+
+write(*,*) j,u,g,gr,grr
+
+    do while ((j < 10) .AND. (ABS(gr/grr) > eps))
+     j=j+1
      ! First time through RadSlopeCenter == 0
      if (btest(dat, 0)) then ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
       call SplineEvalCenter(jj,r,z,zr2,n,u,g,gr,grr)
      else
       call SplineEval(0,r,z,zr2,n,u,g,gr,grr)
      endif
+
+
+write(*,*) j,u,g,gr,grr
+
+
      if (ABS(grr) < EPS*EPS) then
+      write(*,*) 'no guarantee of a local minmax in SplineCenter',u,g,gr,grr,btest(dat, 0),n,j
       u=(r(high)+r(low))/2.0_wp     ! just make it in the center; no guarantee of a local minmax
-      write(*,*) 'no guarantee of a local minmax in SplineCenter',gr/grr,grr,btest(dat, 0)
+      call SplineEvalCenter(jj,r,z,zr2,n,u,g,gr,grr)
+      write(*,*) 'Using arithmetic center in SplineCenter',u,g,gr,grr
+
+   do i=1,n
+      write(*,*) r(i),z(i)
+   end do
+
       err_report = 5
       return
      endif     
@@ -92,7 +108,7 @@
 ! should take under 10 iterations
     if (j > 10) then
      u=(r(high)+r(low))/2.0_wp      ! just make it in the center; no guarantee of a local minmax
-     write(*,*) 'Probable error on iterations in SplineCenter finding minmax',u,gr,grr,ABS(gr/grr),btest(dat, 0)
+     write(*,*) 'Probable error on iterations in SplineCenter finding minmax',u,gr,grr,btest(dat, 0)
      err_report = 6
 !     write(*,*) low,high,r(low),z(low),r(high),z(high)
 !      write(*,*) slopel,slopeh

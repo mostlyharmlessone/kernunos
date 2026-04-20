@@ -1,13 +1,34 @@
 FIXES
 
+MY pentacam image ELE leads to 
+
+ no guarantee of a local minmax in SplineCenter                  Infinity   0.0000000000000000      T
+(MakeRadSplineCenter errors at)
+  janus line number:         1761
+  janus line number:         1774
+  janus line number:         2088
 
 Look at broken EyeSys file ".17" for why LSQ fillin doesnt work and makes duplicate radii
 also has weird PU file
 
+
+my CUR files also have edge effects; need a cropping tool for bad data/crop autocrop
+
+? needs extreme value filter; or histogram of values for median and color scale  like OPDIII
+resurrect old noise reduction code to help out monge-astig and meanc for real data?
+need lapack or open version of numrec fourn:  fftpack
+extreme value filter for scales
+
+
+
 search for Visia in source code to strip out or enable eysys version of reading visia if I fix it
 redo- Rowsey curvature?
 
+work on documentation
+
 Needs fix:
+
+2-D LSQSPline
 
 
 zernike computations only for if ( Testdata .le.1 ) then     ! only for test/Atlas/EyeSys at present
@@ -22,10 +43,6 @@ probably can run kernunos but not janus?
 consider adding sound to play after zernike compute, but might need option to turn off http://github.com/zserge/beep or get fancy with .ogg
 
 
-? needs extreme value filter; or histogram of values for median and color scale  like OPDIII
-resurrect old noise reduction code to help out monge-astig and meanc for real data?
-need lapack or open version of numrec fourn:  fftpack
-extreme value filter for scales
 
 in kernunos menu actions do some key bindings?
 setShortcuts(QKeySequence::UnknownKey);
@@ -68,10 +85,9 @@ also try finding a way to use only local natural splines instead of generating w
 
 DOCUMENTATION
 
-might need to import old brodie manuscripts for background of monge patch, principal curvature
 in assistant.cpp look at showDocumentation and substitute docs for this project in appropriate format
 might want to change Cmakelist.txt for the proper install directory for documentation/copy
-when making documents, can edit in Abricotine; regenerate to html, same with spline_monge; open in libreoffice, regenerate into pdf
+when making documents, can edit in Abricotine; regenerate to html, same with spline_notes.odt and other ODT; open in libreoffice, regenerate into pdf
 ie use qhelpgenerator kernunos.qhcp kernunos.qhc after making the appropriate changes, need also edit the html files and rewrite the qhp file in documentation
 have to regenerate in directory as dir info is coded in sql files, also make sure source names in qhc/qhcp files match those in assistant.cpp
 
@@ -82,14 +98,6 @@ centerpoints need explaining, as in why are they non-zero in writecenter
 incorporate "warp/oblique power" and reading zernike and pupils from some files into readme/faq
 what to do with/how to explain warp?
 
-flat earth analogy with meridians not maps, frequency distribution = eg Zernike coefficient is the way to see corneas
-lsq to get coefficients legendres, fourier zernike, ellipsoid as basis functions is ?better than current approach
-look at Phorcides documentation
-
-Needs a whole section on corneal topography and "powers" with math definitions; 
-1d-2d/2d-3d difference between x and r; possible incorporation of iris equation example ?picture showing skew rays 
-bad data here is implicitly assuming axisymmetery for Placido reflection, but if the machine is reporting true "axial curvatures", it should still be computable (test example)
-simple difference between d/dx and 1/r(d/dr) axisymmetry is not linear ==> lost battle with IRIS paper 
 
 needs section on handling bad data:
 shift discontinuity in Atlas 900 and others: how to best address: document as opposed to missing data...discontinuities affect global fitting ie lsq but not local ie spline
@@ -99,16 +107,16 @@ rings function can demonstrate difference. Discontinuity in all data circumferen
 multiple zeroes in ELE/HT files and adjacent identical points in general.
 
 
-notes from spline_monge.odt into help/faq OR add docs in pdf to main release files
-incorporate cornea docs from BRODIE, may need to read those old DRW->some converted to eps
 instructions on running win3.1, ie designer or mathematica:
-dosbox-x DXSCSI1, then select drive in menu to map DXSCSI2 to E:, force scaling, normal x2 or normal x3 go to E:\WINDOWS and run win, select mouse capture in menu
+dosbox-x: select drive in menu to map DXSCSI1 to C: and DXSCSI2 to E:, force scaling, normal x2 or normal x3 go to E:\WINDOWS and run win, select mouse capture in menu
 Export as EPS.
 mean curvature and monge astigmatism, need taylor series for limit at origin
 
 README (not the markdown/html) needs a file manifest; eventually generate with git or ls -l
 
 POLISHING/PRESENTATION/LAUNCH
+
+rename files a laShakespeare: dry eye juliet capulet, kcn demo rex lear, maybe mine can be iago borgia
 
 analyze fowler sauna patient: arvo poster introduction
 search for

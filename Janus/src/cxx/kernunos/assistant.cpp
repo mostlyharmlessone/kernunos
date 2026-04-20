@@ -30,7 +30,7 @@ void Assistant::showDocumentation(const QString &page)
 
     QByteArray ba("SetSource ");
 //    ba.append("qthelp://org.qt-project.examples.simpletextviewer/doc/");   //this corresponds to qhp/qhcp files
-    ba.append("qthelp://Janus/kernunos/doc/");   //this corresponds to qhp/qhcp files
+    ba.append("qthelp:../../../documentation/");   //this corresponds to qhp/qhcp files
     m_process->write(ba + page.toLocal8Bit() + '\n');
 
     std::cout << "Qt Assistant: " << (ba + page.toLocal8Bit() + '\n').toStdString() << "\n";
@@ -48,7 +48,7 @@ static QString documentationDirectory()
     paths.append(QCoreApplication::applicationDirPath());
     paths.append(QStandardPaths::standardLocations(QStandardPaths::AppDataLocation));
     for (const auto &dir : std::as_const(paths)) {
-        const QString path = dir + "/documentation";
+        const QString path = "../../documentation";
 
         std::cout << "Qt Assistant path to documentation: " << path.toStdString() << "\n";
 
@@ -83,7 +83,7 @@ bool Assistant::startAssistant()
         }
 
         const QStringList args{"-collectionFile",
-                               collectionDirectory + "/simpletextviewer.qhc",
+                               collectionDirectory + "/kernunos.qhc",
                                "-enableRemoteControl"};
 
 

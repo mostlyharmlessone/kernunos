@@ -15,6 +15,8 @@ MODULE cornea_arrays
  integer, PARAMETER :: M2=10 ! lsq fourier series terms; if even then there's an equal number of sine and cosine terms; don't make higher than 10 or get Gibb's phenomenon
 ! integer :: LWORK1
 ! real(wp), allocatable :: WORK1(:)
+! natural spline; csr and LAPACK not superlu is fastest for these matrix sizes
+ LOGICAL, PARAMETER :: periodic =.false. , csr = .true. , sparse = .false.
 
 ! Defining common data arrays
  
@@ -388,7 +390,12 @@ subroutine RadSlope_eq_Skyline(lsq,JMatrix, RadSlope, Skyline, Penta)      ! ini
   rmin=1E30
 ! Spline in x                               (this is the equivalent of DiaSpline)
   do i=1,Skyline%rows
-   L2=Skyline%L2x(i)                                       
+   L2=Skyline%L2x(i)
+ ! check for orphan data
+   if (L2 < 10) then
+    write(*,*) 'Orphan data, cropping/skipping'
+    cycle
+   endif
    x(1:L2)=Skyline%x(i,1:L2)
    z(1:L2)=Skyline%DAT(i,1:L2)
 !  multiple zeroes detection; only the most noticable flat area in elevation files
@@ -396,14 +403,12 @@ subroutine RadSlope_eq_Skyline(lsq,JMatrix, RadSlope, Skyline, Penta)      ! ini
     if (ABS(Skyline%DAT(i,j)) .lt. eps) then
      num_zeroes=num_zeroes+1
     endif
-   end do
-
+   end do  
    if (.not. lsq) then
     call nspline(x,z,L2,z2,err_report)                                ! generate zxDAT
    else
     allocate (knots(L2/3),knotsz(L2/3),knotsz2(L2/3))
-!   natural spline; csr and LAPACK not superlu is fastest for these matrix sizes
-    call LSQspline(x, z, L2, knots, knotsz, knotsz2, L2/3, err_report, .false., .true., .false.)
+    call LSQspline(x, z, L2, knots, knotsz, knotsz2, L2/3, err_report, periodic, csr , sparse)
     if (err_report .ne. 0) write(*,*) 'Error in LSQspline',err_report
 !    makes zigzags, larger z2
 !    call LSQ_DC2FIT(x, z, L2, knots, knotsz, knotsz2, L2/3, err_report)
@@ -467,8 +472,7 @@ subroutine RadSlope_eq_Skyline(lsq,JMatrix, RadSlope, Skyline, Penta)      ! ini
       call nspline(y(1:L2),fTmp(1:L2),L2,f2Tmp(1:L2),err_report)             ! spline in Y of f
      else
       allocate (knots(L2/3),knotsz(L2/3),knotsz2(L2/3))
-!     natural spline; csr and LAPACK not superlu is fastest for these matrix sizes (.false., .true., .false.)
-      call LSQspline(y(1:L2), fTmp(1:L2), L2, knots, knotsz, knotsz2, L2/3, err_report, .false., .true., .false.)
+      call LSQspline(y(1:L2), fTmp(1:L2), L2, knots, knotsz, knotsz2, L2/3, err_report, periodic, csr , sparse)
       if (err_report .ne. 0) write(*,*) 'Error in LSQspline',err_report
 !     repopulate z,  generate z2 with lsqspline not nspline
       do kk=1,L2
@@ -483,8 +487,7 @@ subroutine RadSlope_eq_Skyline(lsq,JMatrix, RadSlope, Skyline, Penta)      ! ini
        call nspline(y(1:L2),fxTmp(1:L2),L2,fx2Tmp(1:L2),err_report)           ! spline in Y of fx to get fxy (only for ELE files)
       else
        allocate (knots(L2/3),knotsz(L2/3),knotsz2(L2/3))
- !     natural spline; csr and LAPACK not superlu is fastest for these matrix sizes
-       call LSQspline(y(1:L2), fxTmp(1:L2), L2, knots, knotsz, knotsz2, L2/3, err_report, .false., .true., .false.)
+       call LSQspline(y(1:L2), fxTmp(1:L2), L2, knots, knotsz, knotsz2, L2/3, err_report, periodic, csr , sparse)
        if (err_report .ne. 0) write(*,*) 'Error in LSQspline',err_report
  !     repopulate z,  generate z2 with lsqspline not nspline
        do kk=1,L2
@@ -497,8 +500,7 @@ subroutine RadSlope_eq_Skyline(lsq,JMatrix, RadSlope, Skyline, Penta)      ! ini
        call nspline(y(1:L2),fxxTmp(1:L2),L2,fxx2Tmp(1:L2),err_report)          ! spline in Y of fxx to get fxx (only for ELE files)
       else
        allocate (knots(L2/3),knotsz(L2/3),knotsz2(L2/3))
- !     natural spline; csr and LAPACK not superlu is fastest for these matrix sizes
-       call LSQspline(y(1:L2), fxxTmp(1:L2), L2, knots, knotsz, knotsz2, L2/3, err_report, .false., .true., .false.)
+       call LSQspline(y(1:L2), fxxTmp(1:L2), L2, knots, knotsz, knotsz2, L2/3, err_report, periodic, csr , sparse)
        if (err_report .ne. 0) write(*,*) 'Error in LSQspline',err_report
  !     repopulate z,  generate z2 with lsqspline not nspline
        do kk=1,L2
