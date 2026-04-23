@@ -33,7 +33,6 @@
 
 ! make a noncenterpoint spline to find center values of elevation and curvature
   call nspline(r,z,n,z2,err_report)
-
   if (err_report .ne. 0) then
    write(*,*) 'nsplinecenter:'
    write(*,*) r(1:n)

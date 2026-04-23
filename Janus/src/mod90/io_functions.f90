@@ -1342,7 +1342,7 @@ integer line(200),line2(200),ix,iy
        if (iachar(x(i+5:i+5)) .ge. 65) zx(ix)= zx(ix)+(iachar(x(i+5:i+5))-57)*0.0001
        i=i+7
        else
-! 4-byte numbers
+! 4-byte numbers have "C" in the third place
       if (x(i+2:i+2) =="C") then
        if (iachar(x(i:i)) .lt. 58) zx(ix)= zx(ix)+(iachar(x(i:i))-50)*10.0
        if (iachar(x(i:i)) .ge. 65) zx(ix)= zx(ix)+(iachar(x(i:i))-57)*10.0
@@ -1450,7 +1450,7 @@ integer line(200),line2(200),ix,iy
        if (iachar(y(ith+5:ith+5)) .ge. 65) yx(iy)= yx(iy)+(iachar(y(ith+5:ith+5))-57)*0.0001
        ith=ith+7
        else
-! 4-byte numbers
+! 4-byte numbers have "C" in the third place
       if (y(ith+2:ith+2) =="C") then
        if (iachar(y(ith:ith)) .lt. 58) yx(iy)= yx(iy)+(iachar(y(ith:ith))-50)*10.0
        if (iachar(y(ith:ith)) .ge. 65) yx(iy)= yx(iy)+(iachar(y(ith:ith))-57)*10.0
@@ -1560,6 +1560,7 @@ integer line(200),line2(200),ix,iy
            ith = 1 ; iy = j-1
 !   Assumes "2C2222" is the baseline for zero for all PackedBCD codes, converts ASCII to hex subtract and leave as decimal digit
           EyeSys%PU(iy) = 0
+           ! 3-byte numbers have "C" in the second place
           if (y(ith+1:ith+1)=="C") then
            if (iachar(y(ith:ith)) .lt. 58) EyeSys%PU(iy)= iachar(y(ith:ith))-50
            if (iachar(y(ith:ith)) .ge. 65) EyeSys%PU(iy)= iachar(y(ith:ith))-57
@@ -1574,7 +1575,7 @@ integer line(200),line2(200),ix,iy
           endif
            EyeSys%PU(iy)=1.0*EyeSys%PU(iy)
         else
-!        Two signed floats
+!        Two signed floats have D or B as sign prefix if negative
           if (len(trim(y)) .ne. 16) write(*,*) 'Error in reading: ', PENAME
 !        first float
          if ( y(1:1) == "D" .or. y(1:1) == "B") then   ! sign prefix
@@ -1588,6 +1589,7 @@ integer line(200),line2(200),ix,iy
           do iy=1,2
 !   Assumes "2C2222" is the baseline for zero for all PackedBCD codes, converts ASCII to hex subtract and leave as decimal digit
          EyeSys%Pupil_Center(iy) = 0
+!         3-byte numbers have "C" in the second place
           if (y(ith+1:ith+1)=="C") then
            if (iachar(y(ith:ith)) .lt. 58) EyeSys%Pupil_Center(iy)= iachar(y(ith:ith))-50
            if (iachar(y(ith:ith)) .ge. 65) EyeSys%Pupil_Center(iy)= iachar(y(ith:ith))-57

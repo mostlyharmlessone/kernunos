@@ -14,8 +14,13 @@
   real(wp) :: f      ! error handling
   logical :: IsNaN    
   INFO=0   ; err_report = 0
+ ! if(r(1) .eq. r(2)) then
+ !  write(*,*) 'Bad r in nspline'
+ !  err_report=2
+ !  return
+ ! endif
   if ( n < 2 ) then  ! invalid parameter
-   INFO=-1
+   err_report=-2
    return
   endif 
 ! boundary conditions for natural spline   
@@ -24,7 +29,6 @@
   if ( n == 2 ) then
    write(*,*) "Warning degenerate nspline",r,z
    err_report=-1
-   stop
    return  ! degenerate case  
   else 
     allocate (a(n-2),b(n-2),c(n-2),d(n-2),zz2(n-2))
@@ -59,9 +63,18 @@
    f= dot_product(z2,z2)
    IsNaN=.not.ieee_is_finite(f) .or. .not.ieee_is_finite(dot_product(r,r)) .or. .not.ieee_is_finite(dot_product(z,z))
    If(IsNaN) then
-    write(*,*) 'Warning from nspline: NaN terms, check r,z,z2; ',INFO
+    write(*,*) 'FATAL from nspline: NaN terms, check r,z,z2, matrix entries; ',INFO
+    do i=2,n-1
+     a(i-1)=(r(i)-r(i-1))/6.0
+     b(i-1)=(r(i+1)-r(i-1))/3.0
+     c(i-1)=(r(i+1)-r(i))/6.0
+     d(i-1)=(z(i+1)-z(i))/(r(i+1)-r(i))-(z(i)-z(i-1))/(r(i)-r(i-1))
+    end do
+    do i=2,n-2
+     write(*,*) r(i-1),z(i-1),z2(i-1),a(i-1),b(i-1),c(i-1),d(i-1)
+    end do
     err_report=1
-    return
+    stop
    endif
  
    deallocate (a,b,c,d,zz2)

@@ -48,12 +48,12 @@
   real(wp), allocatable :: zernC(:,:), B_Matrix(:,:), rlocal(:), thtlocal(:), WORK(:)
   real(wp), allocatable :: UT(:,:),VT(:,:) !,XTX(:,:),EE(:,:)
 !  integer, allocatable :: IPIV(:)
-  real(wp) :: ctr_circle_x, ctr_circle_y, R_global, Theta_global, R_MV, R_TST, P_TEMP
+  real(wp) :: ctr_circle_x, ctr_circle_y, R_global, Theta_global, R_MV, R_TST !, P_TEMP
   real(wp) :: gaussian,meanpower,princ1,princ2,astigm
   real(wp), allocatable :: temp(:,:)
   logical :: lsq
   integer(c_int) :: periodcount
-  integer(c_int64_t) :: zero_int64
+  integer(c_int64_t), parameter :: zero_int64 = 0
 
 err_janus = 0 ; error_report = 0 ;
 if (loaded_files .le. 0) loaded_files = 0
@@ -394,7 +394,7 @@ if (mod(flag,100) .eq. 6) then
 RadSlope=JMatrix
 DiaSlope=RadSlope              ! move to diagonal format
 DiaSlope%Zpd2 = .n. DiaSlope
- if ( Testdata .le.1 ) then     ! only for test/Atlas/EyeSys at present
+ if ( Testdata .le.1 .or. TestData .eq. 6 ) then     ! only for test/Atlas/EyeSys/NIDEK at present
   call MakeRadSplineCenter(zero_int64,error_report)   ! remakes RadSplineCenter(1,:)
   if (error_report .ne. 0) then
    write(*,*)' janus line number: ',__LINE__
@@ -407,7 +407,7 @@ DiaSlope%Zpd2 = .n. DiaSlope
  endif
  if (btest(dat, 1)) then          ! moving each meridian to align curves
   call AdjustRadSplineCenter     ! changes r only
-  DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+  DiaSlope%Zpd2 = .n. DiaSlope    ! re-spline, standard
  endif
   call MakeRadSplineCenter(dat,error_report)        ! generates spline centers with tweaks
   if (error_report .ne. 0) then
@@ -607,7 +607,7 @@ if (btest(dat,5)) then
 
   if (btest(dat, 1)) then          ! moving each meridian to align curves
    call AdjustRadSplineCenter     ! changes r only
-   DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+   DiaSlope%Zpd2 = .n. DiaSlope    ! re-spline, standard
   endif
 
   call MakeRadSplineCenter(dat,error_report)        ! generates spline centers with tweaks
@@ -1698,10 +1698,10 @@ if (TestData .eq. 1) then
  endif
 endif  !Atlas fillin
 
-!  FILL IN MISSING EYESYS/NIDEK DATA, only use sple, LSQ has problem with the one broken EyeSys file I've seen
-!  probably becasuse I'm making RA and XX now powers, get duplicate radii and slopes at the end points, which break nspline
+! FILL IN MISSING EYESYS/NIDEK DATA, only use sple, LSQ has problem with the one broken EyeSys file I've seen
+! probably because I'm making RA and XX now powers, get duplicate radii and slopes at the end points, which break nspline
 if (TestData .eq. 0 .or. TestData .eq. 6) then
- if (btest(dat, 4) ) then !.or. btest(dat, 3)) then
+ if (btest(dat, 4) .or. btest(dat, 3)) then
 ! make sure I have a backup of EyeSys the same size as EyeSys before fillin
   if(allocated(EyeSysSave%RA)) EyeSysSave=0
   N=size(EyeSys%RA,2)
@@ -1715,14 +1715,14 @@ if (TestData .eq. 0 .or. TestData .eq. 6) then
   inquire(file=trim(inputfile3), exist=exists)
   if(exists .and. TestData .eq. 6) call EyeSys_SplineFillin(EyeSysSave,EyeSysSave%HT,EyeSys%HT)
  endif
-!  FILL IN MISSING EYESYS RING DATA USING LSQ Fourier series
- if (.false. ) then ! btest(dat, 3)) then
-  EyeSysSave=EyeSys
-  call EyeSys_LSQFillin(EyeSysSave,EyeSysSave%RA,EyeSys%RA)
-  call EyeSys_LSQFillin(EyeSysSave,EyeSysSave%XX,EyeSys%XX)
-  inquire(file=trim(inputfile3), exist=exists)
-  if(exists .and. TestData .eq. 6) call EyeSys_LSQFillin(EyeSysSave,EyeSysSave%HT,EyeSys%HT)
- endif
+! FILL IN MISSING EYESYS RING DATA USING LSQ Fourier series
+  if (btest(dat, 3)) then
+   EyeSysSave=EyeSys
+   call EyeSys_LSQFillin(EyeSysSave,EyeSysSave%RA,EyeSys%RA)
+   call EyeSys_LSQFillin(EyeSysSave,EyeSysSave%XX,EyeSys%XX)
+   inquire(file=trim(inputfile3), exist=exists)
+   if(exists .and. TestData .eq. 6) call EyeSys_LSQFillin(EyeSysSave,EyeSysSave%HT,EyeSys%HT)
+  endif
 
  ! gnuplot rings output and exit
   if (mod(flag,100) .eq. 8 ) then
@@ -1746,9 +1746,9 @@ if (TestData .eq. 0 .or. TestData .eq. 6) then
     endif
     return
    endif ! end (mod(flag,100) .eq. 8)
- if (btest(dat, 4)) then ! .or. btest(dat, 3)) then
+ if (btest(dat, 4) .or. btest(dat, 3)) then
   RadSlope=EyeSys
-  EyeSys=EyeSysSave  ! restore Atlas after using it to define RadSlope
+  EyeSys=EyeSysSave  ! restore EyeSys after using it to define RadSlope
  endif
 endif  ! EyeSys fillin
 
@@ -1767,7 +1767,7 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
  endif
  if (btest(dat, 1)) then          ! moving each meridian to align curves
   call AdjustRadSplineCenter     ! changes r only
-  DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+  DiaSlope%Zpd2 = .n. DiaSlope    ! re-spline, standard
  endif
  call MakeRadSplineCenter(dat,error_report)        ! generates spline centers with tweaks
  if (error_report .ne. 0) then
@@ -2081,7 +2081,7 @@ endif
   endif
   if (btest(dat, 1)) then          ! moving each meridian to align curves
    call AdjustRadSplineCenter     ! changes r only
-   DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+   DiaSlope%Zpd2 = .n. DiaSlope    ! re-spline, standard
   endif
   call MakeRadSplineCenter(dat,error_report)        ! generates spline centers with tweaks
   if (error_report .ne. 0) then
@@ -2147,7 +2147,7 @@ if (mod(flag,100) == 1) then
   endif
   if (btest(dat, 1)) then          ! moving each meridian to align curves
    call AdjustRadSplineCenter     ! changes r only
-   DiaSlope%Zpd2 = .n. DiaSlope   ! re-spline, standard
+   DiaSlope%Zpd2 = .n. DiaSlope    ! re-spline, standard
   endif
   call MakeRadSplineCenter(dat,error_report)        ! generates spline centers with tweaks
     write(*,*) dat,error_report,__LINE__

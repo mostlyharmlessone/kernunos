@@ -5,7 +5,7 @@ MODULE cornea_arrays
  USE spline_interfaces 
  use, intrinsic ::  ieee_arithmetic
  use, intrinsic :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char,c_int64_t,c_double
- IMPLICIT NONE
+ implicit none
  REAL(wp), PARAMETER :: PI=3.1415926535897932384626433832795_wp
  REAL(wp), PARAMETER :: RFCT=33750.0_wp
  REAL(wp), PARAMETER :: EPS=0.0001_wp  ! used in pspli,SplineCenter,corneal calc fcts
@@ -1306,39 +1306,40 @@ end subroutine EyeSys_SplineFillin
    deallocate (spline%r,spline%z,spline%zp2,spline%mvjr)
 end function splinefillintranspose
 
-
 subroutine Atlas_LSQfillin(Atlas,b,a)
  TYPE(wpAtlasMatrix), INTENT(IN) :: Atlas
  real(wp),INTENT(IN) :: b(:,:)
  real(wp), intent(out) :: a(size(b,1),size(b,2))
- integer :: M1,N1,i,j,k
+ integer :: M1,N1,i,j,k,mvjr(size(b,2))
  real(wp) ::t(size(b,1)),z(size(b,1))
  real(wp) :: c(M2)
  N1=size(b,2) !N1=N
  M1=size(b,1) !M1=MM
- a=0  !initialize else the damn thing will fill with NaN
- z=0
- t=0
+ a=0 ; z=0 ; t=0 ; c=0 ; mvjr = 0
  do i=1,N1
   do j=1,M2
    do k=1,M1
     if ((Atlas%AP(k,i) > 0) .AND. (Atlas%AR(k,i) > 0) .AND. (Atlas%AD(k,i) > 0) .AND. (Atlas%AY(k,i) > 0)) then ! eliminate all the bad points
-!    if (ABS(b(k,i)) .gt. 0) then ! means it is  =/ 0
-     z(k)=b(k,i)
-     t(k)=PI*(k-1)/90.0_wp  ! every 2 degrees
+     if (ABS(b(k,i)) .gt. 0) then ! means it is  =/ 0
+      z(k)=b(k,i)
+      t(k)=PI*(k-1)/90.0_wp  ! every 2 degrees
+      mvjr(i)=mvjr(i)+1
+     endif
     endif
    end do
   end do
+  if (mvjr(i) > M1/2) then ! only do LSQ if at leasthalf the points are there
 ! generate lsq fillin values; uses cosines and sines, not splines
-  call lsqfit(t,z,M1,M2,c)
-  do k=1,M1
-!   changed this to a smoothing routine with relatively low M2 (10), as LSQ is terrible at discontinuities.
+   call lsqfit(t,z,M1,M2,c)
+   do k=1,M1
+!    changed this to a smoothing routine with relatively low M2 (10), as LSQ is terrible at discontinuities.
 !    if (ABS(b(k,i)) .gt. 0) then ! means it is  =/ 0
 !     a(k,i)=b(k,i)   ! retain old values where they exist, this is a fill-in, not a smoothing routine.
 !    else
     call LSQEval(M2,c,t(k),a(k,i))
 !    endif
-  end do
+   end do
+  endif
  end do
 end subroutine Atlas_LSQfillin
 
@@ -1346,34 +1347,36 @@ subroutine EyeSys_LSQfillin(EyeSys,b,a)
  TYPE(wpEyeSysMatrix), INTENT(INOUT) :: EyeSys
  real(wp),INTENT(IN) :: b(:,:)
  real(wp), intent(out) :: a(size(b,1),size(b,2))
- integer :: M1,N1,i,j,k
+ integer :: M1,N1,i,j,k,mvjr(size(b,2))
  real(wp) ::t(size(b,1)),z(size(b,1))
  real(wp) :: c(M2)
  N1=size(b,2) !N1=N
  M1=size(b,1) !M1=MM
- a=0  !initialize else the damn thing will fill with NaN
- z=0
- t=0
+ a=0  ;  z=0 ; t=0 ; c=0 ; mvjr = 0
  do i=1,N1
   do j=1,M2
    do k=1,M1
     if ((EyeSys%RA(k,i) > 0) .AND. (EyeSys%XX(k,i) > 0) ) then ! eliminate all the bad points, assumes if HT exists that it is the same
-!    if (ABS(b(k,i)) .gt. 0) then ! means it is  =/ 0
-     z(k)=b(k,i)
-     t(k)=PI*(k-1)/180.0_wp  ! every degrees
+     if (ABS(b(k,i)) .gt. 0) then ! means it is  =/ 0
+      z(k)=b(k,i)
+      t(k)=PI*(k-1)/180.0_wp  ! every degree
+      mvjr(i)=mvjr(i)+1
+     endif
     endif
    end do
   end do
-! generate lsq fillin values; uses cosines and sines, not splines
-  call lsqfit(t,z,M1,M2,c)
-  do k=1,M1
-!  changed this to a smoothing routine with relatively low M2 (10), as LSQ is terrible at discontinuities.
+  if (mvjr(i) > M1/2) then ! only do LSQ if at leasthalf the points are there
+!  generate lsq fillin values; uses cosines and sines, not splines
+   call lsqfit(t,z,M1,M2,c)
+   do k=1,M1
+!   changed this to a smoothing routine with relatively low M2 (10), as LSQ is terrible at discontinuities.
 !    if (ABS(b(k,i)) .gt. 0) then ! means it is  =/ 0
 !     a(k,i)=b(k,i)   ! retain old values where they exist, this is a fill-in, not a smoothing routine.
 !    else
     call LSQEval(M2,c,t(k),a(k,i))
 !    endif
-  end do
+   end do
+  endif
  end do
 end subroutine EyeSys_LSQfillin
 

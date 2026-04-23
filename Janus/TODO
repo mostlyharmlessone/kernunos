@@ -1,17 +1,5 @@
 FIXES
 
-MY pentacam image ELE leads to 
-
- no guarantee of a local minmax in SplineCenter                  Infinity   0.0000000000000000      T
-(MakeRadSplineCenter errors at)
-  janus line number:         1761
-  janus line number:         1774
-  janus line number:         2088
-
-Look at broken EyeSys file ".17" for why LSQ fillin doesnt work and makes duplicate radii
-also has weird PU file
-
-
 my CUR files also have edge effects; need a cropping tool for bad data/crop autocrop
 
 ? needs extreme value filter; or histogram of values for median and color scale  like OPDIII
