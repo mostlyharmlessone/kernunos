@@ -165,6 +165,7 @@ bool GLwidget::m_LSQfillin = false;
 bool GLwidget::m_Splinefillin = false;
 bool GLwidget::m_pupilregister = false;
 bool GLwidget::m_decenter = false;
+bool GLwidget::m_cropping = false;
 bool GLwidget::m_consistency = false;
 bool GLwidget::m_lsqvsspline = true;
 bool GLwidget::m_LSQspline = true;

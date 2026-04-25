@@ -254,13 +254,16 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
         if(t) {dat |= 1UL << 10;} else { dat &= ~(1UL << 10);}  //set/unset 10th ie. eleventh bit
         flag=1000000*dat+(flag%1000000);}
 
-
-////////swapping this bit makes the number negative and screws up the whole scheme.
-
     static bool isnotelevation() { return m_notelevation; }
     static void setnotelevation(bool t) { m_notelevation = t;
         int64_t dat=(flag-(flag%1000000))/1000000;
         if(t) {dat |= 1UL << 11;} else { dat &= ~(1UL << 11);}  //set/unset 11th ie. twelfth bit
+        flag=1000000*dat+(flag%1000000);}
+
+    static bool iscropping() { return m_cropping; }
+    static void setcropping(bool t) { m_cropping = t;
+        int64_t dat=(flag-(flag%1000000))/1000000;
+        if(t) {dat |= 1UL << 12;} else { dat &= ~(1UL << 12);}  //set/unset 11th ie. twelfth bit
         flag=1000000*dat+(flag%1000000);}
 
     static void setAllfctfalse(){
@@ -618,6 +621,7 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
     static bool m_LSQspline;
     static bool m_axisymmetric;
     static bool m_notelevation;
+    static bool m_cropping;
 
     static bool m_Axial;
     static bool m_Oblique;

@@ -1,12 +1,5 @@
 FIXES
 
-my CUR files also have edge effects; need a cropping tool for bad data/crop autocrop
-
-? needs extreme value filter; or histogram of values for median and color scale  like OPDIII
-resurrect old noise reduction code to help out monge-astig and meanc for real data?
-need lapack or open version of numrec fourn:  fftpack
-extreme value filter for scales
-
 
 
 search for Visia in source code to strip out or enable eysys version of reading visia if I fix it
@@ -14,10 +7,9 @@ redo- Rowsey curvature?
 
 work on documentation
 
-Needs fix:
+ENHANCEMENTS:
 
-2-D LSQSPline
-
+2-D LSQSpline: review article again, work on stand-alone progrma first, but probably want polar version with adjustable grid size
 
 zernike computations only for if ( Testdata .le.1 ) then     ! only for test/Atlas/EyeSys at present
 compare is broken with zernike; also so is opening 2nd file with zernike selected and zernike
@@ -30,7 +22,9 @@ you can run other Analyze ie center gnusplotplot, lioc, and move the picture
 probably can run kernunos but not janus?
 consider adding sound to play after zernike compute, but might need option to turn off http://github.com/zserge/beep or get fancy with .ogg
 
-
+? needs extreme value filter; or histogram of values for median and color scale  like OPDIII
+resurrect old noise reduction code to help out monge-astig and meanc for real data?
+need lapack or open version of numrec fourn:  fftpack
 
 in kernunos menu actions do some key bindings?
 setShortcuts(QKeySequence::UnknownKey);

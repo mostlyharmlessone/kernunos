@@ -132,6 +132,7 @@ public:
     void loadFile(QString& fileName, bool filepresent);
     QTimer t;
     bool pentacam;  //needed nonlocally
+    int previous_crop = 0;
 
 protected:
     void closeEvent(QCloseEvent *event) override;
@@ -146,6 +147,7 @@ private slots:
     void redraw();
     void compare();
     void decenter();
+    void cropping();
     void swap();
     void exportpicture();
     void zerncompute();
@@ -304,6 +306,7 @@ private:
     QAction *LSQfillinAct;
     QAction *SplinefillinAct;
     QAction *decenterAct;
+    QAction *croppingAct;
     QAction *lsqvssplineAct;
     QAction *makeLSQsplineAct;
     QAction *axisymmetricAct;
@@ -324,6 +327,7 @@ private:
     QErrorMessage *errorMessageDialog;
     DialogOptionsWidget *compareDialogOptionsWidget;
     DialogOptionsWidget *decenterDialogOptionsWidget;
+    DialogOptionsWidget *croppingDialogOptionsWidget;
     DialogOptionsWidget *keratoDialogOptionsWidget;
 };
 

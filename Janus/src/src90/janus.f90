@@ -13,7 +13,7 @@
   use omp_lib
   IMPLICIT NONE
   integer :: i, j, k, ii, kk, m, nn, i1, j1, ierr, info, nrhs
-  integer,save :: MM, N ,M1, N1, Power_Rings_Count, loaded_files
+  integer,save :: MM, N ,M1, N1, Power_Rings_Count, loaded_files, crop
   integer,save :: TestData             ! TestData: -1=test, 0=EyeSys, 1=Atlas, (2-5)=Penta, 6=Nidek, 7=Keratograph
   integer,save :: NP                   ! PentaCam=141
   integer :: unitno1
@@ -36,12 +36,12 @@
   character(len=4096) :: new_path
   character(:),save, ALLOCATABLE :: inputfile1,inputfile2,inputfile3,inputfile4,inputfile5,inputfile6,inputfile7
   character(:),save, ALLOCATABLE :: logfile,BigPlot,gnu_instruct,cab_inputfile1,cab_inputfile2,cab_inputfile3,cab_inputfile4
-  integer ::  nblines, file_idx,read_error,io
+  integer ::  nblines, file_idx, read_error, io, new_crop
   integer,allocatable :: MV(:)
   real(8) :: time_start, time_end
   real(wp) :: POWMIN,POWMAX,POWMAX2,POWCTR,POW,P1,X1,X2,U,V
   logical :: donut, exists
-  real(wp) :: Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo,dvert,dhoriz
+  real(wp) :: Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo,dvert,dhoriz,percent_squash
   integer :: k_max, kk_max, iflag, LWORK, rotationdegrees
   integer(c_int64_t) :: dat, fct, map
   integer(c_int) ::  error_report
@@ -92,6 +92,7 @@ map=mod((flag-mod(flag,100))/100,100)  ! last two digits color map functions
 ! dat = tenth binary bit 0/1 lsqspline tweak ie btest(dat,9) = .true.
 ! dat = eleventh binary bit 0/1 axisymmetric tweak ie btest(dat,10) = .true.
 ! dat = twelfth binary bit 0/1 elevation is switched for power on 3-D display ie btest(dat,11) = .true.
+! dat = thirteenth binary bit 0/1 crop the data ie btest(dat,12) = .true.
 
 ! iflag passing of dat to SplineEval1Dx1D centernode splines, integration of splines and LSQ vs circumferential splining
 ! first mod((iflag-mod(iflag,100))/100,100)
@@ -533,7 +534,6 @@ endif
 
 ! decenter is compare without a second scan
 if (btest(dat,5)) then
- if (.true.) then  ! in case I can check need for valid data prior to running
   new_path = " "
   do i=1, 4096
    if ( file_from_C (i) == c_null_char ) then
@@ -545,6 +545,7 @@ if (btest(dat,5)) then
 ! write(*,*) 'file from kernunos: ',trim(new_path)
   new_path=trim(new_path)
   read(new_path,*) dhoriz, dvert
+ if (.true.) then  ! in case I can check need for valid data prior to running
 !generate new JMatrix
   JMatrix3=JMatrix
   ctr_circle_x = dhoriz
@@ -612,7 +613,7 @@ if (btest(dat,5)) then
 
   call MakeRadSplineCenter(dat,error_report)        ! generates spline centers with tweaks
   if (error_report .ne. 0) then
-   write(*,*)' janus line number: ',__LINE__
+   write(*,*)' MakeRadSplineCenter janus line number: ',__LINE__
   endif
 
 ! Generate the surface
@@ -657,6 +658,55 @@ if (btest(dat,5)) then
  endif
 endif
 
+! cropping removes borders from JMatrix
+ if (btest(dat,12)) then
+ !generate new JMatrix
+   JMatrix3=JMatrix
+  new_path = " "
+  do i=1, 4096
+   if ( file_from_C (i) == c_null_char ) then
+       exit
+   else
+       new_path (i:i) = file_from_C (i)
+   end if
+  end do
+  percent_squash = 0
+! write(*,*) 'file from kernunos: ',trim(new_path)
+  new_path=trim(new_path)
+  read(new_path,*) new_crop, percent_squash
+  if (crop .lt. 0) crop = 0 ! initializes and is a sanity check
+  crop = crop + new_crop
+  if (abs(crop) .le. 10) then
+   write(*,*) 'Cropping by',crop, 'Squashing by', percent_squash
+   if (.not. allocated(MV)) then
+    allocate(MV(M1))
+   else
+    deallocate(MV)
+    allocate(MV(M1))
+   endif
+!  store
+   MV(:)=JMatrix%MV(:)
+   JMatrix3%MV(:)=min(JMatrix%MV(:)-crop,MV(:))
+!  find min and maximum
+   call minmax(JMatrix3)
+   if (percent_squash .gt.0) then
+    call squash(JMatrix3,percent_squash)
+    call minmax(JMatrix3)
+   endif
+!  draw
+   donut = .FALSE.
+   elements(1:nE) = 0
+   vertices(1:nV) = 0
+   call selectfunction(0,JMatrix3,flag,powctr,powmin,powmax,cardinal,nC)  !with 0 only loads powctr, powmin, powmax, cardinals
+   call Geom(flag, JMatrix3, donut, powmin, powmax, elements, vertices, nV, nE)
+   call makelegend(flag, powmin, powmax, legend, nL)
+   return
+!  reset
+   JMatrix%MV(:)=MV(:)
+  else
+   write(*,*) 'Crop must be greater than zero and less than six, got previous crop, new crop:', crop, new_crop
+  endif
+ endif
 
 ! simple difference/subtraction with compare
 if (mod(flag,100) == 10) then
@@ -1989,6 +2039,16 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
     end do
    endif
   end do
+  if (abs(crop) .gt. 6) crop = 0   !safety setting
+  if (.not. allocated(MV)) then
+   allocate(MV(M1))
+  else
+   deallocate(MV)
+   allocate(MV(M1))
+  endif
+!  store
+  MV(:)=JMatrix%MV(:)
+  JMatrix%MV(:)=min(JMatrix%MV(:)-crop,MV(:))
 
 ! Generate the surface
   do i=1,M1
@@ -2115,7 +2175,6 @@ endif
   end do
   write(*,*) 'Penta avg abs elevation percent error : ',(100*powmax2/k)/powmax
  endif
-
 
 endif !mod(flag,100) /= 9
 
@@ -2490,6 +2549,7 @@ endif
   call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
   call Pupil(JMatrix, dist, pupil_elements, pupil_vertices, pupil_nV, pupil_nE)
   call makelegend(flag, powmin, powmax, legend, nL)
+  JMatrix%MV(:)=MV(:)
 
 
 !write(*,*) JMatrix%SAGC0

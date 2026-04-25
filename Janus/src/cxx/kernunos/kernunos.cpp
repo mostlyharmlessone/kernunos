@@ -100,6 +100,8 @@ const unsigned int SCR_HEIGHT = 800;
 // dat = ninth binary bit 0/1 lsq instead of circumferential spline tweak
 // dat = tenth binary bit 0/1 2d vs 1d x 1d spline tweak
 // dat = eleventh binary bit 0/1 axisymmetric tweak
+// dat = twelfth binary bit 0/1 not elevation tweak
+// dat = thirteenth binary bit 0/1 cropping tweak
 // second two digits are the function to be plotted as colors
 // 0 = SAGC Sagittal or Axial power
 // 1-15 = zernike coefficient maps
@@ -505,6 +507,7 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
    };
    compareAct->setEnabled(true);
    decenterAct->setEnabled(true);
+   croppingAct->setEnabled(true);
    notelevationAct->setEnabled(true);
    swapAct->setEnabled(true);
    redrawAct->setEnabled(true);
@@ -573,6 +576,7 @@ void MainWindow::test()
     QString fileName = QString::fromStdString("test");
     ShowZernAct->setEnabled(false);
     decenterAct->setEnabled(true);
+    croppingAct->setEnabled(true);
     notelevationAct->setEnabled(true);
     centerAct->setEnabled(true);
     ringsAct->setEnabled(false);
@@ -729,6 +733,7 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
        compareAct->setEnabled(true);
        notelevationAct->setEnabled(true);
        decenterAct->setEnabled(true);
+       croppingAct->setEnabled(true);
        swapAct->setEnabled(true);
        redrawAct->setEnabled(true);
        redrawOptionAct->setEnabled(true);
@@ -801,7 +806,7 @@ void MainWindow::exportpicture()
     // get output file name and type
     QString filter =
        "Discreet TGA .tga (*.tga) )";
-    QString fileName = QFileDialog::getSaveFileName(this,"Screenshot type", "", filter);
+    QString fileName = QFileDialog::getSaveFileName(this,"Image/Picture type", "", filter);
     if (fileName.isEmpty())
         return;
     QByteArray ba = fileName.toLocal8Bit();
@@ -931,7 +936,7 @@ void MainWindow::decenter()
         if (reply == QMessageBox::Yes){
             GLwidget::setdecenter(true);  //set decenter flag (changes dat)
             bool ok;
-            if (decenterDialogOptionsWidget->value()){
+            if (decenterDialogOptionsWidget->value()){   //checks for polar
              dist = QInputDialog::getDouble(this, tr("Distance "),
                                            tr("mm:"), dist, 0.0, 100.0, 2, &ok,
                                            Qt::WindowFlags());
@@ -977,6 +982,70 @@ void MainWindow::decenter()
         return;
      }
 }
+
+void MainWindow::cropping()
+{
+    QMessageBox msgBox(QMessageBox::Question, tr("Cropping.."),
+                       tr("Would you like to crop the edges"), { }, this);
+    msgBox.setInformativeText(tr("Allows for cropping the data " ));
+    msgBox.addButton(QMessageBox::Yes);
+    msgBox.addButton(QMessageBox::No);
+    msgBox.addButton(QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::No);
+    int squash = 1;
+
+    QSpacerItem *horizontalspacer = new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    QGridLayout *layout =(QGridLayout*)msgBox.layout();
+    layout->addItem(horizontalspacer,layout->rowCount(),0,1,layout->columnCount());
+    croppingDialogOptionsWidget = new DialogOptionsWidget;
+    croppingDialogOptionsWidget->addCheckBox(tr("Squash"), squash);
+    layout->addWidget(croppingDialogOptionsWidget);
+    int reply = msgBox.exec();
+    int crop = 0;
+    double percent = 0.0;
+    QString croplabel = QString::fromStdString((std::to_string(previous_crop)));
+    ui.infoLabel->setText("Current crop: "+croplabel);
+
+    if (reply == QMessageBox::Yes){
+        GLwidget::setcropping(true);  //set cropping flag (changes dat)
+        bool ok;
+        if (croppingDialogOptionsWidget->value()){   //checks for squashing
+            percent = QInputDialog::getDouble(this, tr("Percentage "),
+                                              tr("0-100:"), percent, 0.0, 100.0, 2, &ok,
+                                              Qt::WindowFlags());
+            if (!ok){GLwidget::setcropping(false);
+                return;}
+        };
+        crop = QInputDialog::getInt(this, tr("Crop "),
+                             tr("Units: 0-10, if current crop is greater than zero,can enter negative up to that number "), crop, -10, 10, 1, &ok,
+                             Qt::WindowFlags());
+        if (!ok){GLwidget::setcropping(false);
+                 return;};
+    }
+    else {
+        if (reply == QMessageBox::No) {GLwidget::setcropping(false);
+                                       return;}};
+
+    if (!(reply == QMessageBox::Cancel)){
+
+        QString fileName = QString::fromStdString((std::to_string(crop))+","+std::to_string(percent)); //send crop and percent as filename
+        flag=flag-(flag%100)+4;  // last two digits of flag=4; this is a type of redraw;
+        QByteArray ba = fileName.toLocal8Bit();
+        filename = ba.data();
+        previous_crop=previous_crop+crop;
+        croplabel = QString::fromStdString((std::to_string(previous_crop)));
+        ui.infoLabel->setText("Current crop: "+croplabel);
+        janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
+
+        GLwidget::setcropping(false);  //reset flag
+        return;
+}
+    else {
+        GLwidget::setcropping(false);
+        return;
+    }
+}
+
 
 void MainWindow::redraw(){
    flag=flag-(flag%100)+4;  // last two digits of flag=4;
@@ -2415,6 +2484,10 @@ void MainWindow::createActions()
    connect(decenterAct, &QAction::triggered, this, &MainWindow::decenter);
    decenterAct->setEnabled(false);
 
+   croppingAct = new QAction(tr("&Crop data..."), this);
+   connect(croppingAct, &QAction::triggered, this, &MainWindow::cropping);
+   croppingAct->setEnabled(false);
+
    swapAct = new QAction(tr("&Swap..."), this);
    swapAct->setStatusTip(tr("Swap data wth previous file"));
    swapAct->setEnabled(false);
@@ -2455,7 +2528,7 @@ void MainWindow::createActions()
    importexportAct->setEnabled(false);
    connect(importexportAct, &QAction::triggered, this, &MainWindow::importexport);
 
-   screenshotAct = new QAction(tr("&Screenshot"), this);
+   screenshotAct = new QAction(tr("&Export as Image/Picture"), this);
    screenshotAct->setEnabled(true);
    connect(screenshotAct, &QAction::triggered, this, &MainWindow::exportpicture);
 
@@ -2735,6 +2808,7 @@ void MainWindow::createMenus()
    fileMenu->addAction(makeLSQsplineAct);
    fileMenu->addAction(compareAct);
    fileMenu->addAction(decenterAct);
+   fileMenu->addAction(croppingAct);
    fileMenu->addAction(swapAct);
    fileMenu->addAction(redrawAct);
    fileMenu->addAction(screenshotAct);

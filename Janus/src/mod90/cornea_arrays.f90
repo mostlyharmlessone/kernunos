@@ -48,6 +48,7 @@ MODULE cornea_arrays
    INTEGER, ALLOCATABLE :: MV(:)
 !  SAGC0(1) is central, SAGC0(2) is minimum, SAGC0(3) is maximum, SAGC0(4-11) is are in cardinal directions at dist RM
    REAL (wp) :: R0,RM,THT0,Z0(11),SAGC0(11),INSTC0(11),GAUSSC0(11),MEANC0(11),MONGEA0(11),Warp0(11),Pupil_Center(2)
+   REAL(wp) SAGC_AVG,INSTC_AVG,MONGEA_AVG,MEANC_AVG,Warp_AVG,GAUSSC_AVG,Z_AVG,ZC_AVG(15)
    ! 12 up to 15 zernike coordinates
    REAL(wp),ALLOCATABLE :: ZC(:,:,:)
    REAL(wp) :: ZC0(11,15) !origin,min,max,cardinal pts for each
@@ -393,7 +394,7 @@ subroutine RadSlope_eq_Skyline(lsq,JMatrix, RadSlope, Skyline, Penta)      ! ini
    L2=Skyline%L2x(i)
  ! check for orphan data
    if (L2 < 10) then
-    write(*,*) 'Orphan data, cropping/skipping'
+    write(*,*) 'Orphan data in x, cropping/skipping'
     cycle
    endif
    x(1:L2)=Skyline%x(i,1:L2)
@@ -457,7 +458,7 @@ subroutine RadSlope_eq_Skyline(lsq,JMatrix, RadSlope, Skyline, Penta)      ! ini
 !     f is value at u, fTmp is a new 1:(Skyline%rows) column of values at u
       call SplineEval(0,x(1:L2),z(1:L2),z2(1:L2),L2,u,f,fx,fxx)   ! first parameter = 0 nonperiodic
       call SplineEval(2,x(1:L2),z(1:L2),z2(1:L2),L2,u,check)   ! first parameter = 2 extrapolation check
-      if (check == 0) firstcheck=firstcheck+1 ! how much extrapolation
+      if (check == 0 ) firstcheck=firstcheck+1 ! how much extrapolation
       fTmp(k)=f
       fxTmp(k)=fx     ! only for ELE files
       fxxTmp(k)=fxx     ! only for ELE files
@@ -467,7 +468,6 @@ subroutine RadSlope_eq_Skyline(lsq,JMatrix, RadSlope, Skyline, Penta)      ! ini
      do kk=1,L2            ! fTmp has to align with y; but ftmp starts at Skyline%first_row, y starts at 1 for calculation
       y(kk)=700.0-((kk-1+offset)*1400.0)/(NP-1.0)
      end do
-
      if (.not. lsq) then
       call nspline(y(1:L2),fTmp(1:L2),L2,f2Tmp(1:L2),err_report)             ! spline in Y of f
      else
@@ -719,7 +719,6 @@ subroutine minmax(JMatrix)
   JMatrix%MEANC0(2)=1E30  ;  JMatrix%MEANC0(3)=-1E30
   JMatrix%MONGEA0(2)=1E30 ;  JMatrix%MONGEA0(3)=-1E30
   JMatrix%ZC0(2,:)=1E30   ;  JMatrix%ZC0(3,:)=-1E30
-
   if (JMatrix%INSTC0(1) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC0(1)
   if (JMatrix%INSTC0(1) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC0(1)
   if (JMatrix%GAUSSC0(1) <= JMatrix%GAUSSC0(2)) JMatrix%GAUSSC0(2)=JMatrix%GAUSSC0(1)
@@ -734,7 +733,6 @@ subroutine minmax(JMatrix)
   if (JMatrix%MEANC0(1) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC0(1)
   if (JMatrix%MONGEA0(1) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA0(1)
   if (JMatrix%MONGEA0(1) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA0(1)
-
   do k = 1,15
   if (JMatrix%ZC0(1,k) <= JMatrix%ZC0(2,k)) JMatrix%ZC0(2,k)=JMatrix%ZC0(1,k)
   if (JMatrix%ZC0(1,k) >= JMatrix%ZC0(3,k)) JMatrix%ZC0(3,k)=JMatrix%ZC0(1,k)
@@ -762,6 +760,66 @@ subroutine minmax(JMatrix)
   end do
   end do
 end subroutine minmax
+
+! primitive noise reduction based on percentage of deviation from the arithmetic average
+! finds averages first
+subroutine squash(JMatrix,percent_squash)
+TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
+real(wp), intent(in) :: percent_squash
+INTEGER :: i,j,k,M1,SUM_OF_POINTS
+M1=size(JMatrix%R,2)
+SUM_OF_POINTS = 0
+do i=1,M1
+ do j=1,JMatrix%MV(i)
+  JMatrix%SAGC_AVG = JMatrix%SAGC_AVG + JMatrix%SAGC(j,i)
+  JMatrix%INSTC_AVG = JMatrix%INSTC_AVG + JMatrix%INSTC(j,i)
+  JMatrix%GAUSSC_AVG = JMatrix%GAUSSC_AVG + JMatrix%INSTC(j,i)
+  JMatrix%Z_AVG = JMatrix%Z_AVG + JMatrix%Z(j,i)
+  JMatrix%Warp_AVG = JMatrix%Warp_AVG + JMatrix%Warp(j,i)
+  JMatrix%MEANC_AVG = JMatrix%MEANC_AVG + JMatrix%MEANC(j,i)
+  JMatrix%MONGEA_AVG = JMatrix%MONGEA_AVG + JMatrix%MONGEA(j,i)
+  do k = 1,15
+   JMatrix%ZC_AVG(k) = JMatrix%ZC_AVG(k) + JMatrix%ZC(j,i,k)
+  end do
+  SUM_OF_POINTS=SUM_OF_POINTS+1
+ end do
+end do
+JMatrix%SAGC_AVG = JMatrix%SAGC_AVG/SUM_OF_POINTS
+JMatrix%SAGC_AVG = JMatrix%INSTC_AVG/SUM_OF_POINTS
+JMatrix%GAUSSC_AVG = JMatrix%GAUSSC_AVG/SUM_OF_POINTS
+JMatrix%Z_AVG = JMatrix%Z_AVG/SUM_OF_POINTS
+JMatrix%Warp_AVG = JMatrix%Warp_AVG/SUM_OF_POINTS
+JMatrix%MEANC_AVG = JMatrix%MEANC_AVG/SUM_OF_POINTS
+JMatrix%MONGEA_AVG = JMatrix%MONGEA_AVG/SUM_OF_POINTS
+do k = 1,15
+ JMatrix%ZC_AVG(k) = JMatrix%ZC_AVG(k)/SUM_OF_POINTS
+end do
+! reduce outliers more than given percentage over average to average
+do i=1,M1
+ do j=1,JMatrix%MV(i)
+  if (ABS(JMatrix%SAGC(j,i)-JMatrix%SAGC_AVG)*percent_squash > ABS(JMatrix%SAGC_AVG)) JMatrix%SAGC(j,i) = (JMatrix%SAGC(j,i)*(1-percent_squash/100.0)+JMatrix%SAGC_AVG+percent_squash/100.0)/2.0
+!  if (ABS(JMatrix%Z(j,i)-JMatrix%Z_AVG)*percent_squash > ABS(JMatrix%Z_AVG)) JMatrix%Z(j,i) = (JMatrix%Z(j,i)*(1-percent_squash/100.0)+JMatrix%Z_AVG+percent_squash/100.0)/2.0
+  if (ABS(JMatrix%INSTC(j,i)-JMatrix%INSTC_AVG)*percent_squash > ABS(JMatrix%INSTC_AVG)) JMatrix%INSTC(j,i) = (JMatrix%INSTC(j,i)*(1-percent_squash/100.0)+JMatrix%INSTC_AVG+percent_squash/100.0)/2.0
+  if (ABS(JMatrix%GAUSSC(j,i)-JMatrix%GAUSSC_AVG)*percent_squash > ABS(JMatrix%GAUSSC_AVG)) JMatrix%GAUSSC(j,i) = (JMatrix%GAUSSC(j,i)*(1-percent_squash/100.0)+JMatrix%GAUSSC_AVG+percent_squash/100.0)/2.0
+  if (ABS(JMatrix%MEANC(j,i)-JMatrix%MEANC_AVG)*percent_squash > ABS(JMatrix%MEANC_AVG)) JMatrix%MEANC(j,i) = (JMatrix%MEANC(j,i)*(1-percent_squash/100.0)+JMatrix%MEANC_AVG+percent_squash/100.0)/2.0
+  if (ABS(JMatrix%MONGEA(j,i)-JMatrix%MONGEA_AVG)*percent_squash > ABS(JMatrix%MONGEA_AVG)) JMatrix%MONGEA(j,i) = (JMatrix%MONGEA(j,i)*(1-percent_squash/100.0)+JMatrix%MONGEA_AVG+percent_squash/100.0)/2.0
+  if (ABS(JMatrix%Warp(j,i)-JMatrix%Warp_AVG)*percent_squash > ABS(JMatrix%Warp_AVG)) JMatrix%Warp(j,i) = (JMatrix%Warp(j,i)*(1-percent_squash/100.0)+JMatrix%Warp_AVG+percent_squash/100.0)/2.0
+ do k = 1,15
+  if (ABS(JMatrix%ZC(j,i,k)-JMatrix%ZC_AVG(k))*percent_squash > ABS(JMatrix%ZC_AVG(k))) JMatrix%ZC(j,i,k) = (JMatrix%ZC(j,i,k)*(1-percent_squash/100.0)+JMatrix%ZC_AVG(k)+percent_squash/100.0)/2.0
+ end do
+ end do
+end do
+if (ABS(JMatrix%SAGC0(1)-JMatrix%SAGC_AVG)*percent_squash > ABS(JMatrix%SAGC_AVG)) JMatrix%SAGC0(1) = (JMatrix%SAGC0(1)*(1.0-percent_squash/100.0)+JMatrix%SAGC_AVG+percent_squash/100.0)/2.0
+! if (ABS(JMatrix%Z0(1)-JMatrix%Z_AVG)*percent_squash > ABS(JMatrix%Z_AVG)) JMatrix%Z0(1) = (JMatrix%Z0(1)*(1-percent_squash/100.0)+JMatrix%Z_AVG+percent_squash/100.0)/2.0
+if (ABS(JMatrix%INSTC0(1)-JMatrix%INSTC_AVG)*percent_squash > ABS(JMatrix%INSTC_AVG)) JMatrix%INSTC0(1) = (JMatrix%INSTC0(1)*(1.0-percent_squash/100.0)+JMatrix%INSTC_AVG+percent_squash/100.0)/2.0
+if (ABS(JMatrix%MEANC0(1)-JMatrix%MEANC_AVG)*percent_squash > ABS(JMatrix%MEANC_AVG)) JMatrix%MEANC0(1) = (JMatrix%MEANC0(1)*(1.0-percent_squash/100.0)+JMatrix%MEANC_AVG+percent_squash/100.0)/2.0
+if (ABS(JMatrix%GAUSSC0(1)-JMatrix%GAUSSC_AVG)*percent_squash > ABS(JMatrix%GAUSSC_AVG)) JMatrix%GAUSSC0(1) = (JMatrix%GAUSSC0(1)*(1.0-percent_squash/100.0)+JMatrix%GAUSSC_AVG+percent_squash/100.0)/2.0
+if (ABS(JMatrix%MONGEA0(1)-JMatrix%MONGEA_AVG)*percent_squash > ABS(JMatrix%MONGEA_AVG)) JMatrix%MONGEA0(1) = (JMatrix%MONGEA0(1)*(1.0-percent_squash/100.0)+JMatrix%MONGEA_AVG+percent_squash/100.0)/2.0
+if (ABS(JMatrix%Warp0(1)-JMatrix%Warp_AVG)*percent_squash > ABS(JMatrix%Warp_AVG)) JMatrix%Warp0(1) = (JMatrix%Warp0(1)*(1.0-percent_squash/100.0)+JMatrix%Warp_AVG+percent_squash/100.0)/2.0
+do k = 1,15
+if (ABS(JMatrix%ZC0(1,k)-JMatrix%ZC_AVG(k))*percent_squash > ABS(JMatrix%ZC_AVG(k))) JMatrix%ZC0(1,k) = (JMatrix%ZC0(1,k)*(1.0-percent_squash/100.0)+JMatrix%ZC_AVG(k)+percent_squash/100.0)/2.0
+end do
+end subroutine squash
 
 ! make new central values for JMatrix by loading each into RadSlope/DiaSlope and splining
 subroutine centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
@@ -1328,7 +1386,7 @@ subroutine Atlas_LSQfillin(Atlas,b,a)
     endif
    end do
   end do
-  if (mvjr(i) > M1/2) then ! only do LSQ if at leasthalf the points are there
+  if (mvjr(i) > M1/2) then ! only do LSQ if at least half the points are there
 ! generate lsq fillin values; uses cosines and sines, not splines
    call lsqfit(t,z,M1,M2,c)
    do k=1,M1
@@ -1365,7 +1423,7 @@ subroutine EyeSys_LSQfillin(EyeSys,b,a)
     endif
    end do
   end do
-  if (mvjr(i) > M1/2) then ! only do LSQ if at leasthalf the points are there
+  if (mvjr(i) > M1/2) then ! only do LSQ if at least half the points are there
 !  generate lsq fillin values; uses cosines and sines, not splines
    call lsqfit(t,z,M1,M2,c)
    do k=1,M1
