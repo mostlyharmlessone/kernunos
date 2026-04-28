@@ -1074,6 +1074,7 @@ void MainWindow::zerncompute()
     QByteArray ba = filenamelocal.toLocal8Bit();
     filename = ba.data();
     flag=flag-(flag%100)+1;  // last two digits of flag=1;
+ //   janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
     std::thread([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);}).detach();
 
 #ifdef _WIN32

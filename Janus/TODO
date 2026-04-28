@@ -1,23 +1,43 @@
 FIXES
 
-
-
 search for Visia in source code to strip out or enable eysys version of reading visia if I fix it
 redo- Rowsey curvature?
 
-work on documentation
+DOCUMENTATION
+
+links to curvature, spline pdfs are broken
+
+in assistant.cpp look at showDocumentation and substitute docs for this project in appropriate format
+might want to change Cmakelist.txt for the proper install directory for documentation/copy
+
+use qhelpgenerator kernunos.qhcp kernunos.qhc after making the appropriate changes, need also edit the html files and rewrite the qhp file in documentation
+have to regenerate in directory as dir info is coded in sql files, also make sure source names in qhc/qhcp files match those in assistant.cpp
+
+qhelpgenerator kernunos.qhcp -o kernunos.qhc
+qhelpgenerator kernunos.qhp -o kernunos.qch
+
+needs section on handling bad data:
+shift discontinuity in Atlas 900 and others: how to best address: document as opposed to missing data...discontinuities affect global fitting ie lsq but not local ie spline
+spline better at filling in locally (it's interpolation after all) whereas LSQ can be used as a smoothing operation. See also early chapter in spline text, and reference it:
+from LSQ Bspline paper as well as others interpolation vs fitting
+rings function can demonstrate difference. Discontinuity in all data circumferentially affects theta derivatives, all the more with splining.
+multiple zeroes in ELE/HT files and adjacent identical points in general.
+centerpoints need explaining, as in why are they non-zero in writecenter 
+
+
+
 
 ENHANCEMENTS:
 
 2-D LSQSpline: review article again, work on stand-alone progrma first, but probably want polar version with adjustable grid size
 
-zernike computations only for if ( Testdata .le.1 ) then     ! only for test/Atlas/EyeSys at present
 compare is broken with zernike; also so is opening 2nd file with zernike selected and zernike
 enforce, or have a warning having to make new zernike after loading new data, also if tweaks changed
 
 enforce, or have a warning having to make new zernike after loading new data, also if tweaks changed
 
 try to (b)lock opening another file while Zernike is computing to avoid crash ? condition on counter? cannot run Open
+possibly just change zerncompute to not detach thread and block program..though that will block cccounter
 you can run other Analyze ie center gnusplotplot, lioc, and move the picture
 probably can run kernunos but not janus?
 consider adding sound to play after zernike compute, but might need option to turn off http://github.com/zserge/beep or get fancy with .ogg
@@ -25,6 +45,7 @@ consider adding sound to play after zernike compute, but might need option to tu
 ? needs extreme value filter; or histogram of values for median and color scale  like OPDIII
 resurrect old noise reduction code to help out monge-astig and meanc for real data?
 need lapack or open version of numrec fourn:  fftpack
+needs testing and reread of NumRec in C to figure out how to effectively remove noise.
 
 in kernunos menu actions do some key bindings?
 setShortcuts(QKeySequence::UnknownKey);
@@ -63,38 +84,14 @@ https://stackoverflow.com/questions/868568/what-do-the-terms-cpu-bound-and-i-o-b
 try going back to splineeval1dx1d and removing extra calls to splineeval, aka back to trial that spawned current branch
 also try finding a way to use only local natural splines instead of generating whole circular spline and using pspli
 
+GCC F2018 compliant with deferred length character with Bind C used in janus.f90
+GCC11 problem, ISO_Fortran_binding.h nt available or C++ not C?
+
+Passing an assumed-shape array or array pointer to an explicit-shape array can slow run-time performance. 
+https://www.cita.utoronto.ca/~merz/intel_f10b/main_for/mergedProjects/optaps_for/fortran/optaps_prg_arrs_f.htm
+Spline routines seem to have explicit shape, and are passed possibly assumed-shape
 
 
-DOCUMENTATION
-
-in assistant.cpp look at showDocumentation and substitute docs for this project in appropriate format
-might want to change Cmakelist.txt for the proper install directory for documentation/copy
-when making documents, can edit in Abricotine; regenerate to html, same with spline_notes.odt and other ODT; open in libreoffice, regenerate into pdf
-ie use qhelpgenerator kernunos.qhcp kernunos.qhc after making the appropriate changes, need also edit the html files and rewrite the qhp file in documentation
-have to regenerate in directory as dir info is coded in sql files, also make sure source names in qhc/qhcp files match those in assistant.cpp
-
-qhelpgenerator simpletextviewer.qhcp -o simpletextviewer.qhc
-qhelpgenerator simpletextviewer.qhp -o simpletextviewer.qch
-make html files with abricotine export
-centerpoints need explaining, as in why are they non-zero in writecenter 
-incorporate "warp/oblique power" and reading zernike and pupils from some files into readme/faq
-what to do with/how to explain warp?
-
-
-needs section on handling bad data:
-shift discontinuity in Atlas 900 and others: how to best address: document as opposed to missing data...discontinuities affect global fitting ie lsq but not local ie spline
-spline better at filling in locally (it's interpolation after all) whereas LSQ can be used as a smoothing operation. See also early chapter in spline text, and reference it:
-from LSQ Bspline paper as well as others interpolation vs fitting
-rings function can demonstrate difference. Discontinuity in all data circumferentially affects theta derivatives, all the more with splining.
-multiple zeroes in ELE/HT files and adjacent identical points in general.
-
-
-instructions on running win3.1, ie designer or mathematica:
-dosbox-x: select drive in menu to map DXSCSI1 to C: and DXSCSI2 to E:, force scaling, normal x2 or normal x3 go to E:\WINDOWS and run win, select mouse capture in menu
-Export as EPS.
-mean curvature and monge astigmatism, need taylor series for limit at origin
-
-README (not the markdown/html) needs a file manifest; eventually generate with git or ls -l
 
 POLISHING/PRESENTATION/LAUNCH
 
@@ -109,17 +106,12 @@ MacOS: need to do reseach on compiles with Xcode, darwin tools, Qt on iMac, poss
 
 push to github
 
-Investigate:
-
-GCC F2018 compliant with deferred length character with Bind C used in janus.f90
-GCC11 problem, ISO_Fortran_binding.h nt available or C++ not C?
-
-Passing an assumed-shape array or array pointer to an explicit-shape array can slow run-time performance. https://www.cita.utoronto.ca/~merz/intel_f10b/main_for/mergedProjects/optaps_for/fortran/optaps_prg_arrs_f.htm
-Spline routines seem to have explicit shape, and are passed possibly assumed-shape
-
-include these and similar notes in io_functions.f90
 
 MISCELLANEOUS
+
+instructions on running win3.1, ie designer or mathematica:
+dosbox-x: select drive in menu to map DXSCSI1 to C: and DXSCSI2 to E:, force scaling, normal x2 or normal x3 go to E:\WINDOWS and run win, select mouse capture in menu
+Export as EPS.
 
 https://docs.nersc.gov/performance/readiness/
 maybe try this for cyclic band tests on other project

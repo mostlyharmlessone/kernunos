@@ -169,7 +169,7 @@ SET(Qt6_DIR "/usr/lib/x86_64-linux-gnu/qt6")
 #find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets OpenGL)
 #find_package(Qt6 REQUIRED COMPONENTS Core Gui Charts OpenGLWidgets OpenGL Widgets LinguistTools)
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core Gui Charts OpenGLWidgets OpenGL Widgets LinguistTools)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Charts OpenGLWidgets OpenGL Widgets LinguistTools 3DCore 3DExtras)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Charts OpenGLWidgets OpenGL Widgets LinguistTools 3DCore 3DExtras Pdf)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Concurrent REQUIRED)
 
 # Find the FreeType2 package
@@ -470,6 +470,7 @@ target_link_libraries(kernunos
                       Qt${QT_VERSION_MAJOR}::OpenGL
                       Qt${QT_VERSION_MAJOR}::3DCore
                       Qt${QT_VERSION_MAJOR}::3DExtras
+                      Qt${QT_VERSION_MAJOR}::Pdf
                       assimp modules splia rply_includes ${LIBS}
            )
 
