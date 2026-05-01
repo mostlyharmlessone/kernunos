@@ -44,3 +44,12 @@
 [submodule "Janus/assimp"]
 	path = Janus/assimp
 	url = https://github.com/assimp/assimp
+[submodule "kernunos/assimp"]
+	path = kernunos/assimp
+	url = https://github.com/assimp/assimp
+[submodule "kernunos/gnuplot-iostream"]
+	path = kernunos/gnuplot-iostream
+	url = https://github.com/dstahlke/gnuplot-iostream
+[submodule "kernunos/rply"]
+	path = kernunos/rply
+	url = https://github.com/diegonehab/rply

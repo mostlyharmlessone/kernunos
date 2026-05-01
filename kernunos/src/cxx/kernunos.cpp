@@ -2509,7 +2509,7 @@ void MainWindow::about()
    sglVer += "\nCPU Cores found: ";
    sglVer += n_char;
    sglVer += glstring;
-   sglVer += "\nKernunos built with\n";
+   sglVer += "\nKernunos built with ";
    get_compiler_name_(compiler_name);
    QString compiler_string = tr(compiler_name);
    sglVer=sglVer+compiler_string;

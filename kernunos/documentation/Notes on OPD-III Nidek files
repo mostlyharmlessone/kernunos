@@ -1,0 +1,207 @@
+Notes on OPD-III Nidek files
+
+There are uncompressed ASCII readable files and binary files.
+
+from the manual and brochure:
+33 vertical, 39 horizontal (6 extra partial horizontal rings horizontally)
+11,880 points and more
+Axial, Instantaneous, "Refractive", Elevation
+33 x 360 = 11880
+
+The ASCII files:
+
+They are similar to EyeSys dat files: RA, XX, PU, HDR 
+
+N.B. EyeSys files, all of which I have seen are one of two versions of ASCII, are also undocumented, and I have made assumptions about the RA numbers and XX numbers representing the 
+radii from the center and the axial/sagittal curvature expressed as a radius at that point. Those files list 3 digit integers, whereas the floats in the the Nidek versions
+are one hundredth, so EyeSys 742 becomes Nidek 7.42
+
+RA == ?Radii of rings in EyeSys terms, increasing in magnitude from 40's to 400's with the EyeSys XX files being the sagittal curvature given in diopters 700's because R=(n-1)/D
+EyeSys EY* files are binary and unknown.
+
+For Nidek files,
+There are only 23 mires in the ASCII files; the manual says the number of rings is adjustable up to 33
+Nidek RA seems to be 7.xx curvatures (corresponding to EyeSys XX file) 
+ED 0.40 to 4.x ? radii (corresponding to EyeSys RA file) 
+but ED*.DAT has 3 sets of numbers, the second two sets are preceded with labels AFTER DB_V3, AFTER DB_V4
+some are negative as well, but only in the "after DB_V4" section.
+currently using first set of 360 not "AFTER DB_V3, AFTER DB_V4"
+PE/PR files appear to be pupil diameters, corresponding to EyeSys PU files: using PE
+HT* files seem to be elevation from 0.01- > 2.x
+QV* files are Q values for CL fitting per the manual
+
+The binary files:
+
+The binary calibration files may simply be compressed; they appear to be a 30-50% smaller than the uncompressed/ASCII versions & the opd-iii manual describes 
+in the Import/Export of Data on p.263 also ratio of compression is small in the sample shown also p.266 "MultiByte" setting on Export
+However, if so, not very good nonstandard compression, for example AR*.DAT files ASCII are about 25Kbytes, binary versions are 14Kybes but using gzip on ASCII gives 3.7Kbytes
+
+The compressed/binary files appear to have 39 mires and 360 meridians (each degree)
+They are stored as *.CAB files under Windows, extracted and all with *.DAT except for RP*.txt
+RE*, PU*, PP*, EY* .DAT are all *.PNG image files, EY* are image files of the mires. There are 16 rings in an image seen, so 32 edges.
+RP*.txt viewed in mc has hex data terminated with ASCII descriptors of cylinder, sphere, PD etc. look like summary data; line terminations are (0D 0A)
+HD*. dat is almost certainly summary data and patient information similar to Export data function; line terminations are (0D 0A)
+
+The Model Eye for calibration has 8.00 mm curvature p.280; one of the files studied appears to be this calibration file.
+
+RA*. dat 
+a 138 byte section has  39 3 byte segments (24 bits) separated by 0xE (4 bits) and terminated by (0D 0A)
+but at least one RA file in the wild with some lines terminated by (OF 0D 0A) after the last 2C2222; the other issue is that a few lines, not necessarily with the FDA signature 
+also had at least one 4 byte segment instead of a 3 byte segment of the form 32C2B28E. Flanking equivalent numbers were int the range BCBBB8E  
+
+ED =?Eye Data
+ED* .dat shows 360 data segments each 138-145 bytes   
+  a 138 byte section has  39 3 byte segments (24 bits) separated by 0xE (4 bits) and terminated by (0D 0A)
+  a 141 byte section has  39 3 byte segments (24 bits) separated by 0xE (4 bits) except the last few which are separated with ED or FD and terminated by (0D 0A)
+
+PR, PE  == pupil radius? / pupil?
+
+PR*.dat shows 361 data segments the first is a long segment 9 bytes, then 360 x 5 bytes each  = (7)3 + 2 bytes (0D 0A)
+PR   header
+     1    7 byte + 2 byte LF/CR (0D 0A) which should correspod to two signed floats by analogy with the ASCII versions
+     360  3 byte + 2 byte LF/CR (0D 0A)
+
+PE*.dat shows 361 data segments the first is a long segment 9 bytes, then 360 x 5 bytes each  = (7)3 + 2 bytes (0D 0A)
+PR   header 
+     1    7 byte + 2 byte LF/CR (0D 0A) which should correspod to two signed floats by analogy with the ASCII versions
+     360  3 byte + 2 byte LF/CR (0D 0A)
+
+AR==aberrometry? autorefraction?
+AR*. dat shows 361 data segments the first is a short segment 13 bytes, then 360 x 39-41 bytes each  = (11)37 + (0-2 bytes) + 2 bytes (0D 0A)
+? Automated objective refraction (dynamic skiascopy) 2,520 points (7 x 360)
+
+  from PR: possibly 3.x
+  possibly unsigned floats
+  4C    A6   93
+  4C    A7   29    
+  4C    A7   67    
+  4C    A7   A6
+
+  two signed floats?; PR
+  2C 23 22 E  2C 32 65 F
+
+
+D is negative, C or E is positive
+  two signed floats?; PE
+  D 2C 27 43  E 3C 49 53
+  
+  possibly unsigned PE possibly 2.x
+  4C    22   4B    
+  3C    BB   AA   
+  3C    BB   73
+
+from RA which should all be around 8.x for the "model eye" 
+
+AC
+24
+88
+E    
+
+AC    
+24    
+57    
+E
+
+AC
+24 
+34
+E
+
+from ED  which starts 0.2x to 4.x
+
+2C
+45
+99
+E
+2C
+82
+75
+E
+
+going to
+
+6C
+82
+6A
+
+E
+6C
+99
+92
+
+E
+
+6C
+AA
+25
+E
+
+Conclusions:
+
+  2C 22 22 seems to be zero by analogy to the ASCII version of these files 
+  or could be -10000000000.0000 based on HT*.*
+  RA numbers should all be positive
+  cannot assume first bit24 is sign bit because in RA first hex is A so first bit is 1  (not truncated IEEE 754)
+  cannot assume 9th bit bit 15 is sign bit because frequently 3rd hex is A so bit is 1  (not MBF or ByteValue[1])
+ 
+  cannot be possibly truncated 32 MBF see also https://en.wikipedia.org/wiki/Microsoft_Binary_Format#32-bit_MBF
+  Bit 31...24 (8 bit) 	 => bias = 128
+  Bit 23      (1 bit)
+  Bit 22...0  (23 bit) 
+  xxxxxxxx 	s 	mmmmmmm mmmmmmmm mmmmmmmm   
+
+  cannot be IEEE 754 binary32 aka single precision https://en.wikipedia.org/wiki/Single-precision_floating-point_format
+
+  cannot be MRK II NXP 24 bit  https://stackoverflow.com/questions/26930117/float24-24-bit-floating-point-to-hex 
+    ByteValue[0] : mantissa bits m7..m0
+    ByteValue[1] : sign bit, mantissa bits m14..m8
+    ByteValue[2] : exponent e7..e0 (signed, 2s complement repres.)  https://en.wikipedia.org/wiki/Two%27s_complement (bias = 1 ?)
+    Actual value is
+    f = (-1)^s * ( 2^(-1) + m14 * 2^(-2) + ... m0 * 2^(-16) ) * 2^e */
+
+ Packed BCD
+  subtraction, maybe with 2c 22 22 is a registration zero based on an actual measurement, then interpret as BCD ignoring the C which is for "positive", haha! that seems insane but it seems to work
+  https://en.wikipedia.org/wiki/Binary-coded_decimal; the C is "Signed leading separate" (COBOL)
+
+So, the conversion is along the lines of  
+!   Assumes "2C2222" is the baseline for zero for all PackedBCD codes, converts ASCII to hex subtract and leave as decimal digit
+ ! achar(50) == 2 ! achar(57) == 9 ! achar(65) == A
+!     something like:
+!     for k=0,2-5 or 1-2,4-6
+!     if (iachar(y(ith+k:ith+k)) .lt. 58) yx(iy)= yx(iy)+(iachar(y(ith:ith))-50)*10.0**(k)
+!     if (iachar(y(ith+k:ith+k)) .ge. 65) yx(iy)= yx(iy)+(iachar(y(ith:ith))-57)*10.0 **(k)
+
+  0xC is positive in Packed BCD but nothing else fits that format
+  the other digits do not exceed "B", as "A" corresponds with a two digit "10" in decimal, numbers over 10 need two digits in front of "C" for an 4 byte version
+  no CDEF, apparently these are control characters/separators (need this for this insane BCD subtraction scheme)
+
+  2C 45 99
+  2c 22 22
+  00 23 77 -> 0.2377
+
+  6c aa 25
+  2c 22 22
+  40 88 03 -> 4.8803
+
+  ac 24 34
+  2c 22 22
+  80 02 12  -> 8.0212
+
+ PR
+  4C A6 93
+  2C 22 22
+  20 84 71 -> 2.8471
+
+ PE possibly 2.x
+  4C 22 4B 
+  2C 22 22
+  20 00 29-> 2.0029   
+ 
+  3C BB AA
+  2C 22 22
+  10 99 88 -> 1.9988
+ 
+in PE files, the prefix of D or B means the float is negative
+
+  D 2C 27 43  E 3C 49 53
+(negative), (positive)

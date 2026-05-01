@@ -178,7 +178,7 @@ find_package(Freetype REQUIRED)
   message(STATUS "Found Freetype in ${FREETYPE_INCLUDE_DIRS}")
   message(STATUS "Found Freetype in ${FREETYPE_DIR}")
 
-set(TS_FILES src/cxx/kernunos/kernunos_en_US.ts)
+set(TS_FILES src/cxx/kernunos_en_US.ts)
 
 
 #GTK4
@@ -292,9 +292,9 @@ endif(WIN32)
 
 #   C source 
 #   rply conversion 
-    file(GLOB rply_sources  src/c/rply/convertplytobin.c src/c/rply/rply.c src/c/rply *.h )
-    file(GLOB interface src/c/kernunos/logc.c src/c/kernunos/logc.h
-        src/c/kernunos/Ccounter.c src/c/kernunos/counter.h)
+    file(GLOB rply_sources src/c/convertplytobin.c src/c/rply.c src/c/*.h )
+    file(GLOB interface src/c/logc.c src/c/logc.h
+                 src/c/Ccounter.c src/c/counter.h)
 
 #   Fortran Source
 
@@ -310,7 +310,7 @@ endif(WIN32)
     set(LIBS ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${SUPERLU_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} freetype ${GFORTRAN_LIBRARY})
 
 # need this so that GLwidget.h can be found by AUTOUIC and ui.mainwindow.h, and for rply and assimp
-include_directories(src/cxx/kernunos src/c/rply)
+include_directories(src/cxx src/c)
 
 #superlu example from chapter12
 
@@ -392,19 +392,19 @@ add_library( modules ${mod_sources90} ${interface})
 add_library( splia ${lib_sources90} ${interface})
 
 set(PROJECT_SOURCES
-                   src/c/kernunos/logc.c src/c/kernunos/logc.h
-                   src/c/kernunos/get_compiler_name.h
-                   src/c/kernunos/charcount.c src/c/kernunos/charcount.h
-                   src/c/kernunos/Ccounter.c src/c/kernunos/counter.h
-                   src/c/kernunos/ConvertPLYtoBIN.c
+                   src/c/logc.c src/c/logc.h
+                   src/c/get_compiler_name.h
+                   src/c/charcount.c src/c/charcount.h
+                   src/c/Ccounter.c src/c/counter.h
+                   src/c/ConvertPLYtoBIN.c
                    gnuplot-iostream/gnuplot-iostream.h
-                   src/cxx/kernunos/kernunos.cpp src/cxx/kernunos/kernunos.h
-                   src/cxx/kernunos/GLwidget.cpp src/cxx/kernunos/GLwidget.h
-                   src/cxx/kernunos/assistant.cpp src/cxx/kernunos/assistant.h
- #                  src/cxx/kernunos/shader_utils.cpp src/cxx/kernunos/shader_utils.h
-                   src/cxx/kernunos/gnuplot_lioc.cpp
-                   src/cxx/kernunos/gnuplot_load.cpp
-                   src/cxx/kernunos/mainwindow.ui
+                   src/cxx/kernunos.cpp src/cxx/kernunos.h
+                   src/cxx/GLwidget.cpp src/cxx/kernunos/GLwidget.h
+                   src/cxx/assistant.cpp src/cxx/assistant.h
+ #                  src/cxx/shader_utils.cpp src/cxx/shader_utils.h
+                   src/cxx/gnuplot_lioc.cpp
+                   src/cxx/gnuplot_load.cpp
+                   src/cxx/mainwindow.ui
                    src/src90/ConvertOFFtoSTL_C.f90
                    src/src90/get_compiler_name.f90
                    src/src90/janus.f90 
@@ -479,7 +479,7 @@ target_link_libraries(kernunos
 
 
 if(NOT DEFINED INSTALL_EXAMPLESDIR)
-    set(INSTALL_EXAMPLESDIR "/Janus/Janus")
+    set(INSTALL_EXAMPLESDIR "../")
 endif()
 
 install(TARGETS kernunos RUNTIME DESTINATION "${INSTALL_EXAMPLEDIR}" 
