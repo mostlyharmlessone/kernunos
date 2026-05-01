@@ -2,6 +2,8 @@ FIXES
 
 have to fix lines of curvature
 
+Test doesn't work if it isn't the first one
+
 PDFs cannot be seen in help; work on aboutbuild in kernunos.cpp, add menu/submenu items
 
 search for Visia in source code to strip out or enable eysys version of reading visia if I fix it

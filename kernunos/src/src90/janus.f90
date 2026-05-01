@@ -46,10 +46,10 @@
   integer(c_int64_t) :: dat, fct, map
   integer(c_int) ::  error_report
   real(wp), allocatable :: zernC(:,:), B_Matrix(:,:), rlocal(:), thtlocal(:), WORK(:)
-  real(wp), allocatable :: UT(:,:),VT(:,:) !,XTX(:,:),EE(:,:)
+  real(wp), allocatable :: UT(:,:),VT(:,:),WT(:,:) !,XTX(:,:),EE(:,:)
 !  integer, allocatable :: IPIV(:)
   real(wp) :: ctr_circle_x, ctr_circle_y, R_global, Theta_global, R_MV, R_TST !, P_TEMP
-  real(wp) :: gaussian,meanpower,princ1,princ2,astigm
+  real(wp) :: gaussian,meanpower,princ1,princ2,astigm,HU,HV,HUU,HVV,HUV
   real(wp), allocatable :: temp(:,:)
   logical :: lsq
   integer(c_int) :: periodcount
@@ -434,12 +434,28 @@ endif !  (mod(flag,100) .eq. 6)
 if (mod(flag,100) .eq. 7) then
 !  Generate LIOC with vector format
 !  'plot ' gnu_instruct ' using 1:2:3:4 with vectors'
- allocate(UT(N1,M1),VT(N1,M1))
+! t1 is {huv,k1(1+hx^2+hy^2)-huu} t2 is {k2(1+hx^2+hy^2)-hvv,huv}
+ allocate(UT(N1,M1),VT(N1,M1),WT(N1,M1))
  UT=0 ; VT=0
  do i=1,M1
   do j=1,RadSlope%MV(i)
-    UT(j,i)=JMatrix%YPR(j,i)*COS(RadSlope%thta(i))-JMatrix%YPTHETA(j,i)*SIN(RadSlope%thta(i))/RadSlope%r(j,i)
-    VT(j,i)=JMatrix%YPR(j,i)*SIN(RadSlope%thta(i))+JMatrix%YPTHETA(j,i)*COS(RadSlope%thta(i))/RadSlope%r(j,i)
+    HU=JMatrix%YPR(j,i)*COS(RadSlope%thta(i))-JMatrix%YPTHETA(j,i)*SIN(RadSlope%thta(i))/RadSlope%r(j,i)
+    HV=JMatrix%YPR(j,i)*SIN(RadSlope%thta(i))+JMatrix%YPTHETA(j,i)*COS(RadSlope%thta(i))/RadSlope%r(j,i)
+    HUU=JMatrix%YP2R2(j,i)-SIN(RadSlope%thta(i))*SIN(RadSlope%thta(i))*(JMatrix%YP2R2(j,i)-JMatrix%YPR(j,i)/RadSlope%r(j,i)-&
+        JMatrix%YP2THETA(j,i)/(RadSlope%r(j,i)*RadSlope%r(j,i)))+2*COS(RadSlope%thta(i))*SIN(RadSlope%thta(i))*&
+        (JMatrix%YPTHETA(j,i)/(RadSlope%r(j,i)*RadSlope%r(j,i))-JMatrix%YPRTHETA(j,i)/RadSlope%r(j,i))
+    HVV=JMatrix%YP2R2(j,i)-COS(RadSlope%thta(i))*COS(RadSlope%thta(i))*(JMatrix%YP2R2(j,i)-JMatrix%YPR(j,i)/RadSlope%r(j,i)-&
+        JMatrix%YP2THETA(j,i)/(RadSlope%r(j,i)*RadSlope%r(j,i)))-2*COS(RadSlope%thta(i))*SIN(RadSlope%thta(i))*&
+        (JMatrix%YPTHETA(j,i)/(RadSlope%r(j,i)*RadSlope%r(j,i))-JMatrix%YPRTHETA(j,i)/RadSlope%r(j,i))
+    HUV=SIN(RadSlope%thta(i))*COS(RadSlope%thta(i))*(JMatrix%YP2R2(j,i)-JMatrix%YPR(j,i)/RadSlope%r(j,i)-&
+        JMatrix%YP2THETA(j,i)/(RadSlope%r(j,i)*RadSlope%r(j,i)))+(SIN(RadSlope%thta(i))*SIN(RadSlope%thta(i))-&
+        COS(RadSlope%thta(i))*COS(RadSlope%thta(i)))*&
+        (JMatrix%YPTHETA(j,i)/(RadSlope%r(j,i)*RadSlope%r(j,i))-JMatrix%YPRTHETA(j,i)/RadSlope%r(j,i))
+    princ1=JMatrix%INSTC(j,i)/RFCT
+    princ2=JMatrix%SAGC(j,i)/RFCT
+    UT(j,i)=HUV
+    VT(j,i)=princ1*(1+JMatrix%YPR(j,i)**2+(JMatrix%YPTHETA(j,i)/RadSlope%r(j,i))**2)-HUU
+    WT(j,i)=princ2*(1+JMatrix%YPR(j,i)**2+(JMatrix%YPTHETA(j,i)/RadSlope%r(j,i))**2)-HVV
    end do
  end do
  unitno1 = get_new_fileunit()
@@ -453,12 +469,13 @@ if (mod(flag,100) .eq. 7) then
      U=-RadSlope%r(j,i)*COS(RadSlope%thta(i))
      V=-RadSlope%r(j,i)*SIN(RadSlope%thta(i))
    endif
-   WRITE(unitno1,*) U,V,100*UT(j,i),100*VT(j,i)
+!   WRITE(unitno1,*) U,V,10000*UT(j,i),10000*VT(j,i)
+   WRITE(unitno1,*) U,V,10000*WT(j,i),10000*UT(j,i)
   end do
   WRITE(unitno1,*) ' '
  end do
  close (unitno1)
- deallocate(UT,VT)
+ deallocate(UT,VT,WT)
  return
 endif ! (mod(flag,100) .eq. 7)
 
@@ -625,6 +642,9 @@ if (btest(dat,5)) then
 !   save for vertex normals and for LIOC
     JMatrix3%YPR(j,i)=YPR
     JMatrix3%YPTHETA(j,i)=YPTHETA
+    JMatrix3%YP2R2(j,i)=YP2R2
+    JMatrix3%YP2THETA(j,i)=YP2THETA
+    JMatrix3%YPRTHETA(j,i)=YPRTHETA
 !   powers
     call AXIALP(JMatrix3%R(j,i),YPTHETA/JMatrix3%R(j,i),YP2THETA/JMatrix3%R(j,i),JMatrix3%Warp(j,i))
 !   not elevations
@@ -2060,6 +2080,9 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
 !   save for vertex normals and for LIOC
     JMatrix%YPR(j,i)=YPR
     JMatrix%YPTHETA(j,i)=YPTHETA
+    JMatrix%YP2R2(j,i)=YP2R2
+    JMatrix%YP2THETA(j,i)=YP2THETA
+    JMatrix%YPRTHETA(j,i)=YPRTHETA
 !   powers
     call AXIALP(JMatrix%R(j,i),YPTHETA/JMatrix%R(j,i),YP2THETA/JMatrix%R(j,i),JMatrix%Warp(j,i))
 !   not elevations

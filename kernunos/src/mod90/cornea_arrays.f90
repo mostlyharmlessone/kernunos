@@ -44,7 +44,7 @@ MODULE cornea_arrays
 !  each array except for R,THT, is (N+1,MM) to include values at each ring and also at center RC==RadSplineCenter pseudo ring
 !  each matching name has the value at origin, min value and max value
    REAL (wp), ALLOCATABLE :: R(:,:),Z(:,:),THT(:),SAGC(:,:),INSTC(:,:),GAUSSC(:,:),MEANC(:,:),MONGEA(:,:),Warp(:,:)
-   REAL (wp), ALLOCATABLE :: RC(:,:),YPR(:,:),YPTHETA(:,:),PU(:)  ! RC is RadSplineCenter, compare to R0
+   REAL (wp), ALLOCATABLE :: RC(:,:),YPR(:,:),YPTHETA(:,:),YP2R2(:,:),YP2THETA(:,:),YPRTHETA(:,:),PU(:)  ! RC is RadSplineCenter, compare to R0
    INTEGER, ALLOCATABLE :: MV(:)
 !  SAGC0(1) is central, SAGC0(2) is minimum, SAGC0(3) is maximum, SAGC0(4-11) is are in cardinal directions at dist RM
    REAL (wp) :: R0,RM,THT0,Z0(11),SAGC0(11),INSTC0(11),GAUSSC0(11),MEANC0(11),MONGEA0(11),Warp0(11),Pupil_Center(2)
@@ -177,10 +177,10 @@ subroutine init_mat_JMatrix(MM,N,b) ! allocate common storage arrays
   TYPE(wpJMatrix) :: b
    allocate (b%R(N,MM),b%Z(N+1,MM),b%THT(MM),b%YPR(N,MM),b%YPTHETA(N,MM),b%SAGC(N+1,MM),&
             b%INSTC(N+1,MM),b%GAUSSC(N+1,MM),b%MEANC(N+1,MM),b%MONGEA(N+1,MM))
-   allocate (b%MV(MM),b%RC(3,MM),b%Warp(N+1,MM),b%PU(MM))
+   allocate (b%MV(MM),b%RC(3,MM),b%Warp(N+1,MM),b%YP2R2(N,MM),b%YP2THETA(N,MM),b%YPRTHETA(N,MM),b%PU(MM))
    b%R(:,:)=0 ; b%Z(:,:)=0 ; b%THT(:)=0 ; b%YPR(:,:)=0 ; b%YPTHETA(:,:)=0 ; b%SAGC(:,:)=0
    b%INSTC(:,:)=0 ; b%GAUSSC(:,:)=0 ; b%MEANC(:,:)=0 ; b%MONGEA(:,:)=0 ;  b%Warp(:,:)=0
-   b%MV(:)=0 ; b%RC(:,:)=0 ; b%PU(:)=0; b%Pupil_Center(:)=0
+   b%MV(:)=0 ; b%RC(:,:)=0 ; b%PU(:)=0; b%Pupil_Center(:)=0 ; b%YP2R2(:,:)=0 ; b%YP2THETA(:,:)=0 ; b%YPRTHETA(:,:)=0
    allocate (b%ZC(N+1,MM,15))
    b%ZC(:,:,:)=0
 end subroutine init_mat_JMatrix
@@ -255,7 +255,8 @@ subroutine destroy_JMatrix(JMatrix,iflag)
   INTEGER, INTENT (IN) :: iflag 
   IF (iflag==0) THEN
    deallocate (JMatrix%R,JMatrix%Z,JMatrix%THT,JMatrix%SAGC,JMatrix%INSTC,JMatrix%GAUSSC,&
-              JMatrix%MEANC,JMatrix%MONGEA,JMatrix%MV,JMatrix%RC,JMatrix%ZC)
+              JMatrix%MEANC,JMatrix%MONGEA,JMatrix%MV,JMatrix%RC,JMatrix%ZC,JMatrix%YPR,&
+              JMatrix%YP2R2,JMatrix%YPTHETA,JMatrix%YP2THETA,JMatrix%YPRTHETA)
   ENDIF
 end subroutine destroy_JMatrix
 
