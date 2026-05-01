@@ -78,9 +78,9 @@
 #include "assistant.h"
 #include "gnuplot-iostream/gnuplot-iostream.h"
 
-#include "../kernunos/get_compiler_name.h"
-#include "../kernunos/counter.h"
-#include "../kernunos/logc.h"
+#include "get_compiler_name.h"
+#include "counter.h"
+#include "logc.h"
 #include <QPdfDocument>
 #include <QPdfView>
 

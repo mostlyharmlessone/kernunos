@@ -399,7 +399,7 @@ set(PROJECT_SOURCES
                    src/c/ConvertPLYtoBIN.c
                    gnuplot-iostream/gnuplot-iostream.h
                    src/cxx/kernunos.cpp src/cxx/kernunos.h
-                   src/cxx/GLwidget.cpp src/cxx/kernunos/GLwidget.h
+                   src/cxx/GLwidget.cpp src/cxx/GLwidget.h
                    src/cxx/assistant.cpp src/cxx/assistant.h
  #                  src/cxx/shader_utils.cpp src/cxx/shader_utils.h
                    src/cxx/gnuplot_lioc.cpp
