@@ -239,7 +239,7 @@ GLwidget::GLwidget ( QWidget *parent ) : QOpenGLWidget(parent)
             fmt.setAlphaBufferSize(8);
             setFormat(fmt);
         }
-  setFocusPolicy(Qt::StrongFocus);
+//  setFocusPolicy(Qt::StrongFocus);
   timerID = startTimer(100);
 }
 

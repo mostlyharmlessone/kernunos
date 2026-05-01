@@ -438,7 +438,8 @@ if (mod(flag,100) .eq. 7) then
  UT=0 ; VT=0
  do i=1,M1
   do j=1,RadSlope%MV(i)
-    CALL LIOC_Fortran(RadSlope%thta(i),RadSlope%r(j,i),JMatrix%YPR(j,i),JMatrix%YPTHETA(j,i),UT(j,i),VT(j,i))
+    UT(j,i)=JMatrix%YPR(j,i)*COS(RadSlope%thta(i))-JMatrix%YPTHETA(j,i)*SIN(RadSlope%thta(i))/RadSlope%r(j,i)
+    VT(j,i)=JMatrix%YPR(j,i)*SIN(RadSlope%thta(i))+JMatrix%YPTHETA(j,i)*COS(RadSlope%thta(i))/RadSlope%r(j,i)
    end do
  end do
  unitno1 = get_new_fileunit()

@@ -1619,25 +1619,6 @@ subroutine axisymmetric_principal(r,hr,hrr,K,H,k1,k2,A)
    K=sqrt(abs(k1*k2)) ! use sqrt of gaussian curvature for output->geometric mean power in same units; absolute power for saddle points
 end subroutine axisymmetric_principal
 
-
-! Lines of Curvature
-subroutine LIOC_Fortran(X1,X2,Y1X,Y1T,UTPOS,VTPOS)
-   real(wp), intent(in) :: X1,X2,Y1X,Y1T
-   real(wp), intent(inout) :: UTPOS,VTPOS
-!  CARTESIAN TANGENT VECTOR COMPONENTS (-UTPOS,-VTPOS,1)  
-   if (ABS(X2) > EPS) then  ! and ill conditioned even farther than that
-!     if (X2 > 0) then
-      UTPOS=Y1X*COS(X1)-Y1T*SIN(X1)/X2
-      VTPOS=Y1X*SIN(X1)+Y1T*COS(X1)/X2
-!     else
-!      UTPOS=-Y1X*COS(X1)+Y1T*SIN(X1)/X2
-!      VTPOS=-Y1X*SIN(X1)-Y1T*COS(X1)/X2
-!     endif
-   else
-    write(*,*) 'Warning ill conditioned attempt at UT,VT'
-   endif
-end subroutine LIOC_Fortran
-
 ! "tangential" power and mean power in terms of axial/"sagittal" power,radius and radial derivative of axial power
  subroutine sagc2(X2,SAGC,DSAGC,TANC,ZMM)  
   real(wp), INTENT(IN) :: X2,SAGC,DSAGC

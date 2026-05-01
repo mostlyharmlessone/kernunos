@@ -1,11 +1,15 @@
 FIXES
 
+have to fix lines of curvature
+
+work on get_compiler fortran char to c string routine
+
 search for Visia in source code to strip out or enable eysys version of reading visia if I fix it
 redo- Rowsey curvature?
 
 DOCUMENTATION
 
-links to curvature, spline pdfs are broken
+PDFs cannot be seen in help; will need separate viewer: work in progress, see aboutbuild in kernunos.cpp
 
 in assistant.cpp look at showDocumentation and substitute docs for this project in appropriate format
 might want to change Cmakelist.txt for the proper install directory for documentation/copy

@@ -107,6 +107,7 @@ void ConvertOFFtoSTL_C_(char *iname, char *oname,int *deftype);
 // needs an underscore despite c_interface.f90 bind C declaration
 };
 
+
 extern QString *m_GLString;
 extern QString glstring_global;
 

@@ -78,8 +78,11 @@
 #include "assistant.h"
 #include "gnuplot-iostream/gnuplot-iostream.h"
 
+#include "../kernunos/get_compiler_name.h"
 #include "../kernunos/counter.h"
 #include "../kernunos/logc.h"
+#include <QPdfDocument>
+#include <QPdfView>
 
 using namespace QtConcurrent;
 
@@ -159,6 +162,7 @@ const unsigned int SCR_HEIGHT = 800;
 int64_t flag=500;
 int counter=0;
 char *filename;
+char compiler_name[80];
 bool success=false;
 bool paintme = false;
 int err_janus = 0;
@@ -2422,16 +2426,70 @@ void MainWindow::colorPerceptualUniformpalette()
 }
 
 /*
-// almost works, has a problem with atomic_base fetch
-void MainWindow::aboutbuild()
+void MainWindow::pdfopen(const QUrl &docLocation)
 {
-    QString sglVer = "Kernunos built with\n";
-    char compiler_name;
-    get_compiler_name_(&compiler_name);
-    QString compiler_string = tr(&compiler_name);
-    QMessageBox::about(this, tr("About Kernunos"),compiler_string);
+    if (docLocation.isLocalFile()) {
+        m_document->load(docLocation.toLocalFile());
+        pageSelected(0);
+    } else {
+        const QString message = tr("%1 is not a valid local file").arg(docLocation.toString());
+        qCDebug(lcExample).noquote() << message;
+        QMessageBox::critical(this, tr("Failed to open"), message);
+    }
+    qCDebug(lcExample) << docLocation;
 }
 */
+
+void MainWindow::aboutbuild()
+{
+
+
+//https://forum.qt.io/topic/124648/qdesktopservices-openurl-fails-to-open-local-file-on-ubuntu/17
+/*
+QUrl url = QUrl("file.txt");
+QUrl baseUrl = QUrl("file:/home/user/");
+// prints QUrl("file:///home/user/file.txt")
+qDebug() << baseUrl.resolved(url);
+
+or
+
+import os.path
+
+CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(file))
+filename = os.path.join(CURRENT_DIRECTORY, "doc/_build/latex/xslide-user-manual.pdf")
+print(filename)
+url = QUrl.fromLocalFile(filename)
+if not QDesktopServices.openUrl(url):
+print("failed")
+*/
+     QString filePath = "/home/debeus/Janus/Janus/documentation/Curvature_notes.pdf";
+    QWidget *viewerWindow = new QWidget;
+    viewerWindow->setWindowTitle("PDF Viewer");
+    viewerWindow->resize(800, 600);
+    QPdfDocument *document = new QPdfDocument(viewerWindow);
+
+     if (document->load(filePath) == QPdfDocument::Error::None) {
+      QPdfView *view = new QPdfView(viewerWindow);
+      view->QPdfView::setPageMode(QPdfView::PageMode::MultiPage);
+
+
+      view->setDocument(document);
+      QVBoxLayout *layout = new QVBoxLayout(viewerWindow);
+      layout->addWidget(view);
+      viewerWindow->setFocusPolicy(Qt::StrongFocus);
+      viewerWindow->setWindowFlags(Qt::WindowStaysOnTopHint);
+      viewerWindow->setFocus();
+      viewerWindow->setWindowModality(Qt::ApplicationModal);
+      viewerWindow->show();
+
+    }
+      else {
+        std::cout << "PDF not found\n" << std::endl;
+         }
+
+
+}
+
 
 void MainWindow::about()
 {
@@ -2451,6 +2509,10 @@ void MainWindow::about()
    sglVer += "\nCPU Cores found: ";
    sglVer += n_char;
    sglVer += glstring;
+   sglVer += "\nKernunos built with\n";
+   get_compiler_name_(compiler_name);
+   QString compiler_string = tr(compiler_name);
+   sglVer=sglVer+compiler_string;
    QMessageBox::about(this, tr("About Kernunos"),sglVer);
 }
 

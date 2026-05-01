@@ -169,7 +169,7 @@ SET(Qt6_DIR "/usr/lib/x86_64-linux-gnu/qt6")
 #find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets OpenGL)
 #find_package(Qt6 REQUIRED COMPONENTS Core Gui Charts OpenGLWidgets OpenGL Widgets LinguistTools)
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core Gui Charts OpenGLWidgets OpenGL Widgets LinguistTools)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Charts OpenGLWidgets OpenGL Widgets LinguistTools 3DCore 3DExtras Pdf)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Charts OpenGLWidgets OpenGL Widgets LinguistTools 3DCore 3DExtras Pdf PdfWidgets)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Concurrent REQUIRED)
 
 # Find the FreeType2 package
@@ -393,6 +393,7 @@ add_library( splia ${lib_sources90} ${interface})
 
 set(PROJECT_SOURCES
                    src/c/kernunos/logc.c src/c/kernunos/logc.h
+                   src/c/kernunos/get_compiler_name.h
                    src/c/kernunos/charcount.c src/c/kernunos/charcount.h
                    src/c/kernunos/Ccounter.c src/c/kernunos/counter.h
                    src/c/kernunos/ConvertPLYtoBIN.c
@@ -405,6 +406,7 @@ set(PROJECT_SOURCES
                    src/cxx/kernunos/gnuplot_load.cpp
                    src/cxx/kernunos/mainwindow.ui
                    src/src90/ConvertOFFtoSTL_C.f90
+                   src/src90/get_compiler_name.f90
                    src/src90/janus.f90 
                    ${TS_FILES}
                    )
@@ -471,6 +473,7 @@ target_link_libraries(kernunos
                       Qt${QT_VERSION_MAJOR}::3DCore
                       Qt${QT_VERSION_MAJOR}::3DExtras
                       Qt${QT_VERSION_MAJOR}::Pdf
+                      Qt${QT_VERSION_MAJOR}::PdfWidgets
                       assimp modules splia rply_includes ${LIBS}
            )
 

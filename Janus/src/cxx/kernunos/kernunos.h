@@ -15,8 +15,6 @@ extern const unsigned int SCR_HEIGHT;
 extern int64_t flag;
 extern char *filename;
 
-extern char compiler_name;
-
 extern bool success;
 extern bool paintme;
 
@@ -97,9 +95,11 @@ extern "C" {
 void Ccounter (int *inc,const char *iname);
 };
 
+
 extern "C" {
 void get_compiler_name_(char *compiler_name);
 };
+
 // needs an underscore despite c_interface.f90 bind C declaration
 
 // external cpp code
@@ -168,6 +168,8 @@ private slots:
     void redrawOption();
     void about();
     void aboutQt();
+    void aboutbuild();
+//    void pdfopen();
     void updateResult();
     void LinesofCurvature();
     void center();

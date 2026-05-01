@@ -33,6 +33,13 @@ END SUBROUTINE Janus
   integer(c_int),INTENT(IN) :: deftype
 end subroutine ConvertOFFtoSTL_C
 
+! call from c++ to fortran as extern "C"
+subroutine get_compiler_name(c_f) BIND(C, NAME='get_compiler_name_')
+ use, intrinsic :: iso_c_binding, ONLY : c_char, c_null_char
+ use, intrinsic :: iso_fortran_env
+ character(kind=c_char), dimension(*), intent(inout) :: c_f
+end subroutine get_compiler_name
+
 ! call from fortran to c
 subroutine ConvertPLYtoBIN(iname, oname) BIND(C,name='ConvertPLYtoBIN')
 ! Reads ASCII PLY and makes binary PLY
