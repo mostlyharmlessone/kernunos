@@ -4,6 +4,16 @@ have to fix lines of curvature
 
 Test doesn't work if it isn't the first one
 
+compare is broken with zernike; also so is opening 2nd file with zernike selected and zernike
+enforce, or have a warning having to make new zernike after loading new data, also if tweaks changed
+
+enforce, or have a warning having to make new zernike after loading new data, also if tweaks changed
+
+try to (b)lock opening another file while Zernike is computing to avoid crash ? condition on counter? cannot run Open
+possibly just change zerncompute to not detach thread and block program..though that will block cccounter
+you can run other Analyze ie center gnusplotplot, lioc, and move the picture
+probably can run kernunos but not janus?
+
 PDFs cannot be seen in help; work on aboutbuild in kernunos.cpp, add menu/submenu items
 
 search for Visia in source code to strip out or enable eysys version of reading visia if I fix it
@@ -23,22 +33,11 @@ multiple zeroes in ELE/HT files and adjacent identical points in general.
 centerpoints need explaining, as in why are they non-zero in writecenter 
 
 
-
-
 ENHANCEMENTS:
 
-2-D LSQSpline: review article again, work on stand-alone progrma first, but probably want polar version with adjustable grid size
+2-D LSQSpline: review article again, work on stand-alone program first, but probably want polar version with adjustable grid size
 
-compare is broken with zernike; also so is opening 2nd file with zernike selected and zernike
-enforce, or have a warning having to make new zernike after loading new data, also if tweaks changed
-
-enforce, or have a warning having to make new zernike after loading new data, also if tweaks changed
-
-try to (b)lock opening another file while Zernike is computing to avoid crash ? condition on counter? cannot run Open
-possibly just change zerncompute to not detach thread and block program..though that will block cccounter
-you can run other Analyze ie center gnusplotplot, lioc, and move the picture
-probably can run kernunos but not janus?
-consider adding sound to play after zernike compute, but might need option to turn off http://github.com/zserge/beep or get fancy with .ogg
+consider adding sound to play after/during zernike compute, but might need option to turn off http://github.com/zserge/beep or get fancy with .ogg
 
 ? needs extreme value filter; or histogram of values for median and color scale  like OPDIII
 resurrect old noise reduction code to help out monge-astig and meanc for real data?
@@ -108,7 +107,7 @@ push to github
 MISCELLANEOUS
 
 instructions on running win3.1, ie designer or mathematica:
-dosbox-x: select drive in menu to map DXSCSI1 to C: and DXSCSI2 to E:, force scaling, normal x2 or normal x3 go to E:\WINDOWS and run win, select mouse capture in menu
+dosbox-x: select drive in menu to map DXSCSI1 to D: and DXSCSI2 to E:, force scaling, normal x2 or normal x3 go to E:\WINDOWS and run win, select mouse capture in menu
 Export as EPS.
 
 https://docs.nersc.gov/performance/readiness/
