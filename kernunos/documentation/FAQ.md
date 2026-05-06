@@ -91,8 +91,8 @@ Analyze:
 Compute Zernike (computes central Zernike coefficients and maps)
 Show Zernike (uses gnuplot to show Zernike coefficients if present)
 Lines of Curvature (uses gnuplot to show Lines of curvature)
-Center Deviations (see documentation)
-Show circumferential rings (see documentation)		 
+Center Deviations (see below under Bad data)
+Show circumferential rings (see below under Bad data)		 
 Plot with GnuPlot Splot  (shows image in a pixellated gnuplot version)
 ```
 
@@ -110,7 +110,9 @@ Elevation
 Zernike quantities (listed, greyed out until computed)
 ```
 
-The Axial power is selected by default. Note that the Axial and Tangential powers are really only defined under axisymmetric assumptions. See [Curvature_notes.pdf] If not imposing axisymmetric assumptions, the Axial Power shown is the first principal curvature, with the second principal curvature shown by Tangential or Instantaneous Power.  The "Warp or Oblique Power" substitutes circumferential curvature for meridional curvature in the "axial power" formula and shows the logical and mathematical disjunction of these concepts. It is not a recognized concept in the literature or known to have any clinical usefulness.  I find it interesting.
+The Axial power is selected by default. Note that the Axial and Tangential powers are really only defined under axisymmetric assumptions. See [Curvature_notes.pdf] There are multiple other ways in which it could be defined, see [Curvature_equations.pdf] for alternatives.  It is unclear (because of the lack of documentation) which equation VK machines actually use, or if they are the same.
+
+If not imposing axisymmetric assumptions (see Tweaks below), the Axial Power shown is the first principal curvature, with the second principal curvature shown by Tangential or Instantaneous Power.  The "Warp or Oblique Power" substitutes circumferential curvature for meridional curvature in the "axial power" formula and shows the logical and mathematical disjunction of these concepts. It is not a recognized concept in the literature or known to have any clinical usefulness.  
 
 Color: (palette choice, pick one)
 
@@ -151,10 +153,12 @@ Placido Disk Tweaks:
 	  Fillin Placido by circumferential spline
 	  Use LSQ instead of circumferential spline
 	  
-The first uses simplified formulas to compute properties which do not use calculated radially based derivatives. See [Curvature_equations.pdf]. Since the computed angular derivatives are quite sensitive to data error, this might be the only way to get reasonable pictures. Using the Test option instead of real data can illustrate the difference in the axisymmetric assumptions quite well.  The next three are somewhat self explanatory, but read the README as well as the aforementioned pdf. Some data with one or either centernode tweaks and cubic integration and no axisymmetry may lead to poor results centrally.
+The first uses simplified formulas to compute properties which do not use calculated radially based derivatives. See [Curvature_equations.pdf]. Since the computed angular derivatives are quite sensitive to data error, this might be the only way to get reasonable pictures. Using the Test option instead of real data can illustrate the difference in the axisymmetric assumptions quite well. See for example the appearance of umbilical points in the Test data only when using the axisymmetric equations. Umbilical points? see [Curvature_notes.pdf]  The next three are somewhat self explanatory, but read the README as well as the aforementioned pdfs. Some data with one or either centernode tweaks and cubic integration and no axisymmetry may lead to poor results centrally.
 
 The next two options are for missing data in files. Unlike Oculus Keratograph files, apparently, Zeiss Atlas and at least one EyeSys file encountered in the wild can have missing meridians where presumably no good data was obtained. If one chooses, the missing meridians can be interpolated from their neighbors with one of the two methods. Bear in mind that there really is no cure for bad or missing data, reconstructed poor data will still probably not resemble data from the same eye with a better tear film. The Placido disk uses reflections and measures the optical surface, which comprises the tear film and the underlying cornea, so measuring two different tear films is measuring two different eyes in that sense. Bad data is also more likely to cause computation errors or crashes, YMMV.
 
+Bad data comes in different forms, erroneous numbers, insufficient precision, missing numbers and discontinuities with possible shift dislocations. Some affect global fitting assumptions (ie lsq) more than local (ie spline) assumptions. Analyze|Show circumferential rings shows the effect of LSQ vs spline on filling in circumferential data. The multiple zeroes in ELE/HT files and adjacent identical points have been mentioned before as a source of local flat areas not well represented by smooth curve fits.  Meriodonal 1-D curves that do not meet in a central point make an inconsistent 3-D shape, as demonstrated by the Analyze|Center Deviations plots being non-zero, and can be adjusted in different ways with the tweaks.
+ 
 The seventh option chooses how to compute the angular derivatives, and illustrates the difference in the pros and cons of LSQ vs splining with noisy data.  
 	  
 About: 

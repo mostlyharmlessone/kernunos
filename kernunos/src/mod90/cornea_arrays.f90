@@ -1604,6 +1604,48 @@ subroutine principal(t,r,hr,ht,hrt,htt,hrr,K,H,k1,k2,A)
 end subroutine principal
 
 
+! Lines_of_curvature calculations
+subroutine Lines_of_curvature(t,r,hr,ht,hrt,htt,hrr,u,v,m,m1)
+  real(wp), INTENT(INOUT) :: t,r,hr,ht,hrt,htt,hrr
+  real(wp), INTENT(OUT) :: u,v,m,m1
+  real(wp) :: hu,hv,huu,hvv,huv,g,K,H,quadratic_a,quadratic_b,quadratic_c
+   r=abs(r) ; hr=abs(hr)
+   if (ABS(r) > EPS) then
+!   cartesian conversion
+    hu = hr*cos(t)-sin(t)*ht/r
+    hv = hr*sin(t)+cos(t)*ht/r
+    huu=hrr-(sin(t)**2)*(hrr-hr/r-htt/(r**2))+2*cos(t)*sin(t)*(ht/(r**2)-hrt/r)
+    hvv=hrr-(cos(t)**2)*(hrr-hr/r-htt/(r**2))-2*cos(t)*sin(t)*(ht/(r**2)-hrt/r)
+    huv=cos(t)*sin(t)*(hrr-hr/r-htt/(r**2))+(sin(t)**2-cos(t)**2)*(ht/(r**2)-hrt/r)
+    g = 1 + hu**2 + hv**2
+    K=(huu*hvv-huv*huv)/(g*g)
+    H=((1+hv**2)*huu-2*hu*hv*huv+(1+hu**2)*hvv)/(2*(sqrt(g)**3))
+    if (H**2-K < 0) write(*,*) 'FATAL error in Lines_of_curvature,H,K,H^2-K',H,K,H**2-K
+    if (H**2-K < 0) stop
+    quadratic_a=((1+hu**2)*huv-huu*hu*hv)/g
+    quadratic_c=(hvv*hu*hv-(1+hv**2)*huv)/g
+    quadratic_b=(hvv*(1+hu**2)-huu*(1+hv**2))/g
+    if (quadratic_b**2-4*quadratic_a*quadratic_c < 0) write(*,*) 'FATAL error in Lines_of_curvature, discriminant',quaadratic_a,quadratic_b,quadratic_c
+    if (quadratic_b**2-4*quadratic_a*quadratic_c < 0) stop
+    m=(-quadratic_b-sign(sqrt(quadratic_b*quadratic_b-4*quadratic_a*quadratic_c),quadratic_b))/(2*quadratic_a)
+    m1=(-2*quadratic_c)/(-quadratic_b-sign(sqrt(quadratic_b*quadratic_b-4*quadratic_a*quadratic_c),quadratic_b))
+    u=r*cos(t)
+    v=r*sin(t)
+   else
+!   AT ORIGIN r = 0, things get weird at the limit, so make it axysymmetric
+    g = 1 + hr**2
+    K=hrr*hrr/(g*g)
+    H=0.5*hrr*(1.0+1.0/(sqrt(g)**3))
+    if (H**2-K < 0) write(*,*) 'FATAL error in Lines_of_curvature,H,K,H^2-K',H,K,H**2-K
+    if (H**2-K < 0) stop
+    m = 1
+    m1 = 1
+    u = 0
+    v = 0
+   endif
+end subroutine Lines_of_curvature
+
+
 ! axisymmetric_principal curvature calculations
 subroutine axisymmetric_principal(r,hr,hrr,K,H,k1,k2,A)
   real(wp), INTENT(INOUT) :: r,hr,hrr
