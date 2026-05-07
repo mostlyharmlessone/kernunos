@@ -305,25 +305,67 @@ Numerical recipes in C 1988 WH Press, BP Flannery, SA Teukolsky, WT Vetterling C
 Introduction to Applied Mathematics 1986 G Strang, Wellesley-Cambridge Press <br>
 Computer Methods for Mathematical Computations 1977 GE Forsythe,MA Malcolm, CB Moler., Prentice-Hall  <br>
 Numerical Computing with Modern Fortran 2013 Richard J.Hanson and Tim Hopkins SIAM. <br>
+Corneal Topography, Measuring and Modifying the Cornea, DJ Schanzlin, JB Robin (editors) 1992 Springer-Verlag <br>
 
 
-###Journal articles
+###Journal articles/downloaded class notes/documentation
+(in no particular order or format, sourced manually from the internet)
+
 Eric Albin, Ronnie Knikker, Shihe Xin, Christian Oliver Paschereit, Yves d’Angelo. Computational assessment of curvatures and principal directions of implicit surfaces from 3D scalar data. Lecture Notes in Computer Science, 2017, Mathematical Methods for Curves and Surfaces, 10521, pp.1-22. ⟨10.1007/978-3-319-67885-6_1⟩. ⟨hal-01486547⟩<br>
 
 Interchangeability between Placido disc and Scheimpflug system:
 quantitative and qualitative analysis (Permutabilidade entre o disco de Plácido e o sistema Scheimpflug: análise quantitativa e qualitativa) VINÍCIUS SILBIGER DE STEFANO1, LUIZ ALBERTO SOARES MELO JUNIOR2, FELIPE MALLMANN2, PAULO SCHOR2  Arq Bras Oftalmol. 2010;73(4):363-6<br>
 
-##least-square/equality constrained splines
-this was actually one of my favorite parts of this project <br>
-https://amytabb.com/tips/2022/02/27/least-squares-with-equality-constraints/ <br>
-https://www.researchgate.net/publication/340447134_Least_squares_2D_bi-cubic_spline_approximation_Theory_and_applications <br>
+ Corneal topography and the Hirschberg test Scott E. Brodie,APP OPTIC 31(19):3627-3631 (1992)<br>
+
+The Universal Standard Scale Proposed Improvements to the American National
+Standards Institute (ANSI) Scale for Corneal Topography
+Michael K. Smolek, PhD, Stephen D. Klyce, PhD Jeffery K. Hovis, OD, PhD, Ophthalmology 2002;109:361–369<br>
+
+Versions of the spline programs of de Boor and Rice are available in the program library
+of IMSL as ICSFKU and ICSVKU: Least Squares Cubic Spline Approximation I — Fixed Knots
+Carl de Boor and John R. Rice General Motors Research Laboratories. The final stages were partially supported by NSF grant GP-7163 and NSF grant GP-4052.<br>
+
+Tridiagonal Matrices: Thomas Algorithm W. T. Lee MS6021, Scientific Computation, University of Limerick<br>
+
+Thin-Plate Splines David Eberly, Geometric Tools, Redmond WA 98052
+https://www.geometrictools.com/<br>
+
+APPROXIMATION OF A THIN PLATE SPLINE SMOOTHER USING
+CONTINUOUS PIECEWISE POLYNOMIAL FUNCTIONS STEPHEN ROBERTS, MARKUS HEGLAND, AND IRFAN ALTAS SIAM Journal on Numerical Analysis · February 2003<br>
+
 The Least-squares Fitting of Cubic Spline Surfaces to General Data Sets† J. G. HAYES, J. HALLIDAY Author Notes IMA Journal of Applied Mathematics, Volume 14, Issue 1, August 1974, Pages 89–103  <br>
+
 C. de Boor and J.R. Rice, Least squares cubic spline approximation I – fixed knots, Technical Report CSD-TR 20, Computer Sciences, Purdue University (1968). Also available at ftp://ftp.cs.wisc.edu/Approx/tr20.pdf <br>
+
 Least squares cubic splines without B-splines S.K. Lucas
 School of Mathematics and Statistics, University of South Australia, Mawson Lakes SA 5095
 e-mail: stephen.lucas@unisa.edu.au Submitted to the Gazette of the Australian Mathematical Society May 2003, Accepted July 2003 <br>
+
 Least squares fit to discrete data by a C-2 cubic spline, DC2FIT.f in math77 library
 Copyright (c) 1996 California Institute of Technology, Pasadena, CA. Based on Government Sponsored Research NAS7-03001. Algorithm and program designed by C.L.Lawson and R.J.Hanson 'SOLVING LEAST SQUARES PROBLEMS', by Lawson and Hanson, Prentice-Hall, 1974. Programming and later changes and corrections by Lawson,Hanson,T.Lang, and D.Campbell, Sept 1968, Nov 1969, and Aug 1970 Modified 1968 Sept 17 to provide C-2 continuity <br>
+
+The misuse of colour in science communication Fabio Crameri , Grace E. Shephard  & Philip J. Heron NATURE COMMUNICATIONS | (2020) 11:5444 www.nature.com/naturecommunications<br>
+
+Perspectives on corneal topography: a review of videokeratoscopy
+Peter R Keller BAppSc(0ptom) Paul P van Saarloos PhD
+Centre for Ophthalmology and Visual Science, Lions Eye Institute Clinical and Experimental Optometry 80.1 January-February 1997<br>
+
+Oculus Pentacam Interpretation Guide 3rd edition and Oculus Pentacam Instruction Manual, OCULUS Optikgeräte GmbH/Oculus USA<br>
+
+NIDEK Refractive Power/Corneal Analyzer/OPD-Scan III Operator's Manual, NIDEK Co. LTD Feb 2011.<br>
+
+Md. Mamun-Ur-Rashid Khan, M. R. Hossain, Selina Parvin. Numerical Integration Schemes for Unequal Data Spacing.American Journal of Applied Mathematics. Vol. 5, No. 2, 2017, pp. 48-56. doi: 10.11648/j.ajam.20170502.12<br>
+
+Gurnani B, Kaur K. iTrace aberrometry -Identifying occult imperfections in the visual system. Kerala J Ophthalmol 2021;33:373-83.<br>
+
+Axial and Instantaneous Power Conversion in Corneal Topography
+Stanley A. Klein and Robert B. Mandel Invest Ophthalmol Vis Sci. 1995; 36:2155-
+2159.<br>
+
+Differentiation and Numerical Integral of the Cubic Spline Interpolation
+Shang Gao School of Computer Science and Technology, Jiangsu University of Science and Technology, Zaiyue Zhang and Cungen Cao Key Laboratory of Intelligent Information Processing, Institute of Computing Technology, Chinese Academy of Sciences JOURNAL OF COMPUTERS, VOL. 6, NO. 10, OCTOBER 2011<br>
+
 
 
 ##resources/tutorials
@@ -332,6 +374,7 @@ http://www.netlib.org/lapack-dev/lapack-coding/program-style.html <br>
 http://www.pdas.com/fmmdownload.html Fortran 90 versions of Computer Methods for Mathematical Computations Forsythe et al. 1977 subroutines (Public Domain) <br>
 https://github.com/certik/fortran-utils Copyright (c) 2012 Ondřej Čertík   MIT <br>
 http://www.siam.org/books/ot134 Numerical Computing with Modern Fortran Richard J.Hanson and Tim Hopkins SIAM some of their routines are copied or adapted explicitly (copyright) <br> 
+https://amytabb.com/tips/2022/02/27/least-squares-with-equality-constraints/ <br>
 https://web.stanford.edu/class/me200c/tutorial_90/08_subprograms.html factorial (copyright Stanford University) <br>
 https://www.mathworks.com/company/newsletters/articles/analyzing-lasik-optical-data-using-zernike-functions.html <br>
 
@@ -340,12 +383,6 @@ trying to avoid it, I have downloaded the PDF of the forbrukerradet (fuggedabout
 https://www.theregister.com/2026/03/06/forbrukerradet_aim_enshittification/ <br>
 related: https://en.wikipedia.org/wiki/Software_archaeology <br>
 https://en.wikipedia.org/wiki/Reverse_engineering#Legality <br>
-
-#### the great color debate of the 90's
-Smolek, Michael & Klyce, Stephen & Hovis, Jeff. (2002). <br>
-The Universal Standard Scale. Ophthalmology. 109. 361-369. 10.1016/S0161-6420(01)00888-0 <br> 
-The misuse of colour in science communication. Nature Communications. 2020/10/28 Crameri, Fabio, Shephard, Grace E.,Heron, Philip J. <br>
-Corneal Topography, Measuring and Modifying the Cornea, DJ Schanzlin, JB Robin (editors) 1992 Springer-Verlag <br>
 
 ###gnuplot incorporation stuff
 https://stackoverflow.com/questions/28892434/how-to-plot-a-graph-using-gnuplot-from-c-program <br>
