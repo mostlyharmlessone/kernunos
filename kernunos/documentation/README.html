@@ -46,7 +46,8 @@
 <p>A great amount of time was spent in the 1990&#39;s debating color scales.   There were numerous presentations regarding how to portray the data, which colors to use, whether red should be on top or bottom of the scale, etc., but little about the quality or nature of the data being presented.  </p>
 <p>In general, we can hopefully agree on some terminology: There are absolute color scales, with colors matched to specific values, and relative scales, where a palette is spread over the range of values found in any particular data set. An absolute color scale has a fixed range and constant palette. One perceived advantage to an absolute scale for clinicians is easy identification of values inside normal or outside normal, with a characteristic color pattern for several common diseases without the need for actually looking at the values of the curvatures, or knowing anything about them.  One objective disadvantage to an absolute scale is that small differences in curvatures are lumped into common colors and become invisible.  Relative/non-fixed scales show differences in any particular surface quite well, but interpretation is dependent on reading the values on the legend and comparing them with accepted normals known by the clinician.  Strange as it may seem, there are differences in clinical acceptance and scientific knowledge.</p>
 <p>There is an ANSI standard absolute color scale Z80.23 (which is not freely available nor does it specify an exact color palette), as well as eponymous scales from different manufacturers and authors with industry ties. </p>
-<p>A Universal Standard Scale was proposed in 2002, which is a modified ANSI scale with a freely available definition.  It is an absolute scale, sometimes referred to as the Smolek-Klyce scale after its creators. There are variations of the scale. The scale was explicity designed for &quot;Corneal Power&quot;, a slope based definition also called &quot;Axial or Sagittal Curvature&quot;. See [Curvature_notes.pdf] and was adopted by at least one manufacturer.</p>
+<p>A Universal Standard Scale was proposed in 2002, which is a modified ANSI scale with a freely available definition.  It is an absolute scale, sometimes referred to as the Smolek-Klyce scale after its creators. There are variations of the scale. The scale was explicity designed for &quot;Corneal Power&quot;, a slope based definition also called &quot;Axial or Sagittal Curvature&quot;. See <a href="file:Curvature_notes.pdf">Curvature_notes.pdf</a>
+and was adopted by at least one manufacturer.</p>
 <p>In addition, there are non-&quot;rainbow&quot; perceptually uniform color scales which take color vision deficiencies into account, none of which (oddly enough) seem to be in use by ophthalmological manufacturers (or are not documented as such) and are not specific to the cornea. It is unknown to me whether normal color vision is still a requirement for admission into ophthalmology programs in the US, though it is certainly not usually a requirement for researchers AFAIK.  The market does not seem to have made allowances for this group. </p>
 <p>To that end, the program allows the user to select a number of different color scales in order to form their own opinion about which serves them best for that particular data set and function being displayed. </p>
 <h2 id="pupils">Pupils</h2>
@@ -54,14 +55,14 @@
 <p>Most of these corneal topography machines also capture data about the size and location of the subject&#39;s pupil.  The clinical importance of the pupil position and size relative to the cornea has been the subject of much heated, sometimes scholarly, discussion and at least one notorious lawsuit in which the leading expert later recanted their testimony after the verdict (which of course did not alter the verdict, nor allow for appeal, AFAIK). Stranger as it may seem, there are even greater differences between legal findings than between clinical acceptance and scientific knowledge. This program allows display of the pupil data in conjunction with the corneal data.</p>
 <h2 id="curvatures-functions-and-zernike">Curvatures, Functions and Zernike</h2>
 <p>&quot;<em>You keep using that word. I do not think it means what you think it means.&quot; (‘The Princess Bride’ - 1987</em>) </p>
-<p>Optical qualities of the cornea historically were the driver of the interest in curvature, using classic optical theory of lenses.   Unfortunately, what clinician and mathematicians mean by curvature is not always the same. See also [Curvature_notes.pdf]</p>
+<p>Optical qualities of the cornea historically were the driver of the interest in curvature, using classic optical theory of lenses.   Unfortunately, what clinician and mathematicians mean by curvature is not always the same. See also <a href="file:Curvature_notes.pdf">Curvature_notes.pdf</a></p>
 <p>By convention curvatures are converted from units of length to their inverse in corneal diopters by a constant, the keratometric index, usually agreed to be 337.50 mm/D in the United States, though 332.0 is more common in Europe, with different devices possibly using 331.5, 333, 336, 338 or 376, with an extensive literature supporting different suggestions. Considering the measurement errors because of axis misalignments, among other things, particularly in the case of Placido measurements where the assumption that reflected rays remain in their meridional planes directly contradicts axial asymmetry, it seems as though a lesson about significant digits might well have been reviewed.</p>
 <p>In addition, more recently, interest in finer optical distinctions have driven clinicians and the manufacturers of topographers to incorporate measures of optical aberrations. Surfaces can be represented as functions on a cartesian grid z(x,y) can be represented by the approximations with the familiar Fourier series in Cartesian coordinates, or Bessel functions in polar coordinates.  There are many uses for breaking down the surface shape to (basically) its frequency space as represented by the coefficients which weigh the relative amount of each basis function.  In optics, rather than Bessel basis functions or Fourier (basis functions) series, Zernike functions have historically been popular because they are expressed in polar coordinates, like Bessel functions, but are better known in the microscopy and optics literature. The coefficients of the Zernike functions have some clinical correlates to gross optical properties, such as astigmatism, as well as wavefront optical aberrations, whereas the Bessel functions are primarily designed to accurately describe the shape of a surface.  Clinicians typically look at the corneal data with several different representations depending on the situation.  For example, so-called &quot;tangential&quot; curvatures are felt to be better than &quot;axial&quot; curvatures at detecting and distinguishing prior ablation and type of ablation after myopic or hyperopic LASIK or PRK. The Zernike coefficient corresponding to optical coma is felt to be the most symptomatic so-called higher order aberration.  Modern manufacturers of clinical equipment have provided computations of Zernike coefficients (and in one case Fourier) for a given corneal surface. Typically these are based on wavefront aberrometry of the whole eye, not just the anterior corneal surface. </p>
 <p>It is also an increasingly common practice for manufacturers to provide several undocumented proprietary &quot;indices&quot; or numbers that are meant to provide a relatively simple clinical answer regarding important pathological features of the cornea or optics of the whole eye, again highlighting the difference between clinicians and ... everyone else.  No doubt soon, a diagnosis will emanate from the latest notorious oracular blackbox, an LLM/AI.  If that is what you want, I am surprised you managed to read this far.</p>
 <h2 id="hardware">Hardware</h2>
 <p>&quot;<em>The magnitude of this error is as yet undetermined, although it is thought to be small.</em>&quot; </p>
 <p>The first, and older, class of machines are Placido disk machines, which take a photo of a reflection of rings on the surface and compute the shape based on the distortion of the image, subject to a number of assumptions, one important being an essentially 2-D simplification that along each radial mire reflected rays stay in their plane (which is not the case for non-axisymmetric or decentered axisymmetric shapes).  Machines do not actually use a flat Placido disk, but rather a cone with concentric rings to maximize the coverage area of the cornea by aiming for evenly spaced images of rings on a test sphere. </p>
-<p><img src="README.html_files/images/Placido_cone.jpeg" alt="alt text"></p>
+<p> <a href="file:./images/Placido_cone.jpeg">./images/Placido_cone.jpeg</a></p>
 <p>Of course it was also well recognized that any reconstruction of a 3-D reflecting surface (the cornea) by a 2-D image (particularly an image of concentric circles) is a underdetermined problem; i.e.. there is insufficent information and a number of mathematical assumptions have to made regarding the size and distance of the reflecting object. The mathematical approaches to curve reconstruction in a meridian, such as they were revealed, reflect the limitations of computation in the 1980&#39;s, and make quite a lot of simplfying assumptions in order to make the computations possible for the technology at that time.  There are also purely hardware issues regarding spacing of rings, image capture, resolution and digitization of the images. Even with optimal arrangements of rings and the givens of anatomy the surface imaged is generally limited to 60% of the total surface. It was none the less claimed at the time that the CMS system mentioned below was capable of 30 micron positional accuracy on the corneal surface. (Subject to the &quot;undetermined but thought to be small&quot; error mentioned above undercutting the entire method!) Note also that it has been calculated that a 16 micron local difference in elevation can equal 1 diopter of corneal power - a staggeringly large number by current clinical standards.  A modern machine claims a &quot;resolution of +/- 0.01D, 1 micron
 accuracy / precision axial radius +/- 0.03mm altimetric data, +/- 2µm at 4mm&quot;.  I should also point out that manufacturer&#39;s sales teams have used the words precision and accuracy (and possibly resolution) interchangeably.   </p>
 <p>From an engineering point of view, no meaningful error analysis was ever provided by the manufacturers of this class of equipment.  Access to the raw data (in the open software/hardware sense) was never, as far as I can tell, on the table, making an independent analysis impossible.  In the best case scenario for topographers, that would mean having an image file of the corneal rings taken by the camera (the raw data), measuring the physical Placido cone in the lab (more raw data that we would have to collect), and then writing our own algorithm to determine the implied shape of the cornea by the relationship between the image and the object.  That might be easiest with some calibrated reflective target spheres.</p>
@@ -230,28 +231,54 @@ wxExecute(_(&quot;bash --login -i&quot;), wxEXEC_ASYNC);</p>
 Numerical recipes in C 1988 WH Press, BP Flannery, SA Teukolsky, WT Vetterling Cambridge University Press. <br>
 Introduction to Applied Mathematics 1986 G Strang, Wellesley-Cambridge Press <br>
 Computer Methods for Mathematical Computations 1977 GE Forsythe,MA Malcolm, CB Moler., Prentice-Hall  <br>
-Numerical Computing with Modern Fortran 2013 Richard J.Hanson and Tim Hopkins SIAM. <br></p>
-<h3 id="journal-articles">Journal articles</h3>
+Numerical Computing with Modern Fortran 2013 Richard J.Hanson and Tim Hopkins SIAM. <br>
+Corneal Topography, Measuring and Modifying the Cornea, DJ Schanzlin, JB Robin (editors) 1992 Springer-Verlag <br></p>
+<h3 id="journal-articles-downloaded-class-notes-documentation">Journal articles/downloaded class notes/documentation</h3>
+<p>(in no particular order or format, sourced manually from the internet)</p>
 <p>Eric Albin, Ronnie Knikker, Shihe Xin, Christian Oliver Paschereit, Yves d’Angelo. Computational assessment of curvatures and principal directions of implicit surfaces from 3D scalar data. Lecture Notes in Computer Science, 2017, Mathematical Methods for Curves and Surfaces, 10521, pp.1-22. ⟨10.1007/978-3-319-67885-6_1⟩. ⟨hal-01486547⟩<br></p>
 <p>Interchangeability between Placido disc and Scheimpflug system:
 quantitative and qualitative analysis (Permutabilidade entre o disco de Plácido e o sistema Scheimpflug: análise quantitativa e qualitativa) VINÍCIUS SILBIGER DE STEFANO1, LUIZ ALBERTO SOARES MELO JUNIOR2, FELIPE MALLMANN2, PAULO SCHOR2  Arq Bras Oftalmol. 2010;73(4):363-6<br></p>
-<h2 id="least-square-equality-constrained-splines">least-square/equality constrained splines</h2>
-<p>this was actually one of my favorite parts of this project <br>
-<a href="https://amytabb.com/tips/2022/02/27/least-squares-with-equality-constraints/">https://amytabb.com/tips/2022/02/27/least-squares-with-equality-constraints/</a> <br>
-<a href="https://www.researchgate.net/publication/340447134_Least_squares_2D_bi-cubic_spline_approximation_Theory_and_applications">https://www.researchgate.net/publication/340447134_Least_squares_2D_bi-cubic_spline_approximation_Theory_and_applications</a> <br>
-The Least-squares Fitting of Cubic Spline Surfaces to General Data Sets† J. G. HAYES, J. HALLIDAY Author Notes IMA Journal of Applied Mathematics, Volume 14, Issue 1, August 1974, Pages 89–103  <br>
-C. de Boor and J.R. Rice, Least squares cubic spline approximation I – fixed knots, Technical Report CSD-TR 20, Computer Sciences, Purdue University (1968). Also available at ftp://ftp.cs.wisc.edu/Approx/tr20.pdf <br>
-Least squares cubic splines without B-splines S.K. Lucas
+<p>Corneal topography and the Hirschberg test Scott E. Brodie,APP OPTIC 31(19):3627-3631 (1992)<br></p>
+<p>The Universal Standard Scale Proposed Improvements to the American National
+Standards Institute (ANSI) Scale for Corneal Topography
+Michael K. Smolek, PhD, Stephen D. Klyce, PhD Jeffery K. Hovis, OD, PhD, Ophthalmology 2002;109:361–369<br></p>
+<p>Versions of the spline programs of de Boor and Rice are available in the program library
+of IMSL as ICSFKU and ICSVKU: Least Squares Cubic Spline Approximation I — Fixed Knots
+Carl de Boor and John R. Rice General Motors Research Laboratories. The final stages were partially supported by NSF grant GP-7163 and NSF grant GP-4052.<br></p>
+<p>Tridiagonal Matrices: Thomas Algorithm W. T. Lee MS6021, Scientific Computation, University of Limerick<br></p>
+<p>Thin-Plate Splines David Eberly, Geometric Tools, Redmond WA 98052
+<a href="https://www.geometrictools.com/">https://www.geometrictools.com/</a><br></p>
+<p>APPROXIMATION OF A THIN PLATE SPLINE SMOOTHER USING
+CONTINUOUS PIECEWISE POLYNOMIAL FUNCTIONS STEPHEN ROBERTS, MARKUS HEGLAND, AND IRFAN ALTAS SIAM Journal on Numerical Analysis · February 2003<br></p>
+<p>The Least-squares Fitting of Cubic Spline Surfaces to General Data Sets† J. G. HAYES, J. HALLIDAY Author Notes IMA Journal of Applied Mathematics, Volume 14, Issue 1, August 1974, Pages 89–103  <br></p>
+<p>C. de Boor and J.R. Rice, Least squares cubic spline approximation I – fixed knots, Technical Report CSD-TR 20, Computer Sciences, Purdue University (1968). Also available at ftp://ftp.cs.wisc.edu/Approx/tr20.pdf <br></p>
+<p>Least squares cubic splines without B-splines S.K. Lucas
 School of Mathematics and Statistics, University of South Australia, Mawson Lakes SA 5095
-e-mail: stephen.lucas@unisa.edu.au Submitted to the Gazette of the Australian Mathematical Society May 2003, Accepted July 2003 <br>
-Least squares fit to discrete data by a C-2 cubic spline, DC2FIT.f in math77 library
+e-mail: stephen.lucas@unisa.edu.au Submitted to the Gazette of the Australian Mathematical Society May 2003, Accepted July 2003 <br></p>
+<p>Least squares fit to discrete data by a C-2 cubic spline, DC2FIT.f in math77 library
 Copyright (c) 1996 California Institute of Technology, Pasadena, CA. Based on Government Sponsored Research NAS7-03001. Algorithm and program designed by C.L.Lawson and R.J.Hanson &#39;SOLVING LEAST SQUARES PROBLEMS&#39;, by Lawson and Hanson, Prentice-Hall, 1974. Programming and later changes and corrections by Lawson,Hanson,T.Lang, and D.Campbell, Sept 1968, Nov 1969, and Aug 1970 Modified 1968 Sept 17 to provide C-2 continuity <br></p>
+<p>The misuse of colour in science communication Fabio Crameri , Grace E. Shephard  &amp; Philip J. Heron NATURE COMMUNICATIONS | (2020) 11:5444 www.nature.com/naturecommunications<br></p>
+<p>Perspectives on corneal topography: a review of videokeratoscopy
+Peter R Keller BAppSc(0ptom) Paul P van Saarloos PhD
+Centre for Ophthalmology and Visual Science, Lions Eye Institute Clinical and Experimental Optometry 80.1 January-February 1997<br></p>
+<p>Oculus Pentacam Interpretation Guide 3rd edition and Oculus Pentacam Instruction Manual DICOM CONFORMANCE STATEMENT for Pentacam 1.17r64 (2010-05-21), OCULUS Optikgeräte GmbH/Oculus USA<br></p>
+<p>NIDEK Refractive Power/Corneal Analyzer/OPD-Scan III Operator&#39;s Manual, NIDEK Co. LTD Feb 2011.<br></p>
+<p>Md. Mamun-Ur-Rashid Khan, M. R. Hossain, Selina Parvin. Numerical Integration Schemes for Unequal Data Spacing.American Journal of Applied Mathematics. Vol. 5, No. 2, 2017, pp. 48-56. doi: 10.11648/j.ajam.20170502.12<br></p>
+<p>Gurnani B, Kaur K. iTrace aberrometry -Identifying occult imperfections in the visual system. Kerala J Ophthalmol 2021;33:373-83.<br></p>
+<p>Axial and Instantaneous Power Conversion in Corneal Topography
+Stanley A. Klein and Robert B. Mandel Invest Ophthalmol Vis Sci. 1995; 36:2155-
+2159.<br></p>
+<p>Differentiation and Numerical Integral of the Cubic Spline Interpolation
+Shang Gao School of Computer Science and Technology, Jiangsu University of Science and Technology, Zaiyue Zhang and Cungen Cao Key Laboratory of Intelligent Information Processing, Institute of Computing Technology, Chinese Academy of Sciences JOURNAL OF COMPUTERS, VOL. 6, NO. 10, OCTOBER 2011<br></p>
+<p>APPLICATION OF B-SPLINE METHOD IN SURFACE FITTING PROBLEM
+Fateme Esmaeili *, AliReza Amiri-Simkooei, Vahab Nafisi, Amin Alizadeh Naeini The International Archives of the Photogrammetry, Remote Sensing and Spatial Information Sciences, Volume XLII-4/W18, 2019 GeoSpatial Conference 2019 – Joint Conferences of SMPR and GI Research, 12–14 October 2019, Karaj, Iran<br></p>
 <h2 id="resources-tutorials">resources/tutorials</h2>
 <p><a href="https://github.com/scivision/fortran2018-examples">https://github.com/scivision/fortran2018-examples</a>                       MIT <br>
 <a href="http://www.netlib.org/lapack-dev/lapack-coding/program-style.html">http://www.netlib.org/lapack-dev/lapack-coding/program-style.html</a> <br>
 <a href="http://www.pdas.com/fmmdownload.html">http://www.pdas.com/fmmdownload.html</a> Fortran 90 versions of Computer Methods for Mathematical Computations Forsythe et al. 1977 subroutines (Public Domain) <br>
 <a href="https://github.com/certik/fortran-utils">https://github.com/certik/fortran-utils</a> Copyright (c) 2012 Ondřej Čertík   MIT <br>
 <a href="http://www.siam.org/books/ot134">http://www.siam.org/books/ot134</a> Numerical Computing with Modern Fortran Richard J.Hanson and Tim Hopkins SIAM some of their routines are copied or adapted explicitly (copyright) <br> 
+<a href="https://amytabb.com/tips/2022/02/27/least-squares-with-equality-constraints/">https://amytabb.com/tips/2022/02/27/least-squares-with-equality-constraints/</a> <br>
 <a href="https://web.stanford.edu/class/me200c/tutorial_90/08_subprograms.html">https://web.stanford.edu/class/me200c/tutorial_90/08_subprograms.html</a> factorial (copyright Stanford University) <br>
 <a href="https://www.mathworks.com/company/newsletters/articles/analyzing-lasik-optical-data-using-zernike-functions.html">https://www.mathworks.com/company/newsletters/articles/analyzing-lasik-optical-data-using-zernike-functions.html</a> <br></p>
 <h3 id="enshittification">enshittification</h3>
@@ -259,11 +286,6 @@ Copyright (c) 1996 California Institute of Technology, Pasadena, CA. Based on Go
 <a href="https://www.theregister.com/2026/03/06/forbrukerradet_aim_enshittification/">https://www.theregister.com/2026/03/06/forbrukerradet_aim_enshittification/</a> <br>
 related: <a href="https://en.wikipedia.org/wiki/Software_archaeology">https://en.wikipedia.org/wiki/Software_archaeology</a> <br>
 <a href="https://en.wikipedia.org/wiki/Reverse_engineering#Legality">https://en.wikipedia.org/wiki/Reverse_engineering#Legality</a> <br></p>
-<h4 id="the-great-color-debate-of-the-90-s">the great color debate of the 90&#39;s</h4>
-<p>Smolek, Michael &amp; Klyce, Stephen &amp; Hovis, Jeff. (2002). <br>
-The Universal Standard Scale. Ophthalmology. 109. 361-369. 10.1016/S0161-6420(01)00888-0 <br> 
-The misuse of colour in science communication. Nature Communications. 2020/10/28 Crameri, Fabio, Shephard, Grace E.,Heron, Philip J. <br>
-Corneal Topography, Measuring and Modifying the Cornea, DJ Schanzlin, JB Robin (editors) 1992 Springer-Verlag <br></p>
 <h3 id="gnuplot-incorporation-stuff">gnuplot incorporation stuff</h3>
 <p><a href="https://stackoverflow.com/questions/28892434/how-to-plot-a-graph-using-gnuplot-from-c-program">https://stackoverflow.com/questions/28892434/how-to-plot-a-graph-using-gnuplot-from-c-program</a> <br>
 <a href="https://code.google.com/p/gnuplot-cpp/source/browse/trunk/gnuplot_i.hpp">https://code.google.com/p/gnuplot-cpp/source/browse/trunk/gnuplot_i.hpp</a> <br>
@@ -365,7 +387,7 @@ iTrace/Alcon/Tracey Technologies, indices DLI &quot;dysfunction lens index&quot;
 Microsoft Excel, &quot;cabinet&quot; files<br>
 Phorcides Contour Engine <a href="https://phorcides.com/">https://phorcides.com/</a> coined the term &quot;Talus maps&quot; see also
 <a href="https://support.phorcides.com/installation/">https://support.phorcides.com/installation/</a><br>
-Heidelberg Engineering &quot;Anterion&quot;<br>
+Heidelberg Engineering &quot;Anterion&quot; <br>
 VisCam/Solidworks, Materials Magic<br>
 Slackware, Ubuntu, Arch, Manjaro, GNU/Linux, LAPACK, gnuplot, Qt, Windows, MacOS<br>
 Cultural references are made with utter respect for their creators, CS Lewis, Shakespeare, everyone associated with The Princess Bride.</p>

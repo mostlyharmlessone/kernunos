@@ -20,7 +20,8 @@ In general, we can hopefully agree on some terminology: There are absolute color
 
 There is an ANSI standard absolute color scale Z80.23 (which is not freely available nor does it specify an exact color palette), as well as eponymous scales from different manufacturers and authors with industry ties. 
 
-A Universal Standard Scale was proposed in 2002, which is a modified ANSI scale with a freely available definition.  It is an absolute scale, sometimes referred to as the Smolek-Klyce scale after its creators. There are variations of the scale. The scale was explicity designed for "Corneal Power", a slope based definition also called "Axial or Sagittal Curvature". See [Curvature_notes.pdf] and was adopted by at least one manufacturer.
+A Universal Standard Scale was proposed in 2002, which is a modified ANSI scale with a freely available definition.  It is an absolute scale, sometimes referred to as the Smolek-Klyce scale after its creators. There are variations of the scale. The scale was explicity designed for "Corneal Power", a slope based definition also called "Axial or Sagittal Curvature". See [Curvature_notes.pdf](file:Curvature_notes.pdf)
+and was adopted by at least one manufacturer.
 
 In addition, there are non-"rainbow" perceptually uniform color scales which take color vision deficiencies into account, none of which (oddly enough) seem to be in use by ophthalmological manufacturers (or are not documented as such) and are not specific to the cornea. It is unknown to me whether normal color vision is still a requirement for admission into ophthalmology programs in the US, though it is certainly not usually a requirement for researchers AFAIK.  The market does not seem to have made allowances for this group. 
 
@@ -37,7 +38,7 @@ Most of these corneal topography machines also capture data about the size and l
 
 "*You keep using that word. I do not think it means what you think it means." (‘The Princess Bride’ - 1987*) 
 
-Optical qualities of the cornea historically were the driver of the interest in curvature, using classic optical theory of lenses.   Unfortunately, what clinician and mathematicians mean by curvature is not always the same. See also [Curvature_notes.pdf]
+Optical qualities of the cornea historically were the driver of the interest in curvature, using classic optical theory of lenses.   Unfortunately, what clinician and mathematicians mean by curvature is not always the same. See also [Curvature_notes.pdf](file:Curvature_notes.pdf)
 
 By convention curvatures are converted from units of length to their inverse in corneal diopters by a constant, the keratometric index, usually agreed to be 337.50 mm/D in the United States, though 332.0 is more common in Europe, with different devices possibly using 331.5, 333, 336, 338 or 376, with an extensive literature supporting different suggestions. Considering the measurement errors because of axis misalignments, among other things, particularly in the case of Placido measurements where the assumption that reflected rays remain in their meridional planes directly contradicts axial asymmetry, it seems as though a lesson about significant digits might well have been reviewed.
 
@@ -51,7 +52,7 @@ It is also an increasingly common practice for manufacturers to provide several 
 
 The first, and older, class of machines are Placido disk machines, which take a photo of a reflection of rings on the surface and compute the shape based on the distortion of the image, subject to a number of assumptions, one important being an essentially 2-D simplification that along each radial mire reflected rays stay in their plane (which is not the case for non-axisymmetric or decentered axisymmetric shapes).  Machines do not actually use a flat Placido disk, but rather a cone with concentric rings to maximize the coverage area of the cornea by aiming for evenly spaced images of rings on a test sphere. 
 
-![alt text](/home/debeus/Janus/Janus/documentation/images/Placido_cone.jpeg)
+ [./images/Placido_cone.jpeg](file:./images/Placido_cone.jpeg)
 
 Of course it was also well recognized that any reconstruction of a 3-D reflecting surface (the cornea) by a 2-D image (particularly an image of concentric circles) is a underdetermined problem; i.e.. there is insufficent information and a number of mathematical assumptions have to made regarding the size and distance of the reflecting object. The mathematical approaches to curve reconstruction in a meridian, such as they were revealed, reflect the limitations of computation in the 1980's, and make quite a lot of simplfying assumptions in order to make the computations possible for the technology at that time.  There are also purely hardware issues regarding spacing of rings, image capture, resolution and digitization of the images. Even with optimal arrangements of rings and the givens of anatomy the surface imaged is generally limited to 60% of the total surface. It was none the less claimed at the time that the CMS system mentioned below was capable of 30 micron positional accuracy on the corneal surface. (Subject to the "undetermined but thought to be small" error mentioned above undercutting the entire method!) Note also that it has been calculated that a 16 micron local difference in elevation can equal 1 diopter of corneal power - a staggeringly large number by current clinical standards.  A modern machine claims a "resolution of +/- 0.01D, 1 micron
 accuracy / precision axial radius +/- 0.03mm altimetric data, +/- 2µm at 4mm".  I should also point out that manufacturer's sales teams have used the words precision and accuracy (and possibly resolution) interchangeably.   
@@ -316,7 +317,7 @@ Eric Albin, Ronnie Knikker, Shihe Xin, Christian Oliver Paschereit, Yves d’Ang
 Interchangeability between Placido disc and Scheimpflug system:
 quantitative and qualitative analysis (Permutabilidade entre o disco de Plácido e o sistema Scheimpflug: análise quantitativa e qualitativa) VINÍCIUS SILBIGER DE STEFANO1, LUIZ ALBERTO SOARES MELO JUNIOR2, FELIPE MALLMANN2, PAULO SCHOR2  Arq Bras Oftalmol. 2010;73(4):363-6<br>
 
- Corneal topography and the Hirschberg test Scott E. Brodie,APP OPTIC 31(19):3627-3631 (1992)<br>
+Corneal topography and the Hirschberg test Scott E. Brodie,APP OPTIC 31(19):3627-3631 (1992)<br>
 
 The Universal Standard Scale Proposed Improvements to the American National
 Standards Institute (ANSI) Scale for Corneal Topography
@@ -351,7 +352,7 @@ Perspectives on corneal topography: a review of videokeratoscopy
 Peter R Keller BAppSc(0ptom) Paul P van Saarloos PhD
 Centre for Ophthalmology and Visual Science, Lions Eye Institute Clinical and Experimental Optometry 80.1 January-February 1997<br>
 
-Oculus Pentacam Interpretation Guide 3rd edition and Oculus Pentacam Instruction Manual, OCULUS Optikgeräte GmbH/Oculus USA<br>
+Oculus Pentacam Interpretation Guide 3rd edition and Oculus Pentacam Instruction Manual DICOM CONFORMANCE STATEMENT for Pentacam 1.17r64 (2010-05-21), OCULUS Optikgeräte GmbH/Oculus USA<br>
 
 NIDEK Refractive Power/Corneal Analyzer/OPD-Scan III Operator's Manual, NIDEK Co. LTD Feb 2011.<br>
 
@@ -366,6 +367,8 @@ Stanley A. Klein and Robert B. Mandel Invest Ophthalmol Vis Sci. 1995; 36:2155-
 Differentiation and Numerical Integral of the Cubic Spline Interpolation
 Shang Gao School of Computer Science and Technology, Jiangsu University of Science and Technology, Zaiyue Zhang and Cungen Cao Key Laboratory of Intelligent Information Processing, Institute of Computing Technology, Chinese Academy of Sciences JOURNAL OF COMPUTERS, VOL. 6, NO. 10, OCTOBER 2011<br>
 
+APPLICATION OF B-SPLINE METHOD IN SURFACE FITTING PROBLEM
+Fateme Esmaeili *, AliReza Amiri-Simkooei, Vahab Nafisi, Amin Alizadeh Naeini The International Archives of the Photogrammetry, Remote Sensing and Spatial Information Sciences, Volume XLII-4/W18, 2019 GeoSpatial Conference 2019 – Joint Conferences of SMPR and GI Research, 12–14 October 2019, Karaj, Iran<br>
 
 
 ##resources/tutorials
@@ -497,7 +500,7 @@ iTrace/Alcon/Tracey Technologies, indices DLI "dysfunction lens index", CPI "cor
 Microsoft Excel, "cabinet" files<br>
 Phorcides Contour Engine https://phorcides.com/ coined the term "Talus maps" see also
 https://support.phorcides.com/installation/<br>
-Heidelberg Engineering "Anterion"<br>
+Heidelberg Engineering "Anterion" <br>
 VisCam/Solidworks, Materials Magic<br>
 Slackware, Ubuntu, Arch, Manjaro, GNU/Linux, LAPACK, gnuplot, Qt, Windows, MacOS<br>
 Cultural references are made with utter respect for their creators, CS Lewis, Shakespeare, everyone associated with The Princess Bride.
