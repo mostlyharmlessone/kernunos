@@ -231,7 +231,8 @@ Do let me know if you find this software useful, or at least, amusing. Any const
 
 ## License
 I am not a lawyer, nor can really understand, let alone agree with, their worldview despite decades of adult life, starting with "ignorantia juris non excusat". In so far as I understand from perusing the multiple versions of licenses for the software used in this project, the source code I have written/copied and adapted conforms to their respective licenses and allows for non-commercial use and redistribution with the caveat that the licenses are included and/or referenced and credit is given when known, which I have in good faith attempted. To quote or adapt without proper attribution would be bad manners, plagiarism, or theft of intellectual property. On that note, no AI/LLM was used for any part of this project, the goal of which has been to exercise my imagination, not to outsource the effort of making things up nor using the information of dubious provenance gathered by an LLM without permission.  Any use of and examination of proprietary trademarks and data has been, to my understanding for the purpose of this project, to be lawful under applicable laws.  My contributions, including the patches for superlu, and any other adaptations of existing software, are licensed as follows:<br>
-[LICENSE](https://github.com/mostlyharmlessone/kernunos/blob/main/LICENSE) if not superseded by the relevant licenses of the adapted software.
+[LICENSE](https://github.com/mostlyharmlessone/kernunos/blob/main/LICENSE)<br> if not superseded by the relevant licenses of the adapted software collected under ./licenses.  Written documentation including this README © 1999 by Anthony M de Beus is licensed under CC BY-SA 4.0. https://creativecommons.org/licenses/by-sa/4.0/ 
+
 
 
 ##Web background references
