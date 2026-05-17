@@ -36,7 +36,7 @@ A: When the teacher is ready, the pupil will appear. Or... you can go to View|Pu
 
 Q: What can I plot? What is shown on the plot?
 
-A: You can pick the function to be plotted on the 3-D heatmap with Function, eg. Function|Axial or Sagittal Power, and pick your heatmap color scale with Color, eg. Color|Uniform Standard Scale... If you want Zernike coefficients and maps, you can then select Analyze|Compute Zernike Coefficients. After that completes, the Zernike maps can be selected as well. The graph of the surface can be exported to a number of 3-D file formats with File|Export. Some graphs, such as lines of curvature, or center deviations can be plotted by GnuPlot, if present on your system.
+A: You can pick the function to be plotted on the 3-D heatmap with Function, eg. Function|Axial or Sagittal Power, and pick your heatmap color scale with Color, eg. Color|Uniform Standard Scale... If you want Zernike coefficients and maps, you can then select Analyze|Compute Zernike Coefficients. After that completes, the Zernike maps can be selected as well. The graph of the surface can be exported to a number of 3-D file formats with File|Export. Some graphs, such as Principal directions, or center deviations can be plotted by GnuPlot, if present on your system.
 
 Q: How do change the view?
 
@@ -90,13 +90,13 @@ Analyze:
 ```
 Compute Zernike (computes central Zernike coefficients and maps)
 Show Zernike (uses gnuplot to show Zernike coefficients if present)
-Lines of Curvature (uses gnuplot to show Lines of curvature)
+Principal Directions (uses gnuplot to show Principal Directions)
 Center Deviations (see below under Bad data)
 Show circumferential rings (see below under Bad data)		 
 Plot with GnuPlot Splot  (shows image in a pixellated gnuplot version)
 ```
 
-GnuPlot windows pop up separately and can be printed/exported to SVG, PDF or PNG.
+GnuPlot windows pop up separately and can be printed/exported to SVG, PDF or PNG. Principal directions are projections onto the x,y plane rather than being computed in the tangent plane of the surface.  See [Curvature_notes.pdf] 
 
 Function: (many different things to display, pick one)
 ```

@@ -2684,8 +2684,8 @@ void MainWindow::createActions()
    notelevationAct->setEnabled(true);
    connect(notelevationAct, &QAction::triggered, this, &MainWindow::tweaknotelevation);
 
-   liocAct = new QAction(tr("&Lines of Curvature"), this);
-   liocAct->setStatusTip(tr("Show plot of lines of curvature"));
+   liocAct = new QAction(tr("&Principal Directions"), this);
+   liocAct->setStatusTip(tr("Show plot of Principal Directions"));
    liocAct->setEnabled(false); 
    connect(liocAct, &QAction::triggered, this, &MainWindow::LinesofCurvature);
 

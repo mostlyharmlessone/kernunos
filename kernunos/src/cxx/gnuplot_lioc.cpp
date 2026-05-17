@@ -17,7 +17,12 @@ int lioc(const char *iname) {
 
     // would be better if calcs could be done here instead of in janus?
     Gnuplot gp;
-    gp << "plot \"" << iname << "\" using 1:2:3:4 with vectors title" <<'"'<< "Lines of Curvature" << '"' << "\n";
+    gp << "set term wxt 1 title 'Direction 1' \n";
+    gp << "plot \"" << iname << "\" using 1:2:3:4 with vectors title" <<'"'<< "Direction 1" << '"' << "\n";
+    gp << "set term wxt 2 title 'Direction 2' \n";
+    gp << "plot \"" << iname << "\" using 1:2:5:6 with vectors title" <<'"'<< "Direction 2" << '"' << "\n";
+    gp << "set term wxt 3 title 'Both directions' \n";
+    gp << "plot \"" << iname << "\" using 1:2:3:4 with vectors title" <<'"'<< "direction 1" << '"' << ", \"" << iname << "\" using 1:2:5:6 with vectors title" <<'"'<< "direction 2" << '"' << "\n";
 
     // Create a script which can be manually fed into gnuplot later:
     //    Gnuplot gp(">script.gp");

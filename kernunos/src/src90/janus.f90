@@ -39,7 +39,7 @@
   integer ::  nblines, file_idx, read_error, io, new_crop
   integer,allocatable :: MV(:)
   real(8) :: time_start, time_end
-  real(wp) :: POWMIN,POWMAX,POWMAX2,POWCTR,POW,P1,X1,X2,U,V,UT,VT,WT
+  real(wp) :: POWMIN,POWMAX,POWMAX2,POWCTR,POW,P1,X1,X2,U,V,UT,VT,WT,ZT
   logical :: donut, exists
   real(wp) :: Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo,dvert,dhoriz,percent_squash
   integer :: k_max, kk_max, iflag, LWORK, rotationdegrees
@@ -437,22 +437,17 @@ if (mod(flag,100) .eq. 7) then
 unitno1 = get_new_fileunit()
 open(unitno1, file=trim(gnu_instruct), action="write", iostat=ierr)
  UT=0 ; VT=0
- do i=1,M1
+ do i=1,M1,6
   do j=1,RadSlope%MV(i)
    YPR=JMatrix%YPR(j,i)
    YPTHETA=JMatrix%YPTHETA(j,i)
    YP2R2=JMatrix%YP2R2(j,i)
    YP2THETA=JMatrix%YP2THETA(j,i)
    YPRTHETA=JMatrix%YPRTHETA(j,i)
-   call Lines_of_curvature(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,u,v,vt,wt)
-
-
- if (abs(vt) > 0 .and. abs(vt) < 15 .and. abs(wt) > 0 .and. abs(wt) < 15 ) then
-
-   WRITE(unitno1,*) U,V,5*vt,5*wt
-
-endif
-
+   call principal_directions(.false.,JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,u,v,ut,vt)
+   call principal_directions(.true.,JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,u,v,wt,zt)
+   WRITE(unitno1,*) U,V,ut,vt,wt,zt
+!   WRITE(unitno1,*) U,V,wt,zt
   end do
   WRITE(unitno1,*) ' '
  end do

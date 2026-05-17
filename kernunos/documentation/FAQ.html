@@ -54,7 +54,7 @@
 <p>Q: Where&#39;s the pupil?</p>
 <p>A: When the teacher is ready, the pupil will appear. Or... you can go to View|Pupil. Pupil data is read from any file that has it. PentaCam CUR or ELE files may have incomplete pupil data leading to incomplete and/or noncircular pupils. NIDEK files may be interpreted incorrectly,leading to weirdly distorted pupils. Pupils are depicted as black pie shapes at an arbitrary distance behind the corneal depiction.  Their center position can be used for correction of decentration/registration and comparison.</p>
 <p>Q: What can I plot? What is shown on the plot?</p>
-<p>A: You can pick the function to be plotted on the 3-D heatmap with Function, eg. Function|Axial or Sagittal Power, and pick your heatmap color scale with Color, eg. Color|Uniform Standard Scale... If you want Zernike coefficients and maps, you can then select Analyze|Compute Zernike Coefficients. After that completes, the Zernike maps can be selected as well. The graph of the surface can be exported to a number of 3-D file formats with File|Export. Some graphs, such as lines of curvature, or center deviations can be plotted by GnuPlot, if present on your system.</p>
+<p>A: You can pick the function to be plotted on the 3-D heatmap with Function, eg. Function|Axial or Sagittal Power, and pick your heatmap color scale with Color, eg. Color|Uniform Standard Scale... If you want Zernike coefficients and maps, you can then select Analyze|Compute Zernike Coefficients. After that completes, the Zernike maps can be selected as well. The graph of the surface can be exported to a number of 3-D file formats with File|Export. Some graphs, such as Principal directions, or center deviations can be plotted by GnuPlot, if present on your system.</p>
 <p>Q: How do change the view?</p>
 <p>A: If you want to see the surface normals or play with shadows you can pick those in View. You can also turn the Pupil depiction on or off. Rotate the object with the mouse, wheel, vertical sliders or keyboard keys A,D,W, and X for horizontal motion, Q to zoom out, S to zoom in. M and N make large jumps in magnification. A mouse scroll wheel is the easiest for zooming. The horizontal slider changes the transparency when surface normals and shadows are not being used.  The view can also be changed to show a relative elevation of the function rather than the corneal elevation.</p>
 <p>Q: I can&#39;t select a function!</p>
@@ -91,11 +91,11 @@ File: </p>
 <p>Analyze: </p>
 <pre><code>Compute Zernike (computes central Zernike coefficients and maps)
 Show Zernike (uses gnuplot to show Zernike coefficients if present)
-Lines of Curvature (uses gnuplot to show Lines of curvature)
+Principal Directions (uses gnuplot to show Principal Directions)
 Center Deviations (see below under Bad data)
 Show circumferential rings (see below under Bad data)         
 Plot with GnuPlot Splot  (shows image in a pixellated gnuplot version)
-</code></pre><p>GnuPlot windows pop up separately and can be printed/exported to SVG, PDF or PNG.</p>
+</code></pre><p>GnuPlot windows pop up separately and can be printed/exported to SVG, PDF or PNG. Principal directions are projections onto the x,y plane rather than being computed in the tangent plane of the surface.  See [Curvature_notes.pdf] </p>
 <p>Function: (many different things to display, pick one)</p>
 <pre><code>Axial or Sagittal Power
 Warp or Oblique Power

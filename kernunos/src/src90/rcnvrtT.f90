@@ -54,7 +54,7 @@ logical :: IsInf
         YZ=R-R*SQRT(1-(X*COS(RadSlope%thta(i))/A)**2-(X*SIN(RadSlope%thta(i))/B)**2) 
         YZ=R-R*SQRT(1-(D*COS(RadSlope%thta(i))/A)**2-(D*SIN(RadSlope%thta(i))/B)**2)
       if (j > N) then
-        POW=50  ! SAGC undefined when YP=0
+        POW=A  ! SAGC undefined when YP=0
       else    
         POW=ABS(X/YP)*SQRT(1+YP**2)
         POW=ABS(D/YP)*SQRT(1+YP**2)

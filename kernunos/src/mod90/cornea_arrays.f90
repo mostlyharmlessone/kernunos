@@ -1523,11 +1523,11 @@ end subroutine EyeSys_LSQfillin
 !! corneal calculation subroutines
 
 ! signed slope and radius from eyesys style data, or ZIX=RFCT/POW, POW is axial power from Atlas style data
-subroutine ZFCT(MM,ITH,ZJX,ZIX,X2A1,YA3)
- REAL(wp), INTENT(IN) :: ZIX,ZJX
- REAL(wp), INTENT(OUT) :: YA3,X2A1
- REAL(wp) :: YA1,YA2
- INTEGER, INTENT(IN) :: ITH,MM
+ subroutine ZFCT(MM,ITH,ZJX,ZIX,X2A1,YA3)
+  REAL(wp), INTENT(IN) :: ZIX,ZJX
+  REAL(wp), INTENT(OUT) :: YA3,X2A1
+  REAL(wp) :: YA1,YA2
+  INTEGER, INTENT(IN) :: ITH,MM
  !     INVERSE IS AXIALP	
       if (ZIX <= ZJX) WRITE (*,*) 'ERROR IN ARCTAN',ZIX,ZJX
  !     CONVERTS ZIX TO DZ/DR
@@ -1541,29 +1541,29 @@ subroutine ZFCT(MM,ITH,ZJX,ZIX,X2A1,YA3)
         YA3=SQRT(YA1*YA2)
         X2A1=ZJX 
       endif
-end subroutine ZFCT
+ end subroutine ZFCT
 
 ! axial power from slope and derivatives
-subroutine AXIALP(X2,Y1X,Y2X,SAGC)
- real(wp), INTENT(IN) :: X2,Y1X,Y2X
- real(wp), INTENT(OUT) :: SAGC
- if (ABS(X2) < eps) then
+ subroutine AXIALP(X2,Y1X,Y2X,SAGC)
+  real(wp), INTENT(IN) :: X2,Y1X,Y2X
+  real(wp), INTENT(OUT) :: SAGC
+  if (ABS(X2) < eps) then
 ! UNDEFINED AT ORIGIN X2=0, LIMIT IS RFCT*Y2X             
-  SAGC=RFCT*Y2X
- else
-  SAGC=RFCT*Y1X/(X2*SQRT(1+Y1X**2))
- endif     
-end subroutine AXIALP
+   SAGC=RFCT*Y2X
+  else
+   SAGC=RFCT*Y1X/(X2*SQRT(1+Y1X**2))
+  endif
+ end subroutine AXIALP
 
 ! tangential power from slope and derivatives
-subroutine TANGENTP(X2,Y1X,Y2X,INSTC)
- real(wp), INTENT(IN) :: X2,Y1X,Y2X
- real(wp), INTENT(OUT) :: INSTC
+ subroutine TANGENTP(X2,Y1X,Y2X,INSTC)
+  real(wp), INTENT(IN) :: X2,Y1X,Y2X
+  real(wp), INTENT(OUT) :: INSTC
   INSTC=RFCT*Y2X/(SQRT(1+Y1X**2)**3)
-end subroutine TANGENTP
+ end subroutine TANGENTP
 
 ! principal curvature calculations
-subroutine principal(t,r,hr,ht,hrt,htt,hrr,K,H,k1,k2,A)
+ subroutine principal(t,r,hr,ht,hrt,htt,hrr,K,H,k1,k2,A)
   real(wp), INTENT(INOUT) :: t,r,hr,ht,hrt,htt,hrr
   real(wp), INTENT(OUT) :: K,H,k1,k2,A
   real(wp) :: hu,hv,huu,hvv,huv,g
@@ -1601,53 +1601,46 @@ subroutine principal(t,r,hr,ht,hrt,htt,hrr,K,H,k1,k2,A)
     k2=hrr
     A=0
    endif
-end subroutine principal
+ end subroutine principal
 
-
-! Lines_of_curvature calculations
-subroutine Lines_of_curvature(t,r,hr,ht,hrt,htt,hrr,u,v,m,m1)
+! principal_directions calculations
+ subroutine principal_directions(one,t,r,hr,ht,hrt,htt,hrr,u,v,ut,vt)
+  implicit none
   real(wp), INTENT(INOUT) :: t,r,hr,ht,hrt,htt,hrr
-  real(wp), INTENT(OUT) :: u,v,m,m1
-  real(wp) :: hu,hv,huu,hvv,huv,g,K,H,quadratic_a,quadratic_b,quadratic_c
+  real(wp), INTENT(OUT) :: u,v,ut,vt
+  logical, intent(in) :: one
+  real(wp) :: hu,hv,huu,hvv,huv,g,K,H,m,m1,k1,k2,astig,kappa
    r=abs(r) ; hr=abs(hr)
-   if (ABS(r) > EPS) then
-!   cartesian conversion
-    hu = hr*cos(t)-sin(t)*ht/r
-    hv = hr*sin(t)+cos(t)*ht/r
-    huu=hrr-(sin(t)**2)*(hrr-hr/r-htt/(r**2))+2*cos(t)*sin(t)*(ht/(r**2)-hrt/r)
-    hvv=hrr-(cos(t)**2)*(hrr-hr/r-htt/(r**2))-2*cos(t)*sin(t)*(ht/(r**2)-hrt/r)
-    huv=cos(t)*sin(t)*(hrr-hr/r-htt/(r**2))+(sin(t)**2-cos(t)**2)*(ht/(r**2)-hrt/r)
-    g = 1 + hu**2 + hv**2
-    K=(huu*hvv-huv*huv)/(g*g)
-    H=((1+hv**2)*huu-2*hu*hv*huv+(1+hu**2)*hvv)/(2*(sqrt(g)**3))
-    if (H**2-K < 0) write(*,*) 'FATAL error in Lines_of_curvature,H,K,H^2-K',H,K,H**2-K
-    if (H**2-K < 0) stop
-    quadratic_a=((1+hu**2)*huv-huu*hu*hv)/g
-    quadratic_c=(hvv*hu*hv-(1+hv**2)*huv)/g
-    quadratic_b=(hvv*(1+hu**2)-huu*(1+hv**2))/g
-    if (quadratic_b**2-4*quadratic_a*quadratic_c < 0) write(*,*) 'FATAL error in Lines_of_curvature, discriminant',quaadratic_a,quadratic_b,quadratic_c
-    if (quadratic_b**2-4*quadratic_a*quadratic_c < 0) stop
-    m=(-quadratic_b-sign(sqrt(quadratic_b*quadratic_b-4*quadratic_a*quadratic_c),quadratic_b))/(2*quadratic_a)
-    m1=(-2*quadratic_c)/(-quadratic_b-sign(sqrt(quadratic_b*quadratic_b-4*quadratic_a*quadratic_c),quadratic_b))
-    u=r*cos(t)
-    v=r*sin(t)
+!  cartesian conversion
+   hu = hr*cos(t)-sin(t)*ht/r
+   hv = hr*sin(t)+cos(t)*ht/r
+   huu=hrr-(sin(t)**2)*(hrr-hr/r-htt/(r**2))+2*cos(t)*sin(t)*(ht/(r**2)-hrt/r)
+   hvv=hrr-(cos(t)**2)*(hrr-hr/r-htt/(r**2))-2*cos(t)*sin(t)*(ht/(r**2)-hrt/r)
+   huv=cos(t)*sin(t)*(hrr-hr/r-htt/(r**2))+(sin(t)**2-cos(t)**2)*(ht/(r**2)-hrt/r)
+   g = 1 + hu**2 + hv**2
+   K=(huu*hvv-huv*huv)/(g*g)
+   H=((1+hv**2)*huu-2*hu*hv*huv+(1+hu**2)*hvv)/(2*(sqrt(g)**3))
+   if (H**2-K < 0) write(*,*) 'FATAL error in principal_directions,H,K,H^2-K',H,K,H**2-K
+   if (H**2-K < 0) stop
+   u=r*cos(t)
+   v=r*sin(t)
+   k1 = H + sqrt(H*H-K)
+   k2 = H - sqrt(H*H-K)
+   astig=2*sqrt(H*H-K)
+   kappa = (hvv*v*v+2*u*v*huv+huu*u*u)/((v*v*(1+hv*hv)+u*u*(1+hu*hu)+2*u*v*hu*hv)*sqrt(g))
+!  Using ut,vt with the slope/angle defined below in the u,v plane not the tangent plane
+   m = sqrt(ABS((k1-kappa)/(kappa-k2)))
+   if (one) then
+    ut=sign(RFCT*k1/(sqrt(1+m*m)),v)
+    vt=-sign(RFCT*k2*m/(sqrt(1+m*m)),u)
    else
-!   AT ORIGIN r = 0, things get weird at the limit, so make it axysymmetric
-    g = 1 + hr**2
-    K=hrr*hrr/(g*g)
-    H=0.5*hrr*(1.0+1.0/(sqrt(g)**3))
-    if (H**2-K < 0) write(*,*) 'FATAL error in Lines_of_curvature,H,K,H^2-K',H,K,H**2-K
-    if (H**2-K < 0) stop
-    m = 1
-    m1 = 1
-    u = 0
-    v = 0
+    ut=sign(RFCT*k2*m/(sqrt(1+m*m)),u)
+    vt=sign(RFCT*k1/(sqrt(1+m*m)),v)
    endif
-end subroutine Lines_of_curvature
-
+ end subroutine principal_directions
 
 ! axisymmetric_principal curvature calculations
-subroutine axisymmetric_principal(r,hr,hrr,K,H,k1,k2,A)
+ subroutine axisymmetric_principal(r,hr,hrr,K,H,k1,k2,A)
   real(wp), INTENT(INOUT) :: r,hr,hrr
   real(wp), INTENT(OUT) :: K,H,k1,k2,A
     k1 = hrr/(SQRT(1+(hr)**2)**3)
@@ -1660,7 +1653,7 @@ subroutine axisymmetric_principal(r,hr,hrr,K,H,k1,k2,A)
    A=abs(k1-k2)
    H=(k1+k2)/2.
    K=sqrt(abs(k1*k2)) ! use sqrt of gaussian curvature for output->geometric mean power in same units; absolute power for saddle points
-end subroutine axisymmetric_principal
+ end subroutine axisymmetric_principal
 
 ! "tangential" power and mean power in terms of axial/"sagittal" power,radius and radial derivative of axial power
  subroutine sagc2(X2,SAGC,DSAGC,TANC,ZMM)  
