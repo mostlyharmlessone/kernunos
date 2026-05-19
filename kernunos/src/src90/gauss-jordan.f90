@@ -1,9 +1,9 @@
   SUBROUTINE GaussJordan( N, NRHS, A, LDA, B, LDB, INFO )
-  use, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
+  USE LapackInterface,  ONLY : xerbla
   IMPLICIT NONE
   
   INTEGER, PARAMETER :: wp = KIND(0.0D0) ! working precision
-! Copyright (c) 2021   Anthony M de Beus
+! Copyright (c) 2021   Anthony M de Beus              
 !          Arguments copied and modified from -- LAPACK routine (version 3.1) --
 !          Univ. of Tennessee, Univ. of California Berkeley and NAG Ltd..
 !          November 2006
@@ -37,14 +37,14 @@
 !  INFO    INFO is INTEGER
 !          = 0:  successful exit
 !          < 0:  if INFO = -i, the i-th argument had an illegal value
-!          > 0:  if INFO = i, U(i,i) is exactly zero so the solution could not be computed. 
+!          > 0:  if INFO = i, the solution cannot be computed
 
 !     .. Scalar Arguments ..
   INTEGER,INTENT(IN)   :: LDA, LDB, N, NRHS
   INTEGER, INTENT(OUT) :: INFO 
 !     ..
 !     .. Array Arguments ..
-  REAL(wp),INTENT(INOUT) ::  A( LDA, LDA ), B( LDB, NRHS )
+  REAL(wp),INTENT(INOUT) ::  A( LDA, * ), B( LDB, * )
   
 !  .. Work space ..  
   INTEGER ::  ipiv(N),icol(N),irow(N),i,j,k,ii,jj,index_row,index_col
@@ -61,9 +61,10 @@
          info = -6
     END IF
     IF( info.NE.0 ) THEN
-!       CALL xerbla( 'GAUSSJ ', -info )
+       CALL xerbla( 'GAUSSJ ', -info )
        RETURN
     END IF
+    
    ipiv=0    
    do i=1,N
      largest=0     
@@ -74,7 +75,7 @@
       do k=1,N
        if (ipiv(k) > 1) then
         info=ipiv(k)
-        write(*,*) 'Determinant is zero in GaussJordan'       
+        write(*,*) 'GaussJordan reports a singular matrix'   
         RETURN
        endif
        if(ipiv(k) == 1) then 
@@ -99,7 +100,12 @@
       B(index_row,1:NRHS)=B(index_col,1:NRHS)
       B(index_col,1:NRHS)=swap2(1:NRHS)    
     endif
-    pivot=A(index_col,index_col) 
+    pivot=A(index_col,index_col)
+    if (pivot .EQ. 0) then
+     info=99
+     write(*,*) 'GaussJordan reports zero pivot'   
+     RETURN
+    endif
     A(index_col,index_col)=1
     A(index_col,1:N)=A(index_col,1:N)/pivot       
     B(index_col,1:NRHS)=B(index_col,1:NRHS)/pivot

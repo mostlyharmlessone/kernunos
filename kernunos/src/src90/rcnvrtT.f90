@@ -2,6 +2,7 @@ subroutine RCNVRTT(MM,N)
 
 USE set_precision, ONLY : wp
 USE cornea_arrays
+use parameters
 use,intrinsic :: ieee_arithmetic
 INTEGER :: i,j
 INTEGER, INTENT(IN) :: MM,N

@@ -3,6 +3,7 @@
   use set_precision, ONLY : wp, sk
   use lapackinterface
   use cornea_arrays
+  use parameters
   use special_fct
   use io_functions
   use spline_interfaces

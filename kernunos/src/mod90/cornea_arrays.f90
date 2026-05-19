@@ -1,22 +1,13 @@
 MODULE cornea_arrays
 ! defines arrays and functions ued for corneal topography
  USE set_precision, ONLY : wp, sk, int3d
- USE LapackInterface, ONLY : dgetrf, dgetrs, dgesv, dsyev
+ USE LapackInterface, ONLY : dgetrf, dgetrs, dgesv, dsyev, GaussJordan
  USE spline_interfaces 
  use, intrinsic ::  ieee_arithmetic
  use, intrinsic :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char,c_int64_t,c_double
+ use parameters
+ use special_fct, ONLY : cross_product
  implicit none
- REAL(wp), PARAMETER :: PI=3.1415926535897932384626433832795_wp
- REAL(wp), PARAMETER :: RFCT=33750.0_wp
- REAL(wp), PARAMETER :: EPS=0.0001_wp  ! used in pspli,SplineCenter,corneal calc fcts
-! INTEGER, PARAMETER :: NP=141         ! PentaCam
-! INTEGER, PARAMETER :: MM=180, N=22   ! Atlas
-! INTEGER, PARAMETER :: MM=360, N=16  ! EyeSys
- integer, PARAMETER :: M2=10 ! lsq fourier series terms; if even then there's an equal number of sine and cosine terms; don't make higher than 10 or get Gibb's phenomenon
-! integer :: LWORK1
-! real(wp), allocatable :: WORK1(:)
-! natural spline; csr and LAPACK not superlu is fastest for these matrix sizes
- LOGICAL, PARAMETER :: periodic =.false. , csr = .true. , sparse = .false.
 
 ! Defining common data arrays
  
@@ -1638,6 +1629,57 @@ end subroutine EyeSys_LSQfillin
     vt=sign(RFCT*k1/(sqrt(1+m*m)),v)
    endif
  end subroutine principal_directions
+
+! this version with calculations in the tangent plane
+ subroutine principal_directions_2(one,t,r,hr,ht,hrt,htt,hrr,u,v,ut,vt)
+  implicit none
+  real(wp), INTENT(INOUT) :: t,r,hr,ht,hrt,htt,hrr
+  real(wp), INTENT(OUT) :: u,v,ut,vt
+  logical, intent(in) :: one
+  real(wp) :: hu,hv,huu,hvv,huv,g,K,H,m,m1,k1,k2,astig,kappa
+  real(wp) :: MMM(3,3),nrml(3),rv(3),rvp1(3),rvp2(3),pos(3),J(3,3),e1(3),e1p(3),e2(3),e2p(3),e3(3),e3p(3),IJ(3,3),B(3),RR(3,3),R0(3,3)
+  integer :: INFO,IPIV(3)
+  r=abs(r) ; hr=abs(hr)
+! cartesian conversion
+  u=r*cos(t)
+  v=r*sin(t)
+  hu = hr*cos(t)-sin(t)*ht/r
+  hv = hr*sin(t)+cos(t)*ht/r
+  huu=hrr-(sin(t)**2)*(hrr-hr/r-htt/(r**2))+2*cos(t)*sin(t)*(ht/(r**2)-hrt/r)
+  hvv=hrr-(cos(t)**2)*(hrr-hr/r-htt/(r**2))-2*cos(t)*sin(t)*(ht/(r**2)-hrt/r)
+  huv=cos(t)*sin(t)*(hrr-hr/r-htt/(r**2))+(sin(t)**2-cos(t)**2)*(ht/(r**2)-hrt/r)
+  g = 1 + hu**2 + hv**2
+  pos(1) = u/r ;  pos(2) = v/r ; pos(3) = 0
+  nrml(1) = -hu/sqrt(g) ;   nrml(2) = -hv/sqrt(g)  ;   nrml(3) = 1/sqrt(g)
+  MMM(1,1) = 1 - hu**2  ; MMM(1,2) = -hu*hv ;     MMM(1,3) = -hu
+  MMM(2,1) = -hu*hv  ;    MMM(2,2) = 1 - hv**2 ;  MMM(2,3) = -hv
+  MMM(2,1) = -hu  ;       MMM(2,2) = -hv ;       MMM(3,3) = 0
+  e1(:) = 0 ; e2(:) = 0 ; e3(:) = 0
+  e1(1) = 1 ; e2(2) = 1 ; e3(3) = 1
+  rv(:) = matmul(MMM,pos)
+  e3p(:) = nrml(:)
+  e1p(:) = rv(:) - dot_product(rv,nrml)*nrml(:)
+  e1p(:) = e1p(:)/sqrt(dot_product(e1p,e1p))
+  e2p(:) = cross_product(e3p,e1p)
+  J(1,1) = dot_product(e1,e1p) ; J(1,2) = dot_product(e1,e2p) ; J(1,3) = dot_product(e1,e3p)
+  J(2,1) = dot_product(e2,e1p) ; J(2,2) = dot_product(e2,e2p) ; J(2,3) = dot_product(e2,e3p)
+  J(3,1) = dot_product(e3,e1p) ; J(3,2) = dot_product(e3,e2p) ; J(3,3) = dot_product(e3,e3p)
+  IJ=J
+  call GaussJordan( 3, 0, IJ, 3, B, 3, INFO )
+  rvp1 = matmul(matmul(matmul(Transpose(IJ),RR),Transpose(J)),rv)
+!  need to define RR, R0
+
+  RR = matmul(R0,RR)
+  rvp2 = matmul(matmul(matmul(Transpose(IJ),RR),Transpose(J)),rv)
+  if (one) then
+   ut=rvp1(1)
+   vt=rvp1(2)
+  else
+   ut=rvp2(1)
+   vt=rvp2(2)
+  endif
+end subroutine principal_directions_2
+
 
 ! axisymmetric_principal curvature calculations
  subroutine axisymmetric_principal(r,hr,hrr,K,H,k1,k2,A)

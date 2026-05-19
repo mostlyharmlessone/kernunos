@@ -1,5 +1,5 @@
        subroutine WriteCenterJ(a,b,KXNAME)
-       USE cornea_arrays, ONLY : PI
+       USE parameters, ONLY : PI
        USE set_precision, ONLY : wp
        use io_functions, only : get_new_fileunit
        real(wp),INTENT(IN) :: a, b(:,:)

@@ -1,7 +1,7 @@
 ! here y2 is the output of linspline
 subroutine linSplineEval(KP,r,y2,n,u,f,fp)
  USE set_precision, ONLY : wp
- USE cornea_arrays, ONLY : PI
+ USE parameters, ONLY : PI
  USE special_fct, ONLY : bsearch, OPERATOR(.p.) !tensor summation convention
  use,intrinsic :: ieee_arithmetic
  IMPLICIT NONE

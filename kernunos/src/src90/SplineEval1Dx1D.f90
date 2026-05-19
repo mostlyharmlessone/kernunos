@@ -1,5 +1,6 @@
       subroutine SplineEval1Dx1D(iflag,u,v,f,fr,frr,ft,frt,ftt)
-      USE cornea_arrays, ONLY : DiaSlope, RadSlope, eps, M2
+      USE cornea_arrays, ONLY : DiaSlope, RadSlope
+      use parameters
       USE set_precision, ONLY : wp
       USE spline_interfaces, ONLY : lsqfit, LSQEval, pspli, SplineEval, SplineEvalCenter, trapez, CubicSplineQuad
       USE special_fct, ONLY : bsearch, OPERATOR(.p.)

@@ -5,7 +5,7 @@ module special_fct
 ! zernike functions
 ! string replacement function
 ! binary search interface
-use cornea_arrays, ONLY : EPS, PI
+use parameters, ONLY : EPS, PI
 use set_precision, ONLY : wp, sk, int2d, int3d
 use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
 use, INTRINSIC :: iso_c_binding, only : c_int64_t
@@ -69,10 +69,10 @@ end function sum_of_matrix_by_vector
 
 !! REAL32 functions for STL facet calcs
 
-! vector vector (cross) product (REAL32  and dimension 3)
+! vector vector (cross) product (dimension 3)
 function cross_product(v1, v2) result(v3)
-  real(REAL32), INTENT(IN) :: v1(3), v2(3)
-  real(REAL32) :: v3(3)
+  real(wp), INTENT(IN) :: v1(3), v2(3)
+  real(wp) :: v3(3)
   v3(1) = v1(2) * v2(3) - v1(3) * v2(2)
   v3(2) = v1(3) * v2(1) - v1(1) * v2(3)
   v3(3) = v1(1) * v2(2) - v1(2) * v2(1)

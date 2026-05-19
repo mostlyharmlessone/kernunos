@@ -1,5 +1,5 @@
        subroutine pspli(t,z,n,zt2, err_report)
-       use cornea_arrays, only : PI, EPS
+       use parameters, only : PI, EPS
        use set_precision, only :  wp
        USE special_fct, ONLY : OPERATOR(.p.) !tensor summation convention
        use LapackInterface, ONLY : dctsv !, dgesv, GaussJordan

@@ -8,6 +8,7 @@ module io_functions
 
     subroutine Geom(flag, b, donut, powmin, powmax, elements, vertices, nV, nE)
      use cornea_arrays
+     use parameters
      use set_precision, ONLY : wp
      use special_fct, only : rgb2, rgb5
      use, intrinsic :: iso_c_binding, ONLY : c_float,c_int,c_int64_t
@@ -47,7 +48,8 @@ module io_functions
 
     subroutine rcnvrta(KXNAME,N,read_error)
      USE set_precision, ONLY : wp
-     USE cornea_arrays, ONLY : Atlas, PI
+     USE cornea_arrays, ONLY : Atlas
+     USE parameters
      character(len=*), intent(in) :: KXNAME
      integer, intent(in) :: N
      integer, intent(out) :: read_error
@@ -55,7 +57,8 @@ module io_functions
 
     subroutine rcnvrta_type(KXNAME,N,read_error)
      USE set_precision, ONLY : wp
-     USE cornea_arrays, ONLY : Atlas, PI
+     USE cornea_arrays, ONLY : Atlas
+     USE parameters
      character(len=*), intent(in) :: KXNAME
      integer, intent(out) :: N, read_error
     end subroutine
@@ -93,7 +96,8 @@ module io_functions
 
     subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME,PATIENTNAME,EXAMNAME)
      USE set_precision, ONLY : wp
-     USE cornea_arrays, ONLY : Oculus, EPS, JMatrix
+     USE cornea_arrays, ONLY : Oculus,JMatrix
+     use parameters, ONLY : EPS
      integer, intent(out) :: read_error
      character(len=*), intent(in), optional :: CURVNAME,ELEVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME,PATIENTNAME,EXAMNAME
     end subroutine rcnvrtk
@@ -101,11 +105,13 @@ module io_functions
     subroutine RCNVRTT(MM,N)
      USE set_precision, ONLY : wp
      USE cornea_arrays
+     use parameters
      INTEGER, INTENT(IN) :: MM,N
     end subroutine
 
     SUBROUTINE WriteGeomOFF(flag,b,donut,powmin,powmax,OFFNAME)
       USE cornea_arrays
+      use parameters
       USE set_precision, ONLY : wp
       use, intrinsic :: iso_c_binding, ONLY : c_float,c_int,c_int64_t
       TYPE(wpJMatrix),INTENT(IN) :: b
@@ -117,6 +123,7 @@ module io_functions
     
     SUBROUTINE WriteGeomPLY(flag,b,donut,powmin,powmax,PLYNAME)
       USE cornea_arrays
+      use parameters
       USE set_precision, ONLY : wp
       use, intrinsic :: iso_c_binding, ONLY : c_float,c_int,c_int64_t
       TYPE(wpJMatrix),INTENT(IN) :: b
@@ -128,6 +135,7 @@ module io_functions
     
     subroutine WriteCenter(b,KXNAME)
       USE cornea_arrays
+      use parameters
       USE set_precision, ONLY : wp
       TYPE(wpRadSlopeMatrix),INTENT(IN) :: b 
       character(len=*), intent(in) :: KXNAME   
@@ -429,7 +437,8 @@ subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
 ! Oculus Keratograph version
   USE io_functions, ONLY : get_new_fileunit
   USE set_precision, ONLY : wp
-  USE cornea_arrays, ONLY : Oculus, EPS, JMatrix
+  USE cornea_arrays, ONLY : Oculus, JMatrix
+  use parameters
   use util_mod
   USE special_fct, ONLY : replacestr
   use c_interfaces, ONLY : charcount

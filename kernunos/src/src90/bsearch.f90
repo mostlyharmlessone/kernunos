@@ -2,7 +2,7 @@
 ! this has gotten quite ugly and there is no doubt some better/quicker solution
 subroutine bsearch(r,rv,n,high,low)
  use set_precision, only : wp
- use cornea_arrays, only : eps, PI
+ use parameters, only : eps, PI
  implicit none
  integer, intent(in) :: n
  real(wp), intent(in) :: r, rv(n)

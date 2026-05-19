@@ -2,7 +2,7 @@
  subroutine SplineCenter(dat,jj,r,z,zr2,n,u,err_report)
  use, INTRINSIC :: iso_c_binding, ONLY : c_int, c_int64_t
  use set_precision, only : wp
- use cornea_arrays, only : eps
+ use parameters
  use spline_interfaces, ONLY : SplineEval, SplineEvalCenter
   use special_fct, ONLY : bsearch
  use,intrinsic :: ieee_arithmetic 

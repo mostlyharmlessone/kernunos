@@ -3,6 +3,7 @@
        subroutine WriteGeomPLY(flag,b,donut,powmin,powmax,PLYNAME)
        use io_functions, only : get_new_fileunit
        use cornea_arrays
+       use parameters
        use set_precision, ONLY : wp
        use special_fct, only : colormap
        use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
