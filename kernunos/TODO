@@ -1,7 +1,8 @@
 FIXES
 
 have to fix lines of curvature
-
+currently at lines ~1660-1670 cornea_arrays.f90
+new version needs save to dump for exam
 
 Test doesn't work if it isn't the first one
 
@@ -15,10 +16,13 @@ possibly just change zerncompute to not detach thread and block program..though 
 you can run other Analyze ie center gnusplotplot, lioc, and move the picture
 probably can run kernunos but not janus?
 
-PDFs cannot be seen in help; work on aboutbuild in kernunos.cpp, add menu/submenu items
-
 search for Visia in source code to strip out or enable eysys version of reading visia if I fix it
 redo- Rowsey curvature?
+
+CmakeFiles/kernunos.dir/src/cxx/assistant.cpp.o
+/home/debeus/Janus/kernunos/src/cxx/assistant.cpp: In function ‘QString documentationDirectory()’:
+/home/debeus/Janus/kernunos/src/cxx/assistant.cpp:50:22: warning: unused variable ‘dir’ [-Wunused-variable]
+   50 |     for (const auto &dir : std::as_const(paths)) {
 
 
 ENHANCEMENTS:

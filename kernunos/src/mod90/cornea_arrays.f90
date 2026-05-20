@@ -1595,7 +1595,7 @@ end subroutine EyeSys_LSQfillin
  end subroutine principal
 
 ! principal_directions calculations
- subroutine principal_directions(one,t,r,hr,ht,hrt,htt,hrr,u,v,ut,vt)
+ subroutine principal_directions_0(one,t,r,hr,ht,hrt,htt,hrr,u,v,ut,vt)
   implicit none
   real(wp), INTENT(INOUT) :: t,r,hr,ht,hrt,htt,hrr
   real(wp), INTENT(OUT) :: u,v,ut,vt
@@ -1611,13 +1611,13 @@ end subroutine EyeSys_LSQfillin
    g = 1 + hu**2 + hv**2
    K=(huu*hvv-huv*huv)/(g*g)
    H=((1+hv**2)*huu-2*hu*hv*huv+(1+hu**2)*hvv)/(2*(sqrt(g)**3))
-   if (H**2-K < 0) write(*,*) 'FATAL error in principal_directions,H,K,H^2-K',H,K,H**2-K
-   if (H**2-K < 0) stop
+!   if (H**2-K < 0) write(*,*) 'FATAL error in principal_directions,H,K,H^2-K',H,K,H**2-K
+!   if (H**2-K < 0) stop
    u=r*cos(t)
    v=r*sin(t)
-   k1 = H + sqrt(H*H-K)
-   k2 = H - sqrt(H*H-K)
-   astig=2*sqrt(H*H-K)
+   k1 = H + sqrt(abs(H*H-K))
+   k2 = H - sqrt(abs(H*H-K))
+   astig=2*sqrt(abs(H*H-K))
    kappa = (hvv*v*v+2*u*v*huv+huu*u*u)/((v*v*(1+hv*hv)+u*u*(1+hu*hu)+2*u*v*hu*hv)*sqrt(g))
 !  Using ut,vt with the slope/angle defined below in the u,v plane not the tangent plane
    m = sqrt(ABS((k1-kappa)/(kappa-k2)))
@@ -1628,10 +1628,10 @@ end subroutine EyeSys_LSQfillin
     ut=sign(RFCT*k2*m/(sqrt(1+m*m)),u)
     vt=sign(RFCT*k1/(sqrt(1+m*m)),v)
    endif
- end subroutine principal_directions
+ end subroutine principal_directions_0
 
 ! this version with calculations in the tangent plane
- subroutine principal_directions_2(one,t,r,hr,ht,hrt,htt,hrr,u,v,ut,vt)
+ subroutine principal_directions(one,t,r,hr,ht,hrt,htt,hrr,u,v,ut,vt)
   implicit none
   real(wp), INTENT(INOUT) :: t,r,hr,ht,hrt,htt,hrr
   real(wp), INTENT(OUT) :: u,v,ut,vt
@@ -1649,6 +1649,16 @@ end subroutine EyeSys_LSQfillin
   hvv=hrr-(cos(t)**2)*(hrr-hr/r-htt/(r**2))-2*cos(t)*sin(t)*(ht/(r**2)-hrt/r)
   huv=cos(t)*sin(t)*(hrr-hr/r-htt/(r**2))+(sin(t)**2-cos(t)**2)*(ht/(r**2)-hrt/r)
   g = 1 + hu**2 + hv**2
+  K=(huu*hvv-huv*huv)/(g*g)
+  H=((1+hv**2)*huu-2*hu*hv*huv+(1+hu**2)*hvv)/(2*(sqrt(g)**3))
+ ! if (H**2-K < 0) write(*,*) 'FATAL error in principal_directions,H,K,H^2-K',H,K,H**2-K
+ ! if (H**2-K < 0) stop
+  u=r*cos(t)
+  v=r*sin(t)
+  k1 = H + sqrt(abs(H*H-K))
+  k2 = H - sqrt(abs(H*H-K))
+  astig=2*sqrt(abs(H*H-K))
+  kappa = (hvv*v*v+2*u*v*huv+huu*u*u)/((v*v*(1+hv*hv)+u*u*(1+hu*hu)+2*u*v*hu*hv)*sqrt(g))
   pos(1) = u/r ;  pos(2) = v/r ; pos(3) = 0
   nrml(1) = -hu/sqrt(g) ;   nrml(2) = -hv/sqrt(g)  ;   nrml(3) = 1/sqrt(g)
   MMM(1,1) = 1 - hu**2  ; MMM(1,2) = -hu*hv ;     MMM(1,3) = -hu
@@ -1656,6 +1666,11 @@ end subroutine EyeSys_LSQfillin
   MMM(2,1) = -hu  ;       MMM(2,2) = -hv ;       MMM(3,3) = 0
   e1(:) = 0 ; e2(:) = 0 ; e3(:) = 0
   e1(1) = 1 ; e2(2) = 1 ; e3(3) = 1
+  R0(1,:) = e2(:) ; R0(2,:) = -e1(:) ; R0(3,:) = e3(:) ; RR(3,:) = e3(:)
+  RR(1,1) = sign(sqrt(ABS((kappa-k1)/astig)),u)
+  RR(1,2) = sign(sqrt(ABS((kappa-k1)/astig)),v)
+  RR(2,1) = RR(1,2)
+  RR(2,2) = RR(1,1)
   rv(:) = matmul(MMM,pos)
   e3p(:) = nrml(:)
   e1p(:) = rv(:) - dot_product(rv,nrml)*nrml(:)
@@ -1666,9 +1681,10 @@ end subroutine EyeSys_LSQfillin
   J(3,1) = dot_product(e3,e1p) ; J(3,2) = dot_product(e3,e2p) ; J(3,3) = dot_product(e3,e3p)
   IJ=J
   call GaussJordan( 3, 0, IJ, 3, B, 3, INFO )
+  if (INFO .ne. 0) then
+   write(*,*) 'Warning in G_J in principal directions'
+  endif
   rvp1 = matmul(matmul(matmul(Transpose(IJ),RR),Transpose(J)),rv)
-!  need to define RR, R0
-
   RR = matmul(R0,RR)
   rvp2 = matmul(matmul(matmul(Transpose(IJ),RR),Transpose(J)),rv)
   if (one) then
@@ -1678,7 +1694,7 @@ end subroutine EyeSys_LSQfillin
    ut=rvp2(1)
    vt=rvp2(2)
   endif
-end subroutine principal_directions_2
+end subroutine principal_directions
 
 
 ! axisymmetric_principal curvature calculations

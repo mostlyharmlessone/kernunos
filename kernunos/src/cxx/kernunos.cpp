@@ -2425,24 +2425,13 @@ void MainWindow::colorPerceptualUniformpalette()
    };
 }
 
-/*
-void MainWindow::pdfopen(const QUrl &docLocation)
+void MainWindow::pdfopen()
 {
-    if (docLocation.isLocalFile()) {
-        m_document->load(docLocation.toLocalFile());
-        pageSelected(0);
-    } else {
-        const QString message = tr("%1 is not a valid local file").arg(docLocation.toString());
-        qCDebug(lcExample).noquote() << message;
-        QMessageBox::critical(this, tr("Failed to open"), message);
-    }
-    qCDebug(lcExample) << docLocation;
-}
-*/
-
-void MainWindow::aboutbuild()
-{
-
+    ui.infoLabel->setText(tr("Invoked <b>About|Documentation</b>"));
+    QString filter = "PDF files (*.PDF *.pdf);;All (*)";
+    QString filePath = QFileDialog::getOpenFileName(this,"Read Documentation", "", filter);
+    if (filePath.isEmpty())
+        return;
 
 //https://forum.qt.io/topic/124648/qdesktopservices-openurl-fails-to-open-local-file-on-ubuntu/17
 /*
@@ -2462,17 +2451,13 @@ url = QUrl.fromLocalFile(filename)
 if not QDesktopServices.openUrl(url):
 print("failed")
 */
-     QString filePath = "/home/debeus/Janus/Janus/documentation/Curvature_notes.pdf";
     QWidget *viewerWindow = new QWidget;
     viewerWindow->setWindowTitle("PDF Viewer");
     viewerWindow->resize(800, 600);
     QPdfDocument *document = new QPdfDocument(viewerWindow);
-
      if (document->load(filePath) == QPdfDocument::Error::None) {
       QPdfView *view = new QPdfView(viewerWindow);
       view->QPdfView::setPageMode(QPdfView::PageMode::MultiPage);
-
-
       view->setDocument(document);
       QVBoxLayout *layout = new QVBoxLayout(viewerWindow);
       layout->addWidget(view);
@@ -2481,13 +2466,10 @@ print("failed")
       viewerWindow->setFocus();
       viewerWindow->setWindowModality(Qt::ApplicationModal);
       viewerWindow->show();
-
     }
       else {
         std::cout << "PDF not found\n" << std::endl;
          }
-
-
 }
 
 
@@ -2720,6 +2702,11 @@ void MainWindow::createActions()
    HelpAct->setShortcut(QKeySequence::HelpContents);
    connect(HelpAct, &QAction::triggered, this, &MainWindow::showDocumentation);
 
+   DocsAct = new QAction(tr("Documentation"), this);
+   DocsAct->setStatusTip(tr("PDF viewer"));
+   DocsAct->setShortcut(QKeySequence::WhatsThis);
+   connect(DocsAct, &QAction::triggered, this, &MainWindow::pdfopen);
+
    AxialAct=new QAction(tr("&Axial or Sagittal Power"), this);
    AxialAct->setCheckable(true);
    connect(AxialAct, &QAction::triggered, this, &MainWindow::fctAxial);
@@ -2942,6 +2929,7 @@ void MainWindow::createMenus()
    tweaksMenu->addAction(lsqvssplineAct);
    helpMenu = menuBar()->addMenu(tr("&About"));
    helpMenu->addAction(HelpAct);
+   helpMenu->addAction(DocsAct);
    helpMenu->addAction(aboutAct);
    helpMenu->addAction(aboutQtAct);
 }

@@ -138,7 +138,6 @@ protected:
     void closeEvent(QCloseEvent *event) override;
 
 private slots:
-//  void aboutbuild();
     bool replace(std::string& str,const std::string& from,const std::string& to);
     void open();
     void test();
@@ -168,8 +167,7 @@ private slots:
     void redrawOption();
     void about();
     void aboutQt();
-    void aboutbuild();
-//    void pdfopen();
+    void pdfopen();
     void updateResult();
     void LinesofCurvature();
     void center();
@@ -317,11 +315,12 @@ private:
     QMenu *helpMenu;
     QAction *aboutAct;
     QAction *aboutQtAct;
+    QAction *DocsAct;
     QAction *HelpAct;
-    QLabel *infoLabel;
 
     QAction *redrawAct;
 
+    QLabel *infoLabel;
     QLabel *multiLineTextLabel;
     QLabel *degreeLabel;
     QLabel *xLabel;
