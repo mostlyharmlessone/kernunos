@@ -1594,7 +1594,7 @@ end subroutine EyeSys_LSQfillin
    endif
  end subroutine principal
 
-! principal_directions calculations in horizontal plane
+! principal_directions calculations in horizontal plane, not being used currently
  subroutine principal_directions_0(one,t,r,hr,ht,hrt,htt,hrr,u,v,ut,vt)
   implicit none
   real(wp), INTENT(INOUT) :: t,r,hr,ht,hrt,htt,hrr
