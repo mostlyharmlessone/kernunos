@@ -67,9 +67,9 @@
 !        Programming and later changes and corrections by Lawson,Hanson,
 !        T.Lang, and D.Campbell, Sept 1968, Nov 1969, and Aug 1970.
           INTEGER IERR1, NW, NXY, NB
-          double precision XI(NXY), YI(NXY), SDI(*), B(NB), W(NW, 5)
-          double precision YKNOT(NB), YPKNOT(NB)
-          double precision SIGFAC
+          DOUBLE PRECISION XI(NXY), YI(NXY), SDI(*), B(NB), W(NW, 5)
+          DOUBLE PRECISION YKNOT(NB), YPKNOT(NB)
+          DOUBLE PRECISION SIGFAC
          END SUBROUTINE DC2FIT
 
 !        These are part of LAPACK
