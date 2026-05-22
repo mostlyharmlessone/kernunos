@@ -3,11 +3,11 @@ MODULE cornea_arrays
  USE set_precision, ONLY : wp, sk, int3d
  USE LapackInterface, ONLY : dgetrf, dgetrs, dgesv, dsyev, GaussJordan
  USE spline_interfaces 
- use, intrinsic ::  ieee_arithmetic
- use, intrinsic :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char,c_int64_t,c_double
- use parameters
- use special_fct, ONLY : cross_product
- implicit none
+ USE, INTRINSIC ::  ieee_arithmetic
+ USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char,c_int64_t,c_double
+ USE parameters
+ USE special_fct, ONLY : cross_product
+ IMPLICIT NONE
 
 ! Defining common data arrays
  
@@ -113,7 +113,7 @@ INTERFACE OPERATOR (.nc.) ! unary operator
 END INTERFACE
 
 ! declaring common global data arrays
- real(wp), allocatable :: RadSplineCenter(:,:)
+ REAL(wp), allocatable :: RadSplineCenter(:,:)
  TYPE(wpJMatrix) :: JMatrix,JMatrix1,JMatrix2,JMatrix3
  TYPE(wpEyeSysMatrix) :: EyeSys
  TYPE(wpRadSlopeMatrix) :: RadSlope
@@ -186,7 +186,7 @@ end subroutine init_mat_EyeSys
 
 subroutine init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter) ! allocate common arrays
   INTEGER, INTENT(IN) :: MM,N
-  real(wp), allocatable :: RadSplineCenter(:,:)
+  REAL(wp), allocatable :: RadSplineCenter(:,:)
   TYPE(wpRadSlopeMatrix) :: RadSlope  
   TYPE(wpDiaSlopeMatrix) :: DiaSlope
   allocate (RadSlope%r(N,MM),RadSlope%Z(N,MM),RadSlope%Zp(N,MM),RadSlope%Zp2(N,MM),&
@@ -218,7 +218,7 @@ end subroutine init_mat_Atlas
 
 subroutine destroy_EyeSys(EyeSys,iflag)
   TYPE(wpEyeSysMatrix), INTENT(INOUT) :: EyeSys
-  INTEGER, INTENT (IN) :: iflag 
+  INTEGER, INTENT (IN) :: iflag
   IF (iflag==0) THEN
    deallocate (EyeSys%RA,EyeSys%XX,EyeSys%PU,EyeSys%DEG,EyeSys%HT)
   ENDIF
@@ -235,7 +235,7 @@ end subroutine destroy_Oculus
 
 subroutine destroy_Atlas(Atlas,iflag)
   TYPE(wpAtlasMatrix), INTENT(INOUT) :: Atlas
-  INTEGER, INTENT (IN) :: iflag 
+  INTEGER, INTENT (IN) :: iflag
   IF (iflag==0) THEN
    deallocate (Atlas%AR,Atlas%AD,Atlas%AP,Atlas%AY,Atlas%DEG,Atlas%PU)
   ENDIF
@@ -243,7 +243,7 @@ end subroutine destroy_Atlas
 
 subroutine destroy_JMatrix(JMatrix,iflag)
   TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
-  INTEGER, INTENT (IN) :: iflag 
+  INTEGER, INTENT (IN) :: iflag
   IF (iflag==0) THEN
    deallocate (JMatrix%R,JMatrix%Z,JMatrix%THT,JMatrix%SAGC,JMatrix%INSTC,JMatrix%GAUSSC,&
               JMatrix%MEANC,JMatrix%MONGEA,JMatrix%MV,JMatrix%RC,JMatrix%ZC,JMatrix%YPR,&
@@ -253,7 +253,7 @@ end subroutine destroy_JMatrix
 
 subroutine destroy_RadSlope(RadSlope,iflag)
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
-  INTEGER, INTENT (IN) :: iflag 
+  INTEGER, INTENT (IN) :: iflag
   IF (iflag==0) THEN
    deallocate (RadSlope%r,RadSlope%Z,RadSlope%Zp,RadSlope%Zp2,&
             Radslope%Zt2,RadSlope%thta,RadSlope%MV)
@@ -262,7 +262,7 @@ end subroutine destroy_RadSlope
 
 subroutine destroy_DiaSlope(DiaSlope,iflag)
   TYPE(wpDiaSlopeMatrix), INTENT(INOUT) :: DiaSlope
-  INTEGER, INTENT (IN) :: iflag 
+  INTEGER, INTENT (IN) :: iflag
   IF (iflag==0) THEN
   deallocate (DiaSlope%rd,DiaSlope%Zd,DiaSlope%Zpd,DiaSlope%Zpd2,DiaSlope%L2,&
               DiaSlope%rOutMax,DiaSlope%rInMax,DiaSlope%rOutMin,DiaSlope%rInMin)
@@ -271,7 +271,7 @@ end subroutine destroy_DiaSlope
 
 subroutine destroy_Penta(Penta,iflag)
   TYPE(wpPentaMatrix), INTENT(INOUT) :: Penta
-  INTEGER, INTENT (IN) :: iflag 
+  INTEGER, INTENT (IN) :: iflag
   IF (iflag==0) THEN
   deallocate (Penta%DAT,Penta%PU)
   ENDIF
@@ -279,7 +279,7 @@ end subroutine destroy_Penta
 
 subroutine destroy_Skyline(Skyline,iflag)
   TYPE(wpSkyline), INTENT(INOUT) :: Skyline
-  INTEGER, INTENT (IN) :: iflag 
+  INTEGER, INTENT (IN) :: iflag
   IF (iflag==0) THEN
   deallocate (Skyline%DAT,Skyline%x,Skyline%z2DAT,&
               Skyline%L2x,Skyline%L2y,Skyline%index_col)
@@ -291,9 +291,9 @@ end subroutine destroy_Skyline
 subroutine Skyline_eq_Penta(Skyline,Penta)  ! Arrange data Skyline, that will allow loading into SplineEval                                            
   TYPE(wpSkyline), INTENT(INOUT) :: Skyline                ! x,f(x) knots, number of knots(length) and u (test point)
   TYPE(wpPentaMatrix), INTENT(IN) :: Penta              ! This is the equivalent of DiaSlope=RadSlope
-  Integer :: i,j,NP,ii,jj                   ! skyline x by rows, generate y using indices later
-  Integer :: first_row,last_row,col(size(Penta%DAT,1)),index_row(size(Penta%DAT,1))                                
-  Integer :: first_col,last_col,row(size(Penta%DAT,1)),index_col(size(Penta%DAT,1))
+  INTEGER :: i,j,NP,ii,jj                   ! skyline x by rows, generate y using indices later
+  INTEGER :: first_row,last_row,col(size(Penta%DAT,1)),index_row(size(Penta%DAT,1))
+  INTEGER :: first_col,last_col,row(size(Penta%DAT,1)),index_col(size(Penta%DAT,1))
   NP=size(Penta%DAT,1)
 ! Find edges of data, Penta "data" is assumed contiguous and simply connected
   index_row=0 ; col=0 ; Skyline%cols=0 ; first_row=0 ; last_row=141  
@@ -367,15 +367,15 @@ subroutine RadSlope_eq_Skyline(lsq,JMatrix, RadSlope, Skyline, Penta)      ! ini
   TYPE(wpPentaMatrix), INTENT(IN) :: Penta
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
   TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
-  logical, intent(in) :: lsq
-  integer :: M1,N1,i,j,k,kk,L2,offset,NP,ITH,err_report,num_zeroes
-  integer :: imv(size(JMatrix%Z,2))
-  real(wp) :: rBo,rBi,DAT,u,v,xx,yy,f,fx,fxx,fy,fxy,fyy,fTmp(Skyline%rows),f2Tmp(Skyline%rows),fxTmp(Skyline%rows),fx2Tmp(Skyline%rows),fxxTmp(Skyline%rows),fxx2Tmp(Skyline%rows)
-  real(wp) :: r(size(RadSlope%r,2)),z(Skyline%cols),z2(Skyline%cols)
-  real(wp) :: x(Skyline%cols)              ! maximum size needed, don't need NP
-  real(wp) :: y(Skyline%rows)
-  real(wp) :: rmin,check,firstcheck,secondcheck,q,mean,gaussian,fp
-  real(wp), allocatable :: knots(:),knotsz(:),knotsz2(:)
+  logical, INTENT(IN) :: lsq
+  INTEGER :: M1,N1,i,j,k,kk,L2,offset,NP,ITH,err_report,num_zeroes
+  INTEGER :: imv(size(JMatrix%Z,2))
+  REAL(wp) :: rBo,rBi,DAT,u,v,xx,yy,f,fx,fxx,fy,fxy,fyy,fTmp(Skyline%rows),f2Tmp(Skyline%rows),fxTmp(Skyline%rows),fx2Tmp(Skyline%rows),fxxTmp(Skyline%rows),fxx2Tmp(Skyline%rows)
+  REAL(wp) :: r(size(RadSlope%r,2)),z(Skyline%cols),z2(Skyline%cols)
+  REAL(wp) :: x(Skyline%cols)              ! maximum size needed, don't need NP
+  REAL(wp) :: y(Skyline%rows)
+  REAL(wp) :: rmin,check,firstcheck,secondcheck,q,mean,gaussian,fp
+  REAL(wp), allocatable :: knots(:),knotsz(:),knotsz2(:)
   M1=size(RadSlope%r,2)
   N1=size(RadSlope%r,1)
   NP=size(Skyline%DAT,1)                                                   
@@ -564,7 +564,7 @@ subroutine RadSlope_eq_EyeSys(RadSlope,EyeSys) ! initially populates r, thta, Zp
   TYPE(wpEyeSysMatrix), INTENT(INOUT) :: EyeSys
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
   INTEGER :: i,j,MM,N
-  integer :: imv(size(RadSlope%r,2))
+  INTEGER :: imv(size(RadSlope%r,2))
   REAL(wp) :: ZIX,ZJX,YA3,X2A1
   MM=size(RadSlope%r,2)
   N=size(RadSlope%r,1)
@@ -592,7 +592,7 @@ subroutine RadSlope_eq_Visia(RadSlope,Visia) ! initially populates r, thta, Zp, 
   TYPE(wpEyeSysMatrix), INTENT(INOUT) :: Visia
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
   INTEGER :: i,j,MM,N
-  integer :: imv(size(RadSlope%r,2))
+  INTEGER :: imv(size(RadSlope%r,2))
   REAL(wp) :: ZIX,ZJX,YA3,X2A1
   MM=size(RadSlope%r,2)
   N=size(RadSlope%r,1)
@@ -620,8 +620,8 @@ subroutine RadSlope_eq_Oculus(RadSlope,Oculus)
   TYPE(wpOculusMatrix), INTENT(INOUT) :: Oculus
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
   INTEGER :: i,j,k,MM,N,imv(100)
-  real(wp) :: Y,YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA
-  real(wp) :: powmax, powmax2
+  REAL(wp) :: Y,YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA
+  REAL(wp) :: powmax, powmax2
   REAL(wp) :: ZIX,ZJX,YA3,X2A1
   REAL(wp) :: DIST,R,POW
 ! uses SAGC not ELE or INSTC
@@ -757,7 +757,7 @@ end subroutine minmax
 ! finds averages first
 subroutine squash(JMatrix,percent_squash)
 TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
-real(wp), intent(in) :: percent_squash
+REAL(wp), INTENT(IN) :: percent_squash
 INTEGER :: i,j,k,M1,SUM_OF_POINTS
 M1=size(JMatrix%R,2)
 SUM_OF_POINTS = 0
@@ -818,9 +818,9 @@ subroutine centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
   TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
   INTEGER, INTENT(IN) :: TestData
   INTEGER, INTENT(INOUT) :: iflag
-  integer(c_int64_t), intent(in) :: dat
-  real(c_double), INTENT(INOUT) :: cardinal(*)
-  integer(c_int), INTENT(INOUT) :: nC
+  INTEGER(c_int64_t), INTENT(IN) :: dat
+  REAL(c_double), INTENT(INOUT) :: cardinal(*)
+  INTEGER(c_int), INTENT(INOUT) :: nC
   INTEGER :: i,j,k,M1,N1
   REAL (wp) :: P_TEMP
   N1=size(JMatrix%R,1)
@@ -1112,9 +1112,9 @@ end subroutine RadSlope_eq_Atlas
 subroutine DiaSlope_eq_RadSlope(DiaSlope,RadSlope)
  TYPE(wpDiaSlopeMatrix), INTENT(INOUT) :: DiaSlope
  TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
- integer :: i,j
- integer :: M1,N1
- real(wp) :: rB
+ INTEGER :: i,j
+ INTEGER :: M1,N1
+ REAL(wp) :: rB
  ASSOCIATE(MV=>RadSlope%MV,rOMIN=>DiaSlope%rOutMin,rIMIN=>DiaSlope%rInMin,&
                            rOMAX=>DiaSlope%rOutMax,rIMAX=>DiaSlope%rInMax)
    M1=size(DiaSlope%rd,2) !M1=MM/2
@@ -1154,8 +1154,8 @@ subroutine DiaSlope_eq_RadSlope(DiaSlope,RadSlope)
 end subroutine DiaSlope_eq_RadSlope
 
 subroutine RadSlope_eq_DiaSlope(RadSlope,DiaSlope)
- integer :: i,j
- integer :: M1,N1
+ INTEGER :: i,j
+ INTEGER :: M1,N1
  TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
  TYPE(wpDiaSlopeMatrix), INTENT(INOUT) :: DiaSlope
  ASSOCIATE(MV => RadSlope%MV) 
@@ -1183,8 +1183,8 @@ end subroutine RadSlope_eq_DiaSlope
 ! spline b%rd(:,i),b%Zpd(:,i)
  function DiaSpline(b) result(a)
  TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b
- integer :: M1,N1,i,k,err_report
- real(wp) :: a(size(b%rd,1),size(b%rd,2))
+ INTEGER :: M1,N1,i,k,err_report
+ REAL(wp) :: a(size(b%rd,1),size(b%rd,2))
  N1=size(b%rd,1) !N1=2*N*M
  M1=size(b%rd,2) !M1=MM/2
   a=0  !initialize else the damn thing will fill with NaN
@@ -1199,8 +1199,8 @@ end function DiaSpline
 
  function DiaSplineCenter(b) result(a)
  TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b
- real(wp) :: a(size(b%rd,1),size(b%rd,2))
- integer :: M1,N1,i, err_report
+ REAL(wp) :: a(size(b%rd,1),size(b%rd,2))
+ INTEGER :: M1,N1,i, err_report
  N1=size(b%rd,1) !N1=2*N*M
  M1=size(b%rd,2) !M1=MM/2
  a=0 ; err_report = 0
@@ -1214,11 +1214,11 @@ end function DiaSplineCenter
 
 subroutine Atlas_SplineFillin(Atlas,b,a)
  TYPE(wpAtlasMatrix), INTENT(IN) :: Atlas
- real(wp),INTENT(IN) :: b(:,:)
- real(wp), intent(out) :: a(size(b,1),size(b,2))
+ REAL(wp),INTENT(IN) :: b(:,:)
+ REAL(wp), INTENT(OUT) :: a(size(b,1),size(b,2))
  TYPE(wpsplinevect) :: spline
- integer :: M1,N1,i,j,k,err_report
- real(wp) :: tht(size(b,1)),RTEMP,Q,radianK
+ INTEGER :: M1,N1,i,j,k,err_report
+ REAL(wp) :: tht(size(b,1)),RTEMP,Q,radianK
 ! if Atlas then  size(b,2)->N and size(b,1)->M
  N1=size(b,2) !N1=N
  M1=size(b,1) !M1=MM
@@ -1263,11 +1263,11 @@ end subroutine Atlas_SplineFillin
 
 subroutine EyeSys_SplineFillin(EyeSys,b,a)
   TYPE(wpEyeSysMatrix), INTENT(INOUT) :: EyeSys
-  real(wp),INTENT(IN) :: b(:,:)
-  real(wp), intent(out) :: a(size(b,1),size(b,2))
+  REAL(wp),INTENT(IN) :: b(:,:)
+  REAL(wp), INTENT(OUT) :: a(size(b,1),size(b,2))
   TYPE(wpsplinevect) :: spline
-  integer :: M1,N1,i,j,k,err_report
-  real(wp) :: tht(size(b,1)),RTEMP,Q,radianK
+  INTEGER :: M1,N1,i,j,k,err_report
+  REAL(wp) :: tht(size(b,1)),RTEMP,Q,radianK
  ! if EyeSys then  size(b,2)->N and size(b,1)->M
   N1=size(b,2) !N1=N
   M1=size(b,1) !M1=MM
@@ -1312,10 +1312,10 @@ end subroutine EyeSys_SplineFillin
 
 ! this version is for matrices that are NxM, ie. JMatrix
  function splinefillintranspose(b) result(a)
- real(wp),INTENT(IN) :: b(:,:)
+ REAL(wp),INTENT(IN) :: b(:,:)
  TYPE(wpsplinevect) :: spline
- integer :: M1,N1,i,j,k, err_report
- real(wp) :: a(size(b,1),size(b,2)),tht(size(b,2)),RTEMP,Q,radianK
+ INTEGER :: M1,N1,i,j,k, err_report
+ REAL(wp) :: a(size(b,1),size(b,2)),tht(size(b,2)),RTEMP,Q,radianK
 ! if JMatrix then  size(b,2)->M and size(b,1)->N
  N1=size(b,1) !N1=N
  M1=size(b,2) !M1=MM
@@ -1358,11 +1358,11 @@ end function splinefillintranspose
 
 subroutine Atlas_LSQfillin(Atlas,b,a)
  TYPE(wpAtlasMatrix), INTENT(IN) :: Atlas
- real(wp),INTENT(IN) :: b(:,:)
- real(wp), intent(out) :: a(size(b,1),size(b,2))
- integer :: M1,N1,i,j,k,mvjr(size(b,2))
- real(wp) ::t(size(b,1)),z(size(b,1))
- real(wp) :: c(M2)
+ REAL(wp),INTENT(IN) :: b(:,:)
+ REAL(wp), INTENT(OUT) :: a(size(b,1),size(b,2))
+ INTEGER :: M1,N1,i,j,k,mvjr(size(b,2))
+ REAL(wp) ::t(size(b,1)),z(size(b,1))
+ REAL(wp) :: c(M2)
  N1=size(b,2) !N1=N
  M1=size(b,1) !M1=MM
  a=0 ; z=0 ; t=0 ; c=0 ; mvjr = 0
@@ -1395,11 +1395,11 @@ end subroutine Atlas_LSQfillin
 
 subroutine EyeSys_LSQfillin(EyeSys,b,a)
  TYPE(wpEyeSysMatrix), INTENT(INOUT) :: EyeSys
- real(wp),INTENT(IN) :: b(:,:)
- real(wp), intent(out) :: a(size(b,1),size(b,2))
- integer :: M1,N1,i,j,k,mvjr(size(b,2))
- real(wp) ::t(size(b,1)),z(size(b,1))
- real(wp) :: c(M2)
+ REAL(wp),INTENT(IN) :: b(:,:)
+ REAL(wp), INTENT(OUT) :: a(size(b,1),size(b,2))
+ INTEGER :: M1,N1,i,j,k,mvjr(size(b,2))
+ REAL(wp) ::t(size(b,1)),z(size(b,1))
+ REAL(wp) :: c(M2)
  N1=size(b,2) !N1=N
  M1=size(b,1) !M1=MM
  a=0  ;  z=0 ; t=0 ; c=0 ; mvjr = 0
@@ -1432,12 +1432,12 @@ end subroutine EyeSys_LSQfillin
 
 ! not being used currently
  function pca(M3,b) result(a)
- use set_precision, ONLY : wp
+ USE set_precision, ONLY : wp
  TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
  TYPE(wpRadSlopeMatrix) :: a
- integer, INTENT(IN) :: M3  ! pca terms, 2 or 3
- integer :: M1,N1,i,j,k,l,info,lwork,M
- real(wp) :: X(M3,size(b%r,1)),XTX(M3,M3),work(3*M3),w(M3) 
+ INTEGER, INTENT(IN) :: M3  ! pca terms, 2 or 3
+ INTEGER :: M1,N1,i,j,k,l,info,lwork,M
+ REAL(wp) :: X(M3,size(b%r,1)),XTX(M3,M3),work(3*M3),w(M3)
  logical :: Q
  lwork=size(work)
  N1=size(b%r,1) !N1=N 
@@ -1536,8 +1536,8 @@ end subroutine EyeSys_LSQfillin
 
 ! axial power from slope and derivatives
  subroutine AXIALP(X2,Y1X,Y2X,SAGC)
-  real(wp), INTENT(IN) :: X2,Y1X,Y2X
-  real(wp), INTENT(OUT) :: SAGC
+  REAL(wp), INTENT(IN) :: X2,Y1X,Y2X
+  REAL(wp), INTENT(OUT) :: SAGC
   if (ABS(X2) < eps) then
 ! UNDEFINED AT ORIGIN X2=0, LIMIT IS RFCT*Y2X             
    SAGC=RFCT*Y2X
@@ -1548,16 +1548,16 @@ end subroutine EyeSys_LSQfillin
 
 ! tangential power from slope and derivatives
  subroutine TANGENTP(X2,Y1X,Y2X,INSTC)
-  real(wp), INTENT(IN) :: X2,Y1X,Y2X
-  real(wp), INTENT(OUT) :: INSTC
+  REAL(wp), INTENT(IN) :: X2,Y1X,Y2X
+  REAL(wp), INTENT(OUT) :: INSTC
   INSTC=RFCT*Y2X/(SQRT(1+Y1X**2)**3)
  end subroutine TANGENTP
 
 ! principal curvature calculations
  subroutine principal(t,r,hr,ht,hrt,htt,hrr,K,H,k1,k2,A)
-  real(wp), INTENT(INOUT) :: t,r,hr,ht,hrt,htt,hrr
-  real(wp), INTENT(OUT) :: K,H,k1,k2,A
-  real(wp) :: hu,hv,huu,hvv,huv,g
+  REAL(wp), INTENT(INOUT) :: t,r,hr,ht,hrt,htt,hrr
+  REAL(wp), INTENT(OUT) :: K,H,k1,k2,A
+  REAL(wp) :: hu,hv,huu,hvv,huv,g
    r=abs(r) ; hr=abs(hr)
    if (ABS(r) > EPS) then
 !   cartesian conversion
@@ -1596,11 +1596,11 @@ end subroutine EyeSys_LSQfillin
 
 ! principal_directions calculations in horizontal plane, not being used currently
  subroutine principal_directions_0(one,t,r,hr,ht,hrt,htt,hrr,u,v,ut,vt)
-  implicit none
-  real(wp), INTENT(INOUT) :: t,r,hr,ht,hrt,htt,hrr
-  real(wp), INTENT(OUT) :: u,v,ut,vt
-  logical, intent(in) :: one
-  real(wp) :: hu,hv,huu,hvv,huv,g,K,H,m,m1,k1,k2,astig,kappa,RR(3,3),pos(3),R0(3,3),e1(3),e2(3),e3(3),rv1(3),rv2(3)
+  IMPLICIT NONE
+  REAL(wp), INTENT(INOUT) :: t,r,hr,ht,hrt,htt,hrr
+  REAL(wp), INTENT(OUT) :: u,v,ut,vt
+  logical, INTENT(IN) :: one
+  REAL(wp) :: hu,hv,huu,hvv,huv,g,K,H,m,m1,k1,k2,astig,kappa,RR(3,3),pos(3),R0(3,3),e1(3),e2(3),e3(3),rv1(3),rv2(3)
    r=abs(r) ; hr=abs(hr)
 !  cartesian conversion
    hu = hr*cos(t)-sin(t)*ht/r
@@ -1643,14 +1643,14 @@ end subroutine EyeSys_LSQfillin
 
 ! this version with calculations in the tangent plane
  subroutine principal_directions(one,t,r,hr,ht,hrt,htt,hrr,u,v,ut,vt)
-  implicit none
-  real(wp), INTENT(INOUT) :: t,r,hr,ht,hrt,htt,hrr
-  real(wp), INTENT(OUT) :: u,v,ut,vt
-  logical, intent(in) :: one
+  IMPLICIT NONE
+  REAL(wp), INTENT(INOUT) :: t,r,hr,ht,hrt,htt,hrr
+  REAL(wp), INTENT(OUT) :: u,v,ut,vt
+  logical, INTENT(IN) :: one
   ! these names follow the conventions/are defined in Curvature_equations/notes
-  real(wp) :: hu,hv,huu,hvv,huv,g,K,H,m,m1,k1,k2,astig,kappa
-  real(wp) :: MMM(3,3),nrml(3),rv(3),rvp1(3),rvp2(3),pos(3),J(3,3),e1(3),e1p(3),e2(3),e2p(3),e3(3),e3p(3),IJ(3,3),B(3),RR(3,3),R0(3,3)
-  integer :: INFO,IPIV(3)
+  REAL(wp) :: hu,hv,huu,hvv,huv,g,K,H,m,m1,k1,k2,astig,kappa
+  REAL(wp) :: MMM(3,3),nrml(3),rv(3),rvp1(3),rvp2(3),pos(3),J(3,3),e1(3),e1p(3),e2(3),e2p(3),e3(3),e3p(3),IJ(3,3),B(3),RR(3,3),R0(3,3)
+  INTEGER :: INFO,IPIV(3)
   r=abs(r) ; hr=abs(hr)
 ! convert to cartesian conversion
   u=r*cos(t)
@@ -1725,8 +1725,8 @@ end subroutine principal_directions
 
 ! axisymmetric_principal curvature calculations
  subroutine axisymmetric_principal(r,hr,hrr,K,H,k1,k2,A)
-  real(wp), INTENT(INOUT) :: r,hr,hrr
-  real(wp), INTENT(OUT) :: K,H,k1,k2,A
+  REAL(wp), INTENT(INOUT) :: r,hr,hrr
+  REAL(wp), INTENT(OUT) :: K,H,k1,k2,A
     k1 = hrr/(SQRT(1+(hr)**2)**3)
    if (ABS(r) < eps) then
 !   UNDEFINED AT ORIGIN X2=0, LIMIT IS RFCT*Y2X
@@ -1741,8 +1741,8 @@ end subroutine principal_directions
 
 ! "tangential" power and mean power in terms of axial/"sagittal" power,radius and radial derivative of axial power
  subroutine sagc2(X2,SAGC,DSAGC,TANC,ZMM)  
-  real(wp), INTENT(IN) :: X2,SAGC,DSAGC
-  real(wp), INTENT(OUT) :: TANC,ZMM   
+  REAL(wp), INTENT(IN) :: X2,SAGC,DSAGC
+  REAL(wp), INTENT(OUT) :: TANC,ZMM
   TANC=SAGC+X2*DSAGC
   ZMM=0.5_wp*(SAGC+TANC)
   end subroutine sagc2
@@ -1753,12 +1753,12 @@ end subroutine principal_directions
 ! iflag = 1 respline selected function
 ! iflag = 2 just respline elevation Z regardless of fct
 subroutine selectfunction(iflag,b,flag,powctr,powmin,powmax,cardinal,nC)
-implicit none
-integer(c_int64_t), intent(in) :: flag
-integer,intent(in) :: iflag
+IMPLICIT NONE
+integer(c_int64_t), INTENT(IN) :: flag
+INTEGER,INTENT(IN) :: iflag
 integer(c_int64_t) :: dat,fct
-integer :: i,j,M1
-real (wp), intent(out) :: powctr,powmin,powmax
+INTEGER :: i,j,M1
+REAL (wp), INTENT(OUT) :: powctr,powmin,powmax
 real(c_double), INTENT(INOUT) :: cardinal(*)
 integer(c_int), INTENT(INOUT) :: nC
 TYPE(wpJMatrix), INTENT(INOUT) :: b

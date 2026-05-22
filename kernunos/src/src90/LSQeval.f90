@@ -1,9 +1,9 @@
 subroutine LSQEval(M2,c,v,f,ft,ftt,fttt)
  USE set_precision, ONLY : wp
- INTEGER, intent(in) :: M2
- REAL(wp), intent(in) :: v,c(M2)
+ INTEGER, INTENT(IN) :: M2
+ REAL(wp), INTENT(IN) :: v,c(M2)
  REAL(wp),INTENT(OUT),OPTIONAL :: f,ft,ftt,fttt
- integer :: j
+ INTEGER :: j
 ! initialize
  if (Present(f)) f=0
  if (Present(ft)) ft=0

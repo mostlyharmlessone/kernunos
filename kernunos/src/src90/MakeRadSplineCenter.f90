@@ -4,12 +4,12 @@
       USE cornea_arrays, ONLY : DiaSlope, RadSlope, RadSplineCenter
       USE set_precision, ONLY : wp
       USE spline_interfaces, ONLY : SplineCenter
-      implicit none
-      integer(c_int64_t), INTENT(IN) :: dat
-      integer(c_int), INTENT(OUT) :: error_report
-      real(wp) :: r(2*size(RadSlope%r,1)),z(2*size(RadSlope%r,1)),zr2(2*size(RadSlope%r,1)),w
-      integer :: L2,j,L,MM,N
-      integer(c_int) :: err_report
+      IMPLICIT NONE
+      INTEGER(c_int64_t), INTENT(IN) :: dat
+      INTEGER(c_int), INTENT(OUT) :: error_report
+      REAL(wp) :: r(2*size(RadSlope%r,1)),z(2*size(RadSlope%r,1)),zr2(2*size(RadSlope%r,1)),w
+      INTEGER :: L2,j,L,MM,N
+      INTEGER(c_int) :: err_report
       err_report = 0
       MM=size(RadSlope%r,2)
       N=size(RadSlope%r,1)

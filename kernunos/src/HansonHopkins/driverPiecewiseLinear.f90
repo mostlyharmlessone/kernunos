@@ -75,8 +75,8 @@
       INTEGER :: info
       INTEGER, ALLOCATABLE :: ipiv(:)
 ! Timing
-      real(8) :: time_start, time_end
-      real(dkind) :: sumsq
+      REAL(8) :: time_start, time_end
+      REAL(dkind) :: sumsq
 
 
 ! Define local variables

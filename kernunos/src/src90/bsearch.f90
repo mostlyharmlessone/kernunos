@@ -1,14 +1,14 @@
 ! (usually) binary search for r in rv
 ! this has gotten quite ugly and there is no doubt some better/quicker solution
 subroutine bsearch(r,rv,n,high,low)
- use set_precision, only : wp
- use parameters, only : eps, PI
- implicit none
- integer, intent(in) :: n
- real(wp), intent(in) :: r, rv(n)
- integer, intent(out) :: high, low
- integer ::  i, m, direction, i0
- real(wp) :: rmin
+ USE set_precision, only : wp
+ USE parameters, only : eps, PI
+ IMPLICIT NONE
+ INTEGER, INTENT(IN) :: n
+ REAL(wp), INTENT(IN) :: r, rv(n)
+ INTEGER, INTENT(OUT) :: high, low
+ INTEGER ::  i, m, direction, i0
+ REAL(wp) :: rmin
  if ( n < 1 ) then
   write(*,*) 'FATAL Error in bsearch, n < 1',n
   stop

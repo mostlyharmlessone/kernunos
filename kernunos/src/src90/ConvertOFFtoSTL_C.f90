@@ -9,31 +9,31 @@
 !    https://stackoverflow.com/questions/41254019/reading-variable-length-data-in-fortran
 
   use io_functions, only : get_new_fileunit
-  use special_fct, only : surface_normal,rgb2attr
+  USE special_fct, only : surface_normal,rgb2attr
   use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
   use, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
-  implicit none
-  character(c_char), INTENT(INOUT), DIMENSION(4096) :: INAME,ONAME
-  integer(c_int), INTENT(IN) :: deftype
-  character(len=4096) :: new_path
-  character(:), ALLOCATABLE :: file_from_C
-  integer ::  nblines, file_idx
+  IMPLICIT NONE
+  CHARACTER(c_char), INTENT(INOUT), DIMENSION(4096) :: INAME,ONAME
+  INTEGER(c_int), INTENT(IN) :: deftype
+  CHARACTER(len=4096) :: new_path
+  CHARACTER(:), ALLOCATABLE :: file_from_C
+  INTEGER ::  nblines, file_idx
   logical :: exists
-  character(80) KH1 
-  integer :: i,j,unitno1,ih,io,ierr,nvertices,nedges
-  integer  :: header(20)   !80-byte header
-  integer(INT8) :: onebyte
-  integer(INT16) :: attr
-  integer(INT32) :: nfaces,matlmagic
-  real(REAL32), allocatable :: V(:,:) ! allocate nvertices
-  integer(kind=2), allocatable :: F(:,:),rgbv(:,:) ! allocate nfaces
-  real(REAL32) :: normalvector(3),v1(3),v2(3),v3(3),vnorm
-  character(100) line !these are for variable length input (color or not)
+  CHARACTER(80) KH1 
+  INTEGER :: i,j,unitno1,ih,io,ierr,nvertices,nedges
+  INTEGER  :: header(20)   !80-byte header
+  INTEGER(INT8) :: onebyte
+  INTEGER(INT16) :: attr
+  INTEGER(INT32) :: nfaces,matlmagic
+  REAL(REAL32), allocatable :: V(:,:) ! allocate nvertices
+  INTEGER(kind=2), allocatable :: F(:,:),rgbv(:,:) ! allocate nfaces
+  REAL(REAL32) :: normalvector(3),v1(3),v2(3),v3(3),vnorm
+  CHARACTER(100) line !these are for variable length input (color or not)
 
 !! this will have a lot of extra random non ASCII stuff after the file name
 !! need this because GCC11 isn't F2018 compliant with deferred length character with Bind C
 !! ie. can't do CHARACTER(*,c_char), INTENT(IN) :: file_from_C_1 with BIND(C) with GCC11
-!! declaring character(len=12), dimension(:), allocatable :: args with args(1) works too, but limited in length
+!! declaring CHARACTER(len=12), dimension(:), allocatable :: args with args(1) works too, but limited in length
 !   Converting C char array to Fortran character.
     new_path = " "
     do i=1, 4096
@@ -46,7 +46,7 @@
 
   write(*,*) 'input off file from kernunos: ',trim(new_path)
   nblines=len(trim(new_path)) 
-  allocate(character(nblines) :: file_from_C)
+  allocate(CHARACTER(nblines) :: file_from_C)
   file_from_C=trim(new_path)
 
   inquire(file=trim(new_path), exist=exists)
@@ -108,7 +108,7 @@
 
   write(*,*) 'output stl file from kernunos: ',trim(new_path)
   nblines=len(trim(new_path)) 
-  allocate(character(nblines) :: file_from_C)
+  allocate(CHARACTER(nblines) :: file_from_C)
   file_from_C=trim(new_path)
 
 ! file_idx will be zero if .bin.stl is not in the filename, ie only ONAME with .bin.stl in it will result in a binary file

@@ -66,16 +66,16 @@
 
     INTERFACE
      subroutine csrcoo ( nrow, job, a, ja, ia, nnz, ao, ir, jc, ierr )
-     integer ( kind = 4 ) nrow
-     integer ( kind = 4 ) nnz
-     real ( kind = 8 ) a(*)
-     real ( kind = 8 ) ao(*)
-     integer ( kind = 4 ) ia(*)
-     integer ( kind = 4 ) ierr
-     integer ( kind = 4 ) ir(*)
-     integer ( kind = 4 ) ja(*)
-     integer ( kind = 4 ) jc(*)
-     integer ( kind = 4 ) job
+     INTEGER ( kind = 4 ) nrow
+     INTEGER ( kind = 4 ) nnz
+     REAL ( kind = 8 ) a(*)
+     REAL ( kind = 8 ) ao(*)
+     INTEGER ( kind = 4 ) ia(*)
+     INTEGER ( kind = 4 ) ierr
+     INTEGER ( kind = 4 ) ir(*)
+     INTEGER ( kind = 4 ) ja(*)
+     INTEGER ( kind = 4 ) jc(*)
+     INTEGER ( kind = 4 ) job
      end subroutine
     END INTERFACE
 

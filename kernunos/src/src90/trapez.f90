@@ -1,15 +1,15 @@
 subroutine trapez(ii,iflag,rv,zv,z2v,n,r,z)
 !  Cubic Spline Quadrature using trapezoidal rule
 !  ONLY used for radial splines
-   use set_precision, only : wp
+   USE set_precision, only : wp
    use spline_interfaces, only : SplineEval, SplineEvalCenter
-   use special_fct, ONLY : bsearch
-   real(wp), INTENT(IN) ::  rv(*)
-   real(wp), INTENT(IN) ::  zv(*),z2v(*),r
-   integer, INTENT(IN) :: n,iflag,ii
-   real(wp), INTENT(OUT) :: z
-   real(wp) :: TRAP
-   integer :: i, high, low
+   USE special_fct, ONLY : bsearch
+   REAL(wp), INTENT(IN) ::  rv(*)
+   REAL(wp), INTENT(IN) ::  zv(*),z2v(*),r
+   INTEGER, INTENT(IN) :: n,iflag,ii
+   REAL(wp), INTENT(OUT) :: z
+   REAL(wp) :: TRAP
+   INTEGER :: i, high, low
    call bsearch(r,rv,n,high,low)
 !  TRAPEZOIDAL RULE, UNEVEN STEPS     
    TRAP=0

@@ -8,12 +8,12 @@ function afun ( x, y, z )
 !
 !! AFUN
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) afun
-  real ( kind = 8 ) x
-  real ( kind = 8 ) y
-  real ( kind = 8 ) z
+  REAL ( kind = 8 ) afun
+  REAL ( kind = 8 ) x
+  REAL ( kind = 8 ) y
+  REAL ( kind = 8 ) z
 
   afun = -1.0D+00
 
@@ -25,12 +25,12 @@ function bfun ( x, y, z )
 !
 !! BFUN
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) bfun
-  real ( kind = 8 ) x
-  real ( kind = 8 ) y
-  real ( kind = 8 ) z
+  REAL ( kind = 8 ) bfun
+  REAL ( kind = 8 ) x
+  REAL ( kind = 8 ) y
+  REAL ( kind = 8 ) z
 
   bfun = -1.0D+00
 
@@ -42,12 +42,12 @@ function cfun ( x, y, z )
 !
 !! CFUN
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) cfun
-  real ( kind = 8 ) x
-  real ( kind = 8 ) y
-  real ( kind = 8 ) z
+  REAL ( kind = 8 ) cfun
+  REAL ( kind = 8 ) x
+  REAL ( kind = 8 ) y
+  REAL ( kind = 8 ) z
 
   cfun = -1.0D+00
 
@@ -59,12 +59,12 @@ function dfun ( x, y, z )
 !
 !! DFUN
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) dfun
-  real ( kind = 8 ) x
-  real ( kind = 8 ) y
-  real ( kind = 8 ) z
+  REAL ( kind = 8 ) dfun
+  REAL ( kind = 8 ) x
+  REAL ( kind = 8 ) y
+  REAL ( kind = 8 ) z
 
   dfun = 0.0D+00
 
@@ -76,12 +76,12 @@ function efun ( x, y, z )
 !
 !! EFUN
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) efun
-  real ( kind = 8 ) x
-  real ( kind = 8 ) y
-  real ( kind = 8 ) z
+  REAL ( kind = 8 ) efun
+  REAL ( kind = 8 ) x
+  REAL ( kind = 8 ) y
+  REAL ( kind = 8 ) z
 
   efun = 0.0D+00
 
@@ -93,12 +93,12 @@ function ffun ( x, y, z )
 !
 !! FFUN
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) ffun
-  real ( kind = 8 ) x
-  real ( kind = 8 ) y
-  real ( kind = 8 ) z
+  REAL ( kind = 8 ) ffun
+  REAL ( kind = 8 ) x
+  REAL ( kind = 8 ) y
+  REAL ( kind = 8 ) z
 
   ffun = 0.0D+00
 
@@ -110,12 +110,12 @@ function gfun ( x, y, z )
 !
 !! GFUN
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) gfun
-  real ( kind = 8 ) x
-  real ( kind = 8 ) y
-  real ( kind = 8 ) z
+  REAL ( kind = 8 ) gfun
+  REAL ( kind = 8 ) x
+  REAL ( kind = 8 ) y
+  REAL ( kind = 8 ) z
 
   gfun = 0.0D+00
 
@@ -127,18 +127,18 @@ subroutine ope ( n, x, y, a, ja, ia )
 !
 !! OPE computes A * x for a sparse matrix A.
 !
-  implicit none
+  IMPLICIT NONE
 
   integer n
 
-  real ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) a(*)
   integer i
   integer ia(n+1)
   integer ja(*)
   integer k1
   integer k2
-  real ( kind = 8 ) x(*)
-  real ( kind = 8 ) y(*)
+  REAL ( kind = 8 ) x(*)
+  REAL ( kind = 8 ) y(*)
 !
 ! sparse matrix * vector multiplication
 !
@@ -156,16 +156,16 @@ subroutine opet ( n, x, y, a, ja, ia )
 !
 !! OPET computes A' * x for a sparse matrix A.
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) a(*)
   integer i
   integer ia(*)
   integer ja(*)
   integer k
   integer n
-  real ( kind = 8 ) x(*)
-  real ( kind = 8 ) y(*)
+  REAL ( kind = 8 ) x(*)
+  REAL ( kind = 8 ) y(*)
 !
 ! sparse matrix * vector multiplication
 !
@@ -185,13 +185,13 @@ subroutine ydfnorm ( n, y1, y )
 !
 !! YDFNORM prints the L2 norm of the difference of two vectors.
 !
-  implicit none
+  IMPLICIT NONE
 
   integer n
 
-  real ( kind = 8 ) t
-  real ( kind = 8 ) y(n)
-  real ( kind = 8 ) y1(n)
+  REAL ( kind = 8 ) t
+  REAL ( kind = 8 ) y(n)
+  REAL ( kind = 8 ) y1(n)
 
   t = sqrt ( sum ( ( y(1:n) - y1(1:n) )**2 ) )
   write(*,*) '2-norm of error (exact answer-tested answer)=',t
@@ -204,9 +204,9 @@ subroutine dump0 ( n, a, ja, ia )
 !
 !! DUMP0
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) a(*)
   integer i
   integer ia(*)
   integer ja(*)
@@ -235,15 +235,15 @@ subroutine afunbl ( nfree, x, y, z, coeff )
 !
 !! AFUNBL
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) coeff(100)
+  REAL ( kind = 8 ) coeff(100)
   integer i
   integer j
   integer nfree
-  real ( kind = 8 ) x
-  real ( kind = 8 ) y
-  real ( kind = 8 ) z
+  REAL ( kind = 8 ) x
+  REAL ( kind = 8 ) y
+  REAL ( kind = 8 ) z
 
   do j=1, nfree
     do i=1, nfree
@@ -260,15 +260,15 @@ subroutine bfunbl ( nfree, x, y, z, coeff )
 !
 !! BFUNBL
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) coeff(100)
+  REAL ( kind = 8 ) coeff(100)
   integer i
   integer j
   integer nfree
-  real ( kind = 8 ) x
-  real ( kind = 8 ) y
-  real ( kind = 8 ) z
+  REAL ( kind = 8 ) x
+  REAL ( kind = 8 ) y
+  REAL ( kind = 8 ) z
 
   do j=1, nfree
     do i=1, nfree
@@ -285,15 +285,15 @@ subroutine cfunbl ( nfree, x, y, z, coeff )
 !
 !! CFUNBL
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) coeff(100)
+  REAL ( kind = 8 ) coeff(100)
   integer i
   integer j
   integer nfree
-  real ( kind = 8 ) x
-  real ( kind = 8 ) y
-  real ( kind = 8 ) z
+  REAL ( kind = 8 ) x
+  REAL ( kind = 8 ) y
+  REAL ( kind = 8 ) z
 
   do j=1, nfree
     do i=1, nfree
@@ -310,15 +310,15 @@ subroutine dfunbl ( nfree, x, y, z, coeff )
 !
 !! DFUNBL 
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) coeff(100)
+  REAL ( kind = 8 ) coeff(100)
   integer i
   integer j
   integer nfree
-  real ( kind = 8 ) x
-  real ( kind = 8 ) y
-  real ( kind = 8 ) z
+  REAL ( kind = 8 ) x
+  REAL ( kind = 8 ) y
+  REAL ( kind = 8 ) z
 
   do j=1, nfree
     do i=1, nfree
@@ -334,15 +334,15 @@ subroutine efunbl ( nfree, x, y, z, coeff )
 !
 !! EFUNBL
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) coeff(100)
+  REAL ( kind = 8 ) coeff(100)
   integer i
   integer j
   integer nfree
-  real ( kind = 8 ) x
-  real ( kind = 8 ) y
-  real ( kind = 8 ) z
+  REAL ( kind = 8 ) x
+  REAL ( kind = 8 ) y
+  REAL ( kind = 8 ) z
 
   do j=1, nfree
     do i=1, nfree
@@ -358,15 +358,15 @@ subroutine ffunbl ( nfree, x, y, z, coeff )
 !
 !! FFUNBL
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) coeff(100)
+  REAL ( kind = 8 ) coeff(100)
   integer i
   integer j
   integer nfree
-  real ( kind = 8 ) x
-  real ( kind = 8 ) y
-  real ( kind = 8 ) z
+  REAL ( kind = 8 ) x
+  REAL ( kind = 8 ) y
+  REAL ( kind = 8 ) z
 
   do j=1, nfree
     do i=1, nfree
@@ -382,15 +382,15 @@ subroutine gfunbl ( nfree, x, y, z, coeff )
 !
 !! GFUNBL
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) coeff(100)
+  REAL ( kind = 8 ) coeff(100)
   integer i
   integer j
   integer nfree
-  real ( kind = 8 ) x
-  real ( kind = 8 ) y
-  real ( kind = 8 ) z
+  REAL ( kind = 8 ) x
+  REAL ( kind = 8 ) y
+  REAL ( kind = 8 ) z
 
   do j=1, nfree
     do i=1, nfree
@@ -410,15 +410,15 @@ subroutine xyk ( nel, xyke, x, y, ijk, node )
 !
 !    In this version of the routine, the matrix returned is the identity matrix.
 !
-  implicit none
+  IMPLICIT NONE
 
   integer node
 
   integer ijk(node,*)
   integer nel
-  real ( kind = 8 ) x(*)
-  real ( kind = 8 ) xyke(2,2)
-  real ( kind = 8 ) y(*)
+  REAL ( kind = 8 ) x(*)
+  REAL ( kind = 8 ) xyke(2,2)
+  REAL ( kind = 8 ) y(*)
 
   xyke(1,1) = 1.0D+00
   xyke(2,2) = 1.0D+00

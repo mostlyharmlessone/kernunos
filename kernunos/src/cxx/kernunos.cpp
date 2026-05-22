@@ -828,7 +828,7 @@ void MainWindow::exportpicture()
       short  TGAhead[] = {0, 2, 0, 0, 0, 0, SCR_WIDTH, SCR_HEIGHT, 24};
       fwrite(&TGAhead, sizeof(TGAhead), 1, out);
       fwrite(buffer, SCR_WIDTH * SCR_HEIGHT * 3, 1, out);
-      fclose(out);
+      fclose(OUT);
     };
     return;
 }
@@ -2428,25 +2428,6 @@ void MainWindow::pdfopen()
     QString filePath = QFileDialog::getOpenFileName(this,"Read Documentation", path, filter);
     if (filePath.isEmpty())
         return;
-
-//https://forum.qt.io/topic/124648/qdesktopservices-openurl-fails-to-open-local-file-on-ubuntu/17
-/*
-QUrl url = QUrl("file.txt");
-QUrl baseUrl = QUrl("file:/home/user/");
-// prints QUrl("file:///home/user/file.txt")
-qDebug() << baseUrl.resolved(url);
-
-or
-
-import os.path
-
-CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(file))
-filename = os.path.join(CURRENT_DIRECTORY, "doc/_build/latex/xslide-user-manual.pdf")
-print(filename)
-url = QUrl.fromLocalFile(filename)
-if not QDesktopServices.openUrl(url):
-print("failed")
-*/
     QWidget *viewerWindow = new QWidget;
     viewerWindow->setWindowTitle("PDF Viewer");
     viewerWindow->resize(800, 600);
@@ -3065,7 +3046,9 @@ int main(int argc, char *argv[])
     MainWindow window;
 
     if (!parser.positionalArguments().isEmpty())
-    {window.loadFile(parser.positionalArguments().first(),true);}  //uses loadfile() above to load a commandline filename
+     {window.loadFile(parser.positionalArguments().first(),true);}  /*uses loadfile() above to load a commandline filename */
+    /* this is what Hints wants to do, but throws a conflict with loadfile() above and doesn't compil e*/
+    //    {window.loadFile(parser.positionalArguments().constFirst(),true);}
     else
      {QString fileName="cube";
       window.loadFile(fileName,false); }

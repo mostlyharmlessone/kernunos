@@ -1,157 +1,157 @@
 module io_functions
 ! module for opening files sanely
 ! these are for parsing input
-  integer, parameter :: MAX_LINE = 1000    ! max size of line input
-  character(MAX_LINE) :: line
+  INTEGER, parameter :: MAX_LINE = 1000    ! max size of line input
+  CHARACTER(MAX_LINE) :: line
 
    INTERFACE
 
     subroutine Geom(flag, b, donut, powmin, powmax, elements, vertices, nV, nE)
      use cornea_arrays
-     use parameters
-     use set_precision, ONLY : wp
-     use special_fct, only : rgb2, rgb5
-     use, intrinsic :: iso_c_binding, ONLY : c_float,c_int,c_int64_t
+     USE parameters
+     USE set_precision, ONLY : wp
+     USE special_fct, only : rgb2, rgb5
+     USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_int64_t
      use ISO_FORTRAN_ENV, only: stdin=>input_unit
      TYPE(wpJMatrix),INTENT(IN) :: b
-     logical, intent(IN) :: donut
-     real(wp), intent(INOUT) :: powmin,powmax
-     integer(c_int), INTENT(INOUT) :: elements(*)                          ! faces x 3   index 0
-     real(c_float), INTENT(INOUT) :: vertices(*)                           ! vertices x 6
-     integer(c_int64_t), INTENT(INOUT) :: flag
-     integer(c_int), INTENT(INOUT) ::  nE, nV                         ! passed from janus to call OpenGL
+     logical, INTENT(IN) :: donut
+     REAL(wp), INTENT(INOUT) :: powmin,powmax
+     INTEGER(c_int), INTENT(INOUT) :: elements(*)                          ! faces x 3   index 0
+     REAL(c_float), INTENT(INOUT) :: vertices(*)                           ! vertices x 6
+     INTEGER(c_int64_t), INTENT(INOUT) :: flag
+     INTEGER(c_int), INTENT(INOUT) ::  nE, nV                         ! passed from janus to call OpenGL
     end subroutine
 
     subroutine makelegend(flag, powmin, powmax, legend, nL)
-     use set_precision, ONLY : wp
-     use special_fct, only : colormap
-     use, intrinsic :: iso_c_binding, ONLY : c_float,c_int,c_int64_t
-     use, intrinsic ::  ieee_arithmetic
+     USE set_precision, ONLY : wp
+     USE special_fct, only : colormap
+     USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_int64_t
+     USE, INTRINSIC ::  ieee_arithmetic
      use ISO_FORTRAN_ENV, only: stdin=>input_unit     ! for the pause read(stdin,*)
-     real(wp), intent(INOUT) :: powmin,powmax
-     real(c_float), INTENT(INOUT) :: legend(*)
-     integer(c_int64_t), INTENT(INOUT) :: flag
-     integer(c_int), INTENT(INOUT) :: nL
+     REAL(wp), INTENT(INOUT) :: powmin,powmax
+     REAL(c_float), INTENT(INOUT) :: legend(*)
+     INTEGER(c_int64_t), INTENT(INOUT) :: flag
+     INTEGER(c_int), INTENT(INOUT) :: nL
     end subroutine
 
     subroutine Pupil(b, dist, pupil_elements, pupil_vertices, pupil_nV, pupil_nE)
     use cornea_arrays, ONLY : wpJMatrix
-    use set_precision, ONLY : wp
-    use, intrinsic :: iso_c_binding, ONLY : c_float,c_int
-    use, intrinsic ::  ieee_arithmetic
+    USE set_precision, ONLY : wp
+    USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int
+    USE, INTRINSIC ::  ieee_arithmetic
     use ISO_FORTRAN_ENV, only: stdin=>input_unit     ! for the pause read(stdin,*)
     TYPE(wpJMatrix),INTENT(IN) :: b
-    integer(c_int), INTENT(INOUT) :: pupil_elements(*)                          ! faces x 3
-    real(c_float), INTENT(INOUT) :: pupil_vertices(*), dist                     ! vertices x 6
-    integer(c_int), INTENT(INOUT) :: pupil_nE, pupil_nV
+    INTEGER(c_int), INTENT(INOUT) :: pupil_elements(*)                          ! faces x 3
+    REAL(c_float), INTENT(INOUT) :: pupil_vertices(*), dist                     ! vertices x 6
+    INTEGER(c_int), INTENT(INOUT) :: pupil_nE, pupil_nV
     end subroutine
 
     subroutine rcnvrta(KXNAME,N,read_error)
      USE set_precision, ONLY : wp
      USE cornea_arrays, ONLY : Atlas
      USE parameters
-     character(len=*), intent(in) :: KXNAME
-     integer, intent(in) :: N
-     integer, intent(out) :: read_error
+     CHARACTER(len=*), INTENT(IN) :: KXNAME
+     INTEGER, INTENT(IN) :: N
+     INTEGER, INTENT(OUT) :: read_error
     end subroutine
 
     subroutine rcnvrta_type(KXNAME,N,read_error)
      USE set_precision, ONLY : wp
      USE cornea_arrays, ONLY : Atlas
      USE parameters
-     character(len=*), intent(in) :: KXNAME
-     integer, intent(out) :: N, read_error
+     CHARACTER(len=*), INTENT(IN) :: KXNAME
+     INTEGER, INTENT(OUT) :: N, read_error
     end subroutine
 
     subroutine rcnvrte(read_error,RANAME,XXNAME,PUNAME,HXNAME)
      USE set_precision, ONLY : wp
      USE cornea_arrays, ONLY : EyeSys
-     character(len=*), intent(in) :: RANAME,XXNAME
-     character(len=*), intent(in), optional :: PUNAME,HXNAME
-     integer, intent(out) :: read_error
+     CHARACTER(len=*), INTENT(IN) :: RANAME,XXNAME
+     CHARACTER(len=*), INTENT(IN), optional :: PUNAME,HXNAME
+     INTEGER, INTENT(OUT) :: read_error
     end subroutine
 
     subroutine rcnvrtn(read_error,EDNAME,RANAME,HTNAME,PENAME)
      USE set_precision, ONLY : wp
      USE cornea_arrays, ONLY : EyeSys
-     character(len=*), intent(in), optional :: RANAME,EDNAME
-     character(len=*), intent(in), optional :: PENAME,HTNAME
-     integer, intent(out) :: read_error
+     CHARACTER(len=*), INTENT(IN), optional :: RANAME,EDNAME
+     CHARACTER(len=*), INTENT(IN), optional :: PENAME,HTNAME
+     INTEGER, INTENT(OUT) :: read_error
     end subroutine
 
     subroutine rcnvrtn_binary(read_error,mirecount,EDNAME,RANAME,PENAME)
      USE set_precision, ONLY : wp
-     character(len=*), intent(in), optional :: RANAME,EDNAME
-     character(len=*), intent(in), optional :: PENAME
-     integer, intent(out) :: read_error
-     integer, intent(out) :: mirecount
+     CHARACTER(len=*), INTENT(IN), optional :: RANAME,EDNAME
+     CHARACTER(len=*), INTENT(IN), optional :: PENAME
+     INTEGER, INTENT(OUT) :: read_error
+     INTEGER, INTENT(OUT) :: mirecount
     end subroutine
 
     subroutine rcnvrtp(TestData,filename,read_error)
      USE cornea_arrays, ONLY : Penta
-     character(len=*), intent(in) :: filename
-     integer, intent(in) :: TestData
-     integer, intent(out) :: read_error
+     CHARACTER(len=*), INTENT(IN) :: filename
+     INTEGER, INTENT(IN) :: TestData
+     INTEGER, INTENT(OUT) :: read_error
     end subroutine
 
     subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME,PATIENTNAME,EXAMNAME)
      USE set_precision, ONLY : wp
      USE cornea_arrays, ONLY : Oculus,JMatrix
-     use parameters, ONLY : EPS
-     integer, intent(out) :: read_error
-     character(len=*), intent(in), optional :: CURVNAME,ELEVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME,PATIENTNAME,EXAMNAME
+     USE parameters, ONLY : EPS
+     INTEGER, INTENT(OUT) :: read_error
+     CHARACTER(len=*), INTENT(IN), optional :: CURVNAME,ELEVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME,PATIENTNAME,EXAMNAME
     end subroutine rcnvrtk
 
     subroutine RCNVRTT(MM,N)
      USE set_precision, ONLY : wp
      USE cornea_arrays
-     use parameters
+     USE parameters
      INTEGER, INTENT(IN) :: MM,N
     end subroutine
 
     SUBROUTINE WriteGeomOFF(flag,b,donut,powmin,powmax,OFFNAME)
       USE cornea_arrays
-      use parameters
+      USE parameters
       USE set_precision, ONLY : wp
-      use, intrinsic :: iso_c_binding, ONLY : c_float,c_int,c_int64_t
+      USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_int64_t
       TYPE(wpJMatrix),INTENT(IN) :: b
-      character(len=*), intent(in) :: OFFNAME
-      real(wp), intent(IN) :: powmin,powmax
-      logical, intent(IN) :: donut   
-      integer(c_int64_t), INTENT(INOUT) :: flag
+      CHARACTER(len=*), INTENT(IN) :: OFFNAME
+      REAL(wp), INTENT(IN) :: powmin,powmax
+      logical, INTENT(IN) :: donut
+      INTEGER(c_int64_t), INTENT(INOUT) :: flag
     END SUBROUTINE  
     
     SUBROUTINE WriteGeomPLY(flag,b,donut,powmin,powmax,PLYNAME)
       USE cornea_arrays
-      use parameters
+      USE parameters
       USE set_precision, ONLY : wp
-      use, intrinsic :: iso_c_binding, ONLY : c_float,c_int,c_int64_t
+      USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_int64_t
       TYPE(wpJMatrix),INTENT(IN) :: b
-      character(len=*), intent(in) :: PLYNAME
-      real(wp), intent(IN) :: powmin,powmax
-      logical, intent(IN) :: donut   
-      integer(c_int64_t), INTENT(INOUT) :: flag
+      CHARACTER(len=*), INTENT(IN) :: PLYNAME
+      REAL(wp), INTENT(IN) :: powmin,powmax
+      logical, INTENT(IN) :: donut
+      INTEGER(c_int64_t), INTENT(INOUT) :: flag
     END SUBROUTINE    
     
     subroutine WriteCenter(b,KXNAME)
       USE cornea_arrays
-      use parameters
+      USE parameters
       USE set_precision, ONLY : wp
       TYPE(wpRadSlopeMatrix),INTENT(IN) :: b 
-      character(len=*), intent(in) :: KXNAME   
+      CHARACTER(len=*), INTENT(IN) :: KXNAME
     end subroutine
 
     subroutine WriteCenterJ(a,b,KXNAME)
      USE set_precision, ONLY : wp
-     real(wp),INTENT(IN) :: a, b(:,:)
-     character(len=*), intent(in) :: KXNAME
+     REAL(wp),INTENT(IN) :: a, b(:,:)
+     CHARACTER(len=*), INTENT(IN) :: KXNAME
     end subroutine
 
     SUBROUTINE PRINTGRAPH(unitno1,POWMIN,POWMAX,FILENAME)
-     use set_precision, only : wp
+     USE set_precision, only : wp
      REAL(wp), INTENT(IN) :: POWMIN, POWMAX
-     integer, intent(in) :: unitno1
-     character(len=*), intent(in) :: FILENAME
+     INTEGER, INTENT(IN) :: unitno1
+     CHARACTER(len=*), INTENT(IN) :: FILENAME
     END SUBROUTINE
     
   END INTERFACE
@@ -161,10 +161,10 @@ module io_functions
 ! https://community.intel.com/t5/Intel-Fortran-Compiler/Trouble-reading-a-csv-file/m-p/1034136
 ! modified to output formatted real, as unformatted reads with semicolons seems broken to me with gcc-fortran/gfortran
  function getArg(n) result(argn)
-    implicit none
-    character(10) :: arg
-    real :: argn
-    integer :: n,i,j,count
+    IMPLICIT NONE
+    CHARACTER(10) :: arg
+    REAL :: argn
+    INTEGER :: n,i,j,count
     j = 0
     do count=1,n
         i = j + 1
@@ -186,9 +186,9 @@ end function getArg
 
   
  function get_new_fileunit() result (f)
- implicit none
+ IMPLICIT NONE
  logical :: op
- integer :: f
+ INTEGER :: f
  f = 1
  do
   inquire(f,opened=op)
@@ -202,14 +202,14 @@ end module io_functions
 !https://fortran-lang.discourse.group/t/joining-strings-problem-with-gfortran/492
 
 module util_mod
-implicit none
+IMPLICIT NONE
 contains
  function join(words) result(str)
 ! trim and concatenate a vector of character variables
- character (len=*), intent(in) :: words(:)
- character(:), allocatable :: str
- integer :: i,nw
- allocate(character(sum(len_trim(words)))::str)
+ character (len=*), INTENT(IN) :: words(:)
+ CHARACTER(:), allocatable :: str
+ INTEGER :: i,nw
+ allocate(CHARACTER(sum(len_trim(words)))::str)
  nw  = size(words)
  str = ""
  if (nw < 1) then
@@ -224,10 +224,10 @@ contains
 
  function c(x1,x2) result(vec)
 ! return character array containing present arguments
- character (len=*)  , intent(in), optional    :: x1,x2
+ character (len=*)  , INTENT(IN), optional    :: x1,x2
  character (len=1000)            , allocatable :: vec(:)
  character (len=1000)            , allocatable :: vec_(:)
- integer                                      :: n
+ INTEGER                                      :: n
  allocate (vec_(2))
  if (present(x1))  vec_(1)  = x1
  if (present(x2))  vec_(2)  = x2
@@ -239,21 +239,21 @@ end module util_mod
 subroutine rcnvrtp(TestData,filename,read_error)
 ! PENTACAM VERSION FOR ALL
  use io_functions, only : get_new_fileunit,getArg,line
- use set_precision, ONLY : wp
+ USE set_precision, ONLY : wp
  use cornea_arrays, ONLY : Penta
- use special_fct, ONLY : replacestr
- implicit none
- character(len=*), intent(in) :: filename
- integer, intent(in) :: TestData
- integer, intent(out) :: read_error
- integer :: unitno1,ierr,readerr,i,k,NP,read_front,meridians,file_idx
+ USE special_fct, ONLY : replacestr
+ IMPLICIT NONE
+ CHARACTER(len=*), INTENT(IN) :: filename
+ INTEGER, INTENT(IN) :: TestData
+ INTEGER, INTENT(OUT) :: read_error
+ INTEGER :: unitno1,ierr,readerr,i,k,NP,read_front,meridians,file_idx
  logical :: exists
- character(len=7) :: matrixchar
- character(len=1) :: iter1,equal
- character(len=2) :: iter2
- character(len=3) :: iter3
- character(len=1000) :: somecharacter,someline
- real(wp) :: temp(141,141)
+ CHARACTER(len=7) :: matrixchar
+ CHARACTER(len=1) :: iter1,equal
+ CHARACTER(len=2) :: iter2
+ CHARACTER(len=3) :: iter3
+ CHARACTER(len=1000) :: somecharacter,someline
+ REAL(wp) :: temp(141,141)
  NP=141
     inquire(file=trim(filename), exist=exists)
     if (exists) then
@@ -277,7 +277,7 @@ subroutine rcnvrtp(TestData,filename,read_error)
              return
            endif
           endif
-          if (somecharacter(1:5).eq.'FRONT'.and.(i.eq.1)) then  !testdata 4 or 5
+          if (someCHARACTER(1:5).eq.'FRONT'.and.(i.eq.1)) then  !testdata 4 or 5
            if (TestData .eq. 4 .or. TestData .eq. 5) then
             write(*,*) 'Read PentaCam _CUR.CSV/_ELE.CSV header'
            else
@@ -335,7 +335,7 @@ subroutine rcnvrtp(TestData,filename,read_error)
            end do
           endif
 
-          if (somecharacter(1:7).eq.'[PUPIL]') then
+          if (someCHARACTER(1:7).eq.'[PUPIL]') then
            if (TestData .ge. 4) then  ! _CUR.CSV or _ELE.CSV
             write(*,*) 'Found pupil data in Penta _CUR.CSV or _ELE.CSV'
             read(unitno1, '(A)', iostat=readerr) someline
@@ -391,7 +391,7 @@ subroutine rcnvrtp(TestData,filename,read_error)
             endif
            endif
           endif
-          if (somecharacter(1:4).eq.'HWTW' .or. somecharacter(1:4).eq.'CRC3') exit  ! End of data
+          if (someCHARACTER(1:4).eq.'HWTW' .or. someCHARACTER(1:4).eq.'CRC3') exit  ! End of data
          else
            exit  !EOF this doesn't work if you never leave k do loop above
          endif
@@ -438,23 +438,23 @@ subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
   USE io_functions, ONLY : get_new_fileunit
   USE set_precision, ONLY : wp
   USE cornea_arrays, ONLY : Oculus, JMatrix
-  use parameters
+  USE parameters
   use util_mod
   USE special_fct, ONLY : replacestr
   use c_interfaces, ONLY : charcount
   USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_null_char
-  implicit none
+  IMPLICIT NONE
   logical :: exists, exists2, exists3, valid, name_match, date_match
-  character(len=*), intent(in), optional :: ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME,PATIENTNAME,EXAMNAME
-  integer, intent(out) :: read_error
-  integer :: i,j,read_front,ierr,unitno1,unitno2,unitno3,grad,file_idx
-  real(wp) :: rsag,rtan,ytemp,xtemp
+  CHARACTER(len=*), INTENT(IN), optional :: ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME,PATIENTNAME,EXAMNAME
+  INTEGER, INTENT(OUT) :: read_error
+  INTEGER :: i,j,read_front,ierr,unitno1,unitno2,unitno3,grad,file_idx
+  REAL(wp) :: rsag,rtan,ytemp,xtemp
   Character(len=1000) :: someline,somecharacter
-  integer :: linecount
-  character(1000) header
+  INTEGER :: linecount
+  CHARACTER(1000) header
   character :: ch
-  character(:), allocatable :: x, y
-  integer :: posmax
+  CHARACTER(:), allocatable :: x, y
+  INTEGER :: posmax
   INTEGER :: pos
   REAL (wp) :: ZX(45)
   integer line(200),ix,iy
@@ -850,17 +850,17 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
   USE special_fct, ONLY : replacestr
   use c_interfaces, ONLY : charcount
   USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_null_char
-  implicit none
+  IMPLICIT NONE
   logical :: exists
-  character(len=*), intent(in), optional :: RANAME,EDNAME
-  character(len=*), intent(in), optional :: PENAME,HTNAME
-  character(1000) header,semicolon1,semicolon2
-  integer :: file_idx1,file_idx2,file_idx3,file_idx4,readerr,io
-  integer, intent(out) :: read_error
+  CHARACTER(len=*), INTENT(IN), optional :: RANAME,EDNAME
+  CHARACTER(len=*), INTENT(IN), optional :: PENAME,HTNAME
+  CHARACTER(1000) header,semicolon1,semicolon2
+  INTEGER :: file_idx1,file_idx2,file_idx3,file_idx4,readerr,io
+  INTEGER, INTENT(OUT) :: read_error
   REAL(wp), ALLOCATABLE :: ZX(:),YX(:)
   REAL(wp) :: PX,CX,CY
   INTEGER :: I,J,ITH,unitno1,unitno2,unitno3,unitno4,MM,N,ierr
-  integer(c_int) :: periodcount
+  INTEGER(c_int) :: periodcount
   MM=360
   if (present(EDNAME) .and. present(RANAME)) then
   inquire(file=trim(EDNAME), exist=exists)
@@ -1202,16 +1202,16 @@ USE cornea_arrays, ONLY : EyeSys
 USE special_fct, ONLY : replacestr
 use c_interfaces, ONLY : charcount
 USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_null_char
-implicit none
-character(len=*), intent(in), optional :: RANAME,EDNAME
-character(len=*), intent(in), optional :: PENAME
-integer, intent(out) :: read_error
-integer, intent(out) :: mirecount
-character(1000) header,header2
+IMPLICIT NONE
+CHARACTER(len=*), INTENT(IN), optional :: RANAME,EDNAME
+CHARACTER(len=*), INTENT(IN), optional :: PENAME
+INTEGER, INTENT(OUT) :: read_error
+INTEGER, INTENT(OUT) :: mirecount
+CHARACTER(1000) header,header2
 character :: ch, ych
-character(len=100) :: ioerrmsg
-character(:), allocatable :: x, y
-integer :: file_idx1,file_idx2,file_idx3,file_idx4,posmax
+CHARACTER(len=100) :: ioerrmsg
+CHARACTER(:), allocatable :: x, y
+INTEGER :: file_idx1,file_idx2,file_idx3,file_idx4,posmax
 logical :: exists, negative
 INTEGER :: I,J,ITH,unitno1,unitno2,unitno3,MM,N,ierr,pos
 REAL (wp) :: ZX(size(EyeSys%RA,2)),YX(size(EyeSys%RA,2)) ! should be maximum needed for mires
@@ -1221,9 +1221,9 @@ integer line(200),line2(200),ix,iy
  subroutine rcnvrtn(read_error,EDNAME,RANAME,HTNAME,PENAME)
   USE set_precision, ONLY : wp
   USE cornea_arrays, ONLY : EyeSys
-  character(len=*), intent(in), optional :: RANAME,EDNAME
-  character(len=*), intent(in), optional :: PENAME,HTNAME
-  integer, intent(out) :: read_error
+  CHARACTER(len=*), INTENT(IN), optional :: RANAME,EDNAME
+  CHARACTER(len=*), INTENT(IN), optional :: PENAME,HTNAME
+  INTEGER, INTENT(OUT) :: read_error
  end subroutine
  END INTERFACE
  x = "" ;   y = ""
@@ -1665,13 +1665,13 @@ subroutine rcnvrte(read_error,RANAME,XXNAME,PUNAME,HXNAME)
   USE set_precision, ONLY : wp
   USE cornea_arrays, ONLY : EyeSys
   USE special_fct, ONLY : replacestr
-  implicit none
+  IMPLICIT NONE
   logical :: exists
-  character(len=*), intent(in) :: RANAME,XXNAME
-  character(len=*), intent(in), optional :: PUNAME,HXNAME
-  character(1000) header,header_space
-  integer :: file_idx1,file_idx2,file_idx3,file_idx4,readerr
-  integer, intent(out) :: read_error
+  CHARACTER(len=*), INTENT(IN) :: RANAME,XXNAME
+  CHARACTER(len=*), INTENT(IN), optional :: PUNAME,HXNAME
+  CHARACTER(1000) header,header_space
+  INTEGER :: file_idx1,file_idx2,file_idx3,file_idx4,readerr
+  INTEGER, INTENT(OUT) :: read_error
   REAL(wp) :: ZX(16),YX(16),PX,CX,CY
   INTEGER :: I,J,ITH,unitno1,unitno2,unitno3,unitno4,MM,N,ierr
   MM=360
@@ -1839,12 +1839,12 @@ subroutine rcnvrtV(read_error,RANAME,XXNAME)
   USE set_precision, ONLY : wp
   USE cornea_arrays, ONLY : EyeSys
   USE special_fct, ONLY : replacestr
-  implicit none
+  IMPLICIT NONE
   logical :: exists
-  character(len=*), intent(in) :: RANAME,XXNAME
-  character(1000) header,header_space
-  integer :: file_idx1,file_idx2,file_idx3,file_idx4,readerr
-  integer, intent(out) :: read_error
+  CHARACTER(len=*), INTENT(IN) :: RANAME,XXNAME
+  CHARACTER(1000) header,header_space
+  INTEGER :: file_idx1,file_idx2,file_idx3,file_idx4,readerr
+  INTEGER, INTENT(OUT) :: read_error
   REAL(wp) :: ZX(24),YX(24),PX,CX,CY
   INTEGER :: I,J,ITH,unitno1,unitno2,unitno3,unitno4,MM,N,ierr
   MM=256
@@ -1951,11 +1951,11 @@ end subroutine rcnvrtV
 subroutine rcnvrta_type(KXNAME,N,read_error)
 ! determine ATLAS VERSION if 900 or 9000; N=25 or 22
  use io_functions, only : get_new_fileunit
- implicit none
+ IMPLICIT NONE
  logical :: exists
  CHARACTER(80) KH1,KH2
- character(len=*), intent(in) :: KXNAME
- integer, intent(out) :: N, read_error
+ CHARACTER(len=*), INTENT(IN) :: KXNAME
+ INTEGER, INTENT(OUT) :: N, read_error
  INTEGER :: K,io,unitno,ierr
  read_error = 0
  inquire(file=trim(KXNAME), exist=exists)
@@ -2012,12 +2012,12 @@ subroutine rcnvrta(KXNAME,N,read_error)
  use io_functions, only : get_new_fileunit
  USE set_precision, ONLY : wp
  USE cornea_arrays, ONLY : Atlas, JMatrix
- implicit none
+ IMPLICIT NONE
  logical :: exists
  CHARACTER(80) KH1,KH2,KH3
- character(len=*), intent(in) :: KXNAME
- integer, intent(in) :: N
- integer, intent(out) :: read_error
+ CHARACTER(len=*), INTENT(IN) :: KXNAME
+ INTEGER, INTENT(IN) :: N
+ INTEGER, INTENT(OUT) :: read_error
  INTEGER :: K,I,J,io,ITH,JTH,unitno,MM,ierr
  REAL(wp) :: R,DIST,Y,POW,Z
  read_error = 0

@@ -2,26 +2,26 @@
 
        subroutine Geom(flag, b, donut, powmin, powmax, elements, vertices, nV, nE)
        use cornea_arrays, ONLY : wpJMatrix !, minmax, selectfunction !!aspirational for future use
-       use set_precision, ONLY : wp
-       use special_fct, only : colormap
-       use, intrinsic :: iso_c_binding, ONLY : c_float,c_int,c_int64_t
-       use, intrinsic ::  ieee_arithmetic
+       USE set_precision, ONLY : wp
+       USE special_fct, only : colormap
+       USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_int64_t
+       USE, INTRINSIC ::  ieee_arithmetic
        use ISO_FORTRAN_ENV, only: stdin=>input_unit     ! for the pause read(stdin,*)
        IMPLICIT NONE
        TYPE(wpJMatrix),INTENT(INOUT) :: b
-       real(wp), intent(INOUT) :: powmin,powmax
-       real(wp) :: X1,X2,X3,powctr
-       real(wp) :: vert1,vert2,vert3,nrm1,nrm2,nrm3,normal
-       real(c_float) :: c_vert(3),c_rgbv(3),c_norm(3)
-       real(wp) :: pow
-       integer :: i,j,k,kk,M1,N1,verts,faces,edges
-       integer(c_int64_t) :: map,fct,dat
-       integer(c_int) :: ivert1,ivert2,ivert3,ivert4
-       integer(c_int), INTENT(INOUT) :: elements(*)                          ! faces x 3   
-       real(c_float), INTENT(INOUT) :: vertices(*)                           ! vertices x 6 
-       integer(c_int64_t), INTENT(INOUT) :: flag
-       integer(c_int), INTENT(INOUT) :: nE, nV
-       logical, intent(IN) :: donut
+       REAL(wp), INTENT(INOUT) :: powmin,powmax
+       REAL(wp) :: X1,X2,X3,powctr
+       REAL(wp) :: vert1,vert2,vert3,nrm1,nrm2,nrm3,normal
+       REAL(c_float) :: c_vert(3),c_rgbv(3),c_norm(3)
+       REAL(wp) :: pow
+       INTEGER :: i,j,k,kk,M1,N1,verts,faces,edges
+       INTEGER(c_int64_t) :: map,fct,dat
+       INTEGER(c_int) :: ivert1,ivert2,ivert3,ivert4
+       INTEGER(c_int), INTENT(INOUT) :: elements(*)                          ! faces x 3   
+       REAL(c_float), INTENT(INOUT) :: vertices(*)                           ! vertices x 6 
+       INTEGER(c_int64_t), INTENT(INOUT) :: flag
+       INTEGER(c_int), INTENT(INOUT) :: nE, nV
+       logical, INTENT(IN) :: donut
        logical :: quad
 
        N1=size(b%r,1)
@@ -127,7 +127,7 @@
          if (btest(dat,11)) then  ! substitute scaled function for elevation
           X3=500*(pow-powmax)/(powmax-powmin)
          endif
-         vert3 = real(X3,kind=4)
+         vert3 = REAL(X3,kind=4)
          nrm1=0
          nrm2=0
          nrm3=1
@@ -189,9 +189,9 @@
           nrm2 = 0         ! for out of bound values
           nrm3 = 1         ! for out of bound values
          endif
-         vert1 = real(ABS(X2)*COS(X1),kind=4)   !explicitly make these c/w c_float
-         vert2 = real(ABS(X2)*SIN(X1),kind=4)
-         vert3 = real(X3,kind=4)  
+         vert1 = REAL(ABS(X2)*COS(X1),kind=4)   !explicitly make these c/w c_float
+         vert2 = REAL(ABS(X2)*SIN(X1),kind=4)
+         vert3 = REAL(X3,kind=4)  
          if (ieee_is_finite(vert3) .and. ieee_is_finite(vert2) .and. &
              ieee_is_finite(vert1) .and. ieee_is_finite(pow) .and. ieee_is_finite(nrm3)) then             
            c_rgbv=colormap(pow,powmin,powmax,map)/255.0  !openGL wants scale of 1.0 not 255

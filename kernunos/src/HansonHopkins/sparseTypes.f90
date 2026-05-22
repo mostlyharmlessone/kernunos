@@ -52,11 +52,11 @@
 ! assignment.
        INTEGER :: errFlag = 0
 ! values of the non-zero elements
-       real ( kind = 8 ), allocatable :: a(:)
+       REAL ( kind = 8 ), allocatable :: a(:)
 ! column index
-       integer ( kind = 4 ), allocatable :: ja(:)
+       INTEGER ( kind = 4 ), allocatable :: ja(:)
 ! row index
-       integer ( kind = 4 ), allocatable :: ia(:)
+       INTEGER ( kind = 4 ), allocatable :: ia(:)
       END TYPE dpCSRSparseMatrix
 
 ! The Harwell-Boeing column-oriented sparse format:

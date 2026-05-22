@@ -53,7 +53,7 @@ MODULE sparseUtils
 
       SUBROUTINE printDpmatrix(matrix)
        REAL (dkind), INTENT(IN) :: matrix(:,:)
-       integer :: row
+       INTEGER :: row
        do row=1,Size(matrix,1)
         WRITE(*,*) matrix(row,1:Size(matrix,2))
        end do

@@ -39,7 +39,7 @@
 !           the RGB model to that model. This allows many models to be
 !           supported, with only 2*N routines required to go from any
 !           model to any other.  That is, to go from model a to model b
-!           the intent is that you would use:
+!           the INTENT is that you would use:
 ! 
 !             call modela2rgb(...)
 !             call rgb2modelb(...)
@@ -53,7 +53,7 @@
 !      _________________________________________________________________
 
 module M_color
-implicit none
+IMPLICIT NONE
 private
 !----------------------------
 public  jucolor             ! converts a color's components from one color model to another
@@ -110,12 +110,12 @@ subroutine jucolor(modei,clr1i,clr2i,clr3i,modeo,clr1o,clr2o,clr3o,status)
 !     .   5   convert a set of values from one color model to another'
 !     . 999   unknown error
 !
-character(len=*),intent(in) :: modei
-real,intent(in)             :: clr1i,clr2i,clr3i
-character(len=*),intent(in) :: modeo
-real,intent(out)            :: clr1o,clr2o,clr3o
-integer,intent(out)         :: status
-character(len=3)            :: input_color_model,output_color_model
+CHARACTER(len=*),INTENT(IN) :: modei
+REAL,INTENT(IN)             :: clr1i,clr2i,clr3i
+CHARACTER(len=*),INTENT(IN) :: modeo
+REAL,INTENT(OUT)            :: clr1o,clr2o,clr3o
+INTEGER,INTENT(OUT)         :: status
+CHARACTER(len=3)            :: input_color_model,output_color_model
 real                        :: c1, c2, c3, r, g, b
 !-----------------------------------------------------------------------------------------------------------------------------------
 !-- initialize the status flag.
@@ -206,7 +206,7 @@ subroutine rgbhls(r0,g0,b0,h,l,s,status) !@(#)rgbhls: given red,green,blue value
 real    :: r0,g0,b0
 real    :: r,g,b,h,l,s
 real    :: clrmax,clrmin,clrdel,clrsum,rr,gg,bb
-integer :: status
+INTEGER :: status
    if(r0 .lt. 0.0 .or. r0 .gt. 100.0 ) status = 1 !---- passive check for valid range of values.
    if(g0 .lt. 0.0 .or. g0 .gt. 100.0 ) status = 1 !---- passive check for valid range of values.
    if(b0 .lt. 0.0 .or. b0 .gt. 100.0 ) status = 1 !---- passive check for valid range of values.
@@ -262,9 +262,9 @@ subroutine rgbhvs(r0,g0,b0,h,v,s,status) !@(#)rgbhvs: given red, green, blue cal
 !     desired: h as a value of 0 to 360 degrees.
 !     .        s and v each as a value of 0 to 100.
 !
-real,intent(in)  :: r0,g0,b0
-real,intent(out) :: h,v,s
-integer          :: status
+REAL,INTENT(IN)  :: r0,g0,b0
+REAL,INTENT(OUT) :: h,v,s
+INTEGER          :: status
 real             :: r,g,b
 real             :: clrmax,clrmin,clrdel,rr,gg,bb
    if(r0 .lt. 0.0 .or. r0 .gt. 100.0 ) status = 1 !---- check for valid range of values.
@@ -316,9 +316,9 @@ end subroutine rgbhvs
 subroutine cmyrgb(c,m,y,r,g,b,status) !@(#)cmyrgb: given cyan,magenta, and yellow calculate red,green,blue components
 ! given  : r, g, b each as a value of 0 to 100
 ! desired: c, m, y each as a value of 0 to 100
-real,intent(in)   :: c,m,y
-real,intent(out)  :: r,g,b
-integer           :: status
+REAL,INTENT(IN)   :: c,m,y
+REAL,INTENT(OUT)  :: r,g,b
+INTEGER           :: status
    if(c .lt. 0.0 .or. c .gt. 100.0 ) status = 1 !---- passively check for valid range of values.
    if(m .lt. 0.0 .or. m .gt. 100.0 ) status = 1 !---- passively check for valid range of values.
    if(y .lt. 0.0 .or. y .gt. 100.0 ) status = 1 !---- passively check for valid range of values.
@@ -332,9 +332,9 @@ end subroutine cmyrgb
 subroutine rgbcmy(r,g,b,c,m,y,status) !@(#)rgbcmy: given red,green,blue calculate cyan,magenta, and yellow components
 !     given  : r, g, b each as a value of 0 to 100
 !     desired: c, m, y each as a value of 0 to 100
-real,intent(in)  :: r,g,b
-real,intent(out) :: c,m,y
-integer          :: status
+REAL,INTENT(IN)  :: r,g,b
+REAL,INTENT(OUT) :: c,m,y
+INTEGER          :: status
    if(r .lt. 0.0 .or. r .gt. 100.0 ) status = 1 !---- check for valid range of values.
    if(g .lt. 0.0 .or. g .gt. 100.0 ) status = 1 !---- check for valid range of values.
    if(b .lt. 0.0 .or. b .gt. 100.0 ) status = 1 !---- check for valid range of values.
@@ -349,9 +349,9 @@ subroutine rgbmono(rr,rg,rb,ri,status) !@(#)rgbmono: convert RGB colors to a rea
 ! monochrome devices that support intensity can have intensity calculated from the specified Red, Green, Blue
 ! intensities as 0.30*R + 0.59*G + 0.11*B, as in US color television systems, NTSC encoding.
 ! Note that most devices do not have an infinite range of monochrome intensities available.
-real,intent(in)  :: rr,rg,rb                ! red, green, blue, & intensity range from 0 to 100
-real,intent(out) :: ri
-integer          :: status
+REAL,INTENT(IN)  :: rr,rg,rb                ! red, green, blue, & intensity range from 0 to 100
+REAL,INTENT(OUT) :: ri
+INTEGER          :: status
    if(rr .lt. 0.0 .or. rr .gt. 100.0 ) status = 1 !---- passive check for valid range of values.
    if(rg .lt. 0.0 .or. rg .gt. 100.0 ) status = 1 !---- passive check for valid range of values.
    if(rb .lt. 0.0 .or. rb .gt. 100.0 ) status = 1 !---- passive check for valid range of values.
@@ -398,9 +398,9 @@ subroutine hlsrgb(H,L,S,R,G,B,status) !@(#)hlsrgb: convert HLS(hue, lightness, s
 !     .        lightness and saturation each as a value of 0 to 100.
 !     desired: r, g, and b each as a value of 0 to 100.
 !
-real,intent(in)   :: H,L,S
-real,intent(out)  :: R,G,B
-integer           :: status
+REAL,INTENT(IN)   :: H,L,S
+REAL,INTENT(OUT)  :: R,G,B
+INTEGER           :: status
 real              :: hue,lightness,saturation
 real              :: clr1,clr2
    if(h .lt. 0.0 .or. h .gt.360.0 ) status = 1 ! passively report on bad input values
@@ -432,11 +432,11 @@ subroutine hvsrgb(h,v,s,r,g,b,status) !@(#)hvsrgb: given hue, saturation, value 
 !     given  : hue as value of 0 to 360 degrees.
 !     .        saturation and value each as a value of 0 to 100.
 !     desired: r, g, and b as a value of 0 to 100.
-real,intent(in)    :: h,v,s
-real,intent(out)   :: r,g,b
-integer            :: status
+REAL,INTENT(IN)    :: h,v,s
+REAL,INTENT(OUT)   :: r,g,b
+INTEGER            :: status
 real               :: hue,value,saturation
-integer            :: ifloor
+INTEGER            :: ifloor
 real               :: f,p,q,t
    if(h .lt. 0.0 .or. h .gt.360.0 ) status = 1 ! passively report on bad input values
    if(v .lt. 0.0 .or. v .gt.100.0 ) status = 1 ! passively report on bad input values
@@ -478,9 +478,9 @@ end subroutine hvsrgb
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 subroutine yiqrgb(y,i,q,r,g,b,status) !(@)yiqrgb: convert luma, orange-blue chrominance, and  purple-green chrominance calculate RGB
-real,intent(in)  :: y,i,q
-real,intent(out) :: r,g,b
-integer          :: status
+REAL,INTENT(IN)  :: y,i,q
+REAL,INTENT(OUT) :: r,g,b
+INTEGER          :: status
 !
 !----    i don't believe that this is an exhaustive test of value ranges
 !        for yiq.  for example yiq=(100.0,60.0,52.0) when converted to
@@ -508,9 +508,9 @@ end subroutine yiqrgb
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 subroutine rgbyiq(r,g,b,y,i,q,status) !@(#)rgbyiq: convert RGB to luma, orange-blue chrominance, and  purple-green chrominance
-real,intent(in)  :: r,g,b
-real,intent(out) :: y,i,q
-integer          :: status
+REAL,INTENT(IN)  :: r,g,b
+REAL,INTENT(OUT) :: y,i,q
+INTEGER          :: status
    if(r.lt.0.0 .or. r.gt.100.0) status=1
    if(g.lt.0.0 .or. g.gt.100.0) status=1
    if(b.lt.0.0 .or. b.gt.100.0) status=1
@@ -527,13 +527,13 @@ end subroutine rgbyiq
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 SUBROUTINE closest_color_name(r,g,b,closestname) !@(#)closest_color_name: given RGB values, try to find closest named color
-real,intent(in)               :: r,g,b
-character(len=20),intent(out) :: closestname
+REAL,INTENT(IN)               :: r,g,b
+CHARACTER(len=20),INTENT(OUT) :: closestname
 real                          :: rn,gn,bn
 real                          :: distance, minimum_distance
-character(len=20)             :: echoname
-character(len=20)             :: cnum
-integer                       :: i
+CHARACTER(len=20)             :: echoname
+CHARACTER(len=20)             :: cnum
+INTEGER                       :: i
 !-----------------------------------------------------------------------------------------------------------------------------------
    minimum_distance=1000.0
    closestname='Unknown'
@@ -552,10 +552,10 @@ end SUBROUTINE closest_color_name
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
 subroutine color_name2rgb(name,r,g,b,echoname) !@(#)color_name2rgb: given a color name, return rgb color values in range 0 to 100
-character(len=*),intent(in)            :: name
-real,intent(out)                       :: r,g,b
-character(len=*),intent(out),optional  :: echoname
-character(len=20)                      :: newname
+CHARACTER(len=*),INTENT(IN)            :: name
+REAL,INTENT(OUT)                       :: r,g,b
+CHARACTER(len=*),INTENT(OUT),optional  :: echoname
+CHARACTER(len=20)                      :: newname
 !-----------------------------------------------------------------------------------------------------------------------------------
 ! returns name in ECHONAME; which is usually not useful unless NAME represents an integer string.
 ! Note that an integer converted to a string can be used to go sequentially thru the names until NEWNAME="Unknown"

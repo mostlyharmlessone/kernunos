@@ -3,26 +3,26 @@
        subroutine WriteGeomPLY(flag,b,donut,powmin,powmax,PLYNAME)
        use io_functions, only : get_new_fileunit
        use cornea_arrays
-       use parameters
-       use set_precision, ONLY : wp
-       use special_fct, only : colormap
+       USE parameters
+       USE set_precision, ONLY : wp
+       USE special_fct, only : colormap
        use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
-       use, intrinsic :: iso_c_binding, ONLY : c_float,c_int,c_int64_t
-       use, intrinsic ::  ieee_arithmetic
+       USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_int64_t
+       USE, INTRINSIC ::  ieee_arithmetic
        TYPE(wpJMatrix),INTENT(IN) :: b
-       character(len=*), intent(in) :: PLYNAME
-       real(wp), intent(IN) :: powmin,powmax
-       logical, intent(IN) :: donut
-       integer(c_int64_t), INTENT(INOUT) :: flag
-       real(wp) :: X1,X2,X3
-       real(REAL32) :: vert1,vert2,vert3,nrm1,nrm2,nrm3,normal
-       real(wp) :: pow
-       integer :: i,j,M1,N1,verts,faces,edges,unitno1,ierr
-       integer(c_int64_t) :: map,fct,dat
-       character(400) :: message
-       integer(INT32) :: ivert1,ivert2,ivert3,ivert4,vertnum
+       CHARACTER(len=*), INTENT(IN) :: PLYNAME
+       REAL(wp), INTENT(IN) :: powmin,powmax
+       logical, INTENT(IN) :: donut
+       INTEGER(c_int64_t), INTENT(INOUT) :: flag
+       REAL(wp) :: X1,X2,X3
+       REAL(REAL32) :: vert1,vert2,vert3,nrm1,nrm2,nrm3,normal
+       REAL(wp) :: pow
+       INTEGER :: i,j,M1,N1,verts,faces,edges,unitno1,ierr
+       INTEGER(c_int64_t) :: map,fct,dat
+       CHARACTER(400) :: message
+       INTEGER(INT32) :: ivert1,ivert2,ivert3,ivert4,vertnum
        logical :: quad
-       integer(int16) :: rgbv(3)  
+       INTEGER(int16) :: rgbv(3)  
 
        map=mod((flag-mod(flag,100))/100,100)
        dat=(flag-mod(flag,1000000))/1000000
@@ -155,7 +155,7 @@
          nrm1=0
          nrm2=0
          nrm3=1
-         vert3 = real(X3,kind=REAL32)
+         vert3 = REAL(X3,kind=REAL32)
          if (ieee_is_finite(vert3)) then
           rgbv=colormap(pow,powmin,powmax,map)
          else
@@ -210,9 +210,9 @@
            nrm2 = 0         ! for out of bound values
            nrm3 = 1         ! for out of bound values
           endif
-          vert1 = real(ABS(X2)*COS(X1),kind=REAL32)
-          vert2 = real(ABS(X2)*SIN(X1),kind=REAL32)
-          vert3 = real(X3,kind=REAL32)
+          vert1 = REAL(ABS(X2)*COS(X1),kind=REAL32)
+          vert2 = REAL(ABS(X2)*SIN(X1),kind=REAL32)
+          vert3 = REAL(X3,kind=REAL32)
          if (ieee_is_finite(vert1) .AND. ieee_is_finite(vert2) .AND. ieee_is_finite(vert3) .and. ieee_is_finite(nrm3)) then
           rgbv=colormap(pow,powmin,powmax,map)
          else

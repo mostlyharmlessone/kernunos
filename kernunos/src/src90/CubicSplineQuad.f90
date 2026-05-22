@@ -1,15 +1,15 @@
 subroutine CubicSplineQuad(ii,iflag,rv,zv,z2v,n,r,z)
 !  Cubic Spline Quadrature using Forsythe p.90
 !  ONLY used for radial splines KP=0
- use set_precision, only : wp
+ USE set_precision, only : wp
  use spline_interfaces, ONLY : SplineEval, SplineEvalCenter
- use special_fct, ONLY : bsearch
-  integer, INTENT(IN) :: n,iflag,ii
-  real(wp), INTENT(IN) ::  rv(n)
-  real(wp), INTENT(IN) ::  zv(n),z2v(n),r
-  real(wp), INTENT(OUT) :: z
-  real(wp) :: QUAD,z1,z2
-  integer :: i, high, low
+ USE special_fct, ONLY : bsearch
+  INTEGER, INTENT(IN) :: n,iflag,ii
+  REAL(wp), INTENT(IN) ::  rv(n)
+  REAL(wp), INTENT(IN) ::  zv(n),z2v(n),r
+  REAL(wp), INTENT(OUT) :: z
+  REAL(wp) :: QUAD,z1,z2
+  INTEGER :: i, high, low
    call bsearch(r,rv,n,high,low)
 !  from Forsythe p.90
    QUAD=0

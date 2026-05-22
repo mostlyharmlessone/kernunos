@@ -94,10 +94,10 @@
 ! Define some  triplets
       TYPE (dpTriplet), ALLOCATABLE :: triplets(:)
 ! Define variables for LAPACK and printing results
-      real(dkind), ALLOCATABLE :: dense(:,:),d(:)
-      integer, allocatable :: ipiv(:)
-      integer :: info
-      real(dkind) :: sumsq,y,y1,y2,z,zs
+      REAL(dkind), ALLOCATABLE :: dense(:,:),d(:)
+      INTEGER, allocatable :: ipiv(:)
+      INTEGER :: info
+      REAL(dkind) :: sumsq,y,y1,y2,z,zs
 ! Define the Harwell-Boeing derived type that holds the
 ! processed triplets.
       TYPE (dpHBSparseMatrix) :: b

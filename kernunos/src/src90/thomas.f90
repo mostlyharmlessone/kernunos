@@ -1,11 +1,11 @@
 subroutine thomas(a,b,c,d,z,n,k) ! "Llewellyn Thomas" algorithm for tridiagonal banded matrices"
 ! Adapted from https://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm
-use set_precision, only : wp
+USE set_precision, only : wp
 !use,intrinsic :: ieee_arithmetic
-implicit none
-integer, INTENT(IN) :: n,k
+IMPLICIT NONE
+INTEGER, INTENT(IN) :: n,k
 real(wp), INTENT(INOUT) :: a(n),b(n),c(n),d(k,n)
-real (wp), INTENT(OUT) :: z(k,n)
+REAL (wp), INTENT(OUT) :: z(k,n)
 real(wp) :: g !,f
 integer i
 !logical :: IsNaN

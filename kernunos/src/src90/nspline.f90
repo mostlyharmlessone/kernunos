@@ -1,17 +1,17 @@
  subroutine nspline(r,z,n,z2,err_report)
- use set_precision, only : wp
+ USE set_precision, only : wp
  use LapackInterface, only : dgtsv
  use spline_interfaces, only : thomas
  use,intrinsic :: ieee_arithmetic
- implicit none
-  integer, INTENT(IN) :: n
-  real(wp), INTENT(IN) ::  r(n)
-  real(wp), INTENT(IN) ::  z(n)
-  real(wp), INTENT(OUT) :: z2(n) 
-  integer, INTENT(OUT) :: err_report
-  real(wp),allocatable ::  a(:),b(:),c(:),d(:),zz2(:),a_short(:)
-  integer :: i,info    ! for lapack use below
-  real(wp) :: f      ! error handling
+ IMPLICIT NONE
+  INTEGER, INTENT(IN) :: n
+  REAL(wp), INTENT(IN) ::  r(n)
+  REAL(wp), INTENT(IN) ::  z(n)
+  REAL(wp), INTENT(OUT) :: z2(n) 
+  INTEGER, INTENT(OUT) :: err_report
+  REAL(wp),allocatable ::  a(:),b(:),c(:),d(:),zz2(:),a_short(:)
+  INTEGER :: i,info    ! for lapack use below
+  REAL(wp) :: f      ! error handling
   logical :: IsNaN    
   INFO=0   ; err_report = 0
  ! if(r(1) .eq. r(2)) then

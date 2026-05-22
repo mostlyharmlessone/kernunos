@@ -56,7 +56,7 @@
       USE sluInterop, ONLY: OPERATOR(.ip.), ASSIGNMENT(=) 
       USE sparseAssign, ONLY: ASSIGNMENT(=)
       USE lapackinterface, ONLY: dnrm2, dgesv
-      use special_fct, ONLY : bsearch
+      USE special_fct, ONLY : bsearch
       USE sparseUtils
 
       IMPLICIT NONE
@@ -72,13 +72,13 @@
       END INTERFACE
 
 ! Number of data points
-      integer, INTENT(IN) :: m
+      INTEGER, INTENT(IN) :: m
 ! Data points
-      real(wp), INTENT(IN) ::  t(m),y(m)
+      REAL(wp), INTENT(IN) ::  t(m),y(m)
 ! number of knots:
       INTEGER, INTENT(IN) :: n  
 ! knots function, second derivatives of spline at knots
-      real(wp), INTENT(OUT) :: a(n),z(n),z2(n)
+      REAL(wp), INTENT(OUT) :: a(n),z(n),z2(n)
 ! periodic = true means periodic bc, false, natural spline conditions
 ! csr = true means using the Gram product ATA and the 3n x 3n system, false means using the H&H M+3*n system
 ! sparse = true means using superlu to solve the system, false means converting to a dense matrix and using LAPACK
@@ -86,7 +86,7 @@
       LOGICAL, INTENT(IN) :: periodic, csr , sparse
 
 ! error reporting 
-      integer, INTENT(OUT) :: err_report
+      INTEGER, INTENT(OUT) :: err_report
 
 ! Real constants
       REAL(wp), PARAMETER :: one=1.0E0_wp, zero=0.0E0_wp
@@ -102,9 +102,9 @@
 ! Define some  triplets
       TYPE (dpTriplet), ALLOCATABLE :: triplets(:)
 ! Define variables for LAPACK 
-      real(wp), ALLOCATABLE :: dense(:,:),d(:)
-      integer, allocatable :: ipiv(:)
-      integer :: info
+      REAL(wp), ALLOCATABLE :: dense(:,:),d(:)
+      INTEGER, allocatable :: ipiv(:)
+      INTEGER :: info
 ! Define the Harwell-Boeing derived type that holds the
 ! processed triplets.
       TYPE (dpHBSparseMatrix) :: b

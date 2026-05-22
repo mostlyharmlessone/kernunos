@@ -1,60 +1,60 @@
   subroutine Janus(flag,file_from_C,elements,vertices,legend,cardinal,zern,nV,nE,nL,nC,pupil_elements,pupil_vertices,pupil_nV,pupil_nE,err_janus) bind(C,name='janus_')
 ! back end for calculations
-  use set_precision, ONLY : wp, sk
+  USE set_precision, ONLY : wp, sk
   use lapackinterface
   use cornea_arrays
-  use parameters
-  use special_fct
+  USE parameters
+  USE special_fct
   use io_functions
   use spline_interfaces
   use,intrinsic :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char,c_int64_t,c_double
-  use, intrinsic :: iso_fortran_env
+  USE, INTRINSIC :: iso_fortran_env
   use,intrinsic :: ieee_arithmetic
   use c_interfaces, ONLY : LogC, Ccounter, ConvertPLYtoBIN, charcount
   use omp_lib
   IMPLICIT NONE
-  integer :: i, j, k, ii, kk, m, nn, i1, j1, ierr, info, nrhs
-  integer,save :: MM, N ,M1, N1, Power_Rings_Count, loaded_files, crop
-  integer,save :: TestData             ! TestData: -1=test, 0=EyeSys, 1=Atlas, (2-5)=Penta, 6=Nidek, 7=Keratograph
-  integer,save :: NP                   ! PentaCam=141
-  integer :: unitno1
-  character(c_char), INTENT(IN), DIMENSION(4096) :: file_from_C
-  integer(c_int64_t), INTENT(INOUT) :: flag
-  integer(c_int), INTENT(INOUT) :: nV 
-  integer(c_int), INTENT(INOUT) :: nE               
-  real(c_float), INTENT(INOUT) :: vertices(*)
-  integer(c_int), INTENT(INOUT) :: elements(*)
-  integer(c_int), INTENT(INOUT) :: pupil_nV
-  integer(c_int), INTENT(INOUT) :: pupil_nE
-  integer(c_int), INTENT(INOUT) :: err_janus
-  real(c_float), INTENT(INOUT) :: pupil_vertices(*)
-  integer(c_int), INTENT(INOUT) :: pupil_elements(*)
-  integer(c_int), INTENT(INOUT) :: nL,nC
-  real(c_float), INTENT(INOUT) :: legend(*)
-  real(c_double), INTENT(INOUT) :: cardinal(*)
-  real(c_float), INTENT(INOUT) :: zern(*)
-  real(c_float) :: dist
-  character(len=4096) :: new_path
-  character(:),save, ALLOCATABLE :: inputfile1,inputfile2,inputfile3,inputfile4,inputfile5,inputfile6,inputfile7
-  character(:),save, ALLOCATABLE :: logfile,BigPlot,gnu_instruct,cab_inputfile1,cab_inputfile2,cab_inputfile3,cab_inputfile4
-  integer ::  nblines, file_idx, read_error, io, new_crop
-  integer,allocatable :: MV(:)
-  real(8) :: time_start, time_end
-  real(wp) :: POWMIN,POWMAX,POWMAX2,POWCTR,POW,P1,X1,X2,U,V,UT,VT,WT,ZT
+  INTEGER :: i, j, k, ii, kk, m, nn, i1, j1, ierr, info, nrhs
+  INTEGER,save :: MM, N ,M1, N1, Power_Rings_Count, loaded_files, crop
+  INTEGER,save :: TestData             ! TestData: -1=test, 0=EyeSys, 1=Atlas, (2-5)=Penta, 6=Nidek, 7=Keratograph
+  INTEGER,save :: NP                   ! PentaCam=141
+  INTEGER :: unitno1
+  CHARACTER(c_char), INTENT(IN), DIMENSION(4096) :: file_from_C
+  INTEGER(c_int64_t), INTENT(INOUT) :: flag
+  INTEGER(c_int), INTENT(INOUT) :: nV
+  INTEGER(c_int), INTENT(INOUT) :: nE
+  REAL(c_float), INTENT(INOUT) :: vertices(*)
+  INTEGER(c_int), INTENT(INOUT) :: elements(*)
+  INTEGER(c_int), INTENT(INOUT) :: pupil_nV
+  INTEGER(c_int), INTENT(INOUT) :: pupil_nE
+  INTEGER(c_int), INTENT(INOUT) :: err_janus
+  REAL(c_float), INTENT(INOUT) :: pupil_vertices(*)
+  INTEGER(c_int), INTENT(INOUT) :: pupil_elements(*)
+  INTEGER(c_int), INTENT(INOUT) :: nL,nC
+  REAL(c_float), INTENT(INOUT) :: legend(*)
+  REAL(c_double), INTENT(INOUT) :: cardinal(*)
+  REAL(c_float), INTENT(INOUT) :: zern(*)
+  REAL(c_float) :: dist
+  CHARACTER(len=4096) :: new_path
+  CHARACTER(:),save, ALLOCATABLE :: inputfile1,inputfile2,inputfile3,inputfile4,inputfile5,inputfile6,inputfile7
+  CHARACTER(:),save, ALLOCATABLE :: logfile,BigPlot,gnu_instruct,cab_inputfile1,cab_inputfile2,cab_inputfile3,cab_inputfile4
+  INTEGER ::  nblines, file_idx, read_error, io, new_crop
+  INTEGER,allocatable :: MV(:)
+  REAL(8) :: time_start, time_end
+  REAL(wp) :: POWMIN,POWMAX,POWMAX2,POWCTR,POW,P1,X1,X2,U,V,UT,VT,WT,ZT
   logical :: donut, exists
-  real(wp) :: Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo,dvert,dhoriz,percent_squash
-  integer :: k_max, kk_max, iflag, LWORK, rotationdegrees
-  integer(c_int64_t) :: dat, fct, map
-  integer(c_int) ::  error_report
-  real(wp), allocatable :: zernC(:,:), B_Matrix(:,:), rlocal(:), thtlocal(:), WORK(:)
-!  real(wp), allocatable :: XTX(:,:),EE(:,:)
-!  integer, allocatable :: IPIV(:)
-  real(wp) :: ctr_circle_x, ctr_circle_y, R_global, Theta_global, R_MV, R_TST !, P_TEMP
-  real(wp) :: gaussian,meanpower,princ1,princ2,astigm
-  real(wp), allocatable :: temp(:,:)
+  REAL(wp) :: Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo,dvert,dhoriz,percent_squash
+  INTEGER :: k_max, kk_max, iflag, LWORK, rotationdegrees
+  INTEGER(c_int64_t) :: dat, fct, map
+  INTEGER(c_int) ::  error_report
+  REAL(wp), allocatable :: zernC(:,:), B_Matrix(:,:), rlocal(:), thtlocal(:), WORK(:)
+!  REAL(wp), allocatable :: XTX(:,:),EE(:,:)
+!  INTEGER, allocatable :: IPIV(:)
+  REAL(wp) :: ctr_circle_x, ctr_circle_y, R_global, Theta_global, R_MV, R_TST !, P_TEMP
+  REAL(wp) :: gaussian,meanpower,princ1,princ2,astigm
+  REAL(wp), allocatable :: temp(:,:)
   logical :: lsq
-  integer(c_int) :: periodcount
-  integer(c_int64_t), parameter :: zero_int64 = 0
+  INTEGER(c_int) :: periodcount
+  INTEGER(c_int64_t), parameter :: zero_int64 = 0
 
 err_janus = 0 ; error_report = 0 ;
 if (loaded_files .le. 0) loaded_files = 0
@@ -240,7 +240,7 @@ if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3) then
 !! did this because GCC11 isn't F2018 compliant with deferred length character with Bind C
 !! ie. can't do CHARACTER(*,c_char), INTENT(IN) :: file_from_C_1 with BIND(C) with GCC
 !! Or is it that ISO_Fortran_binding.h isn't available, or C++ not C?
-!! declaring character(len=12), dimension(:), allocatable :: args with args(1) works too, but limited in length
+!! declaring CHARACTER(len=12), dimension(:), allocatable :: args with args(1) works too, but limited in length
 !   Converting C char array to Fortran character.
     new_path = " "
     do i=1, 4096
@@ -260,13 +260,13 @@ if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3) then
   deallocate(inputfile5)
   deallocate(logfile)
  endif
- allocate(character(nblines) :: inputfile1)
- allocate(character(nblines) :: logfile)
+ allocate(CHARACTER(nblines) :: inputfile1)
+ allocate(CHARACTER(nblines) :: logfile)
  inputfile1=trim(new_path)
- allocate(character(nblines) :: inputfile2)
- allocate(character(nblines) :: inputfile3)
- allocate(character(nblines+3) :: inputfile4)
- allocate(character(nblines+3) :: inputfile5)
+ allocate(CHARACTER(nblines) :: inputfile2)
+ allocate(CHARACTER(nblines) :: inputfile3)
+ allocate(CHARACTER(nblines+3) :: inputfile4)
+ allocate(CHARACTER(nblines+3) :: inputfile5)
 endif  ! mod(flag,100) == 0, 10, 2, or 3
 
 
@@ -286,8 +286,8 @@ if (mod(flag,100) .eq. 5 .or. mod(flag,100) .eq. 6 .or.&
   deallocate(BigPlot)
   deallocate(gnu_instruct)
  endif
-  allocate(character(nblines) :: BigPlot)
-  allocate(character(nblines) :: gnu_instruct)
+  allocate(CHARACTER(nblines) :: BigPlot)
+  allocate(CHARACTER(nblines) :: gnu_instruct)
   gnu_instruct=trim(new_path)
   BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".plt")
 endif
@@ -510,7 +510,7 @@ if (mod(flag,100) == 11) then
   JMatrix1=JMatrix2
   donut = .FALSE.
   call selectfunction(0,JMatrix,flag,powctr,powmin,powmax,cardinal,nC)
-  dist = real(-2*JMatrix%Z0(3),kind=sk)
+  dist = REAL(-2*JMatrix%Z0(3),kind=sk)
 ! generate buffer data
   pupil_elements(1:pupil_nE)=0
   pupil_vertices(1:pupil_nV)=0
@@ -864,7 +864,7 @@ if (mod(flag,100) == 0) then
            if (allocated(cab_inputfile1)) then
             deallocate(cab_inputfile1)
            endif
-           allocate(character(nblines) :: cab_inputfile1)
+           allocate(CHARACTER(nblines) :: cab_inputfile1)
            cab_inputfile1=inputfile1
            file_idx=index(inputfile1, "_OS.")
            if (file_idx == 0 ) then  !OD
@@ -1353,7 +1353,7 @@ if (TestData .eq. 6) then
 !  test for compressed cabinet files
    file_idx=index(inputfile1, ".CAB")
    if ( file_idx .ne. 0 )  then
-    allocate(character(nblines) :: cab_inputfile1)
+    allocate(CHARACTER(nblines) :: cab_inputfile1)
     cab_inputfile1=inputfile1
     call execute_command_line ('cabextract ' // cab_inputfile1, exitstat=io)
     if (io == 0) then
@@ -1366,7 +1366,7 @@ if (TestData .eq. 6) then
      deallocate(cab_inputfile1)
      return
     endif
-    allocate(character(nblines) :: cab_inputfile2)
+    allocate(CHARACTER(nblines) :: cab_inputfile2)
     cab_inputfile2=inputfile2
     call execute_command_line ('cabextract ' // cab_inputfile2, exitstat=io)
     if (io == 0) then
@@ -1381,7 +1381,7 @@ if (TestData .eq. 6) then
     endif
     inquire(file=trim(inputfile4), exist=exists)
     if (exists) then
-     allocate(character(nblines) :: cab_inputfile4)
+     allocate(CHARACTER(nblines) :: cab_inputfile4)
      cab_inputfile4=inputfile4
      call execute_command_line ('cabextract ' // cab_inputfile4, exitstat=io)
      if (io == 0) then
@@ -2542,7 +2542,7 @@ endif
 ! flag/fct determines what to write for elevation and color, just like in flag=2,3 output versions above
   donut = .FALSE.
   call selectfunction(0,JMatrix,flag,powctr,powmin,powmax,cardinal,nC)
-  dist = real(-2*JMatrix%Z0(3),kind=sk)
+  dist = REAL(-2*JMatrix%Z0(3),kind=sk)
 ! generate buffer data
   pupil_elements(1:pupil_nE)=0
   pupil_vertices(1:pupil_nV)=0

@@ -1,19 +1,19 @@
 !      Generates legend for a colormap
 
        subroutine makelegend(flag, powmin, powmax, legend, nL)
-       use set_precision, ONLY : wp
-       use special_fct, only : colormap
-       use, intrinsic :: iso_c_binding, ONLY : c_float,c_int, c_int64_t
-       use, intrinsic ::  ieee_arithmetic
+       USE set_precision, ONLY : wp
+       USE special_fct, only : colormap
+       USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int, c_int64_t
+       USE, INTRINSIC ::  ieee_arithmetic
        use ISO_FORTRAN_ENV, only: stdin=>input_unit     ! for the pause read(stdin,*)    
-       real(wp), intent(INOUT) :: powmin,powmax
-       real(c_float) :: c_pow,c_rgbv(3)
-       integer :: k
-       real(wp) :: pow,maximum,minimum
-       real(c_float), INTENT(INOUT) :: legend(*)
-       integer(c_int64_t), INTENT(INOUT) :: flag
-       integer(c_int64_t) :: map
-       integer(c_int), INTENT(INOUT) :: nL
+       REAL(wp), INTENT(INOUT) :: powmin,powmax
+       REAL(c_float) :: c_pow,c_rgbv(3)
+       INTEGER :: k
+       REAL(wp) :: pow,maximum,minimum
+       REAL(c_float), INTENT(INOUT) :: legend(*)
+       INTEGER(c_int64_t), INTENT(INOUT) :: flag
+       INTEGER(c_int64_t) :: map
+       INTEGER(c_int), INTENT(INOUT) :: nL
 
        map=mod((flag-mod(flag,100))/100,100)
 

@@ -6,7 +6,7 @@
     MODULE set_precision
     use iso_fortran_env, only: int8, int16, int32, int64
     use iso_c_binding, only: c_bool, c_int
-    implicit none
+    IMPLICIT NONE
     private
     public :: wp, sk, sp, dp, xdp, qp, int8, int16, int32, int64, lk, c_bool, skind, dkind, int2d, int3d, c_int
 ! ..
@@ -32,11 +32,11 @@
       INTEGER, PARAMETER :: wp = dkind
       INTEGER, PARAMETER :: sk = skind
 
-      integer, parameter :: sp = selected_real_kind(6)
-      integer, parameter :: dp = selected_real_kind(15)
-      integer, parameter :: xdp = selected_real_kind(18)
-      integer, parameter :: qp = selected_real_kind(33)
-      integer, parameter :: lk = kind(.true.)
+      INTEGER, parameter :: sp = selected_real_kind(6)
+      INTEGER, parameter :: dp = selected_real_kind(15)
+      INTEGER, parameter :: xdp = selected_real_kind(18)
+      INTEGER, parameter :: qp = selected_real_kind(33)
+      INTEGER, parameter :: lk = kind(.true.)
 
 
 !-----------------------------------------------------------

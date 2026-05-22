@@ -7,20 +7,20 @@ module c_interfaces
  USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char,c_int64_t,c_double
  IMPLICIT NONE 
  CHARACTER(c_char), INTENT(IN), DIMENSION(4096) :: file_from_C
- integer(c_int64_t), INTENT(INOUT) :: flag
- integer(c_int), INTENT(INOUT) :: nV 
- integer(c_int), INTENT(INOUT) :: nE               
- real(c_float), INTENT(INOUT) :: vertices(*)
- integer(c_int), INTENT(INOUT) :: elements(*) 
- integer(c_int), INTENT(INOUT) :: pupil_nV
- integer(c_int), INTENT(INOUT) :: pupil_nE
- integer(c_int), INTENT(INOUT) :: err_janus
- real(c_float), INTENT(INOUT) :: pupil_vertices(*)
- integer(c_int), INTENT(INOUT) :: pupil_elements(*)
- integer(c_int), INTENT(INOUT) :: nL,nC
- real(c_float), INTENT(INOUT) :: legend(*)
- real(c_double), INTENT(INOUT) :: cardinal(*)
- real(c_float), INTENT(INOUT) :: zern(*)
+ INTEGER(c_int64_t), INTENT(INOUT) :: flag
+ INTEGER(c_int), INTENT(INOUT) :: nV
+ INTEGER(c_int), INTENT(INOUT) :: nE
+ REAL(c_float), INTENT(INOUT) :: vertices(*)
+ INTEGER(c_int), INTENT(INOUT) :: elements(*)
+ INTEGER(c_int), INTENT(INOUT) :: pupil_nV
+ INTEGER(c_int), INTENT(INOUT) :: pupil_nE
+ INTEGER(c_int), INTENT(INOUT) :: err_janus
+ REAL(c_float), INTENT(INOUT) :: pupil_vertices(*)
+ INTEGER(c_int), INTENT(INOUT) :: pupil_elements(*)
+ INTEGER(c_int), INTENT(INOUT) :: nL,nC
+ REAL(c_float), INTENT(INOUT) :: legend(*)
+ REAL(c_double), INTENT(INOUT) :: cardinal(*)
+ REAL(c_float), INTENT(INOUT) :: zern(*)
 END SUBROUTINE Janus
 
 ! call from c++ to fortran as extern "C" 
@@ -28,16 +28,16 @@ END SUBROUTINE Janus
 ! Reads OFF file created by WriteOFF and generates ASCII and binary STL files 
 ! modified to be called from C/C++
   use, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
-  implicit none
-  character(c_char), INTENT(INOUT), DIMENSION(4096) :: INAME,ONAME
-  integer(c_int),INTENT(IN) :: deftype
+  IMPLICIT NONE
+  CHARACTER(c_char), INTENT(INOUT), DIMENSION(4096) :: INAME,ONAME
+  INTEGER(c_int),INTENT(IN) :: deftype
 end subroutine ConvertOFFtoSTL_C
 
 ! call from c++ to fortran as extern "C"
 subroutine get_compiler_name(c_f) BIND(C, NAME='get_compiler_name_')
- use, intrinsic :: iso_c_binding, ONLY : c_char, c_null_char
- use, intrinsic :: iso_fortran_env
- character(kind=c_char), dimension(*), intent(inout) :: c_f
+ USE, INTRINSIC :: iso_c_binding, ONLY : c_char, c_null_char
+ USE, INTRINSIC :: iso_fortran_env
+ CHARACTER(kind=c_char), dimension(*), INTENT(inout) :: c_f
 end subroutine get_compiler_name
 
 ! call from fortran to c
@@ -58,13 +58,13 @@ function CharCount(iname) BIND(C,name='charcount')
 ! counts the periods "." in a file for determinng mire number
 USE, INTRINSIC :: iso_c_binding, ONLY : c_char, c_int, c_null_char
  CHARACTER(c_char), INTENT(IN), dimension(*) :: iname
- integer(c_int) :: charcount
+ INTEGER(c_int) :: charcount
 end function CharCount
 
 subroutine Ccounter(inc, iname) BIND(C,name='Ccounter')
 ! used to show progression of calculation and print zernike result when done
 USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_char,c_null_char
- integer(c_int), INTENT(IN) :: inc
+ INTEGER(c_int), INTENT(IN) :: inc
  CHARACTER(c_char), INTENT(IN), dimension(*) :: iname
 end subroutine Ccounter
 

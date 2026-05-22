@@ -3,25 +3,25 @@
        subroutine WriteGeomOFF(flag,b,donut,powmin,powmax,OFFNAME)
        use io_functions, only : get_new_fileunit
        use cornea_arrays
-       use parameters
-       use set_precision, ONLY : wp
-       use special_fct, only : colormap
+       USE parameters
+       USE set_precision, ONLY : wp
+       USE special_fct, only : colormap
        use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
-       use, intrinsic :: iso_c_binding, ONLY : c_float,c_int, c_int64_t
-       use, intrinsic ::  ieee_arithmetic
+       USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int, c_int64_t
+       USE, INTRINSIC ::  ieee_arithmetic
        TYPE(wpJMatrix),INTENT(IN) :: b
-       character(len=*), intent(in) :: OFFNAME
-       real(wp), intent(IN) :: powmin,powmax
-       logical, intent(IN) :: donut
-       integer(c_int64_t), INTENT(INOUT) :: flag
-       real(wp) :: X1,X2,X3
-       real(REAL32) :: vert1,vert2,vert3
-       real(wp) :: pow_vert1,pow_vert2,pow_vert3,pow_vert4,pow_face4,pow_face3_1,pow_face3_2
-       integer :: i,j,M1,N1,verts,faces,edges,unitno3,ierr
-       integer(c_int64_t) :: map,fct,dat
-       integer(INT32) :: ivert1,ivert2,ivert3,ivert4,vertnum
+       CHARACTER(len=*), INTENT(IN) :: OFFNAME
+       REAL(wp), INTENT(IN) :: powmin,powmax
+       logical, INTENT(IN) :: donut
+       INTEGER(c_int64_t), INTENT(INOUT) :: flag
+       REAL(wp) :: X1,X2,X3
+       REAL(REAL32) :: vert1,vert2,vert3
+       REAL(wp) :: pow_vert1,pow_vert2,pow_vert3,pow_vert4,pow_face4,pow_face3_1,pow_face3_2
+       INTEGER :: i,j,M1,N1,verts,faces,edges,unitno3,ierr
+       INTEGER(c_int64_t) :: map,fct,dat
+       INTEGER(INT32) :: ivert1,ivert2,ivert3,ivert4,vertnum
        logical :: quad
-       integer(int16) :: rgbv(3)
+       INTEGER(int16) :: rgbv(3)
 
        map=mod((flag-mod(flag,100))/100,100)
        dat=(flag-mod(flag,1000000))/1000000
@@ -127,7 +127,7 @@
          if (btest(dat,11)) then  ! substitute scaled function for elevation
           X3=500*(pow-powmax)/(powmax-powmin)
          endif
-         vert3 = real(X3,kind=REAL32)
+         vert3 = REAL(X3,kind=REAL32)
          if (ieee_is_finite(vert3)) then
           ! ok
          else
@@ -164,13 +164,13 @@
           END SELECT
           endif
          endif
-          vert1 = real(ABS(X2)*COS(X1),kind=REAL32)
-          vert2 = real(ABS(X2)*SIN(X1),kind=REAL32)
+          vert1 = REAL(ABS(X2)*COS(X1),kind=REAL32)
+          vert2 = REAL(ABS(X2)*SIN(X1),kind=REAL32)
           X3=-b%Z(j,i)
           if (btest(dat,11)) then  ! substitute scaled function for elevation
            X3=500*(pow-powmax)/(powmax-powmin)
           endif
-          vert3 = real(X3,kind=REAL32)
+          vert3 = REAL(X3,kind=REAL32)
          if (ieee_is_finite(vert1) .AND. ieee_is_finite(vert2) .AND. ieee_is_finite(vert3)) then
           ! ok
          else

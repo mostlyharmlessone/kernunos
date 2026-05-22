@@ -1,12 +1,12 @@
 subroutine lsqfit(t,z,M1,M2,c)
-use set_precision, only :  wp
+USE set_precision, only :  wp
 use LapackInterface, ONLY : dgetrf, dgetrs !, dgels, GaussJordan
-REAL(wp), intent(in) :: t(M1),z(M1)
-INTEGER, intent(in) :: M1,M2
-REAL(wp), intent(out) ::c(M2)
- integer :: M1,j,k,info,ipvt(M2) !,LWORK1
- real(wp) :: X(M2,M1),zpX(M2),XTX(M2,M2) !,zwork(M1)
-! real(wp), allocatable :: WORK1(:)
+REAL(wp), INTENT(IN) :: t(M1),z(M1)
+INTEGER, INTENT(IN) :: M1,M2
+REAL(wp), INTENT(OUT) ::c(M2)
+ INTEGER :: M1,j,k,info,ipvt(M2) !,LWORK1
+ REAL(wp) :: X(M2,M1),zpX(M2),XTX(M2,M2) !,zwork(M1)
+! REAL(wp), allocatable :: WORK1(:)
  logical :: Q
   zpX=0 ; XTX = 0
   c=0 ; X=0

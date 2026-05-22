@@ -1,20 +1,20 @@
 ! finds the center of the spline defined by where there is a max/min 
  subroutine SplineCenter(dat,jj,r,z,zr2,n,u,err_report)
  use, INTRINSIC :: iso_c_binding, ONLY : c_int, c_int64_t
- use set_precision, only : wp
- use parameters
+ USE set_precision, only : wp
+ USE parameters
  use spline_interfaces, ONLY : SplineEval, SplineEvalCenter
-  use special_fct, ONLY : bsearch
+  USE special_fct, ONLY : bsearch
  use,intrinsic :: ieee_arithmetic 
- implicit none
-  integer(c_int64_t), INTENT(IN) :: dat
-  integer, INTENT(IN) :: n,jj
-  real(wp), INTENT(IN) ::  r(n)
-  real(wp), INTENT(IN) ::  z(n),zr2(n)
-  real(wp), INTENT(OUT) :: u
-  integer(c_int), INTENT(OUT) :: err_report
-  real(wp) :: g,gr,grr,slopeh,slopel,quadA,quadB,quadC,descriminant,slope0
-  integer :: high, low, j
+ IMPLICIT NONE
+  INTEGER(c_int64_t), INTENT(IN) :: dat
+  INTEGER, INTENT(IN) :: n,jj
+  REAL(wp), INTENT(IN) ::  r(n)
+  REAL(wp), INTENT(IN) ::  z(n),zr2(n)
+  REAL(wp), INTENT(OUT) :: u
+  INTEGER(c_int), INTENT(OUT) :: err_report
+  REAL(wp) :: g,gr,grr,slopeh,slopel,quadA,quadB,quadC,descriminant,slope0
+  INTEGER :: high, low, j
   err_report = 0
 ! bracket the origin between r values and get their indices
   call bsearch(0.0_wp,r,n,high,low)

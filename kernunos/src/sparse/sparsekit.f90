@@ -33,52 +33,52 @@ subroutine amask ( nrow, ncol, a, ja, ia, jmask, imask, c, jc, ic, iw, &
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-!    Input, integer ( kind = 4 ) NCOL, the column dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NCOL, the column dimension of the matrix.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix 
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix 
 !    in Compressed Sparse Row (CSR) format.
 !
-!    Input, integer ( kind = 4 ) JMASK(*), IMASK((NROW+1), defining mask 
+!    Input, INTEGER ( kind = 4 ) JMASK(*), IMASK((NROW+1), defining mask 
 !    (pattern only) stored in compressed sparse row format.
 !
-!    Input, integer ( kind = 4 ) NZMAX, the length of arrays C and JC.
+!    Input, INTEGER ( kind = 4 ) NZMAX, the length of arrays C and JC.
 !
 !    Output, C, JC, IC, the output matrix in Compressed Sparse Row format.
 !
 !    Workspace, logical IW(NCOL).
 !
-!    Input, integer ( kind = 4 ) NZMAX, the dimension of C.
+!    Input, INTEGER ( kind = 4 ) NZMAX, the dimension of C.
 !
-!    Output, integer ( kind = 4 ) IERR, serving as error message.
+!    Output, INTEGER ( kind = 4 ) IERR, serving as error message.
 !    ierr = 1  means normal return
 !    ierr > 1 means that amask stopped when processing
 !    row number ierr, because there was not enough space in
 !    c, jc according to the value of nzmax.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) ncol
-  integer ( kind = 4 ) nrow
-  integer ( kind = 4 ) nzmax
+  INTEGER ( kind = 4 ) ncol
+  INTEGER ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) nzmax
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) c(nzmax)
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) ic(nrow+1)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) imask(nrow+1)
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) c(nzmax)
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) ic(nrow+1)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) imask(nrow+1)
   logical iw(ncol)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jc(nzmax)
-  integer ( kind = 4 ) jmask(*)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) k1
-  integer ( kind = 4 ) k2
-  integer ( kind = 4 ) len
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jc(nzmax)
+  INTEGER ( kind = 4 ) jmask(*)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) k1
+  INTEGER ( kind = 4 ) k2
+  INTEGER ( kind = 4 ) len
 
   ierr = 0
   len = 0
@@ -145,20 +145,20 @@ subroutine amub ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, nzmax, &
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-!    Input, integer ( kind = 4 ) NCOL, the column dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NCOL, the column dimension of the matrix.
 !
-!    Input, integer ( kind = 4 ) JOB, job indicator.  When JOB = 0, only the
-!    structure is computed, that is, the arrays JC and IC, but the real values
+!    Input, INTEGER ( kind = 4 ) JOB, job indicator.  When JOB = 0, only the
+!    structure is computed, that is, the arrays JC and IC, but the REAL values
 !    are ignored.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
 !    Input, b, jb, ib, matrix B in compressed sparse row format.
 !
-!    Input, integer ( kind = 4 ) NZMAX, the length of the arrays c and jc.
+!    Input, INTEGER ( kind = 4 ) NZMAX, the length of the arrays c and jc.
 !    The routine will stop if the result matrix C  has a number
 !    of elements that exceeds exceeds NZMAX.
 !
@@ -168,7 +168,7 @@ subroutine amub ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, nzmax, &
 ! jc,
 ! ic    = resulting matrix C in compressed sparse row sparse format.
 !
-! ierr      = integer ( kind = 4 ). serving as error message.
+! ierr      = INTEGER ( kind = 4 ). serving as error message.
 !         ierr = 0 means normal return,
 !         ierr > 0 means that amub stopped while computing the
 !         i-th row  of C with i = ierr, because the number
@@ -176,36 +176,36 @@ subroutine amub ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, nzmax, &
 !
 ! work arrays:
 !
-!  iw      = integer ( kind = 4 ) work array of length equal to the number of
+!  iw      = INTEGER ( kind = 4 ) work array of length equal to the number of
 !         columns in A.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) ncol
-  integer ( kind = 4 ) nrow
-  integer ( kind = 4 ) nzmax
+  INTEGER ( kind = 4 ) ncol
+  INTEGER ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) nzmax
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) b(*)
-  real ( kind = 8 ) c(nzmax)
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) ib(ncol+1)
-  integer ( kind = 4 ) ic(ncol+1)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) iw(ncol)
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jb(*)
-  integer ( kind = 4 ) jc(nzmax)
-  integer ( kind = 4 ) jcol
-  integer ( kind = 4 ) jj
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) jpos
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) ka
-  integer ( kind = 4 ) kb
-  integer ( kind = 4 ) len
-  real ( kind = 8 ) scal
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) b(*)
+  REAL ( kind = 8 ) c(nzmax)
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) ib(ncol+1)
+  INTEGER ( kind = 4 ) ic(ncol+1)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) iw(ncol)
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jb(*)
+  INTEGER ( kind = 4 ) jc(nzmax)
+  INTEGER ( kind = 4 ) jcol
+  INTEGER ( kind = 4 ) jj
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) jpos
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) ka
+  INTEGER ( kind = 4 ) kb
+  INTEGER ( kind = 4 ) len
+  REAL ( kind = 8 ) scal
   logical values
 
   values = ( job /= 0 )
@@ -289,12 +289,12 @@ subroutine amubdg ( nrow, ncol, ncolb, ja, ia, jb, ib, ndegr, nnz, iw )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix A.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix A.
 !
-!    Input, integer ( kind = 4 ) NCOL, the column dimension of the matrix A,
+!    Input, INTEGER ( kind = 4 ) NCOL, the column dimension of the matrix A,
 !    (and the row dimension of B).
 !
-!    Input, integer ( kind = 4 ) NCOLB, the column dimension of the matrix B.
+!    Input, INTEGER ( kind = 4 ) NCOLB, the column dimension of the matrix B.
 !
 !    Input, ja, ia= row structure of input matrix A: ja = column indices of
 !    the nonzero elements of A stored by rows.
@@ -304,34 +304,34 @@ subroutine amubdg ( nrow, ncol, ncolb, ja, ia, jb, ib, ndegr, nnz, iw )
 !    the nonzero elements of A stored by rows.
 !    ib is a pointer to beginning of each row in jb.
 !
-!    Output, integer ( kind = 4 ) NDEGR(NROW), contains the degrees (the number
+!    Output, INTEGER ( kind = 4 ) NDEGR(NROW), contains the degrees (the number
 !    of nonzeros in each row of the matrix A * B.
 !
-!    Output, integer ( kind = 4 ) NNZ, the number of nonzero elements 
+!    Output, INTEGER ( kind = 4 ) NNZ, the number of nonzero elements 
 !    found in A * B.
 !
-!    Workspace, integer ( kind = 4 ) IW(NCOLB).
+!    Workspace, INTEGER ( kind = 4 ) IW(NCOLB).
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) ncol
-  integer ( kind = 4 ) ncolb
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) ncol
+  INTEGER ( kind = 4 ) ncolb
+  INTEGER ( kind = 4 ) nrow
 
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) ib(ncol+1)
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) iw(ncolb)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jb(*)
-  integer ( kind = 4 ) jc
-  integer ( kind = 4 ) jr
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) last
-  integer ( kind = 4 ) ldg
-  integer ( kind = 4 ) ndegr(nrow)
-  integer ( kind = 4 ) nnz
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) ib(ncol+1)
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) iw(ncolb)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jb(*)
+  INTEGER ( kind = 4 ) jc
+  INTEGER ( kind = 4 ) jr
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) last
+  INTEGER ( kind = 4 ) ldg
+  INTEGER ( kind = 4 ) ndegr(nrow)
+  INTEGER ( kind = 4 ) nnz
 
   iw(1:ncolb) = 0
   ndegr(1:nrow) = 0
@@ -404,35 +404,35 @@ subroutine amudia ( nrow, job, a, ja, ia, diag, b, jb, ib )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-!    Input, integer ( kind = 4 ) JOB, job indicator. Job=0 means get array b
-!    only job = 1 means get b, and the integer ( kind = 4 ) arrays ib, jb.
+!    Input, INTEGER ( kind = 4 ) JOB, job indicator. Job=0 means get array b
+!    only job = 1 means get b, and the INTEGER ( kind = 4 ) arrays ib, jb.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-!    Input, real DIAG(NROW), the diagonal matrix stored as a vector.
+!    Input, REAL DIAG(NROW), the diagonal matrix stored as a vector.
 !
 !    Output, B(*), JB(*), IB(NROW+1), the resulting matrix B in 
 !    compressed sparse row sparse format.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) nrow
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) b(*)
-  real ( kind = 8 ) diag(nrow)
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) ib(nrow+1)
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jb(*)
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) k1
-  integer ( kind = 4 ) k2
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) b(*)
+  REAL ( kind = 8 ) diag(nrow)
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) ib(nrow+1)
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jb(*)
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) k1
+  INTEGER ( kind = 4 ) k2
 
   do ii = 1, nrow
 !
@@ -481,28 +481,28 @@ subroutine amux ( n, x, y, a, ja, ia )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the row dimension of the matrix.
 !
-!    Input, real X(*), and array of length equal to the column dimension 
+!    Input, REAL X(*), and array of length equal to the column dimension 
 !    of A.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-!    Output, real Y(N), the product A * X.
+!    Output, REAL Y(N), the product A * X.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) a(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(*)
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) k
-  real ( kind = 8 ) t
-  real ( kind = 8 ) x(*)
-  real ( kind = 8 ) y(n)
+  REAL ( kind = 8 ) a(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(*)
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) k
+  REAL ( kind = 8 ) t
+  REAL ( kind = 8 ) x(*)
+  REAL ( kind = 8 ) y(n)
 
   do i = 1, n
 !
@@ -541,38 +541,38 @@ subroutine amuxd ( n, x, y, diag, ndiag, idiag, ioff )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the row dimension of the matrix.
 !
-!    Input, real X(*), array of length equal to the column dimension of
+!    Input, REAL X(*), array of length equal to the column dimension of
 !    the A matrix.
 !
-!    Output, real Y(N), the product A * X.
+!    Output, REAL Y(N), the product A * X.
 !
-!    Input, real DIAG(NDIAG,IDIAG), the diagonals.
+!    Input, REAL DIAG(NDIAG,IDIAG), the diagonals.
 !
-!    Input, integer ( kind = 4 ) NDIAG, the first dimension of array adiag as 
+!    Input, INTEGER ( kind = 4 ) NDIAG, the first dimension of array adiag as 
 !    declared in the calling program.
 !
-!    Input, integer ( kind = 4 ) IDIAG, the number of diagonals in the matrix.
+!    Input, INTEGER ( kind = 4 ) IDIAG, the number of diagonals in the matrix.
 !
-!    Input, integer ( kind = 4 ) IOFF(IDIAG), the offsets of the diagonals of 
+!    Input, INTEGER ( kind = 4 ) IOFF(IDIAG), the offsets of the diagonals of 
 !    the matrix: diag(i,k) contains the element a(i,i+ioff(k)) of the matrix.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) idiag
-  integer ( kind = 4 ) n
-  integer ( kind = 4 ) ndiag
+  INTEGER ( kind = 4 ) idiag
+  INTEGER ( kind = 4 ) n
+  INTEGER ( kind = 4 ) ndiag
 
-  real ( kind = 8 ) diag(ndiag,idiag)
-  integer ( kind = 4 ) i1
-  integer ( kind = 4 ) i2
-  integer ( kind = 4 ) io
-  integer ( kind = 4 ) ioff(idiag)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) k
-  real ( kind = 8 ) x(n)
-  real ( kind = 8 ) y(n)
+  REAL ( kind = 8 ) diag(ndiag,idiag)
+  INTEGER ( kind = 4 ) i1
+  INTEGER ( kind = 4 ) i2
+  INTEGER ( kind = 4 ) io
+  INTEGER ( kind = 4 ) ioff(idiag)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) k
+  REAL ( kind = 8 ) x(n)
+  REAL ( kind = 8 ) y(n)
 
   y(1:n) = 0.0D+00
 
@@ -608,36 +608,36 @@ subroutine amuxe ( n, x, y, na, ncol, a, ja )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the row dimension of the matrix.
 !
-!    Input, real X(*), array of length equal to the column dimension of
+!    Input, REAL X(*), array of length equal to the column dimension of
 !    the A matrix.
 !
-!    Input, integer ( kind = 4 ) NA, the first dimension of arrays A and JA
+!    Input, INTEGER ( kind = 4 ) NA, the first dimension of arrays A and JA
 !    as declared by the calling program.
 !
-!    Input, integer ( kind = 4 ) NCOL, the number of active columns in array a.
+!    Input, INTEGER ( kind = 4 ) NCOL, the number of active columns in array a.
 !    (i.e., the number of generalized diagonals in matrix.)
 !
-!    a, ja = the real and integer ( kind = 4 ) arrays of the Ellpack/Itpack
+!    a, ja = the REAL and INTEGER ( kind = 4 ) arrays of the Ellpack/Itpack
 !    format.
 !    (a(i,k),k = 1,ncol contains the elements of row i in matrix
 !    ja(i,k),k = 1,ncol contains their column numbers)
 !
-!    Output, real Y(N), the product A * X.
+!    Output, REAL Y(N), the product A * X.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
-  integer ( kind = 4 ) na
-  integer ( kind = 4 ) ncol
+  INTEGER ( kind = 4 ) n
+  INTEGER ( kind = 4 ) na
+  INTEGER ( kind = 4 ) ncol
 
-  real ( kind = 8 ) a(na,ncol)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(na,ncol)
-  real ( kind = 8 ) x(n)
-  real ( kind = 8 ) y(n)
+  REAL ( kind = 8 ) a(na,ncol)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(na,ncol)
+  REAL ( kind = 8 ) x(n)
+  REAL ( kind = 8 ) y(n)
 
   y(1:n) = 0.0D+00
 
@@ -678,39 +678,39 @@ subroutine amuxj ( n, x, y, jdiag, a, ja, ia )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the row dimension of the matrix.
 !
-!    Input, real X(*), an array of length equal to the column dimension of
+!    Input, REAL X(*), an array of length equal to the column dimension of
 !    the A matrix.
 !
-!    Input, integer ( kind = 4 ) JDIAG, the number of jagged-diagonals in the
+!    Input, INTEGER ( kind = 4 ) JDIAG, the number of jagged-diagonals in the
 !    data structure.
 !
-! a      = real array containing the jagged diagonals of A stored
+! a      = REAL array containing the jagged diagonals of A stored
 !          in succession (in decreasing lengths)
 !
-! j      = integer ( kind = 4 ) array containing the column indices of the
+! j      = INTEGER ( kind = 4 ) array containing the column indices of the
 !          corresponding elements in a.
 !
-! ia     = integer ( kind = 4 ) array containing the lengths of the  
+! ia     = INTEGER ( kind = 4 ) array containing the lengths of the  
 !          jagged diagonals
 !
-!    Output, real Y(N), the product A*X.
+!    Output, REAL Y(N), the product A*X.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) a(*)
-  integer ( kind = 4 ) ia(*)
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jdiag
-  integer ( kind = 4 ) k1
-  integer ( kind = 4 ) len
-  real ( kind = 8 ) x(n)
-  real ( kind = 8 ) y(n)
+  REAL ( kind = 8 ) a(*)
+  INTEGER ( kind = 4 ) ia(*)
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jdiag
+  INTEGER ( kind = 4 ) k1
+  INTEGER ( kind = 4 ) len
+  REAL ( kind = 8 ) x(n)
+  REAL ( kind = 8 ) y(n)
 
   y(1:n) = 0.0D+00
 
@@ -741,22 +741,22 @@ subroutine aplb ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, nzmax, &
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of A and B.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of A and B.
 !
-!    Input, integer ( kind = 4 ) NCOL, the column dimension of A and B.
+!    Input, INTEGER ( kind = 4 ) NCOL, the column dimension of A and B.
 !
-!    Input, integer ( kind = 4 ) JOB.  When JOB = 0, only the structure
+!    Input, INTEGER ( kind = 4 ) JOB.  When JOB = 0, only the structure
 !    (i.e. the arrays jc, ic) is computed and the
-!    real values are ignored.
+!    REAL values are ignored.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
 ! b,
 ! jb,
 ! ib      =  Matrix B in compressed sparse row format.
 !
-! nzmax      = integer ( kind = 4 ). The  length of the arrays c and jc.
+! nzmax      = INTEGER ( kind = 4 ). The  length of the arrays c and jc.
 !         amub will stop if the result matrix C  has a number
 !         of elements that exceeds exceeds nzmax. See ierr.
 !
@@ -766,7 +766,7 @@ subroutine aplb ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, nzmax, &
 ! jc,
 ! ic      = resulting matrix C in compressed sparse row sparse format.
 !
-! ierr      = integer ( kind = 4 ). serving as error message.
+! ierr      = INTEGER ( kind = 4 ). serving as error message.
 !         ierr = 0 means normal return,
 !         ierr > 0 means that amub stopped while computing the
 !         i-th row  of C with i = ierr, because the number
@@ -774,34 +774,34 @@ subroutine aplb ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, nzmax, &
 !
 ! work arrays:
 !
-! iw      = integer ( kind = 4 ) work array of length equal to the number of
+! iw      = INTEGER ( kind = 4 ) work array of length equal to the number of
 !         columns in A.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) ncol
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) ncol
+  INTEGER ( kind = 4 ) nrow
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) b(*)
-  real ( kind = 8 ) c(*)
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) ib(nrow+1)
-  integer ( kind = 4 ) ic(nrow+1)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) iw(ncol)
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jb(*)
-  integer ( kind = 4 ) jc(*)
-  integer ( kind = 4 ) jcol
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) jpos
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) ka
-  integer ( kind = 4 ) kb
-  integer ( kind = 4 ) len
-  integer ( kind = 4 ) nzmax
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) b(*)
+  REAL ( kind = 8 ) c(*)
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) ib(nrow+1)
+  INTEGER ( kind = 4 ) ic(nrow+1)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) iw(ncol)
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jb(*)
+  INTEGER ( kind = 4 ) jc(*)
+  INTEGER ( kind = 4 ) jcol
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) jpos
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) ka
+  INTEGER ( kind = 4 ) kb
+  INTEGER ( kind = 4 ) len
+  INTEGER ( kind = 4 ) nzmax
   logical values
 
   values = ( job /= 0 )
@@ -894,15 +894,15 @@ subroutine aplb1 ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, &
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of A and B.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of A and B.
 !
-!    Input, integer ( kind = 4 ) NCOL, the column dimension of A and B.
+!    Input, INTEGER ( kind = 4 ) NCOL, the column dimension of A and B.
 !
-!    Input, integer ( kind = 4 ) JOB.  When JOB = 0, only the structure
+!    Input, INTEGER ( kind = 4 ) JOB.  When JOB = 0, only the structure
 !    (i.e. the arrays jc, ic) is computed and the
-!    real values are ignored.
+!    REAL values are ignored.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format with entries sorted.
 !
 ! b,
@@ -910,7 +910,7 @@ subroutine aplb1 ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, &
 ! ib      =  Matrix B in compressed sparse row format with entries sorted
 !        ascendly in each row
 !
-! nzmax      = integer ( kind = 4 ). The  length of the arrays c and jc.
+! nzmax      = INTEGER ( kind = 4 ). The  length of the arrays c and jc.
 !         amub will stop if the result matrix C  has a number
 !         of elements that exceeds exceeds nzmax. See ierr.
 !
@@ -921,37 +921,37 @@ subroutine aplb1 ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, &
 ! ic      = resulting matrix C in compressed sparse row sparse format
 !         with entries sorted ascendly in each row.
 !
-! ierr      = integer ( kind = 4 ). serving as error message.
+! ierr      = INTEGER ( kind = 4 ). serving as error message.
 !         ierr = 0 means normal return,
 !         ierr > 0 means that amub stopped while computing the
 !         i-th row  of C with i = ierr, because the number
 !         of elements in C exceeds nzmax.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) nrow
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) b(*)
-  real ( kind = 8 ) c(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) ib(nrow+1)
-  integer ( kind = 4 ) ic(nrow+1)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) j1
-  integer ( kind = 4 ) j2
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jb(*)
-  integer ( kind = 4 ) jc(*)
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) ka
-  integer ( kind = 4 ) kamax
-  integer ( kind = 4 ) kb
-  integer ( kind = 4 ) kbmax
-  integer ( kind = 4 ) kc
-  integer ( kind = 4 ) ncol
-  integer ( kind = 4 ) nzmax
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) b(*)
+  REAL ( kind = 8 ) c(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) ib(nrow+1)
+  INTEGER ( kind = 4 ) ic(nrow+1)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) j1
+  INTEGER ( kind = 4 ) j2
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jb(*)
+  INTEGER ( kind = 4 ) jc(*)
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) ka
+  INTEGER ( kind = 4 ) kamax
+  INTEGER ( kind = 4 ) kb
+  INTEGER ( kind = 4 ) kbmax
+  INTEGER ( kind = 4 ) kc
+  INTEGER ( kind = 4 ) ncol
+  INTEGER ( kind = 4 ) nzmax
   logical values
 
   values = ( job /= 0 )
@@ -1043,42 +1043,42 @@ subroutine aplbdg ( nrow, ncol, ja, ia, jb, ib, ndegr, nnz, iw )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of A and B.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of A and B.
 !
-!    Input, integer ( kind = 4 ) NCOL, the column dimension of A and B.
+!    Input, INTEGER ( kind = 4 ) NCOL, the column dimension of A and B.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
 !    Input, b, jb, ib, matrix B in compressed sparse row format.
 !
-!    Output, integer ( kind = 4 ) NDEGR(NROW), the number of nonzeros in each row 
+!    Output, INTEGER ( kind = 4 ) NDEGR(NROW), the number of nonzeros in each row 
 !    of the matrix A + B.
 !
-!    Output, integer ( kind = 4 ) NNZ, the total number of nonzero elements found 
+!    Output, INTEGER ( kind = 4 ) NNZ, the total number of nonzero elements found 
 !    in A * B.
 !
-!    Workspace, integer ( kind = 4 ) IW(NCOL).
+!    Workspace, INTEGER ( kind = 4 ) IW(NCOL).
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) ncol
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) ncol
+  INTEGER ( kind = 4 ) nrow
 
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) ib(nrow+1)
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) iw(ncol)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jb(*)
-  integer ( kind = 4 ) jc
-  integer ( kind = 4 ) jr
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) last
-  integer ( kind = 4 ) ldg
-  integer ( kind = 4 ) ndegr(nrow)
-  integer ( kind = 4 ) nnz
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) ib(nrow+1)
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) iw(ncol)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jb(*)
+  INTEGER ( kind = 4 ) jc
+  INTEGER ( kind = 4 ) jr
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) last
+  INTEGER ( kind = 4 ) ldg
+  INTEGER ( kind = 4 ) ndegr(nrow)
+  INTEGER ( kind = 4 ) nnz
 
   iw(1:ncol) = 0
 
@@ -1161,9 +1161,9 @@ subroutine apldia ( nrow, job, a, ja, ia, diag, b, jb, ib, iw )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-!    Input, integer ( kind = 4 ) JOB, job indicator. Job=0 means get array b only
+!    Input, INTEGER ( kind = 4 ) JOB, job indicator. Job=0 means get array b only
 !    (i.e. assume that a has already been copied into array b,
 !    or that algorithm is used in place. ) For all practical
 !    puposes enter job=0 for an in-place call and job=1 otherwise.
@@ -1172,10 +1172,10 @@ subroutine apldia ( nrow, job, a, ja, ia, diag, b, jb, ib, iw )
 !    must modify the data structure (i.e. jb, ib) in this
 !    situation.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-!    Input, real DIAG(NROW), a diagonal matrix.
+!    Input, REAL DIAG(NROW), a diagonal matrix.
 !
 ! on return:
 !
@@ -1184,36 +1184,36 @@ subroutine apldia ( nrow, job, a, ja, ia, diag, b, jb, ib, iw )
 ! ib      = resulting matrix B in compressed sparse row sparse format.
 !
 !
-! iw    = integer ( kind = 4 ) work array of length n. On return iw will
+! iw    = INTEGER ( kind = 4 ) work array of length n. On return iw will
 !         contain  the positions of the diagonal entries in the
 !         output matrix. (i.e., a(iw(k)), ja(iw(k)), k = 1,...n,
 !         are the values/column indices of the diagonal elements
 !         of the output matrix. ).
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) nrow
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) b(*)
-  real ( kind = 8 ) diag(nrow)
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) ib(nrow+1)
-  integer ( kind = 4 ) icount
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) iw(*)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jb(*)
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) k1
-  integer ( kind = 4 ) k2
-  integer ( kind = 4 ) ko
-  integer ( kind = 4 ) nnz
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) b(*)
+  REAL ( kind = 8 ) diag(nrow)
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) ib(nrow+1)
+  INTEGER ( kind = 4 ) icount
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) iw(*)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jb(*)
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) k1
+  INTEGER ( kind = 4 ) k2
+  INTEGER ( kind = 4 ) ko
+  INTEGER ( kind = 4 ) nnz
   logical test
 !
-!  Copy integer ( kind = 4 ) arrays into B's data structure if required.
+!  Copy INTEGER ( kind = 4 ) arrays into B's data structure if required.
 !
   if ( job /= 0 ) then
     nnz = ia(nrow+1)-1
@@ -1312,20 +1312,20 @@ subroutine aplsb ( nrow, ncol, a, ja, ia, s, b, jb, ib, c, jc, ic, nzmax, &
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-!    Input, integer ( kind = 4 ) NCOL, the column dimension of the matrix B.
+!    Input, INTEGER ( kind = 4 ) NCOL, the column dimension of the matrix B.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-!    Input, real S, scalar factor for B.
+!    Input, REAL S, scalar factor for B.
 !
 ! b,
 ! jb,
 ! ib      =  Matrix B in compressed sparse row format.
 !
-! nzmax      = integer ( kind = 4 ). The  length of the arrays c and jc.
+! nzmax      = INTEGER ( kind = 4 ). The  length of the arrays c and jc.
 !         amub will stop if the result matrix C  has a number
 !         of elements that exceeds exceeds nzmax. See ierr.
 !
@@ -1335,7 +1335,7 @@ subroutine aplsb ( nrow, ncol, a, ja, ia, s, b, jb, ib, c, jc, ic, nzmax, &
 ! jc,
 ! ic      = resulting matrix C in compressed sparse row sparse format.
 !
-! ierr      = integer ( kind = 4 ). serving as error message.
+! ierr      = INTEGER ( kind = 4 ). serving as error message.
 !         ierr = 0 means normal return,
 !         ierr > 0 means that amub stopped while computing the
 !         i-th row  of C with i = ierr, because the number
@@ -1343,34 +1343,34 @@ subroutine aplsb ( nrow, ncol, a, ja, ia, s, b, jb, ib, c, jc, ic, nzmax, &
 !
 ! work arrays:
 !
-! iw      = integer ( kind = 4 ) work array of length equal to the number of
+! iw      = INTEGER ( kind = 4 ) work array of length equal to the number of
 !         columns in A.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) ncol
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) ncol
+  INTEGER ( kind = 4 ) nrow
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) b(*)
-  real ( kind = 8 ) c(*)
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) ib(nrow+1)
-  integer ( kind = 4 ) ic(nrow+1)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) iw(ncol)
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jb(*)
-  integer ( kind = 4 ) jc(*)
-  integer ( kind = 4 ) jcol
-  integer ( kind = 4 ) jpos
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) ka
-  integer ( kind = 4 ) kb
-  integer ( kind = 4 ) len
-  integer ( kind = 4 ) nzmax
-  real ( kind = 8 ) s
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) b(*)
+  REAL ( kind = 8 ) c(*)
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) ib(nrow+1)
+  INTEGER ( kind = 4 ) ic(nrow+1)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) iw(ncol)
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jb(*)
+  INTEGER ( kind = 4 ) jc(*)
+  INTEGER ( kind = 4 ) jcol
+  INTEGER ( kind = 4 ) jpos
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) ka
+  INTEGER ( kind = 4 ) kb
+  INTEGER ( kind = 4 ) len
+  INTEGER ( kind = 4 ) nzmax
+  REAL ( kind = 8 ) s
 
   ierr = 0
   len = 0
@@ -1452,21 +1452,21 @@ subroutine aplsb1 ( nrow, ncol, a, ja, ia, s, b, jb, ib, c, jc, ic, &
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of A and B.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of A and B.
 !
-!    Input, integer ( kind = 4 ) NCOL, the column dimension of A and B.
+!    Input, INTEGER ( kind = 4 ) NCOL, the column dimension of A and B.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format with entries sorted.
 !
-!    Input, real S, a scale factor for B.
+!    Input, REAL S, a scale factor for B.
 !
 ! b,
 ! jb,
 ! ib      =  Matrix B in compressed sparse row format with entries sorted
 !        ascendly in each row
 !
-! nzmax      = integer ( kind = 4 ). The  length of the arrays c and jc.
+! nzmax      = INTEGER ( kind = 4 ). The  length of the arrays c and jc.
 !         amub will stop if the result matrix C  has a number
 !         of elements that exceeds exceeds nzmax. See ierr.
 !
@@ -1477,37 +1477,37 @@ subroutine aplsb1 ( nrow, ncol, a, ja, ia, s, b, jb, ib, c, jc, ic, &
 ! ic      = resulting matrix C in compressed sparse row sparse format
 !         with entries sorted ascendly in each row.
 !
-! ierr      = integer ( kind = 4 ). serving as error message.
+! ierr      = INTEGER ( kind = 4 ). serving as error message.
 !         ierr = 0 means normal return,
 !         ierr > 0 means that amub stopped while computing the
 !         i-th row  of C with i = ierr, because the number
 !         of elements in C exceeds nzmax.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) nrow
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) b(*)
-  real ( kind = 8 ) c(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) ib(nrow+1)
-  integer ( kind = 4 ) ic(nrow+1)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) j1
-  integer ( kind = 4 ) j2
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jb(*)
-  integer ( kind = 4 ) jc(*)
-  integer ( kind = 4 ) ka
-  integer ( kind = 4 ) kamax
-  integer ( kind = 4 ) kb
-  integer ( kind = 4 ) kbmax
-  integer ( kind = 4 ) kc
-  integer ( kind = 4 ) ncol
-  integer ( kind = 4 ) nzmax
-  real ( kind = 8 ) s
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) b(*)
+  REAL ( kind = 8 ) c(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) ib(nrow+1)
+  INTEGER ( kind = 4 ) ic(nrow+1)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) j1
+  INTEGER ( kind = 4 ) j2
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jb(*)
+  INTEGER ( kind = 4 ) jc(*)
+  INTEGER ( kind = 4 ) ka
+  INTEGER ( kind = 4 ) kamax
+  INTEGER ( kind = 4 ) kb
+  INTEGER ( kind = 4 ) kbmax
+  INTEGER ( kind = 4 ) kc
+  INTEGER ( kind = 4 ) ncol
+  INTEGER ( kind = 4 ) nzmax
+  REAL ( kind = 8 ) s
 
   ierr = 0
   kc = 1
@@ -1594,22 +1594,22 @@ subroutine aplsbt ( nrow, ncol, a, ja, ia, s, b, jb, ib, c, jc, ic, nzmax, &
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of A.  This must also be
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of A.  This must also be
 !    the column dimension of B.
 !
-!    Input, integer ( kind = 4 ) NCOL, the column dimension of the matrix A.
+!    Input, INTEGER ( kind = 4 ) NCOL, the column dimension of the matrix A.
 !    This must also be the row dimension of B.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-!    Input, real S, the scalar factor for B.
+!    Input, REAL S, the scalar factor for B.
 !
 ! b,
 ! jb,
 ! ib      =  Matrix B in compressed sparse row format.
 !
-! nzmax      = integer ( kind = 4 ). The  length of the arrays c, jc, and ic.
+! nzmax      = INTEGER ( kind = 4 ). The  length of the arrays c, jc, and ic.
 !         amub will stop if the result matrix C  has a number
 !         of elements that exceeds exceeds nzmax. See ierr.
 !
@@ -1619,7 +1619,7 @@ subroutine aplsbt ( nrow, ncol, a, ja, ia, s, b, jb, ib, c, jc, ic, nzmax, &
 ! jc,
 ! ic      = resulting matrix C in compressed sparse row format.
 !
-! ierr      = integer ( kind = 4 ). serving as error message.
+! ierr      = INTEGER ( kind = 4 ). serving as error message.
 !         ierr = 0 means normal return.
 !         ierr = -1 means that nzmax was < either the number of
 !         nonzero elements of A or the number of nonzero elements in B.
@@ -1629,37 +1629,37 @@ subroutine aplsbt ( nrow, ncol, a, ja, ia, s, b, jb, ib, c, jc, ic, nzmax, &
 !
 ! work arrays:
 !
-! iw      = integer ( kind = 4 ) work array of length equal to the number of
+! iw      = INTEGER ( kind = 4 ) work array of length equal to the number of
 !         columns in A.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) ncol
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) ncol
+  INTEGER ( kind = 4 ) nrow
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) b(*)
-  real ( kind = 8 ) c(*)
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) ib(ncol+1)
-  integer ( kind = 4 ) ic(:)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) ipos
-  integer ( kind = 4 ) iw(ncol)
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jb(*)
-  integer ( kind = 4 ) jc(*)
-  integer ( kind = 4 ) jcol
-  integer ( kind = 4 ) jpos
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) ka
-  integer ( kind = 4 ) len
-  integer ( kind = 4 ) ljob
-  integer ( kind = 4 ) nnza
-  integer ( kind = 4 ) nnzb
-  integer ( kind = 4 ) nzmax
-  real ( kind = 8 ) s
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) b(*)
+  REAL ( kind = 8 ) c(*)
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) ib(ncol+1)
+  INTEGER ( kind = 4 ) ic(:)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) ipos
+  INTEGER ( kind = 4 ) iw(ncol)
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jb(*)
+  INTEGER ( kind = 4 ) jc(*)
+  INTEGER ( kind = 4 ) jcol
+  INTEGER ( kind = 4 ) jpos
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) ka
+  INTEGER ( kind = 4 ) len
+  INTEGER ( kind = 4 ) ljob
+  INTEGER ( kind = 4 ) nnza
+  INTEGER ( kind = 4 ) nnzb
+  INTEGER ( kind = 4 ) nzmax
+  REAL ( kind = 8 ) s
 
   ierr = 0
   iw(1:ncol) = 0
@@ -1771,12 +1771,12 @@ subroutine aplsca ( nrow, a, ja, ia, scal, iw )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-!    Input, real SCAL, a scalar to be added to the diagonal entries.
+!    Input, REAL SCAL, a scalar to be added to the diagonal entries.
 !
 ! on return:
 !
@@ -1785,28 +1785,28 @@ subroutine aplsca ( nrow, a, ja, ia, scal, iw )
 ! ja,
 ! ia      = matrix A with diagonal elements shifted (or created).
 !
-! iw    = integer ( kind = 4 ) work array of length n. On return iw will
+! iw    = INTEGER ( kind = 4 ) work array of length n. On return iw will
 !         contain  the positions of the diagonal entries in the
 !         output matrix. (i.e., a(iw(k)), ja(iw(k)), k = 1,...n,
 !         are the values/column indices of the diagonal elements
 !         of the output matrix. ).
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) nrow
 
-  real ( kind = 8 ) a(*)
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) icount
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) iw(*)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) k1
-  integer ( kind = 4 ) k2
-  integer ( kind = 4 ) ko
-  real ( kind = 8 ) scal
+  REAL ( kind = 8 ) a(*)
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) icount
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) iw(*)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) k1
+  INTEGER ( kind = 4 ) k2
+  INTEGER ( kind = 4 ) ko
+  REAL ( kind = 8 ) scal
   logical test
 
   call diapos ( nrow, ja, ia, iw )
@@ -1900,28 +1900,28 @@ subroutine apmbt ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, nzmax, &
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of A, which must also be
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of A, which must also be
 !    the column dimension of B.
 !
-!    Input, integer ( kind = 4 ) NCOL, the column dimension of the matrix A, which
+!    Input, INTEGER ( kind = 4 ) NCOL, the column dimension of the matrix A, which
 !    must also be the row dimension of B.
 !
-! job      = integer ( kind = 4 ). if job = -1, apmbt will compute C= A - transp(B)
+! job      = INTEGER ( kind = 4 ). if job = -1, apmbt will compute C= A - transp(B)
 !         (structure + values)
 !         if job == 1, it will compute C=A+transp(A)
 !         (structure+ values)
 !         if job == 0, it will compute the structure of
-!         C= A+/-transp(B) only (ignoring all real values).
+!         C= A+/-transp(B) only (ignoring all REAL values).
 !         any other value of job will be treated as  job=1
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
 ! b,
 ! jb,
 ! ib      =  Matrix B in compressed sparse row format.
 !
-! nzmax      = integer ( kind = 4 ). The  length of the arrays c, jc, and ic.
+! nzmax      = INTEGER ( kind = 4 ). The  length of the arrays c, jc, and ic.
 !         amub will stop if the result matrix C  has a number
 !         of elements that exceeds exceeds nzmax. See ierr.
 !
@@ -1931,7 +1931,7 @@ subroutine apmbt ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, nzmax, &
 ! jc,
 ! ic      = resulting matrix C in compressed sparse row format.
 !
-! ierr      = integer ( kind = 4 ). serving as error message.
+! ierr      = INTEGER ( kind = 4 ). serving as error message.
 !         ierr = 0 means normal return.
 !         ierr = -1 means that nzmax was < either the number of
 !         nonzero elements of A or the number of nonzero elements in B.
@@ -1941,37 +1941,37 @@ subroutine apmbt ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, nzmax, &
 !
 ! work arrays:
 !
-! iw      = integer ( kind = 4 ) work array of length equal to the number of
+! iw      = INTEGER ( kind = 4 ) work array of length equal to the number of
 !         columns in A.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) ncol
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) ncol
+  INTEGER ( kind = 4 ) nrow
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) b(*)
-  real ( kind = 8 ) c(*)
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) ib(ncol+1)
-  integer ( kind = 4 ) ic(:)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) ipos
-  integer ( kind = 4 ) iw(ncol)
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jb(*)
-  integer ( kind = 4 ) jc(*)
-  integer ( kind = 4 ) jcol
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) jpos
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) ka
-  integer ( kind = 4 ) len
-  integer ( kind = 4 ) ljob
-  integer ( kind = 4 ) nnza
-  integer ( kind = 4 ) nnzb
-  integer ( kind = 4 ) nzmax
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) b(*)
+  REAL ( kind = 8 ) c(*)
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) ib(ncol+1)
+  INTEGER ( kind = 4 ) ic(:)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) ipos
+  INTEGER ( kind = 4 ) iw(ncol)
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jb(*)
+  INTEGER ( kind = 4 ) jc(*)
+  INTEGER ( kind = 4 ) jcol
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) jpos
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) ka
+  INTEGER ( kind = 4 ) len
+  INTEGER ( kind = 4 ) ljob
+  INTEGER ( kind = 4 ) nnza
+  INTEGER ( kind = 4 ) nnzb
+  INTEGER ( kind = 4 ) nzmax
   logical values
 
   values = ( job /= 0 )
@@ -2100,70 +2100,70 @@ subroutine assmb1 ( u, a, ja, ia, fu, f, node_num, element_num, element_node, &
 !
 !  Parameters:
 !
-!    Input, real U(ELEMENT_NUM,NPE,NPE), the unassembled local matrices.
+!    Input, REAL U(ELEMENT_NUM,NPE,NPE), the unassembled local matrices.
 !
-!    Output, real A(*), integer ( kind = 4 ) JA(*), IA(NODE_NUM+1), the 
+!    Output, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NODE_NUM+1), the 
 !    assembled global matrix in CSR (Compressed Sparse Row) format.
 !
-!    Input, real FU(ELEMENT_NUM,NPE), the unassembled right hand sides.
+!    Input, REAL FU(ELEMENT_NUM,NPE), the unassembled right hand sides.
 !
-!    Output, real F(NODE_NUM), the assembled global right hand side.
+!    Output, REAL F(NODE_NUM), the assembled global right hand side.
 !
-!    Input, integer ( kind = 4 ) NODE_NUM, the number of nodes.
+!    Input, INTEGER ( kind = 4 ) NODE_NUM, the number of nodes.
 !
-!    Input, integer ( kind = 4 ) ELEMENT_NUM, the number of elements.
+!    Input, INTEGER ( kind = 4 ) ELEMENT_NUM, the number of elements.
 !
-!    Input, integer ( kind = 4 ) ELEMENT_NODE(NPE,ELEMENT_NUM), the 
+!    Input, INTEGER ( kind = 4 ) ELEMENT_NODE(NPE,ELEMENT_NUM), the 
 !    connectivity matrix.  ELEMENT_NODE(I,J) is the global index of the I-th
 !    local node in element J.
 !
-!    Input, integer ( kind = 4 ) NODE_CODE(NODE_NUM), boundary information for
+!    Input, INTEGER ( kind = 4 ) NODE_CODE(NODE_NUM), boundary information for
 !    each node with the following meaning:
 !    * 0, node I is internal;
 !    * 1, node I is a boundary but not a corner point;
 !    * 2, node I is a corner point.
 !
-!    Input, integer ( kind = 4 ) NPE, the number of nodes per element.
+!    Input, INTEGER ( kind = 4 ) NPE, the number of nodes per element.
 !
 !  Local parameters:
 !
-!    Workspace, integer ( kind = 4 ) IWK(NODE_NUM).
+!    Workspace, INTEGER ( kind = 4 ) IWK(NODE_NUM).
 !
-!    Workspace, integer ( kind = 4 ) JWK(NODE_NUM+1).
+!    Workspace, INTEGER ( kind = 4 ) JWK(NODE_NUM+1).
 !
-!    integer ( kind = 4 ) LOCAL, LOCAL1, LOCAL2, local node numbers.
+!    INTEGER ( kind = 4 ) LOCAL, LOCAL1, LOCAL2, local node numbers.
 !
-!    integer ( kind = 4 ) NODE, NODE1, NODE2, global node numbers.
+!    INTEGER ( kind = 4 ) NODE, NODE1, NODE2, global node numbers.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) element_num
-  integer ( kind = 4 ) node_num
-  integer ( kind = 4 ) npe
+  INTEGER ( kind = 4 ) element_num
+  INTEGER ( kind = 4 ) node_num
+  INTEGER ( kind = 4 ) npe
 
-  real ( kind = 8 ) a(*)
-  integer ( kind = 4 ) element
-  integer ( kind = 4 ) element_node(npe,element_num)
-  real ( kind = 8 ) f(node_num)
-  real ( kind = 8 ) fu(element_num,npe)
-  integer ( kind = 4 ) ia(node_num+1)
-  integer ( kind = 4 ) iwk(node_num)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jwk(node_num+1)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) k1
-  integer ( kind = 4 ) k2
-  integer ( kind = 4 ) local
-  integer ( kind = 4 ) local1
-  integer ( kind = 4 ) local2
-  integer ( kind = 4 ) node
-  integer ( kind = 4 ) node_code(node_num)
-  integer ( kind = 4 ) node1
-  integer ( kind = 4 ) node2
-  integer ( kind = 4 ) row_last
-  integer ( kind = 4 ) row_start
-  real ( kind = 8 ) u(element_num,npe,npe)
+  REAL ( kind = 8 ) a(*)
+  INTEGER ( kind = 4 ) element
+  INTEGER ( kind = 4 ) element_node(npe,element_num)
+  REAL ( kind = 8 ) f(node_num)
+  REAL ( kind = 8 ) fu(element_num,npe)
+  INTEGER ( kind = 4 ) ia(node_num+1)
+  INTEGER ( kind = 4 ) iwk(node_num)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jwk(node_num+1)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) k1
+  INTEGER ( kind = 4 ) k2
+  INTEGER ( kind = 4 ) local
+  INTEGER ( kind = 4 ) local1
+  INTEGER ( kind = 4 ) local2
+  INTEGER ( kind = 4 ) node
+  INTEGER ( kind = 4 ) node_code(node_num)
+  INTEGER ( kind = 4 ) node1
+  INTEGER ( kind = 4 ) node2
+  INTEGER ( kind = 4 ) row_last
+  INTEGER ( kind = 4 ) row_start
+  REAL ( kind = 8 ) u(element_num,npe,npe)
 !
 !  Initialize.
 !
@@ -2264,13 +2264,13 @@ subroutine assmbo ( nx, nelx, node, ijk, nodcode, x, y, a, ja, ia, f, iwk, &
 !    evaluates the material properties.  It has the form
 !
 !      subroutine xyk ( nel, xyke, x, y, ijk, node )
-!      Input, integer ( kind = 4 ) NEL, the element index.
-!      Output, real ( kind = 8 ) XYKE(1:3,NEL) are the constants K11, K22 and 
+!      Input, INTEGER ( kind = 4 ) NEL, the element index.
+!      Output, REAL ( kind = 8 ) XYKE(1:3,NEL) are the constants K11, K22 and 
 !      K12 in that element.
-!      Input, real ( kind = 8 ) X(NX), Y(NX), the X and Y coordinates of nodes.
-!      Input, integer ( kind = 4 ) IJK(NODE,NELX), the nodes making up 
+!      Input, REAL ( kind = 8 ) X(NX), Y(NX), the X and Y coordinates of nodes.
+!      Input, INTEGER ( kind = 4 ) IJK(NODE,NELX), the nodes making up 
 !      each element.
-!      Input, integer ( kind = 4 ) NODE, the number of nodes per element.
+!      Input, INTEGER ( kind = 4 ) NODE, the number of nodes per element.
 !
 !    Thanks to Erica Galetti for pointing out a typo (X was declared with
 !    the dimension NY instead of NX), 03 November 2016.
@@ -2285,79 +2285,79 @@ subroutine assmbo ( nx, nelx, node, ijk, nodcode, x, y, a, ja, ia, f, iwk, &
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NX, the number of nodes.
+!    Input, INTEGER ( kind = 4 ) NX, the number of nodes.
 !
-!    Input, integer ( kind = 4 ) NELX, the number of elements.
+!    Input, INTEGER ( kind = 4 ) NELX, the number of elements.
 !
-!    Input, integer ( kind = 4 ) NODE, the number of nodes per element.
+!    Input, INTEGER ( kind = 4 ) NODE, the number of nodes per element.
 !
-!    Input, integer ( kind = 4 ) IJK(NODE,NELX), lists the nodes that make up 
+!    Input, INTEGER ( kind = 4 ) IJK(NODE,NELX), lists the nodes that make up 
 !    each element.
 !
-!    Output, real ( kind = 8 ) A(*), integer ( kind = 4 ) JA(*), IA(NX+1), 
+!    Output, REAL ( kind = 8 ) A(*), INTEGER ( kind = 4 ) JA(*), IA(NX+1), 
 !    the assembled matrix in Compressed Sparse Row (CSR) format.
 !
-!    Output, real ( kind = 8 ) F(NX), the right hand side, or global load vector.
+!    Output, REAL ( kind = 8 ) F(NX), the right hand side, or global load vector.
 !
-!    Input, integer ( kind = 4 ) NODCODE(NX), the boundary information list 
+!    Input, INTEGER ( kind = 4 ) NODCODE(NX), the boundary information list 
 !    for each node with the following meaning:
 !    * 0, internal.
 !    * 1, boundary but not a corner point.
 !    * 2, corner point.
 !
-!    Input, real ( kind = 8 ) X(NX), Y(NX), the coordinates of the nodes.
+!    Input, REAL ( kind = 8 ) X(NX), Y(NX), the coordinates of the nodes.
 !
-!    Workspace, integer ( kind = 4 ) IWK(NX).
+!    Workspace, INTEGER ( kind = 4 ) IWK(NX).
 !
-!    Workspace, integer ( kind = 4 ) JWK(NX+1).
+!    Workspace, INTEGER ( kind = 4 ) JWK(NX+1).
 !
-!    Output, integer ( kind = 4 ) IERR, error message.
+!    Output, INTEGER ( kind = 4 ) IERR, error message.
 !    * 0, normal return
 !    * 1, negative area encountered, due to bad numbering of nodes
 !    of an element.
 !
-!    Input, integer ( kind = 4 ) IOUT, output unit.
+!    Input, INTEGER ( kind = 4 ) IOUT, output unit.
 !
 !    Input, external XYK, the name of the routine defining the material 
 !    properties at each element.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) nelx
-  integer ( kind = 4 ) node
-  integer ( kind = 4 ) nx
+  INTEGER ( kind = 4 ) nelx
+  INTEGER ( kind = 4 ) node
+  INTEGER ( kind = 4 ) nx
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) det
-  real ( kind = 8 ) f(nx)
-  real ( kind = 8 ) fe(3)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(nx+1)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) ijk(node,nelx)
-  integer ( kind = 4 ) ilast
-  integer ( kind = 4 ) irowst
-  integer ( kind = 4 ) iwk(nx)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jj
-  integer ( kind = 4 ) jwk(nx+1)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) ka
-  integer ( kind = 4 ) kb
-  integer ( kind = 4 ) knod
-  integer ( kind = 4 ) ksav
-  integer ( kind = 4 ) ksavn
-  integer ( kind = 4 ) nel
-  integer ( kind = 4 ) nodcode(nx)
-  real ( kind = 8 ) ske(3,3)
-  real ( kind = 8 ) x(nx)
-  real ( kind = 8 ) xe(3)
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) det
+  REAL ( kind = 8 ) f(nx)
+  REAL ( kind = 8 ) fe(3)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(nx+1)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) ijk(node,nelx)
+  INTEGER ( kind = 4 ) ilast
+  INTEGER ( kind = 4 ) irowst
+  INTEGER ( kind = 4 ) iwk(nx)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jj
+  INTEGER ( kind = 4 ) jwk(nx+1)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) ka
+  INTEGER ( kind = 4 ) kb
+  INTEGER ( kind = 4 ) knod
+  INTEGER ( kind = 4 ) ksav
+  INTEGER ( kind = 4 ) ksavn
+  INTEGER ( kind = 4 ) nel
+  INTEGER ( kind = 4 ) nodcode(nx)
+  REAL ( kind = 8 ) ske(3,3)
+  REAL ( kind = 8 ) x(nx)
+  REAL ( kind = 8 ) xe(3)
   external xyk
-  real ( kind = 8 ) xyke(2,2)
-  real ( kind = 8 ) y(nx)
-  real ( kind = 8 ) ye(3)
+  REAL ( kind = 8 ) xyke(2,2)
+  REAL ( kind = 8 ) y(nx)
+  REAL ( kind = 8 ) ye(3)
 !
 !  Initialize.
 !
@@ -2492,27 +2492,27 @@ subroutine atmux ( n, x, y, a, ja, ia )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the row dimension of the matrix.
 !
-!    Input, real X(*), an array whose length is equal to the
+!    Input, REAL X(*), an array whose length is equal to the
 !    column dimension of A.
 !
-!    Output, real Y(N), the product A' * X.
+!    Output, REAL Y(N), the product A' * X.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) a(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(*)
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) k
-  real ( kind = 8 ) x(*)
-  real ( kind = 8 ) y(n)
+  REAL ( kind = 8 ) a(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(*)
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) k
+  REAL ( kind = 8 ) x(*)
+  REAL ( kind = 8 ) y(n)
 
   y(1:n) = 0.0D+00
 
@@ -2548,14 +2548,14 @@ subroutine blkchk ( nrow, ja, ia, nblk, imsg )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
 !    Input, JA(*), IA(NROW+1), the matrix information (but no values) in CSR
 !    Compressed Sparse Row format.
 !
-!    Input, integer ( kind = 4 ) NBLK, the block value to be checked.
+!    Input, INTEGER ( kind = 4 ) NBLK, the block value to be checked.
 !
-!    Output, integer ( kind = 4 ) IMSG, a message  with the following meaning:
+!    Output, INTEGER ( kind = 4 ) IMSG, a message  with the following meaning:
 !     0 : the output value of NBLK is a correct block size. 
 !    -1 : NBLK does not divide NROW;
 !    -2 : a starting element in a row is at wrong position
@@ -2564,25 +2564,25 @@ subroutine blkchk ( nrow, ja, ia, nblk, imsg )
 !    -4 : an element is isolated outside a block or two rows in same 
 !         group have different lengths
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) nrow
 
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) i1
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) imsg
-  integer ( kind = 4 ) irow
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) j2
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jstart
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) len
-  integer ( kind = 4 ) lena
-  integer ( kind = 4 ) nblk
-  integer ( kind = 4 ) nr
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) i1
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) imsg
+  INTEGER ( kind = 4 ) irow
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) j2
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jstart
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) len
+  INTEGER ( kind = 4 ) lena
+  INTEGER ( kind = 4 ) nblk
+  INTEGER ( kind = 4 ) nr
 !
 !  First part of code will find candidate block sizes.
 !  This is not guaranteed to work, so a check is done at the end.
@@ -2690,34 +2690,34 @@ subroutine blkfnd ( nrow, ja, ia, nblk )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-!    Input, real JA(*), IA(NROW+1), the matrix information (but not the
+!    Input, REAL JA(*), IA(NROW+1), the matrix information (but not the
 !    values) in CSR Compressed Sparse Row format.
 !
-!    Output, integer ( kind = 4 ) NBLK, the block value that was found.
+!    Output, INTEGER ( kind = 4 ) NBLK, the block value that was found.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) nrow
 
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) i1
-  integer ( kind = 4 ) i2
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) iblk
-  integer ( kind = 4 ) imsg
-  integer ( kind = 4 ) irow
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jf
-  integer ( kind = 4 ) jfirst
-  integer ( kind = 4 ) jl
-  integer ( kind = 4 ) jlast
-  integer ( kind = 4 ) jrow
-  integer ( kind = 4 ) len
-  integer ( kind = 4 ) len0
-  integer ( kind = 4 ) minlen
-  integer ( kind = 4 ) nblk
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) i1
+  INTEGER ( kind = 4 ) i2
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) iblk
+  INTEGER ( kind = 4 ) imsg
+  INTEGER ( kind = 4 ) irow
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jf
+  INTEGER ( kind = 4 ) jfirst
+  INTEGER ( kind = 4 ) jl
+  INTEGER ( kind = 4 ) jlast
+  INTEGER ( kind = 4 ) jrow
+  INTEGER ( kind = 4 ) len
+  INTEGER ( kind = 4 ) len0
+  INTEGER ( kind = 4 ) minlen
+  INTEGER ( kind = 4 ) nblk
 !
 !  The first part of code will find candidate block sizes.
 !  The criterion used here is a simple one: scan rows and  determine groups
@@ -2808,43 +2808,43 @@ subroutine bndcsr ( n, abd, nabd, lowd, ml, mu, a, ja, ia, len, ierr )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the row dimension of the matrix.
 !
-!    Input, integer ( kind = 4 ) NABD, the first dimension of ABD.
+!    Input, INTEGER ( kind = 4 ) NABD, the first dimension of ABD.
 !
-! abd   = real array containing the values of the matrix stored in
+! abd   = REAL array containing the values of the matrix stored in
 !         banded form. The j-th column of abd contains the elements
 !         of the j-th column of  the original matrix,comprised in the
 !         band ( i in (j-ml,j+mu) ) with the lowest diagonal located
 !         in row lowd (see below).
 !
-! lowd  = integer ( kind = 4 ). this should be set to the row number in abd 
+! lowd  = INTEGER ( kind = 4 ). this should be set to the row number in abd 
 !         where the lowest diagonal (leftmost) of A is located.
 !         lowd should be s.t.  ( 1  <=  lowd  <= nabd).
 !         The routines dgbco, ... of linpack use lowd=2*ml+mu+1.
 !
-! ml      = integer ( kind = 4 ). equal to the bandwidth of the strict lower
+! ml      = INTEGER ( kind = 4 ). equal to the bandwidth of the strict lower
 !         part of A.
 !
-! mu      = integer ( kind = 4 ). equal to the bandwidth of the strict upper
+! mu      = INTEGER ( kind = 4 ). equal to the bandwidth of the strict upper
 !         part of A thus the total bandwidth of A is ml+mu+1.
 !         if ml+mu+1 is found to be larger than nabd then an error
 !         message is set. see ierr.
 !
-! len   = integer ( kind = 4 ). length of arrays a and ja. bndcsr will stop if
+! len   = INTEGER ( kind = 4 ). length of arrays a and ja. bndcsr will stop if
 !         the length of the arrays a and ja is insufficient to store the
 !         matrix. see ierr.
 !
 ! on return:
 !
-!    Output, real A(*), integer ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
+!    Output, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
 !
 ! lowd  = if on entry lowd was zero then lowd is reset to the default
 !         value ml+mu+l.
 !
-! ierr  = integer ( kind = 4 ). used for error message output.
+! ierr  = INTEGER ( kind = 4 ). used for error message output.
 !         ierr == 0 :means normal return
 !         ierr == -1 : means invalid value for lowd.
 !        ierr > 0 : means that there was not enough storage in a and ja
@@ -2853,25 +2853,25 @@ subroutine bndcsr ( n, abd, nabd, lowd, ml, mu, a, ja, ia, len, ierr )
 !         This should give an idea of much more storage might be required.
 !         Moreover, the first irow-1 rows are correctly filled.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
-  integer ( kind = 4 ) nabd
+  INTEGER ( kind = 4 ) n
+  INTEGER ( kind = 4 ) nabd
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) abd(nabd,*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(n+1)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) irow
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) ko
-  integer ( kind = 4 ) len
-  integer ( kind = 4 ) lowd
-  integer ( kind = 4 ) ml
-  integer ( kind = 4 ) mu
-  real ( kind = 8 ) t
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) abd(nabd,*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(n+1)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) irow
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) ko
+  INTEGER ( kind = 4 ) len
+  INTEGER ( kind = 4 ) lowd
+  INTEGER ( kind = 4 ) ml
+  INTEGER ( kind = 4 ) mu
+  REAL ( kind = 8 ) t
 
   ierr = 0
 
@@ -2948,45 +2948,45 @@ subroutine bound ( nx, nelx, ijk, nodcode, node, n_int, iperm, &
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NX, the number of nodes.
+!    Input, INTEGER ( kind = 4 ) NX, the number of nodes.
 !
-!    Input, integer ( kind = 4 ) NELX, the number of elements.
+!    Input, INTEGER ( kind = 4 ) NELX, the number of elements.
 !
-!    Input/output, integer ( kind = 4 ) IJK(NODE,NELX), lists the nodes that 
+!    Input/output, INTEGER ( kind = 4 ) IJK(NODE,NELX), lists the nodes that 
 !    make up each element.  On output, IJK has been updated.
 !
 ! nodcode, node: see other routines
 !
-!    Output, integer ( kind = 4 ) N_INT,  the number of points on the boundary.
+!    Output, INTEGER ( kind = 4 ) N_INT,  the number of points on the boundary.
 !
 ! iperm = permutation array from old ordering to new ordering,
 !
 ! iwk   = reverse permutation array or return.
-! wk      = real work array
+! wk      = REAL work array
 ! On return
 ! x, y, nodecode, are permuted
 ! ijk  is updated according to new oerdering.
 ! n_int = number of interior points.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) node
+  INTEGER ( kind = 4 ) node
 
-  integer ( kind = 4 ) ijk(node,*)
-  integer ( kind = 4 ) iperm(*)
-  integer ( kind = 4 ) iwk(*)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) knod
-  integer ( kind = 4 ) n_int
-  integer ( kind = 4 ) nbound
-  integer ( kind = 4 ) nel
-  integer ( kind = 4 ) nelx
-  integer ( kind = 4 ) nodcode(*)
-  integer ( kind = 4 ) nx
-  real ( kind = 8 ) wk(*)
-  real ( kind = 8 ) x(*)
-  real ( kind = 8 ) y(*)
+  INTEGER ( kind = 4 ) ijk(node,*)
+  INTEGER ( kind = 4 ) iperm(*)
+  INTEGER ( kind = 4 ) iwk(*)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) knod
+  INTEGER ( kind = 4 ) n_int
+  INTEGER ( kind = 4 ) nbound
+  INTEGER ( kind = 4 ) nel
+  INTEGER ( kind = 4 ) nelx
+  INTEGER ( kind = 4 ) nodcode(*)
+  INTEGER ( kind = 4 ) nx
+  REAL ( kind = 8 ) wk(*)
+  REAL ( kind = 8 ) x(*)
+  REAL ( kind = 8 ) y(*)
 !
 !  Maximum number of nonzeros allowed  = 200
 !
@@ -3065,18 +3065,18 @@ subroutine bsort2 ( w, ind, n, ncut )
 !
 !  Parameters:
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ind(*)
-  integer ( kind = 4 ) iswp
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ncut
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ind(*)
+  INTEGER ( kind = 4 ) iswp
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ncut
   logical test
-  real ( kind = 8 ) w(n)
-  real ( kind = 8 ) wswp
+  REAL ( kind = 8 ) w(n)
+  REAL ( kind = 8 ) wswp
 
   i = 1
 
@@ -3195,54 +3195,54 @@ subroutine bsrcsr ( n, nblk, na, a, ja, ia, ao, jao, iao )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-! nblk  = integer ( kind = 4 ) equal to the dimension of each block.
+! nblk  = INTEGER ( kind = 4 ) equal to the dimension of each block.
 !         nblk must divide n.
 !
 ! na      = first dimension of array a as declared in calling program
 !
-! a      = real array containing the values of the matrix. For details
+! a      = REAL array containing the values of the matrix. For details
 !         on the format see below. Each row of a contains the nblk x nblk
 !         block matrix unpacked column-wise (this allows the user to
 !         declare the array a as a(na,nblk,nblk) on entry if desired).
 !         the block rows are stored in sequence just as for the compressed
 !         sparse row format.
 !
-! ja      = integer ( kind = 4 ) array of length n/nblk. ja(k) contains the 
+! ja      = INTEGER ( kind = 4 ) array of length n/nblk. ja(k) contains the 
 !         column index of the leading element, i.e., the element (1,1) of the
 !         block that is held in the row a(k,*) of the value array.
 !
-! ia    = integer ( kind = 4 ) array of length n/nblk+1. ia(i) points to the 
+! ia    = INTEGER ( kind = 4 ) array of length n/nblk+1. ia(i) points to the 
 !        beginning of block row number i in the arrays a and ja.
 !
-!    Output, real AO(*), JAO(*), IAO(N+1), the matrix in CSR
+!    Output, REAL AO(*), JAO(*), IAO(N+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
-  integer ( kind = 4 ) na
+  INTEGER ( kind = 4 ) n
+  INTEGER ( kind = 4 ) na
 
-  real ( kind = 8 ) a(na,*)
-  real ( kind = 8 ) ao(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) i1
-  integer ( kind = 4 ) i2
-  integer ( kind = 4 ) ia(*)
-  integer ( kind = 4 ) iao(n+1)
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) ij
-  integer ( kind = 4 ) irow
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jao(*)
-  integer ( kind = 4 ) jj
-  integer ( kind = 4 ) jst
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) krow
-  integer ( kind = 4 ) nblk
-  integer ( kind = 4 ) nr
+  REAL ( kind = 8 ) a(na,*)
+  REAL ( kind = 8 ) ao(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) i1
+  INTEGER ( kind = 4 ) i2
+  INTEGER ( kind = 4 ) ia(*)
+  INTEGER ( kind = 4 ) iao(n+1)
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) ij
+  INTEGER ( kind = 4 ) irow
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jao(*)
+  INTEGER ( kind = 4 ) jj
+  INTEGER ( kind = 4 ) jst
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) krow
+  INTEGER ( kind = 4 ) nblk
+  INTEGER ( kind = 4 ) nr
 !
 !  Get the IA, JA data structure for output matrix
 !
@@ -3326,26 +3326,26 @@ subroutine bsten ( nx, ny, nz, kx, ky, kz, nfree, stencil, h )
 !
 
   USE sparsekit_test01_fcts
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) cntr(225)
-  real ( kind = 8 ) coeff(225)
-  real ( kind = 8 ) h
-  real ( kind = 8 ) h2
-  real ( kind = 8 ) hhalf
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) kx
-  integer ( kind = 4 ) ky
-  integer ( kind = 4 ) kz
-  integer ( kind = 4 ) nfree
-  integer ( kind = 4 ) nfree2
-  integer ( kind = 4 ) nx
-  integer ( kind = 4 ) ny
-  integer ( kind = 4 ) nz
-  real ( kind = 8 ) stencil(7,*)
-  real ( kind = 8 ) x
-  real ( kind = 8 ) y
-  real ( kind = 8 ) z
+  REAL ( kind = 8 ) cntr(225)
+  REAL ( kind = 8 ) coeff(225)
+  REAL ( kind = 8 ) h
+  REAL ( kind = 8 ) h2
+  REAL ( kind = 8 ) hhalf
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) kx
+  INTEGER ( kind = 4 ) ky
+  INTEGER ( kind = 4 ) kz
+  INTEGER ( kind = 4 ) nfree
+  INTEGER ( kind = 4 ) nfree2
+  INTEGER ( kind = 4 ) nx
+  INTEGER ( kind = 4 ) ny
+  INTEGER ( kind = 4 ) nz
+  REAL ( kind = 8 ) stencil(7,*)
+  REAL ( kind = 8 ) x
+  REAL ( kind = 8 ) y
+  REAL ( kind = 8 ) z
 
   if ( 15 < nfree ) then
     write ( *, '(a)' ) ' '
@@ -3361,9 +3361,9 @@ subroutine bsten ( nx, ny, nz, kx, ky, kz, nfree, stencil, h )
 
   hhalf = h * 0.5D+00
   h2 = h * h
-  x = h * real ( kx, kind = 8 )
-  y = h * real ( ky, kind = 8 )
-  z = h * real ( kz, kind = 8 )
+  x = h * REAL ( kx, kind = 8 )
+  y = h * REAL ( ky, kind = 8 )
+  z = h * REAL ( kz, kind = 8 )
 !
 !  Differentiation with respect to X:
 !
@@ -3475,11 +3475,11 @@ subroutine checkref ( nx, nelx, ijk, node, nodcode, nbound, nxnew, nelxnew )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NX, the number of nodes.
+!    Input, INTEGER ( kind = 4 ) NX, the number of nodes.
 !
-!    Input, integer ( kind = 4 ) NELX, the number of elements.
+!    Input, INTEGER ( kind = 4 ) NELX, the number of elements.
 !
-!    Input, integer ( kind = 4 ) IJK(NODE,NELX), lists the nodes that make up 
+!    Input, INTEGER ( kind = 4 ) IJK(NODE,NELX), lists the nodes that make up 
 !    each element.
 !
 ! nbound  = number of boundary points on entry - enter zero if
@@ -3494,18 +3494,18 @@ subroutine checkref ( nx, nelx, ijk, node, nodcode, nbound, nxnew, nelxnew )
 ! nxnew  = new number of nodes if refall were to be applied
 ! nelxnew = same for nelx.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) node
-  integer ( kind = 4 ) nx
+  INTEGER ( kind = 4 ) node
+  INTEGER ( kind = 4 ) nx
 
-  integer ( kind = 4 ) ijk(node,*)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) nbound
-  integer ( kind = 4 ) nelx
-  integer ( kind = 4 ) nelxnew
-  integer ( kind = 4 ) nodcode(nx)
-  integer ( kind = 4 ) nxnew
+  INTEGER ( kind = 4 ) ijk(node,*)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) nbound
+  INTEGER ( kind = 4 ) nelx
+  INTEGER ( kind = 4 ) nelxnew
+  INTEGER ( kind = 4 ) nodcode(nx)
+  INTEGER ( kind = 4 ) nxnew
 
   nelxnew = nelx * 4
 !
@@ -3548,29 +3548,29 @@ subroutine chkelmt ( nx, x, y, nelx, ijk, node )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NX, the number of nodes.
+!    Input, INTEGER ( kind = 4 ) NX, the number of nodes.
 !
-!    Input, real X(*), Y(*), the coordinates of the nodes.
+!    Input, REAL X(*), Y(*), the coordinates of the nodes.
 !
-!    Input, integer ( kind = 4 ) NELX, the number of elements.
+!    Input, INTEGER ( kind = 4 ) NELX, the number of elements.
 !
-!    Input, integer ( kind = 4 ) IJK(NODE,NELX), lists the nodes that make up 
+!    Input, INTEGER ( kind = 4 ) IJK(NODE,NELX), lists the nodes that make up 
 !    each element.
 !
-!    Input, integer ( kind = 4 ) NODE, the number of nodes per element.
+!    Input, INTEGER ( kind = 4 ) NODE, the number of nodes per element.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) node
+  INTEGER ( kind = 4 ) node
 
-  real ( kind = 8 ) det
-  integer ( kind = 4 ) ijk(node,*)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) nel
-  integer ( kind = 4 ) nelx
-  integer ( kind = 4 ) nx
-  real ( kind = 8 ) x(*)
-  real ( kind = 8 ) y(*)
+  REAL ( kind = 8 ) det
+  INTEGER ( kind = 4 ) ijk(node,*)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) nel
+  INTEGER ( kind = 4 ) nelx
+  INTEGER ( kind = 4 ) nx
+  REAL ( kind = 8 ) x(*)
+  REAL ( kind = 8 ) y(*)
 
   do nel = 1, nelx
 
@@ -3610,32 +3610,32 @@ subroutine cnrms ( nrow, nrm, a, ja, ia, diag )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-!    Input, integer ( kind = 4 ) NRM, choosed the norm:
+!    Input, INTEGER ( kind = 4 ) NRM, choosed the norm:
 !    1, means 1-norm,
 !    2, means the 2-nrm,
 !    0, means max norm
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-!   Output, real ( kind = 8 ) DIAG(NROW), the row norms.
+!   Output, REAL ( kind = 8 ) DIAG(NROW), the row norms.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) nrow
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) diag(nrow)
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) k1
-  integer ( kind = 4 ) k2
-  integer ( kind = 4 ) nrm
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) diag(nrow)
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) k1
+  INTEGER ( kind = 4 ) k2
+  INTEGER ( kind = 4 ) nrm
 
   diag(1:nrow) = 0.0D+00
 
@@ -3698,50 +3698,50 @@ subroutine coocsr_inplace ( n, nnz, job, a, ja, ia, iwk )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the row dimension of the matrix.
 !
-!    Input, integer ( kind = 4 ) NNZ, the number of nonzero elements in A.
+!    Input, INTEGER ( kind = 4 ) NNZ, the number of nonzero elements in A.
 !
-!    Input, integer ( kind = 4 ) JOB.  When JOB = 1, the real values in A are
+!    Input, INTEGER ( kind = 4 ) JOB.  When JOB = 1, the REAL values in A are
 !    filled.  Otherwise A is not touched and the structure of the
 !    array only (i.e. JA, IA)  is obtained.
 !
-!    Input/output, real A(NNZ).  On input, the matrix numeric values,
+!    Input/output, REAL A(NNZ).  On input, the matrix numeric values,
 !    stored in the COO format.  On output, the numeric values, stored
 !    in CSR format.
 !
-! ja      = integer ( kind = 4 ) array of length nnz containing the column 
+! ja      = INTEGER ( kind = 4 ) array of length nnz containing the column 
 !    positions of the corresponding elements in a.
 !
-! ia      = integer ( kind = 4 ) array of length nnz containing the row 
+! ia      = INTEGER ( kind = 4 ) array of length nnz containing the row 
 !    positions of the corresponding elements in a.
 !
-! iwk      = integer ( kind = 4 ) work array of length n.
+! iwk      = INTEGER ( kind = 4 ) work array of length n.
 !
 ! on return:
 !
-!    Output, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in
+!    Output, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in
 !    CSR Compressed Sparse Row format.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
-  integer ( kind = 4 ) nnz
+  INTEGER ( kind = 4 ) n
+  INTEGER ( kind = 4 ) nnz
 
-  real ( kind = 8 ) a(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(nnz)
-  integer ( kind = 4 ) inext
-  integer ( kind = 4 ) init
-  integer ( kind = 4 ) ipos
-  integer ( kind = 4 ) iwk(n)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(nnz)
-  integer ( kind = 4 ) jnext
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) k
-  real ( kind = 8 ) t
-  real ( kind = 8 ) tnext
+  REAL ( kind = 8 ) a(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(nnz)
+  INTEGER ( kind = 4 ) inext
+  INTEGER ( kind = 4 ) init
+  INTEGER ( kind = 4 ) ipos
+  INTEGER ( kind = 4 ) iwk(n)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(nnz)
+  INTEGER ( kind = 4 ) jnext
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) k
+  REAL ( kind = 8 ) t
+  REAL ( kind = 8 ) tnext
   logical values
 
   values = (job == 1)
@@ -3864,14 +3864,14 @@ subroutine coocsr ( nrow, nnz, a, ir, jc, ao, jao, iao )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-!    Input, integer ( kind = 4 ) NNZ, the number of nonzero elements.
+!    Input, INTEGER ( kind = 4 ) NNZ, the number of nonzero elements.
 !
 ! a,
 ! ir,
 ! jc    = matrix in coordinate format. a(k), ir(k), jc(k) store the nnz
-!         nonzero elements of the matrix with a(k) = actual real value of
+!         nonzero elements of the matrix with a(k) = actual REAL value of
 !         the elements, ir(k) = its row number and jc(k) = its column
 !        number. The order of the elements is arbitrary.
 !
@@ -3879,26 +3879,26 @@ subroutine coocsr ( nrow, nnz, a, ir, jc, ao, jao, iao )
 !
 ! ir       is destroyed
 !
-!    Output, real AO(*), JAO(*), IAO(NROW+1), the matrix in CSR
+!    Output, REAL AO(*), JAO(*), IAO(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) nrow
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) ao(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) iad
-  integer ( kind = 4 ) iao(nrow+1)
-  integer ( kind = 4 ) ir(*)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) jao(*)
-  integer ( kind = 4 ) jc(*)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) k0
-  integer ( kind = 4 ) nnz
-  real ( kind = 8 ) x
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) ao(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) iad
+  INTEGER ( kind = 4 ) iao(nrow+1)
+  INTEGER ( kind = 4 ) ir(*)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) jao(*)
+  INTEGER ( kind = 4 ) jc(*)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) k0
+  INTEGER ( kind = 4 ) nnz
+  REAL ( kind = 8 ) x
 
   iao(1:nrow+1) = 0
 !
@@ -3998,27 +3998,27 @@ subroutine cooell ( n, nnz, a, ja, ia, ac, jac, nac, ner, ncmax, ierr )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-!    Input, integer ( kind = 4 ) NNZ, the number of nonzero elements in the
+!    Input, INTEGER ( kind = 4 ) NNZ, the number of nonzero elements in the
 !    sparse matrix.
 !
-!    Input, integer ( kind = 4 ) NCA, the first dimension of output arrays
+!    Input, INTEGER ( kind = 4 ) NCA, the first dimension of output arrays
 !    CA and JAC.
 !
 !  A(NNZ)  - Real array.
 !            Stored entries of the sparse matrix A.
 !            NNZ is the number of nonzeros.
 !
-!  IA(NNZ) - integer ( kind = 4 ) array.
+!  IA(NNZ) - INTEGER ( kind = 4 ) array.
 !            Pointers to specify rows for the stored nonzero entries
 !            in A.
 !
-!  JA(NNZ) - integer ( kind = 4 ) array.
+!  JA(NNZ) - INTEGER ( kind = 4 ) array.
 !            Pointers to specify columns for the stored nonzero
 !            entries in A.
 !
-!  NER     - integer ( kind = 4 ). Must be set greater than or equal to the
+!  NER     - INTEGER ( kind = 4 ). Must be set greater than or equal to the
 !            maximum number of nonzeros in any row of the sparse matrix.
 !
 !  OUTPUT PARAMETERS
@@ -4027,12 +4027,12 @@ subroutine cooell ( n, nnz, a, ja, ia, ac, jac, nac, ner, ncmax, ierr )
 !               Stored entries of the sparse matrix A in compressed
 !               storage mode.
 !
-!  JAC(NAC,*) - integer ( kind = 4 ) array.
+!  JAC(NAC,*) - INTEGER ( kind = 4 ) array.
 !               Contains the column numbers of the sparse matrix
 !               elements stored in the corresponding positions in
 !               array AC.
 !
-!  NCMAX   -  integer ( kind = 4 ). Equals the maximum number of nonzeros in any
+!  NCMAX   -  INTEGER ( kind = 4 ). Equals the maximum number of nonzeros in any
 !             row of the sparse matrix.
 !
 !  IERR    - Error parameter is returned as zero on successful
@@ -4047,26 +4047,26 @@ subroutine cooell ( n, nnz, a, ja, ia, ac, jac, nac, ner, ncmax, ierr )
 !             IERR =  1   -  The array AC has a zero column. (Warning)
 !             IERR =  2   -  The array AC has a zero row.    (Warning)
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) nac
-  integer ( kind = 4 ) ner
-  integer ( kind = 4 ) nnz
+  INTEGER ( kind = 4 ) nac
+  INTEGER ( kind = 4 ) ner
+  INTEGER ( kind = 4 ) nnz
 
-  real ( kind = 8 ) a(nnz)
-  real ( kind = 8 ) ac(nac,ner)
-  integer ( kind = 4 ) ia(nnz)
-  integer ( kind = 4 ) icount
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) in
-  integer ( kind = 4 ) inn
-  integer ( kind = 4 ) is
-  integer ( kind = 4 ) ja(nnz)
-  integer ( kind = 4 ) jac(nac,ner)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) n
-  integer ( kind = 4 ) ncmax
+  REAL ( kind = 8 ) a(nnz)
+  REAL ( kind = 8 ) ac(nac,ner)
+  INTEGER ( kind = 4 ) ia(nnz)
+  INTEGER ( kind = 4 ) icount
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) in
+  INTEGER ( kind = 4 ) inn
+  INTEGER ( kind = 4 ) is
+  INTEGER ( kind = 4 ) ja(nnz)
+  INTEGER ( kind = 4 ) jac(nac,ner)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) n
+  INTEGER ( kind = 4 ) ncmax
 !
 !  Initialize the error parameter to zero.
 !
@@ -4176,32 +4176,32 @@ subroutine copmat ( nrow, a, ja, ia, ao, jao, iao, ipos )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-!    Input, integer ( kind = 4 ) IPOS, indicates the position in the array AO,
+!    Input, INTEGER ( kind = 4 ) IPOS, indicates the position in the array AO,
 !    JAO where the first element should be copied.  Thus IAO(1) = IPOS 
 !    on return.
 !
-!    Output, real AO(*), JAO(*), IAO(NROW+1), the copied matrix in CSR
+!    Output, REAL AO(*), JAO(*), IAO(NROW+1), the copied matrix in CSR
 !    Compressed Sparse Row format.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) nrow
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) ao(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(*)
-  integer ( kind = 4 ) iao(nrow+1)
-  integer ( kind = 4 ) ipos
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jao(*)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) kst
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) ao(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(*)
+  INTEGER ( kind = 4 ) iao(nrow+1)
+  INTEGER ( kind = 4 ) ipos
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jao(*)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) kst
 
   kst = ipos - ia(1)
 
@@ -4245,41 +4245,41 @@ subroutine cperm ( nrow, a, ja, ia, ao, jao, iao, perm, job )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-! perm      = integer ( kind = 4 ) array of length ncol (number of columns of A
+! perm      = INTEGER ( kind = 4 ) array of length ncol (number of columns of A
 !         containing the permutation array  the columns:
 !         a(i,j) in the original matrix becomes a(i,perm(j))
 !         in the output matrix.
 !
-! job      = integer ( kind = 4 ) indicating the work to be done:
+! job      = INTEGER ( kind = 4 ) indicating the work to be done:
 !             job = 1      permute a, ja, ia into ao, jao, iao
-!                       (including the copying of real values ao and
+!                       (including the copying of REAL values ao and
 !                       the array iao).
-!             job /= 1 :  ignore real values ao and ignore iao.
+!             job /= 1 :  ignore REAL values ao and ignore iao.
 !
 !
 ! on return:
 !
 ! ao, jao, iao = input matrix in a, ja, ia format (array ao not needed)
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) nrow
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) ao(*)
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) iao(nrow+1)
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jao(*)
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) nnz
-  integer ( kind = 4 ) perm(*)
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) ao(*)
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) iao(nrow+1)
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jao(*)
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) nnz
+  INTEGER ( kind = 4 ) perm(*)
 
   nnz = ia(nrow+1)-1
 
@@ -4327,15 +4327,15 @@ subroutine cscal ( nrow, job, nrm, a, ja, ia, diag, b, jb, ib )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-! job   = integer ( kind = 4 ). job indicator. Job=0 means get array b only
-!         job = 1 means get b, and the integer ( kind = 4 ) arrays ib, jb.
+! job   = INTEGER ( kind = 4 ). job indicator. Job=0 means get array b only
+!         job = 1 means get b, and the INTEGER ( kind = 4 ) arrays ib, jb.
 !
-! nrm   = integer ( kind = 4 ). norm indicator. nrm = 1, means 1-norm, nrm =2
+! nrm   = INTEGER ( kind = 4 ). norm indicator. nrm = 1, means 1-norm, nrm =2
 !                  means the 2-nrm, nrm = 0 means max norm
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
 ! on return:
@@ -4345,22 +4345,22 @@ subroutine cscal ( nrow, job, nrm, a, ja, ia, diag, b, jb, ib )
 !        by which the columns have been scaled, i.e., on return
 !        we have B = A * Diag
 !
-!    Output, real B(*), integer ( kind = 4 ) JB(*), IB(NROW+1), the scaled
+!    Output, REAL B(*), INTEGER ( kind = 4 ) JB(*), IB(NROW+1), the scaled
 !    matrix in CSR Compressed Sparse Row format.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) nrow
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) b(*)
-  real ( kind = 8 ) diag(nrow)
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) ib(nrow+1)
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jb(*)
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) nrm
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) b(*)
+  REAL ( kind = 8 ) diag(nrow)
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) ib(nrow+1)
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jb(*)
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) nrm
 
   call cnrms ( nrow, nrm, a, ja, ia, diag )
 
@@ -4383,7 +4383,7 @@ subroutine csort ( n, a, ja, ia, iwork, values )
 !    each row. It uses a form of bucket sort with a cost of O(nnz) where
 !    nnz = number of nonzero elements.
 !
-!    Requires an integer ( kind = 4 ) work array of size length 2*nnz.
+!    Requires an INTEGER ( kind = 4 ) work array of size length 2*nnz.
 !
 !  Modified:
 !
@@ -4395,15 +4395,15 @@ subroutine csort ( n, a, ja, ia, iwork, values )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the row dimension of the matrix.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-! iwork = integer ( kind = 4 ) work array of length max ( n+1, 2*nnz )
+! iwork = INTEGER ( kind = 4 ) work array of length max ( n+1, 2*nnz )
 !         where nnz = 2* (ia(n+1)-ia(1))  ) .
 !
-! values= logical indicating whether or not the real values a(*) must
+! values= logical indicating whether or not the REAL values a(*) must
 !         also be permuted. if (.not. values) then the array a is not
 !         touched by csort and can be a dummy array.
 !
@@ -4413,22 +4413,22 @@ subroutine csort ( n, a, ja, ia, iwork, values )
 ! way that the column indices are in increasing order within each row.
 ! iwork(1:nnz) contains the permutation used  to rearrange the elements.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) a(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(n+1)
-  integer ( kind = 4 ) ifirst
-  integer ( kind = 4 ) irow
-  integer ( kind = 4 ) iwork(*)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) ko
-  integer ( kind = 4 ) next
-  integer ( kind = 4 ) nnz
+  REAL ( kind = 8 ) a(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(n+1)
+  INTEGER ( kind = 4 ) ifirst
+  INTEGER ( kind = 4 ) irow
+  INTEGER ( kind = 4 ) iwork(*)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) ko
+  INTEGER ( kind = 4 ) next
+  INTEGER ( kind = 4 ) nnz
   logical values
 !
 !  Count the number of elements in each column.
@@ -4563,19 +4563,19 @@ subroutine csrbnd ( n, a, ja, ia, job, abd, nabd, lowd, ml, mu, ierr )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the row dimension of the matrix.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-! job      = integer ( kind = 4 ). if job=1 then the values of the lower bandwith ml
+! job      = INTEGER ( kind = 4 ). if job=1 then the values of the lower bandwith ml
 !         and the upper bandwidth mu are determined internally.
 !         otherwise it is assumed that the values of ml and mu
 !         are the correct bandwidths on input. See ml and mu below.
 !
-! nabd  = integer ( kind = 4 ). first dimension of array abd.
+! nabd  = INTEGER ( kind = 4 ). first dimension of array abd.
 !
-! lowd  = integer ( kind = 4 ). this should be set to the row number in abd where
+! lowd  = INTEGER ( kind = 4 ). this should be set to the row number in abd where
 !         the lowest diagonal (leftmost) of A is located.
 !         lowd should be  ( 1  <=  lowd  <= nabd).
 !         if it is not known in advance what lowd should be
@@ -4584,10 +4584,10 @@ subroutine csrbnd ( n, a, ja, ia, job, abd, nabd, lowd, ml, mu, ierr )
 !         first to detrermione ml and mu then define lowd accordingly.
 !         (Note: the banded solvers in linpack use lowd=2*ml+mu+1. )
 !
-! ml      = integer ( kind = 4 ). equal to the bandwidth of the strict lower
+! ml      = INTEGER ( kind = 4 ). equal to the bandwidth of the strict lower
 !         part of A.
 !
-! mu      = integer ( kind = 4 ). equal to the bandwidth of the strict upper 
+! mu      = INTEGER ( kind = 4 ). equal to the bandwidth of the strict upper 
 !         part of A.  thus the total bandwidth of A is ml+mu+1.
 !         if ml+mu+1 is found to be larger than lowd then an error
 !         flag is raised (unless lowd = 0). see ierr.
@@ -4597,23 +4597,23 @@ subroutine csrbnd ( n, a, ja, ia, job, abd, nabd, lowd, ml, mu, ierr )
 !
 ! on return:
 !
-! abd   = real array of dimension abd(nabd,n).
+! abd   = REAL array of dimension abd(nabd,n).
 !         on return contains the values of the matrix stored in
 !         banded form. The j-th column of abd contains the elements
 !         of the j-th column of  the original matrix comprised in the
 !         band ( i in (j-ml,j+mu) ) with the lowest diagonal at
 !         the bottom row (row lowd). See details below for this format.
 !
-! ml      = integer ( kind = 4 ). equal to the bandwidth of the strict lower part of A
-! mu      = integer ( kind = 4 ). equal to the bandwidth of the strict upper part of A
+! ml      = INTEGER ( kind = 4 ). equal to the bandwidth of the strict lower part of A
+! mu      = INTEGER ( kind = 4 ). equal to the bandwidth of the strict upper part of A
 !         if job=1 on entry then these two values are internally computed.
 !
-! lowd  = integer ( kind = 4 ). row number in abd where the lowest diagonal
+! lowd  = INTEGER ( kind = 4 ). row number in abd where the lowest diagonal
 !         (leftmost) of A is located on return. In case lowd = 0
 !         on return, then it is defined to ml+mu+1 on return and the
 !         lowd will contain this value on return. `
 !
-! ierr  = integer ( kind = 4 ). used for error messages. On return:
+! ierr  = INTEGER ( kind = 4 ). used for error messages. On return:
 !         ierr == 0  :means normal return
 !         ierr == -1 : means invalid value for lowd. (either < 0
 !         or larger than nabd).
@@ -4622,26 +4622,26 @@ subroutine csrbnd ( n, a, ja, ia, job, abd, nabd, lowd, ml, mu, ierr )
 !         lowd should be at least ml+mu+1, where ml and mu are as
 !         provided on output.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
-  integer ( kind = 4 ) nabd
+  INTEGER ( kind = 4 ) n
+  INTEGER ( kind = 4 ) nabd
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) abd(nabd,n)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(n+1)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) lowd
-  integer ( kind = 4 ) m
-  integer ( kind = 4 ) mdiag
-  integer ( kind = 4 ) ml
-  integer ( kind = 4 ) mu
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) abd(nabd,n)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(n+1)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) lowd
+  INTEGER ( kind = 4 ) m
+  INTEGER ( kind = 4 ) mdiag
+  INTEGER ( kind = 4 ) ml
+  INTEGER ( kind = 4 ) mu
 !
 !  Determine ML and MU.
 !
@@ -4731,56 +4731,56 @@ subroutine csrbsr ( n, nblk, na, a, ja, ia, ao, jao, iao )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the row dimension of the matrix.
 !
-!    Input, integer ( kind = 4 ) NBLK, the dimension of each block.
+!    Input, INTEGER ( kind = 4 ) NBLK, the dimension of each block.
 !    NBLK must divide N.
 !
 ! na      = first dimension of array ao as declared in calling program
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
 ! on return:
 !
-! ao    = real array containing the values of the matrix. For details
+! ao    = REAL array containing the values of the matrix. For details
 !         on the format see below. Each row of a contains the nblk x nblk
 !         block matrix unpacked column-wise (this allows the user to
 !         declare the array a as a(na,nblk,nblk) on entry if desired).
 !         the block rows are stored in sequence just as for the compressed
 !         sparse row format.
-! jao   = integer ( kind = 4 ) array of length n/nblk. ja(k) contains the column index
+! jao   = INTEGER ( kind = 4 ) array of length n/nblk. ja(k) contains the column index
 !         of the leading element, i.e., the element (1,1) of the block
 !         that is held in the row a(k,*) of the value array.
 !
-! iao   = integer ( kind = 4 ) array of length n/nblk+1. ia(i) points to the
+! iao   = INTEGER ( kind = 4 ) array of length n/nblk+1. ia(i) points to the
 !         beginning of block row number i in the arrays a and ja.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
-  integer ( kind = 4 ) na
+  INTEGER ( kind = 4 ) n
+  INTEGER ( kind = 4 ) na
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) ao(na,*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) i1
-  integer ( kind = 4 ) ia(n+1)
-  integer ( kind = 4 ) iao(*)
-  integer ( kind = 4 ) ibrow
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) irow
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) j1
-  integer ( kind = 4 ) j2
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jao(*)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) k1
-  integer ( kind = 4 ) len
-  integer ( kind = 4 ) lena
-  integer ( kind = 4 ) nblk
-  integer ( kind = 4 ) nr
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) ao(na,*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) i1
+  INTEGER ( kind = 4 ) ia(n+1)
+  INTEGER ( kind = 4 ) iao(*)
+  INTEGER ( kind = 4 ) ibrow
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) irow
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) j1
+  INTEGER ( kind = 4 ) j2
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jao(*)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) k1
+  INTEGER ( kind = 4 ) len
+  INTEGER ( kind = 4 ) lena
+  INTEGER ( kind = 4 ) nblk
+  INTEGER ( kind = 4 ) nr
 !
 !  NR is the dimension of the reduced matrix.
 !
@@ -4806,7 +4806,7 @@ subroutine csrbsr ( n, nblk, na, a, ja, ia, ao, jao, iao )
      len = lena / nblk
      k1 = iao(ibrow)
 !
-!  Copy the real values of A.
+!  Copy the REAL values of A.
 !
 !  For each block.
 !
@@ -4866,9 +4866,9 @@ subroutine csrcoo ( nrow, job, a, ja, ia, nnz, ao, ir, jc, ierr )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-! job   = integer ( kind = 4 ) serving as a job indicator.
+! job   = INTEGER ( kind = 4 ) serving as a job indicator.
 !         if job = 1 fill in only the array ir, ignore jc, and ao.
 !         if job = 2 fill in ir, and jc but not ao
 !         if job = 3 fill in everything.
@@ -4883,7 +4883,7 @@ subroutine csrcoo ( nrow, job, a, ja, ia, nnz, ao, ir, jc, ierr )
 !         i.e., ao can be the same as a, ir can be the same as ia
 !         and jc can be the same as ja.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
 ! nnz =  number of
@@ -4895,28 +4895,28 @@ subroutine csrcoo ( nrow, job, a, ja, ia, nnz, ao, ir, jc, ierr )
 !
 ! nnz        = number of nonzero elements in matrix.
 !
-! ierr       = integer ( kind = 4 ) error indicator.
+! ierr       = INTEGER ( kind = 4 ) error indicator.
 !         ierr == 0 means normal retur
 !         ierr == 1 means that the the code stopped
 !         because there was no space in ao, ir, jc
 !         (according to the value of  nzmax).
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) nrow
-  integer ( kind = 4 ) nnz
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) ao(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(*)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) ir(*)
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jc(*)
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) k1
-  integer ( kind = 4 ) k2
+  INTEGER ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) nnz
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) ao(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(*)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) ir(*)
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jc(*)
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) k1
+  INTEGER ( kind = 4 ) k2
 
   ierr = 0
   nnz = ia(nrow+1)-1
@@ -4966,9 +4966,9 @@ subroutine csrcsc ( n, job, ipos, a, ja, ia, ao, jao, iao )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-!    Input, integer ( kind = 4 ) JOB, indicates whether or not to fill the values of the
+!    Input, INTEGER ( kind = 4 ) JOB, indicates whether or not to fill the values of the
 !    matrix AO or only the pattern (IA, and JA).  Enter 1 for yes.
 !
 ! ipos  = starting position in ao, jao of the transposed matrix.
@@ -4978,28 +4978,28 @@ subroutine csrcsc ( n, job, ipos, a, ja, ia, ao, jao, iao )
 !                call csrcsc (n,1,n+2,a,ja,ia,a,ja,ia(n+2))
 !        for any other normal usage, enter ipos=1.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-!    Output, real AO(*), JAO(*), IAO(N+1), the matrix in CSC
+!    Output, REAL AO(*), JAO(*), IAO(N+1), the matrix in CSC
 !    Compressed Sparse Column format.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) ao(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(n+1)
-  integer ( kind = 4 ) iao(n+1)
-  integer ( kind = 4 ) ipos
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jao(*)
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) next
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) ao(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(n+1)
+  INTEGER ( kind = 4 ) iao(n+1)
+  INTEGER ( kind = 4 ) ipos
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jao(*)
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) next
 !
 !  Compute lengths of rows of A'.
 !
@@ -5080,16 +5080,16 @@ subroutine csrdia ( n, idiag, job, a, ja, ia, ndiag, diag, ioff, ao, &
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-!    Input/output, integer ( kind = 4 ) IDIAG.  On intput, the number of diagonals 
+!    Input/output, INTEGER ( kind = 4 ) IDIAG.  On intput, the number of diagonals 
 !    to be extracted.  On output, IDIAG may be modified to the
 !    actual number of diagonals found.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-! job      = integer ( kind = 4 ). serves as a job indicator.  Job is better thought
+! job      = INTEGER ( kind = 4 ). serves as a job indicator.  Job is better thought
 !         of as a two-digit number job=xy. If the first (x) digit
 !         is one on entry then the diagonals to be extracted are
 !         internally determined. In this case csrdia exctracts the
@@ -5114,14 +5114,14 @@ subroutine csrdia ( n, idiag, job, a, ja, ia, ndiag, diag, ioff, ao, &
 !         job=11 means select diagonals internally
 !                      and fill ao,jao,iao
 !
-!  Input, integer ( kind = 4 ) NDIAG, the first dimension of array DIAG.
+!  Input, INTEGER ( kind = 4 ) NDIAG, the first dimension of array DIAG.
 !
 ! on return:
 !
-! diag  = real array of size (ndiag x idiag) containing the diagonals
+! diag  = REAL array of size (ndiag x idiag) containing the diagonals
 !         of A on return
 !
-! ioff  = integer ( kind = 4 ) array of length idiag, containing the offsets 
+! ioff  = INTEGER ( kind = 4 ) array of length idiag, containing the offsets 
 ! of the diagonals to be extracted.
 !
 ! ao, jao
@@ -5129,37 +5129,37 @@ subroutine csrdia ( n, idiag, job, a, ja, ia, ndiag, diag, ioff, ao, &
 !
 ! work arrays:
 !
-! ind   = integer ( kind = 4 ) array of length 2*n-1 used as work space.
+! ind   = INTEGER ( kind = 4 ) array of length 2*n-1 used as work space.
 !         needed only when job>=10 i.e., in case the diagonals are to
 !         be selected internally.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) idiag
-  integer ( kind = 4 ) ndiag
+  INTEGER ( kind = 4 ) idiag
+  INTEGER ( kind = 4 ) ndiag
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) ao(*)
-  real ( kind = 8 ) diag(ndiag,idiag)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(*)
-  integer ( kind = 4 ) iao(*)
-  integer ( kind = 4 ) idum
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) ind(*)
-  integer ( kind = 4 ) ioff(*)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jao(*)
-  integer ( kind = 4 ) jmax
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) job1
-  integer ( kind = 4 ) job2
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) ko
-  integer ( kind = 4 ) l
-  integer ( kind = 4 ) n
-  integer ( kind = 4 ) n2
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) ao(*)
+  REAL ( kind = 8 ) diag(ndiag,idiag)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(*)
+  INTEGER ( kind = 4 ) iao(*)
+  INTEGER ( kind = 4 ) idum
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) ind(*)
+  INTEGER ( kind = 4 ) ioff(*)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jao(*)
+  INTEGER ( kind = 4 ) jmax
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) job1
+  INTEGER ( kind = 4 ) job2
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) ko
+  INTEGER ( kind = 4 ) l
+  INTEGER ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n2
 
   job1 = job / 10
   job2 = job - job1 * 10
@@ -5275,33 +5275,33 @@ subroutine csrdns ( nrow, ncol, a, ja, ia, dns, ierr )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-!    Input, integer ( kind = 4 ) NCOL, the column dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NCOL, the column dimension of the matrix.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-!    Output, real DNS, the dense array containing a
+!    Output, REAL DNS, the dense array containing a
 !    copy of the matrix.
 !
-!    Output, integer ( kind = 4 ) IERR, error indicator.
+!    Output, INTEGER ( kind = 4 ) IERR, error indicator.
 !    0, means normal return
 !    i, means that the code has stopped when processing
 !       row number i, because it found a column number > ncol.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) ncol
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ), allocatable :: dns(:,:)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(*)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) ncol
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ), allocatable :: dns(:,:)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(*)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) nrow
   
   ierr = 0
   dns(1:nrow,1:ncol) = 0.0D+00
@@ -5342,45 +5342,45 @@ subroutine csrell ( nrow, a, ja, ia, maxcol, coef, jcoef, ncoef, &
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix A.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix A.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix, stored in
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix, stored in
 !    compressed sparse row format.
 !
-!    Input, integer ( kind = 4 ) NCOEF, the first dimension of arrays COEF, and JCOEF.
+!    Input, INTEGER ( kind = 4 ) NCOEF, the first dimension of arrays COEF, and JCOEF.
 !
-!    Input, integer ( kind = 4 ) MAXCOL, the number of columns available in COEF.
+!    Input, INTEGER ( kind = 4 ) MAXCOL, the number of columns available in COEF.
 !
-!    Output, real COEF(NCOEF,MAXCOL), the values of the matrix A in
+!    Output, REAL COEF(NCOEF,MAXCOL), the values of the matrix A in
 !    Ellpack/Itpack format.
 !
-!    Output, integer ( kind = 4 ) JCOEF(NCOEF,MAXCOL), the column indices of each entry
+!    Output, INTEGER ( kind = 4 ) JCOEF(NCOEF,MAXCOL), the column indices of each entry
 !    in COEF.
 !
-!    Output, integer ( kind = 4 ) NDIAG, the number of active 'diagonals' found.
+!    Output, INTEGER ( kind = 4 ) NDIAG, the number of active 'diagonals' found.
 !
-!    Output, integer ( kind = 4 ) IERR, an error flag. 
+!    Output, INTEGER ( kind = 4 ) IERR, an error flag. 
 !    0 = correct return. 
 !    nonzero means that NDIAG, the number of diagonals found, exceeds
 !    the limit of MAXCOL.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) maxcol
-  integer ( kind = 4 ) ncoef
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) maxcol
+  INTEGER ( kind = 4 ) ncoef
+  INTEGER ( kind = 4 ) nrow
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) coef(ncoef,maxcol)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jcoef(ncoef,maxcol)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) k1
-  integer ( kind = 4 ) k2
-  integer ( kind = 4 ) ndiag
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) coef(ncoef,maxcol)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jcoef(ncoef,maxcol)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) k1
+  INTEGER ( kind = 4 ) k2
+  INTEGER ( kind = 4 ) ndiag
 !
 !  Determine the length of each row of the lower part of A.
 !
@@ -5431,7 +5431,7 @@ subroutine csrjad ( nrow, a, ja, ia, idiag, iperm, ao, jao, iao )
 !    row format to the jagged diagonal format.  The data structure
 !    for the JAD (Jagged Diagonal storage) is as follows.  The rows of
 !    the matrix are implicitly permuted so that their lengths are in
-!    decreasing order.  The real entries AO(*) and their column indices
+!    decreasing order.  The REAL entries AO(*) and their column indices
 !    JAO(*) are stored in succession.  The number of such diagonals is IDIAG.
 !    The lengths of each of these diagonals is stored in IAO(*).
 !
@@ -5457,49 +5457,49 @@ subroutine csrjad ( nrow, a, ja, ia, idiag, iperm, ao, jao, iao )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
 ! on return:
 !
-!    Output, integer ( kind = 4 ) IDIAG, the number of jagged diagonals in the data
+!    Output, INTEGER ( kind = 4 ) IDIAG, the number of jagged diagonals in the data
 !    structure A, JA, IA.
 !
-!    Output, integer ( kind = 4 ) IPERM(NROW), the permutation of the rows that leads 
+!    Output, INTEGER ( kind = 4 ) IPERM(NROW), the permutation of the rows that leads 
 !    to a decreasing order of the number of nonzero elements.
 !
-! ao    = real array containing the values of the matrix A in
+! ao    = REAL array containing the values of the matrix A in
 !         jagged diagonal storage. The j-diagonals are stored
 !         in ao in sequence.
 !
-!    Output, integer ( kind = 4 ) JAO(*), the column indices of the entries in ao.
+!    Output, INTEGER ( kind = 4 ) JAO(*), the column indices of the entries in ao.
 !
-! iao   = integer ( kind = 4 ) array containing pointers to the beginning
+! iao   = INTEGER ( kind = 4 ) array containing pointers to the beginning
 !         of each j-diagonal in ao, jao. iao is also used as
 !         a work array and it should be of length n at least.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) nrow
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) ao(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) iao(nrow)
-  integer ( kind = 4 ) idiag
-  integer ( kind = 4 ) ilo
-  integer ( kind = 4 ) iperm(nrow)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jao(*)
-  integer ( kind = 4 ) jj
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) k0
-  integer ( kind = 4 ) k1
-  integer ( kind = 4 ) len
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) ao(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) iao(nrow)
+  INTEGER ( kind = 4 ) idiag
+  INTEGER ( kind = 4 ) ilo
+  INTEGER ( kind = 4 ) iperm(nrow)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jao(*)
+  INTEGER ( kind = 4 ) jj
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) k0
+  INTEGER ( kind = 4 ) k1
+  INTEGER ( kind = 4 ) len
 !
 !  Define initial IPERM and get lengths of each row.
 !  JAO is used a work vector to store tehse lengths.
@@ -5575,9 +5575,9 @@ subroutine csrlnk ( n, a, ja, ia, link )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
 ! on return:
@@ -5588,21 +5588,21 @@ subroutine csrlnk ( n, a, ja, ia, link )
 !
 ! ia    = points to the first row of matrix in structure.
 !
-! link      = integer ( kind = 4 ) array of size containing the linked list information.
+! link      = INTEGER ( kind = 4 ) array of size containing the linked list information.
 !         link(k) points to the next element of the row after element
 !         ao(k), jcol(k). if link(k) = 0, then there is no next element,
 !         i.e., ao(k), jcol(k) is the last element of the current row.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) a(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(n+1)
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) link(*)
+  REAL ( kind = 8 ) a(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(n+1)
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) link(*)
 !
 !  Loop through all rows.
 !
@@ -5658,9 +5658,9 @@ subroutine csrmsr ( n, a, ja, ia, ao, jao, wk, iwk )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
 ! on return :
@@ -5676,27 +5676,27 @@ subroutine csrmsr ( n, a, ja, ia, ao, jao, wk, iwk )
 !            in arrays ao, jao.
 !             here nnz = number of nonzero elements+1
 !
-!    Work array, real WK(N).
+!    Work array, REAL WK(N).
 !
-!    Work array, integer ( kind = 4 ) IWK(N+1).
+!    Work array, INTEGER ( kind = 4 ) IWK(N+1).
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) ao(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(n+1)
-  integer ( kind = 4 ) icount
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) iptr
-  integer ( kind = 4 ) iwk(n+1)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jao(*)
-  integer ( kind = 4 ) k
-  real ( kind = 8 ) wk(n)
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) ao(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(n+1)
+  INTEGER ( kind = 4 ) icount
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) iptr
+  INTEGER ( kind = 4 ) iwk(n+1)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jao(*)
+  INTEGER ( kind = 4 ) k
+  REAL ( kind = 8 ) wk(n)
 
   icount = 0
 !
@@ -5763,41 +5763,41 @@ subroutine csrncf ( nrow, a, ja, ia, maxnz, nonz, coef, jcoef, ierr )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix A.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix A.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix, stored in
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix, stored in
 !    compressed sparse row format.
 !
-!    Input, integer ( kind = 4 ) MAXNZ, the maximum number of nonzeros allowed for
+!    Input, INTEGER ( kind = 4 ) MAXNZ, the maximum number of nonzeros allowed for
 !    in the storage of COEF and JCOEF.
 !
-!    Output, integer ( kind = 4 ) NONZ, the actual number of nonzeros encountered.
+!    Output, INTEGER ( kind = 4 ) NONZ, the actual number of nonzeros encountered.
 !
-!    Output, real COEF(MAXNZ), the values of the matrix A in NCF format.
+!    Output, REAL COEF(MAXNZ), the values of the matrix A in NCF format.
 !
-!    Output, integer ( kind = 4 ) JCOEF(MAXNZ,2), the row and column indices of each 
+!    Output, INTEGER ( kind = 4 ) JCOEF(MAXNZ,2), the row and column indices of each 
 !    entry in COEF.
 !
-!    Output, integer ( kind = 4 ) IERR, an error flag. 
+!    Output, INTEGER ( kind = 4 ) IERR, an error flag. 
 !    0 = correct return. 
 !    nonzero means that MAXNZ < NONZ.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) maxnz
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) maxnz
+  INTEGER ( kind = 4 ) nrow
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) coef(maxnz)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jcoef(maxnz,2)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) k1
-  integer ( kind = 4 ) k2
-  integer ( kind = 4 ) nonz
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) coef(maxnz)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jcoef(maxnz,2)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) k1
+  INTEGER ( kind = 4 ) k2
+  INTEGER ( kind = 4 ) nonz
 
   ierr = 0
 !
@@ -5869,7 +5869,7 @@ subroutine csrssk ( n, imod, a, ja, ia, asky, isky, nzmax, ierr )
 !    sparse row format into a symmetric skyline format.
 !    the input matrix can be in either compressed sparse row or the
 !    symmetric sparse row format.  The output matrix is in a symmetric
-!    skyline format: a real array containing the (active portions) of the
+!    skyline format: a REAL array containing the (active portions) of the
 !    rows in  sequence and a pointer to the beginning of each row.
 !
 !    This module is NOT in place.
@@ -5886,9 +5886,9 @@ subroutine csrssk ( n, imod, a, ja, ia, asky, isky, nzmax, ierr )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-! imod  = integer ( kind = 4 ) indicating the variant of skyline format wanted:
+! imod  = INTEGER ( kind = 4 ) indicating the variant of skyline format wanted:
 !         imod = 0 means the pointer isky points to the `zeroth'
 !         element of the row, i.e., to the position of the diagonal
 !         element of previous row (for i = 1, isky(1)= 0)
@@ -5896,45 +5896,45 @@ subroutine csrssk ( n, imod, a, ja, ia, asky, isky, nzmax, ierr )
 !         imod = 2 means that isky points to the end of the row (diagonal
 !                  element)
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-!    Input, integer ( kind = 4 ) NZMAX, the amount of storage available in ASKY.
+!    Input, INTEGER ( kind = 4 ) NZMAX, the amount of storage available in ASKY.
 !
 ! on return:
 !
-! asky    = real array containing the values of the matrix stored in skyline
+! asky    = REAL array containing the values of the matrix stored in skyline
 !         format. asky contains the sequence of active rows from
 !         i = 1, to n, an active row being the row of elemnts of
 !         the matrix contained between the leftmost nonzero element
 !         and the diagonal element.
 !
-! isky      = integer ( kind = 4 ) array of size n+1 containing the pointer array to
+! isky      = INTEGER ( kind = 4 ) array of size n+1 containing the pointer array to
 !         each row. The meaning of isky depends on the input value of
 !         imod (see above).
 !
-! ierr  =  integer ( kind = 4 ).  Error message. If the length of the
+! ierr  =  INTEGER ( kind = 4 ).  Error message. If the length of the
 !         output array asky exceeds nzmax. ierr returns the minimum value
 !         needed for nzmax. otherwise ierr=0 (normal return).
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
-  integer ( kind = 4 ) nzmax
+  INTEGER ( kind = 4 ) n
+  INTEGER ( kind = 4 ) nzmax
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) asky(nzmax)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(n+1)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) imod
-  integer ( kind = 4 ) isky(n+1)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) kend
-  integer ( kind = 4 ) ml
-  integer ( kind = 4 ) nnz
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) asky(nzmax)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(n+1)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) imod
+  INTEGER ( kind = 4 ) isky(n+1)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) kend
+  INTEGER ( kind = 4 ) ml
+  INTEGER ( kind = 4 ) nnz
 !
 !  Determine the individual bandwidths and pointers.
 !
@@ -6017,12 +6017,12 @@ subroutine csrssr ( nrow, a, ja, ia, nzmax, ao, jao, iao, ierr )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-!    Input, integer ( kind = 4 ) NZMAX, the length of AO and JAO.
+!    Input, INTEGER ( kind = 4 ) NZMAX, the length of AO and JAO.
 !
 ! On return:
 !
@@ -6030,30 +6030,30 @@ subroutine csrssr ( nrow, a, ja, ia, nzmax, ao, jao, iao, ierr )
 !     iao = lower part of input matrix (a,ja,ia) stored in compressed sparse
 !          row format format.
 !
-! ierr   = integer ( kind = 4 ) error indicator.
+! ierr   = INTEGER ( kind = 4 ) error indicator.
 !          ierr == 0  means normal return
 !          ierr == i  means that the code has stopped when processing
 !          row number i, because there is not enough space in ao, jao
 !          (according to the value of nzmax)
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) nrow
-  integer ( kind = 4 ) nzmax
+  INTEGER ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) nzmax
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) ao(nzmax)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) iao(*)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jao(nzmax)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) kdiag
-  integer ( kind = 4 ) ko
-  integer ( kind = 4 ) kold
-  real ( kind = 8 ) t
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) ao(nzmax)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) iao(*)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jao(nzmax)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) kdiag
+  INTEGER ( kind = 4 ) ko
+  INTEGER ( kind = 4 ) kold
+  REAL ( kind = 8 ) t
 
   ierr = 0
   ko = 0
@@ -6132,31 +6132,31 @@ subroutine daxpy ( n, da, dx, incx, dy, incy )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the number of elements in DX and DY.
+!    Input, INTEGER ( kind = 4 ) N, the number of elements in DX and DY.
 !
-!    Input, real ( kind = 8 ) DA, the multiplier of DX.
+!    Input, REAL ( kind = 8 ) DA, the multiplier of DX.
 !
-!    Input, real ( kind = 8 ) DX(*), the first vector.
+!    Input, REAL ( kind = 8 ) DX(*), the first vector.
 !
-!    Input, integer ( kind = 4 ) INCX, the increment between successive entries of DX.
+!    Input, INTEGER ( kind = 4 ) INCX, the increment between successive entries of DX.
 !
-!    Input/output, real ( kind = 8 ) DY(*), the second vector.
+!    Input/output, REAL ( kind = 8 ) DY(*), the second vector.
 !    On output, DY(*) has been replaced by DY(*) + DA * DX(*).
 !
-!    Input, integer ( kind = 4 ) INCY, the increment between successive entries of DY.
+!    Input, INTEGER ( kind = 4 ) INCY, the increment between successive entries of DY.
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) da
-  real ( kind = 8 ) dx(*)
-  real ( kind = 8 ) dy(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) incx
-  integer ( kind = 4 ) incy
-  integer ( kind = 4 ) ix
-  integer ( kind = 4 ) iy
-  integer ( kind = 4 ) m
-  integer ( kind = 4 ) n
+  REAL ( kind = 8 ) da
+  REAL ( kind = 8 ) dx(*)
+  REAL ( kind = 8 ) dy(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) incx
+  INTEGER ( kind = 4 ) incy
+  INTEGER ( kind = 4 ) ix
+  INTEGER ( kind = 4 ) iy
+  INTEGER ( kind = 4 ) m
+  INTEGER ( kind = 4 ) n
 
   if ( n <= 0 ) then
     return
@@ -6258,45 +6258,45 @@ subroutine dcn ( ar, ia, ja, n, ne, ic, nn, ierr )
 !
 !  Parameters:
 !
-!    Output, real AR(NN), the numerical values of the sparse matrix.
+!    Output, REAL AR(NN), the numerical values of the sparse matrix.
 !
-!    Output, integer ( kind = 4 ) IA(NN), the corresponding rows of the entries of AR.
+!    Output, INTEGER ( kind = 4 ) IA(NN), the corresponding rows of the entries of AR.
 !
-!    Output, integer ( kind = 4 ) JA(NN), the corresponding columns of the entries of AR.
+!    Output, INTEGER ( kind = 4 ) JA(NN), the corresponding columns of the entries of AR.
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.  N must be at least 14.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.  N must be at least 14.
 !
-!    Input, integer ( kind = 4 ) NE, the number of nonzero elements in the matrix.
+!    Input, INTEGER ( kind = 4 ) NE, the number of nonzero elements in the matrix.
 !    NE = 4*N + 55.
 !
-!    Input, integer ( kind = 4 ) IC, sets the sparsity pattern.  
+!    Input, INTEGER ( kind = 4 ) IC, sets the sparsity pattern.  
 !    0 < IC < N-12 is required.
 !
-!    Input, integer ( kind = 4 ) NN, the dimension of AR, IA, and JA.  NN must be at
+!    Input, INTEGER ( kind = 4 ) NN, the dimension of AR, IA, and JA.  NN must be at
 !    least NE.
 !
-!    Output, integer ( kind = 4 ) IERR, an error flag.
+!    Output, INTEGER ( kind = 4 ) IERR, an error flag.
 !    0, no error.
 !    1, N is out of range.
 !    2, IC is out of range.
 !    3, NN is out of range.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) nn
+  INTEGER ( kind = 4 ) nn
 
-  real ( kind = 8 ) ar(nn)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(nn)
-  integer ( kind = 4 ) ic
-  integer ( kind = 4 ) icount
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) ilast
-  integer ( kind = 4 ) it
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(nn)
-  integer ( kind = 4 ) n
-  integer ( kind = 4 ) ne
+  REAL ( kind = 8 ) ar(nn)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(nn)
+  INTEGER ( kind = 4 ) ic
+  INTEGER ( kind = 4 ) icount
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) ilast
+  INTEGER ( kind = 4 ) it
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(nn)
+  INTEGER ( kind = 4 ) n
+  INTEGER ( kind = 4 ) ne
 
   ierr = 0
 !
@@ -6333,7 +6333,7 @@ subroutine dcn ( ar, ia, ja, n, ne, ic, nn, ierr )
 
   do i = 1, n-ic
     it = ilast + i
-    ar(it) = 1.0D+00 + real ( i, kind = 8 )
+    ar(it) = 1.0D+00 + REAL ( i, kind = 8 )
     ia(it) = i
     ja(it) = i + ic
   end do
@@ -6342,7 +6342,7 @@ subroutine dcn ( ar, ia, ja, n, ne, ic, nn, ierr )
 
   do i = 1, n-ic-1
     it = ilast + i
-    ar(it) = - real ( i, kind = 8 )
+    ar(it) = - REAL ( i, kind = 8 )
     ia(it) = i
     ja(it) = i + ic + 1
   end do
@@ -6363,7 +6363,7 @@ subroutine dcn ( ar, ia, ja, n, ne, ic, nn, ierr )
     do i = 1, 11-j
       icount = icount + 1
       it = ilast + icount
-      ar(it) = 100.0D+00 * real ( j, kind = 8 )
+      ar(it) = 100.0D+00 * REAL ( j, kind = 8 )
       ia(it) = i
       ja(it) = n - 11 + i + j
     end do
@@ -6375,7 +6375,7 @@ subroutine dcn ( ar, ia, ja, n, ne, ic, nn, ierr )
   do i = n-ic+1, n
     icount = icount + 1
     it = ilast + icount
-    ar(it) = 1.0D+00 + real ( i, kind = 8 )
+    ar(it) = 1.0D+00 + REAL ( i, kind = 8 )
     ia(it) = i
     ja(it) = i - n + ic
   end do
@@ -6386,7 +6386,7 @@ subroutine dcn ( ar, ia, ja, n, ne, ic, nn, ierr )
   do i = n-ic, n
     icount = icount + 1
     it = ilast + icount
-    ar(it) = - real ( i, kind = 8 )
+    ar(it) = - REAL ( i, kind = 8 )
     ia(it) = i
     ja(it) = i - n + ic + 1
   end do
@@ -6413,7 +6413,7 @@ subroutine dcsort ( ival, n, icnt, index, ilo, ihi )
 !  Discussion:
 !
 !    This routine computes a permutation which, when applied to the
-!    input vector IVAL, sorts the integer ( kind = 4 )s in ival in descending
+!    input vector IVAL, sorts the INTEGER ( kind = 4 )s in ival in descending
 !    order.  The permutation is represented by the vector INDEX.  The
 !    permuted IVAL can be interpreted as follows:
 !
@@ -6445,29 +6445,29 @@ subroutine dcsort ( ival, n, icnt, index, ilo, ihi )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) IVAL(N), the values to be sorted.
+!    Input, INTEGER ( kind = 4 ) IVAL(N), the values to be sorted.
 !
-!    Input, integer ( kind = 4 ) N, the number of values to be sorted.
+!    Input, INTEGER ( kind = 4 ) N, the number of values to be sorted.
 !
-!    Workspace, integer ( kind = 4 ) ICNT(IHI-ILO+1).
+!    Workspace, INTEGER ( kind = 4 ) ICNT(IHI-ILO+1).
 !
-!    Output, integer ( kind = 4 ) INDEX(N), the permutation which sorts the IVAL.
+!    Output, INTEGER ( kind = 4 ) INDEX(N), the permutation which sorts the IVAL.
 !
-!    Input, integer ( kind = 4 ) ILO, IHI, the minimum and maximum values in IVAL
+!    Input, INTEGER ( kind = 4 ) ILO, IHI, the minimum and maximum values in IVAL
 !    to be sorted.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) ihi
-  integer ( kind = 4 ) ilo
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) ihi
+  INTEGER ( kind = 4 ) ilo
+  INTEGER ( kind = 4 ) n
 
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) icnt(ilo:ihi)
-  integer ( kind = 4 ) index(n)
-  integer ( kind = 4 ) ival(n)
-  integer ( kind = 4 ) ivalj
-  integer ( kind = 4 ) j
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) icnt(ilo:ihi)
+  INTEGER ( kind = 4 ) index(n)
+  INTEGER ( kind = 4 ) ival(n)
+  INTEGER ( kind = 4 ) ivalj
+  INTEGER ( kind = 4 ) j
 
   icnt(ilo:ihi) = 0
 
@@ -6509,32 +6509,32 @@ function ddot ( n, dx, incx, dy, incy )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the number of entries in the vectors.
+!    Input, INTEGER ( kind = 4 ) N, the number of entries in the vectors.
 !
-!    Input, real ( kind = 8 ) DX(*), the first vector.
+!    Input, REAL ( kind = 8 ) DX(*), the first vector.
 !
-!    Input, integer ( kind = 4 ) INCX, the increment between successive entries in X.
+!    Input, INTEGER ( kind = 4 ) INCX, the increment between successive entries in X.
 !
-!    Input, real ( kind = 8 ) DY(*), the second vector.
+!    Input, REAL ( kind = 8 ) DY(*), the second vector.
 !
-!    Input, integer ( kind = 4 ) INCY, the increment between successive entries in Y.
+!    Input, INTEGER ( kind = 4 ) INCY, the increment between successive entries in Y.
 !
-!    Output, real DDOT, the sum of the product of the corresponding
+!    Output, REAL DDOT, the sum of the product of the corresponding
 !    entries of X and Y.
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) ddot
-  real ( kind = 8 ) dtemp
-  real ( kind = 8 ) dx(*)
-  real ( kind = 8 ) dy(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) incx
-  integer ( kind = 4 ) incy
-  integer ( kind = 4 ) ix
-  integer ( kind = 4 ) iy
-  integer ( kind = 4 ) m
-  integer ( kind = 4 ) n
+  REAL ( kind = 8 ) ddot
+  REAL ( kind = 8 ) dtemp
+  REAL ( kind = 8 ) dx(*)
+  REAL ( kind = 8 ) dy(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) incx
+  INTEGER ( kind = 4 ) incy
+  INTEGER ( kind = 4 ) ix
+  INTEGER ( kind = 4 ) iy
+  INTEGER ( kind = 4 ) m
+  INTEGER ( kind = 4 ) n
 
   ddot = 0.0D+00
   dtemp = 0.0D+00
@@ -6616,41 +6616,41 @@ subroutine diacsr ( n, job, idiag, diag, ndiag, ioff, a, ja, ia )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-!    Input, integer ( kind = 4 ) JOB, if 0, indicates that entries in DIAG that
+!    Input, INTEGER ( kind = 4 ) JOB, if 0, indicates that entries in DIAG that
 !    are exactly zero are not to be included in the output matrix.
 !    0, then check for each entry in DIAG
 !
-!    Input, integer ( kind = 4 ) IDIAG, the number of diagonals to be extracted.
+!    Input, INTEGER ( kind = 4 ) IDIAG, the number of diagonals to be extracted.
 !
-!    Output, real DIAG(NDIAG,IDIAG), the diagonals of A.
+!    Output, REAL DIAG(NDIAG,IDIAG), the diagonals of A.
 !
-!    Input, integer ( kind = 4 ) NDIAG, the first dimension of DIAG.
+!    Input, INTEGER ( kind = 4 ) NDIAG, the first dimension of DIAG.
 !
-!    Input, integer ( kind = 4 ) IOFF(IDIAG), the offsets of the diagonals to be 
+!    Input, INTEGER ( kind = 4 ) IOFF(IDIAG), the offsets of the diagonals to be 
 !    extracted.
 !
-!    Output, real A(*), integer ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
+!    Output, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) idiag
-  integer ( kind = 4 ) n
-  integer ( kind = 4 ) ndiag
+  INTEGER ( kind = 4 ) idiag
+  INTEGER ( kind = 4 ) n
+  INTEGER ( kind = 4 ) ndiag
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) diag(ndiag,idiag)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(n+1)
-  integer ( kind = 4 ) ioff(*)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jj
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) ko
-  real ( kind = 8 ) t
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) diag(ndiag,idiag)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(n+1)
+  INTEGER ( kind = 4 ) ioff(*)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jj
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) ko
+  REAL ( kind = 8 ) t
 
   ia(1) = 1
   ko = 1
@@ -6705,38 +6705,38 @@ subroutine diamua ( nrow, job, a, ja, ia, diag, b, jb, ib )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-!    Input, integer ( kind = 4 ) JOB, indicates the job to be done.
+!    Input, INTEGER ( kind = 4 ) JOB, indicates the job to be done.
 !    0, means get array B only;
-!    1, means get B, and the integer ( kind = 4 ) arrays IB and JB.
+!    1, means get B, and the INTEGER ( kind = 4 ) arrays IB and JB.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-!    Input, real DIAG(N), a diagonal matrix stored as a vector.
+!    Input, REAL DIAG(N), a diagonal matrix stored as a vector.
 !
-!    Output, real B(*), integer ( kind = 4 ) JB(*), 
-!    integer ( kind = 4 ) IB(NROW+1), the resulting 
+!    Output, REAL B(*), INTEGER ( kind = 4 ) JB(*), 
+!    INTEGER ( kind = 4 ) IB(NROW+1), the resulting 
 !    matrix B in compressed sparse row sparse format.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) nrow
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) b(*)
-  real ( kind = 8 ) diag(nrow)
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) ib(nrow+1)
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jb(*)
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) k1
-  integer ( kind = 4 ) k2
-  real ( kind = 8 ) scal
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) b(*)
+  REAL ( kind = 8 ) diag(nrow)
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) ib(nrow+1)
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jb(*)
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) k1
+  INTEGER ( kind = 4 ) k2
+  REAL ( kind = 8 ) scal
 
   do ii = 1, nrow
 !
@@ -6780,25 +6780,25 @@ subroutine diapos ( n, ja, ia, idiag )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the row dimension of the matrix.
 !
 !    Input, JA(*), IA(N+1), the matrix information, (but no values) 
 !    in CSR Compressed Sparse Row format.
 !
-!    Output, integer ( kind = 4 ) IDIAG(N); the I-th entry of IDIAG points to the 
+!    Output, INTEGER ( kind = 4 ) IDIAG(N); the I-th entry of IDIAG points to the 
 !    diagonal element A(I,I) in the arrays A and JA.  That is,
 !    A(IDIAG(I)) = element A(I,I) of matrix A.  If no diagonal element 
 !    is found, the entry is set to 0.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(n+1)
-  integer ( kind = 4 ) idiag(n)
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) k
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(n+1)
+  INTEGER ( kind = 4 ) idiag(n)
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) k
 
   idiag(1:n) = 0
 !
@@ -6842,12 +6842,12 @@ subroutine dinfo1 ( n, iout, a, ja, ia, valued, title, key, type, ao, jao, iao )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the column dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the column dimension of the matrix.
 !
-!    Input, integer ( kind = 4 ) IOUT, the FORTRAN unit number where the information
+!    Input, INTEGER ( kind = 4 ) IOUT, the FORTRAN unit number where the information
 !    is to be output.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.  If values are not provided,
 !    then A may be just a dummy array.
 !
@@ -6864,12 +6864,12 @@ subroutine dinfo1 ( n, iout, a, ja, ia, valued, title, key, type, ao, jao, iao )
 !
 ! on return
 !
-! ao      = real array of length nnz used as work array.
+! ao      = REAL array of length nnz used as work array.
 ! if values are not provided, then AO may be a dummy array.
 !
-! jao      = integer ( kind = 4 ) work array of length max ( 2*n+1, nnz )
+! jao      = INTEGER ( kind = 4 ) work array of length max ( 2*n+1, nnz )
 !
-! iao   = integer ( kind = 4 ) work array of length n+1
+! iao   = INTEGER ( kind = 4 ) work array of length n+1
 !
 ! Output description:
 !
@@ -6910,7 +6910,7 @@ subroutine dinfo1 ( n, iout, a, ja, ia, valued, title, key, type, ao, jao, iao )
 ! +  matching elements in A and transp(A) :this counts the number of
 !    positions (i,j) such that if a(i,j) /= 0 then a(j,i) /= 0.
 !    if this number is equal to nnz then the matrix is symmetric.
-! +  Relative symmetry match : this is the ratio of the previous integer ( kind = 4 )
+! +  Relative symmetry match : this is the ratio of the previous INTEGER ( kind = 4 )
 !    over nnz. If this ratio is equal to one then the matrix has a
 !    symmetric structure.
 !
@@ -6966,89 +6966,89 @@ subroutine dinfo1 ( n, iout, a, ja, ia, valued, title, key, type, ao, jao, iao )
 !    are zero elements in the blocks  they should be represented
 !    otherwise it would be possible to determine the block size.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) aii
-  real ( kind = 8 ) amx
-  real ( kind = 8 ) ao(*)
-  real ( kind = 8 ) av
-  real ( kind = 8 ) bndav
-  real ( kind = 8 ) dcount(20)
-  real ( kind = 8 ) ddomc
-  real ( kind = 8 ) ddomr
-  real ( kind = 8 ) dianrm
-  real ( kind = 8 ) dist
-  real ( kind = 8 ) dsumc
-  real ( kind = 8 ) dsumr
-  real ( kind = 8 ) eps
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(n+1)
-  integer ( kind = 4 ) iacc
-  integer ( kind = 4 ) iao(n+1)
-  integer ( kind = 4 ) iband
-  integer ( kind = 4 ) idiag
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) imatch
-  integer ( kind = 4 ) indiag
-  integer ( kind = 4 ) ioff(20)
-  integer ( kind = 4 ) iout
-  integer ( kind = 4 ), parameter :: ipar1 = 1
-  integer ( kind = 4 ) ipos
-  integer ( kind = 4 ) itot
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) j0
-  integer ( kind = 4 ) j0r
-  integer ( kind = 4 ) j1
-  integer ( kind = 4 ) j1r
-  integer ( kind = 4 ) j2
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jao(*)
-  integer ( kind = 4 ) jb1
-  integer ( kind = 4 ) jb2
-  integer ( kind = 4 ) jmax
-  integer ( kind = 4 ) jmaxc
-  integer ( kind = 4 ) jminc
-  integer ( kind = 4 ) jminr
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) k1
-  integer ( kind = 4 ) k1max
-  integer ( kind = 4 ) k2
-  integer ( kind = 4 ) k2max
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) aii
+  REAL ( kind = 8 ) amx
+  REAL ( kind = 8 ) ao(*)
+  REAL ( kind = 8 ) av
+  REAL ( kind = 8 ) bndav
+  REAL ( kind = 8 ) dcount(20)
+  REAL ( kind = 8 ) ddomc
+  REAL ( kind = 8 ) ddomr
+  REAL ( kind = 8 ) dianrm
+  REAL ( kind = 8 ) dist
+  REAL ( kind = 8 ) dsumc
+  REAL ( kind = 8 ) dsumr
+  REAL ( kind = 8 ) eps
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(n+1)
+  INTEGER ( kind = 4 ) iacc
+  INTEGER ( kind = 4 ) iao(n+1)
+  INTEGER ( kind = 4 ) iband
+  INTEGER ( kind = 4 ) idiag
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) imatch
+  INTEGER ( kind = 4 ) indiag
+  INTEGER ( kind = 4 ) ioff(20)
+  INTEGER ( kind = 4 ) iout
+  INTEGER ( kind = 4 ), parameter :: ipar1 = 1
+  INTEGER ( kind = 4 ) ipos
+  INTEGER ( kind = 4 ) itot
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) j0
+  INTEGER ( kind = 4 ) j0r
+  INTEGER ( kind = 4 ) j1
+  INTEGER ( kind = 4 ) j1r
+  INTEGER ( kind = 4 ) j2
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jao(*)
+  INTEGER ( kind = 4 ) jb1
+  INTEGER ( kind = 4 ) jb2
+  INTEGER ( kind = 4 ) jmax
+  INTEGER ( kind = 4 ) jmaxc
+  INTEGER ( kind = 4 ) jminc
+  INTEGER ( kind = 4 ) jminr
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) k1
+  INTEGER ( kind = 4 ) k1max
+  INTEGER ( kind = 4 ) k2
+  INTEGER ( kind = 4 ) k2max
   character ( len = 8 ) key
-  integer ( kind = 4 ) lenc
-  integer ( kind = 4 ) lenr
-  integer ( kind = 4 ) ml
-  integer ( kind = 4 ) mu
-  integer ( kind = 4 ) n2
-  integer ( kind = 4 ) nblk
-  integer ( kind = 4 ) nddomc
-  integer ( kind = 4 ) nddomr
-  integer ( kind = 4 ) ndiag
-  integer ( kind = 4 ) nlower
-  integer ( kind = 4 ) nnz
-  integer ( kind = 4 ) nsky
-  integer ( kind = 4 ) nskyl
-  integer ( kind = 4 ) nskyu
-  integer ( kind = 4 ) nupper
-  integer ( kind = 4 ) nzcol
-  integer ( kind = 4 ) nzdiag
-  integer ( kind = 4 ) nzmaxc
-  integer ( kind = 4 ) nzmaxr
-  integer ( kind = 4 ) nzminc
-  integer ( kind = 4 ) nzminr
-  integer ( kind = 4 ) nzrow
-  real ( kind = 8 ) st
-  real ( kind = 8 ) std
+  INTEGER ( kind = 4 ) lenc
+  INTEGER ( kind = 4 ) lenr
+  INTEGER ( kind = 4 ) ml
+  INTEGER ( kind = 4 ) mu
+  INTEGER ( kind = 4 ) n2
+  INTEGER ( kind = 4 ) nblk
+  INTEGER ( kind = 4 ) nddomc
+  INTEGER ( kind = 4 ) nddomr
+  INTEGER ( kind = 4 ) ndiag
+  INTEGER ( kind = 4 ) nlower
+  INTEGER ( kind = 4 ) nnz
+  INTEGER ( kind = 4 ) nsky
+  INTEGER ( kind = 4 ) nskyl
+  INTEGER ( kind = 4 ) nskyu
+  INTEGER ( kind = 4 ) nupper
+  INTEGER ( kind = 4 ) nzcol
+  INTEGER ( kind = 4 ) nzdiag
+  INTEGER ( kind = 4 ) nzmaxc
+  INTEGER ( kind = 4 ) nzmaxr
+  INTEGER ( kind = 4 ) nzminc
+  INTEGER ( kind = 4 ) nzminr
+  INTEGER ( kind = 4 ) nzrow
+  REAL ( kind = 8 ) st
+  REAL ( kind = 8 ) std
   logical sym
-  real ( kind = 8 ) ta
-  real ( kind = 8 ) tan
-  real ( kind = 8 ) tas
+  REAL ( kind = 8 ) ta
+  REAL ( kind = 8 ) tan
+  REAL ( kind = 8 ) tas
   character ( len = 72 ) title
-  character( len = 61 ) tmpst
+  CHARACTER( len = 61 ) tmpst
   character ( len = 3 ) type
   logical valued
 
@@ -7069,7 +7069,7 @@ subroutine dinfo1 ( n, iout, a, ja, ia, valued, title, key, type, ao, jao, iao )
 !
 !  Average and standard deviation.
 !
-  av = real ( nnz, kind = 8 ) / real ( n, kind = 8 )
+  av = REAL ( nnz, kind = 8 ) / REAL ( n, kind = 8 )
 !
 !  AV will be corrected later.
 !
@@ -7186,7 +7186,7 @@ subroutine dinfo1 ( n, iout, a, ja, ia, valued, title, key, type, ao, jao, iao )
     ml = max ( ml, i-jminc )
     mu = max ( mu, jmaxc-i )
     iband = max ( iband, jmaxc-jminc+1 )
-    bndav = bndav + real ( jmaxc-jminc+1, kind = 8 )
+    bndav = bndav + REAL ( jmaxc-jminc+1, kind = 8 )
 !
 !  Maximum and minimum number of nonzero elements per column.
 !
@@ -7209,7 +7209,7 @@ subroutine dinfo1 ( n, iout, a, ja, ia, valued, title, key, type, ao, jao, iao )
       if ( j == i ) then
         indiag = 1
       end if
-      dist = dist + real ( abs ( j - i ), kind = 8 )
+      dist = dist + REAL ( abs ( j - i ), kind = 8 )
     end do
 
     ndiag = ndiag + indiag
@@ -7225,7 +7225,7 @@ subroutine dinfo1 ( n, iout, a, ja, ia, valued, title, key, type, ao, jao, iao )
     end if
     nzmaxc = max ( nzmaxc, lenc )
     nzminc = min ( nzminc, lenc )
-    st = st + ( real ( lenc, kind = 8 ) - av )**2
+    st = st + ( REAL ( lenc, kind = 8 ) - av )**2
 !
 !  Diagonal dominance.
 !
@@ -7274,18 +7274,18 @@ subroutine dinfo1 ( n, iout, a, ja, ia, valued, title, key, type, ao, jao, iao )
 !
 !  Write bandwidth info.
 !
-    dist = dist / real ( nnz, kind = 8 )
+    dist = dist / REAL ( nnz, kind = 8 )
 !
 !  If NDIAG /= N, then we should correct AV and STD in symmetric case.
 !
     if ( sym .and. ndiag /= n ) then
-      eps = real ( ndiag - n, kind = 8 ) / real ( n, kind = 8 )
+      eps = REAL ( ndiag - n, kind = 8 ) / REAL ( n, kind = 8 )
       av = av + eps
       st = st - eps * eps
     end if
 
-    st = sqrt ( st / real ( n, kind = 8 ) )
-    bndav = bndav / real ( n, kind = 8 )
+    st = sqrt ( st / REAL ( n, kind = 8 ) )
+    bndav = bndav / REAL ( n, kind = 8 )
 !
 !  Write out info.
 !
@@ -7324,8 +7324,8 @@ subroutine dinfo1 ( n, iout, a, ja, ia, valued, title, key, type, ao, jao, iao )
 !
 !  Normalize various results of above loop.
 !
-    ddomr = real ( nddomc, kind = 8 ) / real ( n, kind = 8 )
-    ddomc = real ( nddomr, kind = 8 ) / real ( n, kind = 8 )
+    ddomr = REAL ( nddomc, kind = 8 ) / REAL ( n, kind = 8 )
+    ddomc = REAL ( nddomr, kind = 8 ) / REAL ( n, kind = 8 )
 !
 !  Symmetry and near symmetry, Frobenius norms.
 !
@@ -7345,7 +7345,7 @@ subroutine dinfo1 ( n, iout, a, ja, ia, valued, title, key, type, ao, jao, iao )
          k2max = iao(i+1) - 1
 
          do k = k1, k1max
-            std = std + ( dist - real ( abs ( ja(k) - i ), kind = 8 ) )**2
+            std = std + ( dist - REAL ( abs ( ja(k) - i ), kind = 8 ) )**2
          end do
 
          if ( sym ) then
@@ -7394,8 +7394,8 @@ subroutine dinfo1 ( n, iout, a, ja, ia, valued, title, key, type, ao, jao, iao )
         imatch = nnz
       end if
 
-      av = real ( imatch, kind = 8 ) / real ( nnz, kind = 8 )
-      std = sqrt ( std / real ( nnz, kind = 8 ) )
+      av = REAL ( imatch, kind = 8 ) / REAL ( nnz, kind = 8 )
+      std = sqrt ( std / REAL ( nnz, kind = 8 ) )
 !
 !  Maximum absolute value in A.
 !
@@ -7516,7 +7516,7 @@ subroutine dinfo1 ( n, iout, a, ja, ia, valued, title, key, type, ao, jao, iao )
       ioff(ii) = i - n
       jao(i) = -jmax
       itot = itot + jmax
-      dcount(ii) = real ( 100 * itot, kind = 8 ) / real ( nnz, kind = 8 )
+      dcount(ii) = REAL ( 100 * itot, kind = 8 ) / REAL ( nnz, kind = 8 )
 
       if ( ii < ndiag ) then
         go to 40
@@ -7525,7 +7525,7 @@ subroutine dinfo1 ( n, iout, a, ja, ia, valued, title, key, type, ao, jao, iao )
  4        continue
       ndiag = ii
 !
-!     t = real ( icount, kind = 8 ) / real ( nnz, kind = 8 )
+!     t = REAL ( icount, kind = 8 ) / REAL ( nnz, kind = 8 )
 !
 !      write (iout,118) nzdiag
        write (iout,*) nzdiag
@@ -7663,19 +7663,19 @@ subroutine diric ( nx, nint, a, ja, ia, f )
 !
 !  Parameters:
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(?+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(?+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) f(*)
-  integer ( kind = 4 ) ia(*)
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) nint
-  integer ( kind = 4 ) nc
-  integer ( kind = 4 ) nr
-  integer ( kind = 4 ) nx
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) f(*)
+  INTEGER ( kind = 4 ) ia(*)
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) nint
+  INTEGER ( kind = 4 ) nc
+  INTEGER ( kind = 4 ) nr
+  INTEGER ( kind = 4 ) nx
 !
 !  Call extract from unary.
 !
@@ -7704,61 +7704,61 @@ subroutine dlauny ( x, y, nodes, elmnts, nemax, nelmnt )
 !
 !  Parameters:
 !
-!    Input, real X(NODES+3), Y(NODES+3), hold the coordinates of the
+!    Input, REAL X(NODES+3), Y(NODES+3), hold the coordinates of the
 !    nodes, with at least 3 extra entries for workspace.
 !
-!    Input, integer ( kind = 4 ) NODES, the number of nodes.
+!    Input, INTEGER ( kind = 4 ) NODES, the number of nodes.
 !              
-!    Output, integer ( kind = 4 ) ELMNTS(NEMAX,3), the nodes that form each triangular
+!    Output, INTEGER ( kind = 4 ) ELMNTS(NEMAX,3), the nodes that form each triangular
 !    element.                                    
 !
-!    Input, integer ( kind = 4 ) NEMAX, the maximum number of elements.
+!    Input, INTEGER ( kind = 4 ) NEMAX, the maximum number of elements.
 !
-!    Output, integer ( kind = 4 ) NELMNT, the number of elements.
+!    Output, INTEGER ( kind = 4 ) NELMNT, the number of elements.
 !
-  implicit none
+  IMPLICIT NONE
                                                                   
-  integer ( kind = 4 ) nemax
-  integer ( kind = 4 ) nodes
+  INTEGER ( kind = 4 ) nemax
+  INTEGER ( kind = 4 ) nodes
 
-  real ( kind = 8 ) cx
-  real ( kind = 8 ) cy
-  real ( kind = 8 ) dx
-  real ( kind = 8 ) dy
-  integer ( kind = 4 ) elmnts(nemax,3)
-  integer ( kind = 4 ) i1
-  integer ( kind = 4 ) i2
-  integer ( kind = 4 ) i3
-  integer ( kind = 4 ) ie
-  integer ( kind = 4 ) in
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) je
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) l
-  integer ( kind = 4 ) match
-  integer ( kind = 4 ) nart
-  integer ( kind = 4 ) ndel
-  integer ( kind = 4 ) nelmnt
-  integer ( kind = 4 ) newel
-  integer ( kind = 4 ) nn
-  real ( kind = 8 ) pi
-  real ( kind = 8 ) r2
-  real ( kind = 8 ) rn2
-  real ( kind = 8 ) x(nodes)
-  real ( kind = 8 ) xl
-  real ( kind = 8 ) xmax
-  real ( kind = 8 ) xmin
-  real ( kind = 8 ) xr
-  real ( kind = 8 ) x2
-  real ( kind = 8 ) x3
-  real ( kind = 8 ) y(nodes)
-  real ( kind = 8 ) yl
-  real ( kind = 8 ) ymax
-  real ( kind = 8 ) ymin
-  real ( kind = 8 ) yr
-  real ( kind = 8 ) y2
-  real ( kind = 8 ) y3
-  real ( kind = 8 ) z
+  REAL ( kind = 8 ) cx
+  REAL ( kind = 8 ) cy
+  REAL ( kind = 8 ) dx
+  REAL ( kind = 8 ) dy
+  INTEGER ( kind = 4 ) elmnts(nemax,3)
+  INTEGER ( kind = 4 ) i1
+  INTEGER ( kind = 4 ) i2
+  INTEGER ( kind = 4 ) i3
+  INTEGER ( kind = 4 ) ie
+  INTEGER ( kind = 4 ) in
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) je
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) l
+  INTEGER ( kind = 4 ) match
+  INTEGER ( kind = 4 ) nart
+  INTEGER ( kind = 4 ) ndel
+  INTEGER ( kind = 4 ) nelmnt
+  INTEGER ( kind = 4 ) newel
+  INTEGER ( kind = 4 ) nn
+  REAL ( kind = 8 ) pi
+  REAL ( kind = 8 ) r2
+  REAL ( kind = 8 ) rn2
+  REAL ( kind = 8 ) x(nodes)
+  REAL ( kind = 8 ) xl
+  REAL ( kind = 8 ) xmax
+  REAL ( kind = 8 ) xmin
+  REAL ( kind = 8 ) xr
+  REAL ( kind = 8 ) x2
+  REAL ( kind = 8 ) x3
+  REAL ( kind = 8 ) y(nodes)
+  REAL ( kind = 8 ) yl
+  REAL ( kind = 8 ) ymax
+  REAL ( kind = 8 ) ymin
+  REAL ( kind = 8 ) yr
+  REAL ( kind = 8 ) y2
+  REAL ( kind = 8 ) y3
+  REAL ( kind = 8 ) z
 
   pi = 4.0D+00 * atan ( 1.0D+00 )
 !
@@ -7820,7 +7820,7 @@ subroutine dlauny ( x, y, nodes, elmnts, nemax, nelmnt )
       cx = 0.5D+00 * ( x3 - z * y3 )
       cy = 0.5D+00 * ( y3 + z * x3 )
       r2 = cx**2 + cy**2
-      rn2 = ( ( x(in) - x(i1) - cx )**2 + ( y(in) - y(i1) - cy )**2 )
+      rn2 = ( ( x(IN) - x(i1) - cx )**2 + ( y(IN) - y(i1) - cy )**2 )
 !
 !  It is inside.  Create new elements and mark old for deletion.
 !
@@ -7956,41 +7956,41 @@ subroutine dnscsr ( nrow, ncol, nzmax, dns, ndns, a, ja, ia, ierr )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-!    Input, integer ( kind = 4 ) NCOL, the column dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NCOL, the column dimension of the matrix.
 !
-!    Input, integer ( kind = 4 ) NZMAX, the maximum number of nonzero elements 
+!    Input, INTEGER ( kind = 4 ) NZMAX, the maximum number of nonzero elements 
 !    allowed.  This should be set to be the lengths of the arrays A and JA.
 !
-!    Input, real DNS(NDNS,NCOL), an NROW by NCOL dense matrix.
+!    Input, REAL DNS(NDNS,NCOL), an NROW by NCOL dense matrix.
 !
-!    Input, integer ( kind = 4 ) NDNS, the first dimension of DNS, which must be
+!    Input, INTEGER ( kind = 4 ) NDNS, the first dimension of DNS, which must be
 !    at least NROW.
 !
-!    Output, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Output, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-!    Output, integer ( kind = 4 ) IERR, error indicator.
+!    Output, INTEGER ( kind = 4 ) IERR, error indicator.
 !    0 means normal return;
 !    I, means that the the code stopped while processing row I, because
 !       there was no space left in A and JA, as defined by NZMAX.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) ncol
-  integer ( kind = 4 ) ndns
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) ncol
+  INTEGER ( kind = 4 ) ndns
+  INTEGER ( kind = 4 ) nrow
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) dns(ndns,ncol)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) next
-  integer ( kind = 4 ) nzmax
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) dns(ndns,ncol)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) next
+  INTEGER ( kind = 4 ) nzmax
 
   ierr = 0
   next = 1
@@ -8056,47 +8056,47 @@ subroutine dperm ( nrow, a, ja, ia, ao, jao, iao, perm, qperm, job )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the order of the matrix.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-!    Input, integer ( kind = 4 ) PERM(NROW), the permutation array for the rows: PERM(I)
+!    Input, INTEGER ( kind = 4 ) PERM(NROW), the permutation array for the rows: PERM(I)
 !    is the destination of row I in the permuted matrix; also the destination
 !    of column I in case the permutation is symmetric (JOB <= 2).
 !
-!    Input, integer ( kind = 4 ) QPERM(NROW), the permutation array for the columns.
+!    Input, INTEGER ( kind = 4 ) QPERM(NROW), the permutation array for the columns.
 !    This should be provided only if JOB=3 or JOB=4, that is, only in 
 !    the case of a nonsymmetric permutation of rows and columns. 
 !    Otherwise QPERM is a dummy argument.
 !
-! job      = integer ( kind = 4 ) indicating the work to be done:
+! job      = INTEGER ( kind = 4 ) indicating the work to be done:
 ! * job = 1,2 permutation is symmetric  Ao :== P * A * transp(P)
 !             job = 1      permute a, ja, ia into ao, jao, iao
-!             job = 2 permute matrix ignoring real values.
+!             job = 2 permute matrix ignoring REAL values.
 ! * job = 3,4 permutation is non-symmetric  Ao :== P * A * Q
 !             job = 3      permute a, ja, ia into ao, jao, iao
-!             job = 4 permute matrix ignoring real values.
+!             job = 4 permute matrix ignoring REAL values.
 !
-!    Output, real AO(*), JAO(*), IAO(NROW+1), the permuted matrix in CSR
+!    Output, REAL AO(*), JAO(*), IAO(NROW+1), the permuted matrix in CSR
 !    Compressed Sparse Row format.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) nrow
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) ao(*)
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) iao(nrow+1)
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jao(*)
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) locjob
-  integer ( kind = 4 ) perm(nrow)
-  integer ( kind = 4 ) qperm(nrow)
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) ao(*)
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) iao(nrow+1)
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jao(*)
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) locjob
+  INTEGER ( kind = 4 ) perm(nrow)
+  INTEGER ( kind = 4 ) qperm(nrow)
 !
-!  LOCJOB indicates whether or not real values must be copied.
+!  LOCJOB indicates whether or not REAL values must be copied.
 !
   locjob = mod ( job, 2 )
 !
@@ -8144,28 +8144,28 @@ subroutine dscaldg ( n, a, ja, ia, diag, job )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-!    Input, integer ( kind = 4 ) JOB, describes the task to be performed.
+!    Input, INTEGER ( kind = 4 ) JOB, describes the task to be performed.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) diag(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(n+1)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) k1
-  integer ( kind = 4 ) k2
-  real ( kind = 8 ) t
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) diag(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(n+1)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) k1
+  INTEGER ( kind = 4 ) k2
+  REAL ( kind = 8 ) t
 
   if ( job == 2 ) then
 
@@ -8230,26 +8230,26 @@ subroutine dump ( n, a, ja, ia, iout )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-!    Input, integer ( kind = 4 ) IOUT, the FORTRAN output unit number.
+!    Input, INTEGER ( kind = 4 ) IOUT, the FORTRAN output unit number.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) a(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(n+1)
-  integer ( kind = 4 ) iout
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) k1
-  integer ( kind = 4 ) k2
-  integer ( kind = 4 ) maxr
+  REAL ( kind = 8 ) a(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(n+1)
+  INTEGER ( kind = 4 ) iout
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) k1
+  INTEGER ( kind = 4 ) k2
+  INTEGER ( kind = 4 ) maxr
 !
 !  Select mode horizontal or vertical.
 !
@@ -8295,11 +8295,11 @@ subroutine dvperm ( n, x, perm )
 
 !*****************************************************************************80
 !
-!! DVPERM performs an in-place permutation of a real vector.
+!! DVPERM performs an in-place permutation of a REAL vector.
 !
 !  Discussion:
 !
-!    This routine permutes a real vector X using a permutation PERM.
+!    This routine permutes a REAL vector X using a permutation PERM.
 !
 !    On return, the vector X satisfies,
 !
@@ -8315,24 +8315,24 @@ subroutine dvperm ( n, x, perm )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the length of X.
+!    Input, INTEGER ( kind = 4 ) N, the length of X.
 !
-!    Input/output, real X(N), the vector to be permuted.
+!    Input/output, REAL X(N), the vector to be permuted.
 !
-!    Input, integer ( kind = 4 ) PERM(N), the permutation.
+!    Input, INTEGER ( kind = 4 ) PERM(N), the permutation.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) init
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) next
-  integer ( kind = 4 ) perm(n)
-  real ( kind = 8 ) tmp
-  real ( kind = 8 ) tmp1
-  real ( kind = 8 ) x(n)
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) init
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) next
+  INTEGER ( kind = 4 ) perm(n)
+  REAL ( kind = 8 ) tmp
+  REAL ( kind = 8 ) tmp1
+  REAL ( kind = 8 ) x(n)
 
   init = 1
   tmp = x(init)
@@ -8432,48 +8432,48 @@ subroutine ecn ( n, ic, ne, ia, ja, ar, nn, ierr )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the size of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the size of the matrix.
 !
-!    Input, integer ( kind = 4 ) IC, controls the sparsity pattern.  1 < IC < N
+!    Input, INTEGER ( kind = 4 ) IC, controls the sparsity pattern.  1 < IC < N
 !    is required.
 !
-!    Input, integer ( kind = 4 ) NN, the dimension of IA, JA and AR.  NN must
+!    Input, INTEGER ( kind = 4 ) NN, the dimension of IA, JA and AR.  NN must
 !    be at least NE.
 !
-!    Output, integer ( kind = 4 ) NE, the number of nonzero elements in the 
+!    Output, INTEGER ( kind = 4 ) NE, the number of nonzero elements in the 
 !    sparse matrix of the type E(N,C). NE = 5*N - 2*IC - 2 .
 !
-!    Output, real AR(NN), the stored entries of the sparse matrix A.
+!    Output, REAL AR(NN), the stored entries of the sparse matrix A.
 !    NE is the number of nonzeros including a mandatory
 !    diagonal entry for each row.
 !
-!    Output, integer ( kind = 4 ) IA(NN), pointers to specify rows for the
+!    Output, INTEGER ( kind = 4 ) IA(NN), pointers to specify rows for the
 !    stored nonzero entries in AR.
 !
-!    Output, integer ( kind = 4 ) JA(NN), pointers to specify columns for the 
+!    Output, INTEGER ( kind = 4 ) JA(NN), pointers to specify columns for the 
 !    stored nonzero entries in AR.
 !
-!    Output, integer ( kind = 4 ) IERR, an error parameter, returned as zero on
+!    Output, INTEGER ( kind = 4 ) IERR, an error parameter, returned as zero on
 !    successful execution of the subroutine.  Error diagnostics are given by 
 !    means of positive values of this parameter as follows:
 !    1: N is out of range.
 !    2: IC is out of range.
 !    3: NN is out of range.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) nn
+  INTEGER ( kind = 4 ) nn
 
-  real ( kind = 8 ) ar(nn)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(nn)
-  integer ( kind = 4 ) ic
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) ilast
-  integer ( kind = 4 ) it
-  integer ( kind = 4 ) ja(nn)
-  integer ( kind = 4 ) n
-  integer ( kind = 4 ) ne
+  REAL ( kind = 8 ) ar(nn)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(nn)
+  INTEGER ( kind = 4 ) ic
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) ilast
+  INTEGER ( kind = 4 ) it
+  INTEGER ( kind = 4 ) ja(nn)
+  INTEGER ( kind = 4 ) n
+  INTEGER ( kind = 4 ) ne
 
   ierr = 0
 !
@@ -8567,45 +8567,45 @@ subroutine ellcsr ( nrow, coef, jcoef, ncoef, ndiag, a, ja, ia, nzmax, ierr )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix A.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix A.
 !
-!    Input, real COEF(NCOEF,NDIAG), the values of the matrix A in 
+!    Input, REAL COEF(NCOEF,NDIAG), the values of the matrix A in 
 !    Ellpack/Itpack format.
 !
-!    Input, integer ( kind = 4 ) JCOEF(NCOEF,NDIAG), the column indices of the 
+!    Input, INTEGER ( kind = 4 ) JCOEF(NCOEF,NDIAG), the column indices of the 
 !    corresponding elements in COEF.
 !
-!    Input, integer ( kind = 4 ) NCOEF, the maximum number of coefficients per diagonal.
+!    Input, INTEGER ( kind = 4 ) NCOEF, the maximum number of coefficients per diagonal.
 !
-!    Input, integer ( kind = 4 ) NDIAG, the number of active columns in COEF and JCOEF.
+!    Input, INTEGER ( kind = 4 ) NDIAG, the number of active columns in COEF and JCOEF.
 !    and the number of columns made available in coef.
 !
-!    Output, real A(NZMAX), JA(NZMAX), IA(NROW+1), the matrix, stored
+!    Output, REAL A(NZMAX), JA(NZMAX), IA(NROW+1), the matrix, stored
 !    in compressed sparse row format.
 !
-!    Input, integer ( kind = 4 ) NZMAX, the size of the arrays A and JA.
+!    Input, INTEGER ( kind = 4 ) NZMAX, the size of the arrays A and JA.
 !
-!    Output, integer ( kind = 4 ) IERR, an error flag.
+!    Output, INTEGER ( kind = 4 ) IERR, an error flag.
 !    0, means normal return.
 !    nonzero, means that NZMAX is too small, and there is not enough 
 !    space in A and JA to store output matrix.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) ncoef
-  integer ( kind = 4 ) ndiag
-  integer ( kind = 4 ) nrow
-  integer ( kind = 4 ) nzmax
+  INTEGER ( kind = 4 ) ncoef
+  INTEGER ( kind = 4 ) ndiag
+  INTEGER ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) nzmax
 
-  real ( kind = 8 ) a(nzmax)
-  real ( kind = 8 ) coef(ncoef,ndiag)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) ja(nzmax)
-  integer ( kind = 4 ) jcoef(ncoef,ndiag)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) kpos
+  REAL ( kind = 8 ) a(nzmax)
+  REAL ( kind = 8 ) coef(ncoef,ndiag)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) ja(nzmax)
+  INTEGER ( kind = 4 ) jcoef(ncoef,ndiag)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) kpos
 
   ierr = 0
 !
@@ -8654,39 +8654,39 @@ subroutine estif3 ( nel, ske, fe, det, xe, ye, xyke, ierr )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NEL, the index of the element.
+!    Input, INTEGER ( kind = 4 ) NEL, the index of the element.
 !
-!    Output, real SKE(3,3), the element stiffness matrix.
+!    Output, REAL SKE(3,3), the element stiffness matrix.
 !
-!    Output, real FE(3), the element load vector.
+!    Output, REAL FE(3), the element load vector.
 !
-!    Input, real DET, twice the area of the triangle.
+!    Input, REAL DET, twice the area of the triangle.
 !
-!    Input, real XE(3), YE(3), the coordinates of the vertices of the
+!    Input, REAL XE(3), YE(3), the coordinates of the vertices of the
 !    triangle.
 !
-!    Input, real XYKE(2,2), the material constants KXX, KXY, KYX and KYY.
+!    Input, REAL XYKE(2,2), the material constants KXX, KXY, KYX and KYY.
 !
-!    Output, integer ( kind = 4 ) IERR, an error flag, which is nonzero if
+!    Output, INTEGER ( kind = 4 ) IERR, an error flag, which is nonzero if
 !    an error was detected.
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) area
-  real ( kind = 8 ) det
-  real ( kind = 8 ) dn(3,2)
-  real ( kind = 8 ) fe(3)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) l
-  integer ( kind = 4 ) nel
-  real ( kind = 8 ) ske(3,3)
-  real ( kind = 8 ) t
-  real ( kind = 8 ) xe(3)
-  real ( kind = 8 ) xyke(2,2)
-  real ( kind = 8 ) ye(3)
+  REAL ( kind = 8 ) area
+  REAL ( kind = 8 ) det
+  REAL ( kind = 8 ) dn(3,2)
+  REAL ( kind = 8 ) fe(3)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) l
+  INTEGER ( kind = 4 ) nel
+  REAL ( kind = 8 ) ske(3,3)
+  REAL ( kind = 8 ) t
+  REAL ( kind = 8 ) xe(3)
+  REAL ( kind = 8 ) xyke(2,2)
+  REAL ( kind = 8 ) ye(3)
 !
 !  Initialize.
 !
@@ -8748,12 +8748,12 @@ subroutine exphes ( n, m, dt, eps, u, w, job, z, wkc, beta, errst, hh, ih, &
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-!    Input, integer ( kind = 4 ) M, the dimension of the Krylov subspace.  This is also
+!    Input, INTEGER ( kind = 4 ) M, the dimension of the Krylov subspace.  This is also
 !    the degree of the polynomial approximation to the exponential.
 !
-!    Input, real ( kind = 8 ) DT, a scalar by which to multiply the matrix.
+!    Input, REAL ( kind = 8 ) DT, a scalar by which to multiply the matrix.
 !    DT can be viewed as a time step.  DT must be positive.
 !
 ! eps   = scalar indicating the relative error tolerated for the result.
@@ -8762,13 +8762,13 @@ subroutine exphes ( n, m, dt, eps, u, w, job, z, wkc, beta, errst, hh, ih, &
 !
 ! u      = work array of size n*(m+1) to contain the Arnoldi basis
 !
-! w      = real array of length n = input vector to  which exp(-A) is
+! w      = REAL array of length n = input vector to  which exp(-A) is
 !         to be applied.
 !
-! y     = real work array of  size (m+1)
+! y     = REAL work array of  size (m+1)
 ! wkc   = COMPLEX work array of size (m+1)
 !
-! job      = integer ( kind = 4 ). job indicator. If job <  0 then the Arnoldi
+! job      = INTEGER ( kind = 4 ). job indicator. If job <  0 then the Arnoldi
 !         basis is recomputed. If 0 < job then it is assumed
 !         that the user wants to use a previously computed Krylov
 !         subspace but a different dt. Thus the Arnoldi basis and
@@ -8801,46 +8801,46 @@ subroutine exphes ( n, m, dt, eps, u, w, job, z, wkc, beta, errst, hh, ih, &
 ! on return:
 !
 ! w2      = resulting vector w2 = exp(-A *dt) * w
-! beta  = real equal to the 2-norm of w. Needed if exppro will
+! beta  = REAL equal to the 2-norm of w. Needed if exppro will
 !         be recalled with the same Krylov subspace and a different
 !         dt.
 ! errst = rough estimates of the 2-norm of the error.
 ! hh      = work array of dimension at least (m+1) x m
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) ih
-  integer ( kind = 4 ) m
-  integer ( kind = 4 ) n
-  integer ( kind = 4 ), parameter :: ndmx = 20
+  INTEGER ( kind = 4 ) ih
+  INTEGER ( kind = 4 ) m
+  INTEGER ( kind = 4 ) n
+  INTEGER ( kind = 4 ), parameter :: ndmx = 20
 
   complex alp(ndmx+1)
-  real ( kind = 8 ) alp0
-  real ( kind = 8 ) beta
-  real ( kind = 8 ) ddot
-  real ( kind = 8 ) dt
-  real ( kind = 8 ) eps
-  real ( kind = 8 ) errst
-  real ( kind = 8 ) fnorm
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) i0
-  integer ( kind = 4 ) i1
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) indic
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) ldg
-  real ( kind = 8 ) hh(ih,ih)
-  integer ( kind = 4 ) m1
+  REAL ( kind = 8 ) alp0
+  REAL ( kind = 8 ) beta
+  REAL ( kind = 8 ) ddot
+  REAL ( kind = 8 ) dt
+  REAL ( kind = 8 ) eps
+  REAL ( kind = 8 ) errst
+  REAL ( kind = 8 ) fnorm
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) i0
+  INTEGER ( kind = 4 ) i1
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) indic
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) ldg
+  REAL ( kind = 8 ) hh(ih,ih)
+  INTEGER ( kind = 4 ) m1
   complex rd(ndmx+1)
-  real ( kind = 8 ) rm
-  real ( kind = 8 ) t
-  real ( kind = 8 ) u(n,*)
-  real ( kind = 8 ) w(*)
+  REAL ( kind = 8 ) rm
+  REAL ( kind = 8 ) t
+  REAL ( kind = 8 ) u(n,*)
+  REAL ( kind = 8 ) w(*)
   complex wkc(ih)
-  real ( kind = 8 ) x(*)
-  real ( kind = 8 ) y(*)
-  real ( kind = 8 ) z(m+1)
+  REAL ( kind = 8 ) x(*)
+  REAL ( kind = 8 ) y(*)
+  REAL ( kind = 8 ) z(m+1)
 
   save
 !
@@ -8927,7 +8927,7 @@ subroutine exphes ( n, m, dt, eps, u, w, job, z, wkc, beta, errst, hh, ih, &
 !
 !  Done with the Arnoldi loop.
 !
-  rm = real ( m, kind = 8 )
+  rm = REAL ( m, kind = 8 )
   fnorm = sqrt ( fnorm / rm )
 !
 !  Get BETA * E1 into Z.
@@ -8944,7 +8944,7 @@ subroutine exphes ( n, m, dt, eps, u, w, job, z, wkc, beta, errst, hh, ih, &
 
     t = eps
     do k = 1, m-1
-      t = t * ( 1.0D+00 - real ( m - k, kind = 8 ) / rm )
+      t = t * ( 1.0D+00 - REAL ( m - k, kind = 8 ) / rm )
     end do
 
     t = 2.0D+00 * rm * ( t**( 1.0D+00 / rm ) )  / fnorm
@@ -9023,9 +9023,9 @@ subroutine exppro ( n, m, eps, tn, u, w, x, y, indic, ierr )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-!    Input, integer ( kind = 4 ) M, the dimension of the Krylov subspace.  This is also
+!    Input, INTEGER ( kind = 4 ) M, the dimension of the Krylov subspace.  This is also
 !    the degree of the polynomial approximation to the exponential.
 !
 ! eps   = scalar indicating the relative error tolerated for the result.
@@ -9038,13 +9038,13 @@ subroutine exppro ( n, m, eps, tn, u, w, x, y, indic, ierr )
 !
 ! u      = work array of size n*(m+1) (used to hold the Arnoldi basis )
 !
-! w      = real array of length n = input vector to  which exp(-A) is
+! w      = REAL array of length n = input vector to  which exp(-A) is
 !         to be applied. this is also an output argument
 !
-! x, y  = two real work vectors of length at least  n each.
+! x, y  = two REAL work vectors of length at least  n each.
 !         see indic for usage.
 !
-! indic = integer ( kind = 4 ) used as indicator for the reverse communication.
+! indic = INTEGER ( kind = 4 ) used as indicator for the reverse communication.
 !         in the first call enter indic = 0. See below for more.
 !
 ! on return:
@@ -9069,31 +9069,31 @@ subroutine exppro ( n, m, eps, tn, u, w, x, y, indic, ierr )
 !         ierr = -1 means that the input is zero the solution has been
 !         unchanged.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ), parameter :: ih0 = 60
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ), parameter :: ih0 = 60
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) beta
-  real ( kind = 8 ) dtl
-  real ( kind = 8 ) eps
-  real ( kind = 8 ) errst
-  real ( kind = 8 ) hh(ih0,ih0)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) ih
-  integer ( kind = 4 ) indic
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) m
-  real ( kind = 8 ) red
-  real ( kind = 8 ) tcur
-  real ( kind = 8 ) tn
-  real ( kind = 8 ) told
-  real ( kind = 8 ) u(*)
-  real ( kind = 8 ) w(n)
+  REAL ( kind = 8 ) beta
+  REAL ( kind = 8 ) dtl
+  REAL ( kind = 8 ) eps
+  REAL ( kind = 8 ) errst
+  REAL ( kind = 8 ) hh(ih0,ih0)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) ih
+  INTEGER ( kind = 4 ) indic
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) m
+  REAL ( kind = 8 ) red
+  REAL ( kind = 8 ) tcur
+  REAL ( kind = 8 ) tn
+  REAL ( kind = 8 ) told
+  REAL ( kind = 8 ) u(*)
+  REAL ( kind = 8 ) w(n)
   complex wkc(ih0)
-  real ( kind = 8 ) x(*)
-  real ( kind = 8 ) y(*)
-  real ( kind = 8 ) z(ih0)
+  REAL ( kind = 8 ) x(*)
+  REAL ( kind = 8 ) y(*)
+  REAL ( kind = 8 ) z(ih0)
 
   save
 !
@@ -9151,7 +9151,7 @@ subroutine exppro ( n, m, eps, tn, u, w, x, y, indic, ierr )
 !
 !  Use approximation :  new error = fact**m  * current error.
 !
-  red = ( 0.5D+00 * eps / errst )**( 1.0D+00 / real ( m, kind = 8 ) )
+  red = ( 0.5D+00 * eps / errst )**( 1.0D+00 / REAL ( m, kind = 8 ) )
   dtl = dtl * red
 
   if ( abs ( tn ) < abs ( told + dtl ) ) then
@@ -9202,9 +9202,9 @@ subroutine expprod ( n, m, eps, tn, u, w, x, y, a, ioff, ndiag )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-!    Input, integer ( kind = 4 ) M, the dimension of the Krylov subspace. 
+!    Input, INTEGER ( kind = 4 ) M, the dimension of the Krylov subspace. 
 !    This is also the degree of the polynomial approximation to the exponential.
 !
 ! see exppro for meaning of parameters eps, tn, u, w, x, y.
@@ -9216,27 +9216,27 @@ subroutine expprod ( n, m, eps, tn, u, w, x, y, a, ioff, ndiag )
 !              a(i,jdiag) contains the element A(i,i+ioff(jdiag)) in
 !              the usual dense storage scheme.
 !
-! ioff           = integer ( kind = 4 ) array containing the offsets  of the
+! ioff           = INTEGER ( kind = 4 ) array containing the offsets  of the
 ! ndiag diagonals
 !
-! ndiag      = integer ( kind = 4 ). the number of diagonals.
+! ndiag      = INTEGER ( kind = 4 ). the number of diagonals.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
-  integer ( kind = 4 ) ndiag
+  INTEGER ( kind = 4 ) n
+  INTEGER ( kind = 4 ) ndiag
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) eps
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) indic
-  integer ( kind = 4 ) ioff(ndiag)
-  integer ( kind = 4 ) m
-  real ( kind = 8 ) tn
-  real ( kind = 8 ) u(*)
-  real ( kind = 8 ) w(n)
-  real ( kind = 8 ) x(n)
-  real ( kind = 8 ) y(n)
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) eps
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) indic
+  INTEGER ( kind = 4 ) ioff(ndiag)
+  INTEGER ( kind = 4 ) m
+  REAL ( kind = 8 ) tn
+  REAL ( kind = 8 ) u(*)
+  REAL ( kind = 8 ) w(n)
+  REAL ( kind = 8 ) x(n)
+  REAL ( kind = 8 ) y(n)
 
   indic = 0
 
@@ -9283,44 +9283,44 @@ subroutine extbdg ( n, a, ja, ia, bdiag, nblk, ao, jao, iao )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the row dimension of the matrix.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-!    Input, integer ( kind = 4 ) NBLK, the dimension of each diagonal block.
+!    Input, INTEGER ( kind = 4 ) NBLK, the dimension of each diagonal block.
 !    The diagonal blocks are stored in compressed format rowwise.  We store in
 !    succession the I nonzeros of the I-th row after those of
 !    row number I-1.
 !
-!    Output, real BDIAG(N,NBLK), the diagonal blocks of A.
+!    Output, REAL BDIAG(N,NBLK), the diagonal blocks of A.
 !
-!    Output, real AO(*), JAO(*), IAO(N+1), the remainder of the
+!    Output, REAL AO(*), JAO(*), IAO(N+1), the remainder of the
 !    matrix, in CSR Compressed Sparse Row format.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) ao(*)
-  real ( kind = 8 ) bdiag(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(n+1)
-  integer ( kind = 4 ) iao(n+1)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) j1
-  integer ( kind = 4 ) j2
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jao(*)
-  integer ( kind = 4 ) jj
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) kb
-  integer ( kind = 4 ) ko
-  integer ( kind = 4 ) l
-  integer ( kind = 4 ) ltr
-  integer ( kind = 4 ) m
-  integer ( kind = 4 ) nblk
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) ao(*)
+  REAL ( kind = 8 ) bdiag(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(n+1)
+  INTEGER ( kind = 4 ) iao(n+1)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) j1
+  INTEGER ( kind = 4 ) j2
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jao(*)
+  INTEGER ( kind = 4 ) jj
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) kb
+  INTEGER ( kind = 4 ) ko
+  INTEGER ( kind = 4 ) l
+  INTEGER ( kind = 4 ) ltr
+  INTEGER ( kind = 4 ) m
+  INTEGER ( kind = 4 ) nblk
 
   m = 1 + ( n - 1 ) / nblk
 
@@ -9384,9 +9384,9 @@ subroutine filter ( n, job, drptol, a, ja, ia, b, jb, ib, len, ierr )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the row dimension of the matrix.
 !
-!    Input, integer ( kind = 4 ) JOB, determines strategy chosen by caller to
+!    Input, INTEGER ( kind = 4 ) JOB, determines strategy chosen by caller to
 !    drop elements from matrix A.
 !    * 1, Elements whose absolute value is less than the drop tolerance 
 !    are removed.
@@ -9395,43 +9395,43 @@ subroutine filter ( n, job, drptol, a, ja, ia, b, jb, ib, len, ierr )
 !    * 3, Elements whose absolute value is less that the product of the 
 !    drop tolerance and the largest element in the row are removed.
 !
-!    Input, real DRPTOL, the drop tolerance.
+!    Input, REAL DRPTOL, the drop tolerance.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-!    Input, integer ( kind = 4 ) LEN, the amount of space in A and JA.
+!    Input, INTEGER ( kind = 4 ) LEN, the amount of space in A and JA.
 !
-!    Output, real B(*), integer ( kind = 4 ) JB(*), IB(N+1), the filtered matrix in CSR
+!    Output, REAL B(*), INTEGER ( kind = 4 ) JB(*), IB(N+1), the filtered matrix in CSR
 !    Compressed Sparse Row format.
 !
-!    Output, integer ( kind = 4 ) IERR, error flag.
+!    Output, INTEGER ( kind = 4 ) IERR, error flag.
 !    0 indicates normal return
 !    0 < IERR indicates that there is'nt enough
 !    space is a and ja to store the resulting matrix.
 !    IERR then contains the row number where filter stopped.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) b(*)
-  real ( kind = 8 ) drptol
-  integer ( kind = 4 ) ia(n+1)
-  integer ( kind = 4 ) ib(n+1)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) index
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jb(*)
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) k1
-  integer ( kind = 4 ) k2
-  integer ( kind = 4 ) len
-  real ( kind = 8 ) loctol
-  real ( kind = 8 ) norm
-  integer ( kind = 4 ) row
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) b(*)
+  REAL ( kind = 8 ) drptol
+  INTEGER ( kind = 4 ) ia(n+1)
+  INTEGER ( kind = 4 ) ib(n+1)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) index
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jb(*)
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) k1
+  INTEGER ( kind = 4 ) k2
+  INTEGER ( kind = 4 ) len
+  REAL ( kind = 8 ) loctol
+  REAL ( kind = 8 ) norm
+  INTEGER ( kind = 4 ) row
 
   index = 1
 
@@ -9519,21 +9519,21 @@ subroutine gen57bl ( nx, ny, nz, nfree, na, n, a, ja, ia, iau, stencil )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NX, NY, NZ, the number of nodes in the X, Y and Z
+!    Input, INTEGER ( kind = 4 ) NX, NY, NZ, the number of nodes in the X, Y and Z
 !    directions.
 !
-!    Input, integer ( kind = 4 ) NFREE, the number of degrees of freedom per node.
+!    Input, INTEGER ( kind = 4 ) NFREE, the number of degrees of freedom per node.
 !
-!    Output, integer ( kind = 4 ) N, the dimension of the matrix.
+!    Output, INTEGER ( kind = 4 ) N, the dimension of the matrix.
 !
-!    Input, integer ( kind = 4 ) NA, the first dimension of A as declared in the calling
+!    Input, INTEGER ( kind = 4 ) NA, the first dimension of A as declared in the calling
 !    program.  We require NFREE**2 <= NA.
 !
 ! a, ja, ia = resulting matrix in  row-sparse block-reduced format
 !           a(1:nfree**2, j ) contains a nonzero block.
 !           ja(j) contains the column number of (1,1) entry of the block.
 !
-! iau     = integer ( kind = 4 )*n containing the position of the diagonal element
+! iau     = INTEGER ( kind = 4 )*n containing the position of the diagonal element
 !           in the a, ja, ia structure
 !
 ! stencil =  work array of size (7,nfree**2), used to store
@@ -9567,33 +9567,33 @@ subroutine gen57bl ( nx, ny, nz, nfree, na, n, a, ja, ia, iau, stencil )
 !                           st(4)
 !
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) na
+  INTEGER ( kind = 4 ) na
 
-  real ( kind = 8 ) a(na,*)
-  real ( kind = 8 ) h
-  integer ( kind = 4 ) ia(*)
-  integer ( kind = 4 ) iau(*)
-  integer ( kind = 4 ) iedge
-  integer ( kind = 4 ) ix
-  integer ( kind = 4 ) iy
-  integer ( kind = 4 ) iz
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) kx
-  integer ( kind = 4 ) ky
-  integer ( kind = 4 ) kz
-  integer ( kind = 4 ) n
-  integer ( kind = 4 ) nfree
-  integer ( kind = 4 ) nfree2
-  integer ( kind = 4 ) node
-  integer ( kind = 4 ) nx
-  integer ( kind = 4 ) ny
-  integer ( kind = 4 ) nz
-  real ( kind = 8 ) stencil(7,*)
+  REAL ( kind = 8 ) a(na,*)
+  REAL ( kind = 8 ) h
+  INTEGER ( kind = 4 ) ia(*)
+  INTEGER ( kind = 4 ) iau(*)
+  INTEGER ( kind = 4 ) iedge
+  INTEGER ( kind = 4 ) ix
+  INTEGER ( kind = 4 ) iy
+  INTEGER ( kind = 4 ) iz
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) kx
+  INTEGER ( kind = 4 ) ky
+  INTEGER ( kind = 4 ) kz
+  INTEGER ( kind = 4 ) n
+  INTEGER ( kind = 4 ) nfree
+  INTEGER ( kind = 4 ) nfree2
+  INTEGER ( kind = 4 ) node
+  INTEGER ( kind = 4 ) nx
+  INTEGER ( kind = 4 ) ny
+  INTEGER ( kind = 4 ) nz
+  REAL ( kind = 8 ) stencil(7,*)
 
-  h = 1.0D+00 / real ( nx + 1, kind = 8 )
+  h = 1.0D+00 / REAL ( nx + 1, kind = 8 )
   kx = 1
   ky = nx
   kz = nx * ny
@@ -9735,16 +9735,16 @@ subroutine gen57pt ( nx, ny, nz, a, ja, ia, iau, stencil )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NX, NY, NZ, the number of points in the X, Y and Z
+!    Input, INTEGER ( kind = 4 ) NX, NY, NZ, the number of points in the X, Y and Z
 !    directions.
 !
-!    Output, real A(*), integer ( kind = 4 ) JA(*), IA(?+1), the matrix in CSR
+!    Output, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(?+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-! iau     = integer ( kind = 4 ) IAU(N) containing the position of the diagonal element
+! iau     = INTEGER ( kind = 4 ) IAU(N) containing the position of the diagonal element
 !           in the a, ja, ia structure
 !
-!    Output, real STENCIL(7), used to store local stencils.
+!    Output, REAL STENCIL(7), used to store local stencils.
 !     center point = stencil(1)
 !     west point = stencil(2)
 !     east point = stencil(3)
@@ -9771,27 +9771,27 @@ subroutine gen57pt ( nx, ny, nz, a, ja, ia, iau, stencil )
 !                           st(4)
 !
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) h
-  integer ( kind = 4 ) ia(*)
-  integer ( kind = 4 ) iau(*)
-  integer ( kind = 4 ) iedge
-  integer ( kind = 4 ) ix
-  integer ( kind = 4 ) iy
-  integer ( kind = 4 ) iz
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) kx
-  integer ( kind = 4 ) ky
-  integer ( kind = 4 ) kz
-  integer ( kind = 4 ) node
-  integer ( kind = 4 ) nx
-  integer ( kind = 4 ) ny
-  integer ( kind = 4 ) nz
-  real ( kind = 8 ) stencil(7)
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) h
+  INTEGER ( kind = 4 ) ia(*)
+  INTEGER ( kind = 4 ) iau(*)
+  INTEGER ( kind = 4 ) iedge
+  INTEGER ( kind = 4 ) ix
+  INTEGER ( kind = 4 ) iy
+  INTEGER ( kind = 4 ) iz
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) kx
+  INTEGER ( kind = 4 ) ky
+  INTEGER ( kind = 4 ) kz
+  INTEGER ( kind = 4 ) node
+  INTEGER ( kind = 4 ) nx
+  INTEGER ( kind = 4 ) ny
+  INTEGER ( kind = 4 ) nz
+  REAL ( kind = 8 ) stencil(7)
 
-  h = 1.0D+00 / real ( nx + 1, kind = 8 )
+  h = 1.0D+00 / REAL ( nx + 1, kind = 8 )
   kx = 1
   ky = nx
   kz = nx * ny
@@ -9905,32 +9905,32 @@ subroutine genfea ( nx, nelx, node, job, x, y, ijk, nodcode, fs, nint, &
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NX, the number of nodes in the grid.
+!    Input, INTEGER ( kind = 4 ) NX, the number of nodes in the grid.
 !
-!    Input, integer ( kind = 4 ) NELX, the number of elements.
+!    Input, INTEGER ( kind = 4 ) NELX, the number of elements.
 !
-!    Input, integer ( kind = 4 ) NODE, the number of nodes per element, which
+!    Input, INTEGER ( kind = 4 ) NODE, the number of nodes per element, which
 !    should be 3 for this routine.
 !
-! job          = integer ( kind = 4 ). If job=0, it is assumed that there is no heat
+! job          = INTEGER ( kind = 4 ). If job=0, it is assumed that there is no heat
 !             source (i.e. fs = 0) and the right hand side
 !             produced will therefore be a zero vector.
 !             If job = 1 on entry then the contributions from the
 !             heat source in each element are taken into account.
 !
-! x, y      = two real arrays containing the coordinates of the nodes.
+! x, y      = two REAL arrays containing the coordinates of the nodes.
 !
-!    Input, integer ( kind = 4 ) IJK(NODE,NELX), lists the nodes that make up 
+!    Input, INTEGER ( kind = 4 ) IJK(NODE,NELX), lists the nodes that make up 
 !    each element.
 !
-! nodcode   = an integer ( kind = 4 ) array containing the boundary information for
+! nodcode   = an INTEGER ( kind = 4 ) array containing the boundary information for
 !             each node with the following meaning.
 !      nodcode(i) = 0 -->  node i is internal
 !      nodcode(i) = 1 -->  node i is a boundary but not a corner point
 !      nodcode(i) = 2 -->  node i is a corner node. [This node and the
 !             corresponmding element are discarded.]
 !
-! fs          = real array of length nelx on entry containing the heat
+! fs          = REAL array of length nelx on entry containing the heat
 !             source for each element (job = 1 only)
 !
 ! xyk          = routine defining the material properties at each
@@ -9943,45 +9943,45 @@ subroutine genfea ( nx, nelx, node, job, x, y, ijk, nodcode, fs, nint, &
 !
 ! on return
 !
-! nint          = integer ( kind = 4 ). The number of active (nonboundary) nodes. Also
+! nint          = INTEGER ( kind = 4 ). The number of active (nonboundary) nodes. Also
 !             equal to the dimension of the assembled matrix.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(?+1), the assembled matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(?+1), the assembled matrix in CSR
 !    Compressed Sparse Row format.
 !
-! f          = real array containing the right hand for the linears
+! f          = REAL array containing the right hand for the linears
 !             system to solve.
 !
-!    Workspace, integer ( kind = 4 ) IWK(NX), JWK(NX).
+!    Workspace, INTEGER ( kind = 4 ) IWK(NX), JWK(NX).
 !
-! ierr          = integer ( kind = 4 ). Error message. If (ierr /= 0) on return
+! ierr          = INTEGER ( kind = 4 ). Error message. If (ierr /= 0) on return
 !             it means that one of the elements has a negative or zero
 !             area probably because of a bad ordering of the nodes
 !             (see ijk above). Use the routine chkelmt to reorder
 !             the nodes properly if necessary.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) node
+  INTEGER ( kind = 4 ) node
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) f(*)
-  real ( kind = 8 ) fs(*)
-  integer ( kind = 4 ) ia(*)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) ijk(node,*)
-  integer ( kind = 4 ) indic
-  integer ( kind = 4 ) iwk(*)
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) jwk(*)
-  integer ( kind = 4 ) nelx
-  integer ( kind = 4 ) nint
-  integer ( kind = 4 ) nodcode(*)
-  integer ( kind = 4 ) nx
-  real ( kind = 8 ) x(*)
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) f(*)
+  REAL ( kind = 8 ) fs(*)
+  INTEGER ( kind = 4 ) ia(*)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) ijk(node,*)
+  INTEGER ( kind = 4 ) indic
+  INTEGER ( kind = 4 ) iwk(*)
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) jwk(*)
+  INTEGER ( kind = 4 ) nelx
+  INTEGER ( kind = 4 ) nint
+  INTEGER ( kind = 4 ) nodcode(*)
+  INTEGER ( kind = 4 ) nx
+  REAL ( kind = 8 ) x(*)
   external xyk
-  real ( kind = 8 ) y(*)
+  REAL ( kind = 8 ) y(*)
 
   ierr = 0
 !
@@ -10039,25 +10039,25 @@ subroutine genfeu ( nx, nelx, node, job, x, y, ijk, nodcode, fs, nint, &
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NX, the number of nodes in the grid.
+!    Input, INTEGER ( kind = 4 ) NX, the number of nodes in the grid.
 !
-!    Input, integer ( kind = 4 ) NELX, the number of elements.
+!    Input, INTEGER ( kind = 4 ) NELX, the number of elements.
 !
-!    Input, integer ( kind = 4 ) NODE, the number of nodes per element, which
+!    Input, INTEGER ( kind = 4 ) NODE, the number of nodes per element, which
 !    should be 3 for this routine.
 !
-! job          = integer ( kind = 4 ). If job=0, it is assumed that there is no heat
+! job          = INTEGER ( kind = 4 ). If job=0, it is assumed that there is no heat
 !             source (i.e. fs = 0) and the right hand side
 !             produced will therefore be a zero vector.
 !             If job = 1 on entry then the contributions from the
 !             heat source in each element are taken into account.
 !
-! na          = integer ( kind = 4 ). The first dimension of the array a.
+! na          = INTEGER ( kind = 4 ). The first dimension of the array a.
 !             a is declared as an array of dimension a(na,node,node).
 !
-! x, y      = two real arrays containing the coordinates of the nodes.
+! x, y      = two REAL arrays containing the coordinates of the nodes.
 !
-!    Input, integer ( kind = 4 ) IJK(NODE,NELX), lists the nodes that make up 
+!    Input, INTEGER ( kind = 4 ) IJK(NODE,NELX), lists the nodes that make up 
 !    each element.
 !
 ! xyk          = routine defining the material properties at each
@@ -10068,55 +10068,55 @@ subroutine genfeu ( nx, nelx, node, job, x, y, ijk, nodcode, fs, nint, &
 !             and xyke(3,nel) represent the constants
 !             K11, K22, and K12 at that element.
 !
-! nodcode   = an integer ( kind = 4 ) array containing the boundary information for
+! nodcode   = an INTEGER ( kind = 4 ) array containing the boundary information for
 !             each node with the following meaning.
 !      nodcode(i) = 0 -->  node i is internal
 !      nodcode(i) = 1 -->  node i is a boundary but not a corner point
 !      nodcode(i) = 2 -->  node i is a corner node. [This node and the
 !             corresponmding element are discarded.]
 !
-! fs          = real array of length nelx on entry containing the heat
+! fs          = REAL array of length nelx on entry containing the heat
 !             source for each element (job = 1 only)
 !
 ! on return
 !
-! nint          = integer ( kind = 4 ). The number of active (nonboundary) nodes. Also
+! nint          = INTEGER ( kind = 4 ). The number of active (nonboundary) nodes. Also
 !             equal to the dimension of the assembled matrix.
 !
 ! a         = matrix in unassembled form. a(nel,*,*) contains the
 !             element matrix for element nel.
 !
-! f          = real array containing the right hand for the linears
+! f          = REAL array containing the right hand for the linears
 !             system to solve, in assembled form.
 !
-!    Workspace, integer ( kind = 4 ) IWK(NX), JWK(NX).
+!    Workspace, INTEGER ( kind = 4 ) IWK(NX), JWK(NX).
 !
-! ierr          = integer ( kind = 4 ). Error message. If (ierr /= 0) on return
+! ierr          = INTEGER ( kind = 4 ). Error message. If (ierr /= 0) on return
 !             it means that one of the elements has a negative or zero
 !             area probably because of a bad ordering of the nodes
 !             (see ijk above). Use the routine chkelmt to reorder
 !             the nodes properly if necessary.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) na
-  integer ( kind = 4 ) node
+  INTEGER ( kind = 4 ) na
+  INTEGER ( kind = 4 ) node
 
-  real ( kind = 8 ) a(na,node,node)
-  real ( kind = 8 ) f(*)
-  real ( kind = 8 ) fs(*)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) ijk(node,*)
-  integer ( kind = 4 ) indic
-  integer ( kind = 4 ) iwk(*)
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) jwk(*)
-  integer ( kind = 4 ) nelx
-  integer ( kind = 4 ) nint
-  integer ( kind = 4 ) nodcode(*)
-  integer ( kind = 4 ) nx
-  real ( kind = 8 ) x(*)
-  real ( kind = 8 ) y(*)
+  REAL ( kind = 8 ) a(na,node,node)
+  REAL ( kind = 8 ) f(*)
+  REAL ( kind = 8 ) fs(*)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) ijk(node,*)
+  INTEGER ( kind = 4 ) indic
+  INTEGER ( kind = 4 ) iwk(*)
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) jwk(*)
+  INTEGER ( kind = 4 ) nelx
+  INTEGER ( kind = 4 ) nint
+  INTEGER ( kind = 4 ) nodcode(*)
+  INTEGER ( kind = 4 ) nx
+  REAL ( kind = 8 ) x(*)
+  REAL ( kind = 8 ) y(*)
   external xyk
 
   ierr = 0
@@ -10169,26 +10169,26 @@ subroutine getbwd ( n, a, ja, ia, ml, mu )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the row dimension of the matrix.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-!    Output, integer ( kind = 4 ) ML, MU, the lower and upper bandwidths of
+!    Output, INTEGER ( kind = 4 ) ML, MU, the lower and upper bandwidths of
 !    the matrix.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) a(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(n+1)
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) ldist
-  integer ( kind = 4 ) ml
-  integer ( kind = 4 ) mu
+  REAL ( kind = 8 ) a(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(n+1)
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) ldist
+  INTEGER ( kind = 4 ) ml
+  INTEGER ( kind = 4 ) mu
 
   ml = -n
   mu = -n
@@ -10234,20 +10234,20 @@ subroutine getdia ( nrow, ncol, job, a, ja, ia, len, diag, idiag, ioff )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-!    Input, integer ( kind = 4 ) NCOL, the column dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NCOL, the column dimension of the matrix.
 !
-! job   = integer ( kind = 4 ). Job indicator.  If job = 0 then
+! job   = INTEGER ( kind = 4 ). Job indicator.  If job = 0 then
 !         the matrix a, ja, ia, is not altered on return.
 !         if job/=1  then getdia will remove the entries
 !         collected in diag from the original matrix.
 !         This is done in place.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-! ioff  = integer ( kind = 4 ),containing the offset of the wanted diagonal
+! ioff  = INTEGER ( kind = 4 ),containing the offset of the wanted diagonal
 !        the diagonal extracted is the one corresponding to the
 !        entries a(i,j) with j-i = ioff.
 !        thus ioff = 0 means the main diagonal
@@ -10257,11 +10257,11 @@ subroutine getdia ( nrow, ncol, job, a, ja, ia, len, diag, idiag, ioff )
 ! len   = number of nonzero elements found in diag.
 !         (len <= min ( nrow, ncol-ioff ) - max ( 1, 1-ioff) + 1 )
 !
-! diag  = real array of length nrow containing the wanted diagonal.
+! diag  = REAL array of length nrow containing the wanted diagonal.
 !        diag contains the diagonal (a(i,j),j-i = ioff ) as defined
 !         above.
 !
-! idiag = integer ( kind = 4 ) array of  length len, containing the poisitions
+! idiag = INTEGER ( kind = 4 ) array of  length len, containing the poisitions
 !         in the original arrays a and ja of the diagonal elements
 !         collected in diag. A zero entry in idiag(i) means that
 !         there was no entry found in row i belonging to the diagonal.
@@ -10273,25 +10273,25 @@ subroutine getdia ( nrow, ncol, job, a, ja, ia, len, diag, idiag, ioff )
 !        are removed from a,ja,ia. Thus, the  returned matrix will
 !         have len fewer elements if the diagonal is full.
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) diag(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(*)
-  integer ( kind = 4 ) idiag(*)
-  integer ( kind = 4 ) iend
-  integer ( kind = 4 ) ioff
-  integer ( kind = 4 ) istart
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) kdiag
-  integer ( kind = 4 ) ko
-  integer ( kind = 4 ) kold
-  integer ( kind = 4 ) len
-  integer ( kind = 4 ) ncol
-  integer ( kind = 4 ) nrow
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) diag(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(*)
+  INTEGER ( kind = 4 ) idiag(*)
+  INTEGER ( kind = 4 ) iend
+  INTEGER ( kind = 4 ) ioff
+  INTEGER ( kind = 4 ) istart
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) kdiag
+  INTEGER ( kind = 4 ) ko
+  INTEGER ( kind = 4 ) kold
+  INTEGER ( kind = 4 ) len
+  INTEGER ( kind = 4 ) ncol
+  INTEGER ( kind = 4 ) nrow
 
   istart = max ( 0, -ioff )
   iend = min ( nrow, ncol-ioff )
@@ -10373,32 +10373,32 @@ function getelm ( i, j, a, ja, ia, iadd, sorted )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) I, J, the row and column indices of the element.
+!    Input, INTEGER ( kind = 4 ) I, J, the row and column indices of the element.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(?+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(?+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-!    Output, integer ( kind = 4 ) IADD, the address of element A(I,J) in arrays A, JA 
+!    Output, INTEGER ( kind = 4 ) IADD, the address of element A(I,J) in arrays A, JA 
 !    if found, zero if not found.
 !
 !    Input, logical SORTED, is true if the matrix is known to have its 
 !    column indices sorted in increasing order.
 !
-!    Output, real GETELM, the value of A(I,J).
+!    Output, REAL GETELM, the value of A(I,J).
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) getelm
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(*)
-  integer ( kind = 4 ) iadd
-  integer ( kind = 4 ) ibeg
-  integer ( kind = 4 ) iend
-  integer ( kind = 4 ) imid
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) k
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) getelm
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(*)
+  INTEGER ( kind = 4 ) iadd
+  INTEGER ( kind = 4 ) ibeg
+  INTEGER ( kind = 4 ) iend
+  INTEGER ( kind = 4 ) imid
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) k
   logical sorted
 !
 !  Initialization.
@@ -10485,29 +10485,29 @@ subroutine getl ( n, a, ja, ia, ao, jao, iao )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-!    Output, real AO(*), JAO(*), IAO(N+1), the lower triangular
+!    Output, REAL AO(*), JAO(*), IAO(N+1), the lower triangular
 !    part of the input matrix, in CSR Compressed Sparse Row format.
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) ao(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(*)
-  integer ( kind = 4 ) iao(*)
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jao(*)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) kdiag
-  integer ( kind = 4 ) ko
-  integer ( kind = 4 ) kold
-  integer ( kind = 4 ) n
-  real ( kind = 8 ) t
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) ao(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(*)
+  INTEGER ( kind = 4 ) iao(*)
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jao(*)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) kdiag
+  INTEGER ( kind = 4 ) ko
+  INTEGER ( kind = 4 ) kold
+  INTEGER ( kind = 4 ) n
+  REAL ( kind = 8 ) t
 !
 !  Inititialize KO, the pointer for the output matrix.
 !
@@ -10595,47 +10595,47 @@ subroutine getsten ( nx, ny, nz, kx, ky, kz, stencil, h )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NX, NY, NZ, the number of nodes in the X, Y and Z
+!    Input, INTEGER ( kind = 4 ) NX, NY, NZ, the number of nodes in the X, Y and Z
 !    directions.
 !
-!    ?, integer ( kind = 4 ) KX, KY, KZ, ?
+!    ?, INTEGER ( kind = 4 ) KX, KY, KZ, ?
 !
-!    Output, real STENCIL(7), ?
+!    Output, REAL STENCIL(7), ?
 !
-!    ?, real H, ?
+!    ?, REAL H, ?
 !
 
   USE sparsekit_test01_fcts
-  implicit none
+  IMPLICIT NONE
 
-!  real ( kind = 8 ) afun
-!  real ( kind = 8 ) bfun
-!  real ( kind = 8 ) cfun
-  real ( kind = 8 ) cntr
-  real ( kind = 8 ) coeff
-!  real ( kind = 8 ) dfun
-!  real ( kind = 8 ) efun
-!  real ( kind = 8 ) ffun
-!  real ( kind = 8 ) gfun
-  real ( kind = 8 ) h
-  real ( kind = 8 ) hhalf
-  integer ( kind = 4 ) kx
-  integer ( kind = 4 ) ky
-  integer ( kind = 4 ) kz
-  integer ( kind = 4 ) nx
-  integer ( kind = 4 ) ny
-  integer ( kind = 4 ) nz
-  real ( kind = 8 ) stencil(7)
-  real ( kind = 8 ) x
-  real ( kind = 8 ) y
-  real ( kind = 8 ) z
+!  REAL ( kind = 8 ) afun
+!  REAL ( kind = 8 ) bfun
+!  REAL ( kind = 8 ) cfun
+  REAL ( kind = 8 ) cntr
+  REAL ( kind = 8 ) coeff
+!  REAL ( kind = 8 ) dfun
+!  REAL ( kind = 8 ) efun
+!  REAL ( kind = 8 ) ffun
+!  REAL ( kind = 8 ) gfun
+  REAL ( kind = 8 ) h
+  REAL ( kind = 8 ) hhalf
+  INTEGER ( kind = 4 ) kx
+  INTEGER ( kind = 4 ) ky
+  INTEGER ( kind = 4 ) kz
+  INTEGER ( kind = 4 ) nx
+  INTEGER ( kind = 4 ) ny
+  INTEGER ( kind = 4 ) nz
+  REAL ( kind = 8 ) stencil(7)
+  REAL ( kind = 8 ) x
+  REAL ( kind = 8 ) y
+  REAL ( kind = 8 ) z
 
   stencil(1:7) = 0.0D+00
 
   hhalf = h * 0.5D+00
-  x = h * real ( kx, kind = 8 )
-  y = h * real ( ky, kind = 8 )
-  z = h * real ( kz, kind = 8 )
+  x = h * REAL ( kx, kind = 8 )
+  y = h * REAL ( ky, kind = 8 )
+  z = h * REAL ( kz, kind = 8 )
   cntr = 0.0D+00
 !
 !  Differentiation with respect to X.
@@ -10723,30 +10723,30 @@ subroutine getu ( n, a, ja, ia, ao, jao, iao )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-!    Input, real AO(*), JAO(*), IAO(N+1), the upper triangular
+!    Input, REAL AO(*), JAO(*), IAO(N+1), the upper triangular
 !    part of the input matrix, in CSR Compressed Sparse Row format.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) ao(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(n+1)
-  integer ( kind = 4 ) iao(n+1)
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jao(*)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) kdiag
-  integer ( kind = 4 ) kfirst
-  integer ( kind = 4 ) ko
-  real ( kind = 8 ) t
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) ao(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(n+1)
+  INTEGER ( kind = 4 ) iao(n+1)
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jao(*)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) kdiag
+  INTEGER ( kind = 4 ) kfirst
+  INTEGER ( kind = 4 ) ko
+  REAL ( kind = 8 ) t
 
   ko = 0
 
@@ -10808,27 +10808,27 @@ subroutine gradi3 ( nel, xe, ye, dn, det, ierr )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NEL, the element number.
+!    Input, INTEGER ( kind = 4 ) NEL, the element number.
 !
-!    Input, real XE(3), YE(3), the coordinates of the three nodal points
+!    Input, REAL XE(3), YE(3), the coordinates of the three nodal points
 !    in an element.
 !
-!    Output, real DN(3,2), the gradients of the shape functions.
+!    Output, REAL DN(3,2), the gradients of the shape functions.
 !
-!    Input, real DET, the determinant of the triangle.
+!    Input, REAL DET, the determinant of the triangle.
 !
-!    Output, integer ( kind = 4 ) IERR, error flag, which is nonzero if an
+!    Output, INTEGER ( kind = 4 ) IERR, error flag, which is nonzero if an
 !    error occurred.
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) det
-  real ( kind = 8 ) dn(3,2)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) nel
-  real ( kind = 8 ), parameter :: tol = 1.0D-17
-  real ( kind = 8 ) xe(3)
-  real ( kind = 8 ) ye(3)
+  REAL ( kind = 8 ) det
+  REAL ( kind = 8 ) dn(3,2)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) nel
+  REAL ( kind = 8 ), parameter :: tol = 1.0D-17
+  REAL ( kind = 8 ) xe(3)
+  REAL ( kind = 8 ) ye(3)
 
   if ( det <= tol ) then
 
@@ -10865,11 +10865,11 @@ subroutine hes ( ndg, m, hh, ih, dt, y, root, coef, coef0, w2 )
 !
 !  Parameters:
 !
-!    Input, real Y(M), an arbitrary vector.
+!    Input, REAL Y(M), an arbitrary vector.
 ! 
-!    Input, integer ( kind = 4 ) NDG, the number of poles as determined by GETRAT.
+!    Input, INTEGER ( kind = 4 ) NDG, the number of poles as determined by GETRAT.
 !
-!    Input, integer ( kind = 4 ) M, the dimension of the Hessenberg matrix.
+!    Input, INTEGER ( kind = 4 ) M, the dimension of the Hessenberg matrix.
 !
 !    hh      = hessenberg matrix (real)
 !
@@ -10877,7 +10877,7 @@ subroutine hes ( ndg, m, hh, ih, dt, y, root, coef, coef0, w2 )
 !
 !    dt      = scaling factor used for hh (see (1))
 !
-!    y      = real vector. on return exp(H dt ) y is computed
+!    y      = REAL vector. on return exp(H dt ) y is computed
 !         and overwritten on y.
 !
 !    ROOT(NDG)  = poles of the rational approximation to exp as
@@ -10889,29 +10889,29 @@ subroutine hes ( ndg, m, hh, ih, dt, y, root, coef, coef0, w2 )
 !    exp(t) ~ coef0 +  sum     Real [   coef(i) / (t - root(i)  ]
 !                  i = 1,ndg
 !
-! valid for real t.
+! valid for REAL t.
 ! coef0 is real, coef(*) is a complex array.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) ih
-  integer ( kind = 4 ), parameter :: mmax = 70
-  integer ( kind = 4 ) ndg
+  INTEGER ( kind = 4 ) ih
+  INTEGER ( kind = 4 ), parameter :: mmax = 70
+  INTEGER ( kind = 4 ) ndg
 
   complex coef(*)
-  real ( kind = 8 ) coef0
-  real ( kind = 8 ) dt
-  real ( kind = 8 ) hh(ih,*)
+  REAL ( kind = 8 ) coef0
+  REAL ( kind = 8 ) dt
+  REAL ( kind = 8 ) hh(ih,*)
   complex hloc(mmax+1,mmax)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) m
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) m
   complex root(ndg)
   complex t
   complex w2(*)
-  real ( kind = 8 ) y(*)
-  real ( kind = 8 ) yloc(mmax)
+  REAL ( kind = 8 ) y(*)
+  REAL ( kind = 8 ) yloc(mmax)
   complex zpiv
 !
 !  Loop associated with the poles.
@@ -10981,44 +10981,44 @@ subroutine hsourc ( indic, nx, nelx, node, x, y, ijk, fs, f )
 !    note: f(*) not initilazed. because might use values from boundary
 !    conditions.
 !
-!    Input, integer ( kind = 4 ) NX, the number of nodes in the grid.
+!    Input, INTEGER ( kind = 4 ) NX, the number of nodes in the grid.
 !
-!    Input, integer ( kind = 4 ) NELX, the number of elements.
+!    Input, INTEGER ( kind = 4 ) NELX, the number of elements.
 !
-!    Input, integer ( kind = 4 ) NODE, the number of nodes per element, which
+!    Input, INTEGER ( kind = 4 ) NODE, the number of nodes per element, which
 !    should be 3 for this routine.
 !
-!    Input, real X(NX), Y(NX), the coordinates of the nodes.
+!    Input, REAL X(NX), Y(NX), the coordinates of the nodes.
 !
-!    Input, integer ( kind = 4 ) IJK(NODE,NELX), lists the nodes that make up 
+!    Input, INTEGER ( kind = 4 ) IJK(NODE,NELX), lists the nodes that make up 
 !    each element.
 !
-!    Output, real F(*), ?
+!    Output, REAL F(*), ?
 !
-!    Input, real FS(*), ?
+!    Input, REAL FS(*), ?
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) node
+  INTEGER ( kind = 4 ) node
 
-  real ( kind = 8 ) areao3
-  real ( kind = 8 ) det
-  real ( kind = 8 ) f(*)
-  real ( kind = 8 ) fs(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) ijk(node,*)
-  integer ( kind = 4 ) indic
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) jnod
-  integer ( kind = 4 ) ka
-  integer ( kind = 4 ) nel
-  integer ( kind = 4 ) nelx
-  integer ( kind = 4 ) nx
-  real ( kind = 8 ) x(*)
-  real ( kind = 8 ) xe(3)
-  real ( kind = 8 ) y(*)
-  real ( kind = 8 ) ye(3)
+  REAL ( kind = 8 ) areao3
+  REAL ( kind = 8 ) det
+  REAL ( kind = 8 ) f(*)
+  REAL ( kind = 8 ) fs(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) ijk(node,*)
+  INTEGER ( kind = 4 ) indic
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) jnod
+  INTEGER ( kind = 4 ) ka
+  INTEGER ( kind = 4 ) nel
+  INTEGER ( kind = 4 ) nelx
+  INTEGER ( kind = 4 ) nx
+  REAL ( kind = 8 ) x(*)
+  REAL ( kind = 8 ) xe(3)
+  REAL ( kind = 8 ) y(*)
+  REAL ( kind = 8 ) ye(3)
 
   jnod = 0
 
@@ -11096,9 +11096,9 @@ subroutine ilu0 ( n, a, ja, ia, alu, jlu, ju, iw, ierr )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
 ! on return:
@@ -11111,38 +11111,38 @@ subroutine ilu0 ( n, a, ja, ia, alu, jlu, ju, iw, ierr )
 !
 ! ju        = pointer to the diagonal elements in alu, jlu.
 !
-! ierr        = integer ( kind = 4 ) indicating error code on return
+! ierr        = INTEGER ( kind = 4 ) indicating error code on return
 !           ierr = 0 --> normal return
 !           ierr = k --> code encountered a zero pivot at step k.
 ! work arrays:
 !
-! iw          = integer ( kind = 4 ) work array of length n.
+! iw          = INTEGER ( kind = 4 ) work array of length n.
 !
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) alu(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(n+1)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) iw(n)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jcol
-  integer ( kind = 4 ) jf
-  integer ( kind = 4 ) jj
-  integer ( kind = 4 ) jlu(*)
-  integer ( kind = 4 ) jm
-  integer ( kind = 4 ) jrow
-  integer ( kind = 4 ) js
-  integer ( kind = 4 ) ju(*)
-  integer ( kind = 4 ) ju0
-  integer ( kind = 4 ) jw
-  real ( kind = 8 ) tl
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) alu(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(n+1)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) iw(n)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jcol
+  INTEGER ( kind = 4 ) jf
+  INTEGER ( kind = 4 ) jj
+  INTEGER ( kind = 4 ) jlu(*)
+  INTEGER ( kind = 4 ) jm
+  INTEGER ( kind = 4 ) jrow
+  INTEGER ( kind = 4 ) js
+  INTEGER ( kind = 4 ) ju(*)
+  INTEGER ( kind = 4 ) ju0
+  INTEGER ( kind = 4 ) jw
+  REAL ( kind = 8 ) tl
 
   ju0 = n + 2
   jlu(1) = ju0
@@ -11269,34 +11269,34 @@ subroutine ilut ( n, a, ja, ia, lfil, tol, alu, jlu, ju, iwk, wu, wl, jr, &
 !                                                               
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-!    Input, real ( kind = 8 ) A(*), integer ( kind = 4 ) JA(*), IA(N+1), 
+!    Input, REAL ( kind = 8 ) A(*), INTEGER ( kind = 4 ) JA(*), IA(N+1), 
 !    the matrix in Compressed Sparse Row (CSR) format.
 !
-!    Input, integer ( kind = 4 ) LFIL, the fill-in parameter.  Each row of L 
+!    Input, INTEGER ( kind = 4 ) LFIL, the fill-in parameter.  Each row of L 
 !    and each row of U will have a maximum of LFIL elements in addition to 
 !    the original number of nonzero elements.  Thus storage can be 
 !    determined beforehand.
 !    0 <= LFIL.
 !
-!    Input, real ( kind = 8 ) TOL, the tolerance.
+!    Input, REAL ( kind = 8 ) TOL, the tolerance.
 !
-!    Output, real ( kind = 8 ) ALU(*), integer ( kind = 4 ) JUL(*),
+!    Output, REAL ( kind = 8 ) ALU(*), INTEGER ( kind = 4 ) JUL(*),
 !    the matrix stored in Modified Sparse Row (MSR) format, containing
 !    the L and U factors together. The diagonal (stored in alu(1:n) ) is
 !    inverted. Each I-th row of the ALU, JLU matrix contains the I-th row 
 !    of L (excluding the diagonal entry=1) followed by the I-th row of U.
 !
-!    Output, integer ( kind = 4 ) JU(N), pointers to the beginning of each 
+!    Output, INTEGER ( kind = 4 ) JU(N), pointers to the beginning of each 
 !    row of U in the matrix ALU, JLU.
 !
-!    Input, integer ( kind = 4 ) IWK, the minimum length of arrays ALU and 
+!    Input, INTEGER ( kind = 4 ) IWK, the minimum length of arrays ALU and 
 !    JLU.
 !
-!    Workspace, real ( kind = 8 ) WU(N+1), WL(N).
+!    Workspace, REAL ( kind = 8 ) WU(N+1), WL(N).
 !
-!    Workspace, integer ( kind = 4 ) JR(N), JWL(N), JWU(N).
+!    Workspace, INTEGER ( kind = 4 ) JR(N), JWL(N), JWU(N).
 !
 !    Output, integer IERR. Error message with the following meaning.
 !    ierr  = 0    --> successful return.
@@ -11309,45 +11309,45 @@ subroutine ilut ( n, a, ja, ia, lfil, tol, alu, jlu, ju, iwk, wu, wl, jr, &
 !    ierr  = -4   --> Illegal value for lfil.
 !    ierr  = -5   --> zero pivot encountered.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) alu(*)
-  real ( kind = 8 ) fact
-  integer ( kind = 4 ) ia(n+1)
-  integer ( kind = 4 ) idiag
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) iwk
-  integer ( kind = 4 ) j 
-  integer ( kind = 4 ) j1
-  integer ( kind = 4 ) j2
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jj
-  integer ( kind = 4 ) jlu(*)
-  integer ( kind = 4 ) jpos
-  integer ( kind = 4 ) jr(*)
-  integer ( kind = 4 ) jrow
-  integer ( kind = 4 ) ju(*)
-  integer ( kind = 4 ) ju0
-  integer ( kind = 4 ) jwl(n)
-  integer ( kind = 4 ) jwu(n)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) len
-  integer ( kind = 4 ) lenl
-  integer ( kind = 4 ) lenl0
-  integer ( kind = 4 ) lenu
-  integer ( kind = 4 ) lenu0
-  integer ( kind = 4 ) lfil
-  integer ( kind = 4 ) nl
-  real ( kind = 8 ) s
-  real ( kind = 8 ) t
-  real ( kind = 8 ) tnorm
-  real ( kind = 8 ) tol
-  real ( kind = 8 ) wl(n)
-  real ( kind = 8 ) wu(n+1)
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) alu(*)
+  REAL ( kind = 8 ) fact
+  INTEGER ( kind = 4 ) ia(n+1)
+  INTEGER ( kind = 4 ) idiag
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) iwk
+  INTEGER ( kind = 4 ) j 
+  INTEGER ( kind = 4 ) j1
+  INTEGER ( kind = 4 ) j2
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jj
+  INTEGER ( kind = 4 ) jlu(*)
+  INTEGER ( kind = 4 ) jpos
+  INTEGER ( kind = 4 ) jr(*)
+  INTEGER ( kind = 4 ) jrow
+  INTEGER ( kind = 4 ) ju(*)
+  INTEGER ( kind = 4 ) ju0
+  INTEGER ( kind = 4 ) jwl(n)
+  INTEGER ( kind = 4 ) jwu(n)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) len
+  INTEGER ( kind = 4 ) lenl
+  INTEGER ( kind = 4 ) lenl0
+  INTEGER ( kind = 4 ) lenu
+  INTEGER ( kind = 4 ) lenu0
+  INTEGER ( kind = 4 ) lfil
+  INTEGER ( kind = 4 ) nl
+  REAL ( kind = 8 ) s
+  REAL ( kind = 8 ) t
+  REAL ( kind = 8 ) tnorm
+  REAL ( kind = 8 ) tol
+  REAL ( kind = 8 ) wl(n)
+  REAL ( kind = 8 ) wu(n+1)
 
   if ( lfil < 0 ) then
     ierr = -4
@@ -11360,7 +11360,7 @@ subroutine ilut ( n, a, ja, ia, lfil, tol, alu, jlu, ju, iwk, wu, wl, jr, &
   ju0 = n + 2
   jlu(1) = ju0
 !
-!  integer ( kind = 4 ) double pointer array.
+!  INTEGER ( kind = 4 ) double pointer array.
 !
   jr(1:n) = 0
 !
@@ -11377,7 +11377,7 @@ subroutine ilut ( n, a, ja, ia, lfil, tol, alu, jlu, ju, iwk, wu, wl, jr, &
     do k = j1, j2
       tnorm = tnorm + abs ( a(k) )
     end do
-    tnorm = tnorm / real ( j2-j1+1, kind = 8 )
+    tnorm = tnorm / REAL ( j2-j1+1, kind = 8 )
 !
 !  Unpack L-part and U-part of row of A in arrays WL, WU.
 !
@@ -11609,7 +11609,7 @@ subroutine ilut ( n, a, ja, ia, lfil, tol, alu, jlu, ju, iwk, wu, wl, jr, &
 !
 !  Save norm in WU (backwards). Norm is in fact average absolute value.
 !
-    wu(n+2-ii) = t / real ( len + 1, kind = 8 )
+    wu(n+2-ii) = t / REAL ( len + 1, kind = 8 )
 !
 !  Store inverse of diagonal element of U.
 !
@@ -11668,30 +11668,30 @@ subroutine infdia ( n, ja, ia, ind, idiag )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-!    Input, integer ( kind = 4 ) JA(*), IA(N+1), the matrix information (but
+!    Input, INTEGER ( kind = 4 ) JA(*), IA(N+1), the matrix information (but
 !    no values) in CSR Compressed Sparse Row format.
 !
-!    Output, integer ( kind = 4 ) IND(2*N-1); The K-th entry in IND contains the number 
+!    Output, INTEGER ( kind = 4 ) IND(2*N-1); The K-th entry in IND contains the number 
 !    of nonzero elements in diagonal K, the numbering being from the 
 !    lowermost diagonal (bottom-left).  In other words IND(K) = length 
 !    of diagonal whose offset with respect to the main diagonal is = - N + K.
 !
-!    Output, integer ( kind = 4 ) IDIAG, the number of nonzero diagonals found.
+!    Output, INTEGER ( kind = 4 ) IDIAG, the number of nonzero diagonals found.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(n+1)
-  integer ( kind = 4 ) idiag
-  integer ( kind = 4 ) ind(*)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) n2
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(n+1)
+  INTEGER ( kind = 4 ) idiag
+  INTEGER ( kind = 4 ) ind(*)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) n2
 
   n2 = n+n-1
   ind(1:n2) = 0
@@ -11719,11 +11719,11 @@ subroutine ivperm ( n, ix, perm )
 
 !*****************************************************************************80
 !
-!! IVPERM performs an in-place permutation of an integer ( kind = 4 ) vector.
+!! IVPERM performs an in-place permutation of an INTEGER ( kind = 4 ) vector.
 !
 !  Discussion:
 !
-!    The integer ( kind = 4 ) vector ix is permuted according to the permutation 
+!    The INTEGER ( kind = 4 ) vector ix is permuted according to the permutation 
 !    array perm(*), i.e., on return, the vector x satisfies,
 !
 !      ix(perm(j)) :== ix(j), j = 1,2,.., n
@@ -11738,24 +11738,24 @@ subroutine ivperm ( n, ix, perm )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the length of the vector.
+!    Input, INTEGER ( kind = 4 ) N, the length of the vector.
 !
-!    Input/output, integer ( kind = 4 ) IX(N), the vector to be permuted.
+!    Input/output, INTEGER ( kind = 4 ) IX(N), the vector to be permuted.
 !
-!    Input, integer ( kind = 4 ) PERM(N), the permutation.
+!    Input, INTEGER ( kind = 4 ) PERM(N), the permutation.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) init
-  integer ( kind = 4 ) ix(n)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) next
-  integer ( kind = 4 ) perm(n)
-  integer ( kind = 4 ) tmp
-  integer ( kind = 4 ) tmp1
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) init
+  INTEGER ( kind = 4 ) ix(n)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) next
+  INTEGER ( kind = 4 ) perm(n)
+  INTEGER ( kind = 4 ) tmp
+  INTEGER ( kind = 4 ) tmp1
 
   init = 1
   tmp = ix(init)
@@ -11836,40 +11836,40 @@ subroutine jadcsr ( nrow, idiag, a, ja, ia, iperm, ao, jao, iao )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-!    Input, integer ( kind = 4 ) IDIAG, the number of jagged diagonals in the data
+!    Input, INTEGER ( kind = 4 ) IDIAG, the number of jagged diagonals in the data
 !    structure A, JA, IA.
 !
 ! a,
 ! ja,
 ! ia, input matrix in jagged diagonal format.
 !
-!    Input, integer ( kind = 4 ) IPERM(NROW), the row permutation used to obtain
+!    Input, INTEGER ( kind = 4 ) IPERM(NROW), the row permutation used to obtain
 !    the JAD ordering.
 !
-!    Output, real AO(*), integer ( kind = 4 ) JAO(*), IAO(NROW+1), the matrix in CSR
+!    Output, REAL AO(*), INTEGER ( kind = 4 ) JAO(*), IAO(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) idiag
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) idiag
+  INTEGER ( kind = 4 ) nrow
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) ao(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(idiag+1)
-  integer ( kind = 4 ) iao(nrow+1)
-  integer ( kind = 4 ) iperm(nrow)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jao(*)
-  integer ( kind = 4 ) jj
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) k1
-  integer ( kind = 4 ) kpos
-  integer ( kind = 4 ) len
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) ao(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(idiag+1)
+  INTEGER ( kind = 4 ) iao(nrow+1)
+  INTEGER ( kind = 4 ) iperm(nrow)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jao(*)
+  INTEGER ( kind = 4 ) jj
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) k1
+  INTEGER ( kind = 4 ) kpos
+  INTEGER ( kind = 4 ) len
 !
 !  Determine first the pointers for output matrix.  Go through the
 !  structure once:
@@ -11943,27 +11943,27 @@ subroutine ldsol ( n, x, y, al, jal )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-!    Input, real Y(N), the right hand side of the linear system.
+!    Input, REAL Y(N), the right hand side of the linear system.
 !
 ! al,
 ! jal,   = Lower triangular matrix stored in Modified Sparse Row
 !          format.
 !
-!    Output, real X(N), the solution.
+!    Output, REAL X(N), the solution.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) al(*)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) jal(*)
-  integer ( kind = 4 ) k
-  real ( kind = 8 ) t
-  real ( kind = 8 ) x(n)
-  real ( kind = 8 ) y(n)
+  REAL ( kind = 8 ) al(*)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) jal(*)
+  INTEGER ( kind = 4 ) k
+  REAL ( kind = 8 ) t
+  REAL ( kind = 8 ) x(n)
+  REAL ( kind = 8 ) y(n)
 
   x(1) = y(1) * al(1)
 
@@ -12003,28 +12003,28 @@ subroutine ldsolc ( n, x, y, al, jal )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-!    Input, real Y(N), the right hand side of the linear system.
+!    Input, REAL Y(N), the right hand side of the linear system.
 !
 ! al,
 ! jal,
 ! ial,    = Lower triangular matrix stored in Modified Sparse Column
 !           format.
 !
-!    Output, real X(N), the solution.
+!    Output, REAL X(N), the solution.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) al(*)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) jal(*)
-  integer ( kind = 4 ) k
-  real ( kind = 8 ) x(n)
-  real ( kind = 8 ) y(n)
-  real ( kind = 8 ) t
+  REAL ( kind = 8 ) al(*)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) jal(*)
+  INTEGER ( kind = 4 ) k
+  REAL ( kind = 8 ) x(n)
+  REAL ( kind = 8 ) y(n)
+  REAL ( kind = 8 ) t
 
   x(1:n) = y(1:n)
 
@@ -12060,39 +12060,39 @@ subroutine ldsoll ( n, x, y, al, jal, nlev, lev, ilev )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-!    Input, real Y(N), the right hand side of the linear system.
+!    Input, REAL Y(N), the right hand side of the linear system.
 !
 ! al,
 ! jal,   = Lower triangular matrix stored in Modified Sparse Row
 !          format.
 ! nlev   = number of levels in matrix
-! lev    = integer ( kind = 4 ) array of length n, containing the permutation
+! lev    = INTEGER ( kind = 4 ) array of length n, containing the permutation
 !          that defines the levels in the level scheduling ordering.
 ! ilev   = pointer to beginning of levels in lev.
 !          the numbers lev(i) to lev(i+1)-1 contain the row numbers
 !          that belong to level number i, in the level shcheduling
 !          ordering.
 !
-!    Output, real X(N), the solution.
+!    Output, REAL X(N), the solution.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
-  integer ( kind = 4 ) nlev
+  INTEGER ( kind = 4 ) n
+  INTEGER ( kind = 4 ) nlev
 
-  real ( kind = 8 ) al(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) ilev(nlev+1)
-  integer ( kind = 4 ) jal(*)
-  integer ( kind = 4 ) jrow
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) lev(n)
-  real ( kind = 8 ) t
-  real ( kind = 8 ) x(n)
-  real ( kind = 8 ) y(n)
+  REAL ( kind = 8 ) al(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) ilev(nlev+1)
+  INTEGER ( kind = 4 ) jal(*)
+  INTEGER ( kind = 4 ) jrow
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) lev(n)
+  REAL ( kind = 8 ) t
+  REAL ( kind = 8 ) x(n)
+  REAL ( kind = 8 ) y(n)
 !
 !  Outer loop goes through the levels. (SEQUENTIAL loop)
 !
@@ -12140,17 +12140,17 @@ subroutine levels ( n, jal, ial, nlev, lev, ilev, levnum )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the row dimension of the matrix.
 !
 ! jal, ial =
 !
 ! on return:
 !
-!    Output, integer ( kind = 4 ) NLEV, the number of levels found.
+!    Output, INTEGER ( kind = 4 ) NLEV, the number of levels found.
 !
-! lev      = integer ( kind = 4 ) array of length n containing the level
+! lev      = INTEGER ( kind = 4 ) array of length n containing the level
 !            scheduling permutation.
-! ilev     = integer ( kind = 4 ) array. pointer to beginning of levels in lev.
+! ilev     = INTEGER ( kind = 4 ) array. pointer to beginning of levels in lev.
 !            the numbers lev(i) to lev(i+1)-1 contain the row numbers
 !            that belong to level number i, in the level scheduling
 !            ordering. The equations of the same level can be solved
@@ -12158,22 +12158,22 @@ subroutine levels ( n, jal, ial, nlev, lev, ilev, levnum )
 !            been solved.
 ! work arrays:
 !
-! levnum   = integer ( kind = 4 ) array of length n (containing the level numbers
+! levnum   = INTEGER ( kind = 4 ) array of length n (containing the level numbers
 !            of each unknown on return)
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ial(*)
-  integer ( kind = 4 ) ilev(*)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) jal(*)
-  integer ( kind = 4 ) lev(*)
-  integer ( kind = 4 ) levi
-  integer ( kind = 4 ) levnum(n)
-  integer ( kind = 4 ) nlev
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ial(*)
+  INTEGER ( kind = 4 ) ilev(*)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) jal(*)
+  INTEGER ( kind = 4 ) lev(*)
+  INTEGER ( kind = 4 ) levi
+  INTEGER ( kind = 4 ) levnum(n)
+  INTEGER ( kind = 4 ) nlev
 
   levnum(1:n) = 0
 !
@@ -12245,41 +12245,41 @@ subroutine lnkcsr ( n, a, jcol, istart, link, ao, jao, iao )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-! a      = real array of size nna containing the nonzero elements
+! a      = REAL array of size nna containing the nonzero elements
 !
-! jcol      = integer ( kind = 4 ) array of size      nnz containing the column positions
+! jcol      = INTEGER ( kind = 4 ) array of size      nnz containing the column positions
 !         of the corresponding elements in a.
 !
-! istart= integer ( kind = 4 ) array of size n poiting to the beginning of the rows.
+! istart= INTEGER ( kind = 4 ) array of size n poiting to the beginning of the rows.
 !         istart(i) contains the position of the first element of
 !         row i in data structure. (a, jcol, link).
 !         if a row is empty istart(i) must be zero.
 !
-! link      = integer ( kind = 4 ) array of size nnz containing the links in the linked
+! link      = INTEGER ( kind = 4 ) array of size nnz containing the links in the linked
 !         list data structure. link(k) points to the next element
 !         of the row after element ao(k), jcol(k). if link(k) = 0,
 !         then there is no next element, i.e., ao(k), jcol(k) is
 !         the last element of the current row.
 !
-!    Output, real AO(*), integer ( kind = 4 ) JAO(*), IAO(N+1), the matrix in CSR
+!    Output, REAL AO(*), INTEGER ( kind = 4 ) JAO(*), IAO(N+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) ao(*)
-  integer ( kind = 4 ) iao(n+1)
-  integer ( kind = 4 ) ipos
-  integer ( kind = 4 ) irow
-  integer ( kind = 4 ) istart(n)
-  integer ( kind = 4 ) jao(*)
-  integer ( kind = 4 ) jcol(*)
-  integer ( kind = 4 ) link(*)
-  integer ( kind = 4 ) next
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) ao(*)
+  INTEGER ( kind = 4 ) iao(n+1)
+  INTEGER ( kind = 4 ) ipos
+  INTEGER ( kind = 4 ) irow
+  INTEGER ( kind = 4 ) istart(n)
+  INTEGER ( kind = 4 ) jao(*)
+  INTEGER ( kind = 4 ) jcol(*)
+  INTEGER ( kind = 4 ) link(*)
+  INTEGER ( kind = 4 ) next
 !
 !  Determine individual bandwidths and pointers.
 !
@@ -12334,29 +12334,29 @@ subroutine lsol ( n, x, y, al, jal, ial )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-! y      = real array containg the right side.
+! y      = REAL array containg the right side.
 !
 ! al,
 ! jal,
 ! ial,    = Lower triangular matrix stored in compressed sparse row
 !          format.
 !
-!    Output, real X(N), the solution.
+!    Output, REAL X(N), the solution.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) al(*)
-  integer ( kind = 4 ) ial(n+1)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) jal(*)
-  integer ( kind = 4 ) k
-  real ( kind = 8 ) t
-  real ( kind = 8 ) x(n)
-  real ( kind = 8 ) y(n)
+  REAL ( kind = 8 ) al(*)
+  INTEGER ( kind = 4 ) ial(n+1)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) jal(*)
+  INTEGER ( kind = 4 ) k
+  REAL ( kind = 8 ) t
+  REAL ( kind = 8 ) x(n)
+  REAL ( kind = 8 ) y(n)
 
   x(1) = y(1)
   do k = 2, n
@@ -12390,29 +12390,29 @@ subroutine lsolc ( n, x, y, al, jal, ial )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-!    Input, real Y(N), the right hand side of the linear system.
+!    Input, REAL Y(N), the right hand side of the linear system.
 !
 ! al,
 ! jal,
 ! ial,    = Lower triangular matrix stored in compressed sparse column
 !          format.
 !
-!    Output, real X(N), the solution.
+!    Output, REAL X(N), the solution.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) al(*)
-  integer ( kind = 4 ) ial(*)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) jal(*)
-  integer ( kind = 4 ) k
-  real ( kind = 8 ) t
-  real ( kind = 8 ) x(n)
-  real ( kind = 8 ) y(n)
+  REAL ( kind = 8 ) al(*)
+  INTEGER ( kind = 4 ) ial(*)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) jal(*)
+  INTEGER ( kind = 4 ) k
+  REAL ( kind = 8 ) t
+  REAL ( kind = 8 ) x(n)
+  REAL ( kind = 8 ) y(n)
 
   x(1:n) = y(1:n)
 
@@ -12442,25 +12442,25 @@ subroutine lusol0 ( n, y, x, alu, jlu, ju )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-!    Input, real Y(N), the right hand side of the linear system.
+!    Input, REAL Y(N), the right hand side of the linear system.
 !
-!    Output, real X(N), the solution.
+!    Output, REAL X(N), the solution.
 !
 !    ALU, JLU, JU, ...
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) alu(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) jlu(*)
-  integer ( kind = 4 ) ju(*)
-  integer ( kind = 4 ) k
-  real ( kind = 8 ) x(n)
-  real ( kind = 8 ) y(n)
+  REAL ( kind = 8 ) alu(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) jlu(*)
+  INTEGER ( kind = 4 ) ju(*)
+  INTEGER ( kind = 4 ) k
+  REAL ( kind = 8 ) x(n)
+  REAL ( kind = 8 ) y(n)
 !
 !  Forward solve
 !
@@ -12493,7 +12493,7 @@ subroutine markgen ( m, n, a, ja, ia )
 !    This routine generates a test matrix that models a random
 !    walk on a triangular grid. This test example was used by
 !    G. W. Stewart ["{SRRIT} - a FORTRAN subroutine to calculate the
-!    dominant invariant subspaces of a real matrix",
+!    dominant invariant subspaces of a REAL matrix",
 !    Tech. report. TR-514, University of Maryland (1978).] and in a few
 !    papers on eigenvalue problems by Y. Saad [see e.g. LAA, vol. 34,
 !    pp. 269-295 (1980) ]. These matrices provide reasonably easy
@@ -12524,31 +12524,31 @@ subroutine markgen ( m, n, a, ja, ia )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) M, the number of points in each direction.
+!    Input, INTEGER ( kind = 4 ) M, the number of points in each direction.
 !
-!    Output, integer ( kind = 4 ) N, the dimension of the matrix (which is
+!    Output, INTEGER ( kind = 4 ) N, the dimension of the matrix (which is
 !    ( M * ( M + 1 ) ) / 2.
 !
-!    Output, real AO(*), integer ( kind = 4 ) JAO(*), IAO(N+1), the matrix in CSR
+!    Output, REAL AO(*), INTEGER ( kind = 4 ) JAO(*), IAO(N+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) cst
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(*)
-  integer ( kind = 4 ) ix
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jax
-  integer ( kind = 4 ) jmax
-  integer ( kind = 4 ) m
-  integer ( kind = 4 ) n
-  real ( kind = 8 ) pd
-  real ( kind = 8 ) pu
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) cst
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(*)
+  INTEGER ( kind = 4 ) ix
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jax
+  INTEGER ( kind = 4 ) jmax
+  INTEGER ( kind = 4 ) m
+  INTEGER ( kind = 4 ) n
+  REAL ( kind = 8 ) pd
+  REAL ( kind = 8 ) pu
 
-  cst = 0.5D+00 / real ( m - 1, kind = 8 )
+  cst = 0.5D+00 / REAL ( m - 1, kind = 8 )
 !
 !  IX counts the grid point (natural ordering used), i.e.,
 !  the row number of the matrix.
@@ -12571,7 +12571,7 @@ subroutine markgen ( m, n, a, ja, ia )
         if ( j == jmax ) then
           go to 2
         end if
-        pd = cst * real ( i+j-1, kind = 8 )
+        pd = cst * REAL ( i+j-1, kind = 8 )
 !
 !  north
 !
@@ -12595,7 +12595,7 @@ subroutine markgen ( m, n, a, ja, ia )
 !
  2      continue
 
-        pu = 0.5D+00 - cst * real ( i+j-3, kind = 8 )
+        pu = 0.5D+00 - cst * REAL ( i+j-3, kind = 8 )
 
         if ( 1 < j ) then
            a(jax) = pu
@@ -12664,16 +12664,16 @@ subroutine matrf2 ( m, n, c, index, alpha, nn, nz, a, snr, rnr, fejlm )
 !
 !   INPUT PARAMETERS
 !
-!   M    - integer ( kind = 4 ). The number of rows in the desired matrix.
+!   M    - INTEGER ( kind = 4 ). The number of rows in the desired matrix.
 !          N < M+1 < 9000001 must be specified.
 !
-!   N    - integer ( kind = 4 ). The number of columns in the desired matrix.
+!   N    - INTEGER ( kind = 4 ). The number of columns in the desired matrix.
 !          21 < N < 9000001 must be specified.
 !
-!   C    - integer ( kind = 4 ). The sparsity pattern can be changed by means of this
+!   C    - INTEGER ( kind = 4 ). The sparsity pattern can be changed by means of this
 !          parameter.  10 < C < N-10  must be specified.
 !
-!   INDEX - integer ( kind = 4 ).  The average number of non-zero elements per row in
+!   INDEX - INTEGER ( kind = 4 ).  The average number of non-zero elements per row in
 !           the matrix will be equal to INDEX.
 !           1 < INDEX < N-C-8 must be specified.
 !
@@ -12683,24 +12683,24 @@ subroutine matrf2 ( m, n, c, index, alpha, nn, nz, a, snr, rnr, fejlm )
 !           matrix is well-conditioned. Large values of ALPHA will
 !           usually produce ill-conditioned matrices. Note that no
 !           round-off errors during the computations in this routine
-!           are made if ALPHA = 2**I (where I is an arbitrary integer ( kind = 4 )
+!           are made if ALPHA = 2**I (where I is an arbitrary INTEGER ( kind = 4 )
 !           which produces numbers in the machine range).
 !
-!   Input, integer ( kind = 4 ) NN, the length of arrays A, RNR, and SNR.
+!   Input, INTEGER ( kind = 4 ) NN, the length of arrays A, RNR, and SNR.
 !   INDEX*M+109 < NN < 9000001 must be specified.
 !
-!   Output, integer ( kind = 4 ) NZ, the number of nonzero elements in the matrix.
+!   Output, INTEGER ( kind = 4 ) NZ, the number of nonzero elements in the matrix.
 !
-!   Output, real A(NN), the nonzero elements of the matrix,
+!   Output, REAL A(NN), the nonzero elements of the matrix,
 !   accumulated in the first NZ locations of array A.
 !
-!   Output, integer ( kind = 4 ) SNR(NN), the column number of the non-zero element
+!   Output, INTEGER ( kind = 4 ) SNR(NN), the column number of the non-zero element
 !   kept in A(I), I = 1,...NZ.
 !
-!   Output, integer ( kind = 4 ) RNR(NN), the row number of the non-zero element
+!   Output, INTEGER ( kind = 4 ) RNR(NN), the row number of the non-zero element
 !   kept in A(I).
 !
-!   Output, integer ( kind = 4 ) FEJLM, error indicator.
+!   Output, INTEGER ( kind = 4 ) FEJLM, error indicator.
 !   0, indicates that the call is successful.
 !   1, N is out of range.
 !   2, M is out of range.
@@ -12709,33 +12709,33 @@ subroutine matrf2 ( m, n, c, index, alpha, nn, nz, a, snr, rnr, fejlm )
 !   5, NN is out of range.
 !   7, ALPHA is out of range.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) nn
+  INTEGER ( kind = 4 ) nn
 
-  real ( kind = 8 ) a(nn)
-  real ( kind = 8 ) alpha
-  real ( kind = 8 ) alpha1
-  integer ( kind = 4 ) c
-  integer ( kind = 4 ) fejlm
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) index
-  integer ( kind = 4 ) index1
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) j1
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) m
-  integer ( kind = 4 ) m1
-  integer ( kind = 4 ) m2
-  integer ( kind = 4 ) n
-  integer ( kind = 4 ) n2
-  integer ( kind = 4 ) nz
-  integer ( kind = 4 ) nz1
-  integer ( kind = 4 ) rnr(nn)
-  integer ( kind = 4 ) rr1
-  integer ( kind = 4 ) rr2
-  integer ( kind = 4 ) rr3
-  integer ( kind = 4 ) snr(nn)
+  REAL ( kind = 8 ) a(nn)
+  REAL ( kind = 8 ) alpha
+  REAL ( kind = 8 ) alpha1
+  INTEGER ( kind = 4 ) c
+  INTEGER ( kind = 4 ) fejlm
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) index
+  INTEGER ( kind = 4 ) index1
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) j1
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) m
+  INTEGER ( kind = 4 ) m1
+  INTEGER ( kind = 4 ) m2
+  INTEGER ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n2
+  INTEGER ( kind = 4 ) nz
+  INTEGER ( kind = 4 ) nz1
+  INTEGER ( kind = 4 ) rnr(nn)
+  INTEGER ( kind = 4 ) rr1
+  INTEGER ( kind = 4 ) rr2
+  INTEGER ( kind = 4 ) rr3
+  INTEGER ( kind = 4 ) snr(nn)
 
   m1 = m
   fejlm = 0
@@ -12823,7 +12823,7 @@ subroutine matrf2 ( m, n, c, index, alpha, nn, nz, a, snr, rnr, fejlm )
 
     do i = 1, n
 
-      a(nz+i) = real ( j1 * j * i, kind = 8 )
+      a(nz+i) = REAL ( j1 * j * i, kind = 8 )
 
       if ( i + c + j - 1 <= n ) then
         snr(nz+i) = i + c + j - 1
@@ -12848,7 +12848,7 @@ subroutine matrf2 ( m, n, c, index, alpha, nn, nz, a, snr, rnr, fejlm )
   do
 
     do i = 1, rr1
-      a(rr2+i) = alpha * real ( i, kind = 8 )
+      a(rr2+i) = alpha * REAL ( i, kind = 8 )
       snr(rr2+i) = n - rr1 + i
       rnr(rr2+i) = rr3
     end do
@@ -12885,7 +12885,7 @@ subroutine matrf2 ( m, n, c, index, alpha, nn, nz, a, snr, rnr, fejlm )
     end if
 
     do i = 1, m2
-      a(nz+i) = alpha * real ( k + 1, kind = 8 )
+      a(nz+i) = alpha * REAL ( k + 1, kind = 8 )
       snr(nz+i) = i
       rnr(nz+i) = n2 + i
     end do
@@ -12900,8 +12900,8 @@ subroutine matrf2 ( m, n, c, index, alpha, nn, nz, a, snr, rnr, fejlm )
 
       do i = 1, m2
 
-        a(nz+i) = alpha * real ( j * j1, kind = 8 ) &
-          * ( real ( ( k + 1 ) * i, kind = 8 ) + 1.0D+00 )
+        a(nz+i) = alpha * REAL ( j * j1, kind = 8 ) &
+          * ( REAL ( ( k + 1 ) * i, kind = 8 ) + 1.0D+00 )
 
         if ( i + c + j - 1 <= n ) then
           snr(nz+i) = i + c + j - 1
@@ -12928,7 +12928,7 @@ subroutine matrf2 ( m, n, c, index, alpha, nn, nz, a, snr, rnr, fejlm )
   do
 
     do i = 1, rr1
-      a(rr2+i) = alpha * real ( rr1 + 1 - i, kind = 8 )
+      a(rr2+i) = alpha * REAL ( rr1 + 1 - i, kind = 8 )
       snr(rr2+i) = i
       rnr(rr2+i) = n - 10 + rr1
     end do
@@ -12970,20 +12970,20 @@ subroutine mgsr ( n, i0, i1, ss, r )
 !
 !  Parameters:
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) ddot
-  real ( kind = 8 ) hinorm
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) i0
-  integer ( kind = 4 ) i1
-  integer ( kind = 4 ) it
-  integer ( kind = 4 ) j
-  real ( kind = 8 ) r(*)
-  real ( kind = 8 ) ss(n,*)
-  real ( kind = 8 ) t
+  REAL ( kind = 8 ) ddot
+  REAL ( kind = 8 ) hinorm
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) i0
+  INTEGER ( kind = 4 ) i1
+  INTEGER ( kind = 4 ) it
+  INTEGER ( kind = 4 ) j
+  REAL ( kind = 8 ) r(*)
+  REAL ( kind = 8 ) ss(n,*)
+  REAL ( kind = 8 ) t
 
   r(1:i1) = 0.0D+00
   i = i1 - 1
@@ -13061,9 +13061,9 @@ subroutine milu0 ( n, a, ja, ia, alu, jlu, ju, iw, ierr )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
 ! on return:
@@ -13076,37 +13076,37 @@ subroutine milu0 ( n, a, ja, ia, alu, jlu, ju, iw, ierr )
 !
 ! ju        = pointer to the diagonal elements in alu, jlu.
 !
-!    Workspace, integer ( kind = 4 ) IW(N).
+!    Workspace, INTEGER ( kind = 4 ) IW(N).
 !
-! ierr        = integer ( kind = 4 ) indicating error code on return
+! ierr        = INTEGER ( kind = 4 ) indicating error code on return
 !           ierr = 0 --> normal return
 !           ierr = k --> code encountered a zero pivot at step k.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) alu(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(n+1)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) iw(n)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jcol
-  integer ( kind = 4 ) jf
-  integer ( kind = 4 ) jj
-  integer ( kind = 4 ) jlu(*)
-  integer ( kind = 4 ) jm
-  integer ( kind = 4 ) jrow
-  integer ( kind = 4 ) js
-  integer ( kind = 4 ) ju(*)
-  integer ( kind = 4 ) ju0
-  integer ( kind = 4 ) jw
-  real ( kind = 8 ) s
-  real ( kind = 8 ) tl
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) alu(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(n+1)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) iw(n)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jcol
+  INTEGER ( kind = 4 ) jf
+  INTEGER ( kind = 4 ) jj
+  INTEGER ( kind = 4 ) jlu(*)
+  INTEGER ( kind = 4 ) jm
+  INTEGER ( kind = 4 ) jrow
+  INTEGER ( kind = 4 ) js
+  INTEGER ( kind = 4 ) ju(*)
+  INTEGER ( kind = 4 ) ju0
+  INTEGER ( kind = 4 ) jw
+  REAL ( kind = 8 ) s
+  REAL ( kind = 8 ) tl
 
   ju0 = n + 2
   jlu(1) = ju0
@@ -13218,7 +13218,7 @@ subroutine msrcsr ( n, a, ja, ao, jao, iao, wk )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the row dimension of the matrix.
 !
 ! ao, jao  = sparse matrix in msr sparse storage format
 !           see routine csrmsr for details
@@ -13232,24 +13232,24 @@ subroutine msrcsr ( n, a, ja, ao, jao, iao, wk )
 !
 !             here nnz = number of nonzero elements+1
 !
-!    Workspace, real WK(N).
+!    Workspace, REAL WK(N).
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) a(*)
   logical added
-  real ( kind = 8 ) ao(*)
-  integer ( kind = 4 ) iao(n+1)
-  integer ( kind = 4 ) idiag
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) iptr
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jao(*)
-  integer ( kind = 4 ) k
-  real ( kind = 8 ) wk(n)
+  REAL ( kind = 8 ) ao(*)
+  INTEGER ( kind = 4 ) iao(n+1)
+  INTEGER ( kind = 4 ) idiag
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) iptr
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jao(*)
+  INTEGER ( kind = 4 ) k
+  REAL ( kind = 8 ) wk(n)
 
   wk(1:n) = a(1:n)
 
@@ -13310,18 +13310,18 @@ subroutine ope ( n, x, y, a, ja, ia )
 !
 !! OPE computes A * x for a sparse matrix A.
 !
-  implicit none
+  IMPLICIT NONE
 
   integer n
 
-  real ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) a(*)
   integer i
   integer ia(n+1)
   integer ja(*)
   integer k1
   integer k2
-  real ( kind = 8 ) x(*)
-  real ( kind = 8 ) y(*)
+  REAL ( kind = 8 ) x(*)
+  REAL ( kind = 8 ) y(*)
 !
 ! sparse matrix * vector multiplication
 !
@@ -13339,16 +13339,16 @@ subroutine opet ( n, x, y, a, ja, ia )
 !
 !! OPET computes A' * x for a sparse matrix A.
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) a(*)
   integer i
   integer ia(*)
   integer ja(*)
   integer k
   integer n
-  real ( kind = 8 ) x(*)
-  real ( kind = 8 ) y(*)
+  REAL ( kind = 8 ) x(*)
+  REAL ( kind = 8 ) y(*)
 !
 ! sparse matrix * vector multiplication
 !
@@ -13382,28 +13382,28 @@ end
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-!    Input, real X(N), the vector to be multiplied.
+!    Input, REAL X(N), the vector to be multiplied.
 !
-!    Output, real Y(N), the product A * X.
+!    Output, REAL Y(N), the product A * X.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-!  implicit none
+!  IMPLICIT NONE
 
-!  integer ( kind = 4 ) n
+!  INTEGER ( kind = 4 ) n
 
-!  real ( kind = 8 ) a(*)
-!  integer ( kind = 4 ) i
-!  integer ( kind = 4 ) ia(n+1)
-!  integer ( kind = 4 ) ja(*)
-!  integer ( kind = 4 ) k
-!  integer ( kind = 4 ) k1
-!  integer ( kind = 4 ) k2
-!  real ( kind = 8 ) x(n)
-!  real ( kind = 8 ) y(n)
+!  REAL ( kind = 8 ) a(*)
+!  INTEGER ( kind = 4 ) i
+!  INTEGER ( kind = 4 ) ia(n+1)
+!  INTEGER ( kind = 4 ) ja(*)
+!  INTEGER ( kind = 4 ) k
+!  INTEGER ( kind = 4 ) k1
+!  INTEGER ( kind = 4 ) k2
+!  REAL ( kind = 8 ) x(n)
+!  REAL ( kind = 8 ) y(n)
 
 !  do i = 1, n
 !    k1 = ia(i)
@@ -13456,16 +13456,16 @@ subroutine pgmres ( n, im, rhs, sol, vv, eps, maxits, iout, &
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-!    Input, integer ( kind = 4 ) IM, the size of the Krylov subspace.  IM 
+!    Input, INTEGER ( kind = 4 ) IM, the size of the Krylov subspace.  IM 
 !    should not exceed 50 in this version.  This restriction can be reset by 
 !    changing the parameter command for KMAX below.
 !                                                
-!    Input/output, real RHS(N), on input, the right hand side vector.
+!    Input/output, REAL RHS(N), on input, the right hand side vector.
 !    On output, the information in this vector has been destroyed.
 !
-! sol   == real vector of length n containing an initial guess to the  
+! sol   == REAL vector of length n containing an initial guess to the  
 !          solution on input. approximate solution on output           
 !
 ! eps   == tolerance for stopping criterion. process is stopped        
@@ -13477,21 +13477,21 @@ subroutine pgmres ( n, im, rhs, sol, vv, eps, maxits, iout, &
 ! iout  == output unit number number for printing intermediate results 
 !          if (iout <= 0) nothing is printed out.                    
 !                                                                      
-!    Input, real AA(*), integer ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
+!    Input, REAL AA(*), INTEGER ( kind = 4 ) JA(*), IA(N+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
 !                                                                      
 ! alu,jlu== A matrix stored in Modified Sparse Row format containing   
 !           the L and U factors, as computed by routine ilut.       
 !                                                                      
-! ju     == integer ( kind = 4 ) array of length n containing the pointers to       
+! ju     == INTEGER ( kind = 4 ) array of length n containing the pointers to       
 !           the beginning of each row of U in alu, jlu as computed     
 !           by routine ILUT.                                        
 !                                                                      
 ! on return:                                                           
 !                                                          
 ! sol   == contains an approximate solution (upon successful return).  
-! ierr  == integer ( kind = 4 ). Error message with the following meaning.          
+! ierr  == INTEGER ( kind = 4 ). Error message with the following meaning.          
 !          ierr = 0 --> successful return.                            
 !          ierr = 1 --> convergence not achieved in itmax iterations. 
 !          ierr =-1 --> the initial guess seems to be the exact        
@@ -13502,44 +13502,44 @@ subroutine pgmres ( n, im, rhs, sol, vv, eps, maxits, iout, &
 ! vv    == work array of length  n x (im+1) (used to store the Arnoli  
 !          basis)                                                      
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ), parameter :: kmax = 50
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ), parameter :: kmax = 50
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) aa(*)
-  real ( kind = 8 ) alu(*)
-  real ( kind = 8 ) c(kmax)
-  real ( kind = 8 ) ddot
-  real ( kind = 8 ) eps
-  real ( kind = 8 ) eps1
-  real ( kind = 8 ), parameter :: epsmac = 1.0D-16
-  real ( kind = 8 ) gam
-  real ( kind = 8 ) hh(kmax+1,kmax)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) i1
-  integer ( kind = 4 ) ia(n+1)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) im
-  integer ( kind = 4 ) iout
-  integer ( kind = 4 ) its
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jj
-  integer ( kind = 4 ) jlu(*)
-  integer ( kind = 4 ) ju(*)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) k1
-  integer ( kind = 4 ) maxits
-  integer ( kind = 4 ) n1
-  real ( kind = 8 ) rhs(n)
-  real ( kind = 8 ) ro
-  real ( kind = 8 ) rs(kmax+1)
-  real ( kind = 8 ) s(kmax)
-  real ( kind = 8 ) sol(n)
-  real ( kind = 8 ) t
-  real ( kind = 8 ) vv(n,*)
+  REAL ( kind = 8 ) aa(*)
+  REAL ( kind = 8 ) alu(*)
+  REAL ( kind = 8 ) c(kmax)
+  REAL ( kind = 8 ) ddot
+  REAL ( kind = 8 ) eps
+  REAL ( kind = 8 ) eps1
+  REAL ( kind = 8 ), parameter :: epsmac = 1.0D-16
+  REAL ( kind = 8 ) gam
+  REAL ( kind = 8 ) hh(kmax+1,kmax)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) i1
+  INTEGER ( kind = 4 ) ia(n+1)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) im
+  INTEGER ( kind = 4 ) iout
+  INTEGER ( kind = 4 ) its
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jj
+  INTEGER ( kind = 4 ) jlu(*)
+  INTEGER ( kind = 4 ) ju(*)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) k1
+  INTEGER ( kind = 4 ) maxits
+  INTEGER ( kind = 4 ) n1
+  REAL ( kind = 8 ) rhs(n)
+  REAL ( kind = 8 ) ro
+  REAL ( kind = 8 ) rs(kmax+1)
+  REAL ( kind = 8 ) s(kmax)
+  REAL ( kind = 8 ) sol(n)
+  REAL ( kind = 8 ) t
+  REAL ( kind = 8 ) vv(n,*)
 !
 !  Arnoldi size should not exceed KMAX=50 in this version.
 !  To reset modify parameter KMAX accordingly.
@@ -13771,25 +13771,25 @@ subroutine pltmt ( nrow, ncol, mode, ja, ia, title, key, type, job, iounit )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-!    Input, integer ( kind = 4 ) NCOL, the column dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NCOL, the column dimension of the matrix.
 !
-!    Input, integer ( kind = 4 ) MODE, indicates matrix storage mode:
+!    Input, INTEGER ( kind = 4 ) MODE, indicates matrix storage mode:
 !    0, by rows,
 !    1, by columns.
 !
 ! ja     = column indices of nonzero elements when matrix is
 !         stored rowise. Row indices if stores column-wise.
 !
-! ia     = integer ( kind = 4 ) array of containing the pointers to the
+! ia     = INTEGER ( kind = 4 ) array of containing the pointers to the
 !         beginning of the columns in arrays a, ja.
 !
 ! title  = character*71 = title of matrix test ( character a*71 ).
 ! key    = character*8  = key of matrix
 ! type   = character*3  = type of matrix.
 !
-! job    = this integer ( kind = 4 ) parameter allows to set a few minor
+! job    = this INTEGER ( kind = 4 ) parameter allows to set a few minor
 !          options. First it tells pltmt whether or not to
 !          reduce the plot. The standard size of 7in is then
 !          replaced by a 5in plot. It also tells pltmt whether or
@@ -13804,39 +13804,39 @@ subroutine pltmt ( nrow, ncol, mode, ja, ia, title, key, type, job, iounit )
 !
 ! iounit = logical unit number where to write the matrix into.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) ncol
+  INTEGER ( kind = 4 ) ncol
 
-  real ( kind = 8 ) hscale
-  integer ( kind = 4 ) ia(ncol+1)
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) ilast
-  integer ( kind = 4 ) iounit
-  integer ( kind = 4 ) ips
-  integer ( kind = 4 ) istart
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) k
+  REAL ( kind = 8 ) hscale
+  INTEGER ( kind = 4 ) ia(ncol+1)
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) ilast
+  INTEGER ( kind = 4 ) iounit
+  INTEGER ( kind = 4 ) ips
+  INTEGER ( kind = 4 ) istart
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) k
   character ( len = 8 ) key
-  integer ( kind = 4 ) maxdim
-  integer ( kind = 4 ) mode
-  integer ( kind = 4 ) n
-  integer ( kind = 4 ) nnz
-  integer ( kind = 4 ) nrow
-  real ( kind = 8 ) ptsize
-  real ( kind = 8 ) tiny
+  INTEGER ( kind = 4 ) maxdim
+  INTEGER ( kind = 4 ) mode
+  INTEGER ( kind = 4 ) n
+  INTEGER ( kind = 4 ) nnz
+  INTEGER ( kind = 4 ) nrow
+  REAL ( kind = 8 ) ptsize
+  REAL ( kind = 8 ) tiny
   character ( len = 72 ) title
   character ( len = 3 ) type
-  real ( kind = 8 ) vscale
-  real ( kind = 8 ) x
-  real ( kind = 8 ) xht
-  real ( kind = 8 ) xncol
-  real ( kind = 8 ) xnrow
-  real ( kind = 8 ) xshift
-  real ( kind = 8 ) xwid
-  real ( kind = 8 ) y
-  real ( kind = 8 ) yshift
+  REAL ( kind = 8 ) vscale
+  REAL ( kind = 8 ) x
+  REAL ( kind = 8 ) xht
+  REAL ( kind = 8 ) xncol
+  REAL ( kind = 8 ) xnrow
+  REAL ( kind = 8 ) xshift
+  REAL ( kind = 8 ) xwid
+  REAL ( kind = 8 ) y
+  REAL ( kind = 8 ) yshift
 
   n = ncol
   if ( mode == 0 ) then
@@ -13845,13 +13845,13 @@ subroutine pltmt ( nrow, ncol, mode, ja, ia, title, key, type, job, iounit )
 
   nnz = ia(n+1) - ia(1)
   maxdim = max ( nrow, ncol )
-  xnrow = real ( nrow, kind = 8 )
-  xncol = real ( ncol, kind = 8 )
+  xnrow = REAL ( nrow, kind = 8 )
+  xncol = REAL ( ncol, kind = 8 )
   ptsize = 0.08D+00
-  hscale = ( 7.0D+00 - 2.0D+00 * ptsize ) / real ( maxdim - 1, kind = 8 )
+  hscale = ( 7.0D+00 - 2.0D+00 * ptsize ) / REAL ( maxdim - 1, kind = 8 )
   vscale = hscale
-  xwid = ptsize + real ( ncol - 1, kind = 8 ) * hscale + ptsize
-  xht = ptsize + real ( nrow - 1, kind = 8 ) * vscale + ptsize
+  xwid = ptsize + REAL ( ncol - 1, kind = 8 ) * hscale + ptsize
+  xht = ptsize + REAL ( nrow - 1, kind = 8 ) * vscale + ptsize
   xshift = ( 7.0D+00 - xwid ) / 2.0D+00
   yshift = ( 7.0D+00 - xht ) / 2.0D+00
 
@@ -13904,15 +13904,15 @@ subroutine pltmt ( nrow, ncol, mode, ja, ia, title, key, type, job, iounit )
      ilast = ia(ii+1)-1
 
      if ( mode /= 0 ) then
-        x = real ( ii - 1, kind = 8 )
+        x = REAL ( ii - 1, kind = 8 )
         do k = istart, ilast
-           y = xnrow - real ( ja(k), kind = 8 )
+           y = xnrow - REAL ( ja(k), kind = 8 )
            write(iounit,128) xshift+x*hscale, yshift+y*vscale
         end do
      else
-        y = xnrow - real ( ii, kind = 8 )
+        y = xnrow - REAL ( ii, kind = 8 )
         do k = istart, ilast
-           x = real ( ja(k) - 1, kind = 8 )
+           x = REAL ( ja(k) - 1, kind = 8 )
            write(iounit,128) xshift+x*hscale, yshift+y*vscale
         end do
      end if
@@ -13963,24 +13963,24 @@ subroutine pltmtps ( nrow, ncol, mode, ja, ia, title, key, type, job, iounit )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-!    Input, integer ( kind = 4 ) NCOL, the column dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NCOL, the column dimension of the matrix.
 !
-!    Input, integer ( kind = 4 ) MODE, indicates the matrix storage mode:
+!    Input, INTEGER ( kind = 4 ) MODE, indicates the matrix storage mode:
 !    0, by rows;
 !    1, by columns.
 !
 ! ja     = column indices of nonzero elements when matrix is
 !         stored rowise. Row indices if stores column-wise.
-! ia     = integer ( kind = 4 ) array of containing the pointers to the
+! ia     = INTEGER ( kind = 4 ) array of containing the pointers to the
 !         beginning of the columns in arrays a, ja.
 !
 ! title  = character*72 = title of matrix test ( character a*72 ).
 ! key    = character*8  = key of matrix
 ! type   = character*3  = type of matrix.
 !
-! job, integer ( kind = 4 ). tells pltmt whether or not to reduce the plot.
+! job, INTEGER ( kind = 4 ). tells pltmt whether or not to reduce the plot.
 !           if enabled then the standard size of 7in will be
 !           replaced by a 5in plot.
 !          job = 0 : do not reduce
@@ -13988,25 +13988,25 @@ subroutine pltmtps ( nrow, ncol, mode, ja, ia, title, key, type, job, iounit )
 !
 ! iounit = logical unit number where to write the matrix into.
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) delta
-  integer ( kind = 4 ) ia(*)
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) ilast
-  integer ( kind = 4 ) iounit
-  integer ( kind = 4 ) istart
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) k
+  REAL ( kind = 8 ) delta
+  INTEGER ( kind = 4 ) ia(*)
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) ilast
+  INTEGER ( kind = 4 ) iounit
+  INTEGER ( kind = 4 ) istart
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) k
   character ( len = 8 ) key
-  integer ( kind = 4 ) m
-  integer ( kind = 4 ) maxdim
-  integer ( kind = 4 ) mode
-  integer ( kind = 4 ) n
-  integer ( kind = 4 ) ncol
-  integer ( kind = 4 ) nrow
-  integer ( kind = 4 ) nnz
+  INTEGER ( kind = 4 ) m
+  INTEGER ( kind = 4 ) maxdim
+  INTEGER ( kind = 4 ) mode
+  INTEGER ( kind = 4 ) n
+  INTEGER ( kind = 4 ) ncol
+  INTEGER ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) nnz
   character ( len = 72 ) title
   character ( len = 3 ) type
 
@@ -14064,9 +14064,9 @@ subroutine pltmtps ( nrow, ncol, mode, ja, ia, title, key, type, job, iounit )
       end do
 
     else
-!             y = xnrow - real ( ii, kind = 8 )
+!             y = xnrow - REAL ( ii, kind = 8 )
       do k = istart, ilast
-!               x = real ( ja(k) - 1, kind = 8 )
+!               x = REAL ( ja(k) - 1, kind = 8 )
         write(iounit,*) ja(k)-1, nrow-ii, ' p'
       end do
 
@@ -14094,24 +14094,24 @@ subroutine project ( n, m, u, v, w )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the row dimension of the matrix.
 !
-!    Input, integer ( kind = 4 ) M, the column dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) M, the column dimension of the matrix.
 !
-!    Input, real ( kind = 8 ) U(N,M), the matrix.
+!    Input, REAL ( kind = 8 ) U(N,M), the matrix.
 !
-!    Input, real ( kind = 8 ) V(M), the vector to be multiplied.
+!    Input, REAL ( kind = 8 ) V(M), the vector to be multiplied.
 !
-!    Output, real ( kind = 8 ) W(N), the product U*V.
+!    Output, REAL ( kind = 8 ) W(N), the product U*V.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) m
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) m
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) u(n,m)
-  real ( kind = 8 ) v(m)
-  real ( kind = 8 ) w(n)
+  REAL ( kind = 8 ) u(n,m)
+  REAL ( kind = 8 ) v(m)
+  REAL ( kind = 8 ) w(n)
 
   w(1:n) = matmul ( u(1:n,1:m), v(1:m) )
 
@@ -14150,14 +14150,14 @@ subroutine prtmt ( nrow, ncol, a, ja, ia, rhs, guesol, title, key, type, &
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-!    Input, integer ( kind = 4 ) NCOL, the column dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NCOL, the column dimension of the matrix.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NCOL+1), the matrix in CSC
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NCOL+1), the matrix in CSC
 !    Compressed Sparse Column format.
 !
-!    Input, real RHS(*), contains the right hand sides and optionally
+!    Input, REAL RHS(*), contains the right hand sides and optionally
 !    the associated initial guesses and/or exact solutions
 !    in this order.  See also GUESOL for details.   RHS will
 !    be used only if 2 < JOB.  Only full storage for the right hand 
@@ -14179,22 +14179,22 @@ subroutine prtmt ( nrow, ncol, a, ja, ia, rhs, guesol, title, key, type, &
 ! key    = character*8  = key of matrix
 ! type   = charatcer*3  = type of matrix.
 !
-! ifmt       = integer ( kind = 4 ) specifying the format chosen for the real values
+! ifmt       = INTEGER ( kind = 4 ) specifying the format chosen for the REAL values
 !         to be output (i.e., for a, and for rhs-guess-sol if
 !          applicable). the meaning of ifmt is as follows.
 !        * if (ifmt < 100) then the E descriptor is used,
 !           format Ed.m, in which the length (m) of the mantissa is
-!           precisely the integer ( kind = 4 ) ifmt (and d = ifmt+6)
+!           precisely the INTEGER ( kind = 4 ) ifmt (and d = ifmt+6)
 !        * if (ifmt > 100) then prtmt will use the
 !           F- descriptor (format Fd.m) in which the length of the
-!           mantissa (m) is the integer ( kind = 4 ) mod(ifmt,100) and the length
-!           of the integer ( kind = 4 ) part is k = ifmt/100 (and d = k+m+2)
+!           mantissa (m) is the INTEGER ( kind = 4 ) mod(ifmt,100) and the length
+!           of the INTEGER ( kind = 4 ) part is k = ifmt/100 (and d = k+m+2)
 !          Thus  ifmt= 4   means  E10.4  +.xxxxD+ee    while
 !                ifmt=104  means  F7.4   +x.xxxx
 !                ifmt=205  means  F9.5   +xx.xxxxx
 !          Note: formats for ja, and ia are internally computed.
 !
-! job       = integer ( kind = 4 ) to indicate whether matrix values and
+! job       = INTEGER ( kind = 4 ) to indicate whether matrix values and
 !         a right hand side is available to be written
 !          job = 1   write srtucture only, i.e., the arrays ja and ia.
 !          job = 2   write matrix including values, i.e., a, ja, ia
@@ -14213,45 +14213,45 @@ subroutine prtmt ( nrow, ncol, a, ja, ia, rhs, guesol, title, key, type, &
 ! the matrix a, ja, ia will be written in output unit iounit
 ! in the Harwell-Boeing format. Noe of the inputs is modofied.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) ncol
+  INTEGER ( kind = 4 ) ncol
 
-  real ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) a(*)
   character ( len = 2 ) guesol
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(ncol+1)
-  integer ( kind = 4 ) iend
-  integer ( kind = 4 ) ifmt
-  integer ( kind = 4 ) ihead
-  integer ( kind = 4 ) indcrd
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(ncol+1)
+  INTEGER ( kind = 4 ) iend
+  INTEGER ( kind = 4 ) ifmt
+  INTEGER ( kind = 4 ) ihead
+  INTEGER ( kind = 4 ) indcrd
   character ( len = 16 ) indfmt
-  integer ( kind = 4 ) iounit
-  integer ( kind = 4 ) ix
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) job
+  INTEGER ( kind = 4 ) iounit
+  INTEGER ( kind = 4 ) ix
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) job
   character ( len = 8 ) key
-  integer ( kind = 4 ) len
-  integer ( kind = 4 ) next
-  integer ( kind = 4 ) nnz
-  integer ( kind = 4 ) nperli
-  integer ( kind = 4 ) nrhs
-  integer ( kind = 4 ) nrow
-  integer ( kind = 4 ) ptrcrd
+  INTEGER ( kind = 4 ) len
+  INTEGER ( kind = 4 ) next
+  INTEGER ( kind = 4 ) nnz
+  INTEGER ( kind = 4 ) nperli
+  INTEGER ( kind = 4 ) nrhs
+  INTEGER ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) ptrcrd
   character ( len = 16 ) ptrfmt
-  real ( kind = 8 ) rhs(*)
-  integer ( kind = 4 ) rhscrd
+  REAL ( kind = 8 ) rhs(*)
+  INTEGER ( kind = 4 ) rhscrd
   character ( len = 3 ) rhstyp
   character ( len = 72 ) title
-  integer ( kind = 4 ) totcrd
+  INTEGER ( kind = 4 ) totcrd
   character ( len = 3 ) type
-  integer ( kind = 4 ) valcrd
+  INTEGER ( kind = 4 ) valcrd
   character ( len = 20 ) valfmt
 !
 !  Compute pointer format.
 !
   nnz = ia(ncol+1) - 1
-  len = int ( log10 ( 0.1D+00 + real ( nnz + 1, kind = 8 ) ) ) + 1
+  len = int ( log10 ( 0.1D+00 + REAL ( nnz + 1, kind = 8 ) ) ) + 1
   nperli = 80 / len
   ptrcrd = ncol / nperli + 1
 
@@ -14265,7 +14265,7 @@ subroutine prtmt ( nrow, ncol, a, ja, ia, rhs, guesol, title, key, type, &
 !
 !  Compute the ROW index format.
 !
-  len = int ( log10 ( 0.1D+00 + real ( nrow, kind = 8 ) ) ) + 1
+  len = int ( log10 ( 0.1D+00 + REAL ( nrow, kind = 8 ) ) ) + 1
   nperli = min ( 80 / len, nnz )
   indcrd = ( nnz - 1 ) / nperli + 1
   write (indfmt,100) nperli,len
@@ -14416,7 +14416,7 @@ subroutine readmt ( nmax, nzmax, job, iounit, a, ja, ia, rhs, nrhs, &
 !    a) all lines in inout are assumed to be 80 character long.
 !    b) the file consists of a header followed by the block of the
 !       column start pointers followed by the block of the
-!       row indices, followed by the block of the real values and
+!       row indices, followed by the block of the REAL values and
 !       finally the numerical values of the right hand side if a
 !       right hand side is supplied.
 !    c) the file starts by a header which contains four lines if no
@@ -14467,7 +14467,7 @@ subroutine readmt ( nmax, nzmax, job, iounit, a, ja, ia, rhs, nrhs, &
 !          and ja should be of length equal to nnz (see below) if these
 !          arrays are to be read (see job).
 !
-! job       = integer ( kind = 4 ) to indicate what is to be read. (note: job is an
+! job       = INTEGER ( kind = 4 ) to indicate what is to be read. (note: job is an
 !          input and output parameter, it can be modified on return)
 !          job = 0    read the values of ncol, nrow, nnz title, key,
 !                     type and return. matrix is not read and arrays
@@ -14480,7 +14480,7 @@ subroutine readmt ( nmax, nzmax, job, iounit, a, ja, ia, rhs, nrhs, &
 !                  this will be indicated by the output parameter
 !                     guesol [see below].
 !
-! nrhs   = integer ( kind = 4 ). nrhs is an input as well as ouput parameter.
+! nrhs   = INTEGER ( kind = 4 ). nrhs is an input as well as ouput parameter.
 !          at input nrhs contains the total length of the array rhs.
 !          See also ierr and nrhs in output parameters.
 !
@@ -14497,12 +14497,12 @@ subroutine readmt ( nmax, nzmax, job, iounit, a, ja, ia, rhs, nrhs, &
 !          on return in these cases. It is therefore important to
 !          compare the values of job on entry and return ).
 !
-!    Output, real A(*), JA(*), IA(NCOL+1), the matrix in CSC
+!    Output, REAL A(*), JA(*), IA(NCOL+1), the matrix in CSC
 !    Compressed Sparse Column format.
 !
-! rhs    = real array of size nrow + 1 if available (see job)
+! rhs    = REAL array of size nrow + 1 if available (see job)
 !
-! nrhs   = integer ( kind = 4 ) containing the number of right hand sides found
+! nrhs   = INTEGER ( kind = 4 ) containing the number of right hand sides found
 !          each right hand side may be accompanied with an intial guess
 !          and also the exact solution.
 !
@@ -14517,9 +14517,9 @@ subroutine readmt ( nmax, nzmax, job, iounit, a, ja, ia, rhs, nrhs, &
 !          These are  appended to the right hand sides
 !          and the initial guesses (if any) in the array rhs.
 !
-!    Output, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Output, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-!    Output, integer ( kind = 4 ) NCOL, the column dimension of the matrix.
+!    Output, INTEGER ( kind = 4 ) NCOL, the column dimension of the matrix.
 !
 ! nnz       = number of nonzero elements in A. This info is returned
 !          even if there is not enough space in a, ja, ia, in order
@@ -14531,7 +14531,7 @@ subroutine readmt ( nmax, nzmax, job, iounit, a, ja, ia, rhs, nrhs, &
 !          for meaning of title, key and type refer to documentation
 !          Harwell/Boeing matrices.
 !
-! ierr   = integer ( kind = 4 ) used for error messages
+! ierr   = INTEGER ( kind = 4 ) used for error messages
 !         * ierr  = 0 means that  the matrix has been read normally.
 !         * ierr  = 1 means that  the array matrix could not be read
 !         because ncol+1 > nmax
@@ -14549,42 +14549,42 @@ subroutine readmt ( nmax, nzmax, job, iounit, a, ja, ia, rhs, nrhs, &
 !         insufficient to store them. The rest of the matrix may have
 !         been read normally.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) nmax
-  integer ( kind = 4 ) nzmax
+  INTEGER ( kind = 4 ) nmax
+  INTEGER ( kind = 4 ) nzmax
 
-  real ( kind = 8 ) a(nzmax)
+  REAL ( kind = 8 ) a(nzmax)
   character ( len = 2 ) guesol
-  integer ( kind = 4 ) ia(nmax+1)
-  integer ( kind = 4 ) iend
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) indcrd
+  INTEGER ( kind = 4 ) ia(nmax+1)
+  INTEGER ( kind = 4 ) iend
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) indcrd
   character ( len = 16 ) indfmt
-  integer ( kind = 4 ) iounit
-  integer ( kind = 4 ) ja(nzmax)
-  integer ( kind = 4 ) job
+  INTEGER ( kind = 4 ) iounit
+  INTEGER ( kind = 4 ) ja(nzmax)
+  INTEGER ( kind = 4 ) job
   character ( len = 8 ) key
-  integer ( kind = 4 ) len
-  integer ( kind = 4 ) lenrhs
-  integer ( kind = 4 ) n
-  integer ( kind = 4 ) ncol
-  integer ( kind = 4 ) neltvl
-  integer ( kind = 4 ) next
-  integer ( kind = 4 ) nnz
-  integer ( kind = 4 ) nrhs
-  integer ( kind = 4 ) nrow
-  integer ( kind = 4 ) nvec
-  integer ( kind = 4 ) ptrcrd
+  INTEGER ( kind = 4 ) len
+  INTEGER ( kind = 4 ) lenrhs
+  INTEGER ( kind = 4 ) n
+  INTEGER ( kind = 4 ) ncol
+  INTEGER ( kind = 4 ) neltvl
+  INTEGER ( kind = 4 ) next
+  INTEGER ( kind = 4 ) nnz
+  INTEGER ( kind = 4 ) nrhs
+  INTEGER ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) nvec
+  INTEGER ( kind = 4 ) ptrcrd
   character ( len = 16 ) ptrfmt
-  real ( kind = 8 ) rhs(*)
-  integer ( kind = 4 ) rhscrd
+  REAL ( kind = 8 ) rhs(*)
+  INTEGER ( kind = 4 ) rhscrd
   character ( len = 20 ) rhsfmt
   character ( len = 3 ) rhstyp
   character ( len = 72 ) title
-  integer ( kind = 4 ) totcrd
+  INTEGER ( kind = 4 ) totcrd
   character ( len = 3 ) type
-  integer ( kind = 4 ) valcrd
+  INTEGER ( kind = 4 ) valcrd
   character ( len = 20 ) valfmt
 
   lenrhs = nrhs
@@ -14736,19 +14736,19 @@ subroutine refall ( nx, nelx, ijk, node, ndeg, x, y, ichild, iparnts, &
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NX, the number of nodes at input.
+!    Input, INTEGER ( kind = 4 ) NX, the number of nodes at input.
 !
-!    Input, integer ( kind = 4 ) NELX, the number of elements.
+!    Input, INTEGER ( kind = 4 ) NELX, the number of elements.
 !
-!    Input, integer ( kind = 4 ) IJK(NODE,NELX), lists the nodes that make up 
+!    Input, INTEGER ( kind = 4 ) IJK(NODE,NELX), lists the nodes that make up 
 !    each element.
 !
-!    Input, integer ( kind = 4 ) NODE, the number of nodes per element.
+!    Input, INTEGER ( kind = 4 ) NODE, the number of nodes per element.
 !
 ! ndeg      = first dimension of array ichild which is at least as large
 !         as the max degree of each node
 !
-! x,y   = real arrays containing the x(*) and y(*) coordinates
+! x,y   = REAL arrays containing the x(*) and y(*) coordinates
 !        resp. of the nodes.
 ! ichild= list of the children of a node: ichild(1,k) stores
 !         the position in ichild(*,k)  of the last child so far.
@@ -14761,7 +14761,7 @@ subroutine refall ( nx, nelx, ijk, node, ndeg, x, y, ichild, iparnts, &
 !      nodcode(i) = 1 -->  node i is a boundary but not a corner point
 !      nodcode(i) = 2 -->  node i is a corner point.
 ! corner elements are used only to generate the grid by refinement
-! since they do not  correspond to real elements.
+! since they do not  correspond to REAL elements.
 ! nxmax  = maximum number of nodes allowed. If during the algorithm
 !          the number of nodes being created exceeds nxmax then
 !         refall  quits without modifying the (x,y) xoordinates
@@ -14772,38 +14772,38 @@ subroutine refall ( nx, nelx, ijk, node, ndeg, x, y, ichild, iparnts, &
 !         1 --> refall quit because nxmax  was exceeded.
 !         2 --> refall quit because nelmax was exceeded.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) ndeg
-  integer ( kind = 4 ) node
-  integer ( kind = 4 ) nx
+  INTEGER ( kind = 4 ) ndeg
+  INTEGER ( kind = 4 ) node
+  INTEGER ( kind = 4 ) nx
 
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ichild(ndeg,*)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) ipar1
-  integer ( kind = 4 ) ipar2
-  integer ( kind = 4 ) iparnts(2,nx)
-  integer ( kind = 4 ) ijk(node,*)
-  integer ( kind = 4 ) jchild
-  integer ( kind = 4 ) jj
-  integer ( kind = 4 ) jnod
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) k1
-  integer ( kind = 4 ) k2
-  integer ( kind = 4 ) last
-  integer ( kind = 4 ) nodcode(nx)
-  integer ( kind = 4 ) midnode(10)
-  integer ( kind = 4 ) inod(10)
-  integer ( kind = 4 ) nel
-  integer ( kind = 4 ) nelmax
-  integer ( kind = 4 ) nelx
-  integer ( kind = 4 ) nelxnew
-  integer ( kind = 4 ) nxmax
-  integer ( kind = 4 ) nxnew
-  real ( kind = 8 ) x(*)
-  real ( kind = 8 ) y(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ichild(ndeg,*)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) ipar1
+  INTEGER ( kind = 4 ) ipar2
+  INTEGER ( kind = 4 ) iparnts(2,nx)
+  INTEGER ( kind = 4 ) ijk(node,*)
+  INTEGER ( kind = 4 ) jchild
+  INTEGER ( kind = 4 ) jj
+  INTEGER ( kind = 4 ) jnod
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) k1
+  INTEGER ( kind = 4 ) k2
+  INTEGER ( kind = 4 ) last
+  INTEGER ( kind = 4 ) nodcode(nx)
+  INTEGER ( kind = 4 ) midnode(10)
+  INTEGER ( kind = 4 ) inod(10)
+  INTEGER ( kind = 4 ) nel
+  INTEGER ( kind = 4 ) nelmax
+  INTEGER ( kind = 4 ) nelx
+  INTEGER ( kind = 4 ) nelxnew
+  INTEGER ( kind = 4 ) nxmax
+  INTEGER ( kind = 4 ) nxnew
+  REAL ( kind = 8 ) x(*)
+  REAL ( kind = 8 ) y(*)
 !
 !  Initialize the lists of children and parents.
 !
@@ -14982,30 +14982,30 @@ subroutine retmx ( n, a, ja, ia, dd )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-!    Input, real A(*), JA(*), IA(N+1), the matrix in CSR
+!    Input, REAL A(*), JA(*), IA(N+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-!    Output, real DD(N), the element of each row that has the largest absolute
+!    Output, REAL DD(N), the element of each row that has the largest absolute
 !    value.  The sign of DD is modified such that it is the same as that 
 !    of the diagonal element in its row.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) dd(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(n+1)
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) k1
-  integer ( kind = 4 ) k2
-  real ( kind = 8 ) t
-  real ( kind = 8 ) t1
-  real ( kind = 8 ) t2
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) dd(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(n+1)
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) k1
+  INTEGER ( kind = 4 ) k2
+  REAL ( kind = 8 ) t
+  REAL ( kind = 8 ) t1
+  REAL ( kind = 8 ) t2
 !
 !  Initialize.
 !
@@ -15062,30 +15062,30 @@ subroutine rnrms ( nrow, nrm, a, ja, ia, diag )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-! nrm   = integer ( kind = 4 ). norm indicator. nrm = 1, means 1-norm, nrm =2
+! nrm   = INTEGER ( kind = 4 ). norm indicator. nrm = 1, means 1-norm, nrm =2
 !                  means the 2-nrm, nrm = 0 means max norm
 !
-!    Input, real A(*), integer ( kind = 4 ), JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ), JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-!    Output, real DIAG(NROW), the row norms.
+!    Output, REAL DIAG(NROW), the row norms.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) nrow
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) diag(nrow)
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) k1
-  integer ( kind = 4 ) k2
-  integer ( kind = 4 ) nrm
-  real ( kind = 8 ) scal
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) diag(nrow)
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) k1
+  INTEGER ( kind = 4 ) k2
+  INTEGER ( kind = 4 ) nrm
+  REAL ( kind = 8 ) scal
 !
 !  Compute the norm of each element.
 !
@@ -15141,49 +15141,49 @@ subroutine rperm ( nrow, a, ja, ia, ao, jao, iao, perm, job )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-! perm       = integer ( kind = 4 ) array of length nrow containing the 
+! perm       = INTEGER ( kind = 4 ) array of length nrow containing the 
 !    permutation arrays
 !        for the rows: perm(i) is the destination of row i in the
 !         permuted matrix.
 !         ---> a(i,j) in the original matrix becomes a(perm(i),j)
 !         in the output  matrix.
 !
-! job      = integer ( kind = 4 ) indicating the work to be done:
+! job      = INTEGER ( kind = 4 ) indicating the work to be done:
 !             job = 1      permute a, ja, ia into ao, jao, iao
-!                       (including the copying of real values ao and
+!                       (including the copying of REAL values ao and
 !                       the array iao).
-!             job /= 1 :  ignore real values.
+!             job /= 1 :  ignore REAL values.
 !                     (in which case arrays a and ao are not needed nor
 !                      used).
 !
-!    Output, real AO(*), integer ( kind = 4 ) JAO(*), IAO(NROW+1), the permuted
+!    Output, REAL AO(*), INTEGER ( kind = 4 ) JAO(*), IAO(NROW+1), the permuted
 !    matrix in CSR Compressed Sparse Row format.
 !
 ! note :
 !        if (job/=1)  then the arrays a and ao are not used.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) nrow
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) ao(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) iao(nrow+1)
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jao(*)
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) ko
-  integer ( kind = 4 ) perm(nrow)
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) ao(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) iao(nrow+1)
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jao(*)
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) ko
+  INTEGER ( kind = 4 ) perm(nrow)
   logical values
 
   values = ( job == 1 )
@@ -15248,15 +15248,15 @@ subroutine rscal ( nrow, job, nrm, a, ja, ia, diag, b, jb, ib )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-! job   = integer ( kind = 4 ). job indicator. Job=0 means get array b only
-!         job = 1 means get b, and the integer ( kind = 4 ) arrays ib, jb.
+! job   = INTEGER ( kind = 4 ). job indicator. Job=0 means get array b only
+!         job = 1 means get b, and the INTEGER ( kind = 4 ) arrays ib, jb.
 !
-! nrm   = integer ( kind = 4 ). norm indicator. nrm = 1, means 1-norm, nrm =2
+! nrm   = INTEGER ( kind = 4 ). norm indicator. nrm = 1, means 1-norm, nrm =2
 !                  means the 2-nrm, nrm = 0 means max norm
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
 ! on return:
@@ -15265,22 +15265,22 @@ subroutine rscal ( nrow, job, nrm, a, ja, ia, diag, b, jb, ib )
 !        by which the rows have been scaled, i.e., on return
 !        we have B = Diag*A.
 !
-!    Output, real B(*), integer ( kind = 4 ) JB(*), IB(NROW+1), the scaled matrix in CSR
+!    Output, REAL B(*), INTEGER ( kind = 4 ) JB(*), IB(NROW+1), the scaled matrix in CSR
 !    Compressed Sparse Row format.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) nrow
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) b(*)
-  real ( kind = 8 ) diag(nrow)
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) ib(nrow+1)
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jb(*)
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) nrm
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) b(*)
+  REAL ( kind = 8 ) diag(nrow)
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) ib(nrow+1)
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jb(*)
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) nrm
 
   call rnrms ( nrow, nrm, a, ja, ia, diag )
 
@@ -15318,57 +15318,57 @@ subroutine sskssr ( n, imod, asky, isky, ao, jao, iao, nzmax, ierr )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-! imod  = integer ( kind = 4 ) indicating the variant of skyline format used:
+! imod  = INTEGER ( kind = 4 ) indicating the variant of skyline format used:
 !         imod = 0 means the pointer iao points to the `zeroth'
 !         element of the row, i.e., to the position of the diagonal
 !         element of previous row (for i = 1, iao(1)= 0)
 !         imod = 1 means that itpr points to the beginning of the row.
 !         imod = 2 means that iao points to the end of the row
 !                  (diagonal element)
-! asky  = real array containing the values of the matrix. asky contains
+! asky  = REAL array containing the values of the matrix. asky contains
 !         the sequence of active rows from i = 1, to n, an active row
 !         being the row of elemnts of the matrix contained between the
 !         leftmost nonzero element and the diagonal element.
 !
-! isky       = integer ( kind = 4 ) array of size n+1 containing the pointer array to
+! isky       = INTEGER ( kind = 4 ) array of size n+1 containing the pointer array to
 !         each row. isky (k) contains the address of the beginning of the
 !         k-th active row in the array asky.
 !
-! nzmax = integer ( kind = 4 ). equal to the number of available locations in the
+! nzmax = INTEGER ( kind = 4 ). equal to the number of available locations in the
 !         output array ao.
 !
 ! on return:
 !
-!    Output, real AO(*), integer ( kind = 4 ) JAO(*), IAO(N+1), the matrix in CSR
+!    Output, REAL AO(*), INTEGER ( kind = 4 ) JAO(*), IAO(N+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-! ierr  = integer ( kind = 4 ). Serving as error message. If the length of the
+! ierr  = INTEGER ( kind = 4 ). Serving as error message. If the length of the
 !         output arrays ao, jao exceeds nzmax then ierr returns
 !         the row number where the algorithm stopped: rows
 !         i, to ierr-1 have been processed succesfully.
 !         ierr = 0 means normal return.
 !         ierr = -1  : illegal value for imod
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
-  integer ( kind = 4 ) nzmax
+  INTEGER ( kind = 4 ) n
+  INTEGER ( kind = 4 ) nzmax
 
-  real ( kind = 8 ) ao(nzmax)
-  real ( kind = 8 ) asky(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) iao(n+1)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) imod
-  integer ( kind = 4 ) isky(n+1)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) jao(nzmax)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) kend
-  integer ( kind = 4 ) kstart
-  integer ( kind = 4 ) next
+  REAL ( kind = 8 ) ao(nzmax)
+  REAL ( kind = 8 ) asky(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) iao(n+1)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) imod
+  INTEGER ( kind = 4 ) isky(n+1)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) jao(nzmax)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) kend
+  INTEGER ( kind = 4 ) kstart
+  INTEGER ( kind = 4 ) next
 
   ierr = 0
 !
@@ -15463,7 +15463,7 @@ subroutine ssrcsr ( nrow, a, ja, ia, nzmax, ao, jao, iao, indu, ierr )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
 ! a,
 ! ia,
@@ -15481,38 +15481,38 @@ subroutine ssrcsr ( nrow, a, ja, ia, nzmax, ao, jao, iao, indu, ierr )
 !         A is the original lower triangular matrix. ao, jao, iao,
 !         can be the same as a, ja, ia in the calling sequence.
 !
-! indu  = integer ( kind = 4 ) array of length nrow+1. If the input matrix is such
+! indu  = INTEGER ( kind = 4 ) array of length nrow+1. If the input matrix is such
 !         that the last element in each row is its diagonal element then
 !         on return, indu will contain the pointers to the diagonal
 !         element in each row of the output matrix. Otherwise used as
 !         work array.
-! ierr  = integer ( kind = 4 ). Serving as error message. If the length of the arrays
+! ierr  = INTEGER ( kind = 4 ). Serving as error message. If the length of the arrays
 !         ao, jao exceeds nzmax, ierr returns the minimum value
 !         needed for nzmax. otherwise ierr=0 (normal return).
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) nrow
-  integer ( kind = 4 ) nzmax
+  INTEGER ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) nzmax
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) ao(nzmax)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) iao(nrow+1)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) indu(nrow+1)
-  integer ( kind = 4 ) ipos
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jao(nzmax)
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) ko
-  integer ( kind = 4 ) kfirst
-  integer ( kind = 4 ) klast
-  integer ( kind = 4 ) kosav
-  integer ( kind = 4 ) lenrow
-  integer ( kind = 4 ) nnz
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) ao(nzmax)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) iao(nrow+1)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) indu(nrow+1)
+  INTEGER ( kind = 4 ) ipos
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jao(nzmax)
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) ko
+  INTEGER ( kind = 4 ) kfirst
+  INTEGER ( kind = 4 ) klast
+  INTEGER ( kind = 4 ) kosav
+  INTEGER ( kind = 4 ) lenrow
+  INTEGER ( kind = 4 ) nnz
 
   ierr = 0
   indu(1:nrow+1) = 0
@@ -15618,20 +15618,20 @@ subroutine submat ( n, job, i1, i2, j1, j2, a, ja, ia, nr, nc, ao, jao, iao )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the row dimension of the matrix.
 !
-! i1,i2 = two integer ( kind = 4 )s with i2 >= i1 indicating the range of rows to be
+! i1,i2 = two INTEGER ( kind = 4 )s with i2 >= i1 indicating the range of rows to be
 !          extracted.
 !
-! j1,j2 = two integer ( kind = 4 )s with j2 >= j1 indicating the range of columns
+! j1,j2 = two INTEGER ( kind = 4 )s with j2 >= j1 indicating the range of columns
 !         to be extracted.
 !         * There is no checking whether the input values for i1, i2, j1,
 !           j2 are between 1 and n.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-! job      = job indicator: if job /= 1 then the real values in a are NOT
+! job      = job indicator: if job /= 1 then the REAL values in a are NOT
 !         extracted, only the column indices (i.e. data structure) are.
 !         otherwise values as well as column indices are extracted...
 !
@@ -15646,29 +15646,29 @@ subroutine submat ( n, job, i1, i2, j1, j2, a, ja, ia, nr, nc, ao, jao, iao )
 !      the column indices,and iao being the pointer to the beginning
 !      of the row,in arrays a,ja.
 !
-  implicit none
+  IMPLICIT NONE
 
-  real ( kind = 8 ) a(*)
-  real ( kind = 8 ) ao(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) i1
-  integer ( kind = 4 ) i2
-  integer ( kind = 4 ) ia(*)
-  integer ( kind = 4 ) iao(*)
-  integer ( kind = 4 ) ii
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) j1
-  integer ( kind = 4 ) j2
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jao(*)
-  integer ( kind = 4 ) job
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) k1
-  integer ( kind = 4 ) k2
-  integer ( kind = 4 ) klen
-  integer ( kind = 4 ) n
-  integer ( kind = 4 ) nc
-  integer ( kind = 4 ) nr
+  REAL ( kind = 8 ) a(*)
+  REAL ( kind = 8 ) ao(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) i1
+  INTEGER ( kind = 4 ) i2
+  INTEGER ( kind = 4 ) ia(*)
+  INTEGER ( kind = 4 ) iao(*)
+  INTEGER ( kind = 4 ) ii
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) j1
+  INTEGER ( kind = 4 ) j2
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jao(*)
+  INTEGER ( kind = 4 ) job
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) k1
+  INTEGER ( kind = 4 ) k2
+  INTEGER ( kind = 4 ) klen
+  INTEGER ( kind = 4 ) n
+  INTEGER ( kind = 4 ) nc
+  INTEGER ( kind = 4 ) nr
 
   nr = i2 - i1 + 1
   nc = j2 - j1 + 1
@@ -15731,21 +15731,21 @@ subroutine timestamp ( )
 !
 !    None
 !
-  implicit none
+  IMPLICIT NONE
 
   character ( len = 8 ) ampm
-  integer ( kind = 4 ) d
-  integer ( kind = 4 ) h
-  integer ( kind = 4 ) m
-  integer ( kind = 4 ) mm
+  INTEGER ( kind = 4 ) d
+  INTEGER ( kind = 4 ) h
+  INTEGER ( kind = 4 ) m
+  INTEGER ( kind = 4 ) mm
   character ( len = 9 ), parameter, dimension(12) :: month = (/ &
     'January  ', 'February ', 'March    ', 'April    ', &
     'May      ', 'June     ', 'July     ', 'August   ', &
     'September', 'October  ', 'November ', 'December ' /)
-  integer ( kind = 4 ) n
-  integer ( kind = 4 ) s
-  integer ( kind = 4 ) values(8)
-  integer ( kind = 4 ) y
+  INTEGER ( kind = 4 ) n
+  INTEGER ( kind = 4 ) s
+  INTEGER ( kind = 4 ) values(8)
+  INTEGER ( kind = 4 ) y
 
   call date_and_time ( values = values )
 
@@ -15813,14 +15813,14 @@ subroutine transp ( nrow, ncol, a, ja, ia, iwk, ierr )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) NROW, the row dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NROW, the row dimension of the matrix.
 !
-!    Input, integer ( kind = 4 ) NCOL, the column dimension of the matrix.
+!    Input, INTEGER ( kind = 4 ) NCOL, the column dimension of the matrix.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NROW+1), the matrix in CSR
 !    Compressed Sparse Row format.
 !
-!    Workspace, integer ( kind = 4 ) IWK(*), of the same length as JA.
+!    Workspace, INTEGER ( kind = 4 ) IWK(*), of the same length as JA.
 !
 ! on return:
 !
@@ -15832,34 +15832,34 @@ subroutine transp ( nrow, ncol, a, ja, ia, iwk, ierr )
 !         in transp(A) exceeds the input value of ncol, transp will
 !         return without completing the transposition. see ierr.
 !
-!    Input, real A(*), integer ( kind = 4 ) JA(*), IA(NCOL+1), the transposed
+!    Input, REAL A(*), INTEGER ( kind = 4 ) JA(*), IA(NCOL+1), the transposed
 !    matrix in CSR Compressed Sparse Row format.
 !
-! ierr      = integer ( kind = 4 ). error message. If the number of rows for the
+! ierr      = INTEGER ( kind = 4 ). error message. If the number of rows for the
 !         transposed matrix exceeds the input value of ncol,
 !         then ierr is  set to that number and transp quits.
 !         Otherwise ierr is set to 0 (normal return).
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) nrow
+  INTEGER ( kind = 4 ) nrow
 
-  real ( kind = 8 ) a(*)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ia(nrow+1)
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) inext
-  integer ( kind = 4 ) init
-  integer ( kind = 4 ) iwk(*)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ja(*)
-  integer ( kind = 4 ) jcol
-  integer ( kind = 4 ) k
-  integer ( kind = 4 ) l
-  integer ( kind = 4 ) ncol
-  integer ( kind = 4 ) nnz
-  real ( kind = 8 ) t
-  real ( kind = 8 ) t1
+  REAL ( kind = 8 ) a(*)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ia(nrow+1)
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) inext
+  INTEGER ( kind = 4 ) init
+  INTEGER ( kind = 4 ) iwk(*)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ja(*)
+  INTEGER ( kind = 4 ) jcol
+  INTEGER ( kind = 4 ) k
+  INTEGER ( kind = 4 ) l
+  INTEGER ( kind = 4 ) ncol
+  INTEGER ( kind = 4 ) nnz
+  REAL ( kind = 8 ) t
+  REAL ( kind = 8 ) t1
 
   ierr = 0
   nnz = ia(nrow+1) - 1
@@ -16003,27 +16003,27 @@ subroutine udsol ( n, x, y, au, jau )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-!    Input, real Y(N), the right hand side.
+!    Input, REAL Y(N), the right hand side.
 !
 ! au,
 ! jau,    = Lower triangular matrix stored in modified sparse row
 !          format.
 !
-!    Output, real X(N), the solution.
+!    Output, REAL X(N), the solution.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) au(*)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) jau(*)
-  integer ( kind = 4 ) k
-  real ( kind = 8 ) t
-  real ( kind = 8 ) x(n)
-  real ( kind = 8 ) y(n)
+  REAL ( kind = 8 ) au(*)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) jau(*)
+  INTEGER ( kind = 4 ) k
+  REAL ( kind = 8 ) t
+  REAL ( kind = 8 ) x(n)
+  REAL ( kind = 8 ) y(n)
 
   x(n) = y(n) * au(n)
 
@@ -16064,27 +16064,27 @@ subroutine udsolc ( n, x, y, au, jau )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-!    Input, real Y(N), contains the right hand side of the linear system.
+!    Input, REAL Y(N), contains the right hand side of the linear system.
 !
 ! au,
 ! jau,   = Upper triangular matrix stored in Modified Sparse Column
 !          format.
 !
-!    Output, real X(N), the solution of  U x = y .
+!    Output, REAL X(N), the solution of  U x = y .
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) au(*)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) jau(*)
-  integer ( kind = 4 ) k
-  real ( kind = 8 ) t
-  real ( kind = 8 ) x(n)
-  real ( kind = 8 ) y(n)
+  REAL ( kind = 8 ) au(*)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) jau(*)
+  INTEGER ( kind = 4 ) k
+  REAL ( kind = 8 ) t
+  REAL ( kind = 8 ) x(n)
+  REAL ( kind = 8 ) y(n)
 
   x(1:n) = y(1:n)
 
@@ -16136,11 +16136,11 @@ subroutine unassbl ( a, na, f, nx, nelx, ijk, nodcode, node, x, y, ierr, xyk )
 !    nodcode(i) = 1 -->  node i is a boundary but not a corner point
 !    nodcode(i) = 2 -->  node i is a corner point (corner points
 !
-!    x,y = real arrays containing the $x$ and $y$ coordinates
+!    x,y = REAL arrays containing the $x$ and $y$ coordinates
 !    resp. of the nodes.
 !    K11, K22, and K12 at that element.
 !
-!    ierr = error message integer ( kind = 4 ) .
+!    ierr = error message INTEGER ( kind = 4 ) .
 !    ierr = 0 --> normal return
 !    ierr = 1 --> negative area encountered (due to bad
 !    numbering of nodes of an element-
@@ -16152,32 +16152,32 @@ subroutine unassbl ( a, na, f, nx, nelx, ijk, nodcode, node, x, y, ierr, xyk )
 !    element. Form:
 !    call xyk(nel,xyke,x,y,ijk,node)
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) na
-  integer ( kind = 4 ) node
+  INTEGER ( kind = 4 ) na
+  INTEGER ( kind = 4 ) node
 
-  real ( kind = 8 ) a(na,node,node)
-  real ( kind = 8 ) det
-  real ( kind = 8 ) f(node,*)
-  real ( kind = 8 ) fe(3)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ierr
-  integer ( kind = 4 ) ijk(node,*)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) ka
-  integer ( kind = 4 ) kb
-  integer ( kind = 4 ) nel
-  integer ( kind = 4 ) nelx
-  integer ( kind = 4 ) nodcode(*)
-  integer ( kind = 4 ) nx
-  real ( kind = 8 ) ske(3,3)
-  real ( kind = 8 ) x(*)
-  real ( kind = 8 ) xe(3)
+  REAL ( kind = 8 ) a(na,node,node)
+  REAL ( kind = 8 ) det
+  REAL ( kind = 8 ) f(node,*)
+  REAL ( kind = 8 ) fe(3)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ierr
+  INTEGER ( kind = 4 ) ijk(node,*)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) ka
+  INTEGER ( kind = 4 ) kb
+  INTEGER ( kind = 4 ) nel
+  INTEGER ( kind = 4 ) nelx
+  INTEGER ( kind = 4 ) nodcode(*)
+  INTEGER ( kind = 4 ) nx
+  REAL ( kind = 8 ) ske(3,3)
+  REAL ( kind = 8 ) x(*)
+  REAL ( kind = 8 ) xe(3)
   external xyk
-  real ( kind = 8 ) xyke(2,2)
-  real ( kind = 8 ) y(*)
-  real ( kind = 8 ) ye(3)
+  REAL ( kind = 8 ) xyke(2,2)
+  REAL ( kind = 8 ) y(*)
+  REAL ( kind = 8 ) ye(3)
 !
 !  The maximum number of nonzeros allowed  = 200
 !
@@ -16250,9 +16250,9 @@ subroutine usol ( n, x, y, au, jau, iau )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-! y      = real array containg the right side.
+! y      = REAL array containg the right side.
 !
 ! au,
 ! jau,
@@ -16263,18 +16263,18 @@ subroutine usol ( n, x, y, au, jau, iau )
 !
 !      x = The solution of  U x = y .
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) au(*)
-  integer ( kind = 4 ) iau(n+1)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) jau(*)
-  integer ( kind = 4 ) k
-  real ( kind = 8 ) t
-  real ( kind = 8 ) x(n)
-  real ( kind = 8 ) y(n)
+  REAL ( kind = 8 ) au(*)
+  INTEGER ( kind = 4 ) iau(n+1)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) jau(*)
+  INTEGER ( kind = 4 ) k
+  REAL ( kind = 8 ) t
+  REAL ( kind = 8 ) x(n)
+  REAL ( kind = 8 ) y(n)
 
   x(n) = y(n)
 
@@ -16309,9 +16309,9 @@ subroutine usolc ( n, x, y, au, jau, iau )
 !
 !  Parameters:
 !
-!    Input, integer ( kind = 4 ) N, the order of the matrix.
+!    Input, INTEGER ( kind = 4 ) N, the order of the matrix.
 !
-! y      = real array containg the right side.
+! y      = REAL array containg the right side.
 !
 ! au,
 ! jau,
@@ -16322,18 +16322,18 @@ subroutine usolc ( n, x, y, au, jau, iau )
 !
 !      x  = The solution of  U x  = y.
 !
-  implicit none
+  IMPLICIT NONE
 
-  integer ( kind = 4 ) n
+  INTEGER ( kind = 4 ) n
 
-  real ( kind = 8 ) au(*)
-  integer ( kind = 4 ) iau(*)
-  integer ( kind = 4 ) j
-  integer ( kind = 4 ) jau(*)
-  integer ( kind = 4 ) k
-  real ( kind = 8 ) t
-  real ( kind = 8 ) x(n)
-  real ( kind = 8 ) y(n)
+  REAL ( kind = 8 ) au(*)
+  INTEGER ( kind = 4 ) iau(*)
+  INTEGER ( kind = 4 ) j
+  INTEGER ( kind = 4 ) jau(*)
+  INTEGER ( kind = 4 ) k
+  REAL ( kind = 8 ) t
+  REAL ( kind = 8 ) x(n)
+  REAL ( kind = 8 ) y(n)
 
   x(1:n) = y(1:n)
 

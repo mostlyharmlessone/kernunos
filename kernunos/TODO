@@ -2,17 +2,8 @@ FIXES
 
 Test doesn't work if it isn't the first one
 
-
-fix this directory issue; maybe incorporate into About/Documents pdfopen too.
-CmakeFiles/kernunos.dir/src/cxx/assistant.cpp.o
-/home/debeus/Janus/kernunos/src/cxx/assistant.cpp: In function ‘QString documentationDirectory()’:
-/home/debeus/Janus/kernunos/src/cxx/assistant.cpp:50:22: warning: unused variable ‘dir’ [-Wunused-variable]
-   50 |     for (const auto &dir : std::as_const(paths)) {
-
-
 compare is broken with zernike; also so is opening 2nd file with zernike selected and zernike
 enforce, or have a warning having to make new zernike after loading new data, also if tweaks changed
-
 
 enforce, or have a warning having to make new zernike after loading new data, also if tweaks changed
 
@@ -42,8 +33,6 @@ needs testing and reread of NumRec in C to figure out how to effectively remove 
 
 in kernunos menu actions do some key bindings?
 setShortcuts(QKeySequence::UnknownKey);
-
-QFileDialog messages in kernunos.cpp are in an unnoticeable font at the top of the Window...
 
 ability to turn stdoutput logging on/off
 replace system calls to sed with a program

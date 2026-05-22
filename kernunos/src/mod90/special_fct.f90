@@ -5,13 +5,13 @@ module special_fct
 ! zernike functions
 ! string replacement function
 ! binary search interface
-use parameters, ONLY : EPS, PI
-use set_precision, ONLY : wp, sk, int2d, int3d
+USE parameters, ONLY : EPS, PI
+USE set_precision, ONLY : wp, sk, int2d, int3d
 use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
 use, INTRINSIC :: iso_c_binding, only : c_int64_t
-use, intrinsic ::  ieee_arithmetic
+USE, INTRINSIC ::  ieee_arithmetic
 use M_color, only : jucolor
-implicit none
+IMPLICIT NONE
 
 INTERFACE OPERATOR (.p.) ! binary operator summation convention/tensors
 !   a .p. b returns scalar sum matrices; rank 0 of a(i,j)*b(i,j) a,b rank 2
@@ -25,10 +25,10 @@ END INTERFACE
 INTERFACE
 
   subroutine bsearch(r,rv,n,high,low)
-   use set_precision, only : wp
-   integer, intent(in) :: n
-   real(wp), intent(in) :: r, rv(n)
-   integer, intent(out) :: high, low
+   USE set_precision, only : wp
+   INTEGER, INTENT(IN) :: n
+   REAL(wp), INTENT(IN) :: r, rv(n)
+   INTEGER, INTENT(OUT) :: high, low
   end subroutine
 
 END INTERFACE
@@ -40,8 +40,8 @@ CONTAINS
 ! scalar matrix (inner) product
 function sum_of_sum_matrix_by_matrix(array1,array2) result(dL2)
  REAL (wp), INTENT (IN) :: array1(:,:),array2(:,:)
- real(wp) ::  v3(size(array1,1)),dL2
- integer :: i
+ REAL(wp) ::  v3(size(array1,1)),dL2
+ INTEGER :: i
  v3=[(1,i=1,size(array1,1))]
  dL2=dot_product(v3,matmul(v3,array1*array2))
 end function sum_of_sum_matrix_by_matrix
@@ -71,8 +71,8 @@ end function sum_of_matrix_by_vector
 
 ! vector vector (cross) product (dimension 3)
 function cross_product(v1, v2) result(v3)
-  real(wp), INTENT(IN) :: v1(3), v2(3)
-  real(wp) :: v3(3)
+  REAL(wp), INTENT(IN) :: v1(3), v2(3)
+  REAL(wp) :: v3(3)
   v3(1) = v1(2) * v2(3) - v1(3) * v2(2)
   v3(2) = v1(3) * v2(1) - v1(1) * v2(3)
   v3(3) = v1(1) * v2(2) - v1(2) * v2(1)
@@ -80,8 +80,8 @@ end function cross_product
 
 ! surface normal vector (REAL32 and dimension 3)
 function surface_normal(v1, v2, v3) result(v4)
-  real(REAL32), INTENT(IN) :: v1(3), v2(3), v3(3) ! vertices of triangle
-  real(REAL32) :: v4(3)
+  REAL(REAL32), INTENT(IN) :: v1(3), v2(3), v3(3) ! vertices of triangle
+  REAL(REAL32) :: v4(3)
   v4(1) = (v2(2)-v1(2)) * (v3(3)-v1(3)) - (v2(3)-v1(3)) * (v3(2)-v1(2))
   v4(2) = (v2(3)-v1(3)) * (v3(1)-v1(1)) - (v2(1)-v1(1)) * (v3(3)-v1(3))
   v4(3) = (v2(1)-v1(1)) * (v3(2)-v1(2)) - (v2(2)-v1(2)) * (v3(1)-v1(1))
@@ -282,7 +282,7 @@ read(tempH(5:6),'(Z2)') rgbv(3)
 end function gplotpalette
 
 ! convert values to heatmap using Hue from Hue/Saturation/Value and color.f90
-! input 3 scalars, output integer(kind=2) vector
+! input 3 scalars, output INTEGER(kind=2) vector
 ! using https://fortranwiki.org/fortran/show/M_color Color Library Version 5.0   
 function hsbrgb(x,minimum, maximum) result(rgbv)
  REAL (wp), INTENT (IN) :: minimum,maximum,x
@@ -290,7 +290,7 @@ function hsbrgb(x,minimum, maximum) result(rgbv)
  INTEGER :: stat
  INTEGER(int16) :: rgbv(3) ! rgbv={r,g,b}
     stat = 0
-    hue = real(360*(maximum - x) / (maximum - minimum),kind=sk)
+    hue = REAL(360*(maximum - x) / (maximum - minimum),kind=sk)
     sat=100.0 ; bright=100.0
     call jucolor('hsv',hue,sat,bright,'rgb',rr,gg,bb,stat)
     if (stat.ne.0) then
@@ -303,7 +303,7 @@ function hsbrgb(x,minimum, maximum) result(rgbv)
 end function hsbrgb
 
 ! convert values to rgb 2 color (red to blue) heatmap
-! input 3 scalars, output integer(kind=2) vector
+! input 3 scalars, output INTEGER(kind=2) vector
 ! https://stackoverflow.com/questions/20792445/calculate-rgb-value-for-a-range-of-values-to-create-heat-map    
 function rgb2(x,minimum, maximum) result(rgbv)
  REAL (wp), INTENT (IN) :: minimum,maximum,x
@@ -317,7 +317,7 @@ function rgb2(x,minimum, maximum) result(rgbv)
 end function rgb2
 
 ! convert values to rgb 5 color (red to blue) heatmap
-! input 3 scalars, output integer(kind=2) vector
+! input 3 scalars, output INTEGER(kind=2) vector
 ! http://www.andrewnoske.com/wiki/Code_-_heatmaps_and_color_gradients  
 ! https://stackoverflow.com/questions/3708307/how-to-initialize-two-dimensional-arrays-in-fortran 
 function rgb5(x,minimum, maximum) result(rgbv)
@@ -354,7 +354,7 @@ function rgb5(x,minimum, maximum) result(rgbv)
      ratio = ratio * (nc-1)                  
      idx1  = int(floor(ratio)+1,kind=int3d)                   ! Desired color will be after this index.
      idx2  = int(idx1+1,kind=int3d)                           ! ... and before this index (inclusive).
-     fract = ratio - real(idx1)+1            ! Distance between the two indexes (0-1).
+     fract = ratio - REAL(idx1)+1            ! Distance between the two indexes (0-1).
     endif
    endif
 
@@ -374,10 +374,10 @@ end function rgb5
 ! Converts full RGB (256x256x256) to VisCAM/SolidView or Materials Magic 15 bit color attr or no color
 function rgb2attr(deftype,rgbv) result(attr)
   use, INTRINSIC :: iso_c_binding, ONLY : c_int
-  integer(kind=2), INTENT(IN) :: rgbv(3)  !=INT16
-  integer(c_int), INTENT(IN) :: deftype
-  integer(INT16) :: attr
-  integer(INT8) :: red,green,blue
+  INTEGER(kind=2), INTENT(IN) :: rgbv(3)  !=INT16
+  INTEGER(c_int), INTENT(IN) :: deftype
+  INTEGER(INT16) :: attr
+  INTEGER(INT8) :: red,green,blue
   red = int(rgbv(1)/8,kind=int2d)
   green = int(rgbv(2)/8,kind=int2d)
   blue =  int(rgbv(3)/8,kind=int2d)
@@ -413,7 +413,7 @@ end function rgb2attr
 
 !! coordinate transform
 subroutine PolarTranslate(ctr_circle_x,ctr_circle_y,rlocal,tht_local,R_global,Theta_global)
-    implicit none
+    IMPLICIT NONE
     REAL (wp), INTENT (IN) ::  ctr_circle_x,ctr_circle_y,rlocal,tht_local
     REAL (wp), INTENT(OUT) :: R_global,Theta_global
     REAL (wp) :: X_global,Y_global
@@ -456,10 +456,10 @@ end subroutine PolarTranslate
 !!https://stackoverflow.com/questions/58938347/how-do-i-replace-a-character-in-the-string-with-another-charater-in-fortran
 
 pure recursive function replacestr(string,search,substitute) result(modifiedString)
-        implicit none
-        character(len=*), intent(in)  :: string, search, substitute
-        character(len=:), allocatable :: modifiedString
-        integer                       :: i, stringLen, searchLen
+        IMPLICIT NONE
+        CHARACTER(len=*), INTENT(IN)  :: string, search, substitute
+        CHARACTER(len=:), allocatable :: modifiedString
+        INTEGER                       :: i, stringLen, searchLen
         stringLen = len(string)
         searchLen = len(search)
         if (stringLen==0 .or. searchLen==0) then

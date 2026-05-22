@@ -27,7 +27,7 @@
 !        using an O(N/KU+KU)xKUxKU algorithm
           INTEGER, PARAMETER :: wp = KIND(0.0D0) ! working precision
 !        .. Scalar Arguments ..
-          Integer, Intent(IN) ::  KU, LDAB, LDB, N, NRHS
+          INTEGER, Intent(IN) ::  KU, LDAB, LDB, N, NRHS
           INTEGER, INTENT(OUT) :: INFO
 !        .. Array Arguments ..
           Real(wp), Intent(IN) :: AB( ldab, * )
@@ -66,7 +66,7 @@
 !        'SOLVING LEAST SQUARES PROBLEMS', by Lawson and Hanson, Prentice-Hall, 1974.
 !        Programming and later changes and corrections by Lawson,Hanson,
 !        T.Lang, and D.Campbell, Sept 1968, Nov 1969, and Aug 1970.
-          integer IERR1, NW, NXY, NB
+          INTEGER IERR1, NW, NXY, NB
           double precision XI(NXY), YI(NXY), SDI(*), B(NB), W(NW, 5)
           double precision YKNOT(NB), YPKNOT(NB)
           double precision SIGFAC

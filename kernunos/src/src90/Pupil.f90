@@ -2,20 +2,20 @@
 
        subroutine Pupil(b, dist, pupil_elements, pupil_vertices, pupil_nV, pupil_nE)
        use cornea_arrays, ONLY : wpJMatrix
-       use set_precision, ONLY : wp
-       use, intrinsic :: iso_c_binding, ONLY : c_float,c_int
-       use, intrinsic ::  ieee_arithmetic
+       USE set_precision, ONLY : wp
+       USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int
+       USE, INTRINSIC ::  ieee_arithmetic
        use ISO_FORTRAN_ENV, only: stdin=>input_unit     ! for the pause read(stdin,*)
        IMPLICIT NONE
        TYPE(wpJMatrix),INTENT(IN) :: b
-       integer(c_int), INTENT(INOUT) :: pupil_elements(*)                          ! faces x 3
-       real(c_float), INTENT(INOUT) :: pupil_vertices(*), dist                     ! vertices x 6
-       integer(c_int), INTENT(INOUT) :: pupil_nE, pupil_nV
-       real(wp) :: X1,X2,X3
-       real(wp) :: vert1,vert2,vert3
-       real(c_float) :: c_vert(3),c_rgbv(3),c_norm(3)
-       integer :: i,k,M1
-       integer(c_int) :: ivert1,ivert2,ivert3
+       INTEGER(c_int), INTENT(INOUT) :: pupil_elements(*)                          ! faces x 3
+       REAL(c_float), INTENT(INOUT) :: pupil_vertices(*), dist                     ! vertices x 6
+       INTEGER(c_int), INTENT(INOUT) :: pupil_nE, pupil_nV
+       REAL(wp) :: X1,X2,X3
+       REAL(wp) :: vert1,vert2,vert3
+       REAL(c_float) :: c_vert(3),c_rgbv(3),c_norm(3)
+       INTEGER :: i,k,M1
+       INTEGER(c_int) :: ivert1,ivert2,ivert3
 
        M1=size(b%r,2)
        c_rgbv = (/0,0,0/)
@@ -23,9 +23,9 @@
 
 !      vertices  
        k=1        
-       vert1 = real(b%Pupil_Center(1),kind=4)   !explicitly make these c/w c_float
-       vert2 = real(b%Pupil_Center(2),kind=4)
-       vert3 = real(dist,kind=4)
+       vert1 = REAL(b%Pupil_Center(1),kind=4)   !explicitly make these c/w c_float
+       vert2 = REAL(b%Pupil_Center(2),kind=4)
+       vert3 = REAL(dist,kind=4)
        c_vert=real((/vert1,vert2,vert3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float
        pupil_vertices(k:k+8)=(/c_vert,c_norm,c_rgbv/)
        k=k+9      ! matrix index
@@ -33,9 +33,9 @@
          X1=b%THT(i)         ! in radians
          X2=b%PU(i)          ! pupil radius
          X3=dist             ! pupil position in Z        
-         vert1 = real(ABS(X2)*COS(X1),kind=4)   !explicitly make these c/w c_float
-         vert2 = real(ABS(X2)*SIN(X1),kind=4)
-         vert3 = real(X3,kind=4)
+         vert1 = REAL(ABS(X2)*COS(X1),kind=4)   !explicitly make these c/w c_float
+         vert2 = REAL(ABS(X2)*SIN(X1),kind=4)
+         vert3 = REAL(X3,kind=4)
          c_vert=real((/vert1,vert2,vert3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float
          pupil_vertices(k:k+8)=(/c_vert,c_norm,c_rgbv/)
          k=k+9      ! matrix index

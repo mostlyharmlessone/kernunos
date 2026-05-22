@@ -1,9 +1,9 @@
        SUBROUTINE PRINTGRAPH(unitno1,POWMIN,POWMAX,FILENAME)
-       use set_precision, only : wp
+       USE set_precision, only : wp
        REAL(wp), INTENT(IN) :: POWMIN, POWMAX
-       integer, intent(in) :: unitno1
-       character(len=*), intent(in) :: FILENAME
-       real :: col(12)
+       INTEGER, INTENT(IN) :: unitno1
+       CHARACTER(len=*), INTENT(IN) :: FILENAME
+       REAL :: col(12)
 
 800    FORMAT(A,F6.1,A,F6.1,A)
 900    FORMAT(A,F6.1,A,A,A,F6.1,A,A,A,F6.1,A,A,A,F6.1,A,A,A,&

@@ -1,16 +1,16 @@
        subroutine pspli(t,z,n,zt2, err_report)
-       use parameters, only : PI, EPS
-       use set_precision, only :  wp
+       USE parameters, only : PI, EPS
+       USE set_precision, only :  wp
        USE special_fct, ONLY : OPERATOR(.p.) !tensor summation convention
        use LapackInterface, ONLY : dctsv !, dgesv, GaussJordan
        use,intrinsic :: ieee_arithmetic
 
 !      PERIODIC BOUNDARY CONDITION SPLINE
-       REAL(wp), intent(in) :: t(n)
-       REAL(wp), intent(in) :: z(n)
-       INTEGER, intent(in) :: n
-       REAL(wp), intent(out) ::zt2(n)
-       integer, INTENT(OUT) :: err_report
+       REAL(wp), INTENT(IN) :: t(n)
+       REAL(wp), INTENT(IN) :: z(n)
+       INTEGER, INTENT(IN) :: n
+       REAL(wp), INTENT(OUT) ::zt2(n)
+       INTEGER, INTENT(OUT) :: err_report
        REAL(wp) :: PERD,error
        REAL(wp) :: d(n),a(n),b(n),c(n) !,AA(n,n)
        INTEGER :: m,j,info !,ipiv(n)

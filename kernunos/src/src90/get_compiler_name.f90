@@ -1,10 +1,10 @@
 ! based on https://fortran-lang.discourse.group/t/best-practices-for-passing-c-strings/104
  subroutine get_compiler_name(c_f) BIND(C, NAME='get_compiler_name_')
-  use, intrinsic :: iso_c_binding, ONLY : c_char, c_null_char
-  use, intrinsic :: iso_fortran_env
-  character(kind=c_char), dimension(*), intent(inout) :: c_f
-  integer :: inc,i
-  character(80) f
+  USE, INTRINSIC :: iso_c_binding, ONLY : c_char, c_null_char
+  USE, INTRINSIC :: iso_fortran_env
+  CHARACTER(kind=c_char), dimension(*), INTENT(inout) :: c_f
+  INTEGER :: inc,i
+  CHARACTER(80) f
   f = compiler_version()
   inc= len(trim(f))
   do i = 1, inc

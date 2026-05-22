@@ -2,9 +2,9 @@
        USE parameters, ONLY : PI
        USE set_precision, ONLY : wp
        use io_functions, only : get_new_fileunit
-       real(wp),INTENT(IN) :: a, b(:,:)
-       character(len=*), intent(in) :: KXNAME
-       integer :: N,MM,i,unitno1
+       REAL(wp),INTENT(IN) :: a, b(:,:)
+       CHARACTER(len=*), INTENT(IN) :: KXNAME
+       INTEGER :: N,MM,i,unitno1
        N=size(b,1)-1
        MM=size(b,2)
        unitno1 = get_new_fileunit()

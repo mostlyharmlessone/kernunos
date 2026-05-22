@@ -2,8 +2,8 @@
 !     relies on MakeRadSplineCenter
       subroutine AdjustRadSplineCenter 
       USE cornea_arrays, ONLY : DiaSlope, RadSlope, RadSplineCenter
-      implicit none
-      integer :: i,j,MM,N
+      IMPLICIT NONE
+      INTEGER :: i,j,MM,N
       MM=size(RadSlope%r,2)
       N=size(RadSlope%r,1)
       do j=1,MM/2
