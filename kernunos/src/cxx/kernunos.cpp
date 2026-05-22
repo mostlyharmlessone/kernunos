@@ -1138,8 +1138,7 @@ void MainWindow::showzern()
     return;
 }
 
-void MainWindow::importexport()
-{
+void MainWindow::importexport(){
     //make temporary PLY file name
     QTemporaryFile FILE;
     FILE.setAutoRemove(true);
@@ -1313,8 +1312,7 @@ void MainWindow::importexport()
    update();
 }
 
-void MainWindow::ply2bin()
-{
+void MainWindow::ply2bin(){
     QString filter = "binary PLY *.bin.ply (*.bin.ply)";
     QString fileName = QFileDialog::getSaveFileName(this,"Write to binary PLY .bin.ply", "", filter);
     if (fileName.isEmpty())
@@ -1347,8 +1345,7 @@ void MainWindow::ply2bin()
    update();
 }
 
-void MainWindow::off2stl()
-{
+void MainWindow::off2stl(){
    QString filter = "STL *.stl  (*.stl) ;; Binary with color *.bin.stl (*.bin.stl)";
    QString fileName = QFileDialog::getSaveFileName(this,"Write to an ASCII STL or Binary (with color) STL file", "", filter);
    if (fileName.isEmpty())
@@ -1373,11 +1370,10 @@ void MainWindow::off2stl()
    flag=flag-(flag%100)+2;  // last two digits of flag=2;
    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
    future1.get();
-
    std::string str(filenameout1);
    bool binary = str.find(".bin.stl")!= std::string::npos;;
+//  prove the weird out of scope thing
 //   std::cout << str << " " << binary << std::endl;   //filenameout1 still here
-
    int deftype =0;
    if(binary){
        QMessageBox msgBox(QMessageBox::Question, tr("Binary STL color"),
@@ -1392,15 +1388,14 @@ void MainWindow::off2stl()
        if (reply == QMessageBox::No) {deftype=1;}
        if (reply == QMessageBox::Cancel) {deftype=2;}
    }
-// had to do this because filenameout1 disappears when the above if(binary) stanza exists after defining ??!!
+// had to do this because filenameout1 disappears when the above if(binary) stanza exists after defining ??!! some weird out of scope thing
    ba = fileName.toLocal8Bit();
    char *filenameout = ba.data();
-
+//   proof of above
 //   std::string str2(filenameout);
 //   std::cout << str2 << " " << deftype << std::endl;
 //   std::string str3(filenameout1);
 //   std::cout << str3 << " " << deftype << std::endl; //filenameout1 gone, unless I define filenameout!
-
    ConvertOFFtoSTL_C_(filename,filenameout,&deftype);
    ui.infoLabel->setText(tr("Wrote  ")+tr(filenameout));
    FILE.remove();    //doesnt do anything
@@ -1420,8 +1415,7 @@ void MainWindow::makeoff()
    ui.infoLabel->setText(tr("Wrote  ")+tr(filename));
 }
 
-void MainWindow::makeply()
-{
+void MainWindow::makeply(){
    QString filter = "PLY *.ply  (*.ply) ";
    QString fileName = QFileDialog::getSaveFileName(this,"Write to an ASCII PLY file", "", filter);
    if (fileName.isEmpty())
@@ -1434,8 +1428,7 @@ void MainWindow::makeply()
    ui.infoLabel->setText(tr("Wrote  ")+tr(filename));
 }
 
-void MainWindow::LinesofCurvature()
-{
+void MainWindow::LinesofCurvature() {
     QTemporaryFile FILE;
     FILE.setAutoRemove(true);  //does not do anything
     if(!FILE.open()) return;
@@ -1447,6 +1440,9 @@ void MainWindow::LinesofCurvature()
     auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
     future1.get();
     int wrote=lioc(filename);
+//  dumps a copy of the temporary file
+//    std::string str(filename);
+//    system(("cp " + str + " dump" ).c_str());
    if (wrote == 0) {
        ui.infoLabel->setText(tr("gnuplot called successfully for lioc  ")); }
    else {
@@ -1454,7 +1450,6 @@ void MainWindow::LinesofCurvature()
 }
 
 void MainWindow::gnuplotsplot() {
-
    if (system(NULL)) puts (" gnuplot available");
    else exit (EXIT_FAILURE);
    if(system("command -v gnuplot > /dev/null 2>&1") ){

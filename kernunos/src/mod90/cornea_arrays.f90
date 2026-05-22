@@ -1430,7 +1430,7 @@ subroutine EyeSys_LSQfillin(EyeSys,b,a)
  end do
 end subroutine EyeSys_LSQfillin
 
-
+! not being used currently
  function pca(M3,b) result(a)
  use set_precision, ONLY : wp
  TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
@@ -1594,13 +1594,13 @@ end subroutine EyeSys_LSQfillin
    endif
  end subroutine principal
 
-! principal_directions calculations
+! principal_directions calculations in horizontal plane
  subroutine principal_directions_0(one,t,r,hr,ht,hrt,htt,hrr,u,v,ut,vt)
   implicit none
   real(wp), INTENT(INOUT) :: t,r,hr,ht,hrt,htt,hrr
   real(wp), INTENT(OUT) :: u,v,ut,vt
   logical, intent(in) :: one
-  real(wp) :: hu,hv,huu,hvv,huv,g,K,H,m,m1,k1,k2,astig,kappa
+  real(wp) :: hu,hv,huu,hvv,huv,g,K,H,m,m1,k1,k2,astig,kappa,RR(3,3),pos(3),R0(3,3),e1(3),e2(3),e3(3),rv1(3),rv2(3)
    r=abs(r) ; hr=abs(hr)
 !  cartesian conversion
    hu = hr*cos(t)-sin(t)*ht/r
@@ -1619,16 +1619,27 @@ end subroutine EyeSys_LSQfillin
    k2 = H - sqrt(abs(H*H-K))
    astig=2*sqrt(abs(H*H-K))
    kappa = (hvv*v*v+2*u*v*huv+huu*u*u)/((v*v*(1+hv*hv)+u*u*(1+hu*hu)+2*u*v*hu*hv)*sqrt(g))
-!  Using ut,vt with the slope/angle defined below in the u,v plane not the tangent plane
-   m = sqrt(ABS((k1-kappa)/(kappa-k2)))
+   pos(1) = u/r ;  pos(2) = v/r ; pos(3) = 0
+!  cartesian basis
+   e1(:) = 0 ; e2(:) = 0 ; e3(:) = 0
+   e1(1) = 1 ; e2(2) = 1 ; e3(3) = 1
+!  cartesian rotation by 90 degrees
+   R0(1,:) = e2(:) ; R0(2,:) = -e1(:) ; R0(3,:) = e3(:)
+ ! rotation of principal directions in cartesian coordinates
+   RR(1,1) = sign(sqrt(ABS((k1-kappa)/astig)),u) ; RR(1,2) = sign(sqrt(ABS((kappa-k2)/astig)),v) ; RR(1,3) = 0
+   RR(2,1) = -RR(1,2)  ;                           RR(2,2) =  RR(1,1) ;                            RR(2,3) = 0
+   RR(3,1) = 0 ;                                   RR(3,2) = 0 ;                                   RR(3,3) = 1
+   rv1 = matmul(RR,pos)
+   rv2 = matmul(matmul(R0,RR),pos)
    if (one) then
-    ut=sign(RFCT*k1/(sqrt(1+m*m)),v)
-    vt=-sign(RFCT*k2*m/(sqrt(1+m*m)),u)
+    ut=-sign(RFCT*k2*rv2(1),v)
+    vt= sign(RFCT*k2*rv2(2),u)
    else
-    ut=sign(RFCT*k2*m/(sqrt(1+m*m)),u)
-    vt=sign(RFCT*k1/(sqrt(1+m*m)),v)
+    ut=sign(RFCT*k1*rv1(1),u)
+    vt=sign(RFCT*k1*rv1(2),v)
    endif
  end subroutine principal_directions_0
+
 
 ! this version with calculations in the tangent plane
  subroutine principal_directions(one,t,r,hr,ht,hrt,htt,hrr,u,v,ut,vt)
@@ -1636,11 +1647,12 @@ end subroutine EyeSys_LSQfillin
   real(wp), INTENT(INOUT) :: t,r,hr,ht,hrt,htt,hrr
   real(wp), INTENT(OUT) :: u,v,ut,vt
   logical, intent(in) :: one
+  ! these names follow the conventions/are defined in Curvature_equations/notes
   real(wp) :: hu,hv,huu,hvv,huv,g,K,H,m,m1,k1,k2,astig,kappa
   real(wp) :: MMM(3,3),nrml(3),rv(3),rvp1(3),rvp2(3),pos(3),J(3,3),e1(3),e1p(3),e2(3),e2p(3),e3(3),e3p(3),IJ(3,3),B(3),RR(3,3),R0(3,3)
   integer :: INFO,IPIV(3)
   r=abs(r) ; hr=abs(hr)
-! cartesian conversion
+! convert to cartesian conversion
   u=r*cos(t)
   v=r*sin(t)
   hu = hr*cos(t)-sin(t)*ht/r
@@ -1660,42 +1672,56 @@ end subroutine EyeSys_LSQfillin
   astig=2*sqrt(abs(H*H-K))
   kappa = (hvv*v*v+2*u*v*huv+huu*u*u)/((v*v*(1+hv*hv)+u*u*(1+hu*hu)+2*u*v*hu*hv)*sqrt(g))
   pos(1) = u/r ;  pos(2) = v/r ; pos(3) = 0
-  nrml(1) = -hu/sqrt(g) ;   nrml(2) = -hv/sqrt(g)  ;   nrml(3) = 1/sqrt(g)
-  MMM(1,1) = 1 - hu**2  ; MMM(1,2) = -hu*hv ;     MMM(1,3) = -hu
-  MMM(2,1) = -hu*hv  ;    MMM(2,2) = 1 - hv**2 ;  MMM(2,3) = -hv
-  MMM(2,1) = -hu  ;       MMM(2,2) = -hv ;       MMM(3,3) = 0
+  nrml(1) = -hu ;   nrml(2) = -hv  ;   nrml(3) = 1
+  MMM(1,1) = g - hu**2  ; MMM(1,2) = -hu*hv ;     MMM(1,3) = hu
+  MMM(2,1) = -hu*hv  ;    MMM(2,2) = g - hv**2 ;  MMM(2,3) = hv
+  MMM(3,1) = hu  ;        MMM(3,2) = hv ;         MMM(3,3) = g - 1
+  MMM = MMM/g
+! cartesian basis
   e1(:) = 0 ; e2(:) = 0 ; e3(:) = 0
   e1(1) = 1 ; e2(2) = 1 ; e3(3) = 1
-  R0(1,:) = e2(:) ; R0(2,:) = -e1(:) ; R0(3,:) = e3(:) ; RR(3,:) = e3(:)
-  RR(1,1) = sign(sqrt(ABS((kappa-k1)/astig)),u)
-  RR(1,2) = sign(sqrt(ABS((kappa-k1)/astig)),v)
-  RR(2,1) = RR(1,2)
-  RR(2,2) = RR(1,1)
+! cartesian rotation by 90 degrees
+  R0(1,:) = e2(:) ; R0(2,:) = -e1(:) ; R0(3,:) = e3(:)
+! rotation of principal directions in cartesian coordinates
+  RR(1,1) = sign(sqrt(ABS((k1-kappa)/astig)),u) ; RR(1,2) = sign(sqrt(ABS((kappa-k2)/astig)),v) ; RR(1,3) = 0
+  RR(2,1) = -RR(1,2)  ;                           RR(2,2) =  RR(1,1) ;                            RR(2,3) = 0
+  RR(3,1) = 0 ;                                   RR(3,2) = 0 ;                                   RR(3,3) = 1
   rv(:) = matmul(MMM,pos)
-  e3p(:) = nrml(:)
-  e1p(:) = rv(:) - dot_product(rv,nrml)*nrml(:)
+  e3p(:) = nrml(:)/sqrt(g)
+  e1p(:) = rv(:) - dot_product(rv,e3p)*e3p(:)
   e1p(:) = e1p(:)/sqrt(dot_product(e1p,e1p))
   e2p(:) = cross_product(e3p,e1p)
+  ! metric tensor
   J(1,1) = dot_product(e1,e1p) ; J(1,2) = dot_product(e1,e2p) ; J(1,3) = dot_product(e1,e3p)
   J(2,1) = dot_product(e2,e1p) ; J(2,2) = dot_product(e2,e2p) ; J(2,3) = dot_product(e2,e3p)
   J(3,1) = dot_product(e3,e1p) ; J(3,2) = dot_product(e3,e2p) ; J(3,3) = dot_product(e3,e3p)
   IJ=J
+  ! gets the inverse of the metric tensor
   call GaussJordan( 3, 0, IJ, 3, B, 3, INFO )
   if (INFO .ne. 0) then
    write(*,*) 'Warning in G_J in principal directions'
   endif
-  rvp1 = matmul(matmul(matmul(Transpose(IJ),RR),Transpose(J)),rv)
-  RR = matmul(R0,RR)
-  rvp2 = matmul(matmul(matmul(Transpose(IJ),RR),Transpose(J)),rv)
-  if (one) then
-   ut=rvp1(1)
-   vt=rvp1(2)
-  else
-   ut=rvp2(1)
-   vt=rvp2(2)
-  endif
+  rvp1 = matmul(matmul(matmul(Transpose(IJ),RR),Transpose(J)),rv) 
+  rvp2 = matmul(matmul(matmul(Transpose(IJ),matmul(R0,RR)),Transpose(J)),rv)
+! sanity checks/tests
+!  N[(m.rvp1).(m.rv)-(m.rv).(m.rv)*cos]->0
+!  N[(m.rvp2).(m.rv)+(m.rv).(m.rv)*sin]->0
+!  N[tv.rvp-tv.rv]->0
+!  N[rvp.rvp-rv.rv]->0
+!   write(*,*) dot_product(rvp1,rvp1)-dot_product(rv,rv)
+!   write(*,*) dot_product(nrml,(rvp1-rv))
+!   write(*,*) dot_product(matmul(MMM,rvp1),matmul(MMM,rv))-dot_product(matmul(MMM,rv),matmul(MMM,rv))*RR(1,1)
+!   write(*,*) dot_product(rvp2,rvp2)-dot_product(rv,rv)
+!   write(*,*) dot_product(nrml,(rvp2-rv))
+!   write(*,*) dot_product(matmul(MMM,rvp2),matmul(MMM,rv))+dot_product(matmul(MMM,rv),matmul(MMM,rv))*RR(1,2)
+   if (one) then
+    ut=-sign(RFCT*k2*rvp2(1),v)
+    vt= sign(RFCT*k2*rvp2(2),u)
+   else
+    ut=sign(RFCT*k1*rvp1(1),u)
+    vt=sign(RFCT*k1*rvp1(2),v)
+   endif
 end subroutine principal_directions
-
 
 ! axisymmetric_principal curvature calculations
  subroutine axisymmetric_principal(r,hr,hrr,K,H,k1,k2,A)

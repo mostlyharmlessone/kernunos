@@ -49,8 +49,12 @@ static QString documentationDirectory()
     paths.append(QStandardPaths::standardLocations(QStandardPaths::AppDataLocation));
     for (const auto &dir : std::as_const(paths)) {
         const QString path = "../../documentation";
+ //       const QString path = dir + "../../documentation";
+ //       const QString path = dir +"/documentation"_L1;
+        const QString path2 = dir;
 
         std::cout << "Qt Assistant path to documentation: " << path.toStdString() << "\n";
+        std::cout << "Qt Assistant locl path: " << path2.toStdString() << "\n";
 
         if (QFileInfo::exists(path))
             return path;

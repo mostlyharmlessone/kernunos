@@ -1,13 +1,18 @@
 FIXES
 
-have to fix lines of curvature
-currently at lines ~1660-1670 cornea_arrays.f90
-new version needs save to dump for exam
-
 Test doesn't work if it isn't the first one
+
+
+fix this directory issue; maybe incorporate into About/Documents pdfopen too.
+CmakeFiles/kernunos.dir/src/cxx/assistant.cpp.o
+/home/debeus/Janus/kernunos/src/cxx/assistant.cpp: In function ‘QString documentationDirectory()’:
+/home/debeus/Janus/kernunos/src/cxx/assistant.cpp:50:22: warning: unused variable ‘dir’ [-Wunused-variable]
+   50 |     for (const auto &dir : std::as_const(paths)) {
+
 
 compare is broken with zernike; also so is opening 2nd file with zernike selected and zernike
 enforce, or have a warning having to make new zernike after loading new data, also if tweaks changed
+
 
 enforce, or have a warning having to make new zernike after loading new data, also if tweaks changed
 
@@ -19,10 +24,7 @@ probably can run kernunos but not janus?
 search for Visia in source code to strip out or enable eysys version of reading visia if I fix it
 redo- Rowsey curvature?
 
-CmakeFiles/kernunos.dir/src/cxx/assistant.cpp.o
-/home/debeus/Janus/kernunos/src/cxx/assistant.cpp: In function ‘QString documentationDirectory()’:
-/home/debeus/Janus/kernunos/src/cxx/assistant.cpp:50:22: warning: unused variable ‘dir’ [-Wunused-variable]
-   50 |     for (const auto &dir : std::as_const(paths)) {
+remove boost if not needed
 
 
 ENHANCEMENTS:
@@ -30,6 +32,8 @@ ENHANCEMENTS:
 2-D LSQSpline: review article again, work on stand-alone program first, but probably want polar version with adjustable grid size
 
 consider adding sound to play after/during zernike compute, but might need option to turn off http://github.com/zserge/beep or get fancy with .ogg
+
+consider replacing sparsekit code with https://stdlib.fortran-lang.org/index.html COO/CSR types https://stdlib.fortran-lang.org/module/stdlib_sparse_kinds.html
 
 ? needs extreme value filter; or histogram of values for median and color scale  like OPDIII
 resurrect old noise reduction code to help out monge-astig and meanc for real data?
@@ -65,7 +69,12 @@ PentaCam U12 file looks like it has binary data separated by blocks of zero, pos
 
 OPTIMIZING
 
-1)valgrind/profiling 
+clean up capitalization, name issues, comments, style
+
+valgrind/profiling 
+valgrind --tool=memcheck --log-file=memcheck00.txt --leak-check=full --read-var-info=yes ./kernunos  shows a lot of leaks but with no interaction
+
+Cachegrind, Callgrind and Massif are useful to figure out where the bottlenecks in the application lie, and where one should focus any optimization efforts.
 
 https://stackoverflow.com/questions/868568/what-do-the-terms-cpu-bound-and-i-o-bound-mean/33510470#33510470
 

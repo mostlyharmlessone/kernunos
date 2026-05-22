@@ -1,8 +1,8 @@
 // adapted from http://stahlke.org/dan/gnuplot-iostream/
 
 //#include <vector>
-#include <cmath>
-#include <boost/tuple/tuple.hpp>
+//#include <cmath>
+//#include <boost/tuple/tuple.hpp>
 
 #include "gnuplot-iostream/gnuplot-iostream.h"
 
@@ -15,7 +15,6 @@ int lioc(const char *iname) {
         return 1;
     }
 
-    // would be better if calcs could be done here instead of in janus?
     Gnuplot gp;
     gp << "set term wxt 1 title 'Direction 1' \n";
     gp << "plot \"" << iname << "\" using 1:2:3:4 with vectors title" <<'"'<< "Direction 1" << '"' << "\n";
