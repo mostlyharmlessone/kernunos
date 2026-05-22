@@ -54,7 +54,7 @@ Q: What are the Center Deviations?
 
 A: Center Deviations shows where the spline of slopes is zero, it should be close to zero  for a concave center with a unique maximum.  Because Placido disk data is stored by meridian with the implicit assumption that rays stay in the plane (which is only true for non-astigmatic axially symmetric surfaces), the one dimensional spline reconstructions through the center (where there is no data) will all predict a different local minmax. It should be noted that elevation data, as found in an ELE file from the Oculus PentaCam device or HT files from a NIDEK machine also do not have a unique min/max, at least not within the limits of the significant digits of the exported data. The one Oculus Keratograph CORNEA.O(D/S) file I have seen has computed data, with a min/max at the origin enforced. Different machine files differ as to how the deviations differ from each other. Decentering the image increases the deviations. 
 
-Decentering simply moves intrinsic properties such as shape and principal curvatures, but non-tensor quantities, for example slope based, change with a change of basis/coordinate axis. One of the fundamental problems with traditional corneal topography maps is that they are slope based axial "curvatures", and as derivatives of vectors, unlike vectors, are not tensors. They are therefore not intrinsic, and change with decentering.  As a demonstration, if one decenters an image while using the axisymmetric definitions of axial power, the plot will show distortion similar to central astigmatism. If the "axial power" is redefined using the intrinsic principal curvatures, the plot does not change with decentering (within the limits of computational errors induced). Or you could use Gaussian power, or any other function.
+Decentering simply moves intrinsic properties such as shape and principal curvatures, but non-tensor quantities, for example slope based, change with a change of basis/coordinate axis. One of the fundamental problems with traditional corneal topography maps is that they are slope based axial "curvatures", and as derivatives of vectors, unlike vectors, are not tensors. They are therefore not intrinsic, and change with decentering.  As a demonstration, if one decenters an image while using the axisymmetric definitions of axial power, the plot will show distortion similar to central astigmatism. If the "axial power" is redefined as the first principal curvatures, the plot does not change with decentering (within the limits of computational errors induced). Or you could use Gaussian power, or any other function.
 
 Q: What are all the Menu Options and what do they do?
 
@@ -65,8 +65,7 @@ File:
 	  Test (generates a curved concave test surface)
 	  Check spline consistency (optional test on Atlas/NIDEK/Keratograph files integrating slopes and comparing with supplied elevations, optionally loads a matching PentaCam  file if it exists to compute matching elevations from slopes to elevations)
 	  Use a LSQ spline instead of linear spline for PentaCam conversion 
-      Compare (compares last two loaded files based on current selected function)
-	           These are often called "difference maps" Note that the legend will have scientific notation added with E-2, for example, added if the differences are small.
+      Compare (compares last two loaded files based on current selected function and the 		  Continuous Hue Heatmap Color Scale) These are often called "difference              maps" Note that the legend will have scientific notation added with E-2,            for example, added if the differences are small.
       Decenter (simulates decentering the image)
 	  			Repeat decentering of the same image may eventually lead to artefacts from rounding errors, if so, better reload the data.
 	  Crop (allows for removing peripheral data points or Squashing the data relative to         the average, a primitive noise filter)			
@@ -90,13 +89,13 @@ Analyze:
 ```
 Compute Zernike (computes central Zernike coefficients and maps)
 Show Zernike (uses gnuplot to show Zernike coefficients if present)
-Principal Directions (uses gnuplot to show Principal Directions)
+Principal Directions (uses gnuplot to show Principal Direction Vector Fields)
 Center Deviations (see below under Bad data)
 Show circumferential rings (see below under Bad data)		 
 Plot with GnuPlot Splot  (shows image in a pixellated gnuplot version)
 ```
 
-GnuPlot windows pop up separately and can be printed/exported to SVG, PDF or PNG. Principal directions are projections onto the x,y plane rather than being computed in the tangent plane of the surface.  See [Curvature_notes.pdf] 
+GnuPlot windows pop up separately and can be printed/exported to SVG, PDF or PNG. Principal directions are projections onto the x,y plane but computed in the tangent plane of the surface.  See [Curvature_notes.pdf] 
 
 Function: (many different things to display, pick one)
 ```
@@ -112,7 +111,7 @@ Zernike quantities (listed, greyed out until computed)
 
 The Axial power is selected by default. Note that the Axial and Tangential powers are really only defined under axisymmetric assumptions. See [Curvature_notes.pdf] There are multiple other ways in which it could be defined, see [Curvature_equations.pdf] for alternatives.  It is unclear (because of the lack of documentation) which equation VK machines actually use, or if they are the same.
 
-If not imposing axisymmetric assumptions (see Tweaks below), the Axial Power shown is the first principal curvature, with the second principal curvature shown by Tangential or Instantaneous Power.  The "Warp or Oblique Power" substitutes circumferential curvature for meridional curvature in the "axial power" formula and shows the logical and mathematical disjunction of these concepts. It is not a recognized concept in the literature or known to have any clinical usefulness.  
+If not imposing axisymmetric assumptions (see Tweaks below), the Axial Power shown is the first principal curvature, with the second principal curvature shown by Tangential or Instantaneous Power. There are alternate definitions of "Axial Power" proposed in the literature, although I do not use them.  The "Warp or Oblique Power" substitutes circumferential curvature for meridional curvature in the "axial power" formula and shows the logical and mathematical disjunction of these concepts. It is not a recognized concept in the literature or known to have any clinical usefulness, but I find it interesting.
 
 Color: (palette choice, pick one)
 
@@ -128,7 +127,7 @@ Perceptually Uniform 9 shade Palette discrete map with linear interpolation with
 Perceptually Uniform 9 shade palette discrete map with linear interpolation
 ```
 
- Hopefully self explanatory, the Universal Scale Smolek-Klyce with fixed range is selected by default, though it is really best for Axial/Sagittal curvatures. Monge Astigmatism, for example, has much smaller values and would benefit from a relative rather than absolute scale. The last two attempt to be more readable for individuals with impaired color vision.
+ Hopefully self explanatory, the Universal Scale Smolek-Klyce with fixed range is selected by default, though it is really best for Axial/Sagittal curvatures. Monge Astigmatism, for example, has much smaller values and would benefit from a relative rather than absolute scale, such as the Continuous Hue Heatmap. The last two attempt to be more readable for individuals with impaired color vision.
 
 View: 
 
@@ -139,7 +138,7 @@ View:
       Show Axes (shows axes, not compatible with Normals)
 	  Show Angles (shows a circle with degrees at each clock hour, not compatible with Normals)
 	  Show Powers (shows some representative central powers, not compatible with Normals)
-	  Scaled power instead of elevation makes a scaled elevation map of the plotted power instead of mapping the corneal elevation (requires a Redraw command)
+	  Scaled power instead of elevation makes a scaled elevation map of the plotted power instead of mapping the corneal elevation (requires a Redraw command) These are sometimes called potato chip graphs/plots.
 	  
 These seem self explanatory.  
 
@@ -153,7 +152,7 @@ Placido Disk Tweaks:
 	  Fillin Placido by circumferential spline
 	  Use LSQ instead of circumferential spline
 	  
-The first uses simplified formulas to compute properties which do not use calculated radially based derivatives. See [Curvature_equations.pdf]. Since the computed angular derivatives are quite sensitive to data error, this might be the only way to get reasonable pictures. Using the Test option instead of real data can illustrate the difference in the axisymmetric assumptions quite well. See for example the appearance of umbilical points in the Test data only when using the axisymmetric equations. Umbilical points? see [Curvature_notes.pdf]  The next three are somewhat self explanatory, but read the README as well as the aforementioned pdfs. Some data with one or either centernode tweaks and cubic integration and no axisymmetry may lead to poor results centrally.
+The first uses simplified formulas to compute properties which do not use calculated radially based derivatives. See [Curvature_equations.pdf]. Since the computed angular derivatives are quite sensitive to data error, this might be the only way to get reasonable pictures. Using the Test option instead of real data can illustrate the difference in the axisymmetric assumptions quite well. See for example the appearance of umbilical points in the Test data only when using the axisymmetric equations. Umbilical points? see [Curvature_notes.pdf]  Umbilical points are best spotted with either Monge Astigmatism (look for minima/zeroes) or Principal directions (look for derangement). The next three are somewhat self explanatory, but read the README as well as the aforementioned pdfs. Some data with one or either centernode tweaks and cubic integration and no axisymmetry may lead to poor results centrally.  Note that Principal curvature vector fields under Analyze are always computed without axisymmetric assumptions, because axisymmetry leads to only one vector field: radials and cricles.
 
 The next two options are for missing data in files. Unlike Oculus Keratograph files, apparently, Zeiss Atlas and at least one EyeSys file encountered in the wild can have missing meridians where presumably no good data was obtained. If one chooses, the missing meridians can be interpolated from their neighbors with one of the two methods. Bear in mind that there really is no cure for bad or missing data, reconstructed poor data will still probably not resemble data from the same eye with a better tear film. The Placido disk uses reflections and measures the optical surface, which comprises the tear film and the underlying cornea, so measuring two different tear films is measuring two different eyes in that sense. Bad data is also more likely to cause computation errors or crashes, YMMV.
 
@@ -165,6 +164,7 @@ About:
 
        Help: (shows manual, including links to this document and others)
        About (provides some information about the hardware)
+	   Documentation (small pdf reader for relevant documentation)
 	   About Qt (about the graphical widgets used to make the GUI with C++)
 
 
@@ -243,11 +243,11 @@ A: No. See the above. See the README under Usage.  However, there are no intenti
 
 Q: Why didn't you just "vibe code" this with an AI? (This is almost actually a real question from a real person too!)
 
-A: You're welcome to try that approach.  However it's not for me, see the README, notably, and I quote, "no AI/LLM was used for any part of this project, the goal of which has been to exercise my imagination, not to outsource the effort of making things up." Also see the answer to the second question above in the FAQ.
+A: You're welcome to try that approach.  However it's not for me, see the README, notably, and I quote, "no LLM was used for any part of this project, the goal of which has been to exercise my imagination, not to outsource the effort of making things up." Also see the answer to the second question above in the FAQ.
 
 Q: Variation: Why not just give topography images/data to an AI and have it tell you how they differ or not?
 
-A: Several reasons. The purpose of this is not to just have an answer, an oracle, or an authority, but to understand the data and learn somethng about it and its limitations. If you just want an opinion, ask any non-artifical intelligence that you trust.  Perhaps one day AI will be able to look at two images or data sets, perhaps encrypted proprietary ones, do all the computations done here and give you an answer with detailed data and an explanation that you can believe and explain to someone else, (presumably boring them to tears in the process). Today is not that day.
+A: Several reasons. The purpose of this is not to just have an answer, an oracle, or an authority, but to understand the data and learn somethng about it and its limitations. If you just want an opinion, ask any non-artificial intelligence that you trust.  Perhaps one day AI will be able to look at two images or data sets, perhaps encrypted proprietary ones, do all the computations done here and give you an answer with detailed data and an explanation that you can believe and explain to someone else, (presumably boring them to tears in the process). Today is not that day.
 
 
 

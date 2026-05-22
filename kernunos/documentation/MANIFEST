@@ -21,6 +21,7 @@ Curvature_equations.odt
 Curvature_equations.pdf
 Curvature_notes.odt
 Curvature_notes.pdf
+docs
 exportmenu.html
 FAQ.html
 FAQ.md
@@ -33,6 +34,7 @@ kernunos.qch
 kernunos.qhc
 kernunos.qhcp
 kernunos.qhp
+LICENSE
 MANIFEST
 Notes on OPD-III Nidek files
 openfile.html
@@ -46,10 +48,43 @@ spline_notes.pdf
 tweaksmenu.html
 viewmenu.html
 
+documentation/docs:
+2014.08 - Keratograph External Software Interface Guide CR Edit 1.pdf
+albin2016lncs.pdf
+APPLICATION_OF_B-SPLINE_METHOD_IN_SURFACE_FITTING_.pdf
+breaking-free-pathways-to-a-fair-technological-future.pdf
+D4000244-001_ANTERION_Brochure_US.pdf
+D4002770-001_ANTERION_PromMat_OverviewLeaveBehind_EN.pdf
+DICOM_Conformance_Statement.pdf
+diff_geom.pdf
+directional_derivs.pdf
+equalityconstrainedlsq.pdf
+GaoZhangCao.pdf
+Interchangeability_between_Placido_disc_and_Scheim.pdf
+Introduction-to-Phorcides.pptx
+IOVS36101995.pdf
+itrace_aberrometry___identifying_occult.31.pdf
+keratometricindex.pdf
+MEAS_2018_Spline.pdf
+numerical_integration.pdf
+opdscan_iii.pdf
+Pentacam_Guideline_3rd_0218_k.pdf
+Pentacam.pdf
+principal-curvatures.pdf
+reviewof VK.pdf
+s41467-020-19160-7.pdf
+Spline3.pdf
+splinesurfacealgorithm.pdf
+Tensors.pdf
+Thomas.pdf
+tr20.pdf
+univerasl_standard_scale.pdf
+
 documentation/images:
 aboutmenu.png
 analyzemenu.png
 colormenu.png
+Color-scales-compared-in-this-study-four-different-American-National-Standards-Institute.png
 example1.png
 example2.png
 example3.png
@@ -79,12 +114,14 @@ convert.c
 convertplytobin.c
 ConvertPLYtoBIN.c
 counter.h
+DOSTXT.C
 get_compiler_name.h
 logc.c
 logc.h
 rply.c
 rplyfile.h
 rply.h
+SPARCTXT.C
 
 src/cxx:
 assistant.cpp
@@ -137,6 +174,7 @@ c_interfaces.f90
 cornea_arrays.f90
 io_functions.f90
 M_color.f90
+parameters.f90
 special_fct.f90
 spline_interfaces.f90
 

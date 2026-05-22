@@ -2424,7 +2424,8 @@ void MainWindow::pdfopen()
 {
     ui.infoLabel->setText(tr("Invoked <b>About|Documentation</b>"));
     QString filter = "PDF files (*.PDF *.pdf);;All (*)";
-    QString filePath = QFileDialog::getOpenFileName(this,"Read Documentation", "", filter);
+    const QString path = "../../documentation";
+    QString filePath = QFileDialog::getOpenFileName(this,"Read Documentation", path, filter);
     if (filePath.isEmpty())
         return;
 
