@@ -1,8 +1,8 @@
 ! (usually) binary search for r in rv
 ! this has gotten quite ugly and there is no doubt some better/quicker solution
-subroutine bsearch(r,rv,n,high,low)
- USE set_precision, only : wp
- USE parameters, only : eps, PI
+SUBROUTINE bsearch(r,rv,n,high,low)
+ USE set_precision, ONLY  : wp
+ USE parameters, ONLY  : eps, PI
  IMPLICIT NONE
  INTEGER, INTENT(IN) :: n
  REAL(wp), INTENT(IN) :: r, rv(n)
@@ -169,5 +169,5 @@ subroutine bsearch(r,rv,n,high,low)
  endif
 
 return
-end subroutine bsearch
+END SUBROUTINE bsearch
 

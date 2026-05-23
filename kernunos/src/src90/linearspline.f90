@@ -1,9 +1,9 @@
 ! returns z2 not as second derivatives but as parameters for linear fit; should be equal to z if r() corresponds to even spaced knots
- subroutine linspline(r,z,n,z2,err_report)
- USE set_precision, only : wp
- use LapackInterface, only : dgtsv
- use spline_interfaces, only : thomas
- use,intrinsic :: ieee_arithmetic
+ SUBROUTINE linspline(r,z,n,z2,err_report)
+ USE set_precision, ONLY  : wp
+ use LapackInterface, ONLY  : dgtsv
+ USE spline_interfaces, ONLY  : thomas
+ USE, INTRINSIC :: ieee_arithmetic
   INTEGER, INTENT(IN) :: n
   REAL(wp), INTENT(IN) ::  r(n),z(n)
   REAL(wp), INTENT(OUT) :: z2(n) 
@@ -11,7 +11,7 @@
   REAL(wp),allocatable ::  a(:),b(:),c(:),d(:),u(:),zz2(:),a_short(:)
   INTEGER :: i,info
   REAL(wp) :: f,dr
-  logical :: IsNaN    
+  LOGICAL :: IsNaN    
   INFO=0   ; err_report = 0 
   if ( n < 2 ) then  ! invalid parameter
    INFO=-1
@@ -64,7 +64,7 @@
     return
    endif 
    deallocate (a,b,c,d,u,zz2)
- end subroutine linspline
+ END SUBROUTINE linspline
 
 
  

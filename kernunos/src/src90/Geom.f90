@@ -1,12 +1,12 @@
 !      Generates matrices for openGL
 
-       subroutine Geom(flag, b, donut, powmin, powmax, elements, vertices, nV, nE)
-       use cornea_arrays, ONLY : wpJMatrix !, minmax, selectfunction !!aspirational for future use
+       SUBROUTINE Geom(flag, b, donut, powmin, powmax, elements, vertices, nV, nE)
+       USE cornea_arrays, ONLY : wpJMatrix !, minmax, selectfunction !!aspirational for future use
        USE set_precision, ONLY : wp
-       USE special_fct, only : colormap
+       USE special_fct, ONLY  : colormap
        USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_int64_t
        USE, INTRINSIC ::  ieee_arithmetic
-       use ISO_FORTRAN_ENV, only: stdin=>input_unit     ! for the pause read(stdin,*)
+       USE ISO_FORTRAN_ENV, ONLY : stdin=>input_unit     ! for the pause read(stdin,*)
        IMPLICIT NONE
        TYPE(wpJMatrix),INTENT(INOUT) :: b
        REAL(wp), INTENT(INOUT) :: powmin,powmax
@@ -21,8 +21,8 @@
        REAL(c_float), INTENT(INOUT) :: vertices(*)                           ! vertices x 6 
        INTEGER(c_int64_t), INTENT(INOUT) :: flag
        INTEGER(c_int), INTENT(INOUT) :: nE, nV
-       logical, INTENT(IN) :: donut
-       logical :: quad
+       LOGICAL, INTENT(IN) :: donut
+       LOGICAL :: quad
 
        N1=size(b%r,1)
        M1=size(b%r,2)
@@ -274,4 +274,4 @@
        
         nE=k-1
 
-       end subroutine Geom
+       END SUBROUTINE Geom

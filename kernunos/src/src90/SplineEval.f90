@@ -1,9 +1,9 @@
 ! no center point version, periodic/natural/optional radial extrapolation
-subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
+SUBROUTINE SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
  USE set_precision, ONLY : wp
  USE parameters
  USE special_fct, ONLY : bsearch, OPERATOR(.p.) !tensor summation convention
- use,intrinsic :: ieee_arithmetic
+ USE, INTRINSIC :: ieee_arithmetic
  IMPLICIT NONE
 ! !1-D version
 ! adapted from Computer Methods for Mathematical Computations Forsythe et al. 1977
@@ -26,7 +26,7 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
   INTEGER :: i,i1 ! i1=i+1 unless periodic across gap
   REAL(wp) :: dr,PERD,A,B,C,D,dA,dB,dC,dD
   REAL(wp), DIMENSION(2) :: AB,CD,dAB,dCD,z,z2
-  logical :: IsInf
+  LOGICAL :: IsInf
 
   PERD=2*PI ! period of spline if applicable
   if (n .eq. 1) then  ! degenerate case
@@ -121,7 +121,7 @@ subroutine SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
    endif
                            
   return
-end subroutine SplineEval
+END SUBROUTINE SplineEval
 
 
 

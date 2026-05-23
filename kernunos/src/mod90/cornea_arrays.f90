@@ -127,7 +127,7 @@ END INTERFACE
 
  CONTAINS
  
-subroutine init_mat_Penta(NP,Penta,Skyline) ! allocate PentaCam arrays
+SUBROUTINE init_mat_Penta(NP,Penta,Skyline) ! allocate PentaCam arrays
   INTEGER, INTENT(IN) :: NP
   INTEGER :: ERROR
   CHARACTER :: ERR_MSG
@@ -152,18 +152,18 @@ subroutine init_mat_Penta(NP,Penta,Skyline) ! allocate PentaCam arrays
   Skyline%L2x(:)=0
   Skyline%L2y(:)=0
   Skyline%index_col(:)=0
-end subroutine init_mat_Penta
+END SUBROUTINE init_mat_Penta
 
-subroutine init_mat_Oculus(MM,N,Oculus) ! allocate Oculus arrays
+SUBROUTINE init_mat_Oculus(MM,N,Oculus) ! allocate Oculus arrays
   INTEGER, INTENT(IN) :: MM,N
   TYPE(wpOculusMatrix) :: Oculus
   allocate (Oculus%SAGC(MM,N),Oculus%INSTC(MM,N),Oculus%ELE(MM,N),Oculus%PU(MM),Oculus%Y(MM,N),Oculus%SEG(MM))
   allocate (Oculus%SAGC0(MM),Oculus%INSTC0(MM),Oculus%ELE0(MM),Oculus%Y0(MM))
   Oculus%SAGC(:,:)=0 ; Oculus%INSTC(:,:)=0 ; Oculus%ELE(:,:)=0 ; Oculus%PU(:)=0 ; Oculus%Y(:,:)=0 ; Oculus%SEG(:)=0
   Oculus%Pupil_Center=0 ; Oculus%SAGC0(:)=0 ; Oculus%INSTC0(:)=0 ; Oculus%ELE0(:)=0 ; Oculus%Y0(:)=0
-end subroutine init_mat_Oculus
+END SUBROUTINE init_mat_Oculus
 
-subroutine init_mat_JMatrix(MM,N,b) ! allocate common storage arrays
+SUBROUTINE init_mat_JMatrix(MM,N,b) ! allocate common storage arrays
   INTEGER, INTENT(IN) :: MM,N
   TYPE(wpJMatrix) :: b
    allocate (b%R(N,MM),b%Z(N+1,MM),b%THT(MM),b%YPR(N,MM),b%YPTHETA(N,MM),b%SAGC(N+1,MM),&
@@ -174,17 +174,17 @@ subroutine init_mat_JMatrix(MM,N,b) ! allocate common storage arrays
    b%MV(:)=0 ; b%RC(:,:)=0 ; b%PU(:)=0; b%Pupil_Center(:)=0 ; b%YP2R2(:,:)=0 ; b%YP2THETA(:,:)=0 ; b%YPRTHETA(:,:)=0
    allocate (b%ZC(N+1,MM,15))
    b%ZC(:,:,:)=0
-end subroutine init_mat_JMatrix
+END SUBROUTINE init_mat_JMatrix
 
-subroutine init_mat_EyeSys(MM,N,EyeSys) ! allocate EyeSys arrays
+SUBROUTINE init_mat_EyeSys(MM,N,EyeSys) ! allocate EyeSys arrays
   INTEGER, INTENT(IN) :: MM,N
   TYPE(wpEyeSysMatrix) :: EyeSys
   allocate (EyeSys%RA(MM,N),EyeSys%XX(MM,N),EyeSys%PU(MM),EyeSys%DEG(MM),EyeSys%HT(MM,N))
   EyeSys%RA(:,:)=0 ; EyeSys%XX(:,:)=0 ; EyeSys%PU(:)=0 ; EyeSys%HT(:,:)=0
   EyeSys%DEG(:)=0 ; EyeSys%Pupil_Center=0
-end subroutine init_mat_EyeSys
+END SUBROUTINE init_mat_EyeSys
 
-subroutine init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter) ! allocate common arrays
+SUBROUTINE init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter) ! allocate common arrays
   INTEGER, INTENT(IN) :: MM,N
   REAL(wp), allocatable :: RadSplineCenter(:,:)
   TYPE(wpRadSlopeMatrix) :: RadSlope  
@@ -203,45 +203,45 @@ subroutine init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter) ! allocate common ar
   DiaSlope%rOutMax(:)=0 ; DiaSlope%rInMax(:)=0
   DiaSlope%rOutMin(:)=0 ; DiaSlope%rInMin(:)=0
   RadSplineCenter(:,:)=0
-end subroutine init_mat
+END SUBROUTINE init_mat
 
-subroutine init_mat_Atlas(MM,N,Atlas) ! allocate common arrays
+SUBROUTINE init_mat_Atlas(MM,N,Atlas) ! allocate common arrays
   INTEGER, INTENT(IN) :: MM,N
   TYPE(wpAtlasMatrix) :: Atlas
   allocate (Atlas%AR(MM,N),Atlas%AD(MM,N),Atlas%AP(MM,N),&
             Atlas%AY(MM,N),Atlas%DEG(MM),Atlas%PU(MM,2))
   Atlas%AR(:,:)=0 ; Atlas%AD(:,:)=0 ; Atlas%AP(:,:)=0 ; Atlas%PU(:,:)=0
   Atlas%AY(:,:)=0 ; Atlas%DEG(:)=0 ; Atlas%Pupil_Center=0
-end subroutine init_mat_Atlas
+END SUBROUTINE init_mat_Atlas
 
 ! Type()=0 deallocates storage
 
-subroutine destroy_EyeSys(EyeSys,iflag)
+SUBROUTINE destroy_EyeSys(EyeSys,iflag)
   TYPE(wpEyeSysMatrix), INTENT(INOUT) :: EyeSys
   INTEGER, INTENT (IN) :: iflag
   IF (iflag==0) THEN
    deallocate (EyeSys%RA,EyeSys%XX,EyeSys%PU,EyeSys%DEG,EyeSys%HT)
   ENDIF
-end subroutine destroy_EyeSys
+END SUBROUTINE destroy_EyeSys
 
-subroutine destroy_Oculus(Oculus,iflag)
+SUBROUTINE destroy_Oculus(Oculus,iflag)
   TYPE(wpOculusMatrix), INTENT(INOUT) :: Oculus
   INTEGER, INTENT (IN) :: iflag
   IF (iflag==0) THEN
    deallocate (Oculus%SAGC,Oculus%INSTC,Oculus%ELE,Oculus%PU,Oculus%Y,Oculus%SEG)
    deallocate (Oculus%SAGC0,Oculus%INSTC0,Oculus%ELE0,Oculus%Y0)
   ENDIF
-end subroutine destroy_Oculus
+END SUBROUTINE destroy_Oculus
 
-subroutine destroy_Atlas(Atlas,iflag)
+SUBROUTINE destroy_Atlas(Atlas,iflag)
   TYPE(wpAtlasMatrix), INTENT(INOUT) :: Atlas
   INTEGER, INTENT (IN) :: iflag
   IF (iflag==0) THEN
    deallocate (Atlas%AR,Atlas%AD,Atlas%AP,Atlas%AY,Atlas%DEG,Atlas%PU)
   ENDIF
-end subroutine destroy_Atlas
+END SUBROUTINE destroy_Atlas
 
-subroutine destroy_JMatrix(JMatrix,iflag)
+SUBROUTINE destroy_JMatrix(JMatrix,iflag)
   TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
   INTEGER, INTENT (IN) :: iflag
   IF (iflag==0) THEN
@@ -249,46 +249,46 @@ subroutine destroy_JMatrix(JMatrix,iflag)
               JMatrix%MEANC,JMatrix%MONGEA,JMatrix%MV,JMatrix%RC,JMatrix%ZC,JMatrix%YPR,&
               JMatrix%YP2R2,JMatrix%YPTHETA,JMatrix%YP2THETA,JMatrix%YPRTHETA)
   ENDIF
-end subroutine destroy_JMatrix
+END SUBROUTINE destroy_JMatrix
 
-subroutine destroy_RadSlope(RadSlope,iflag)
+SUBROUTINE destroy_RadSlope(RadSlope,iflag)
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
   INTEGER, INTENT (IN) :: iflag
   IF (iflag==0) THEN
    deallocate (RadSlope%r,RadSlope%Z,RadSlope%Zp,RadSlope%Zp2,&
             Radslope%Zt2,RadSlope%thta,RadSlope%MV)
   ENDIF
-end subroutine destroy_RadSlope
+END SUBROUTINE destroy_RadSlope
 
-subroutine destroy_DiaSlope(DiaSlope,iflag)
+SUBROUTINE destroy_DiaSlope(DiaSlope,iflag)
   TYPE(wpDiaSlopeMatrix), INTENT(INOUT) :: DiaSlope
   INTEGER, INTENT (IN) :: iflag
   IF (iflag==0) THEN
   deallocate (DiaSlope%rd,DiaSlope%Zd,DiaSlope%Zpd,DiaSlope%Zpd2,DiaSlope%L2,&
               DiaSlope%rOutMax,DiaSlope%rInMax,DiaSlope%rOutMin,DiaSlope%rInMin)
   ENDIF
-end subroutine destroy_DiaSlope
+END SUBROUTINE destroy_DiaSlope
 
-subroutine destroy_Penta(Penta,iflag)
+SUBROUTINE destroy_Penta(Penta,iflag)
   TYPE(wpPentaMatrix), INTENT(INOUT) :: Penta
   INTEGER, INTENT (IN) :: iflag
   IF (iflag==0) THEN
   deallocate (Penta%DAT,Penta%PU)
   ENDIF
-end subroutine destroy_Penta
+END SUBROUTINE destroy_Penta
 
-subroutine destroy_Skyline(Skyline,iflag)
+SUBROUTINE destroy_Skyline(Skyline,iflag)
   TYPE(wpSkyline), INTENT(INOUT) :: Skyline
   INTEGER, INTENT (IN) :: iflag
   IF (iflag==0) THEN
   deallocate (Skyline%DAT,Skyline%x,Skyline%z2DAT,&
               Skyline%L2x,Skyline%L2y,Skyline%index_col)
   ENDIF
-end subroutine destroy_Skyline
+END SUBROUTINE destroy_Skyline
 !!array conversion routines
 
 ! Skyline strategy saves 33% storage space and computing time vs straight grid
-subroutine Skyline_eq_Penta(Skyline,Penta)  ! Arrange data Skyline, that will allow loading into SplineEval                                            
+SUBROUTINE Skyline_eq_Penta(Skyline,Penta)  ! Arrange data Skyline, that will allow loading into SplineEval
   TYPE(wpSkyline), INTENT(INOUT) :: Skyline                ! x,f(x) knots, number of knots(length) and u (test point)
   TYPE(wpPentaMatrix), INTENT(IN) :: Penta              ! This is the equivalent of DiaSlope=RadSlope
   INTEGER :: i,j,NP,ii,jj                   ! skyline x by rows, generate y using indices later
@@ -359,15 +359,15 @@ subroutine Skyline_eq_Penta(Skyline,Penta)  ! Arrange data Skyline, that will al
 !   jj=jj+col(i) 
 !  end do
 !  write (*,*) 'Total number vertices in Skyline: ',ii,jj
-end subroutine Skyline_eq_Penta
+END SUBROUTINE Skyline_eq_Penta
 
 ! generates curvatures for ELE files
-subroutine RadSlope_eq_Skyline(lsq,JMatrix, RadSlope, Skyline, Penta)      ! initially populates JMatrix & RadSlope with splining
+SUBROUTINE RadSlope_eq_Skyline(lsq,JMatrix, RadSlope, Skyline, Penta)      ! initially populates JMatrix & RadSlope with splining
   TYPE(wpSkyline), INTENT(INOUT) :: Skyline                                             
   TYPE(wpPentaMatrix), INTENT(IN) :: Penta
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
   TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
-  logical, INTENT(IN) :: lsq
+  LOGICAL, INTENT(IN) :: lsq
   INTEGER :: M1,N1,i,j,k,kk,L2,offset,NP,ITH,err_report,num_zeroes
   INTEGER :: imv(size(JMatrix%Z,2))
   REAL(wp) :: rBo,rBi,DAT,u,v,xx,yy,f,fx,fxx,fy,fxy,fyy,fTmp(Skyline%rows),f2Tmp(Skyline%rows),fxTmp(Skyline%rows),fx2Tmp(Skyline%rows),fxxTmp(Skyline%rows),fxx2Tmp(Skyline%rows)
@@ -556,11 +556,11 @@ subroutine RadSlope_eq_Skyline(lsq,JMatrix, RadSlope, Skyline, Penta)      ! ini
    if ((imv(i)-1)*(rBo-rBi)/(N1-1)+rBi .gt. rmin) imv(i)=int(1+(N1-1)*(rmin-rBi)/(rBo-rBi))
   end do
   RadSlope%MV(:)=imv(:)  ! save boundary
-end subroutine RadSlope_eq_Skyline
+END SUBROUTINE RadSlope_eq_Skyline
 
 ! uses ZFCT converts lhs to rhs
 ! skips over every other degree in going from 360 to 180
-subroutine RadSlope_eq_EyeSys(RadSlope,EyeSys) ! initially populates r, thta, Zp, MV
+SUBROUTINE RadSlope_eq_EyeSys(RadSlope,EyeSys) ! initially populates r, thta, Zp, MV
   TYPE(wpEyeSysMatrix), INTENT(INOUT) :: EyeSys
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
   INTEGER :: i,j,MM,N
@@ -586,9 +586,9 @@ subroutine RadSlope_eq_EyeSys(RadSlope,EyeSys) ! initially populates r, thta, Zp
       end do
       RadSlope%MV(i)=imv(i)
    end do
-end subroutine RadSlope_eq_EyeSys
+END SUBROUTINE RadSlope_eq_EyeSys
 
-subroutine RadSlope_eq_Visia(RadSlope,Visia) ! initially populates r, thta, Zp, MV
+SUBROUTINE RadSlope_eq_Visia(RadSlope,Visia) ! initially populates r, thta, Zp, MV
   TYPE(wpEyeSysMatrix), INTENT(INOUT) :: Visia
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
   INTEGER :: i,j,MM,N
@@ -614,9 +614,9 @@ subroutine RadSlope_eq_Visia(RadSlope,Visia) ! initially populates r, thta, Zp, 
       end do
       RadSlope%MV(i)=imv(i)
    end do
-end subroutine RadSlope_eq_Visia
+END SUBROUTINE RadSlope_eq_Visia
 
-subroutine RadSlope_eq_Oculus(RadSlope,Oculus)
+SUBROUTINE RadSlope_eq_Oculus(RadSlope,Oculus)
   TYPE(wpOculusMatrix), INTENT(INOUT) :: Oculus
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
   INTEGER :: i,j,k,MM,N,imv(100)
@@ -652,9 +652,9 @@ subroutine RadSlope_eq_Oculus(RadSlope,Oculus)
    end do
   end do
   RadSlope%MV(:)=imv(:)
- end subroutine RadSlope_eq_Oculus
+ END SUBROUTINE RadSlope_eq_Oculus
 
-subroutine RadSlope_eq_JMatrix(RadSlope,JMatrix) 
+SUBROUTINE RadSlope_eq_JMatrix(RadSlope,JMatrix)
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
   TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
   REAL(wp) :: ZIX,YA3,X2A1
@@ -696,10 +696,10 @@ subroutine RadSlope_eq_JMatrix(RadSlope,JMatrix)
       endif       
      end do
     end do
-end subroutine RadSlope_eq_JMatrix
+END SUBROUTINE RadSlope_eq_JMatrix
 
 ! finds the minmax values of the JMatrix
-subroutine minmax(JMatrix)
+SUBROUTINE minmax(JMatrix)
   TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
   INTEGER :: i,j,k,M1
   M1=size(JMatrix%R,2)
@@ -751,11 +751,11 @@ subroutine minmax(JMatrix)
    end do
   end do
   end do
-end subroutine minmax
+END SUBROUTINE minmax
 
 ! primitive noise reduction based on percentage of deviation from the arithmetic average
 ! finds averages first
-subroutine squash(JMatrix,percent_squash)
+SUBROUTINE squash(JMatrix,percent_squash)
 TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
 REAL(wp), INTENT(IN) :: percent_squash
 INTEGER :: i,j,k,M1,SUM_OF_POINTS
@@ -811,10 +811,10 @@ if (ABS(JMatrix%Warp0(1)-JMatrix%Warp_AVG)*percent_squash > ABS(JMatrix%Warp_AVG
 do k = 1,15
 if (ABS(JMatrix%ZC0(1,k)-JMatrix%ZC_AVG(k))*percent_squash > ABS(JMatrix%ZC_AVG(k))) JMatrix%ZC0(1,k) = (JMatrix%ZC0(1,k)*(1.0-percent_squash/100.0)+JMatrix%ZC_AVG(k)+percent_squash/100.0)/2.0
 end do
-end subroutine squash
+END SUBROUTINE squash
 
 ! make new central values for JMatrix by loading each into RadSlope/DiaSlope and splining
-subroutine centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
+SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
   TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
   INTEGER, INTENT(IN) :: TestData
   INTEGER, INTENT(INOUT) :: iflag
@@ -1043,10 +1043,10 @@ subroutine centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
        call SplineEval1Dx1D(iflag,JMatrix%RM,PI*(i-1)/4.0,JMatrix%MongeA0(i+3))
       end do
 
-end subroutine centersJMatrix
+END SUBROUTINE centersJMatrix
 
 ! aka SLOPE2POWER using AXIALP converts lhs to rhs
-subroutine Atlas_eq_RadSlope(Atlas,RadSlope)
+SUBROUTINE Atlas_eq_RadSlope(Atlas,RadSlope)
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
   TYPE(wpAtlasMatrix), INTENT(INOUT) :: Atlas
   INTEGER :: i,j,imv,MM,N
@@ -1070,10 +1070,10 @@ subroutine Atlas_eq_RadSlope(Atlas,RadSlope)
       endif
       end do
   end do
-end subroutine Atlas_eq_RadSlope
+END SUBROUTINE Atlas_eq_RadSlope
 
 !aka power2slope using ZFCT converts lhs to rhs
-subroutine RadSlope_eq_Atlas(RadSlope,Atlas) ! initially populates r, thta, Zp, MV
+SUBROUTINE RadSlope_eq_Atlas(RadSlope,Atlas) ! initially populates r, thta, Zp, MV
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
   TYPE(wpAtlasMatrix), INTENT(INOUT) :: Atlas
   REAL(wp) :: ZIX,ZJX,YA3,X2A1
@@ -1107,9 +1107,9 @@ subroutine RadSlope_eq_Atlas(RadSlope,Atlas) ! initially populates r, thta, Zp, 
      end do
     end do
     RadSlope%MV(:)=imv(:)
-end subroutine RadSlope_eq_Atlas
+END SUBROUTINE RadSlope_eq_Atlas
 
-subroutine DiaSlope_eq_RadSlope(DiaSlope,RadSlope)
+SUBROUTINE DiaSlope_eq_RadSlope(DiaSlope,RadSlope)
  TYPE(wpDiaSlopeMatrix), INTENT(INOUT) :: DiaSlope
  TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
  INTEGER :: i,j
@@ -1151,9 +1151,9 @@ subroutine DiaSlope_eq_RadSlope(DiaSlope,RadSlope)
     end do
    end do
  end ASSOCIATE
-end subroutine DiaSlope_eq_RadSlope
+END SUBROUTINE DiaSlope_eq_RadSlope
 
-subroutine RadSlope_eq_DiaSlope(RadSlope,DiaSlope)
+SUBROUTINE RadSlope_eq_DiaSlope(RadSlope,DiaSlope)
  INTEGER :: i,j
  INTEGER :: M1,N1
  TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
@@ -1178,10 +1178,10 @@ subroutine RadSlope_eq_DiaSlope(RadSlope,DiaSlope)
     end do
    end do
  end ASSOCIATE   
-end subroutine RadSlope_eq_DiaSlope
+END SUBROUTINE RadSlope_eq_DiaSlope
 
 ! spline b%rd(:,i),b%Zpd(:,i)
- function DiaSpline(b) result(a)
+ FUNCTION DiaSpline(b) result(a)
  TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b
  INTEGER :: M1,N1,i,k,err_report
  REAL(wp) :: a(size(b%rd,1),size(b%rd,2))
@@ -1195,9 +1195,9 @@ end subroutine RadSlope_eq_DiaSlope
     write(*,*) 'DiaSpline error at meridian: ',i
    endif
   end do
-end function DiaSpline
+END FUNCTION DiaSpline
 
- function DiaSplineCenter(b) result(a)
+ FUNCTION DiaSplineCenter(b) result(a)
  TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b
  REAL(wp) :: a(size(b%rd,1),size(b%rd,2))
  INTEGER :: M1,N1,i, err_report
@@ -1210,9 +1210,9 @@ end function DiaSpline
     write(*,*) 'DiaSplineCenter error at meridian: ',i
    endif
   end do
-end function DiaSplineCenter
+END FUNCTION DiaSplineCenter
 
-subroutine Atlas_SplineFillin(Atlas,b,a)
+SUBROUTINE Atlas_SplineFillin(Atlas,b,a)
  TYPE(wpAtlasMatrix), INTENT(IN) :: Atlas
  REAL(wp),INTENT(IN) :: b(:,:)
  REAL(wp), INTENT(OUT) :: a(size(b,1),size(b,2))
@@ -1259,9 +1259,9 @@ subroutine Atlas_SplineFillin(Atlas,b,a)
   end do
  end associate
  deallocate (spline%r,spline%z,spline%zp2,spline%mvjr)
-end subroutine Atlas_SplineFillin
+END SUBROUTINE Atlas_SplineFillin
 
-subroutine EyeSys_SplineFillin(EyeSys,b,a)
+SUBROUTINE EyeSys_SplineFillin(EyeSys,b,a)
   TYPE(wpEyeSysMatrix), INTENT(INOUT) :: EyeSys
   REAL(wp),INTENT(IN) :: b(:,:)
   REAL(wp), INTENT(OUT) :: a(size(b,1),size(b,2))
@@ -1308,10 +1308,10 @@ subroutine EyeSys_SplineFillin(EyeSys,b,a)
    end do
   end associate
   deallocate (spline%r,spline%z,spline%zp2,spline%mvjr)
-end subroutine EyeSys_SplineFillin
+END SUBROUTINE EyeSys_SplineFillin
 
 ! this version is for matrices that are NxM, ie. JMatrix
- function splinefillintranspose(b) result(a)
+ FUNCTION splinefillintranspose(b) result(a)
  REAL(wp),INTENT(IN) :: b(:,:)
  TYPE(wpsplinevect) :: spline
  INTEGER :: M1,N1,i,j,k, err_report
@@ -1354,9 +1354,9 @@ end subroutine EyeSys_SplineFillin
    end do
    end associate
    deallocate (spline%r,spline%z,spline%zp2,spline%mvjr)
-end function splinefillintranspose
+END FUNCTION splinefillintranspose
 
-subroutine Atlas_LSQfillin(Atlas,b,a)
+SUBROUTINE Atlas_LSQfillin(Atlas,b,a)
  TYPE(wpAtlasMatrix), INTENT(IN) :: Atlas
  REAL(wp),INTENT(IN) :: b(:,:)
  REAL(wp), INTENT(OUT) :: a(size(b,1),size(b,2))
@@ -1391,9 +1391,9 @@ subroutine Atlas_LSQfillin(Atlas,b,a)
    end do
   endif
  end do
-end subroutine Atlas_LSQfillin
+END SUBROUTINE Atlas_LSQfillin
 
-subroutine EyeSys_LSQfillin(EyeSys,b,a)
+SUBROUTINE EyeSys_LSQfillin(EyeSys,b,a)
  TYPE(wpEyeSysMatrix), INTENT(INOUT) :: EyeSys
  REAL(wp),INTENT(IN) :: b(:,:)
  REAL(wp), INTENT(OUT) :: a(size(b,1),size(b,2))
@@ -1428,17 +1428,17 @@ subroutine EyeSys_LSQfillin(EyeSys,b,a)
    end do
   endif
  end do
-end subroutine EyeSys_LSQfillin
+END SUBROUTINE EyeSys_LSQfillin
 
 ! not being used currently
- function pca(M3,b) result(a)
+ FUNCTION pca(M3,b) result(a)
  USE set_precision, ONLY : wp
  TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
  TYPE(wpRadSlopeMatrix) :: a
  INTEGER, INTENT(IN) :: M3  ! pca terms, 2 or 3
  INTEGER :: M1,N1,i,j,k,l,info,lwork,M
  REAL(wp) :: X(M3,size(b%r,1)),XTX(M3,M3),work(3*M3),w(M3)
- logical :: Q
+ LOGICAL :: Q
  lwork=size(work)
  N1=size(b%r,1) !N1=N 
  M1=size(b%r,2) !M1=MM
@@ -1509,12 +1509,12 @@ end subroutine EyeSys_LSQfillin
    endif
    write(*,*) 'The eigenvalues W from pca in cornea_arrays: ',SQRT(W)
  endif
- end function pca
+ END FUNCTION pca
 
 !! corneal calculation subroutines
 
 ! signed slope and radius from eyesys style data, or ZIX=RFCT/POW, POW is axial power from Atlas style data
- subroutine ZFCT(MM,ITH,ZJX,ZIX,X2A1,YA3)
+ SUBROUTINE ZFCT(MM,ITH,ZJX,ZIX,X2A1,YA3)
   REAL(wp), INTENT(IN) :: ZIX,ZJX
   REAL(wp), INTENT(OUT) :: YA3,X2A1
   REAL(wp) :: YA1,YA2
@@ -1532,10 +1532,10 @@ end subroutine EyeSys_LSQfillin
         YA3=SQRT(YA1*YA2)
         X2A1=ZJX 
       endif
- end subroutine ZFCT
+ END SUBROUTINE ZFCT
 
 ! axial power from slope and derivatives
- subroutine AXIALP(X2,Y1X,Y2X,SAGC)
+ SUBROUTINE AXIALP(X2,Y1X,Y2X,SAGC)
   REAL(wp), INTENT(IN) :: X2,Y1X,Y2X
   REAL(wp), INTENT(OUT) :: SAGC
   if (ABS(X2) < eps) then
@@ -1544,17 +1544,17 @@ end subroutine EyeSys_LSQfillin
   else
    SAGC=RFCT*Y1X/(X2*SQRT(1+Y1X**2))
   endif
- end subroutine AXIALP
+ END SUBROUTINE AXIALP
 
 ! tangential power from slope and derivatives
- subroutine TANGENTP(X2,Y1X,Y2X,INSTC)
+ SUBROUTINE TANGENTP(X2,Y1X,Y2X,INSTC)
   REAL(wp), INTENT(IN) :: X2,Y1X,Y2X
   REAL(wp), INTENT(OUT) :: INSTC
   INSTC=RFCT*Y2X/(SQRT(1+Y1X**2)**3)
- end subroutine TANGENTP
+ END SUBROUTINE TANGENTP
 
 ! principal curvature calculations
- subroutine principal(t,r,hr,ht,hrt,htt,hrr,K,H,k1,k2,A)
+ SUBROUTINE principal(t,r,hr,ht,hrt,htt,hrr,K,H,k1,k2,A)
   REAL(wp), INTENT(INOUT) :: t,r,hr,ht,hrt,htt,hrr
   REAL(wp), INTENT(OUT) :: K,H,k1,k2,A
   REAL(wp) :: hu,hv,huu,hvv,huv,g
@@ -1592,14 +1592,14 @@ end subroutine EyeSys_LSQfillin
     k2=hrr
     A=0
    endif
- end subroutine principal
+ END SUBROUTINE principal
 
 ! principal_directions calculations in horizontal plane, not being used currently
- subroutine principal_directions_0(one,t,r,hr,ht,hrt,htt,hrr,u,v,ut,vt)
+ SUBROUTINE principal_directions_0(one,t,r,hr,ht,hrt,htt,hrr,u,v,ut,vt)
   IMPLICIT NONE
   REAL(wp), INTENT(INOUT) :: t,r,hr,ht,hrt,htt,hrr
   REAL(wp), INTENT(OUT) :: u,v,ut,vt
-  logical, INTENT(IN) :: one
+  LOGICAL, INTENT(IN) :: one
   REAL(wp) :: hu,hv,huu,hvv,huv,g,K,H,m,m1,k1,k2,astig,kappa,RR(3,3),pos(3),R0(3,3),e1(3),e2(3),e3(3),rv1(3),rv2(3)
    r=abs(r) ; hr=abs(hr)
 !  cartesian conversion
@@ -1638,15 +1638,15 @@ end subroutine EyeSys_LSQfillin
     ut=sign(RFCT*k1*rv1(1),u)
     vt=sign(RFCT*k1*rv1(2),v)
    endif
- end subroutine principal_directions_0
+ END SUBROUTINE principal_directions_0
 
 
 ! this version with calculations in the tangent plane
- subroutine principal_directions(one,t,r,hr,ht,hrt,htt,hrr,u,v,ut,vt)
+ SUBROUTINE principal_directions(one,t,r,hr,ht,hrt,htt,hrr,u,v,ut,vt)
   IMPLICIT NONE
   REAL(wp), INTENT(INOUT) :: t,r,hr,ht,hrt,htt,hrr
   REAL(wp), INTENT(OUT) :: u,v,ut,vt
-  logical, INTENT(IN) :: one
+  LOGICAL, INTENT(IN) :: one
   ! these names follow the conventions/are defined in Curvature_equations/notes
   REAL(wp) :: hu,hv,huu,hvv,huv,g,K,H,m,m1,k1,k2,astig,kappa
   REAL(wp) :: MMM(3,3),nrml(3),rv(3),rvp1(3),rvp2(3),pos(3),J(3,3),e1(3),e1p(3),e2(3),e2p(3),e3(3),e3p(3),IJ(3,3),B(3),RR(3,3),R0(3,3)
@@ -1721,10 +1721,10 @@ end subroutine EyeSys_LSQfillin
     ut=sign(RFCT*k1*rvp1(1),u)
     vt=sign(RFCT*k1*rvp1(2),v)
    endif
-end subroutine principal_directions
+END SUBROUTINE principal_directions
 
 ! axisymmetric_principal curvature calculations
- subroutine axisymmetric_principal(r,hr,hrr,K,H,k1,k2,A)
+ SUBROUTINE axisymmetric_principal(r,hr,hrr,K,H,k1,k2,A)
   REAL(wp), INTENT(INOUT) :: r,hr,hrr
   REAL(wp), INTENT(OUT) :: K,H,k1,k2,A
     k1 = hrr/(SQRT(1+(hr)**2)**3)
@@ -1737,22 +1737,22 @@ end subroutine principal_directions
    A=abs(k1-k2)
    H=(k1+k2)/2.
    K=sqrt(abs(k1*k2)) ! use sqrt of gaussian curvature for output->geometric mean power in same units; absolute power for saddle points
- end subroutine axisymmetric_principal
+ END SUBROUTINE axisymmetric_principal
 
 ! "tangential" power and mean power in terms of axial/"sagittal" power,radius and radial derivative of axial power
- subroutine sagc2(X2,SAGC,DSAGC,TANC,ZMM)  
+ SUBROUTINE sagc2(X2,SAGC,DSAGC,TANC,ZMM)
   REAL(wp), INTENT(IN) :: X2,SAGC,DSAGC
   REAL(wp), INTENT(OUT) :: TANC,ZMM
   TANC=SAGC+X2*DSAGC
   ZMM=0.5_wp*(SAGC+TANC)
-  end subroutine sagc2
+  END SUBROUTINE sagc2
 
 ! world's ugliest hack
 ! select function (fct), respline JMatrix of that function
 ! iflag = 0 just load powmin powmax,powctr,cardinals for legend
 ! iflag = 1 respline selected function
 ! iflag = 2 just respline elevation Z regardless of fct
-subroutine selectfunction(iflag,b,flag,powctr,powmin,powmax,cardinal,nC)
+SUBROUTINE selectfunction(iflag,b,flag,powctr,powmin,powmax,cardinal,nC)
 IMPLICIT NONE
 integer(c_int64_t), INTENT(IN) :: flag
 INTEGER,INTENT(IN) :: iflag

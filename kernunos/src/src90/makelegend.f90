@@ -1,11 +1,11 @@
 !      Generates legend for a colormap
 
-       subroutine makelegend(flag, powmin, powmax, legend, nL)
+       SUBROUTINE makelegend(flag, powmin, powmax, legend, nL)
        USE set_precision, ONLY : wp
-       USE special_fct, only : colormap
+       USE special_fct, ONLY  : colormap
        USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int, c_int64_t
        USE, INTRINSIC ::  ieee_arithmetic
-       use ISO_FORTRAN_ENV, only: stdin=>input_unit     ! for the pause read(stdin,*)    
+       USE ISO_FORTRAN_ENV, ONLY : stdin=>input_unit     ! for the pause read(stdin,*)    
        REAL(wp), INTENT(INOUT) :: powmin,powmax
        REAL(c_float) :: c_pow,c_rgbv(3)
        INTEGER :: k
@@ -62,5 +62,5 @@
          legend(4*k-3:4*k)=(/c_pow,c_rgbv/)
          end do
 
-       end subroutine makelegend
+       END SUBROUTINE makelegend
 

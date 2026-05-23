@@ -1,7 +1,7 @@
-       subroutine WriteCenter(b,KXNAME)
+       SUBROUTINE WriteCenter(b,KXNAME)
        USE cornea_arrays
        USE set_precision, ONLY : wp
-       use io_functions, only : get_new_fileunit
+       USE io_functions, ONLY  : get_new_fileunit
        TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
        CHARACTER(len=*), INTENT(IN) :: KXNAME
        INTEGER :: MM,i,unitno1
@@ -15,5 +15,5 @@
         write(unitno1,*) RadSlope%thta(1),RadSplineCenter(1,1)
        close (unitno1)       
     
-       end subroutine WriteCenter
+       END SUBROUTINE WriteCenter
        

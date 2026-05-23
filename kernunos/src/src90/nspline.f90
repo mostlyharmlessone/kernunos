@@ -1,8 +1,8 @@
- subroutine nspline(r,z,n,z2,err_report)
- USE set_precision, only : wp
- use LapackInterface, only : dgtsv
- use spline_interfaces, only : thomas
- use,intrinsic :: ieee_arithmetic
+ SUBROUTINE nspline(r,z,n,z2,err_report)
+ USE set_precision, ONLY  : wp
+ use LapackInterface, ONLY  : dgtsv
+ USE spline_interfaces, ONLY  : thomas
+ USE, INTRINSIC :: ieee_arithmetic
  IMPLICIT NONE
   INTEGER, INTENT(IN) :: n
   REAL(wp), INTENT(IN) ::  r(n)
@@ -12,7 +12,7 @@
   REAL(wp),allocatable ::  a(:),b(:),c(:),d(:),zz2(:),a_short(:)
   INTEGER :: i,info    ! for lapack use below
   REAL(wp) :: f      ! error handling
-  logical :: IsNaN    
+  LOGICAL :: IsNaN    
   INFO=0   ; err_report = 0
  ! if(r(1) .eq. r(2)) then
  !  write(*,*) 'Bad r in nspline'
@@ -79,5 +79,5 @@
  
    deallocate (a,b,c,d,zz2)
         
- end subroutine nspline
+ END SUBROUTINE nspline
 

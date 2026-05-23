@@ -1,5 +1,5 @@
        SUBROUTINE PRINTGRAPH(unitno1,POWMIN,POWMAX,FILENAME)
-       USE set_precision, only : wp
+       USE set_precision, ONLY  : wp
        REAL(wp), INTENT(IN) :: POWMIN, POWMAX
        INTEGER, INTENT(IN) :: unitno1
        CHARACTER(len=*), INTENT(IN) :: FILENAME

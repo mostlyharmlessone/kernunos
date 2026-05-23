@@ -1,4 +1,4 @@
-module io_functions
+MODULE io_functions
 ! module for opening files sanely
 ! these are for parsing input
   INTEGER, parameter :: MAX_LINE = 1000    ! max size of line input
@@ -6,108 +6,108 @@ module io_functions
 
    INTERFACE
 
-    subroutine Geom(flag, b, donut, powmin, powmax, elements, vertices, nV, nE)
-     use cornea_arrays
+    SUBROUTINE Geom(flag, b, donut, powmin, powmax, elements, vertices, nV, nE)
+     USE cornea_arrays
      USE parameters
      USE set_precision, ONLY : wp
-     USE special_fct, only : rgb2, rgb5
+     USE special_fct, ONLY  : rgb2, rgb5
      USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_int64_t
-     use ISO_FORTRAN_ENV, only: stdin=>input_unit
+     USE ISO_FORTRAN_ENV, ONLY : stdin=>input_unit
      TYPE(wpJMatrix),INTENT(IN) :: b
-     logical, INTENT(IN) :: donut
+     LOGICAL, INTENT(IN) :: donut
      REAL(wp), INTENT(INOUT) :: powmin,powmax
      INTEGER(c_int), INTENT(INOUT) :: elements(*)                          ! faces x 3   index 0
      REAL(c_float), INTENT(INOUT) :: vertices(*)                           ! vertices x 6
      INTEGER(c_int64_t), INTENT(INOUT) :: flag
      INTEGER(c_int), INTENT(INOUT) ::  nE, nV                         ! passed from janus to call OpenGL
-    end subroutine
+    END SUBROUTINE
 
-    subroutine makelegend(flag, powmin, powmax, legend, nL)
+    SUBROUTINE makelegend(flag, powmin, powmax, legend, nL)
      USE set_precision, ONLY : wp
-     USE special_fct, only : colormap
+     USE special_fct, ONLY  : colormap
      USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_int64_t
      USE, INTRINSIC ::  ieee_arithmetic
-     use ISO_FORTRAN_ENV, only: stdin=>input_unit     ! for the pause read(stdin,*)
+     USE ISO_FORTRAN_ENV, ONLY : stdin=>input_unit     ! for the pause read(stdin,*)
      REAL(wp), INTENT(INOUT) :: powmin,powmax
      REAL(c_float), INTENT(INOUT) :: legend(*)
      INTEGER(c_int64_t), INTENT(INOUT) :: flag
      INTEGER(c_int), INTENT(INOUT) :: nL
-    end subroutine
+    END SUBROUTINE
 
-    subroutine Pupil(b, dist, pupil_elements, pupil_vertices, pupil_nV, pupil_nE)
-    use cornea_arrays, ONLY : wpJMatrix
+    SUBROUTINE Pupil(b, dist, pupil_elements, pupil_vertices, pupil_nV, pupil_nE)
+    USE cornea_arrays, ONLY : wpJMatrix
     USE set_precision, ONLY : wp
     USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int
     USE, INTRINSIC ::  ieee_arithmetic
-    use ISO_FORTRAN_ENV, only: stdin=>input_unit     ! for the pause read(stdin,*)
+    USE ISO_FORTRAN_ENV, ONLY : stdin=>input_unit     ! for the pause read(stdin,*)
     TYPE(wpJMatrix),INTENT(IN) :: b
     INTEGER(c_int), INTENT(INOUT) :: pupil_elements(*)                          ! faces x 3
     REAL(c_float), INTENT(INOUT) :: pupil_vertices(*), dist                     ! vertices x 6
     INTEGER(c_int), INTENT(INOUT) :: pupil_nE, pupil_nV
-    end subroutine
+    END SUBROUTINE
 
-    subroutine rcnvrta(KXNAME,N,read_error)
+    SUBROUTINE rcnvrta(KXNAME,N,read_error)
      USE set_precision, ONLY : wp
      USE cornea_arrays, ONLY : Atlas
      USE parameters
      CHARACTER(len=*), INTENT(IN) :: KXNAME
      INTEGER, INTENT(IN) :: N
      INTEGER, INTENT(OUT) :: read_error
-    end subroutine
+    END SUBROUTINE
 
-    subroutine rcnvrta_type(KXNAME,N,read_error)
+    SUBROUTINE rcnvrta_type(KXNAME,N,read_error)
      USE set_precision, ONLY : wp
      USE cornea_arrays, ONLY : Atlas
      USE parameters
      CHARACTER(len=*), INTENT(IN) :: KXNAME
      INTEGER, INTENT(OUT) :: N, read_error
-    end subroutine
+    END SUBROUTINE
 
-    subroutine rcnvrte(read_error,RANAME,XXNAME,PUNAME,HXNAME)
+    SUBROUTINE rcnvrte(read_error,RANAME,XXNAME,PUNAME,HXNAME)
      USE set_precision, ONLY : wp
      USE cornea_arrays, ONLY : EyeSys
      CHARACTER(len=*), INTENT(IN) :: RANAME,XXNAME
      CHARACTER(len=*), INTENT(IN), optional :: PUNAME,HXNAME
      INTEGER, INTENT(OUT) :: read_error
-    end subroutine
+    END SUBROUTINE
 
-    subroutine rcnvrtn(read_error,EDNAME,RANAME,HTNAME,PENAME)
+    SUBROUTINE rcnvrtn(read_error,EDNAME,RANAME,HTNAME,PENAME)
      USE set_precision, ONLY : wp
      USE cornea_arrays, ONLY : EyeSys
      CHARACTER(len=*), INTENT(IN), optional :: RANAME,EDNAME
      CHARACTER(len=*), INTENT(IN), optional :: PENAME,HTNAME
      INTEGER, INTENT(OUT) :: read_error
-    end subroutine
+    END SUBROUTINE
 
-    subroutine rcnvrtn_binary(read_error,mirecount,EDNAME,RANAME,PENAME)
+    SUBROUTINE rcnvrtn_binary(read_error,mirecount,EDNAME,RANAME,PENAME)
      USE set_precision, ONLY : wp
      CHARACTER(len=*), INTENT(IN), optional :: RANAME,EDNAME
      CHARACTER(len=*), INTENT(IN), optional :: PENAME
      INTEGER, INTENT(OUT) :: read_error
      INTEGER, INTENT(OUT) :: mirecount
-    end subroutine
+    END SUBROUTINE
 
-    subroutine rcnvrtp(TestData,filename,read_error)
+    SUBROUTINE rcnvrtp(TestData,filename,read_error)
      USE cornea_arrays, ONLY : Penta
      CHARACTER(len=*), INTENT(IN) :: filename
      INTEGER, INTENT(IN) :: TestData
      INTEGER, INTENT(OUT) :: read_error
-    end subroutine
+    END SUBROUTINE
 
-    subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME,PATIENTNAME,EXAMNAME)
+    SUBROUTINE rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME,PATIENTNAME,EXAMNAME)
      USE set_precision, ONLY : wp
      USE cornea_arrays, ONLY : Oculus,JMatrix
      USE parameters, ONLY : EPS
      INTEGER, INTENT(OUT) :: read_error
      CHARACTER(len=*), INTENT(IN), optional :: CURVNAME,ELEVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME,PATIENTNAME,EXAMNAME
-    end subroutine rcnvrtk
+    END SUBROUTINE rcnvrtk
 
-    subroutine RCNVRTT(MM,N)
+    SUBROUTINE RCNVRTT(MM,N)
      USE set_precision, ONLY : wp
      USE cornea_arrays
      USE parameters
      INTEGER, INTENT(IN) :: MM,N
-    end subroutine
+    END SUBROUTINE
 
     SUBROUTINE WriteGeomOFF(flag,b,donut,powmin,powmax,OFFNAME)
       USE cornea_arrays
@@ -117,7 +117,7 @@ module io_functions
       TYPE(wpJMatrix),INTENT(IN) :: b
       CHARACTER(len=*), INTENT(IN) :: OFFNAME
       REAL(wp), INTENT(IN) :: powmin,powmax
-      logical, INTENT(IN) :: donut
+      LOGICAL, INTENT(IN) :: donut
       INTEGER(c_int64_t), INTENT(INOUT) :: flag
     END SUBROUTINE  
     
@@ -129,26 +129,26 @@ module io_functions
       TYPE(wpJMatrix),INTENT(IN) :: b
       CHARACTER(len=*), INTENT(IN) :: PLYNAME
       REAL(wp), INTENT(IN) :: powmin,powmax
-      logical, INTENT(IN) :: donut
+      LOGICAL, INTENT(IN) :: donut
       INTEGER(c_int64_t), INTENT(INOUT) :: flag
     END SUBROUTINE    
     
-    subroutine WriteCenter(b,KXNAME)
+    SUBROUTINE WriteCenter(b,KXNAME)
       USE cornea_arrays
       USE parameters
       USE set_precision, ONLY : wp
       TYPE(wpRadSlopeMatrix),INTENT(IN) :: b 
       CHARACTER(len=*), INTENT(IN) :: KXNAME
-    end subroutine
+    END SUBROUTINE
 
-    subroutine WriteCenterJ(a,b,KXNAME)
+    SUBROUTINE WriteCenterJ(a,b,KXNAME)
      USE set_precision, ONLY : wp
      REAL(wp),INTENT(IN) :: a, b(:,:)
      CHARACTER(len=*), INTENT(IN) :: KXNAME
-    end subroutine
+    END SUBROUTINE
 
     SUBROUTINE PRINTGRAPH(unitno1,POWMIN,POWMAX,FILENAME)
-     USE set_precision, only : wp
+     USE set_precision, ONLY  : wp
      REAL(wp), INTENT(IN) :: POWMIN, POWMAX
      INTEGER, INTENT(IN) :: unitno1
      CHARACTER(len=*), INTENT(IN) :: FILENAME
@@ -160,7 +160,7 @@ module io_functions
 
 ! https://community.intel.com/t5/Intel-Fortran-Compiler/Trouble-reading-a-csv-file/m-p/1034136
 ! modified to output formatted real, as unformatted reads with semicolons seems broken to me with gcc-fortran/gfortran
- function getArg(n) result(argn)
+ FUNCTION getArg(n) result(argn)
     IMPLICIT NONE
     CHARACTER(10) :: arg
     REAL :: argn
@@ -182,12 +182,12 @@ module io_functions
         arg = line(i:j-1)
     endif
         read(arg,'(F23.5)') argn
-end function getArg
+END FUNCTION getArg
 
   
- function get_new_fileunit() result (f)
+ FUNCTION get_new_fileunit() result (f)
  IMPLICIT NONE
- logical :: op
+ LOGICAL :: op
  INTEGER :: f
  f = 1
  do
@@ -195,16 +195,16 @@ end function getArg
   if (op .eqv. .false.) exit
   f = f + 1
  end do
- end function
+ END FUNCTION
 
-end module io_functions
+END MODULE io_functions
 
 !https://fortran-lang.discourse.group/t/joining-strings-problem-with-gfortran/492
 
-module util_mod
+MODULE util_mod
 IMPLICIT NONE
 contains
- function join(words) result(str)
+ FUNCTION join(words) result(str)
 ! trim and concatenate a vector of character variables
  character (len=*), INTENT(IN) :: words(:)
  CHARACTER(:), allocatable :: str
@@ -220,9 +220,9 @@ contains
  do i=2,nw
   str = trim(str) // words(i)
  end do
- end function join
+ END FUNCTION join
 
- function c(x1,x2) result(vec)
+ FUNCTION c(x1,x2) result(vec)
 ! return character array containing present arguments
  character (len=*)  , INTENT(IN), optional    :: x1,x2
  character (len=1000)            , allocatable :: vec(:)
@@ -233,21 +233,21 @@ contains
  if (present(x2))  vec_(2)  = x2
  n = count([present(x1),present(x2)])
  if (n > 0) vec = vec_(:n)
- end function c
-end module util_mod
+ END FUNCTION c
+END MODULE util_mod
 
-subroutine rcnvrtp(TestData,filename,read_error)
+SUBROUTINE rcnvrtp(TestData,filename,read_error)
 ! PENTACAM VERSION FOR ALL
- use io_functions, only : get_new_fileunit,getArg,line
+ USE io_functions, ONLY  : get_new_fileunit,getArg,line
  USE set_precision, ONLY : wp
- use cornea_arrays, ONLY : Penta
+ USE cornea_arrays, ONLY : Penta
  USE special_fct, ONLY : replacestr
  IMPLICIT NONE
  CHARACTER(len=*), INTENT(IN) :: filename
  INTEGER, INTENT(IN) :: TestData
  INTEGER, INTENT(OUT) :: read_error
  INTEGER :: unitno1,ierr,readerr,i,k,NP,read_front,meridians,file_idx
- logical :: exists
+ LOGICAL :: exists
  CHARACTER(len=7) :: matrixchar
  CHARACTER(len=1) :: iter1,equal
  CHARACTER(len=2) :: iter2
@@ -431,9 +431,9 @@ subroutine rcnvrtp(TestData,filename,read_error)
 !     end do
 !    end do
 !   endif
-end subroutine rcnvrtp
+END SUBROUTINE rcnvrtp
 
-subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME,PATIENTNAME,EXAMNAME)
+SUBROUTINE rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME,PATIENTNAME,EXAMNAME)
 ! Oculus Keratograph version
   USE io_functions, ONLY : get_new_fileunit
   USE set_precision, ONLY : wp
@@ -441,10 +441,10 @@ subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
   USE parameters
   use util_mod
   USE special_fct, ONLY : replacestr
-  use c_interfaces, ONLY : charcount
+  USE c_interfaces, ONLY : charcount
   USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_null_char
   IMPLICIT NONE
-  logical :: exists, exists2, exists3, valid, name_match, date_match
+  LOGICAL :: exists, exists2, exists3, valid, name_match, date_match
   CHARACTER(len=*), INTENT(IN), optional :: ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME,PATIENTNAME,EXAMNAME
   INTEGER, INTENT(OUT) :: read_error
   INTEGER :: i,j,read_front,ierr,unitno1,unitno2,unitno3,grad,file_idx
@@ -836,9 +836,9 @@ subroutine rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
     else
      write(*,*) 'No ZERNIKE files',ZERNIKENAME,' ',PATIENTNAME,' ',EXAMNAME
     endif
- end subroutine rcnvrtk
+ END SUBROUTINE rcnvrtk
 
-subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
+SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
 ! NIDEK VERSION
 ! ASCII version
 ! duplicates Janus in counting mires for 23 to 33
@@ -848,10 +848,10 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
   USE set_precision, ONLY : wp
   USE cornea_arrays, ONLY : EyeSys
   USE special_fct, ONLY : replacestr
-  use c_interfaces, ONLY : charcount
+  USE c_interfaces, ONLY : charcount
   USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_null_char
   IMPLICIT NONE
-  logical :: exists
+  LOGICAL :: exists
   CHARACTER(len=*), INTENT(IN), optional :: RANAME,EDNAME
   CHARACTER(len=*), INTENT(IN), optional :: PENAME,HTNAME
   CHARACTER(1000) header,semicolon1,semicolon2
@@ -1185,10 +1185,10 @@ subroutine rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
      return
     endif
    endif
-end subroutine rcnvrtn
+END SUBROUTINE rcnvrtn
 
 
-subroutine rcnvrtn_binary(read_error,mirecount,RANAME,EDNAME,PENAME)
+SUBROUTINE rcnvrtn_binary(read_error,mirecount,RANAME,EDNAME,PENAME)
 ! NIDEK VERSION, binary, experimental, assumes peculiar packed BCD scheme for data
 ! These all have an ASCII header with a file name including the location in the directory tree
 ! detects binary
@@ -1200,7 +1200,7 @@ USE set_precision, ONLY : wp
 use util_mod
 USE cornea_arrays, ONLY : EyeSys
 USE special_fct, ONLY : replacestr
-use c_interfaces, ONLY : charcount
+USE c_interfaces, ONLY : charcount
 USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_null_char
 IMPLICIT NONE
 CHARACTER(len=*), INTENT(IN), optional :: RANAME,EDNAME
@@ -1212,19 +1212,19 @@ character :: ch, ych
 CHARACTER(len=100) :: ioerrmsg
 CHARACTER(:), allocatable :: x, y
 INTEGER :: file_idx1,file_idx2,file_idx3,file_idx4,posmax
-logical :: exists, negative
+LOGICAL :: exists, negative
 INTEGER :: I,J,ITH,unitno1,unitno2,unitno3,MM,N,ierr,pos
 REAL (wp) :: ZX(size(EyeSys%RA,2)),YX(size(EyeSys%RA,2)) ! should be maximum needed for mires
 integer line(200),line2(200),ix,iy
 ! having to put this in again here is incredibly lame
  INTERFACE
- subroutine rcnvrtn(read_error,EDNAME,RANAME,HTNAME,PENAME)
+ SUBROUTINE rcnvrtn(read_error,EDNAME,RANAME,HTNAME,PENAME)
   USE set_precision, ONLY : wp
   USE cornea_arrays, ONLY : EyeSys
   CHARACTER(len=*), INTENT(IN), optional :: RANAME,EDNAME
   CHARACTER(len=*), INTENT(IN), optional :: PENAME,HTNAME
   INTEGER, INTENT(OUT) :: read_error
- end subroutine
+ END SUBROUTINE
  END INTERFACE
  x = "" ;   y = ""
  read_error = 0
@@ -1655,18 +1655,18 @@ integer line(200),line2(200),ix,iy
   EyeSys%DEG(I)=I-1
  end do
  read_error = 1                ! means success at binary
-end subroutine rcnvrtn_binary
+END SUBROUTINE rcnvrtn_binary
 
 
 
-subroutine rcnvrte(read_error,RANAME,XXNAME,PUNAME,HXNAME)
+SUBROUTINE rcnvrte(read_error,RANAME,XXNAME,PUNAME,HXNAME)
 ! EYESYS VERSION
   USE io_functions, ONLY : get_new_fileunit
   USE set_precision, ONLY : wp
   USE cornea_arrays, ONLY : EyeSys
   USE special_fct, ONLY : replacestr
   IMPLICIT NONE
-  logical :: exists
+  LOGICAL :: exists
   CHARACTER(len=*), INTENT(IN) :: RANAME,XXNAME
   CHARACTER(len=*), INTENT(IN), optional :: PUNAME,HXNAME
   CHARACTER(1000) header,header_space
@@ -1831,16 +1831,16 @@ subroutine rcnvrte(read_error,RANAME,XXNAME,PUNAME,HXNAME)
     read_error=6
     return
    endif
-end subroutine rcnvrte
+END SUBROUTINE rcnvrte
 
-subroutine rcnvrtV(read_error,RANAME,XXNAME)
+SUBROUTINE rcnvrtV(read_error,RANAME,XXNAME)
 ! VISIA VERSION
   USE io_functions, ONLY : get_new_fileunit
   USE set_precision, ONLY : wp
   USE cornea_arrays, ONLY : EyeSys
   USE special_fct, ONLY : replacestr
   IMPLICIT NONE
-  logical :: exists
+  LOGICAL :: exists
   CHARACTER(len=*), INTENT(IN) :: RANAME,XXNAME
   CHARACTER(1000) header,header_space
   INTEGER :: file_idx1,file_idx2,file_idx3,file_idx4,readerr
@@ -1944,15 +1944,15 @@ subroutine rcnvrtV(read_error,RANAME,XXNAME)
     read_error=6
     return
    endif
-end subroutine rcnvrtV
+END SUBROUTINE rcnvrtV
 
 
 
-subroutine rcnvrta_type(KXNAME,N,read_error)
+SUBROUTINE rcnvrta_type(KXNAME,N,read_error)
 ! determine ATLAS VERSION if 900 or 9000; N=25 or 22
- use io_functions, only : get_new_fileunit
+ USE io_functions, ONLY  : get_new_fileunit
  IMPLICIT NONE
- logical :: exists
+ LOGICAL :: exists
  CHARACTER(80) KH1,KH2
  CHARACTER(len=*), INTENT(IN) :: KXNAME
  INTEGER, INTENT(OUT) :: N, read_error
@@ -2005,15 +2005,15 @@ subroutine rcnvrta_type(KXNAME,N,read_error)
      return
     endif
   RETURN
-end subroutine rcnvrta_type
+END SUBROUTINE rcnvrta_type
 
-subroutine rcnvrta(KXNAME,N,read_error)
+SUBROUTINE rcnvrta(KXNAME,N,read_error)
 ! ATLAS VERSION
- use io_functions, only : get_new_fileunit
+ USE io_functions, ONLY  : get_new_fileunit
  USE set_precision, ONLY : wp
  USE cornea_arrays, ONLY : Atlas, JMatrix
  IMPLICIT NONE
- logical :: exists
+ LOGICAL :: exists
  CHARACTER(80) KH1,KH2,KH3
  CHARACTER(len=*), INTENT(IN) :: KXNAME
  INTEGER, INTENT(IN) :: N
@@ -2208,4 +2208,4 @@ subroutine rcnvrta(KXNAME,N,read_error)
 
     RETURN
 
- end subroutine rcnvrta
+ END SUBROUTINE rcnvrta

@@ -1,11 +1,11 @@
 ! finds the center of the spline defined by where there is a max/min 
- subroutine SplineCenter(dat,jj,r,z,zr2,n,u,err_report)
+ SUBROUTINE SplineCenter(dat,jj,r,z,zr2,n,u,err_report)
  use, INTRINSIC :: iso_c_binding, ONLY : c_int, c_int64_t
- USE set_precision, only : wp
+ USE set_precision, ONLY  : wp
  USE parameters
- use spline_interfaces, ONLY : SplineEval, SplineEvalCenter
+ USE spline_interfaces, ONLY : SplineEval, SplineEvalCenter
   USE special_fct, ONLY : bsearch
- use,intrinsic :: ieee_arithmetic 
+ USE, INTRINSIC :: ieee_arithmetic 
  IMPLICIT NONE
   INTEGER(c_int64_t), INTENT(IN) :: dat
   INTEGER, INTENT(IN) :: n,jj
@@ -126,4 +126,4 @@
     endif        
   endif
    
-  end subroutine SplineCenter
+  END SUBROUTINE SplineCenter

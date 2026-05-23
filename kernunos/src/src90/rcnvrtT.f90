@@ -1,13 +1,13 @@
-subroutine RCNVRTT(MM,N)
+SUBROUTINE RCNVRTT(MM,N)
 
 USE set_precision, ONLY : wp
 USE cornea_arrays
 USE parameters
-use,intrinsic :: ieee_arithmetic
+USE, INTRINSIC :: ieee_arithmetic
 INTEGER :: i,j
 INTEGER, INTENT(IN) :: MM,N
 REAL(wp) :: DIST,R,A,B,X,YP,POW,D,YT,YZ
-logical :: IsInf
+LOGICAL :: IsInf
 
 ! fake EyeSys
   RadSlope%MV=0.0_wp
@@ -74,4 +74,4 @@ logical :: IsInf
      end do 
   end do
 
- end subroutine RCNVRTT     
+ END SUBROUTINE RCNVRTT     

@@ -1,8 +1,8 @@
 ! based on https://fortran-lang.discourse.group/t/best-practices-for-passing-c-strings/104
- subroutine get_compiler_name(c_f) BIND(C, NAME='get_compiler_name_')
+ SUBROUTINE get_compiler_name(c_f) BIND(C, NAME='get_compiler_name_')
   USE, INTRINSIC :: iso_c_binding, ONLY : c_char, c_null_char
   USE, INTRINSIC :: iso_fortran_env
-  CHARACTER(kind=c_char), dimension(*), INTENT(inout) :: c_f
+  CHARACTER(kind=c_char), dimension(*), INTENT(INOUT) :: c_f
   INTEGER :: inc,i
   CHARACTER(80) f
   f = compiler_version()
@@ -11,5 +11,5 @@
    c_f(i) = f(i:i)
   end do
   c_f(inc+1) = c_null_char
- end subroutine get_compiler_name
+ END SUBROUTINE get_compiler_name
 

@@ -1,10 +1,10 @@
-      subroutine SplineEval1Dx1D(iflag,u,v,f,fr,frr,ft,frt,ftt)
+      SUBROUTINE SplineEval1Dx1D(iflag,u,v,f,fr,frr,ft,frt,ftt)
       USE cornea_arrays, ONLY : DiaSlope, RadSlope
       USE parameters
       USE set_precision, ONLY : wp
       USE spline_interfaces, ONLY : lsqfit, LSQEval, pspli, SplineEval, SplineEvalCenter, trapez, CubicSplineQuad
       USE special_fct, ONLY : bsearch, OPERATOR(.p.)
-      use,intrinsic :: ieee_arithmetic
+      USE, INTRINSIC :: ieee_arithmetic
       IMPLICIT NONE
  !    first digit iflag=1 -> use lsq iflag=0 -> use circumferential spline in second step
  !    second digit iflag=1 central node 0 = no central node
@@ -17,7 +17,7 @@
       REAL(wp) :: thta(size(RadSlope%r,2)),fttTmp(size(RadSlope%r,2)),frttTmp(size(RadSlope%r,2)),frrttTmp(size(RadSlope%r,2))
       REAL(wp) :: r(2*size(RadSlope%r,1)),z(2*size(RadSlope%r,1)),zr2(2*size(RadSlope%r,1)),c(M2)
       INTEGER :: L2,L,MM,N,i,i1,err_report
-!      logical :: IsInf
+!      LOGICAL :: IsInf
 
       MM=size(RadSlope%r,2)
       N=size(RadSlope%r,1)

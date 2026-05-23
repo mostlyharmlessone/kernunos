@@ -65,7 +65,7 @@
      END INTERFACE
 
     INTERFACE
-     subroutine csrcoo ( nrow, job, a, ja, ia, nnz, ao, ir, jc, ierr )
+     SUBROUTINE csrcoo ( nrow, job, a, ja, ia, nnz, ao, ir, jc, ierr )
      INTEGER ( kind = 4 ) nrow
      INTEGER ( kind = 4 ) nnz
      REAL ( kind = 8 ) a(*)
@@ -76,7 +76,7 @@
      INTEGER ( kind = 4 ) ja(*)
      INTEGER ( kind = 4 ) jc(*)
      INTEGER ( kind = 4 ) job
-     end subroutine
+     END SUBROUTINE
     END INTERFACE
 
       REAL (dkind), PRIVATE :: zero = 0.0e0_dkind

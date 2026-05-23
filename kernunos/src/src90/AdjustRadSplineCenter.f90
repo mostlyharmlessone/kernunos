@@ -1,6 +1,6 @@
 !     shifts each meridional curve over by the deviation of the maximum from the origin 
 !     relies on MakeRadSplineCenter
-      subroutine AdjustRadSplineCenter 
+      SUBROUTINE AdjustRadSplineCenter 
       USE cornea_arrays, ONLY : DiaSlope, RadSlope, RadSplineCenter
       IMPLICIT NONE
       INTEGER :: i,j,MM,N
@@ -12,4 +12,4 @@
        end do
       end do
       return
-      end subroutine AdjustRadSplineCenter
+      END SUBROUTINE AdjustRadSplineCenter

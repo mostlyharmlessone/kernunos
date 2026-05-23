@@ -1,17 +1,17 @@
-  subroutine Janus(flag,file_from_C,elements,vertices,legend,cardinal,zern,nV,nE,nL,nC,pupil_elements,pupil_vertices,pupil_nV,pupil_nE,err_janus) bind(C,name='janus_')
+  SUBROUTINE Janus(flag,file_from_C,elements,vertices,legend,cardinal,zern,nV,nE,nL,nC,pupil_elements,pupil_vertices,pupil_nV,pupil_nE,err_janus) bind(C,name='janus_')
 ! back end for calculations
   USE set_precision, ONLY : wp, sk
-  use lapackinterface
-  use cornea_arrays
+  USE lapackinterface
+  USE cornea_arrays
   USE parameters
   USE special_fct
-  use io_functions
-  use spline_interfaces
-  use,intrinsic :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char,c_int64_t,c_double
+  USE io_functions
+  USE spline_interfaces
+  USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char,c_int64_t,c_double
   USE, INTRINSIC :: iso_fortran_env
-  use,intrinsic :: ieee_arithmetic
-  use c_interfaces, ONLY : LogC, Ccounter, ConvertPLYtoBIN, charcount
-  use omp_lib
+  USE, INTRINSIC :: ieee_arithmetic
+  USE c_interfaces, ONLY : LogC, Ccounter, ConvertPLYtoBIN, charcount
+  USE omp_lib
   IMPLICIT NONE
   INTEGER :: i, j, k, ii, kk, m, nn, i1, j1, ierr, info, nrhs
   INTEGER,save :: MM, N ,M1, N1, Power_Rings_Count, loaded_files, crop
@@ -41,7 +41,7 @@
   INTEGER,allocatable :: MV(:)
   REAL(8) :: time_start, time_end
   REAL(wp) :: POWMIN,POWMAX,POWMAX2,POWCTR,POW,P1,X1,X2,U,V,UT,VT,WT,ZT
-  logical :: donut, exists
+  LOGICAL :: donut, exists
   REAL(wp) :: Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo,dvert,dhoriz,percent_squash
   INTEGER :: k_max, kk_max, iflag, LWORK, rotationdegrees
   INTEGER(c_int64_t) :: dat, fct, map
@@ -52,7 +52,7 @@
   REAL(wp) :: ctr_circle_x, ctr_circle_y, R_global, Theta_global, R_MV, R_TST !, P_TEMP
   REAL(wp) :: gaussian,meanpower,princ1,princ2,astigm
   REAL(wp), allocatable :: temp(:,:)
-  logical :: lsq
+  LOGICAL :: lsq
   INTEGER(c_int) :: periodcount
   INTEGER(c_int64_t), parameter :: zero_int64 = 0
 
@@ -2568,4 +2568,4 @@ endif
 
   return        
 
-  END subroutine janus
+  END SUBROUTINE janus

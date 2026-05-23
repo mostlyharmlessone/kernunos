@@ -1,12 +1,12 @@
 ! PURPOSE adds a central node to the radial spline at the origin between central points
 ! only use after nspline and MakeRadSplineCenter have run
- subroutine nsplineCenter(ii,r,z,n,z2,err_report)
- USE set_precision, only : wp
- use cornea_arrays, only : RadSplineCenter
- use spline_interfaces, ONLY : thomas, SplineEval, nspline
+ SUBROUTINE nsplineCenter(ii,r,z,n,z2,err_report)
+ USE set_precision, ONLY  : wp
+ USE cornea_arrays, ONLY  : RadSplineCenter
+ USE spline_interfaces, ONLY : thomas, SplineEval, nspline
   USE special_fct, ONLY : bsearch
  use LapackInterface, ONLY : dgtsv
- use,intrinsic :: ieee_arithmetic
+ USE, INTRINSIC :: ieee_arithmetic
 
   INTEGER, INTENT(IN) :: ii,n
   REAL(wp), INTENT(IN) ::  r(n)
@@ -99,5 +99,5 @@
  ! store z2 central/origin
    RadSplineCenter(3,ii)=zz2(high)
 
- end subroutine nsplineCenter
+ END SUBROUTINE nsplineCenter
 

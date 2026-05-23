@@ -4,8 +4,8 @@
 ! to define the precision of a complete package along
 ! with values for all commonly used precisions
     MODULE set_precision
-    use iso_fortran_env, only: int8, int16, int32, int64
-    use iso_c_binding, only: c_bool, c_int
+    USE ISO_FORTRAN_ENV, ONLY : int8, int16, int32, int64
+    use iso_c_binding, ONLY : c_bool, c_int
     IMPLICIT NONE
     private
     public :: wp, sk, sp, dp, xdp, qp, int8, int16, int32, int64, lk, c_bool, skind, dkind, int2d, int3d, c_int

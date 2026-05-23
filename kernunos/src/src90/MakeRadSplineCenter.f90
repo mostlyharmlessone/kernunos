@@ -1,5 +1,5 @@
 !     diagnostic to see where each splines center is, perhaps a measure of decentration 
-      subroutine MakeRadSplineCenter(dat,error_report)
+      SUBROUTINE MakeRadSplineCenter(dat,error_report)
       use, INTRINSIC :: iso_c_binding, ONLY : c_int, c_int64_t
       USE cornea_arrays, ONLY : DiaSlope, RadSlope, RadSplineCenter
       USE set_precision, ONLY : wp
@@ -30,4 +30,4 @@
         RadSplineCenter(1,L)=RadSplineCenter(1,j)
       end do
       return
-      end subroutine MakeRadSplineCenter
+      END SUBROUTINE MakeRadSplineCenter

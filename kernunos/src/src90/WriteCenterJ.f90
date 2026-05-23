@@ -1,7 +1,7 @@
-       subroutine WriteCenterJ(a,b,KXNAME)
+       SUBROUTINE WriteCenterJ(a,b,KXNAME)
        USE parameters, ONLY : PI
        USE set_precision, ONLY : wp
-       use io_functions, only : get_new_fileunit
+       USE io_functions, ONLY  : get_new_fileunit
        REAL(wp),INTENT(IN) :: a, b(:,:)
        CHARACTER(len=*), INTENT(IN) :: KXNAME
        INTEGER :: N,MM,i,unitno1
@@ -18,4 +18,4 @@
        write(unitno1,*) PI*(i-1)/90.0_wp,(b(N+1,i)-a)
        close (unitno1)       
     
-       end subroutine WriteCenterJ
+       END SUBROUTINE WriteCenterJ

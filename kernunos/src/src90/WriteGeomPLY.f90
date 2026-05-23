@@ -1,18 +1,18 @@
 !      Writes ASCII PLY files with color overlay
 !      modified for assimp to be vertex colors, c/w Geom.f90 too
-       subroutine WriteGeomPLY(flag,b,donut,powmin,powmax,PLYNAME)
-       use io_functions, only : get_new_fileunit
-       use cornea_arrays
+       SUBROUTINE WriteGeomPLY(flag,b,donut,powmin,powmax,PLYNAME)
+       USE io_functions, ONLY  : get_new_fileunit
+       USE cornea_arrays
        USE parameters
        USE set_precision, ONLY : wp
-       USE special_fct, only : colormap
-       use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
+       USE special_fct, ONLY  : colormap
+       USE ISO_FORTRAN_ENV, ONLY : INT8,INT16,INT32,REAL32
        USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_int64_t
        USE, INTRINSIC ::  ieee_arithmetic
        TYPE(wpJMatrix),INTENT(IN) :: b
        CHARACTER(len=*), INTENT(IN) :: PLYNAME
        REAL(wp), INTENT(IN) :: powmin,powmax
-       logical, INTENT(IN) :: donut
+       LOGICAL, INTENT(IN) :: donut
        INTEGER(c_int64_t), INTENT(INOUT) :: flag
        REAL(wp) :: X1,X2,X3
        REAL(REAL32) :: vert1,vert2,vert3,nrm1,nrm2,nrm3,normal
@@ -21,7 +21,7 @@
        INTEGER(c_int64_t) :: map,fct,dat
        CHARACTER(400) :: message
        INTEGER(INT32) :: ivert1,ivert2,ivert3,ivert4,vertnum
-       logical :: quad
+       LOGICAL :: quad
        INTEGER(int16) :: rgbv(3)  
 
        map=mod((flag-mod(flag,100))/100,100)
@@ -296,4 +296,4 @@
         
        close (unitno1)    
   
-       end subroutine WriteGeomPLY
+       END SUBROUTINE WriteGeomPLY

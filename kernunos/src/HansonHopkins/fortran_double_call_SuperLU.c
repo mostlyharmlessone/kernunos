@@ -106,7 +106,7 @@ void FACTOR_with_SuperLU(int *iopt, int *n, int *nnz,
 		Ustore = (NCformat *) U->Store;
 		if(options->PrintStat){				
 			dQuerySpace(L, U, &mem_usage);
-			// Call to a Fortran subroutine that prints the data.
+                        // Call to a Fortran subroutine that prints the data.
 			// No call is made if options->PrintStat==0, the default.
 			fortran_print(info,n,&Lstore->nnz,&Ustore->nnz,&mem_usage);
 		}

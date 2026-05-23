@@ -1,4 +1,4 @@
-module c_interfaces
+MODULE c_interfaces
  ! gathering all the interfaces for c/fortran interaction
  INTERFACE
 
@@ -24,49 +24,49 @@ module c_interfaces
 END SUBROUTINE Janus
 
 ! call from c++ to fortran as extern "C" 
- subroutine ConvertOFFtoSTL_C(INAME,ONAME,deftype) bind(C,name='ConvertOFFtoSTL_C_')
+ SUBROUTINE ConvertOFFtoSTL_C(INAME,ONAME,deftype) bind(C,name='ConvertOFFtoSTL_C_')
 ! Reads OFF file created by WriteOFF and generates ASCII and binary STL files 
 ! modified to be called from C/C++
   use, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
   IMPLICIT NONE
   CHARACTER(c_char), INTENT(INOUT), DIMENSION(4096) :: INAME,ONAME
   INTEGER(c_int),INTENT(IN) :: deftype
-end subroutine ConvertOFFtoSTL_C
+END SUBROUTINE ConvertOFFtoSTL_C
 
 ! call from c++ to fortran as extern "C"
-subroutine get_compiler_name(c_f) BIND(C, NAME='get_compiler_name_')
+SUBROUTINE get_compiler_name(c_f) BIND(C, NAME='get_compiler_name_')
  USE, INTRINSIC :: iso_c_binding, ONLY : c_char, c_null_char
  USE, INTRINSIC :: iso_fortran_env
- CHARACTER(kind=c_char), dimension(*), INTENT(inout) :: c_f
-end subroutine get_compiler_name
+ CHARACTER(kind=c_char), dimension(*), INTENT(INOUT) :: c_f
+END SUBROUTINE get_compiler_name
 
 ! call from fortran to c
-subroutine ConvertPLYtoBIN(iname, oname) BIND(C,name='ConvertPLYtoBIN')
+SUBROUTINE ConvertPLYtoBIN(iname, oname) BIND(C,name='ConvertPLYtoBIN')
 ! Reads ASCII PLY and makes binary PLY
 USE, INTRINSIC :: iso_c_binding, ONLY : c_char,c_null_char
  CHARACTER(c_char), INTENT(IN), dimension(*) :: iname
  CHARACTER(c_char), INTENT(OUT), dimension(*) :: oname
-end subroutine ConvertPLYtoBIN
+END SUBROUTINE ConvertPLYtoBIN
 
-subroutine LogC(message) BIND(C,name='LogC')
+SUBROUTINE LogC(message) BIND(C,name='LogC')
 ! logs a message to a file
 USE, INTRINSIC :: iso_c_binding, ONLY : c_char,c_null_char
  CHARACTER(c_char), INTENT(IN), dimension(*) :: message
-end subroutine LogC
+END SUBROUTINE LogC
 
-function CharCount(iname) BIND(C,name='charcount')
+FUNCTION CharCount(iname) BIND(C,name='charcount')
 ! counts the periods "." in a file for determinng mire number
 USE, INTRINSIC :: iso_c_binding, ONLY : c_char, c_int, c_null_char
  CHARACTER(c_char), INTENT(IN), dimension(*) :: iname
  INTEGER(c_int) :: charcount
-end function CharCount
+END FUNCTION CharCount
 
-subroutine Ccounter(inc, iname) BIND(C,name='Ccounter')
+SUBROUTINE Ccounter(inc, iname) BIND(C,name='Ccounter')
 ! used to show progression of calculation and print zernike result when done
 USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_char,c_null_char
  INTEGER(c_int), INTENT(IN) :: inc
  CHARACTER(c_char), INTENT(IN), dimension(*) :: iname
-end subroutine Ccounter
+END SUBROUTINE Ccounter
 
 
 ! call from c to fortran
@@ -81,13 +81,13 @@ SUBROUTINE fortran_print(info,n,nnzl,nnzu,memuse) BIND(C, &
   IMPLICIT NONE
   TYPE (mem_usage), INTENT (IN) :: memuse
   INTEGER (c_int), INTENT(IN) :: info, n, nnzl, nnzu
-end subroutine
+END SUBROUTINE
 
 END INTERFACE
     
  contains
 
-end module c_interfaces
+END MODULE c_interfaces
 
 
     

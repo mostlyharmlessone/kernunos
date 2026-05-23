@@ -1,8 +1,8 @@
-subroutine trapez(ii,iflag,rv,zv,z2v,n,r,z)
+SUBROUTINE trapez(ii,iflag,rv,zv,z2v,n,r,z)
 !  Cubic Spline Quadrature using trapezoidal rule
 !  ONLY used for radial splines
-   USE set_precision, only : wp
-   use spline_interfaces, only : SplineEval, SplineEvalCenter
+   USE set_precision, ONLY  : wp
+   USE spline_interfaces, ONLY  : SplineEval, SplineEvalCenter
    USE special_fct, ONLY : bsearch
    REAL(wp), INTENT(IN) ::  rv(*)
    REAL(wp), INTENT(IN) ::  zv(*),z2v(*),r
@@ -30,4 +30,4 @@ subroutine trapez(ii,iflag,rv,zv,z2v,n,r,z)
     end do
    endif
    z=TRAP
-end subroutine trapez       
+END SUBROUTINE trapez       

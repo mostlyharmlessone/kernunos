@@ -1,5 +1,5 @@
-subroutine lsqfit(t,z,M1,M2,c)
-USE set_precision, only :  wp
+SUBROUTINE lsqfit(t,z,M1,M2,c)
+USE set_precision, ONLY  :  wp
 use LapackInterface, ONLY : dgetrf, dgetrs !, dgels, GaussJordan
 REAL(wp), INTENT(IN) :: t(M1),z(M1)
 INTEGER, INTENT(IN) :: M1,M2
@@ -7,7 +7,7 @@ REAL(wp), INTENT(OUT) ::c(M2)
  INTEGER :: M1,j,k,info,ipvt(M2) !,LWORK1
  REAL(wp) :: X(M2,M1),zpX(M2),XTX(M2,M2) !,zwork(M1)
 ! REAL(wp), allocatable :: WORK1(:)
- logical :: Q
+ LOGICAL :: Q
   zpX=0 ; XTX = 0
   c=0 ; X=0
 ! X is terms of fourier, t are angles, z are radii for current ring
@@ -49,4 +49,4 @@ REAL(wp), INTENT(OUT) ::c(M2)
   if (info .ne. 0) write(*,*) 'Error in lsqfit: dgetrs',info
 ! deallocate(WORK1)
   c=zpX
-end subroutine
+END SUBROUTINE

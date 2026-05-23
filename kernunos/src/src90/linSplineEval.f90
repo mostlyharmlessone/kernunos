@@ -1,9 +1,9 @@
 ! here y2 is the output of linspline
-subroutine linSplineEval(KP,r,y2,n,u,f,fp)
+SUBROUTINE linSplineEval(KP,r,y2,n,u,f,fp)
  USE set_precision, ONLY : wp
  USE parameters, ONLY : PI
  USE special_fct, ONLY : bsearch, OPERATOR(.p.) !tensor summation convention
- use,intrinsic :: ieee_arithmetic
+ USE, INTRINSIC :: ieee_arithmetic
  IMPLICIT NONE
 
   INTEGER, INTENT(IN) :: KP ! periodic KP=1 vs natural spline flag KP=0
@@ -15,7 +15,7 @@ subroutine linSplineEval(KP,r,y2,n,u,f,fp)
   INTEGER :: i,i1 ! i1=i+1 unless periodic across gap
   REAL(wp) :: dr,PERD,A,B,dA,dB,x(n)
   REAL(wp), DIMENSION(2) :: AB,dAB,z
-  logical :: IsInf
+  LOGICAL :: IsInf
   
   PERD =2*PI
   if (n .eq. 1) then  ! degenerate case
@@ -97,4 +97,4 @@ subroutine linSplineEval(KP,r,y2,n,u,f,fp)
    endif
                            
   return
-end subroutine linSplineEval
+END SUBROUTINE linSplineEval

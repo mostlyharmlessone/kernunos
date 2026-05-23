@@ -1,14 +1,14 @@
-subroutine thomas(a,b,c,d,z,n,k) ! "Llewellyn Thomas" algorithm for tridiagonal banded matrices"
+SUBROUTINE thomas(a,b,c,d,z,n,k) ! "Llewellyn Thomas" algorithm for tridiagonal banded matrices"
 ! Adapted from https://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm
-USE set_precision, only : wp
-!use,intrinsic :: ieee_arithmetic
+USE set_precision, ONLY  : wp
+!USE, INTRINSIC :: ieee_arithmetic
 IMPLICIT NONE
 INTEGER, INTENT(IN) :: n,k
 real(wp), INTENT(INOUT) :: a(n),b(n),c(n),d(k,n)
 REAL (wp), INTENT(OUT) :: z(k,n)
 real(wp) :: g !,f
 integer i
-!logical :: IsNaN
+!LOGICAL :: IsNaN
 do i=2,n
 ! if (b(i-1) > 0) then
    g=a(i)/b(i-1)
@@ -31,4 +31,4 @@ do i=n-1,1,-1
 ! endif
 end do 
 return
-end subroutine thomas
+END SUBROUTINE thomas

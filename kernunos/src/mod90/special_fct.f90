@@ -1,4 +1,4 @@
-module special_fct
+MODULE special_fct
 ! vector and matrix functions
 ! coordinate transform
 ! color functions
@@ -7,10 +7,10 @@ module special_fct
 ! binary search interface
 USE parameters, ONLY : EPS, PI
 USE set_precision, ONLY : wp, sk, int2d, int3d
-use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
-use, INTRINSIC :: iso_c_binding, only : c_int64_t
+USE ISO_FORTRAN_ENV, ONLY : INT8,INT16,INT32,REAL32
+use, INTRINSIC :: iso_c_binding, ONLY  : c_int64_t
 USE, INTRINSIC ::  ieee_arithmetic
-use M_color, only : jucolor
+USE M_color, ONLY : jucolor
 IMPLICIT NONE
 
 INTERFACE OPERATOR (.p.) ! binary operator summation convention/tensors
@@ -24,12 +24,12 @@ END INTERFACE
 
 INTERFACE
 
-  subroutine bsearch(r,rv,n,high,low)
-   USE set_precision, only : wp
+  SUBROUTINE bsearch(r,rv,n,high,low)
+   USE set_precision, ONLY  : wp
    INTEGER, INTENT(IN) :: n
    REAL(wp), INTENT(IN) :: r, rv(n)
    INTEGER, INTENT(OUT) :: high, low
-  end subroutine
+  END SUBROUTINE
 
 END INTERFACE
 
@@ -38,58 +38,58 @@ CONTAINS
 ! vector & matrix operations
 
 ! scalar matrix (inner) product
-function sum_of_sum_matrix_by_matrix(array1,array2) result(dL2)
+FUNCTION sum_of_sum_matrix_by_matrix(array1,array2) result(dL2)
  REAL (wp), INTENT (IN) :: array1(:,:),array2(:,:)
  REAL(wp) ::  v3(size(array1,1)),dL2
  INTEGER :: i
  v3=[(1,i=1,size(array1,1))]
  dL2=dot_product(v3,matmul(v3,array1*array2))
-end function sum_of_sum_matrix_by_matrix
+END FUNCTION sum_of_sum_matrix_by_matrix
 
 ! scalar vector (inner) product
-function sum_of_vector_by_vector(v1,v2) result(dL2)
+FUNCTION sum_of_vector_by_vector(v1,v2) result(dL2)
  REAL (wp), INTENT (IN) :: v1(:),v2(:)
  REAL (wp) :: dL2
  dl2=dot_product(v1,v2)
-end function sum_of_vector_by_vector
+END FUNCTION sum_of_vector_by_vector
 
 ! vector x matrix (inner) product
-function sum_of_vector_by_matrix(v1,array2) result(v2)
+FUNCTION sum_of_vector_by_matrix(v1,array2) result(v2)
  REAL (wp), INTENT (IN) :: v1(:),array2(:,:)
  REAL (wp) :: v2(SIZE(array2,1))
  v2=matmul(v1,array2)
-end function sum_of_vector_by_matrix
+END FUNCTION sum_of_vector_by_matrix
 
 ! matrix x vector (inner) product
-function sum_of_matrix_by_vector(array1,v2) result(v1)
+FUNCTION sum_of_matrix_by_vector(array1,v2) result(v1)
  REAL (wp), INTENT (IN) :: v2(:),array1(:,:)
  REAL (wp) :: v1(SIZE(array1,2))
  v1=matmul(array1,v2)
-end function sum_of_matrix_by_vector
+END FUNCTION sum_of_matrix_by_vector
 
 !! REAL32 functions for STL facet calcs
 
 ! vector vector (cross) product (dimension 3)
-function cross_product(v1, v2) result(v3)
+FUNCTION cross_product(v1, v2) result(v3)
   REAL(wp), INTENT(IN) :: v1(3), v2(3)
   REAL(wp) :: v3(3)
   v3(1) = v1(2) * v2(3) - v1(3) * v2(2)
   v3(2) = v1(3) * v2(1) - v1(1) * v2(3)
   v3(3) = v1(1) * v2(2) - v1(2) * v2(1)
-end function cross_product
+END FUNCTION cross_product
 
 ! surface normal vector (REAL32 and dimension 3)
-function surface_normal(v1, v2, v3) result(v4)
+FUNCTION surface_normal(v1, v2, v3) result(v4)
   REAL(REAL32), INTENT(IN) :: v1(3), v2(3), v3(3) ! vertices of triangle
   REAL(REAL32) :: v4(3)
   v4(1) = (v2(2)-v1(2)) * (v3(3)-v1(3)) - (v2(3)-v1(3)) * (v3(2)-v1(2))
   v4(2) = (v2(3)-v1(3)) * (v3(1)-v1(1)) - (v2(1)-v1(1)) * (v3(3)-v1(3))
   v4(3) = (v2(1)-v1(1)) * (v3(2)-v1(2)) - (v2(2)-v1(2)) * (v3(1)-v1(1))
-end function surface_normal
+END FUNCTION surface_normal
 
 !! color functions
 
-function colormap(x,minimum, maximum,map) result(rgbv)
+FUNCTION colormap(x,minimum, maximum,map) result(rgbv)
  REAL (wp), INTENT (IN) :: minimum,maximum,x
  INTEGER(c_int64_t), INTENT (IN) :: map
  INTEGER(int16) :: rgbv(3) ! rgbv={r,g,b}
@@ -115,10 +115,10 @@ function colormap(x,minimum, maximum,map) result(rgbv)
    CASE DEFAULT
       rgbv=USSpalette(.true.,.false.,x,minimum,maximum)
 END SELECT
-end function colormap
+END FUNCTION colormap
 
 ! perceptually uniform but single hue sequential maps
-function PerceptuallyUniformPalette(fixedrange,x,powmin, powmax) result(rgbv)
+FUNCTION PerceptuallyUniformPalette(fixedrange,x,powmin, powmax) result(rgbv)
 REAL (wp), INTENT (IN) :: powmin,powmax,x
 LOGICAL, INTENT(IN) :: fixedrange
 INTEGER :: i,high,low
@@ -169,10 +169,10 @@ call bsearch(x,col,9,high,low)
     rgbv(:)=int((/0,0,0/),kind=int3d)
    endif
   endif
-end function PerceptuallyUniformPalette
+END FUNCTION PerceptuallyUniformPalette
 
 ! fixed discrete diopteric palette: The Uniform Standard Scale
-function USSpalette(fixedrange,extendedNIDEK,x,powmin, powmax) result(rgbv)
+FUNCTION USSpalette(fixedrange,extendedNIDEK,x,powmin, powmax) result(rgbv)
 REAL (wp), INTENT (IN) :: powmin,powmax,x
 LOGICAL, INTENT(IN) :: fixedrange,extendedNIDEK
 INTEGER :: i,high,low
@@ -240,10 +240,10 @@ call bsearch(x,col,26,high,low)
   endif
  endif
 
-end function USSpalette
+END FUNCTION USSpalette
 
 ! makes a noncontinuous/discrete interval 12 color palette similar to the one in printgraph using gnuplot/splot
-function gplotpalette(x,minimum, maximum) result(rgbv)
+FUNCTION gplotpalette(x,minimum, maximum) result(rgbv)
 REAL (wp), INTENT (IN) :: minimum,maximum,x
 INTEGER :: high,low
 INTEGER(int16) :: rgbv(3) ! rgbv={r,g,b}
@@ -279,12 +279,12 @@ endif
 read(tempH(1:2),'(Z2)') rgbv(1)
 read(tempH(3:4),'(Z2)') rgbv(2)
 read(tempH(5:6),'(Z2)') rgbv(3)
-end function gplotpalette
+END FUNCTION gplotpalette
 
 ! convert values to heatmap using Hue from Hue/Saturation/Value and color.f90
 ! input 3 scalars, output INTEGER(kind=2) vector
 ! using https://fortranwiki.org/fortran/show/M_color Color Library Version 5.0   
-function hsbrgb(x,minimum, maximum) result(rgbv)
+FUNCTION hsbrgb(x,minimum, maximum) result(rgbv)
  REAL (wp), INTENT (IN) :: minimum,maximum,x
  REAL :: hue,sat,bright,rr,gg,bb
  INTEGER :: stat
@@ -300,12 +300,12 @@ function hsbrgb(x,minimum, maximum) result(rgbv)
     rgbv(1) = int(min(255,int(2.55*rr)),kind=int3d)
     rgbv(2) = int(min(255,int(2.55*gg)),kind=int3d)
     rgbv(3) = int(min(255,int(2.55*bb)),kind=int3d)
-end function hsbrgb
+END FUNCTION hsbrgb
 
 ! convert values to rgb 2 color (red to blue) heatmap
 ! input 3 scalars, output INTEGER(kind=2) vector
 ! https://stackoverflow.com/questions/20792445/calculate-rgb-value-for-a-range-of-values-to-create-heat-map    
-function rgb2(x,minimum, maximum) result(rgbv)
+FUNCTION rgb2(x,minimum, maximum) result(rgbv)
  REAL (wp), INTENT (IN) :: minimum,maximum,x
  REAL (wp) :: ratio
  INTEGER(int16) :: rgbv(3) ! rgbv={r,g,b}
@@ -314,13 +314,13 @@ function rgb2(x,minimum, maximum) result(rgbv)
     rgbv(3) = max(zero, int(255*(1 - ratio),2))
     rgbv(1) = max(zero, int(255*(ratio - 1),2))
     rgbv(2) = int(255,2) - rgbv(3) - rgbv(1)
-end function rgb2
+END FUNCTION rgb2
 
 ! convert values to rgb 5 color (red to blue) heatmap
 ! input 3 scalars, output INTEGER(kind=2) vector
 ! http://www.andrewnoske.com/wiki/Code_-_heatmaps_and_color_gradients  
 ! https://stackoverflow.com/questions/3708307/how-to-initialize-two-dimensional-arrays-in-fortran 
-function rgb5(x,minimum, maximum) result(rgbv)
+FUNCTION rgb5(x,minimum, maximum) result(rgbv)
  REAL (wp), INTENT (IN) :: minimum,maximum,x
  REAL (wp) :: ratio,fract
  INTEGER(int16) :: nc,rgbv(3),idx1,idx2 ! rgbv={r,g,b}
@@ -369,11 +369,11 @@ function rgb5(x,minimum, maximum) result(rgbv)
    rgbv=(/255_int16,255_int16,255_int16/)  ! out of range = white
   endif
    
-end function rgb5
+END FUNCTION rgb5
 
 ! Converts full RGB (256x256x256) to VisCAM/SolidView or Materials Magic 15 bit color attr or no color
-function rgb2attr(deftype,rgbv) result(attr)
-  use, INTRINSIC :: iso_c_binding, ONLY : c_int
+FUNCTION rgb2attr(deftype,rgbv) result(attr)
+  USE, INTRINSIC :: iso_c_binding, ONLY : c_int
   INTEGER(kind=2), INTENT(IN) :: rgbv(3)  !=INT16
   INTEGER(c_int), INTENT(IN) :: deftype
   INTEGER(INT16) :: attr
@@ -409,10 +409,10 @@ function rgb2attr(deftype,rgbv) result(attr)
 !  write(*,'(b8.8)') green
 !  write(*,'(b8.8)') blue
 !  write(*,'(b16.16)') attr
-end function rgb2attr
+END FUNCTION rgb2attr
 
 !! coordinate transform
-subroutine PolarTranslate(ctr_circle_x,ctr_circle_y,rlocal,tht_local,R_global,Theta_global)
+SUBROUTINE PolarTranslate(ctr_circle_x,ctr_circle_y,rlocal,tht_local,R_global,Theta_global)
     IMPLICIT NONE
     REAL (wp), INTENT (IN) ::  ctr_circle_x,ctr_circle_y,rlocal,tht_local
     REAL (wp), INTENT(OUT) :: R_global,Theta_global
@@ -449,13 +449,13 @@ subroutine PolarTranslate(ctr_circle_x,ctr_circle_y,rlocal,tht_local,R_global,Th
       endif
      endif
     endif
-end subroutine PolarTranslate
+END SUBROUTINE PolarTranslate
 
 
 !! string/character functions
 !!https://stackoverflow.com/questions/58938347/how-do-i-replace-a-character-in-the-string-with-another-charater-in-fortran
 
-pure recursive function replacestr(string,search,substitute) result(modifiedString)
+PURE RECURSIVE FUNCTION replacestr(string,search,substitute) result(modifiedString)
         IMPLICIT NONE
         CHARACTER(len=*), INTENT(IN)  :: string, search, substitute
         CHARACTER(len=:), allocatable :: modifiedString
@@ -482,11 +482,11 @@ pure recursive function replacestr(string,search,substitute) result(modifiedStri
             i = i + 1
             cycle
         end do
-    end function replacestr
+    END FUNCTION replacestr
 
 !! epsilon & factorial functions
 ! needed for zernike functions
-function eps2(m) result(e) !eps2(0)=2, eps2(m)=1 m /=0
+FUNCTION eps2(m) result(e) !eps2(0)=2, eps2(m)=1 m /=0
  INTEGER :: e
  INTEGER, INTENT(IN) :: m
  if (m == 0) then
@@ -494,9 +494,9 @@ function eps2(m) result(e) !eps2(0)=2, eps2(m)=1 m /=0
  else
   e=1
  endif    
-end function eps2
+END FUNCTION eps2
 
- recursive function fact(n)  result(f) ! classic recursive factorial
+ RECURSIVE FUNCTION fact(n)  result(f) ! classic recursive factorial
  INTEGER :: f
  INTEGER, INTENT(IN) :: n
  if (n < 0) then
@@ -512,9 +512,9 @@ end function eps2
  else
    f = n * fact(n-1)
  endif
-end function fact
+END FUNCTION fact
 
- function binomial(n,k)  result (m)
+ FUNCTION binomial(n,k)  result (m)
  INTEGER :: m
  INTEGER, INTENT(IN) :: n,k
 ! m = fact(n)/(fact(k)*fact(n-k)) ! inefficient
@@ -523,9 +523,9 @@ end function fact
   else
    m = pfact(n,n-k)/pfact(k,0)
  endif
-end function binomial
+END FUNCTION binomial
 
- function pfact(n,k)  result(f) ! partial factorial k+1 to n: pfact(n,1)=pfact(n,0)=fact(n)
+ FUNCTION pfact(n,k)  result(f) ! partial factorial k+1 to n: pfact(n,1)=pfact(n,0)=fact(n)
  INTEGER :: f,i
  INTEGER, INTENT(IN) :: n,k
  if (n < 0 .OR. k < 0) then
@@ -548,108 +548,108 @@ end function binomial
     f = f*i
    end do
  endif
-end function pfact
+END FUNCTION pfact
 
 !! zernike radial functions
 
- function R00(rho) result (m)
+ FUNCTION R00(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=1
-end function R00
+END FUNCTION R00
 
- function R11(rho) result (m)
+ FUNCTION R11(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=rho
-end function R11
+END FUNCTION R11
 
- function R20(rho) result (m)
+ FUNCTION R20(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=2*rho*rho-1
-end function R20
+END FUNCTION R20
 
- function R22(rho) result (m)
+ FUNCTION R22(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=rho*rho
-end function R22
+END FUNCTION R22
 
- function R31(rho) result (m)
+ FUNCTION R31(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=3**rho*rho*rho-2*rho
-end function R31
+END FUNCTION R31
 
- function R33(rho) result (m)
+ FUNCTION R33(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=rho*rho*rho
-end function R33
+END FUNCTION R33
 
- function R40(rho) result (m)
+ FUNCTION R40(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=6*rho*rho*rho*rho-6*rho*rho+1
-end function R40
+END FUNCTION R40
 
- function R42(rho) result (m)
+ FUNCTION R42(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=4**rho*rho*rho*rho-3*rho*rho
-end function R42
+END FUNCTION R42
 
- function R44(rho) result (m)
+ FUNCTION R44(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=rho*rho*rho*rho
-end function R44
+END FUNCTION R44
 
- function R51(rho) result (m)
+ FUNCTION R51(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=10*rho*rho*rho*rho*rho-12*rho*rho*rho+3*rho
-end function R51
+END FUNCTION R51
 
- function R53(rho) result (m)
+ FUNCTION R53(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=5*rho*rho*rho*rho*rho-4*rho*rho*rho
-end function R53
+END FUNCTION R53
 
- function R55(rho) result (m)
+ FUNCTION R55(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=rho*rho*rho*rho*rho
-end function R55
+END FUNCTION R55
 
- function R60(rho) result (m)
+ FUNCTION R60(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=20*rho*rho*rho*rho*rho*rho-30*rho*rho*rho*rho+12*rho*rho-1
-end function R60
+END FUNCTION R60
 
- function R62(rho) result (m)
+ FUNCTION R62(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=15*rho*rho*rho*rho*rho*rho-20*rho*rho*rho*rho+6*rho*rho
-end function R62
+END FUNCTION R62
 
- function R64(rho) result (m)
+ FUNCTION R64(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=6*rho*rho*rho*rho*rho*rho-5*rho*rho*rho*rho
-end function R64
+END FUNCTION R64
 
- function R66(rho) result (m)
+ FUNCTION R66(rho) result (m)
  REAL(wp) :: m
  REAL(wp),INTENT(IN) :: rho
  m=rho*rho*rho*rho*rho*rho
-end function R66
+END FUNCTION R66
 
 ! if n >= m >= 0 n-m even ie mod(n-m)=0
- recursive function Rzern(n,m,p)  result(f) ! radial zernike polynomial
+ RECURSIVE FUNCTION Rzern(n,m,p)  result(f) ! radial zernike polynomial
  REAL(wp) :: f
  INTEGER, INTENT(IN) :: n,m
  REAL(wp),INTENT(IN) :: p
@@ -677,10 +677,10 @@ end function R66
   endif
  endif
  endif
-end function Rzern
+END FUNCTION Rzern
 
 ! if n >= 0 ABS(m) <= n
- function zernfct(n,m,p,phi) result(f)
+ FUNCTION zernfct(n,m,p,phi) result(f)
  INTEGER, INTENT(IN) :: n,m
  REAL(wp) :: f
  REAL(wp),INTENT(IN) :: p,phi
@@ -689,7 +689,7 @@ end function Rzern
  else
   f = Rzern(n,-m,p)*sin(m*phi)
  endif
-end function zernfct
+END FUNCTION zernfct
 
-end module special_fct
+END MODULE special_fct
 

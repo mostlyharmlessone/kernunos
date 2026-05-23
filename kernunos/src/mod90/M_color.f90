@@ -52,7 +52,7 @@
 !      * Last Modified: 19971123,20151017
 !      _________________________________________________________________
 
-module M_color
+MODULE M_color
 IMPLICIT NONE
 private
 !----------------------------
@@ -78,7 +78,7 @@ contains
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine jucolor(modei,clr1i,clr2i,clr3i,modeo,clr1o,clr2o,clr3o,status)
+SUBROUTINE jucolor(modei,clr1i,clr2i,clr3i,modeo,clr1o,clr2o,clr3o,status)
 !@(#)jucolor: convert color components from one color model to another
 !---- modei specifies the color model that applies to the input color components  clr1i, clr2i, & clr3i.
 !---- modeo specifies the color model desired for the output color components  clr1o, clr2o, & clr3o.
@@ -116,7 +116,7 @@ CHARACTER(len=*),INTENT(IN) :: modeo
 REAL,INTENT(OUT)            :: clr1o,clr2o,clr3o
 INTEGER,INTENT(OUT)         :: status
 CHARACTER(len=3)            :: input_color_model,output_color_model
-real                        :: c1, c2, c3, r, g, b
+REAL                        :: c1, c2, c3, r, g, b
 !-----------------------------------------------------------------------------------------------------------------------------------
 !-- initialize the status flag.
    status=0
@@ -194,11 +194,11 @@ real                        :: c1, c2, c3, r, g, b
       return
    endif
 !-----------------------------------------------------------------------------------------------------------------------------------
-end subroutine jucolor
+END SUBROUTINE jucolor
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine rgbhls(r0,g0,b0,h,l,s,status) !@(#)rgbhls: given red,green,blue values calculate hue,lightness, and saturation components
+SUBROUTINE rgbhls(r0,g0,b0,h,l,s,status) !@(#)rgbhls: given red,green,blue values calculate hue,lightness, and saturation components
 !     given  : r, g, b each as a value of 0 to 100
 !     desired: h as a value of 0 to 360 degrees.
 !     .        l and s each as a value of 0 to 100
@@ -250,11 +250,11 @@ INTEGER :: status
    if(l .gt. 100.0 ) l = 100.0
    if(s .lt.   0.0 ) s=0.0
    if(s .gt. 100.0 ) s = 100.0
-end subroutine rgbhls
+END SUBROUTINE rgbhls
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine rgbhvs(r0,g0,b0,h,v,s,status) !@(#)rgbhvs: given red, green, blue calculate hue, saturation and value components
+SUBROUTINE rgbhvs(r0,g0,b0,h,v,s,status) !@(#)rgbhvs: given red, green, blue calculate hue, saturation and value components
 !
 !---- this procedure calculates a hue, saturation, value equivalent for a
 !     color given in red, green, & blue components.
@@ -309,11 +309,11 @@ real             :: clrmax,clrmin,clrdel,rr,gg,bb
    if(v .lt.   0.0 ) v =   0.0 !---- Eliminate any roundoff that exceeds the limits (or hide formula bug!)
    if(s .gt. 100.0 ) s = 100.0 !---- Eliminate any roundoff that exceeds the limits (or hide formula bug!)
    if(s .lt.   0.0 ) s =   0.0 !---- Eliminate any roundoff that exceeds the limits (or hide formula bug!)
-end subroutine rgbhvs
+END SUBROUTINE rgbhvs
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine cmyrgb(c,m,y,r,g,b,status) !@(#)cmyrgb: given cyan,magenta, and yellow calculate red,green,blue components
+SUBROUTINE cmyrgb(c,m,y,r,g,b,status) !@(#)cmyrgb: given cyan,magenta, and yellow calculate red,green,blue components
 ! given  : r, g, b each as a value of 0 to 100
 ! desired: c, m, y each as a value of 0 to 100
 REAL,INTENT(IN)   :: c,m,y
@@ -325,11 +325,11 @@ INTEGER           :: status
    r= 100.0 - c
    g= 100.0 - m
    b= 100.0 - y
-end subroutine cmyrgb
+END SUBROUTINE cmyrgb
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine rgbcmy(r,g,b,c,m,y,status) !@(#)rgbcmy: given red,green,blue calculate cyan,magenta, and yellow components
+SUBROUTINE rgbcmy(r,g,b,c,m,y,status) !@(#)rgbcmy: given red,green,blue calculate cyan,magenta, and yellow components
 !     given  : r, g, b each as a value of 0 to 100
 !     desired: c, m, y each as a value of 0 to 100
 REAL,INTENT(IN)  :: r,g,b
@@ -341,11 +341,11 @@ INTEGER          :: status
    c = 100.0 - r
    m = 100.0 - g
    y = 100.0 - b
-end subroutine rgbcmy
+END SUBROUTINE rgbcmy
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine rgbmono(rr,rg,rb,ri,status) !@(#)rgbmono: convert RGB colors to a reasonable grayscale
+SUBROUTINE rgbmono(rr,rg,rb,ri,status) !@(#)rgbmono: convert RGB colors to a reasonable grayscale
 ! monochrome devices that support intensity can have intensity calculated from the specified Red, Green, Blue
 ! intensities as 0.30*R + 0.59*G + 0.11*B, as in US color television systems, NTSC encoding.
 ! Note that most devices do not have an infinite range of monochrome intensities available.
@@ -356,11 +356,11 @@ INTEGER          :: status
    if(rg .lt. 0.0 .or. rg .gt. 100.0 ) status = 1 !---- passive check for valid range of values.
    if(rb .lt. 0.0 .or. rb .gt. 100.0 ) status = 1 !---- passive check for valid range of values.
    ri = 0.30*rr + 0.59*rg + 0.11*rb
-end subroutine rgbmono
+END SUBROUTINE rgbmono
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-real function rgbval(clr1,clr2,h) !@(#)rgbval: ensure a value is in the appropriate range and quadrant
+real FUNCTION rgbval(clr1,clr2,h) !@(#)rgbval: ensure a value is in the appropriate range and quadrant
 real    :: clr1,clr2
 real    :: h
 real    :: h2
@@ -388,11 +388,11 @@ real    :: h2
    else
       rgbval=clr1
    endif
-end function rgbval
+END FUNCTION rgbval
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine hlsrgb(H,L,S,R,G,B,status) !@(#)hlsrgb: convert HLS(hue, lightness, saturation) values to RGB components
+SUBROUTINE hlsrgb(H,L,S,R,G,B,status) !@(#)hlsrgb: convert HLS(hue, lightness, saturation) values to RGB components
 !
 !     given  : hue as a value of 0 to 360 degrees.
 !     .        lightness and saturation each as a value of 0 to 100.
@@ -423,11 +423,11 @@ real              :: clr1,clr2
    R = rgbval(clr1,clr2,hue+120.0)  *100.0
    G = rgbval(clr1,clr2,hue)        *100.0
    B = rgbval(clr1,clr2,hue-120.0)  *100.0
-end subroutine hlsrgb
+END SUBROUTINE hlsrgb
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine hvsrgb(h,v,s,r,g,b,status) !@(#)hvsrgb: given hue, saturation, value calculate red, green, & blue components
+SUBROUTINE hvsrgb(h,v,s,r,g,b,status) !@(#)hvsrgb: given hue, saturation, value calculate red, green, & blue components
 !
 !     given  : hue as value of 0 to 360 degrees.
 !     .        saturation and value each as a value of 0 to 100.
@@ -473,11 +473,11 @@ real               :: f,p,q,t
    r=r*100.0
    g=g*100.0
    b=b*100.0
-end subroutine hvsrgb
+END SUBROUTINE hvsrgb
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine yiqrgb(y,i,q,r,g,b,status) !(@)yiqrgb: convert luma, orange-blue chrominance, and  purple-green chrominance calculate RGB
+SUBROUTINE yiqrgb(y,i,q,r,g,b,status) !(@)yiqrgb: convert luma, orange-blue chrominance, and  purple-green chrominance calculate RGB
 REAL,INTENT(IN)  :: y,i,q
 REAL,INTENT(OUT) :: r,g,b
 INTEGER          :: status
@@ -503,11 +503,11 @@ INTEGER          :: status
    r=min(100.0,max(0.0,r))
    g=min(100.0,max(0.0,g))
    b=min(100.0,max(0.0,b))
-end subroutine yiqrgb
+END SUBROUTINE yiqrgb
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine rgbyiq(r,g,b,y,i,q,status) !@(#)rgbyiq: convert RGB to luma, orange-blue chrominance, and  purple-green chrominance
+SUBROUTINE rgbyiq(r,g,b,y,i,q,status) !@(#)rgbyiq: convert RGB to luma, orange-blue chrominance, and  purple-green chrominance
 REAL,INTENT(IN)  :: r,g,b
 REAL,INTENT(OUT) :: y,i,q
 INTEGER          :: status
@@ -522,7 +522,7 @@ INTEGER          :: status
    if(i .gt.  59.57 ) i =  59.57
    if(q .lt. -52.26 ) q = -52.26
    if(q .gt.  52.26 ) q =  52.26
-end subroutine rgbyiq
+END SUBROUTINE rgbyiq
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
@@ -547,11 +547,11 @@ INTEGER                       :: i
          minimum_distance=min(minimum_distance,distance)
       endif
    enddo INFINITE
-end SUBROUTINE closest_color_name
+END SUBROUTINE closest_color_name
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-subroutine color_name2rgb(name,r,g,b,echoname) !@(#)color_name2rgb: given a color name, return rgb color values in range 0 to 100
+SUBROUTINE color_name2rgb(name,r,g,b,echoname) !@(#)color_name2rgb: given a color name, return rgb color values in range 0 to 100
 CHARACTER(len=*),INTENT(IN)            :: name
 REAL,INTENT(OUT)                       :: r,g,b
 CHARACTER(len=*),INTENT(OUT),optional  :: echoname
@@ -1126,7 +1126,7 @@ END SUBROUTINE color_name2rgb
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !===================================================================================================================================
-end module M_color
+END MODULE M_color
 
 
 

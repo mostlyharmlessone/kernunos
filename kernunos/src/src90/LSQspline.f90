@@ -1,4 +1,4 @@
-  subroutine LSQspline(t, y, m, a, z, z2, n, err_report, periodic, csr , sparse)
+  SUBROUTINE LSQspline(t, y, m, a, z, z2, n, err_report, periodic, csr , sparse)
 
 ! Adapted from H&H drivePiecewiseLinear
 
@@ -445,7 +445,7 @@
 
    DEALLOCATE (x,r,rhs,d,ipiv)
 
-  end subroutine LSQSpline
+  END SUBROUTINE LSQSpline
 
     FUNCTION findInterval(u, n, a, delta) RESULT(k)
     USE set_precision, ONLY: wp

@@ -828,7 +828,7 @@ void MainWindow::exportpicture()
       short  TGAhead[] = {0, 2, 0, 0, 0, 0, SCR_WIDTH, SCR_HEIGHT, 24};
       fwrite(&TGAhead, sizeof(TGAhead), 1, out);
       fwrite(buffer, SCR_WIDTH * SCR_HEIGHT * 3, 1, out);
-      fclose(OUT);
+      fclose(out);
     };
     return;
 }

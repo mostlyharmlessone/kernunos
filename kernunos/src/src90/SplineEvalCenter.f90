@@ -1,9 +1,9 @@
 ! centerpoint version, radial spline + extrapolation, needs radial meridian ii
-subroutine SplineEvalCenter(ii,x,y,y2,n,u,f,fp,fpp,fppp)
+SUBROUTINE SplineEvalCenter(ii,x,y,y2,n,u,f,fp,fpp,fppp)
  USE set_precision, ONLY : wp
  USE cornea_arrays, ONLY : RadSplineCenter
  USE special_fct, ONLY : bsearch, OPERATOR(.p.) !tensor summation convention
- use,intrinsic :: ieee_arithmetic
+ USE, INTRINSIC :: ieee_arithmetic
  IMPLICIT NONE
 
 ! !1-D version
@@ -96,7 +96,7 @@ subroutine SplineEvalCenter(ii,x,y,y2,n,u,f,fp,fpp,fppp)
    if (Present(fppp)) fppp = (dAB.p.z2) ! fppp=(y2(i1)-y2(i))/dr   
                            
   return
-end subroutine SplineEvalCenter
+END SUBROUTINE SplineEvalCenter
 
 
 

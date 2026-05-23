@@ -2,7 +2,7 @@ MODULE sparsekit_test01_fcts
 
 CONTAINS
 
-function afun ( x, y, z )
+FUNCTION afun ( x, y, z )
 
 !*****************************************************************************80
 !
@@ -19,7 +19,7 @@ function afun ( x, y, z )
 
   return
 end
-function bfun ( x, y, z )
+FUNCTION bfun ( x, y, z )
 
 !*****************************************************************************80
 !
@@ -36,7 +36,7 @@ function bfun ( x, y, z )
 
   return
 end
-function cfun ( x, y, z )
+FUNCTION cfun ( x, y, z )
 
 !*****************************************************************************80
 !
@@ -53,7 +53,7 @@ function cfun ( x, y, z )
 
   return
 end
-function dfun ( x, y, z )
+FUNCTION dfun ( x, y, z )
 
 !*****************************************************************************80
 !
@@ -70,7 +70,7 @@ function dfun ( x, y, z )
 
   return
 end
-function efun ( x, y, z )
+FUNCTION efun ( x, y, z )
 
 !*****************************************************************************80
 !
@@ -87,7 +87,7 @@ function efun ( x, y, z )
 
   return
 end
-function ffun ( x, y, z )
+FUNCTION ffun ( x, y, z )
 
 !*****************************************************************************80
 !
@@ -104,7 +104,7 @@ function ffun ( x, y, z )
 
   return
 end
-function gfun ( x, y, z )
+FUNCTION gfun ( x, y, z )
 
 !*****************************************************************************80
 !
@@ -121,7 +121,7 @@ function gfun ( x, y, z )
 
   return
 end
-subroutine ope ( n, x, y, a, ja, ia )
+SUBROUTINE ope ( n, x, y, a, ja, ia )
  
 !*****************************************************************************80
 !
@@ -150,7 +150,7 @@ subroutine ope ( n, x, y, a, ja, ia )
 
   return
 end
-subroutine opet ( n, x, y, a, ja, ia )
+SUBROUTINE opet ( n, x, y, a, ja, ia )
 
 !*****************************************************************************80
 !
@@ -179,7 +179,7 @@ subroutine opet ( n, x, y, a, ja, ia )
 
   return
 end
-subroutine ydfnorm ( n, y1, y )
+SUBROUTINE ydfnorm ( n, y1, y )
 
 !*****************************************************************************80
 !
@@ -198,7 +198,7 @@ subroutine ydfnorm ( n, y1, y )
 
   return
 end
-subroutine dump0 ( n, a, ja, ia )
+SUBROUTINE dump0 ( n, a, ja, ia )
 
 !*****************************************************************************80
 !
@@ -229,7 +229,7 @@ subroutine dump0 ( n, a, ja, ia )
 
   return
 end
-subroutine afunbl ( nfree, x, y, z, coeff )
+SUBROUTINE afunbl ( nfree, x, y, z, coeff )
 
 !*****************************************************************************80
 !
@@ -254,7 +254,7 @@ subroutine afunbl ( nfree, x, y, z, coeff )
 
   return
 end
-subroutine bfunbl ( nfree, x, y, z, coeff )
+SUBROUTINE bfunbl ( nfree, x, y, z, coeff )
 
 !*****************************************************************************80
 !
@@ -279,7 +279,7 @@ subroutine bfunbl ( nfree, x, y, z, coeff )
 
   return
 end
-subroutine cfunbl ( nfree, x, y, z, coeff )
+SUBROUTINE cfunbl ( nfree, x, y, z, coeff )
 
 !*****************************************************************************80
 !
@@ -304,7 +304,7 @@ subroutine cfunbl ( nfree, x, y, z, coeff )
 
   return
 end
-subroutine dfunbl ( nfree, x, y, z, coeff )
+SUBROUTINE dfunbl ( nfree, x, y, z, coeff )
 
 !*****************************************************************************80
 !
@@ -328,7 +328,7 @@ subroutine dfunbl ( nfree, x, y, z, coeff )
 
   return
 end
-subroutine efunbl ( nfree, x, y, z, coeff )
+SUBROUTINE efunbl ( nfree, x, y, z, coeff )
 
 !*****************************************************************************80
 !
@@ -352,7 +352,7 @@ subroutine efunbl ( nfree, x, y, z, coeff )
 
   return
 end
-subroutine ffunbl ( nfree, x, y, z, coeff )
+SUBROUTINE ffunbl ( nfree, x, y, z, coeff )
 
 !*****************************************************************************80
 !
@@ -376,7 +376,7 @@ subroutine ffunbl ( nfree, x, y, z, coeff )
 
   return
 end
-subroutine gfunbl ( nfree, x, y, z, coeff )
+SUBROUTINE gfunbl ( nfree, x, y, z, coeff )
 
 !*****************************************************************************80
 !
@@ -400,7 +400,7 @@ subroutine gfunbl ( nfree, x, y, z, coeff )
 
   return
 end
-subroutine xyk ( nel, xyke, x, y, ijk, node )
+SUBROUTINE xyk ( nel, xyke, x, y, ijk, node )
 
 !*****************************************************************************80
 !

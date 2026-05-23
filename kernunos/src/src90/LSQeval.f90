@@ -1,4 +1,4 @@
-subroutine LSQEval(M2,c,v,f,ft,ftt,fttt)
+SUBROUTINE LSQEval(M2,c,v,f,ft,ftt,fttt)
  USE set_precision, ONLY : wp
  INTEGER, INTENT(IN) :: M2
  REAL(wp), INTENT(IN) :: v,c(M2)
@@ -22,4 +22,4 @@ subroutine LSQEval(M2,c,v,f,ft,ftt,fttt)
   if (Present(ftt)) ftt=ftt-c(j)*sin((j-M2/2)*v)*(j-M2/2)*(j-M2/2)
   if (Present(fttt)) fttt=fttt-c(j)*cos((j-M2/2)*v)*(j-M2/2)*(j-M2/2)*(j-M2/2)
  end do
-end subroutine
+END SUBROUTINE

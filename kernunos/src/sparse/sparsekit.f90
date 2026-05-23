@@ -2,7 +2,7 @@ MODULE sparsekit
 
 CONTAINS
 
-subroutine amask ( nrow, ncol, a, ja, ia, jmask, imask, c, jc, ic, iw, &
+SUBROUTINE amask ( nrow, ncol, a, ja, ia, jmask, imask, c, jc, ic, iw, &
   nzmax, ierr )
 
 !*****************************************************************************80
@@ -47,7 +47,7 @@ subroutine amask ( nrow, ncol, a, ja, ia, jmask, imask, c, jc, ic, iw, &
 !
 !    Output, C, JC, IC, the output matrix in Compressed Sparse Row format.
 !
-!    Workspace, logical IW(NCOL).
+!    Workspace, LOGICAL IW(NCOL).
 !
 !    Input, INTEGER ( kind = 4 ) NZMAX, the dimension of C.
 !
@@ -70,7 +70,7 @@ subroutine amask ( nrow, ncol, a, ja, ia, jmask, imask, c, jc, ic, iw, &
   INTEGER ( kind = 4 ) ierr
   INTEGER ( kind = 4 ) ii
   INTEGER ( kind = 4 ) imask(nrow+1)
-  logical iw(ncol)
+  LOGICAL iw(ncol)
   INTEGER ( kind = 4 ) j
   INTEGER ( kind = 4 ) ja(*)
   INTEGER ( kind = 4 ) jc(nzmax)
@@ -124,7 +124,7 @@ subroutine amask ( nrow, ncol, a, ja, ia, jmask, imask, c, jc, ic, iw, &
 
   return
 end
-subroutine amub ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, nzmax, &
+SUBROUTINE amub ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, nzmax, &
   iw, ierr )
 
 !*****************************************************************************80
@@ -206,7 +206,7 @@ subroutine amub ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, nzmax, &
   INTEGER ( kind = 4 ) kb
   INTEGER ( kind = 4 ) len
   REAL ( kind = 8 ) scal
-  logical values
+  LOGICAL values
 
   values = ( job /= 0 )
   len = 0
@@ -265,7 +265,7 @@ subroutine amub ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, nzmax, &
 
   return
 end
-subroutine amubdg ( nrow, ncol, ncolb, ja, ia, jb, ib, ndegr, nnz, iw )
+SUBROUTINE amubdg ( nrow, ncol, ncolb, ja, ia, jb, ib, ndegr, nnz, iw )
 
 !*****************************************************************************80
 !
@@ -383,7 +383,7 @@ subroutine amubdg ( nrow, ncol, ncolb, ja, ia, jb, ib, ndegr, nnz, iw )
 
   return
 end
-subroutine amudia ( nrow, job, a, ja, ia, diag, b, jb, ib )
+SUBROUTINE amudia ( nrow, job, a, ja, ia, diag, b, jb, ib )
 
 !*****************************************************************************80
 !
@@ -460,7 +460,7 @@ subroutine amudia ( nrow, job, a, ja, ia, diag, b, jb, ib )
 
   return
 end
-subroutine amux ( n, x, y, a, ja, ia )
+SUBROUTINE amux ( n, x, y, a, ja, ia )
 
 !*****************************************************************************80
 !
@@ -520,7 +520,7 @@ subroutine amux ( n, x, y, a, ja, ia )
   return
 end
 
-subroutine amuxd ( n, x, y, diag, ndiag, idiag, ioff )
+SUBROUTINE amuxd ( n, x, y, diag, ndiag, idiag, ioff )
 
 !*****************************************************************************80
 !
@@ -587,7 +587,7 @@ subroutine amuxd ( n, x, y, diag, ndiag, idiag, ioff )
 
   return
 end
-subroutine amuxe ( n, x, y, na, ncol, a, ja )
+SUBROUTINE amuxe ( n, x, y, na, ncol, a, ja )
 
 !*****************************************************************************80
 !
@@ -649,7 +649,7 @@ subroutine amuxe ( n, x, y, na, ncol, a, ja )
 
   return
 end
-subroutine amuxj ( n, x, y, jdiag, a, ja, ia )
+SUBROUTINE amuxj ( n, x, y, jdiag, a, ja, ia )
 
 !*****************************************************************************80
 !
@@ -724,7 +724,7 @@ subroutine amuxj ( n, x, y, jdiag, a, ja, ia )
 
   return
 end
-subroutine aplb ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, nzmax, &
+SUBROUTINE aplb ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, nzmax, &
   iw, ierr )
 
 !*****************************************************************************80
@@ -802,7 +802,7 @@ subroutine aplb ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, nzmax, &
   INTEGER ( kind = 4 ) kb
   INTEGER ( kind = 4 ) len
   INTEGER ( kind = 4 ) nzmax
-  logical values
+  LOGICAL values
 
   values = ( job /= 0 )
   ierr = 0
@@ -867,7 +867,7 @@ subroutine aplb ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, nzmax, &
 
   return
 end
-subroutine aplb1 ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, &
+SUBROUTINE aplb1 ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, &
   nzmax, ierr )
 
 !*****************************************************************************80
@@ -952,7 +952,7 @@ subroutine aplb1 ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, &
   INTEGER ( kind = 4 ) kc
   INTEGER ( kind = 4 ) ncol
   INTEGER ( kind = 4 ) nzmax
-  logical values
+  LOGICAL values
 
   values = ( job /= 0 )
   ierr = 0
@@ -1023,7 +1023,7 @@ subroutine aplb1 ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, &
 
   return
 end
-subroutine aplbdg ( nrow, ncol, ja, ia, jb, ib, ndegr, nnz, iw )
+SUBROUTINE aplbdg ( nrow, ncol, ja, ia, jb, ib, ndegr, nnz, iw )
 
 !*****************************************************************************80
 !
@@ -1138,7 +1138,7 @@ subroutine aplbdg ( nrow, ncol, ja, ia, jb, ib, ndegr, nnz, iw )
 
   return
 end
-subroutine apldia ( nrow, job, a, ja, ia, diag, b, jb, ib, iw )
+SUBROUTINE apldia ( nrow, job, a, ja, ia, diag, b, jb, ib, iw )
 
 !*****************************************************************************80
 !
@@ -1211,7 +1211,7 @@ subroutine apldia ( nrow, job, a, ja, ia, diag, b, jb, ib, iw )
   INTEGER ( kind = 4 ) k2
   INTEGER ( kind = 4 ) ko
   INTEGER ( kind = 4 ) nnz
-  logical test
+  LOGICAL test
 !
 !  Copy INTEGER ( kind = 4 ) arrays into B's data structure if required.
 !
@@ -1295,7 +1295,7 @@ subroutine apldia ( nrow, job, a, ja, ia, diag, b, jb, ib, iw )
 
   return
 end
-subroutine aplsb ( nrow, ncol, a, ja, ia, s, b, jb, ib, c, jc, ic, nzmax, &
+SUBROUTINE aplsb ( nrow, ncol, a, ja, ia, s, b, jb, ib, c, jc, ic, nzmax, &
   iw, ierr )
 
 !*****************************************************************************80
@@ -1427,7 +1427,7 @@ subroutine aplsb ( nrow, ncol, a, ja, ia, s, b, jb, ib, c, jc, ic, nzmax, &
 
   return
 end
-subroutine aplsb1 ( nrow, ncol, a, ja, ia, s, b, jb, ib, c, jc, ic, &
+SUBROUTINE aplsb1 ( nrow, ncol, a, ja, ia, s, b, jb, ib, c, jc, ic, &
   nzmax, ierr )
 
 !*****************************************************************************80
@@ -1571,7 +1571,7 @@ subroutine aplsb1 ( nrow, ncol, a, ja, ia, s, b, jb, ib, c, jc, ic, &
 
   return
 end
-subroutine aplsbt ( nrow, ncol, a, ja, ia, s, b, jb, ib, c, jc, ic, nzmax, &
+SUBROUTINE aplsbt ( nrow, ncol, a, ja, ia, s, b, jb, ib, c, jc, ic, nzmax, &
   iw, ierr )
 
 !*****************************************************************************80
@@ -1745,7 +1745,7 @@ subroutine aplsbt ( nrow, ncol, a, ja, ia, s, b, jb, ib, c, jc, ic, nzmax, &
 
   return
 end
-subroutine aplsca ( nrow, a, ja, ia, scal, iw )
+SUBROUTINE aplsca ( nrow, a, ja, ia, scal, iw )
 
 !*****************************************************************************80
 !
@@ -1807,7 +1807,7 @@ subroutine aplsca ( nrow, a, ja, ia, scal, iw )
   INTEGER ( kind = 4 ) k2
   INTEGER ( kind = 4 ) ko
   REAL ( kind = 8 ) scal
-  logical test
+  LOGICAL test
 
   call diapos ( nrow, ja, ia, iw )
   icount = 0
@@ -1877,7 +1877,7 @@ subroutine aplsca ( nrow, a, ja, ia, scal, iw )
 
   return
 end
-subroutine apmbt ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, nzmax, &
+SUBROUTINE apmbt ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, nzmax, &
   iw, ierr )
 
 !*****************************************************************************80
@@ -1972,7 +1972,7 @@ subroutine apmbt ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, nzmax, &
   INTEGER ( kind = 4 ) nnza
   INTEGER ( kind = 4 ) nnzb
   INTEGER ( kind = 4 ) nzmax
-  logical values
+  LOGICAL values
 
   values = ( job /= 0 )
 
@@ -2074,7 +2074,7 @@ subroutine apmbt ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, nzmax, &
 
   return
 end
-subroutine assmb1 ( u, a, ja, ia, fu, f, node_num, element_num, element_node, &
+SUBROUTINE assmb1 ( u, a, ja, ia, fu, f, node_num, element_num, element_node, &
   node_code, npe )
 
 !*****************************************************************************80
@@ -2251,7 +2251,7 @@ subroutine assmb1 ( u, a, ja, ia, fu, f, node_num, element_num, element_node, &
 
   return
 end
-subroutine assmbo ( nx, nelx, node, ijk, nodcode, x, y, a, ja, ia, f, iwk, &
+SUBROUTINE assmbo ( nx, nelx, node, ijk, nodcode, x, y, a, ja, ia, f, iwk, &
   jwk, ierr, xyk )
 
 !*****************************************************************************80
@@ -2263,7 +2263,7 @@ subroutine assmbo ( nx, nelx, node, ijk, nodcode, x, y, a, ja, ia, f, iwk, &
 !    The last argument XYK is the name of a user-supplied routine which
 !    evaluates the material properties.  It has the form
 !
-!      subroutine xyk ( nel, xyke, x, y, ijk, node )
+!      SUBROUTINE xyk ( nel, xyke, x, y, ijk, node )
 !      Input, INTEGER ( kind = 4 ) NEL, the element index.
 !      Output, REAL ( kind = 8 ) XYKE(1:3,NEL) are the constants K11, K22 and 
 !      K12 in that element.
@@ -2469,7 +2469,7 @@ subroutine assmbo ( nx, nelx, node, ijk, nodcode, x, y, a, ja, ia, f, iwk, &
 
   return
 end
-subroutine atmux ( n, x, y, a, ja, ia )
+SUBROUTINE atmux ( n, x, y, a, ja, ia )
 
 !*****************************************************************************80
 !
@@ -2524,7 +2524,7 @@ subroutine atmux ( n, x, y, a, ja, ia )
 
   return
 end
-subroutine blkchk ( nrow, ja, ia, nblk, imsg )
+SUBROUTINE blkchk ( nrow, ja, ia, nblk, imsg )
 
 !*****************************************************************************80
 !
@@ -2666,7 +2666,7 @@ subroutine blkchk ( nrow, ja, ia, nblk, imsg )
 
   return
 end
-subroutine blkfnd ( nrow, ja, ia, nblk )
+SUBROUTINE blkfnd ( nrow, ja, ia, nblk )
 
 !*****************************************************************************80
 !
@@ -2784,7 +2784,7 @@ subroutine blkfnd ( nrow, ja, ia, nblk )
 
   return
 end
-subroutine bndcsr ( n, abd, nabd, lowd, ml, mu, a, ja, ia, len, ierr )
+SUBROUTINE bndcsr ( n, abd, nabd, lowd, ml, mu, a, ja, ia, len, ierr )
 
 !*****************************************************************************80
 !
@@ -2926,7 +2926,7 @@ subroutine bndcsr ( n, abd, nabd, lowd, ml, mu, a, ja, ia, len, ierr )
 
   return
 end
-subroutine bound ( nx, nelx, ijk, nodcode, node, n_int, iperm, &
+SUBROUTINE bound ( nx, nelx, ijk, nodcode, node, n_int, iperm, &
   x, y, wk, iwk )
 
 !*****************************************************************************80
@@ -3042,7 +3042,7 @@ subroutine bound ( nx, nelx, ijk, nodcode, node, n_int, iperm, &
 
   return
 end
-subroutine bsort2 ( w, ind, n, ncut )
+SUBROUTINE bsort2 ( w, ind, n, ncut )
 
 !*****************************************************************************80
 !
@@ -3074,7 +3074,7 @@ subroutine bsort2 ( w, ind, n, ncut )
   INTEGER ( kind = 4 ) iswp
   INTEGER ( kind = 4 ) j
   INTEGER ( kind = 4 ) ncut
-  logical test
+  LOGICAL test
   REAL ( kind = 8 ) w(n)
   REAL ( kind = 8 ) wswp
 
@@ -3118,7 +3118,7 @@ subroutine bsort2 ( w, ind, n, ncut )
 
   return
 end
-subroutine bsrcsr ( n, nblk, na, a, ja, ia, ao, jao, iao )
+SUBROUTINE bsrcsr ( n, nblk, na, a, ja, ia, ao, jao, iao )
 
 !*****************************************************************************80
 !
@@ -3288,7 +3288,7 @@ subroutine bsrcsr ( n, nblk, na, a, ja, ia, ao, jao, iao )
 
   return
 end
-subroutine bsten ( nx, ny, nz, kx, ky, kz, nfree, stencil, h )
+SUBROUTINE bsten ( nx, ny, nz, kx, ky, kz, nfree, stencil, h )
 
 !*****************************************************************************80
 !
@@ -3454,7 +3454,7 @@ subroutine bsten ( nx, ny, nz, kx, ky, kz, nfree, stencil, h )
 
   return
 end
-subroutine checkref ( nx, nelx, ijk, node, nodcode, nbound, nxnew, nelxnew )
+SUBROUTINE checkref ( nx, nelx, ijk, node, nodcode, nbound, nxnew, nelxnew )
 
 !*****************************************************************************80
 !
@@ -3528,7 +3528,7 @@ subroutine checkref ( nx, nelx, ijk, node, nodcode, nbound, nxnew, nelxnew )
 
   return
 end
-subroutine chkelmt ( nx, x, y, nelx, ijk, node )
+SUBROUTINE chkelmt ( nx, x, y, nelx, ijk, node )
 
 !*****************************************************************************80
 !
@@ -3590,7 +3590,7 @@ subroutine chkelmt ( nx, x, y, nelx, ijk, node )
 
   return
 end
-subroutine cnrms ( nrow, nrm, a, ja, ia, diag )
+SUBROUTINE cnrms ( nrow, nrm, a, ja, ia, diag )
 
 !*****************************************************************************80
 !
@@ -3672,7 +3672,7 @@ subroutine cnrms ( nrow, nrm, a, ja, ia, diag )
 
   return
 end
-subroutine coocsr_inplace ( n, nnz, job, a, ja, ia, iwk )
+SUBROUTINE coocsr_inplace ( n, nnz, job, a, ja, ia, iwk )
 
 !*****************************************************************************80
 !
@@ -3742,7 +3742,7 @@ subroutine coocsr_inplace ( n, nnz, job, a, ja, ia, iwk )
   INTEGER ( kind = 4 ) k
   REAL ( kind = 8 ) t
   REAL ( kind = 8 ) tnext
-  logical values
+  LOGICAL values
 
   values = (job == 1)
 !
@@ -3843,7 +3843,7 @@ subroutine coocsr_inplace ( n, nnz, job, a, ja, ia, iwk )
 
   return
 end
-subroutine coocsr ( nrow, nnz, a, ir, jc, ao, jao, iao )
+SUBROUTINE coocsr ( nrow, nnz, a, ir, jc, ao, jao, iao )
 
 !*****************************************************************************80
 !
@@ -3938,7 +3938,7 @@ subroutine coocsr ( nrow, nnz, a, ir, jc, ao, jao, iao )
 
   return
 end
-subroutine cooell ( n, nnz, a, ja, ia, ac, jac, nac, ner, ncmax, ierr )
+SUBROUTINE cooell ( n, nnz, a, ja, ia, ac, jac, nac, ner, ncmax, ierr )
 
 !*****************************************************************************80
 !
@@ -4160,7 +4160,7 @@ subroutine cooell ( n, nnz, a, ja, ia, ac, jac, nac, ner, ncmax, ierr )
 
   return
 end
-subroutine copmat ( nrow, a, ja, ia, ao, jao, iao, ipos )
+SUBROUTINE copmat ( nrow, a, ja, ia, ao, jao, iao, ipos )
 
 !*****************************************************************************80
 !
@@ -4216,7 +4216,7 @@ subroutine copmat ( nrow, a, ja, ia, ao, jao, iao, ipos )
 
   return
 end
-subroutine cperm ( nrow, a, ja, ia, ao, jao, iao, perm, job )
+SUBROUTINE cperm ( nrow, a, ja, ia, ao, jao, iao, perm, job )
 
 !*****************************************************************************80
 !
@@ -4301,7 +4301,7 @@ subroutine cperm ( nrow, a, ja, ia, ao, jao, iao, perm, job )
 
   return
 end
-subroutine cscal ( nrow, job, nrm, a, ja, ia, diag, b, jb, ib )
+SUBROUTINE cscal ( nrow, job, nrm, a, ja, ia, diag, b, jb, ib )
 
 !*****************************************************************************80
 !
@@ -4370,7 +4370,7 @@ subroutine cscal ( nrow, job, nrm, a, ja, ia, diag, b, jb, ib )
 
   return
 end
-subroutine csort ( n, a, ja, ia, iwork, values )
+SUBROUTINE csort ( n, a, ja, ia, iwork, values )
 
 !*****************************************************************************80
 !
@@ -4403,7 +4403,7 @@ subroutine csort ( n, a, ja, ia, iwork, values )
 ! iwork = INTEGER ( kind = 4 ) work array of length max ( n+1, 2*nnz )
 !         where nnz = 2* (ia(n+1)-ia(1))  ) .
 !
-! values= logical indicating whether or not the REAL values a(*) must
+! values= LOGICAL indicating whether or not the REAL values a(*) must
 !         also be permuted. if (.not. values) then the array a is not
 !         touched by csort and can be a dummy array.
 !
@@ -4429,7 +4429,7 @@ subroutine csort ( n, a, ja, ia, iwork, values )
   INTEGER ( kind = 4 ) ko
   INTEGER ( kind = 4 ) next
   INTEGER ( kind = 4 ) nnz
-  logical values
+  LOGICAL values
 !
 !  Count the number of elements in each column.
 !
@@ -4505,7 +4505,7 @@ subroutine csort ( n, a, ja, ia, iwork, values )
 
   return
 end
-subroutine csrbnd ( n, a, ja, ia, job, abd, nabd, lowd, ml, mu, ierr )
+SUBROUTINE csrbnd ( n, a, ja, ia, job, abd, nabd, lowd, ml, mu, ierr )
 
 !*****************************************************************************80
 !
@@ -4685,7 +4685,7 @@ subroutine csrbnd ( n, a, ja, ia, job, abd, nabd, lowd, ml, mu, ierr )
 
   return
 end
-subroutine csrbsr ( n, nblk, na, a, ja, ia, ao, jao, iao )
+SUBROUTINE csrbsr ( n, nblk, na, a, ja, ia, ao, jao, iao )
 
 !*****************************************************************************80
 !
@@ -4845,7 +4845,7 @@ subroutine csrbsr ( n, nblk, na, a, ja, ia, ao, jao, iao )
   return
 end
 
-subroutine csrcoo ( nrow, job, a, ja, ia, nnz, ao, ir, jc, ierr )
+SUBROUTINE csrcoo ( nrow, job, a, ja, ia, nnz, ao, ir, jc, ierr )
 
 !*****************************************************************************80
 !
@@ -4942,7 +4942,7 @@ subroutine csrcoo ( nrow, job, a, ja, ia, nnz, ao, ir, jc, ierr )
   return
 end
 
-subroutine csrcsc ( n, job, ipos, a, ja, ia, ao, jao, iao )
+SUBROUTINE csrcsc ( n, job, ipos, a, ja, ia, ao, jao, iao )
  
 !*****************************************************************************80
 !
@@ -5042,7 +5042,7 @@ subroutine csrcsc ( n, job, ipos, a, ja, ia, ao, jao, iao )
 
   return
 end
-subroutine csrdia ( n, idiag, job, a, ja, ia, ndiag, diag, ioff, ao, &
+SUBROUTINE csrdia ( n, idiag, job, a, ja, ia, ndiag, diag, ioff, ao, &
   jao, iao, ind )
 
 !*****************************************************************************80
@@ -5255,7 +5255,7 @@ subroutine csrdia ( n, idiag, job, a, ja, ia, ndiag, diag, ioff, ao, &
 
   return
 end
-subroutine csrdns ( nrow, ncol, a, ja, ia, dns, ierr )
+SUBROUTINE csrdns ( nrow, ncol, a, ja, ia, dns, ierr )
 
 !*****************************************************************************80
 !
@@ -5320,7 +5320,7 @@ subroutine csrdns ( nrow, ncol, a, ja, ia, dns, ierr )
   return
 end
 
-subroutine csrell ( nrow, a, ja, ia, maxcol, coef, jcoef, ncoef, &
+SUBROUTINE csrell ( nrow, a, ja, ia, maxcol, coef, jcoef, ncoef, &
   ndiag, ierr )
 
 !*****************************************************************************80
@@ -5419,7 +5419,7 @@ subroutine csrell ( nrow, a, ja, ia, maxcol, coef, jcoef, ncoef, &
 
   return
 end
-subroutine csrjad ( nrow, a, ja, ia, idiag, iperm, ao, jao, iao )
+SUBROUTINE csrjad ( nrow, a, ja, ia, idiag, iperm, ao, jao, iao )
 
 !*****************************************************************************80
 !
@@ -5549,7 +5549,7 @@ subroutine csrjad ( nrow, a, ja, ia, idiag, iperm, ao, jao, iao )
 
   return
 end
-subroutine csrlnk ( n, a, ja, ia, link )
+SUBROUTINE csrlnk ( n, a, ja, ia, link )
 
 !*****************************************************************************80
 !
@@ -5615,7 +5615,7 @@ subroutine csrlnk ( n, a, ja, ia, link )
 
   return
 end
-subroutine csrmsr ( n, a, ja, ia, ao, jao, wk, iwk )
+SUBROUTINE csrmsr ( n, a, ja, ia, ao, jao, wk, iwk )
 
 !*****************************************************************************80
 !
@@ -5741,7 +5741,7 @@ subroutine csrmsr ( n, a, ja, ia, ao, jao, wk, iwk )
 
   return
 end
-subroutine csrncf ( nrow, a, ja, ia, maxnz, nonz, coef, jcoef, ierr )
+SUBROUTINE csrncf ( nrow, a, ja, ia, maxnz, nonz, coef, jcoef, ierr )
 
 !*****************************************************************************80
 !
@@ -5857,7 +5857,7 @@ subroutine csrncf ( nrow, a, ja, ia, maxnz, nonz, coef, jcoef, ierr )
 
   return
 end
-subroutine csrssk ( n, imod, a, ja, ia, asky, isky, nzmax, ierr )
+SUBROUTINE csrssk ( n, imod, a, ja, ia, asky, isky, nzmax, ierr )
 
 !*****************************************************************************80
 !
@@ -5987,7 +5987,7 @@ subroutine csrssk ( n, imod, a, ja, ia, asky, isky, nzmax, ierr )
 
   return
 end
-subroutine csrssr ( nrow, a, ja, ia, nzmax, ao, jao, iao, ierr )
+SUBROUTINE csrssr ( nrow, a, ja, ia, nzmax, ao, jao, iao, ierr )
  
 !*****************************************************************************80
 !
@@ -6104,7 +6104,7 @@ subroutine csrssr ( nrow, a, ja, ia, nzmax, ao, jao, iao, ierr )
 
   return
 end
-subroutine daxpy ( n, da, dx, incx, dy, incy )
+SUBROUTINE daxpy ( n, da, dx, incx, dy, incy )
 
 !*****************************************************************************80
 !
@@ -6210,7 +6210,7 @@ subroutine daxpy ( n, da, dx, incx, dy, incy )
 
   return
 end
-subroutine dcn ( ar, ia, ja, n, ne, ic, nn, ierr )
+SUBROUTINE dcn ( ar, ia, ja, n, ne, ic, nn, ierr )
 
 !*****************************************************************************80
 !
@@ -6404,7 +6404,7 @@ subroutine dcn ( ar, ia, ja, n, ne, ic, nn, ierr )
 
   return
 end
-subroutine dcsort ( ival, n, icnt, index, ilo, ihi )
+SUBROUTINE dcsort ( ival, n, icnt, index, ilo, ihi )
 
 !*****************************************************************************80
 !
@@ -6487,7 +6487,7 @@ subroutine dcsort ( ival, n, icnt, index, ilo, ihi )
 
   return
 end
-function ddot ( n, dx, incx, dy, incy )
+FUNCTION ddot ( n, dx, incx, dy, incy )
 
 !*****************************************************************************80
 !
@@ -6591,7 +6591,7 @@ function ddot ( n, dx, incx, dy, incy )
 
   return
 end
-subroutine diacsr ( n, job, idiag, diag, ndiag, ioff, a, ja, ia )
+SUBROUTINE diacsr ( n, job, idiag, diag, ndiag, ioff, a, ja, ia )
 
 !*****************************************************************************80
 !
@@ -6682,7 +6682,7 @@ subroutine diacsr ( n, job, idiag, diag, ndiag, ioff, a, ja, ia )
 
   return
 end
-subroutine diamua ( nrow, job, a, ja, ia, diag, b, jb, ib )
+SUBROUTINE diamua ( nrow, job, a, ja, ia, diag, b, jb, ib )
 
 !*****************************************************************************80
 !
@@ -6764,7 +6764,7 @@ subroutine diamua ( nrow, job, a, ja, ia, diag, b, jb, ib )
 
   return
 end
-subroutine diapos ( n, ja, ia, idiag )
+SUBROUTINE diapos ( n, ja, ia, idiag )
 
 !*****************************************************************************80
 !
@@ -6814,7 +6814,7 @@ subroutine diapos ( n, ja, ia, idiag )
 
   return
 end
-subroutine dinfo1 ( n, iout, a, ja, ia, valued, title, key, type, ao, jao, iao )
+SUBROUTINE dinfo1 ( n, iout, a, ja, ia, valued, title, key, type, ao, jao, iao )
 
 !*****************************************************************************80
 !
@@ -6851,7 +6851,7 @@ subroutine dinfo1 ( n, iout, a, ja, ia, valued, title, key, type, ao, jao, iao )
 !    Compressed Sparse Row format.  If values are not provided,
 !    then A may be just a dummy array.
 !
-!    Input, logical VALUED, is TRUE if values are provided.
+!    Input, LOGICAL VALUED, is TRUE if values are provided.
 !
 !    Input, character ( len = 72 ) TITLE, a title describing the matrix
 !    The first character in title is ignored (it is often a one).
@@ -7043,14 +7043,14 @@ subroutine dinfo1 ( n, iout, a, ja, ia, valued, title, key, type, ao, jao, iao )
   INTEGER ( kind = 4 ) nzrow
   REAL ( kind = 8 ) st
   REAL ( kind = 8 ) std
-  logical sym
+  LOGICAL sym
   REAL ( kind = 8 ) ta
   REAL ( kind = 8 ) tan
   REAL ( kind = 8 ) tas
   character ( len = 72 ) title
   CHARACTER( len = 61 ) tmpst
   character ( len = 3 ) type
-  logical valued
+  LOGICAL valued
 
   write (iout,99)
   write (iout,97) title(2:72), key, type
@@ -7647,7 +7647,7 @@ subroutine dinfo1 ( n, iout, a, ja, ia, valued, title, key, type, ao, jao, iao )
 
   return
 end
-subroutine diric ( nx, nint, a, ja, ia, f )
+SUBROUTINE diric ( nx, nint, a, ja, ia, f )
 
 !*****************************************************************************80
 !
@@ -7683,7 +7683,7 @@ subroutine diric ( nx, nint, a, ja, ia, f )
 
   return
 end
-subroutine dlauny ( x, y, nodes, elmnts, nemax, nelmnt )
+SUBROUTINE dlauny ( x, y, nodes, elmnts, nemax, nelmnt )
 
 !*****************************************************************************80
 !
@@ -7932,7 +7932,7 @@ subroutine dlauny ( x, y, nodes, elmnts, nemax, nelmnt )
 
   return
 end
-subroutine dnscsr ( nrow, ncol, nzmax, dns, ndns, a, ja, ia, ierr )
+SUBROUTINE dnscsr ( nrow, ncol, nzmax, dns, ndns, a, ja, ia, ierr )
 
 !*****************************************************************************80
 !
@@ -8021,7 +8021,7 @@ subroutine dnscsr ( nrow, ncol, nzmax, dns, ndns, a, ja, ia, ierr )
 
   return
 end
-subroutine dperm ( nrow, a, ja, ia, ao, jao, iao, perm, qperm, job )
+SUBROUTINE dperm ( nrow, a, ja, ia, ao, jao, iao, perm, qperm, job )
 
 !*****************************************************************************80
 !
@@ -8116,7 +8116,7 @@ subroutine dperm ( nrow, a, ja, ia, ao, jao, iao, perm, qperm, job )
 
   return
 end
-subroutine dscaldg ( n, a, ja, ia, diag, job )
+SUBROUTINE dscaldg ( n, a, ja, ia, diag, job )
 
 !*****************************************************************************80
 !
@@ -8204,7 +8204,7 @@ subroutine dscaldg ( n, a, ja, ia, diag, job )
 
   return
 end
-subroutine dump ( n, a, ja, ia, iout )
+SUBROUTINE dump ( n, a, ja, ia, iout )
 
 !*****************************************************************************80
 !
@@ -8291,7 +8291,7 @@ subroutine dump ( n, a, ja, ia, iout )
  201  format(3(1h ,i5,6h    : ,D9.2,3h  *) )
   return
 end
-subroutine dvperm ( n, x, perm )
+SUBROUTINE dvperm ( n, x, perm )
 
 !*****************************************************************************80
 !
@@ -8392,7 +8392,7 @@ subroutine dvperm ( n, x, perm )
   go to 6
 
 end
-subroutine ecn ( n, ic, ne, ia, ja, ar, nn, ierr )
+SUBROUTINE ecn ( n, ic, ne, ia, ja, ar, nn, ierr )
 
 !*****************************************************************************80
 !
@@ -8454,7 +8454,7 @@ subroutine ecn ( n, ic, ne, ia, ja, ar, nn, ierr )
 !    stored nonzero entries in AR.
 !
 !    Output, INTEGER ( kind = 4 ) IERR, an error parameter, returned as zero on
-!    successful execution of the subroutine.  Error diagnostics are given by 
+!    successful execution of the SUBROUTINE.  Error diagnostics are given by 
 !    means of positive values of this parameter as follows:
 !    1: N is out of range.
 !    2: IC is out of range.
@@ -8543,7 +8543,7 @@ subroutine ecn ( n, ic, ne, ia, ja, ar, nn, ierr )
 
   return
 end
-subroutine ellcsr ( nrow, coef, jcoef, ncoef, ndiag, a, ja, ia, nzmax, ierr )
+SUBROUTINE ellcsr ( nrow, coef, jcoef, ncoef, ndiag, a, ja, ia, nzmax, ierr )
 
 !*****************************************************************************80
 !
@@ -8638,7 +8638,7 @@ subroutine ellcsr ( nrow, coef, jcoef, ncoef, ndiag, a, ja, ia, nzmax, ierr )
 
   return
 end
-subroutine estif3 ( nel, ske, fe, det, xe, ye, xyke, ierr )
+SUBROUTINE estif3 ( nel, ske, fe, det, xe, ye, xyke, ierr )
 
 !*****************************************************************************80
 !
@@ -8716,7 +8716,7 @@ subroutine estif3 ( nel, ske, fe, det, xe, ye, xyke, ierr )
 
   return
 end
-subroutine exphes ( n, m, dt, eps, u, w, job, z, wkc, beta, errst, hh, ih, &
+SUBROUTINE exphes ( n, m, dt, eps, u, w, job, z, wkc, beta, errst, hh, ih, &
   x, y, indic, ierr )
 
 !*****************************************************************************80
@@ -8971,7 +8971,7 @@ subroutine exphes ( n, m, dt, eps, u, w, job, z, wkc, beta, errst, hh, ih, &
   return
 end
 
-subroutine exppro ( n, m, eps, tn, u, w, x, y, indic, ierr )
+SUBROUTINE exppro ( n, m, eps, tn, u, w, x, y, indic, ierr )
 
 !*****************************************************************************80
 !
@@ -9179,7 +9179,7 @@ subroutine exppro ( n, m, eps, tn, u, w, x, y, indic, ierr )
 
   return
 end
-subroutine expprod ( n, m, eps, tn, u, w, x, y, a, ioff, ndiag )
+SUBROUTINE expprod ( n, m, eps, tn, u, w, x, y, a, ioff, ndiag )
 
 !*****************************************************************************80
 !
@@ -9259,7 +9259,7 @@ subroutine expprod ( n, m, eps, tn, u, w, x, y, a, ioff, ndiag )
 
   return
 end
-subroutine extbdg ( n, a, ja, ia, bdiag, nblk, ao, jao, iao )
+SUBROUTINE extbdg ( n, a, ja, ia, bdiag, nblk, ao, jao, iao )
 
 !*****************************************************************************80
 !
@@ -9359,7 +9359,7 @@ subroutine extbdg ( n, a, ja, ia, bdiag, nblk, ao, jao, iao )
 
   return
 end
-subroutine filter ( n, job, drptol, a, ja, ia, b, jb, ib, len, ierr )
+SUBROUTINE filter ( n, job, drptol, a, ja, ia, b, jb, ib, len, ierr )
 
 !*****************************************************************************80
 !
@@ -9482,7 +9482,7 @@ subroutine filter ( n, job, drptol, a, ja, ia, b, jb, ib, len, ierr )
 
   return
 end
-subroutine gen57bl ( nx, ny, nz, nfree, na, n, a, ja, ia, iau, stencil )
+SUBROUTINE gen57bl ( nx, ny, nz, nfree, na, n, a, ja, ia, iau, stencil )
 
 !*****************************************************************************80
 !
@@ -9697,7 +9697,7 @@ subroutine gen57bl ( nx, ny, nz, nfree, na, n, a, ja, ia, iau, stencil )
 
   return
 end
-subroutine gen57pt ( nx, ny, nz, a, ja, ia, iau, stencil )
+SUBROUTINE gen57pt ( nx, ny, nz, a, ja, ia, iau, stencil )
 
 !*****************************************************************************80
 !
@@ -9873,7 +9873,7 @@ subroutine gen57pt ( nx, ny, nz, a, ja, ia, iau, stencil )
 
   return
 end
-subroutine genfea ( nx, nelx, node, job, x, y, ijk, nodcode, fs, nint, &
+SUBROUTINE genfea ( nx, nelx, node, job, x, y, ijk, nodcode, fs, nint, &
   a, ja, ia, f, iwk, jwk, ierr, xyk )
 
 !*****************************************************************************80
@@ -10008,7 +10008,7 @@ subroutine genfea ( nx, nelx, node, job, x, y, ijk, nodcode, fs, nint, &
 
   return
 end
-subroutine genfeu ( nx, nelx, node, job, x, y, ijk, nodcode, fs, nint, &
+SUBROUTINE genfeu ( nx, nelx, node, job, x, y, ijk, nodcode, fs, nint, &
   a, na, f, iwk, jwk, ierr, xyk )
 
 !*****************************************************************************80
@@ -10141,7 +10141,7 @@ subroutine genfeu ( nx, nelx, node, job, x, y, ijk, nodcode, fs, nint, &
 
   return
 end
-subroutine getbwd ( n, a, ja, ia, ml, mu )
+SUBROUTINE getbwd ( n, a, ja, ia, ml, mu )
 
 !*****************************************************************************80
 !
@@ -10203,7 +10203,7 @@ subroutine getbwd ( n, a, ja, ia, ml, mu )
 
   return
 end
-subroutine getdia ( nrow, ncol, job, a, ja, ia, len, diag, idiag, ioff )
+SUBROUTINE getdia ( nrow, ncol, job, a, ja, ia, len, diag, idiag, ioff )
 
 !*****************************************************************************80
 !
@@ -10381,7 +10381,7 @@ function getelm ( i, j, a, ja, ia, iadd, sorted )
 !    Output, INTEGER ( kind = 4 ) IADD, the address of element A(I,J) in arrays A, JA 
 !    if found, zero if not found.
 !
-!    Input, logical SORTED, is true if the matrix is known to have its 
+!    Input, LOGICAL SORTED, is true if the matrix is known to have its 
 !    column indices sorted in increasing order.
 !
 !    Output, REAL GETELM, the value of A(I,J).
@@ -10399,7 +10399,7 @@ function getelm ( i, j, a, ja, ia, iadd, sorted )
   INTEGER ( kind = 4 ) j
   INTEGER ( kind = 4 ) ja(*)
   INTEGER ( kind = 4 ) k
-  logical sorted
+  LOGICAL sorted
 !
 !  Initialization.
 !
@@ -10460,7 +10460,7 @@ function getelm ( i, j, a, ja, ia, iadd, sorted )
 
   return
 end
-subroutine getl ( n, a, ja, ia, ao, jao, iao )
+SUBROUTINE getl ( n, a, ja, ia, ao, jao, iao )
 
 !*****************************************************************************80
 !
@@ -10555,7 +10555,7 @@ subroutine getl ( n, a, ja, ia, ao, jao, iao )
 
   return
 end
-subroutine getsten ( nx, ny, nz, kx, ky, kz, stencil, h )
+SUBROUTINE getsten ( nx, ny, nz, kx, ky, kz, stencil, h )
 
 !*****************************************************************************80
 !
@@ -10695,7 +10695,7 @@ subroutine getsten ( nx, ny, nz, kx, ky, kz, stencil, h )
 
   return
 end
-subroutine getu ( n, a, ja, ia, ao, jao, iao )
+SUBROUTINE getu ( n, a, ja, ia, ao, jao, iao )
 
 !*****************************************************************************80
 !
@@ -10792,7 +10792,7 @@ subroutine getu ( n, a, ja, ia, ao, jao, iao )
 
   return
 end
-subroutine gradi3 ( nel, xe, ye, dn, det, ierr )
+SUBROUTINE gradi3 ( nel, xe, ye, dn, det, ierr )
 
 !*****************************************************************************80
 !
@@ -10849,7 +10849,7 @@ subroutine gradi3 ( nel, xe, ye, dn, det, ierr )
 
   return
 end
-subroutine hes ( ndg, m, hh, ih, dt, y, root, coef, coef0, w2 )
+SUBROUTINE hes ( ndg, m, hh, ih, dt, y, root, coef, coef0, w2 )
 
 !*****************************************************************************80
 !
@@ -10961,7 +10961,7 @@ subroutine hes ( ndg, m, hh, ih, dt, y, root, coef, coef0, w2 )
 
   return
 end
-subroutine hsourc ( indic, nx, nelx, node, x, y, ijk, fs, f )
+SUBROUTINE hsourc ( indic, nx, nelx, node, x, y, ijk, fs, f )
 
 !*****************************************************************************80
 !
@@ -11062,7 +11062,7 @@ subroutine hsourc ( indic, nx, nelx, node, x, y, ijk, fs, f )
 
   return
 end
-subroutine ilu0 ( n, a, ja, ia, alu, jlu, ju, iw, ierr )
+SUBROUTINE ilu0 ( n, a, ja, ia, alu, jlu, ju, iw, ierr )
 
 !*****************************************************************************80
 !
@@ -11222,7 +11222,7 @@ subroutine ilu0 ( n, a, ja, ia, alu, jlu, ju, iw, ierr )
   ierr = 0
   return
 end
-subroutine ilut ( n, a, ja, ia, lfil, tol, alu, jlu, ju, iwk, wu, wl, jr, &
+SUBROUTINE ilut ( n, a, ja, ia, lfil, tol, alu, jlu, ju, iwk, wu, wl, jr, &
   jwl, jwu, ierr )
 
 !*****************************************************************************80
@@ -11646,7 +11646,7 @@ subroutine ilut ( n, a, ja, ia, lfil, tol, alu, jlu, ju, iwk, wu, wl, jr, &
  995    ierr = -1
     return
 end
-subroutine infdia ( n, ja, ia, ind, idiag )
+SUBROUTINE infdia ( n, ja, ia, ind, idiag )
 
 !*****************************************************************************80
 !
@@ -11715,7 +11715,7 @@ subroutine infdia ( n, ja, ia, ind, idiag )
 
   return
 end
-subroutine ivperm ( n, ix, perm )
+SUBROUTINE ivperm ( n, ix, perm )
 
 !*****************************************************************************80
 !
@@ -11815,7 +11815,7 @@ subroutine ivperm ( n, ix, perm )
   go to 6
 
 end
-subroutine jadcsr ( nrow, idiag, a, ja, ia, iperm, ao, jao, iao )
+SUBROUTINE jadcsr ( nrow, idiag, a, ja, ia, iperm, ao, jao, iao )
 
 !*****************************************************************************80
 !
@@ -11919,7 +11919,7 @@ subroutine jadcsr ( nrow, idiag, a, ja, ia, iperm, ao, jao, iao )
 
   return
 end
-subroutine ldsol ( n, x, y, al, jal )
+SUBROUTINE ldsol ( n, x, y, al, jal )
 
 !*****************************************************************************80
 !
@@ -11980,7 +11980,7 @@ subroutine ldsol ( n, x, y, al, jal )
 
   return
 end
-subroutine ldsolc ( n, x, y, al, jal )
+SUBROUTINE ldsolc ( n, x, y, al, jal )
 
 !*****************************************************************************80
 !
@@ -12040,7 +12040,7 @@ subroutine ldsolc ( n, x, y, al, jal )
 
   return
 end
-subroutine ldsoll ( n, x, y, al, jal, nlev, lev, ilev )
+SUBROUTINE ldsoll ( n, x, y, al, jal, nlev, lev, ilev )
 
 !*****************************************************************************80
 !
@@ -12118,7 +12118,7 @@ subroutine ldsoll ( n, x, y, al, jal, nlev, lev, ilev )
 
   return
 end
-subroutine levels ( n, jal, ial, nlev, lev, ilev, levnum )
+SUBROUTINE levels ( n, jal, ial, nlev, lev, ilev, levnum )
 
 !*****************************************************************************80
 !
@@ -12224,7 +12224,7 @@ subroutine levels ( n, jal, ial, nlev, lev, ilev, levnum )
 
   return
 end
-subroutine lnkcsr ( n, a, jcol, istart, link, ao, jao, iao )
+SUBROUTINE lnkcsr ( n, a, jcol, istart, link, ao, jao, iao )
 
 !*****************************************************************************80
 !
@@ -12313,7 +12313,7 @@ subroutine lnkcsr ( n, a, jcol, istart, link, ao, jao, iao )
 
   return
 end
-subroutine lsol ( n, x, y, al, jal, ial )
+SUBROUTINE lsol ( n, x, y, al, jal, ial )
 
 !*****************************************************************************80
 !
@@ -12369,7 +12369,7 @@ subroutine lsol ( n, x, y, al, jal, ial )
 
   return
 end
-subroutine lsolc ( n, x, y, al, jal, ial )
+SUBROUTINE lsolc ( n, x, y, al, jal, ial )
 
 !*****************************************************************************80
 !
@@ -12425,7 +12425,7 @@ subroutine lsolc ( n, x, y, al, jal, ial )
 
   return
 end
-subroutine lusol0 ( n, y, x, alu, jlu, ju )
+SUBROUTINE lusol0 ( n, y, x, alu, jlu, ju )
 
 !*****************************************************************************80
 !
@@ -12482,7 +12482,7 @@ subroutine lusol0 ( n, y, x, alu, jlu, ju )
 
   return
 end
-subroutine markgen ( m, n, a, ja, ia )
+SUBROUTINE markgen ( m, n, a, ja, ia )
 
 !*****************************************************************************80
 !
@@ -12492,7 +12492,7 @@ subroutine markgen ( m, n, a, ja, ia )
 !
 !    This routine generates a test matrix that models a random
 !    walk on a triangular grid. This test example was used by
-!    G. W. Stewart ["{SRRIT} - a FORTRAN subroutine to calculate the
+!    G. W. Stewart ["{SRRIT} - a FORTRAN SUBROUTINE to calculate the
 !    dominant invariant subspaces of a REAL matrix",
 !    Tech. report. TR-514, University of Maryland (1978).] and in a few
 !    papers on eigenvalue problems by Y. Saad [see e.g. LAA, vol. 34,
@@ -12621,7 +12621,7 @@ subroutine markgen ( m, n, a, ja, ia )
 
   return
 end
-subroutine matrf2 ( m, n, c, index, alpha, nn, nz, a, snr, rnr, fejlm )
+SUBROUTINE matrf2 ( m, n, c, index, alpha, nn, nz, a, snr, rnr, fejlm )
 
 !*****************************************************************************80
 !
@@ -12947,7 +12947,7 @@ subroutine matrf2 ( m, n, c, index, alpha, nn, nz, a, snr, rnr, fejlm )
 
   return
 end
-subroutine mgsr ( n, i0, i1, ss, r )
+SUBROUTINE mgsr ( n, i0, i1, ss, r )
 
 !*****************************************************************************80
 !
@@ -13027,7 +13027,7 @@ subroutine mgsr ( n, i0, i1, ss, r )
 
   return
 end
-subroutine milu0 ( n, a, ja, ia, alu, jlu, ju, iw, ierr )
+SUBROUTINE milu0 ( n, a, ja, ia, alu, jlu, ju, iw, ierr )
 
 !*****************************************************************************80
 !
@@ -13193,7 +13193,7 @@ subroutine milu0 ( n, a, ja, ia, alu, jlu, ju, iw, ierr )
 
   return
 end
-subroutine msrcsr ( n, a, ja, ao, jao, iao, wk )
+SUBROUTINE msrcsr ( n, a, ja, ao, jao, iao, wk )
 
 !*****************************************************************************80
 !
@@ -13239,7 +13239,7 @@ subroutine msrcsr ( n, a, ja, ao, jao, iao, wk )
   INTEGER ( kind = 4 ) n
 
   REAL ( kind = 8 ) a(*)
-  logical added
+  LOGICAL added
   REAL ( kind = 8 ) ao(*)
   INTEGER ( kind = 4 ) iao(n+1)
   INTEGER ( kind = 4 ) idiag
@@ -13304,7 +13304,7 @@ end
 
 ! from sparsekit_test01.f90
 
-subroutine ope ( n, x, y, a, ja, ia )
+SUBROUTINE ope ( n, x, y, a, ja, ia )
 
 !*****************************************************************************80
 !
@@ -13333,7 +13333,7 @@ subroutine ope ( n, x, y, a, ja, ia )
 
   return
 end
-subroutine opet ( n, x, y, a, ja, ia )
+SUBROUTINE opet ( n, x, y, a, ja, ia )
 
 !*****************************************************************************80
 !
@@ -13366,7 +13366,7 @@ end
 
 
 !duplicate version in original
-!subroutine ope ( n, x, y, a, ja, ia )
+!SUBROUTINE ope ( n, x, y, a, ja, ia )
 
 !*****************************************************************************80
 !
@@ -13417,7 +13417,7 @@ end
 !  return
 !end
 
-subroutine pgmres ( n, im, rhs, sol, vv, eps, maxits, iout, &
+SUBROUTINE pgmres ( n, im, rhs, sol, vv, eps, maxits, iout, &
   aa, ja, ia, alu, jlu, ju, ierr )
 
 !*****************************************************************************80
@@ -13429,8 +13429,8 @@ subroutine pgmres ( n, im, rhs, sol, vv, eps, maxits, iout, &
 !    This is a simple version of the ILUT preconditioned GMRES algorithm. 
 !    The ILUT preconditioner uses a dual strategy for dropping elements   
 !    instead  of the usual level of-fill-in approach. See details in ILUT 
-!    subroutine documentation. PGMRES uses the L and U matrices generated 
-!    from the subroutine ILUT to precondition the GMRES algorithm.        
+!    SUBROUTINE documentation. PGMRES uses the L and U matrices generated 
+!    from the SUBROUTINE ILUT to precondition the GMRES algorithm.        
 !    The preconditioning is applied to the right. The stopping criterion  
 !    utilized is based simply on reducing the residual norm by epsilon.   
 !    This preconditioning is more reliable than ilu0 but requires more    
@@ -13714,7 +13714,7 @@ subroutine pgmres ( n, im, rhs, sol, vv, eps, maxits, iout, &
 
   return
 end
-subroutine pltmt ( nrow, ncol, mode, ja, ia, title, key, type, job, iounit )
+SUBROUTINE pltmt ( nrow, ncol, mode, ja, ia, title, key, type, job, iounit )
 
 !*****************************************************************************80
 !
@@ -13802,7 +13802,7 @@ subroutine pltmt ( nrow, ncol, mode, ja, ia, title, key, type, job, iounit )
 !          job = 11 : reduce and make caption.
 !          (i.e. trailing digit for reduction, leading digit for caption)
 !
-! iounit = logical unit number where to write the matrix into.
+! iounit = LOGICAL unit number where to write the matrix into.
 !
   IMPLICIT NONE
 
@@ -13936,7 +13936,7 @@ subroutine pltmt ( nrow, ncol, mode, ja, ia, title, key, type, job, iounit )
  130  format('Dimension: ',i4,' x ',i4,',  Nonzero elements: ',i5)
   return
 end
-subroutine pltmtps ( nrow, ncol, mode, ja, ia, title, key, type, job, iounit )
+SUBROUTINE pltmtps ( nrow, ncol, mode, ja, ia, title, key, type, job, iounit )
 
 !*****************************************************************************80
 !
@@ -13986,7 +13986,7 @@ subroutine pltmtps ( nrow, ncol, mode, ja, ia, title, key, type, job, iounit )
 !          job = 0 : do not reduce
 !          job = 1 : reduce plot to 5 inches.
 !
-! iounit = logical unit number where to write the matrix into.
+! iounit = LOGICAL unit number where to write the matrix into.
 !
   IMPLICIT NONE
 
@@ -14078,7 +14078,7 @@ subroutine pltmtps ( nrow, ncol, mode, ja, ia, title, key, type, job, iounit )
  130    format("Dimension: ",i4," x ",i4,",  Nonzero elements: ",i5)
   return
 end
-subroutine project ( n, m, u, v, w )
+SUBROUTINE project ( n, m, u, v, w )
 
 !*****************************************************************************80
 !
@@ -14117,7 +14117,7 @@ subroutine project ( n, m, u, v, w )
 
   return
 end
-subroutine prtmt ( nrow, ncol, a, ja, ia, rhs, guesol, title, key, type, &
+SUBROUTINE prtmt ( nrow, ncol, a, ja, ia, rhs, guesol, title, key, type, &
   ifmt, job, iounit )
 
 !*****************************************************************************80
@@ -14206,7 +14206,7 @@ subroutine prtmt ( nrow, ncol, a, ja, ia, rhs, guesol, title, key, type, &
 !          and guesol='GX' there are 6 vectors to write.
 !
 !
-! iounit = logical unit number where to write the matrix into.
+! iounit = LOGICAL unit number where to write the matrix into.
 !
 ! on return:
 !
@@ -14394,7 +14394,7 @@ subroutine prtmt ( nrow, ncol, a, ja, ia, rhs, guesol, title, key, type, &
 
   return
 end
-subroutine readmt ( nmax, nzmax, job, iounit, a, ja, ia, rhs, nrhs, &
+SUBROUTINE readmt ( nmax, nzmax, job, iounit, a, ja, ia, rhs, nrhs, &
   guesol, nrow, ncol, nnz, title, key, type, ierr )
 
 !*****************************************************************************80
@@ -14484,7 +14484,7 @@ subroutine readmt ( nmax, nzmax, job, iounit, a, ja, ia, rhs, nrhs, &
 !          at input nrhs contains the total length of the array rhs.
 !          See also ierr and nrhs in output parameters.
 !
-! iounit = logical unit number where to read the matrix from.
+! iounit = LOGICAL unit number where to read the matrix from.
 !
 ! on return:
 !
@@ -14715,7 +14715,7 @@ subroutine readmt ( nmax, nzmax, job, iounit, a, ja, ia, rhs, nrhs, &
 
   return
 end
-subroutine refall ( nx, nelx, ijk, node, ndeg, x, y, ichild, iparnts, &
+SUBROUTINE refall ( nx, nelx, ijk, node, ndeg, x, y, ichild, iparnts, &
   nodcode, nxmax, nelmax, ierr )
 
 !*****************************************************************************80
@@ -14962,7 +14962,7 @@ subroutine refall ( nx, nelx, ijk, node, ndeg, x, y, ichild, iparnts, &
 
   return
 end
-subroutine retmx ( n, a, ja, ia, dd )
+SUBROUTINE retmx ( n, a, ja, ia, dd )
 
 !*****************************************************************************80
 !
@@ -15046,7 +15046,7 @@ subroutine retmx ( n, a, ja, ia, dd )
 
   return
 end
-subroutine rnrms ( nrow, nrm, a, ja, ia, diag )
+SUBROUTINE rnrms ( nrow, nrm, a, ja, ia, diag )
 
 !*****************************************************************************80
 !
@@ -15119,7 +15119,7 @@ subroutine rnrms ( nrow, nrm, a, ja, ia, diag )
 
   return
 end
-subroutine rperm ( nrow, a, ja, ia, ao, jao, iao, perm, job )
+SUBROUTINE rperm ( nrow, a, ja, ia, ao, jao, iao, perm, job )
 
 !*****************************************************************************80
 !
@@ -15184,7 +15184,7 @@ subroutine rperm ( nrow, a, ja, ia, ao, jao, iao, perm, job )
   INTEGER ( kind = 4 ) k
   INTEGER ( kind = 4 ) ko
   INTEGER ( kind = 4 ) perm(nrow)
-  logical values
+  LOGICAL values
 
   values = ( job == 1 )
 !
@@ -15222,7 +15222,7 @@ subroutine rperm ( nrow, a, ja, ia, ao, jao, iao, perm, job )
 
   return
 end
-subroutine rscal ( nrow, job, nrm, a, ja, ia, diag, b, jb, ib )
+SUBROUTINE rscal ( nrow, job, nrm, a, ja, ia, diag, b, jb, ib )
 
 !*****************************************************************************80
 !
@@ -15290,7 +15290,7 @@ subroutine rscal ( nrow, job, nrm, a, ja, ia, diag, b, jb, ib )
 
   return
 end
-subroutine sskssr ( n, imod, asky, isky, ao, jao, iao, nzmax, ierr )
+SUBROUTINE sskssr ( n, imod, asky, isky, ao, jao, iao, nzmax, ierr )
 
 !*****************************************************************************80
 !
@@ -15435,7 +15435,7 @@ subroutine sskssr ( n, imod, asky, isky, ao, jao, iao, nzmax, ierr )
 
   return
 end
-subroutine ssrcsr ( nrow, a, ja, ia, nzmax, ao, jao, iao, indu, ierr )
+SUBROUTINE ssrcsr ( nrow, a, ja, ia, nzmax, ao, jao, iao, indu, ierr )
 
 !*****************************************************************************80
 !
@@ -15596,7 +15596,7 @@ subroutine ssrcsr ( nrow, a, ja, ia, nzmax, ao, jao, iao, indu, ierr )
 
   return
 end
-subroutine submat ( n, job, i1, i2, j1, j2, a, ja, ia, nr, nc, ao, jao, iao )
+SUBROUTINE submat ( n, job, i1, i2, j1, j2, a, ja, ia, nr, nc, ao, jao, iao )
 
 !*****************************************************************************80
 !
@@ -15705,7 +15705,7 @@ subroutine submat ( n, job, i1, i2, j1, j2, a, ja, ia, nr, nc, ao, jao, iao )
 
   return
 end
-subroutine timestamp ( )
+SUBROUTINE timestamp ( )
 
 !*****************************************************************************80
 !
@@ -15783,7 +15783,7 @@ subroutine timestamp ( )
 
   return
 end
-subroutine transp ( nrow, ncol, a, ja, ia, iwk, ierr )
+SUBROUTINE transp ( nrow, ncol, a, ja, ia, iwk, ierr )
 
 !*****************************************************************************80
 !
@@ -15980,7 +15980,7 @@ subroutine transp ( nrow, ncol, a, ja, ia, iwk, ierr )
 !
   go to 5
 end
-subroutine udsol ( n, x, y, au, jau )
+SUBROUTINE udsol ( n, x, y, au, jau )
 
 !*****************************************************************************80
 !
@@ -16037,7 +16037,7 @@ subroutine udsol ( n, x, y, au, jau )
 
   return
 end
-subroutine udsolc ( n, x, y, au, jau )
+SUBROUTINE udsolc ( n, x, y, au, jau )
 
 !*****************************************************************************80
 !
@@ -16098,7 +16098,7 @@ subroutine udsolc ( n, x, y, au, jau )
 
   return
 end
-subroutine unassbl ( a, na, f, nx, nelx, ijk, nodcode, node, x, y, ierr, xyk )
+SUBROUTINE unassbl ( a, na, f, nx, nelx, ijk, nodcode, node, x, y, ierr, xyk )
 
 !*****************************************************************************80
 !
@@ -16229,7 +16229,7 @@ subroutine unassbl ( a, na, f, nx, nelx, ijk, nodcode, node, x, y, ierr, xyk )
 
   return
 end
-subroutine usol ( n, x, y, au, jau, iau )
+SUBROUTINE usol ( n, x, y, au, jau, iau )
 
 !*****************************************************************************80
 !
@@ -16288,7 +16288,7 @@ subroutine usol ( n, x, y, au, jau, iau )
 
   return
 end
-subroutine usolc ( n, x, y, au, jau, iau )
+SUBROUTINE usolc ( n, x, y, au, jau, iau )
 
 !*****************************************************************************80
 !

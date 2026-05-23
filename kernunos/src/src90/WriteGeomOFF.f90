@@ -1,18 +1,18 @@
 !      Writes OFF file with color overlay
 !      powers/colors on faces
-       subroutine WriteGeomOFF(flag,b,donut,powmin,powmax,OFFNAME)
-       use io_functions, only : get_new_fileunit
-       use cornea_arrays
+       SUBROUTINE WriteGeomOFF(flag,b,donut,powmin,powmax,OFFNAME)
+       USE io_functions, ONLY  : get_new_fileunit
+       USE cornea_arrays
        USE parameters
        USE set_precision, ONLY : wp
-       USE special_fct, only : colormap
-       use ISO_FORTRAN_ENV, only: INT8,INT16,INT32,REAL32
+       USE special_fct, ONLY  : colormap
+       USE ISO_FORTRAN_ENV, ONLY : INT8,INT16,INT32,REAL32
        USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int, c_int64_t
        USE, INTRINSIC ::  ieee_arithmetic
        TYPE(wpJMatrix),INTENT(IN) :: b
        CHARACTER(len=*), INTENT(IN) :: OFFNAME
        REAL(wp), INTENT(IN) :: powmin,powmax
-       logical, INTENT(IN) :: donut
+       LOGICAL, INTENT(IN) :: donut
        INTEGER(c_int64_t), INTENT(INOUT) :: flag
        REAL(wp) :: X1,X2,X3
        REAL(REAL32) :: vert1,vert2,vert3
@@ -20,7 +20,7 @@
        INTEGER :: i,j,M1,N1,verts,faces,edges,unitno3,ierr
        INTEGER(c_int64_t) :: map,fct,dat
        INTEGER(INT32) :: ivert1,ivert2,ivert3,ivert4,vertnum
-       logical :: quad
+       LOGICAL :: quad
        INTEGER(int16) :: rgbv(3)
 
        map=mod((flag-mod(flag,100))/100,100)
@@ -460,4 +460,4 @@
         
        close (unitno3)      
     
-       end subroutine WriteGeomOFF
+       END SUBROUTINE WriteGeomOFF

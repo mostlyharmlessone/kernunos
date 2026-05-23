@@ -1,11 +1,11 @@
 !      Generates matrices for openGL, pupil version
 
-       subroutine Pupil(b, dist, pupil_elements, pupil_vertices, pupil_nV, pupil_nE)
-       use cornea_arrays, ONLY : wpJMatrix
+       SUBROUTINE Pupil(b, dist, pupil_elements, pupil_vertices, pupil_nV, pupil_nE)
+       USE cornea_arrays, ONLY : wpJMatrix
        USE set_precision, ONLY : wp
        USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int
        USE, INTRINSIC ::  ieee_arithmetic
-       use ISO_FORTRAN_ENV, only: stdin=>input_unit     ! for the pause read(stdin,*)
+       USE ISO_FORTRAN_ENV, ONLY : stdin=>input_unit     ! for the pause read(stdin,*)
        IMPLICIT NONE
        TYPE(wpJMatrix),INTENT(IN) :: b
        INTEGER(c_int), INTENT(INOUT) :: pupil_elements(*)                          ! faces x 3
@@ -62,4 +62,4 @@
       
         pupil_nE=k-1
 
-       end subroutine Pupil
+       END SUBROUTINE Pupil
