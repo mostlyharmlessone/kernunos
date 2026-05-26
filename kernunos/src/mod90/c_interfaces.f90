@@ -49,7 +49,7 @@ USE, INTRINSIC :: iso_c_binding, ONLY : c_char,c_null_char
  CHARACTER(c_char), INTENT(IN), dimension(*) :: oname
 END FUNCTION ConvertPLYtoBIN
 
-!not called from Frotran because of problem with passing filenames predictably
+!not called from Fortran because of problem with passing filenames predictably
 INTEGER FUNCTION CleanSemicolons_C(iname, oname) BIND(C,name='CleanSemicolons_C')
 ! Replaces semicolons with commas in a file, making a new file, returns an integer 0 on success
 USE, INTRINSIC :: iso_c_binding, ONLY : c_char,c_null_char

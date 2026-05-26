@@ -848,185 +848,192 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
   USE set_precision, ONLY : wp
   USE cornea_arrays, ONLY : EyeSys
   USE special_fct, ONLY : replacestr
-  USE c_interfaces, ONLY : charcount !, CleanSemiColons_C
+  USE c_interfaces, ONLY : charcount, CleanSemicolons_C
   USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_null_char
   IMPLICIT NONE
   LOGICAL :: exists
   CHARACTER(len=*), INTENT(IN), optional :: RANAME,EDNAME
   CHARACTER(len=*), INTENT(IN), optional :: PENAME,HTNAME
-  CHARACTER(1000) header,semicolon1,semicolon2
+  CHARACTER(1000) header
+  CHARACTER(:), ALLOCATABLE :: semicolon1,semicolon2
   INTEGER :: file_idx1,file_idx2,file_idx3,file_idx4,readerr,io
   INTEGER, INTENT(OUT) :: read_error
   REAL(wp), ALLOCATABLE :: ZX(:),YX(:)
   REAL(wp) :: PX,CX,CY
-  INTEGER :: I,J,ITH,unitno1,unitno2,unitno3,unitno4,MM,N,ierr
+  INTEGER :: I,J,ITH,unitno1,unitno2,unitno3,unitno4,MM,N,ierr,nblines
   INTEGER(c_int) :: periodcount
   MM=360
   if (present(EDNAME) .and. present(RANAME)) then
-  inquire(file=trim(EDNAME), exist=exists)
-  if (exists) then
-   unitno1 = get_new_fileunit()
-   open(unitno1, file=trim(EDNAME), action="read", iostat=ierr)
-   if (ierr .eq. 0) then
-    inquire(file=trim(RANAME), exist=exists)
-    if (exists) then
-     unitno2 = get_new_fileunit()
-     open(unitno2, file=trim(RANAME), action="read", iostat=ierr)
-     if (ierr .eq. 0) then
-      READ (unitno1,*) header
-      file_idx1=index(trim(header),EDNAME(index(EDNAME,"ED"):len(EDNAME)) // ";")
-      if (file_idx1 > 0) then
-       write(*,*) 'ED Nidek header detected: ',trim(header)
-      endif
-      READ (unitno2,*) header
-      file_idx2=index(trim(header),RANAME(index(RANAME,"RA"):len(RANAME)) // ";")
-      if (file_idx2 > 0) then
-       write(*,*) 'RA Nidek header detected: ',trim(header)
-      else
-       write(*,*) 'No RA/ED Nidek headers detected'
-       return
-      endif
-      close(unitno1)
-      close(unitno2)
-      semicolon1 = trim(EDNAME)
-      write(*,*) 'Remove the semicolons with sed because formatted Fortran reads hate them'
-      if (index(EDNAME,".DAT") > 0) then
-       semicolon1=replacestr(string=semicolon1,search=".DAT",substitute=".TMP")
-!      write(*,*) 'sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1
-!      call execute_command_line ('sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1, exitstat=io)
-!      io = CleanSemiColons_C(EDNAME1, semicolon1)
-       call execute_command_line ('./CleanSemicolons ' // EDNAME // ' ' // semicolon1, exitstat=io)
-      else
-       write(*,*) 'Yikes, no *.DAT file, trying *.dat'
-       io = -1
-       if (index(EDNAME,".dat") > 0) then
-        semicolon1=replacestr(string=semicolon1,search=".dat",substitute=".TMP")
- !      write(*,*) 'sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1
- !      call execute_command_line ('sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1, exitstat=io)
- !      io = CleanSemiColons_C(EDNAME, semicolon1)
-        call execute_command_line ('./CleanSemicolons ' // EDNAME // ' ' // semicolon1, exitstat=io)
-       else
-        write(*,*) 'Yikes, no *.dat file: '
-        io = -1
+   inquire(file=trim(EDNAME), exist=exists)
+   if (exists) then
+    unitno1 = get_new_fileunit()
+    open(unitno1, file=trim(EDNAME), action="read", iostat=ierr)
+    if (ierr .eq. 0) then
+     inquire(file=trim(RANAME), exist=exists)
+     if (exists) then
+      unitno2 = get_new_fileunit()
+      open(unitno2, file=trim(RANAME), action="read", iostat=ierr)
+      if (ierr .eq. 0) then
+       READ (unitno1,*) header
+       file_idx1=index(trim(header),EDNAME(index(EDNAME,"ED"):len(EDNAME)) // ";")
+       if (file_idx1 > 0) then
+        write(*,*) 'ED Nidek header detected: ',trim(header)
        endif
-      endif
-      if (io /= 0) then
-       write (*,*) 'system command failed'
-       write (*,*) 'Consider using your text editor to search/replace all semicolons in data statements in',EDNAME
-       write (*,*) 'also fails on pathnames with spaces'
-       read_error=11
-       return
-      endif
-      semicolon2 = trim(RANAME)
-      if (index(RANAME,".DAT") > 0) then
-       semicolon2=replacestr(string=RANAME,search=".DAT",substitute=".TMP")
-!      write(*,*) 'sed "s/;/ /g" ' // RANAME // ' > ' // semicolon2
-!      call execute_command_line ('sed "s/;/ /g" ' // RANAME // ' > ' // semicolon2, exitstat=io)
-!      io = CleanSemiColons_C(RANAME, semicolon2)
-       call execute_command_line ('./CleanSemicolons ' // RANAME // ' ' // semicolon2, exitstat=io)
-      else
-       write(*,*) 'Yikes, no *.DAT file name, trying *.dat'
-       io = -1
-       if (index(RANAME,".dat") > 0) then
-        semicolon2=replacestr(string=RANAME,search=".dat",substitute=".TMP")
+       READ (unitno2,*) header
+       file_idx2=index(trim(header),RANAME(index(RANAME,"RA"):len(RANAME)) // ";")
+       if (file_idx2 > 0) then
+        write(*,*) 'RA Nidek header detected: ',trim(header)
+       else
+        write(*,*) 'No RA/ED Nidek headers detected'
+        return
+       endif
+       close(unitno1)
+       close(unitno2)
+       nblines=len(trim(EDNAME))
+       if (allocated(semicolon1)) deallocate(semicolon1)
+       allocate(CHARACTER(nblines) :: semicolon1)
+       semicolon1 = trim(EDNAME)
+       write(*,*) 'Remove the semicolons because formatted Fortran reads hate them'
+       if (index(EDNAME,".DAT") > 0) then
+        semicolon1=replacestr(string=semicolon1,search=".DAT",substitute=".TMP")
+!       write(*,*) 'sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1
+!       call execute_command_line ('sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1, exitstat=io)
+!       call execute_command_line ('./CleanSemicolons ' // EDNAME // ' ' // semicolon1, exitstat=io)
+        io = CleanSemicolons_C(trim(EDNAME) // c_null_char, semicolon1 // c_null_char)
+       else
+        write(*,*) 'Yikes, no *.DAT file, trying *.dat'
+        io = -1
+        if (index(EDNAME,".dat") > 0) then
+         semicolon1=replacestr(string=semicolon1,search=".dat",substitute=".TMP")
+ !       write(*,*) 'sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1
+ !       call execute_command_line ('sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1, exitstat=io)
+ !       call execute_command_line ('./CleanSemicolons ' // EDNAME // ' ' // semicolon1, exitstat=io)
+         io = CleanSemicolons_C(trim(EDNAME) // c_null_char, semicolon1 // c_null_char)
+        else
+         write(*,*) 'Yikes, no *.dat file: '
+         io = -1
+        endif
+       endif
+       if (io /= 0) then
+        write (*,*) 'system command failed, io = '
+        write (*,*) 'Consider using your text editor to search/replace all semicolons in data statements in',EDNAME
+        write (*,*) 'also fails on pathnames with spaces'
+        read_error=11
+        return
+       endif
+       nblines=len(trim(RANAME))
+       if (allocated(semicolon2)) deallocate(semicolon2)
+       allocate(CHARACTER(nblines) :: semicolon2)
+       semicolon2 = trim(RANAME)
+       if (index(RANAME,".DAT") > 0) then
+        semicolon2=replacestr(string=RANAME,search=".DAT",substitute=".TMP")
 !       write(*,*) 'sed "s/;/ /g" ' // RANAME // ' > ' // semicolon2
 !       call execute_command_line ('sed "s/;/ /g" ' // RANAME // ' > ' // semicolon2, exitstat=io)
-!      io = CleanSemiColons_C(RANAME, semicolon2)
-        call execute_command_line ('./CleanSemicolons ' // RANAME // ' ' // semicolon2, exitstat=io)
+!        call execute_command_line ('./CleanSemicolons ' // RANAME // ' ' // semicolon2, exitstat=io)
+        io = CleanSemicolons_C(trim(RANAME) // c_null_char, semicolon2 // c_null_char)
        else
-        write(*,*) 'Yikes, no *.dat file name:'
+        write(*,*) 'Yikes, no *.DAT file name, trying *.dat'
         io = -1
+        if (index(RANAME,".dat") > 0) then
+         semicolon2=replacestr(string=RANAME,search=".dat",substitute=".TMP")
+!        write(*,*) 'sed "s/;/ /g" ' // RANAME // ' > ' // semicolon2
+!        call execute_command_line ('sed "s/;/ /g" ' // RANAME // ' > ' // semicolon2, exitstat=io)
+!        call execute_command_line ('./CleanSemicolons ' // RANAME // ' ' // semicolon2, exitstat=io)
+         io = CleanSemicolons_C(trim(RANAME) // c_null_char, semicolon2 // c_null_char)
+        else
+         write(*,*) 'Yikes, no *.dat file name:'
+         io = -1
+        endif
        endif
-      endif
-      if (io /= 0) then
-       write (*,*) 'system command failed'
-       write (*,*) 'Consider using your text editor to search/replace all semicolons in data statements in',EDNAME
-       write (*,*) 'also fails on pathnames with spaces'
-       read_error=11
-       return
-      endif
-!     Calculate number of mires by counting the floating point periods in the file, subtracting the header file extension, and dividing by 360
-      periodcount=charcount(trim(RANAME)//c_null_char)
-      write(*,*) 'Number of Nidek mires read: ',(periodcount-1)/360
-      N=(periodcount-1)/360
-      if (N .lt. 23 )then
-       WRITE (*,*) 'Error on mire count in rcnvrtn:',N
-       read_error=-1
-       return
-      endif
-      allocate(ZX(N),YX(N))
-      open(unitno1, file=trim(semicolon1), action="read", iostat=ierr)
-      open(unitno2, file=trim(semicolon2), action="read", iostat=ierr)
-      READ (unitno1,*) header
-      READ (unitno2,*) header
-      do I=1,MM
-       if (index(RANAME,"RA")>0 .and. index(EDNAME,"ED")>0) then
+       if (io /= 0) then
+        write (*,*) 'system command failed'
+        write (*,*) 'Consider using your text editor to search/replace all semicolons in data statements in',EDNAME
+        write (*,*) 'also fails on pathnames with spaces'
+        read_error=11
+        return
+       endif
+!      Calculate number of mires by counting the floating point periods in the file, subtracting the header file extension, and dividing by 360
+       periodcount=charcount(trim(RANAME)//c_null_char)
+       write(*,*) 'Number of Nidek mires read: ',(periodcount-1)/360
+       N=(periodcount-1)/360
+       if (N .lt. 23 )then
+        WRITE (*,*) 'Error on mire count in rcnvrtn:',N
+        read_error=-1
+        return
+       endif
+       allocate(ZX(N),YX(N))
+       open(unitno1, file=trim(semicolon1), action="read", iostat=ierr)
+       open(unitno2, file=trim(semicolon2), action="read", iostat=ierr)
+       READ (unitno1,*) header
+       READ (unitno2,*) header
+       do I=1,MM
+        if (index(RANAME,"RA")>0 .and. index(EDNAME,"ED")>0) then
         READ(unitno1,*,iostat=readerr) header,ZX(:)
-        if (readerr .ne. 0) then
-         WRITE (*,*) 'Error on input Nidek RA/XX files on', I,'row'
-         read_error=3
-         if (allocated(ZX)) deallocate(ZX,YX)
-         return
-        endif
-        READ(unitno2,*,iostat=readerr) header,YX(:)
-        if (readerr .ne. 0) then
-         WRITE (*,*) 'Error on input Nidek RA/XX files on', I,'row'
-         read_error=3
-         if (allocated(ZX)) deallocate(ZX,YX)
-         return
-        endif
-        ITH=I-1
-       endif
-       do J=1,N
-        EyeSys%RA(i,j)=100*ZX(j)
-        EyeSys%XX(i,j)=100*YX(j)
-!       Sanity check on file data
-        if (YX(J) > 0 .AND. ZX(J) > 0) then
-         if (YX(J) <= ZX(J)) then
-          WRITE (*,*) 'Error on input Nidek RA/XX files ArcTan'
-          read_error=1
-          return
+         if (readerr .ne. 0) then
+          WRITE (*,*) 'Error on input Nidek RA/XX files on', I,'row'
+          read_error=3
           if (allocated(ZX)) deallocate(ZX,YX)
+          return
          endif
+         READ(unitno2,*,iostat=readerr) header,YX(:)
+         if (readerr .ne. 0) then
+          WRITE (*,*) 'Error on input Nidek RA/XX files on', I,'row'
+          read_error=3
+          if (allocated(ZX)) deallocate(ZX,YX)
+          return
+         endif
+         ITH=I-1
+        endif
+        do J=1,N
+         EyeSys%RA(i,j)=100*ZX(j)
+         EyeSys%XX(i,j)=100*YX(j)
+!        Sanity check on file data
+         if (YX(J) > 0 .AND. ZX(J) > 0) then
+          if (YX(J) <= ZX(J)) then
+           WRITE (*,*) 'Error on input Nidek RA/XX files ArcTan'
+           read_error=1
+           return
+           if (allocated(ZX)) deallocate(ZX,YX)
+          endif
+         endif
+        end do
+        if (ITH == (I-1)) then
+         EyeSys%DEG(i)=ITH
+        else
+         WRITE (*,*) 'Error on input Nidek RA/XX files with ITH'
+         read_error=2
+         if (allocated(ZX)) deallocate(ZX,YX)
+         return
         endif
        end do
-       if (ITH == (I-1)) then
-        EyeSys%DEG(i)=ITH
-       else
-        WRITE (*,*) 'Error on input Nidek RA/XX files with ITH'
-        read_error=2
-        if (allocated(ZX)) deallocate(ZX,YX)
-        return
+       CLOSE (unitno1)
+       CLOSE (unitno2)
+       file_idx1=index(semicolon1, ".TMP")
+       write(*,*) 'Erasing semicolonless tmp file',semicolon1
+       if (file_idx1 .ne. 0) then
+        call execute_command_line ('rm ' // semicolon1, exitstat=io)
+        if (io > 0) then
+         write (*,*) 'failed system command to remove tmp file',semicolon1
+         read_error=12
+         if (allocated(ZX)) deallocate(ZX,YX)
+         return
+        endif
        endif
-      end do
-      CLOSE (unitno1)
-      CLOSE (unitno2)
-      file_idx1=index(semicolon1, ".TMP")
-      write(*,*) 'Erasing semicolonless tmp file',semicolon1,file_idx1
-      if (file_idx1 .ne. 0) then
-       call execute_command_line ('rm ' // semicolon1, exitstat=io)
-       if (io > 0) then
-        write (*,*) 'failed system command to remove tmp file',semicolon1
-        read_error=12
-        if (allocated(ZX)) deallocate(ZX,YX)
-        return
+       file_idx2=index(semicolon2, ".TMP")
+       write(*,*) 'Erasing semicolonless tmp file',semicolon2
+       if (file_idx2 .ne. 0) then
+        call execute_command_line ('rm ' // semicolon2, exitstat=io)
+        if (io > 0) then
+         write (*,*) 'failed system command to remove tmp file',semicolon2
+         read_error=12
+         if (allocated(ZX)) deallocate(ZX,YX)
+         return
+        endif
        endif
-      endif
-      file_idx2=index(semicolon2, ".TMP")
-      write(*,*) 'Erasing semicolonless tmp file',semicolon2,file_idx1
-      if (file_idx2 .ne. 0) then
-       call execute_command_line ('rm ' // semicolon2, exitstat=io)
-       if (io > 0) then
-        write (*,*) 'failed system command to remove tmp file',semicolon2
-        read_error=12
-        if (allocated(ZX)) deallocate(ZX,YX)
-        return
-       endif
-      endif
       else
-        print*, "Error ", ierr ," attempting to open RA file ", trim(RANAME)
-        read_error=3
-        return
+       print*, "Error ", ierr ," attempting to open RA file ", trim(RANAME)
+       read_error=3
+       return
       endif
      else
       print*, "Error -- cannot find RA file: ", trim(RANAME)
@@ -1059,22 +1066,25 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
         write(*,*) 'HT Nidek does not match filename:',trim(header)," ",HTNAME(index(HTNAME,"HT"):len(HTNAME))
        endif
        close(unitno4)
+       nblines=len(trim(HTNAME))
+       if (allocated(semicolon2)) deallocate(semicolon2)
+       allocate(CHARACTER(nblines) :: semicolon2)
        semicolon2 = HTNAME
        if (index(HTNAME,".DAT") > 0) then
         semicolon2=replacestr(string=HTNAME,search=".DAT",substitute=".TMP")
 !        write(*,*) 'sed "s/;/ /g" ' // HTNAME // ' > ' // semicolon2
 !        call execute_command_line ('sed "s/;/ /g" ' // HTNAME // ' > ' // semicolon2, exitstat=io)
-!        io = CleanSemiColons_C(HTNAME, semicolon2)
-         call execute_command_line ('./CleanSemicolons ' // HTNAME // ' ' // semicolon2, exitstat=io)
+!        call execute_command_line ('./CleanSemicolons ' // HTNAME // ' ' // semicolon2, exitstat=io)
+        io = CleanSemicolons_C(trim(HTNAME) // c_null_char, semicolon2 // c_null_char)
        else
         write(*,*) "Yikes, no .DAT file found, trying *.dat"
         io = -1
         if (index(HTNAME,".dat") > 0) then
          semicolon2=replacestr(string=HTNAME,search=".dat",substitute=".TMP")
- !         write(*,*) 'sed "s/;/ /g" ' // HTNAME // ' > ' // semicolon2
- !        call execute_command_line ('sed "s/;/ /g" ' // HTNAME // ' > ' // semicolon2, exitstat=io)
- !        io = CleanSemiColons_C(HTNAME, semicolon2)
-         call execute_command_line ('./CleanSemicolons ' // HTNAME // ' ' // semicolon2, exitstat=io)
+!         write(*,*) 'sed "s/;/ /g" ' // HTNAME // ' > ' // semicolon2
+!         call execute_command_line ('sed "s/;/ /g" ' // HTNAME // ' > ' // semicolon2, exitstat=io)
+!         call execute_command_line ('./CleanSemicolons ' // HTNAME // ' ' // semicolon2, exitstat=io)
+        io = CleanSemicolons_C(trim(HTNAME) // c_null_char, semicolon2 // c_null_char)
         else
          write(*,*) "Yikes, no *.dat file found:"
          io = -1
@@ -1109,7 +1119,7 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
       endif
       CLOSE(unitno4)
       file_idx2=index(semicolon2, ".TMP")
-      write(*,*) 'Erasing semicolonless tmp file',semicolon2,file_idx1
+      write(*,*) 'Erasing semicolonless tmp file',semicolon2
       if (file_idx2 .ne. 0) then
        call execute_command_line ('rm ' // semicolon2, exitstat=io)
        if (io > 0) then
@@ -1138,30 +1148,32 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
        write(*,*) 'PE Nidek header does not match filename: ',trim(header)," ",PENAME(index(PENAME,"PE"):len(PENAME))
       endif
       close(unitno3)
+      nblines=len(trim(PENAME))
+      if (allocated(semicolon2)) deallocate(semicolon2)
+      allocate(CHARACTER(nblines) :: semicolon2)
       semicolon2 = PENAME
       if (index(PENAME,".DAT") > 0) then
        semicolon2=replacestr(string=PENAME,search=".DAT",substitute=".TMP")
 !       call execute_command_line ('sed "s/;/ /g" ' // PENAME // ' > ' // semicolon2, exitstat=io)
-!      io = CleanSemiColons_C(PENAME, semicolon2)
-        call execute_command_line ('./CleanSemicolons ' // PENAME // ' ' // semicolon2, exitstat=io)
+!       call execute_command_line ('./CleanSemicolons ' // PENAME // ' ' // semicolon2, exitstat=io)
+       io = CleanSemicolons_C(trim(PENAME) // c_null_char, semicolon2 // c_null_char)
       else
        write(*,*) 'Yikes no *.DAT filename found, trying *.dat'
        io = -1
        if (index(PENAME,".dat") > 0) then
         semicolon2=replacestr(string=PENAME,search=".dat",substitute=".TMP")
 !       call execute_command_line ('sed "s/;/ /g" ' // PENAME // ' > ' // semicolon2, exitstat=io)
-!       io = CleanSemiColons_C(PENAME, semicolon2)
-        call execute_command_line ('./CleanSemicolons ' // PENAME // ' ' // semicolon2, exitstat=io)
+!       call execute_command_line ('./CleanSemicolons ' // PENAME // ' ' // semicolon2, exitstat=io)
+        io = CleanSemicolons_C(trim(PENAME) // c_null_char, semicolon2 // c_null_char)
        else
         write(*,*) 'Yikes no *.dat filename found: '
         io = -1
        endif
       endif
-!     write(*,*) 'sed "s/;/ /g" ' // PENAME // ' > ' // semicolon2
       if (io /= 0) then
-       write (*,*) 'system command to sed failed'
+       write (*,*) 'system command failed'
        write (*,*) 'Consider using your text editor to search/replace all semicolons in data statements in',RANAME
-       write (*,*) 'sed also fails on pathnames with spaces'
+       write (*,*) 'also fails on pathnames with spaces'
        read_error=11
        if (allocated(ZX)) deallocate(ZX,YX)
        return
@@ -1184,7 +1196,7 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
       EyeSys%Pupil_Center(1)=CX ; EyeSys%Pupil_Center(1)=CY
       CLOSE (unitno3)
       file_idx2=index(semicolon2, ".TMP")
-      write(*,*) 'Erasing semicolonless tmp file',semicolon2,file_idx1
+      write(*,*) 'Erasing semicolonless tmp file',semicolon2
       if (file_idx2 .ne. 0) then
        call execute_command_line ('rm ' // semicolon2, exitstat=io)
        if (io > 0) then

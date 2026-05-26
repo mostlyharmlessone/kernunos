@@ -1,4 +1,4 @@
-/* doesn't get called from Fortran predictably; filenames get screwed up */
+/* needs c_null_char terminated from Fortran */
 /* CleanSemicolons_C.c */
 /* changes to ; (3B) to , (2C) */
 #include <stdio.h>

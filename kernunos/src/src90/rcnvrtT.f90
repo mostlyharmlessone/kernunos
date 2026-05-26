@@ -20,7 +20,7 @@ LOGICAL :: IsInf
         A=42.0_wp
         B=44.0_wp
 !       sphere
-!        A = 42 ; B = 42 ; R = 42
+        A = 42 ; B = 42 ; R = 42
         D=0.0_wp ; X=0.0_wp
        else 
         DIST=0.2_wp+(j-1)*0.25_wp
@@ -29,7 +29,7 @@ LOGICAL :: IsInf
         A=42.0_wp
         B=44.0_wp
 !       sphere
-!        A = 42 ; B = 42 ; R = 42
+        A = 42 ; B = 42 ; R = 42
         X=DIST*A/4.0
         D=X
        endif 

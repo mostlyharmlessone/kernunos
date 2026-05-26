@@ -292,7 +292,7 @@ endif(WIN32)
 
 #   C source 
 
-add_executable(CleanSemicolons src/c/CleanSemicolons.c)
+# add_executable(CleanSemicolons src/c/CleanSemicolons.c)
 
 #   rply conversion 
     file(GLOB rply_sources src/c/convertplytobin.c src/c/rply.c src/c/*.h )

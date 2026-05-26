@@ -10,7 +10,7 @@
   USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char,c_int64_t,c_double
   USE, INTRINSIC :: iso_fortran_env
   USE, INTRINSIC :: ieee_arithmetic
-  USE c_interfaces, ONLY : LogC, Ccounter, charcount !, CleanSemiColons_C
+  USE c_interfaces, ONLY : LogC, Ccounter, charcount, CleanSemicolons_C
   USE omp_lib
   IMPLICIT NONE
   INTEGER :: i, j, k, ii, kk, m, nn, i1, j1, ierr, info, nrhs
@@ -1503,13 +1503,13 @@ if (TestData .eq. 1) then
   call CPU_TIME(time_start)
  ! determine the type, prior to allocating Atlas
   inputfile2=trim(inputfile1)
-! Just run all of them through CleanSemiColons rather than testing for semicolons
+! Just run all of them through CleanSemicolons rather than testing for semicolons
    if (index(inputfile1,".CSV") > 0) then
     inputfile2=trim(replacestr(string=inputfile1,search=".CSV",substitute=".TMP"))
 !    write(*,*) 'sed "s/;/,/g" ' // inputfile1 // ' > ' // inputfile2
 !    call execute_command_line ('sed "s/;/,/g" ' // inputfile1 // ' > ' // inputfile2, exitstat=io)
-!    io = CleanSemiColons_C(inputfile1, inputfile2)
-    call execute_command_line ('./CleanSemicolons ' // inputfile1 // ' ' // inputfile2, exitstat=io)
+!    call execute_command_line ('./CleanSemicolons ' // inputfile1 // ' ' // inputfile2, exitstat=io)
+    io = CleanSemicolons_C(trim(inputfile1) // c_null_char, trim(inputfile2) // c_null_char)
    else
     write(*,*) 'No *.CSV file extension found'
     io = -1

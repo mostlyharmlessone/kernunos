@@ -1,15 +1,12 @@
 FIXES
 
-semicolons:
-
-charcount to detect or better yet sparctxt.c can be modified to exchange , for semicolons to replace sed in those cases
-
-
-
 compare/add make averages? for comparison of multiple scans
 consider raw EyeSys mode in addition to JMatrix
 
 Zernike computation needs checking on some standards as it doesn't correspond with Atlas; it might be that Atlas is Zernike for whole eye or something else undocumented
+All defocus on a sphere, MongeAstig has edge effects, probably from second deriv flattening at edges (free spline condition), 
+sphere principal directions are a bit messed up, but probably round off and other errors, and in fact, they should be messed up
+
 
 When running compare, have to recompute Zernike first
 compare is broken with zernike; 

@@ -165,9 +165,11 @@ This software was developed at various times under the Slackware, Ubuntu, Arch, 
 
 There are some patches to Hanson & Hopkins http://www.siam.org/books/ot134 chapters 2,4, & 11 to accomodate superlu versions > 4.3 and to support CSR sparse matrices
 
-For some file formats, Fortran Linux system calls {call execute_command_line() } to a separate small program CleanSemicolons, (sed was previously used) In addition, cabextract and rm are used for convenience in reading compressed Windows cabinet files and cleaning up temporary files. If you don't have access to those system calls, you'll have to clean the semicolons with any plain text wordprocessor and/or extract the cabinet files to their uncompressed data files manually.
+For some file formats, Fortran Linux system calls {call execute_command_line() } to cabextract and rm are used for convenience in reading compressed Windows cabinet files and cleaning up temporary files. 
 
 Linux system calls from C++  { system() } are called for starting with a command shell for gnuplot and assorted file ops such as del, rm, touch, cp.  
+
+If you don't have access to those system calls, you'll have to extract the cabinet files to their uncompressed data files manually and clean up the temporary files manually, which has not been tested, YMMV.
 
 After cloning the source, load submodules with git submodule update --init
 
