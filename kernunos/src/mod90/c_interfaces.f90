@@ -41,13 +41,23 @@ SUBROUTINE get_compiler_name(c_f) BIND(C, NAME='get_compiler_name_')
 END SUBROUTINE get_compiler_name
 
 ! call from fortran to c
-SUBROUTINE ConvertPLYtoBIN(iname, oname) BIND(C,name='ConvertPLYtoBIN')
-! Reads ASCII PLY and makes binary PLY
+! not actually ever called from Fortran
+INTEGER FUNCTION ConvertPLYtoBIN(iname, oname) BIND(C,name='ConvertPLYtoBIN')
+! Reads ASCII PLY and makes binary PLY, returns an integer, 0 on success
 USE, INTRINSIC :: iso_c_binding, ONLY : c_char,c_null_char
  CHARACTER(c_char), INTENT(IN), dimension(*) :: iname
- CHARACTER(c_char), INTENT(OUT), dimension(*) :: oname
-END SUBROUTINE ConvertPLYtoBIN
+ CHARACTER(c_char), INTENT(IN), dimension(*) :: oname
+END FUNCTION ConvertPLYtoBIN
 
+!not called from Frotran because of problem with passing filenames predictably
+INTEGER FUNCTION CleanSemicolons_C(iname, oname) BIND(C,name='CleanSemicolons_C')
+! Replaces semicolons with commas in a file, making a new file, returns an integer 0 on success
+USE, INTRINSIC :: iso_c_binding, ONLY : c_char,c_null_char
+ CHARACTER(c_char), INTENT(IN), dimension(*) :: iname
+ CHARACTER(c_char), INTENT(IN), dimension(*) :: oname
+END FUNCTION CleanSemicolons_C
+
+! this is a subroutine because it is a void function in C
 SUBROUTINE LogC(message) BIND(C,name='LogC')
 ! logs a message to a file
 USE, INTRINSIC :: iso_c_binding, ONLY : c_char,c_null_char
@@ -55,7 +65,7 @@ USE, INTRINSIC :: iso_c_binding, ONLY : c_char,c_null_char
 END SUBROUTINE LogC
 
 FUNCTION CharCount(iname) BIND(C,name='charcount')
-! counts the periods "." in a file for determinng mire number
+! counts the periods "." in a file for determining mire number
 USE, INTRINSIC :: iso_c_binding, ONLY : c_char, c_int, c_null_char
  CHARACTER(c_char), INTENT(IN), dimension(*) :: iname
  INTEGER(c_int) :: charcount

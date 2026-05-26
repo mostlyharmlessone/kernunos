@@ -848,7 +848,7 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
   USE set_precision, ONLY : wp
   USE cornea_arrays, ONLY : EyeSys
   USE special_fct, ONLY : replacestr
-  USE c_interfaces, ONLY : charcount
+  USE c_interfaces, ONLY : charcount !, CleanSemiColons_C
   USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_null_char
   IMPLICIT NONE
   LOGICAL :: exists
@@ -893,23 +893,27 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
       if (index(EDNAME,".DAT") > 0) then
        semicolon1=replacestr(string=semicolon1,search=".DAT",substitute=".TMP")
 !      write(*,*) 'sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1
-       call execute_command_line ('sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1, exitstat=io)
+!      call execute_command_line ('sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1, exitstat=io)
+!      io = CleanSemiColons_C(EDNAME1, semicolon1)
+       call execute_command_line ('./CleanSemicolons ' // EDNAME // ' ' // semicolon1, exitstat=io)
       else
        write(*,*) 'Yikes, no *.DAT file, trying *.dat'
        io = -1
        if (index(EDNAME,".dat") > 0) then
         semicolon1=replacestr(string=semicolon1,search=".dat",substitute=".TMP")
  !      write(*,*) 'sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1
-        call execute_command_line ('sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1, exitstat=io)
+ !      call execute_command_line ('sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1, exitstat=io)
+ !      io = CleanSemiColons_C(EDNAME, semicolon1)
+        call execute_command_line ('./CleanSemicolons ' // EDNAME // ' ' // semicolon1, exitstat=io)
        else
         write(*,*) 'Yikes, no *.dat file: '
         io = -1
        endif
       endif
       if (io /= 0) then
-       write (*,*) 'system command to sed failed'
+       write (*,*) 'system command failed'
        write (*,*) 'Consider using your text editor to search/replace all semicolons in data statements in',EDNAME
-       write (*,*) 'sed also fails on pathnames with spaces'
+       write (*,*) 'also fails on pathnames with spaces'
        read_error=11
        return
       endif
@@ -917,23 +921,27 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
       if (index(RANAME,".DAT") > 0) then
        semicolon2=replacestr(string=RANAME,search=".DAT",substitute=".TMP")
 !      write(*,*) 'sed "s/;/ /g" ' // RANAME // ' > ' // semicolon2
-       call execute_command_line ('sed "s/;/ /g" ' // RANAME // ' > ' // semicolon2, exitstat=io)
+!      call execute_command_line ('sed "s/;/ /g" ' // RANAME // ' > ' // semicolon2, exitstat=io)
+!      io = CleanSemiColons_C(RANAME, semicolon2)
+       call execute_command_line ('./CleanSemicolons ' // RANAME // ' ' // semicolon2, exitstat=io)
       else
        write(*,*) 'Yikes, no *.DAT file name, trying *.dat'
        io = -1
        if (index(RANAME,".dat") > 0) then
         semicolon2=replacestr(string=RANAME,search=".dat",substitute=".TMP")
 !       write(*,*) 'sed "s/;/ /g" ' // RANAME // ' > ' // semicolon2
-        call execute_command_line ('sed "s/;/ /g" ' // RANAME // ' > ' // semicolon2, exitstat=io)
+!       call execute_command_line ('sed "s/;/ /g" ' // RANAME // ' > ' // semicolon2, exitstat=io)
+!      io = CleanSemiColons_C(RANAME, semicolon2)
+        call execute_command_line ('./CleanSemicolons ' // RANAME // ' ' // semicolon2, exitstat=io)
        else
         write(*,*) 'Yikes, no *.dat file name:'
         io = -1
        endif
       endif
       if (io /= 0) then
-       write (*,*) 'system command to sed failed'
+       write (*,*) 'system command failed'
        write (*,*) 'Consider using your text editor to search/replace all semicolons in data statements in',EDNAME
-       write (*,*) 'sed also fails on pathnames with spaces'
+       write (*,*) 'also fails on pathnames with spaces'
        read_error=11
        return
       endif
@@ -1054,24 +1062,28 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
        semicolon2 = HTNAME
        if (index(HTNAME,".DAT") > 0) then
         semicolon2=replacestr(string=HTNAME,search=".DAT",substitute=".TMP")
-  !         write(*,*) 'sed "s/;/ /g" ' // HTNAME // ' > ' // semicolon2
-        call execute_command_line ('sed "s/;/ /g" ' // HTNAME // ' > ' // semicolon2, exitstat=io)
+!        write(*,*) 'sed "s/;/ /g" ' // HTNAME // ' > ' // semicolon2
+!        call execute_command_line ('sed "s/;/ /g" ' // HTNAME // ' > ' // semicolon2, exitstat=io)
+!        io = CleanSemiColons_C(HTNAME, semicolon2)
+         call execute_command_line ('./CleanSemicolons ' // HTNAME // ' ' // semicolon2, exitstat=io)
        else
         write(*,*) "Yikes, no .DAT file found, trying *.dat"
         io = -1
         if (index(HTNAME,".dat") > 0) then
          semicolon2=replacestr(string=HTNAME,search=".dat",substitute=".TMP")
  !         write(*,*) 'sed "s/;/ /g" ' // HTNAME // ' > ' // semicolon2
-         call execute_command_line ('sed "s/;/ /g" ' // HTNAME // ' > ' // semicolon2, exitstat=io)
+ !        call execute_command_line ('sed "s/;/ /g" ' // HTNAME // ' > ' // semicolon2, exitstat=io)
+ !        io = CleanSemiColons_C(HTNAME, semicolon2)
+         call execute_command_line ('./CleanSemicolons ' // HTNAME // ' ' // semicolon2, exitstat=io)
         else
          write(*,*) "Yikes, no *.dat file found:"
          io = -1
         endif
        endif
        if (io /= 0) then
-        write (*,*) 'system command to sed failed'
+        write (*,*) 'system command failed'
         write (*,*) 'Consider using your text editor to search/replace all semicolons in data statements in',HTNAME
-        write (*,*) 'sed also fails on pathnames with spaces'
+        write (*,*) 'also fails on pathnames with spaces'
         read_error=11
         if (allocated(ZX)) deallocate(ZX,YX)
         return
@@ -1129,13 +1141,17 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
       semicolon2 = PENAME
       if (index(PENAME,".DAT") > 0) then
        semicolon2=replacestr(string=PENAME,search=".DAT",substitute=".TMP")
-       call execute_command_line ('sed "s/;/ /g" ' // PENAME // ' > ' // semicolon2, exitstat=io)
+!       call execute_command_line ('sed "s/;/ /g" ' // PENAME // ' > ' // semicolon2, exitstat=io)
+!      io = CleanSemiColons_C(PENAME, semicolon2)
+        call execute_command_line ('./CleanSemicolons ' // PENAME // ' ' // semicolon2, exitstat=io)
       else
        write(*,*) 'Yikes no *.DAT filename found, trying *.dat'
        io = -1
        if (index(PENAME,".dat") > 0) then
         semicolon2=replacestr(string=PENAME,search=".dat",substitute=".TMP")
-        call execute_command_line ('sed "s/;/ /g" ' // PENAME // ' > ' // semicolon2, exitstat=io)
+!       call execute_command_line ('sed "s/;/ /g" ' // PENAME // ' > ' // semicolon2, exitstat=io)
+!       io = CleanSemiColons_C(PENAME, semicolon2)
+        call execute_command_line ('./CleanSemicolons ' // PENAME // ' ' // semicolon2, exitstat=io)
        else
         write(*,*) 'Yikes no *.dat filename found: '
         io = -1
@@ -1975,7 +1991,7 @@ SUBROUTINE rcnvrta_type(KXNAME,N,read_error)
         ENDIF
         IF (K .eq. 1) THEN
          IF (KH1.EQ.'#ATLAS')THEN
-          WRITE(*,*) 'Atlas header read'
+          WRITE(*,*) 'Atlas header read in rcnvrta_type'
          else
           WRITE(*,*) 'ERROR - Could not read Atlas header'
           read_error=2
@@ -1984,8 +2000,18 @@ SUBROUTINE rcnvrta_type(KXNAME,N,read_error)
         endif
         IF (KH1.EQ.'#End_Table') THEN
          READ(unitno,*,END=100,IOSTAT=io) KH1,KH2
-         IF (KH1.EQ.'Power_Rings_Count') THEN
-          read(KH2,*) N
+         IF(io.GT.0) THEN
+          WRITE(*,*) 'I/O ERROR ON INPUT ATLAS FILE',io, 'line',K  !possibly it's the first semicolon, try sed in janus
+          read_error=1
+          GOTO 100
+         ENDIF
+         IF (KH1 .EQ. 'Power_Rings_Count') THEN
+          read(KH2,*,IOSTAT=io) N
+          IF(io.GT.0) THEN
+           WRITE(*,*) 'I/O ERROR ON INPUT ATLAS FILE',io, 'line',K  !possibly it's the first semicolon, try sed in janus
+           read_error=1
+           GOTO 100
+          ENDIF
           if (N > 22) write(*,*) 'Atlas 900 file found'
           if (N < 25) write(*,*) 'Atlas 9000 file found'
           write(*,*) trim(KH1),N
@@ -2000,7 +2026,7 @@ SUBROUTINE rcnvrta_type(KXNAME,N,read_error)
        return
       endif
     else
-     print*, "Error -- cannot find Atlas file: ", trim(KXNAME)
+     print*, "Error -- rcnvtra_type cannot find Atlas file: ", trim(KXNAME)
      read_error=8
      return
     endif
@@ -2040,7 +2066,7 @@ SUBROUTINE rcnvrta(KXNAME,N,read_error)
 
         IF (K .eq. 1) THEN
          IF (KH1(1:6).EQ.'#ATLAS')THEN
-          WRITE(*,*) 'Atlas header read'
+          WRITE(*,*) 'Atlas header read in rcnvrta'
          else
           WRITE(*,*) 'ERROR - Could not read Atlas header'
           read_error=2
@@ -2195,7 +2221,7 @@ SUBROUTINE rcnvrta(KXNAME,N,read_error)
        return
       endif       
     else
-     print*, "Error -- cannot find Atlas file: ", trim(KXNAME)
+     print*, "Error -- rcnvta cannot find Atlas file: ", trim(KXNAME)
      read_error=8
      return
     endif

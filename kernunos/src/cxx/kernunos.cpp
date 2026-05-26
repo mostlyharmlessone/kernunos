@@ -578,6 +578,7 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
 void MainWindow::test()
 {
     QString fileName = QString::fromStdString("test");
+    flag=flag-(flag%100)+0;
     ShowZernAct->setEnabled(false);
     decenterAct->setEnabled(true);
     croppingAct->setEnabled(true);
@@ -1108,6 +1109,7 @@ void MainWindow::zerncompute()
     return;
 }
 
+// shows Zernike coefficients, including computed or part of exisitng imported data
 void MainWindow::showzern()
 {
     if (system(NULL)) puts (" gnuplot available");
@@ -1671,9 +1673,11 @@ void MainWindow::normal()
    if (GLwidget::isNormal()) {
         GLwidget::setNormal(false);
         ui.infoLabel->setText(tr("Set <b>View:Normal false</b>"));
+        normalAct->setChecked(GLwidget::isNormal());
    } else {
         GLwidget::setNormal(true);
         ui.infoLabel->setText(tr("Set <b>View:Normal true</b>"));
+        normalAct->setChecked(GLwidget::isNormal());
    };
 }
 
@@ -3062,10 +3066,12 @@ int main(int argc, char *argv[])
 
 //  logs a comment to kernunos.log
     LogC("open a log file");
-
 //  logs the stdout
-    FILE *fp;
-    fp = freopen( "logstdout.log", "w", stdout );
+    FILE *fpstd;
+    fpstd = freopen( "logstdout.log", "w", stdout );
+//  logs the stderr
+    FILE *fperr;
+    fperr = freopen( "logstderr.log", "w", stderr );
 
     window.resize(window.sizeHint());
     int desktopArea = QGuiApplication::primaryScreen()->size().width() *
@@ -3082,6 +3088,7 @@ int main(int argc, char *argv[])
     window.grabGesture(Qt::PinchGesture);
     }
     return app.exec();
-    fclose(fp);
+    fclose(fpstd);
+    fclose(fperr);
 }
 

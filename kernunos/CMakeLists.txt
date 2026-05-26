@@ -291,6 +291,9 @@ endif(WIN32)
 #    add_executable(ConvertPLYtoBIN src/c/rply/convert.c src/c/rply/rply.c )
 
 #   C source 
+
+add_executable(CleanSemicolons src/c/CleanSemicolons.c)
+
 #   rply conversion 
     file(GLOB rply_sources src/c/convertplytobin.c src/c/rply.c src/c/*.h )
     file(GLOB interface src/c/logc.c src/c/logc.h
@@ -397,6 +400,7 @@ set(PROJECT_SOURCES
                    src/c/charcount.c src/c/charcount.h
                    src/c/Ccounter.c src/c/counter.h
                    src/c/ConvertPLYtoBIN.c
+                   src/c/CleanSemicolons_C.c
                    gnuplot-iostream/gnuplot-iostream.h
                    src/cxx/kernunos.cpp src/cxx/kernunos.h
                    src/cxx/GLwidget.cpp src/cxx/GLwidget.h

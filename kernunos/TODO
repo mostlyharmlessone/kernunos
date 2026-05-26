@@ -1,8 +1,24 @@
 FIXES
 
-Test doesn't work if it isn't the first one
+semicolons:
 
-compare is broken with zernike; also so is opening 2nd file with zernike selected and zernike
+charcount to detect or better yet sparctxt.c can be modified to exchange , for semicolons to replace sed in those cases
+
+
+
+compare/add make averages? for comparison of multiple scans
+consider raw EyeSys mode in addition to JMatrix
+
+Zernike computation needs checking on some standards as it doesn't correspond with Atlas; it might be that Atlas is Zernike for whole eye or something else undocumented
+
+When running compare, have to recompute Zernike first
+compare is broken with zernike; 
+
+What is displayed after displaying Zernike with one file, then opening another file: have to reset color/function etc upon opening a new file, or always compute Zernike
+opening 2nd file with zernike selected and zernike
+
+findInterval vs bsearch
+
 enforce, or have a warning having to make new zernike after loading new data, also if tweaks changed
 
 enforce, or have a warning having to make new zernike after loading new data, also if tweaks changed
@@ -15,11 +31,6 @@ probably can run kernunos but not janus?
 search for Visia in source code to strip out or enable eysys version of reading visia if I fix it
 redo- Rowsey curvature?
 
-remove boost if not needed
-
-
-ENHANCEMENTS:
-
 2-D LSQSpline: review article again, work on stand-alone program first, but probably want polar version with adjustable grid size
 
 consider adding sound to play after/during zernike compute, but might need option to turn off http://github.com/zserge/beep or get fancy with .ogg
@@ -31,19 +42,23 @@ resurrect old noise reduction code to help out monge-astig and meanc for real da
 need lapack or open version of numrec fourn:  fftpack
 needs testing and reread of NumRec in C to figure out how to effectively remove noise.
 
+ENHANCEMENTS
+
+
 in kernunos menu actions do some key bindings?
 setShortcuts(QKeySequence::UnknownKey);
 
 ability to turn stdoutput logging on/off
-replace system calls to sed with a program
-move fprintf/printf/write to LogC 
-addcomments():
+move some fprintf/printf/write to LogC 
+?addcomments():
 errorMessageDialog
 
 enable the tweaks prior to loading the file? but not with auto redraw
 
 
 NEW MACHINE DATA EXPORTS
+
+save JMatrix as part of compare/add, particularly if there's rotations and decentering.
 
 screenshot might need other than tga: have some tiff notes; look at Inkscape formats
 

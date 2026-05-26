@@ -97,16 +97,16 @@ extern std::vector<GLfloat> pupil_Vertices2;
 extern GLfloat* pupil_vertices2;
 extern GLuint* pupil_elements2;
 
+// calling fortran code
+// fortran code needs an underscore despite c_interface.f90 bind C declaration
+
 extern "C" {
 void janus_(int64_t *flag,char *filename,GLuint *elements,GLfloat *vertices,float *legend,double *cardinal, float *zern,int *nV,int *nE,int *nL,int *nC,GLuint *pupil_elements,GLfloat *pupil_vertices,int *pupil_nV, int *pupil_nE, int *err_janus);
-// needs an underscore despite c_interface.f90 bind C declaration
 };
 
 extern "C" {
 void ConvertOFFtoSTL_C_(char *iname, char *oname,int *deftype);
-// needs an underscore despite c_interface.f90 bind C declaration
 };
-
 
 extern QString *m_GLString;
 extern QString glstring_global;

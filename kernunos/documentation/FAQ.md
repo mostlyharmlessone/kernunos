@@ -4,7 +4,9 @@ Frequently Asked Questions, starting with the most traditional:
 
 Q: Has anyone actually asked any of these questions?
 
-A: No, though they're modeled on questions asked by people who actually use other (understandably more popular and useful) programs. Some are questions I asked along the way. They are in no particular order. 
+A: No, though they're modeled on questions asked by people who actually use other (understandably more popular and useful) programs. Some are questions I asked along the way. They are in no particular order, but I've tentatively sorted them into General/How-to/and Coding questions.  There's also an in-program Help, which references this file as well as the README and other documentation.
+
+###General questions
 
 Q: What is this program for?
 
@@ -21,6 +23,16 @@ A: With as few errors as possible, hopefully.  The data is imported and a smooth
 Q: I found a mistake with your computations! (or a bug in your program, or it crashes etc.) How do I report it?
 
 A: Congratulations and thank you for finding it and being engaged enough to want to provide valuable input. See Contributing in the README: basically, submit your request through github. If you think I'm fundamentally wrong in my whole approach or have completely misinterpreted the data, I'll be open to hearing about it.
+
+Q: Can you add the data files for my topography machine?
+
+A: I would love to. There's a good chance if the data is human readable in a text editor or if you have documentation or the API of whatever binary format that it is in (e.g. a SDK). I'm also ok with including a binary proprietary decoder from the manufacturer if absolutely necessary, as long as it is either freely distributable, or available to be downloaded from the manufacturer without cost and if its input and output are documented.
+
+Q: Can you interpret my topography pictures?
+
+A: Only with an in person appointment, no telemedicine provided here.
+
+###How-to type questions
 
 Q: How do I use it?
 
@@ -213,21 +225,19 @@ Q: Speaking of files formats, are you DICOM compliant?
 
 A: No. There's a whole lot to DICOM compliance. As far as data export is concerned, in a typical "DICOM Conformance statement" for a topographer (which this is not), the following categories are sufficient for transfer: Multiframe True Color Secondary Capture Image Storage and Encapsulated PDF Storage.  As such, as far as DICOM for export, no, though you could always export the data or the image in a supported format and then convert it to a PNG or TIFF and thence to EPS with some other easily obtainable software.  
 
-Q: On that note, can you add the data files for my topography machine?
+Q: Are there any Easter Eggs?
+A: Well, not really, but if you start the program from the command line, you can use the help option, as in ./kernunos -h  There are some commandline options not available from the program menu. You can use "transparent" to make the window transparent. You can use "reverse" (found under --help-all for generic Qt options) to reverse the program so the menus are on the right hand side and kind of backwards...
 
-A: I would love to. There's a good chance if the data is human readable in a text editor or if you have documentation or the API of whatever binary format that it is in (e.g. a SDK). I'm also ok with including a binary proprietary decoder from the manufacturer if absolutely necessary, as long as it is either freely distributable, or available to be downloaded from the manufacturer without cost and if its input and output are documented.
 
-Q: Can you interpret my topography pictures?
-
-A: Only with an in person appointment, no telemedicine provided here.
+###Mostly coding questions:
 
 Q: Why is so much of the code in Fortran instead of (insert your favorite language here)...?  (This is almost actually a real question from a real person!)
 
 A:  I've made certain choices.  Yours could be different. Back end computations are done in mostly modern Fortran, mostly using features of Fortran 90, 03 or 08, though a few 2018 features may have crept in. It's not FORTRAN 66; at least I try not to have it be. Hanson & Hopkins 2013 text is (IMHO) a good reference. Modern Fortran is a language designed for computation, with the front end written in C++ with Qt, more appropriate for graphics (and in my case use of OpenGL) and user interaction, at least at the time of this writing.  Kernunos isn't meant to run in the cloud, or any network not transparently handled by the underlying OS, in a VM, have multiple instances, or share resources. Some file operations are done in C++ and Fortran, with a few C routines as noncombatants or because I didn't know how to otherwise or because it was easier.  For those who are interested in issues with C in scientific programming (some of which still apply to C++), Press et al.'s (listed earlier) editorial comments are, to my mind, quite insightful, though some improvements anticipated at the time have been achieved. One such comment is pertinent here:  "One of the cultural barriers that separates computer scientists from "regular" scientists and engineers *(and physicians)* is a differing point of view on whether a 30% or 50% loss of speed is worth worrying about. In many real-time or state-of-the-art scientific applications, such a loss is catastrophic. The practical scientist is trying to solve tomorrow's problems with yesterday's computer; the computer scientist, we think, often has it the other way around."  Besides, I'm comfortable programming in Fortran, rather than whatever is the language de jour.
 
-Q: Why is the coding so uneven? (and other criticisms)
+Q: Why is the coding so bad/uneven? (and other coding criticisms)
 
-A: Parts of the code were written at different stages of my evolution which might make the code uneven in style. As an example, some of the file I/O is relatively straightforward, with unformatted reads of ASCII text files. However as I wrote routines for different input files, I found that the Fortran standard text file of data can encounter errors with data separated by semicolons or colons.  There are a number of ways to handle the situation, some of which were compiler or compiler switch dependent which I wished to avoid.  The first method I used was to call a system command to automatically replace semicolons with commas.  Later, I read some of these files as binary rather than text and reconverted the data to numerical data, avoiding the entire issue at the cost of increased complexity. Another language, such as C or C++ would have had completely different file I/O routines.  I've also borrowed bits and pieces of code throughout from the internet, particularly from stackoverflow. The coding therefore resembles a magpie's nest more than an organized structure with defined architecture.
+A: Parts of the code were written at different stages of my evolution which might make the code uneven in style. As an example, some of the file I/O is relatively straightforward, with unformatted reads of ASCII text files. However as I wrote routines for different input files, I found that the Fortran standard text file of data can unpredictably encounter errors with data separated by semicolons or colons.  There are a number of ways to handle the situation, some of which were compiler or compiler switch dependent which I wished to avoid.  The first method I used was to call a system command to automatically replace semicolons with commas.  Later, I read some of these files as binary rather than text and reconverted the data to numerical data, avoiding the entire issue at the cost of increased complexity, or wrote a routine to replace the semiclons in C. Another language, such as C or C++ would have had completely different file I/O routines. Some of my code is old, either originally written in the 80's and 90's in FORTRAN 77 or K&R style C.  I've also borrowed bits and pieces of code throughout from the internet, particularly from stackoverflow. The coding therefore resembles a magpie's nest more than an organized structure with defined architecture.  
 
 Q: Why OpenGL and not (insert your preference here)?
 

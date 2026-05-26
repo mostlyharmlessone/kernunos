@@ -10,7 +10,7 @@
   USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char,c_int64_t,c_double
   USE, INTRINSIC :: iso_fortran_env
   USE, INTRINSIC :: ieee_arithmetic
-  USE c_interfaces, ONLY : LogC, Ccounter, ConvertPLYtoBIN, charcount
+  USE c_interfaces, ONLY : LogC, Ccounter, charcount !, CleanSemiColons_C
   USE omp_lib
   IMPLICIT NONE
   INTEGER :: i, j, k, ii, kk, m, nn, i1, j1, ierr, info, nrhs
@@ -59,7 +59,7 @@
 err_janus = 0 ; error_report = 0 ;
 if (loaded_files .le. 0) loaded_files = 0
 !write(*,*) 'flag to Fortran:',flag
-!write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
+write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
 !! last two digits are the program function
 !! 99 = deallocate arrays for program closure
 !! 11 = swap
@@ -399,7 +399,7 @@ DiaSlope%Zpd2 = .n. DiaSlope
  if ( Testdata .le.1 .or. TestData .eq. 6 ) then     ! only for test/Atlas/EyeSys/NIDEK at present
   call MakeRadSplineCenter(zero_int64,error_report)   ! remakes RadSplineCenter(1,:)
   if (error_report .ne. 0) then
-   write(*,*)' janus line number: ',__LINE__
+   write(*,*)' error at janus line number: ',__LINE__
   endif
  else
   RadSplineCenter(1,:)=0      ! pentacam by definition is at 0
@@ -413,7 +413,7 @@ DiaSlope%Zpd2 = .n. DiaSlope
  endif
   call MakeRadSplineCenter(dat,error_report)        ! generates spline centers with tweaks
   if (error_report .ne. 0) then
-   write(*,*)' janus line number: ',__LINE__
+   write(*,*)' error at janus line number: ',__LINE__
   endif
 ! WriteCenter shows where the spline of slopes is zero, it should be close to zero for a concave center with a unique maximum
  BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".plt")
@@ -1502,25 +1502,25 @@ if (TestData .eq. 1) then
   read_error=0
   call CPU_TIME(time_start)
  ! determine the type, prior to allocating Atlas
-  call RCNVRTA_type(inputfile1,Power_Rings_Count,read_error)
-  inputfile2=inputfile1
-  if (read_error .eq. 1) then
-   write(*,*) 'Possible semicolon delimited Atlas file, try sed'
+  inputfile2=trim(inputfile1)
+! Just run all of them through CleanSemiColons rather than testing for semicolons
    if (index(inputfile1,".CSV") > 0) then
-    inputfile2=replacestr(string=inputfile1,search=".CSV",substitute=".TMP")
-!   write(*,*) 'sed "s/;/,/g" ' // inputfile1 // ' > ' // inputfile2
-    call execute_command_line ('sed "s/;/,/g" ' // inputfile1 // ' > ' // inputfile2, exitstat=io)
+    inputfile2=trim(replacestr(string=inputfile1,search=".CSV",substitute=".TMP"))
+!    write(*,*) 'sed "s/;/,/g" ' // inputfile1 // ' > ' // inputfile2
+!    call execute_command_line ('sed "s/;/,/g" ' // inputfile1 // ' > ' // inputfile2, exitstat=io)
+!    io = CleanSemiColons_C(inputfile1, inputfile2)
+    call execute_command_line ('./CleanSemicolons ' // inputfile1 // ' ' // inputfile2, exitstat=io)
    else
     write(*,*) 'No *.CSV file extension found'
     io = -1
    endif
    if (io /= 0) then
-    write (*,*) 'system command to sed failed'
+    write (*,*) 'Removal of semicolons failed'
     write (*,*) 'Consider using your text editor to search/replace all semicolons with commas in',inputfile1
-    write (*,*) 'sed also fails on pathnames with spaces'
+    write (*,*) 'may also fail on pathnames with spaces'
     err_janus=11
     return
-   else
+    else
     call RCNVRTA_type(inputfile2, Power_Rings_Count, read_error)
     if (read_error > 0) then
      write (*,*) 'temp Atlas file read error, probably not because semicolon delimited'
@@ -1533,7 +1533,7 @@ if (TestData .eq. 1) then
      return
     endif
    endif
-  endif 
+
   N=Power_Rings_Count
   if(.not.allocated(Atlas%AR)) then
    call init_mat_Atlas(MM,N,Atlas)
@@ -1806,7 +1806,7 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
  DiaSlope%Zpd2 = .n. DiaSlope
  call MakeRadSplineCenter(zero_int64,error_report)   ! remakes RadSplineCenter(1,:)
  if (error_report .ne. 0) then
-  write(*,*)' janus line number: ',__LINE__
+  write(*,*)' error at janus line number: ',__LINE__
  endif
  if (TestData.eq.3 .or. TestData.eq.5 ) RadSplineCenter(1,:)=0   ! pentacam data provided
  if (TestData.eq.2 .or. TestData.eq.4 ) RadSplineCenter(1,:)=0
@@ -1819,7 +1819,7 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
  endif
  call MakeRadSplineCenter(dat,error_report)        ! generates spline centers with tweaks
  if (error_report .ne. 0) then
-  write(*,*)' janus line number: ',__LINE__
+  write(*,*)' error at janus line number: ',__LINE__
  endif
 ! Atlas spline consistency check and computation of elevation by power vs elevation in file
  if ( Testdata .eq. 1 .and. btest(dat,7) ) then
@@ -2531,8 +2531,10 @@ open(unitno1, file = "zernike.tmp", action="write", iostat=ierr)
 
 !good place to call a c program to display
  call Ccounter(100,"zernike.tmp"//c_null_char)
+ if (mod(flag,100) == 9) call Ccounter(0,"zernike.tmp"//c_null_char) !zero out the progess bar if we're just displaying coefficients
 
 else
+
  call LogC("No Zernike data found"//c_null_char)
 endif
  return

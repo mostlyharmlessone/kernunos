@@ -1,5 +1,5 @@
 MODULE cornea_arrays
-! defines arrays and functions ued for corneal topography
+! defines arrays and functions used for corneal topography
  USE set_precision, ONLY : wp, sk, int3d
  USE LapackInterface, ONLY : dgetrf, dgetrs, dgesv, dsyev, GaussJordan
  USE spline_interfaces 
@@ -1192,7 +1192,12 @@ END SUBROUTINE RadSlope_eq_DiaSlope
   do i=1,M1 
    call nspline(b%rd(:,i),b%Zpd(:,i),b%L2(i),a(:,i),err_report)
    if (err_report .ne. 0) then
-    write(*,*) 'DiaSpline error at meridian: ',i
+    write(*,*) 'FATAL DiaSpline error at meridian: ',i
+    write(*,*) 'rd',b%rd(:,i)
+    write(*,*) 'zpd', b%Zpd(:,i)
+    write(*,*) 'L2', b%L2(i)
+    write(*,*) 'a',a(:,i)
+    stop
    endif
   end do
 END FUNCTION DiaSpline

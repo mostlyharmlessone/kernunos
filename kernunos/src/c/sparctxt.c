@@ -1,17 +1,15 @@
 /* sparctxt.c */
 /* changes DOS CR/LF to SPARC LF */
 #include <stdio.h>
-main(argc,argv)
-int argc;
-char *argv[];
+int main(int argc, char *argv[])
 {
 	FILE *fptr1;
 	FILE *fptr2;
 	char ch;
 	if(argc !=3)
-	{ printf("usage: sparctxt filename1 filename2"); exit();}
+	{ printf("usage: sparctxt filename1 filename2"); return(1);}
 	if( (fptr1 = fopen(argv[1],"rb")) == NULL)
-	{ printf("can't open file %s.",argv[1]); exit();};
+	{ printf("can't open file %s.",argv[1]); return(2);};
 	fptr2 = fopen(argv[2],"wb");
 	while( (ch=getc(fptr1)) != EOF )
 	{
@@ -19,5 +17,5 @@ char *argv[];
 	}
 	fclose(fptr1);
 	fclose(fptr2);
-	
+	return(0);
 }

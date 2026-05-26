@@ -71,14 +71,18 @@ extern std::vector<float> zernVector2;
 extern float* zern2;
 
 // calling fortran code
+// fortran code needs an underscore despite c_interface.f90 bind C declaration
 
 extern "C" {
 void janus_(int64_t *flag,char *filename,GLuint *elements,GLfloat *vertices,float *legend,double *cardinal,float *zern,int *nV,int *nE,int *nL,int *nC,GLuint *pupil_elements,GLfloat *pupil_vertices,int *pupil_nV, int *pupil_nE, int *err_janus);
-// needs an underscore despite c_interface.f90 bind C declaration
 };
 
 extern "C" {
 void ConvertOFFtoSTL_C_(char *iname, char *oname,int *deftype);
+};
+
+extern "C" {
+void get_compiler_name_(char *compiler_name);
 };
 
 // calling C code
@@ -88,19 +92,16 @@ int ConvertPLYtoBIN(const char *iname, const char *oname);
 };
 
 extern "C" {
+int CleanSemicolons_C(const char *iname, const char *oname);
+};
+
+extern "C" {
 void LogC(const char *Message);
 };
 
 extern "C" {
 void Ccounter (int *inc,const char *iname);
 };
-
-
-extern "C" {
-void get_compiler_name_(char *compiler_name);
-};
-
-// needs an underscore despite c_interface.f90 bind C declaration
 
 // external cpp code
 int lioc(const char *iname);
