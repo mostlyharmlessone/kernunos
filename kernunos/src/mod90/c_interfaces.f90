@@ -41,21 +41,22 @@ SUBROUTINE get_compiler_name(c_f) BIND(C, NAME='get_compiler_name_')
 END SUBROUTINE get_compiler_name
 
 ! call from fortran to c
-! not actually ever called from Fortran
-INTEGER FUNCTION ConvertPLYtoBIN(iname, oname) BIND(C,name='ConvertPLYtoBIN')
-! Reads ASCII PLY and makes binary PLY, returns an integer, 0 on success
-USE, INTRINSIC :: iso_c_binding, ONLY : c_char,c_null_char
- CHARACTER(c_char), INTENT(IN), dimension(*) :: iname
- CHARACTER(c_char), INTENT(IN), dimension(*) :: oname
-END FUNCTION ConvertPLYtoBIN
 
-!not called from Fortran because of problem with passing filenames predictably
-INTEGER FUNCTION CleanSemicolons_C(iname, oname) BIND(C,name='CleanSemicolons_C')
+! input has to be c_null_char terminated without extra whitespace, and length consistent with that.
+INTEGER(c_int) FUNCTION CleanSemicolons_C(iname, oname) BIND(C,name='CleanSemicolons_C')
 ! Replaces semicolons with commas in a file, making a new file, returns an integer 0 on success
-USE, INTRINSIC :: iso_c_binding, ONLY : c_char,c_null_char
+USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_char,c_null_char
  CHARACTER(c_char), INTENT(IN), dimension(*) :: iname
  CHARACTER(c_char), INTENT(IN), dimension(*) :: oname
 END FUNCTION CleanSemicolons_C
+
+! not actually ever called from Fortran, but same remarks apply
+INTEGER(c_int) FUNCTION ConvertPLYtoBIN(iname, oname) BIND(C,name='ConvertPLYtoBIN')
+! Reads ASCII PLY and makes binary PLY, returns an integer, 0 on success
+USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_char,c_null_char
+ CHARACTER(c_char), INTENT(IN), dimension(*) :: iname
+ CHARACTER(c_char), INTENT(IN), dimension(*) :: oname
+END FUNCTION ConvertPLYtoBIN
 
 ! this is a subroutine because it is a void function in C
 SUBROUTINE LogC(message) BIND(C,name='LogC')
@@ -64,6 +65,7 @@ USE, INTRINSIC :: iso_c_binding, ONLY : c_char,c_null_char
  CHARACTER(c_char), INTENT(IN), dimension(*) :: message
 END SUBROUTINE LogC
 
+! the type (c_int) of the FUNCTION is specified under intrinsic in this one, rather than prototype style as above
 FUNCTION CharCount(iname) BIND(C,name='charcount')
 ! counts the periods "." in a file for determining mire number
 USE, INTRINSIC :: iso_c_binding, ONLY : c_char, c_int, c_null_char

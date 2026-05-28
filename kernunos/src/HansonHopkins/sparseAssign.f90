@@ -596,7 +596,7 @@ USE sparsekit, ONLY: dnscsr
   IMPLICIT NONE
   TYPE (dpCSRSparseMatrix), INTENT (INOUT) :: dcsr
   REAL (dkind), INTENT(IN) :: matrix(:,:)
-  INTEGER :: ierr, i, j
+  INTEGER :: i, j
   dcsr%nnz = 0
   do i=1,size(matrix,1)
    do j=1,size(matrix,2)

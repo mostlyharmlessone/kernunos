@@ -43,14 +43,14 @@
   REAL(wp) :: POWMIN,POWMAX,POWMAX2,POWCTR,POW,P1,X1,X2,U,V,UT,VT,WT,ZT
   LOGICAL :: donut, exists
   REAL(wp) :: Y,YPR,YPTHETA,YPRTHETA,YP2R2,YP2THETA,rBi,rBo,dvert,dhoriz,percent_squash
-  INTEGER :: k_max, kk_max, iflag, LWORK, rotationdegrees
+  INTEGER :: k_max, kk_max, iflag, LWORK, rotationdegrees, op, op2
   INTEGER(c_int64_t) :: dat, fct, map
   INTEGER(c_int) ::  error_report
   REAL(wp), allocatable :: zernC(:,:), B_Matrix(:,:), rlocal(:), thtlocal(:), WORK(:)
 !  REAL(wp), allocatable :: XTX(:,:),EE(:,:)
 !  INTEGER, allocatable :: IPIV(:)
   REAL(wp) :: ctr_circle_x, ctr_circle_y, R_global, Theta_global, R_MV, R_TST !, P_TEMP
-  REAL(wp) :: gaussian,meanpower,princ1,princ2,astigm
+  REAL(wp) :: gaussian,meanpower,princ1,princ2,astigm, ELLIPSE_A, ELLIPSE_B, ELLIPSE_C
   REAL(wp), allocatable :: temp(:,:)
   LOGICAL :: lsq
   INTEGER(c_int) :: periodcount
@@ -62,6 +62,9 @@ if (loaded_files .le. 0) loaded_files = 0
 write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
 !! last two digits are the program function
 !! 99 = deallocate arrays for program closure
+!! 14 = save original
+!! 13 = save comparison or average
+!! 12 = average
 !! 11 = swap
 !! 10 = compare
 !! 9 = show zernike coefficients
@@ -233,13 +236,12 @@ if (mod(flag,100) == 0 ) then  !store last JMatrix when reading in new
  JMatrix1%ZC(:,:,:)=JMatrix%ZC(:,:,:)
 endif
 
-if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3) then
-!  only need new file name if opening a file or printing, or compare for degree information and
+if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3 .or. mod(flag,100) == 13) then
+!  need new file name if opening a file, printing, saving, or compare for degree information and
 !  local save of inputfile1,inputfile2,logfile
 !  write(*,*) 'file from kernunos: ',file_from_C  ! this will have a lot of extra random non ASCII stuff after the file name
 !! did this because GCC11 isn't F2018 compliant with deferred length character with Bind C
 !! ie. can't do CHARACTER(*,c_char), INTENT(IN) :: file_from_C_1 with BIND(C) with GCC
-!! Or is it that ISO_Fortran_binding.h isn't available, or C++ not C?
 !! declaring CHARACTER(len=12), dimension(:), allocatable :: args with args(1) works too, but limited in length
 !   Converting C char array to Fortran character.
     new_path = " "
@@ -267,11 +269,11 @@ if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3) then
  allocate(CHARACTER(nblines) :: inputfile3)
  allocate(CHARACTER(nblines+3) :: inputfile4)
  allocate(CHARACTER(nblines+3) :: inputfile5)
-endif  ! mod(flag,100) == 0, 10, 2, or 3
+endif  ! mod(flag,100) == 0, 10, 2, 3 or 13
 
-
+!gnuplot files & calls
 if (mod(flag,100) .eq. 5 .or. mod(flag,100) .eq. 6 .or.&
-    mod(flag,100) .eq. 7 .or. mod(flag,100) .eq. 8 ) then  !gnuplot files&calls
+    mod(flag,100) .eq. 7 .or. mod(flag,100) .eq. 8 ) then
  new_path = " "
  do i=1, 4096
     if ( file_from_C (i) == c_null_char ) then
@@ -292,6 +294,7 @@ if (mod(flag,100) .eq. 5 .or. mod(flag,100) .eq. 6 .or.&
   BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".plt")
 endif
 
+! get rotation degrees and pupilregister from name with compare with btest(dat,6) = .true. or .false.
 if (mod(flag,100) .eq. 10  ) then  ! compare with btest(dat,6) = .true. or .false.
  new_path = " "
  do i=1, 4096
@@ -307,8 +310,8 @@ if (mod(flag,100) .eq. 10  ) then  ! compare with btest(dat,6) = .true. or .fals
  write(*,*) "compare rotation, pupilregister: ",rotationdegrees,btest(dat,6)
 endif
 
-if (mod(flag,100) .eq. 5 ) then
 ! gnuplot splot output
+if (mod(flag,100) .eq. 5 ) then
 ! needs powmin & powmax
  if (allocated(JMatrix%R)) then
   donut = .FALSE.
@@ -432,8 +435,8 @@ DiaSlope%Zpd2 = .n. DiaSlope
 return
 endif !  (mod(flag,100) .eq. 6)
 
-if (mod(flag,100) .eq. 7) then
 !  Generate LIOC with vector format
+if (mod(flag,100) .eq. 7) then
 !  'plot ' gnu_instruct ' using 1:2:3:4 with vectors'
 unitno1 = get_new_fileunit()
 open(unitno1, file=trim(gnu_instruct), action="write", iostat=ierr)
@@ -448,7 +451,6 @@ open(unitno1, file=trim(gnu_instruct), action="write", iostat=ierr)
    call principal_directions(.false.,JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,u,v,ut,vt)
    call principal_directions(.true.,JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,u,v,wt,zt)
    WRITE(unitno1,*) U,V,ut,vt,wt,zt
-!   WRITE(unitno1,*) U,V,wt,zt
   end do
   WRITE(unitno1,*) ' '
  end do
@@ -500,6 +502,23 @@ else
   err_janus=2
  return ! if flag==2 and not allocated do nothing
 endif
+endif
+
+! Saves an ASCII data file
+if (mod(flag,100) == 13 .or. mod(flag,100) == 14) then
+ if (allocated(JMatrix%R)) then
+  if (mod(flag,100) == 13) then
+   call SaveFile(JMatrix2%R(1:N,1),JMatrix2%YPR(:,:),inputfile1)
+  else
+   call SaveFile(JMatrix%R(1:N,1),JMatrix%YPR(:,:),inputfile1)
+  endif
+  write(*,*) 'Wrote data file...',inputfile1
+  return
+ else
+  write(*,*) 'Have to allocate data prior to writing a data file'
+  err_janus=13
+  return
+ endif
 endif
 
 ! simple swap
@@ -706,8 +725,13 @@ endif
   endif
  endif
 
-! simple difference/subtraction with compare
-if (mod(flag,100) == 10) then
+! simple difference/subtraction with compare, addition with division by two for average
+if (mod(flag,100) == 10 .or. mod(flag,100) == 12) then
+  if(mod(flag,100) == 10) then
+   op = -1 ; op2 = 1
+  else
+   op = 1 ; op2 = 2
+  endif
 !generate new JMatrix
  JMatrix3=JMatrix
   if (allocated(JMatrix2%R) .and. loaded_files .ge. 2) then
@@ -736,35 +760,46 @@ if (mod(flag,100) == 10) then
   do i=1,M1
    j = mod(i + rotationdegrees,180)
    if (j .eq. 0) j = 180
-   JMatrix2%MV(i)=min(JMatrix%MV(j),JMatrix1%MV(i))
-   JMatrix2%Z(:,i)=ABS(JMatrix1%Z(:,i)-JMatrix3%Z(:,j))
-   JMatrix2%SAGC(:,i)=ABS(JMatrix1%SAGC(:,i)-JMatrix3%SAGC(:,j))
-   JMatrix2%Warp(:,i)=ABS(JMatrix1%Warp(:,i)-JMatrix3%Warp(:,j))
-   JMatrix2%INSTC(:,i)=ABS(JMatrix1%INSTC(:,i)-JMatrix3%INSTC(:,j))
-   JMatrix2%GAUSSC(:,i)=ABS(JMatrix1%GAUSSC(:,i)-JMatrix3%GAUSSC(:,j))
-   JMatrix2%MEANC(:,i)=ABS(JMatrix1%MEANC(:,i)-JMatrix3%MEANC(:,j))
-   JMatrix2%MONGEA(:,i)=ABS(JMatrix1%MONGEA(:,i)-JMatrix3%MONGEA(:,j))
-   JMatrix2%ZC(:,i,:)=ABS(JMatrix1%ZC(:,i,:)-JMatrix3%ZC(:,j,:))
+    if(mod(flag,100) == 10) then
+     JMatrix2%MV(i)=min(JMatrix%MV(j),JMatrix1%MV(i))
+    else
+     JMatrix2%MV(i)=max(JMatrix%MV(j),JMatrix1%MV(i))
+    endif
+
+!!!!!!needs special treatment here if JMatrix2%MV(i) is larger, then op2 = 1
+
+   JMatrix2%Z(:,i)=ABS(JMatrix1%Z(:,i)+op*JMatrix3%Z(:,j))/op2
+   JMatrix2%SAGC(:,i)=ABS(JMatrix1%SAGC(:,i)+op*JMatrix3%SAGC(:,j))/op2
+   JMatrix2%Warp(:,i)=ABS(JMatrix1%Warp(:,i)+op*JMatrix3%Warp(:,j))/op2
+   JMatrix2%INSTC(:,i)=ABS(JMatrix1%INSTC(:,i)+op*JMatrix3%INSTC(:,j))/op2
+   JMatrix2%GAUSSC(:,i)=ABS(JMatrix1%GAUSSC(:,i)+op*JMatrix3%GAUSSC(:,j))/op2
+   JMatrix2%MEANC(:,i)=ABS(JMatrix1%MEANC(:,i)+op*JMatrix3%MEANC(:,j))/op2
+   JMatrix2%MONGEA(:,i)=ABS(JMatrix1%MONGEA(:,i)+op*JMatrix3%MONGEA(:,j))/op2
+   JMatrix2%ZC(:,i,:)=ABS(JMatrix1%ZC(:,i,:)+op*JMatrix3%ZC(:,j,:))/op2
   end do
  else
-  JMatrix2%MV(:)=min(JMatrix%MV(:),JMatrix1%MV(:))
-  JMatrix2%Z(:,:)=ABS(JMatrix1%Z(:,:)-JMatrix3%Z(:,:))
-  JMatrix2%SAGC(:,:)=ABS(JMatrix1%SAGC(:,:)-JMatrix3%SAGC(:,:))
-  JMatrix2%Warp(:,:)=ABS(JMatrix1%Warp(:,:)-JMatrix3%Warp(:,:))
-  JMatrix2%INSTC(:,:)=ABS(JMatrix1%INSTC(:,:)-JMatrix3%INSTC(:,:))
-  JMatrix2%GAUSSC(:,:)=ABS(JMatrix1%GAUSSC(:,:)-JMatrix3%GAUSSC(:,:))
-  JMatrix2%MEANC(:,:)=ABS(JMatrix1%MEANC(:,:)-JMatrix3%MEANC(:,:))
-  JMatrix2%MONGEA(:,:)=ABS(JMatrix1%MONGEA(:,:)-JMatrix3%MONGEA(:,:))
+  if(mod(flag,100) == 10) then
+   JMatrix2%MV(:)=min(JMatrix%MV(:),JMatrix1%MV(:))
+  else
+   JMatrix2%MV(:)=max(JMatrix%MV(:),JMatrix1%MV(:))
+  endif
+  JMatrix2%Z(:,:)=ABS(JMatrix1%Z(:,:)+op*JMatrix3%Z(:,:))/op2
+  JMatrix2%SAGC(:,:)=ABS(JMatrix1%SAGC(:,:)+op*JMatrix3%SAGC(:,:))/op2
+  JMatrix2%Warp(:,:)=ABS(JMatrix1%Warp(:,:)+op*JMatrix3%Warp(:,:))/op2
+  JMatrix2%INSTC(:,:)=ABS(JMatrix1%INSTC(:,:)+op*JMatrix3%INSTC(:,:))/op2
+  JMatrix2%GAUSSC(:,:)=ABS(JMatrix1%GAUSSC(:,:)+op*JMatrix3%GAUSSC(:,:))/op2
+  JMatrix2%MEANC(:,:)=ABS(JMatrix1%MEANC(:,:)+op*JMatrix3%MEANC(:,:))/op2
+  JMatrix2%MONGEA(:,:)=ABS(JMatrix1%MONGEA(:,:)+op*JMatrix3%MONGEA(:,:))/op2
  endif
- JMatrix2%SAGC0(:)=ABS(JMatrix1%SAGC0(:)-JMatrix3%SAGC0(:))
- JMatrix2%Z0(:)=ABS(JMatrix1%Z0(:)-JMatrix3%Z0(:))
- JMatrix2%Warp0(:)=ABS(JMatrix1%Warp0(:)-JMatrix3%Warp0(:))
- JMatrix2%INSTC0(:)=ABS(JMatrix1%INSTC0(:)-JMatrix3%INSTC0(:))
- JMatrix2%GAUSSC0(:)=ABS(JMatrix1%GAUSSC0(:)-JMatrix3%GAUSSC0(:))
- JMatrix2%MEANC0(:)=ABS(JMatrix1%MEANC0(:)-JMatrix3%MEANC0(:))
- JMatrix2%MONGEA0(:)=ABS(JMatrix1%MONGEA0(:)-JMatrix3%MONGEA0(:))
- JMatrix2%ZC(:,:,:)=ABS(JMatrix1%ZC(:,:,:)-JMatrix3%ZC(:,:,:))
- JMatrix2%ZC0(:,:)=ABS(JMatrix1%ZC0(:,:)-JMatrix3%ZC0(:,:))
+ JMatrix2%SAGC0(:)=ABS(JMatrix1%SAGC0(:)+op*JMatrix3%SAGC0(:))/op2
+ JMatrix2%Z0(:)=ABS(JMatrix1%Z0(:)+op*JMatrix3%Z0(:))/op2
+ JMatrix2%Warp0(:)=ABS(JMatrix1%Warp0(:)+op*JMatrix3%Warp0(:))/op2
+ JMatrix2%INSTC0(:)=ABS(JMatrix1%INSTC0(:)+op*JMatrix3%INSTC0(:))/op2
+ JMatrix2%GAUSSC0(:)=ABS(JMatrix1%GAUSSC0(:)+op*JMatrix3%GAUSSC0(:))/op2
+ JMatrix2%MEANC0(:)=ABS(JMatrix1%MEANC0(:)+op*JMatrix3%MEANC0(:))/op2
+ JMatrix2%MONGEA0(:)=ABS(JMatrix1%MONGEA0(:)+op*JMatrix3%MONGEA0(:))/op2
+ JMatrix2%ZC(:,:,:)=ABS(JMatrix1%ZC(:,:,:)+op*JMatrix3%ZC(:,:,:))/op2
+ JMatrix2%ZC0(:,:)=ABS(JMatrix1%ZC0(:,:)+op*JMatrix3%ZC0(:,:))/op2
 ! have to re-do min/max
  JMatrix2%SAGC0(2)=1E30   ;  JMatrix2%SAGC0(3)=-1E30
  JMatrix2%Warp0(2)=1E30   ;  JMatrix2%Warp0(3)=-1E30
@@ -822,7 +857,7 @@ if (mod(flag,100) == 10) then
   call makelegend(flag, powmin, powmax, legend, nL)
   return
  else
-  write(*,*) "Needs two scans for compare"
+  write(*,*) "Needs two scans for compare or average"
   err_janus=10
   return
  endif
@@ -1681,7 +1716,14 @@ if (TestData .lt. 0) then
    call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
   endif
   if (mod(flag,100) == 0) then !read the files
-   call RCNVRTT(MM,N)
+   ELLIPSE_C=40.0_wp
+   ELLIPSE_A=42.0_wp
+   ELLIPSE_B=44.0_wp
+!  sphere
+!   ELLIPSE_C=42.0_wp
+!   ELLIPSE_A=42.0_wp
+!   ELLIPSE_B=42.0_wp
+   call RCNVRTT(MM,N,ELLIPSE_A,ELLIPSE_B,ELLIPSE_C)
   endif
 ! Generate the slope matrix
   RadSlope=EyeSys
@@ -2179,7 +2221,7 @@ endif
 
 endif !mod(flag,100) /= 9
 
-!zernike coefficents
+! calculate zernike coefficents; this could be moved to a module function
 if (mod(flag,100) == 1) then
  call Ccounter(2,"zernike.tmp"//c_null_char)
  call LogC("Starting zernike computation"//c_null_char)

@@ -412,14 +412,12 @@ SUBROUTINE RadSlope_eq_Skyline(lsq,JMatrix, RadSlope, Skyline, Penta)      ! ini
     end do
     deallocate(knots,knotsz,knotsz2)
    endif
-
   Skyline%DAT(i,1:L2)=z(1:L2)
   Skyline%z2DAT(i,1:L2)=z2(1:L2)
   end do 
   if (num_zeroes .gt. 1) then
    write (*,*) 'multiple zeroes in ELE profile',num_zeroes
   endif
-
 ! make rings
 ! scale in 14x 14 mm of Penta matrix 141x141 divided by 2
   rBo=700.0                                   ! try to make radius at least out to 7 (theoretical max on PentaCam)
@@ -620,10 +618,9 @@ SUBROUTINE RadSlope_eq_Oculus(RadSlope,Oculus)
   TYPE(wpOculusMatrix), INTENT(INOUT) :: Oculus
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
   INTEGER :: i,j,k,MM,N,imv(100)
-  REAL(wp) :: Y,YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA
   REAL(wp) :: powmax, powmax2
   REAL(wp) :: ZIX,ZJX,YA3,X2A1
-  REAL(wp) :: DIST,R,POW
+  REAL(wp) :: DIST,POW
 ! uses SAGC not ELE or INSTC
 ! load Oculus into RadSlope c 100 x 60
   MM = 100 ; N=60
@@ -821,7 +818,7 @@ SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
   INTEGER(c_int64_t), INTENT(IN) :: dat
   REAL(c_double), INTENT(INOUT) :: cardinal(*)
   INTEGER(c_int), INTENT(INOUT) :: nC
-  INTEGER :: i,j,k,M1,N1
+  INTEGER :: i,j,M1,N1
   REAL (wp) :: P_TEMP
   N1=size(JMatrix%R,1)
   M1=size(JMatrix%R,2)
@@ -1183,7 +1180,7 @@ END SUBROUTINE RadSlope_eq_DiaSlope
 ! spline b%rd(:,i),b%Zpd(:,i)
  FUNCTION DiaSpline(b) result(a)
  TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b
- INTEGER :: M1,N1,i,k,err_report
+ INTEGER :: M1,N1,i,err_report
  REAL(wp) :: a(size(b%rd,1),size(b%rd,2))
  N1=size(b%rd,1) !N1=2*N*M
  M1=size(b%rd,2) !M1=MM/2
@@ -1653,9 +1650,9 @@ END SUBROUTINE EyeSys_LSQfillin
   REAL(wp), INTENT(OUT) :: u,v,ut,vt
   LOGICAL, INTENT(IN) :: one
   ! these names follow the conventions/are defined in Curvature_equations/notes
-  REAL(wp) :: hu,hv,huu,hvv,huv,g,K,H,m,m1,k1,k2,astig,kappa
+  REAL(wp) :: hu,hv,huu,hvv,huv,g,K,H,k1,k2,astig,kappa
   REAL(wp) :: MMM(3,3),nrml(3),rv(3),rvp1(3),rvp2(3),pos(3),J(3,3),e1(3),e1p(3),e2(3),e2p(3),e3(3),e3p(3),IJ(3,3),B(3),RR(3,3),R0(3,3)
-  INTEGER :: INFO,IPIV(3)
+  INTEGER :: INFO
   r=abs(r) ; hr=abs(hr)
 ! convert to cartesian conversion
   u=r*cos(t)

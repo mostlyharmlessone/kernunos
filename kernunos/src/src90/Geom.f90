@@ -10,7 +10,7 @@
        IMPLICIT NONE
        TYPE(wpJMatrix),INTENT(INOUT) :: b
        REAL(wp), INTENT(INOUT) :: powmin,powmax
-       REAL(wp) :: X1,X2,X3,powctr
+       REAL(wp) :: X1,X2,X3
        REAL(wp) :: vert1,vert2,vert3,nrm1,nrm2,nrm3,normal
        REAL(c_float) :: c_vert(3),c_rgbv(3),c_norm(3)
        REAL(wp) :: pow

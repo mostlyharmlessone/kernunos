@@ -111,8 +111,8 @@
 
 ! Modified to allow n intervals after each break point including the last one for the periodic case
 ! Define local variables
-      REAL (wp) :: delta, v, u, resid_error
-      INTEGER :: i, j, k, sz, high, low
+      REAL (wp) :: delta, v
+      INTEGER :: i, j, k, high, low
       if (periodic) then
        delta = (t(m)-t(1))/real(n,wp)
 ! Define the array of breakpoints

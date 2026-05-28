@@ -269,7 +269,7 @@ USE sparsekit, ONLY: amub, amubdg
 ! maximum of the dimensions of the separate factors.
 TYPE (dpCSRSparseMatrix), INTENT (IN) :: a, b
 TYPE (dpCSRSparseMatrix) :: c
-INTEGER :: ncol, nzmax,ierr,i
+INTEGER :: ncol,ierr
 INTEGER, ALLOCATABLE :: iw(:), ndegr(:)
 IF (a%noOfRows/=b%noOfColumns) THEN
   c%errFlag = -1

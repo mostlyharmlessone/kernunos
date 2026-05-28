@@ -102,11 +102,25 @@ MODULE io_functions
      CHARACTER(len=*), INTENT(IN), optional :: CURVNAME,ELEVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME,PATIENTNAME,EXAMNAME
     END SUBROUTINE rcnvrtk
 
-    SUBROUTINE RCNVRTT(MM,N)
+    SUBROUTINE rcnvrtt(MM,N,ELLIPSE_A, ELLIPSE_B, ELLIPSE_C)
      USE set_precision, ONLY : wp
      USE cornea_arrays
      USE parameters
      INTEGER, INTENT(IN) :: MM,N
+     REAL(wp), INTENT(IN) :: ELLIPSE_A, ELLIPSE_B, ELLIPSE_C
+    END SUBROUTINE
+
+    SUBROUTINE rcnvrtV(read_error,RANAME,XXNAME)
+    ! VISIA VERSION
+     USE set_precision, ONLY : wp
+     CHARACTER(len=*), INTENT(IN) :: RANAME,XXNAME
+     INTEGER, INTENT(OUT) :: read_error
+    END SUBROUTINE
+
+    SUBROUTINE SaveFile(a,b,KXNAME)
+     USE set_precision, ONLY : wp
+     REAL(wp),INTENT(IN) :: a(:), b(:,:)
+     CHARACTER(len=*), INTENT(IN) :: KXNAME
     END SUBROUTINE
 
     SUBROUTINE WriteGeomOFF(flag,b,donut,powmin,powmax,OFFNAME)
@@ -919,6 +933,8 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
         write (*,*) 'Consider using your text editor to search/replace all semicolons in data statements in',EDNAME
         write (*,*) 'also fails on pathnames with spaces'
         read_error=11
+        if (allocated(semicolon1)) deallocate(semicolon1)
+        if (allocated(semicolon2)) deallocate(semicolon2)
         return
        endif
        nblines=len(trim(RANAME))
@@ -950,6 +966,8 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
         write (*,*) 'Consider using your text editor to search/replace all semicolons in data statements in',EDNAME
         write (*,*) 'also fails on pathnames with spaces'
         read_error=11
+        if (allocated(semicolon1)) deallocate(semicolon1)
+        if (allocated(semicolon2)) deallocate(semicolon2)
         return
        endif
 !      Calculate number of mires by counting the floating point periods in the file, subtracting the header file extension, and dividing by 360
@@ -959,6 +977,8 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
        if (N .lt. 23 )then
         WRITE (*,*) 'Error on mire count in rcnvrtn:',N
         read_error=-1
+        if (allocated(semicolon1)) deallocate(semicolon1)
+        if (allocated(semicolon2)) deallocate(semicolon2)
         return
        endif
        allocate(ZX(N),YX(N))
@@ -973,6 +993,8 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
           WRITE (*,*) 'Error on input Nidek RA/XX files on', I,'row'
           read_error=3
           if (allocated(ZX)) deallocate(ZX,YX)
+          if (allocated(semicolon1)) deallocate(semicolon1)
+          if (allocated(semicolon2)) deallocate(semicolon2)
           return
          endif
          READ(unitno2,*,iostat=readerr) header,YX(:)
@@ -980,6 +1002,8 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
           WRITE (*,*) 'Error on input Nidek RA/XX files on', I,'row'
           read_error=3
           if (allocated(ZX)) deallocate(ZX,YX)
+          if (allocated(semicolon1)) deallocate(semicolon1)
+          if (allocated(semicolon2)) deallocate(semicolon2)
           return
          endif
          ITH=I-1
@@ -992,8 +1016,10 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
           if (YX(J) <= ZX(J)) then
            WRITE (*,*) 'Error on input Nidek RA/XX files ArcTan'
            read_error=1
-           return
            if (allocated(ZX)) deallocate(ZX,YX)
+           if (allocated(semicolon1)) deallocate(semicolon1)
+           if (allocated(semicolon2)) deallocate(semicolon2)
+           return
           endif
          endif
         end do
@@ -1003,6 +1029,8 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
          WRITE (*,*) 'Error on input Nidek RA/XX files with ITH'
          read_error=2
          if (allocated(ZX)) deallocate(ZX,YX)
+         if (allocated(semicolon1)) deallocate(semicolon1)
+         if (allocated(semicolon2)) deallocate(semicolon2)
          return
         endif
        end do
@@ -1016,6 +1044,8 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
          write (*,*) 'failed system command to remove tmp file',semicolon1
          read_error=12
          if (allocated(ZX)) deallocate(ZX,YX)
+         if (allocated(semicolon1)) deallocate(semicolon1)
+         if (allocated(semicolon2)) deallocate(semicolon2)
          return
         endif
        endif
@@ -1027,27 +1057,37 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
          write (*,*) 'failed system command to remove tmp file',semicolon2
          read_error=12
          if (allocated(ZX)) deallocate(ZX,YX)
+         if (allocated(semicolon1)) deallocate(semicolon1)
+         if (allocated(semicolon2)) deallocate(semicolon2)
          return
         endif
        endif
       else
        print*, "Error ", ierr ," attempting to open RA file ", trim(RANAME)
        read_error=3
+       if (allocated(semicolon1)) deallocate(semicolon1)
+       if (allocated(semicolon2)) deallocate(semicolon2)
        return
       endif
      else
       print*, "Error -- cannot find RA file: ", trim(RANAME)
       read_error=4
+      if (allocated(semicolon1)) deallocate(semicolon1)
+      if (allocated(semicolon2)) deallocate(semicolon2)
       return
      endif
     else
      print*, "Error ", ierr ," attempting to open ED file ", trim(EDNAME)
      read_error=5
+     if (allocated(semicolon1)) deallocate(semicolon1)
+     if (allocated(semicolon2)) deallocate(semicolon2)
      return
     endif
    else
     print*, "Error -- cannot find ED file: ", trim(EDNAME)
     read_error=6
+    if (allocated(semicolon1)) deallocate(semicolon1)
+    if (allocated(semicolon2)) deallocate(semicolon2)
     return
    endif
   endif ! RANAME & EDNAME
@@ -1096,6 +1136,8 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
         write (*,*) 'also fails on pathnames with spaces'
         read_error=11
         if (allocated(ZX)) deallocate(ZX,YX)
+        if (allocated(semicolon1)) deallocate(semicolon1)
+        if (allocated(semicolon2)) deallocate(semicolon2)
         return
        endif
        open(unitno4, file=trim(semicolon2), action="read", iostat=ierr)
@@ -1107,6 +1149,8 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
           WRITE (*,*) 'Error on input Nidek HT files on', I,'row'
           read_error=3
           if (allocated(ZX)) deallocate(ZX,YX)
+          if (allocated(semicolon1)) deallocate(semicolon1)
+          if (allocated(semicolon2)) deallocate(semicolon2)
           close(unitno4)
           return
          endif
@@ -1125,6 +1169,8 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
        if (io > 0) then
         write (*,*) 'failed system command to remove tmp file',semicolon2
         read_error=12
+        if (allocated(semicolon1)) deallocate(semicolon1)
+        if (allocated(semicolon2)) deallocate(semicolon2)
         return
        endif
       endif
@@ -1132,6 +1178,8 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
      print*, "Error -- cannot find HT file: ", trim(HTNAME)
      read_error=7
     endif
+    if (allocated(semicolon1)) deallocate(semicolon1)
+    if (allocated(semicolon2)) deallocate(semicolon2)
    endif  !end HTNAME
 
    if (Present(PENAME)) then
@@ -1176,6 +1224,8 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
        write (*,*) 'also fails on pathnames with spaces'
        read_error=11
        if (allocated(ZX)) deallocate(ZX,YX)
+       if (allocated(semicolon1)) deallocate(semicolon1)
+       if (allocated(semicolon2)) deallocate(semicolon2)
        return
       endif
       open(unitno3, file=trim(semicolon2), action="read", iostat=ierr)
@@ -1188,6 +1238,8 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
         WRITE (*,*) 'Error on input Nidek PE file on', I,'row'
         read_error=7
         if (allocated(ZX)) deallocate(ZX,YX)
+        if (allocated(semicolon1)) deallocate(semicolon1)
+        if (allocated(semicolon2)) deallocate(semicolon2)
         return
        endif
       endif
@@ -1202,6 +1254,8 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
        if (io > 0) then
         write (*,*) 'failed system command to remove tmp file',semicolon2
         if(allocated(ZX)) deallocate(ZX,YX)
+        if (allocated(semicolon1)) deallocate(semicolon1)
+        if (allocated(semicolon2)) deallocate(semicolon2)
         read_error=12
         return
        endif
@@ -1210,11 +1264,14 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
     else
      print*, "Error ", ierr ," attempting to open PE file ", trim(PENAME)
      read_error=9
+     if (allocated(semicolon1)) deallocate(semicolon1)
+     if (allocated(semicolon2)) deallocate(semicolon2)
      return
     endif
    endif
+   if (allocated(semicolon1)) deallocate(semicolon1)
+   if (allocated(semicolon2)) deallocate(semicolon2)
 END SUBROUTINE rcnvrtn
-
 
 SUBROUTINE rcnvrtn_binary(read_error,mirecount,RANAME,EDNAME,PENAME)
 ! NIDEK VERSION, binary, experimental, assumes peculiar packed BCD scheme for data
@@ -1239,7 +1296,7 @@ CHARACTER(1000) header,header2
 character :: ch, ych
 CHARACTER(len=100) :: ioerrmsg
 CHARACTER(:), allocatable :: x, y
-INTEGER :: file_idx1,file_idx2,file_idx3,file_idx4,posmax
+INTEGER :: file_idx1,file_idx2,posmax
 LOGICAL :: exists, negative
 INTEGER :: I,J,ITH,unitno1,unitno2,unitno3,MM,N,ierr,pos
 REAL (wp) :: ZX(size(EyeSys%RA,2)),YX(size(EyeSys%RA,2)) ! should be maximum needed for mires
@@ -1362,7 +1419,6 @@ integer line(200),line2(200),ix,iy
 !     for k=0,2-5 or 1-2,4-6
 !     if (iachar(y(ith+k:ith+k)) .lt. 58) yx(iy)= yx(iy)+(iachar(y(ith:ith))-50)*10.0**(k)
 !     if (iachar(y(ith+k:ith+k)) .ge. 65) yx(iy)= yx(iy)+(iachar(y(ith:ith))-57)*10.0 **(k)
-
  ! 3-byte numbers have "C" in the second place
  ! achar(50) == 2 ! achar(57) == 9 ! achar(65) == A
       zx(ix) = 0
@@ -1404,7 +1460,6 @@ integer line(200),line2(200),ix,iy
 !    Assumes "D" is the only other code added, could also consider "F" since it is sometimes in place of final "E"
        if ( x(i:i) == "D") i=i+1
      end do
-
       EyeSys%RA(j,:)=100*ZX(:)
       mirecount = max(ix,mirecount)
       x = ""
@@ -1470,7 +1525,6 @@ integer line(200),line2(200),ix,iy
 !     for k=0,2-5 or 1-2,4-6
 !     if (iachar(y(ith+k:ith+k)) .lt. 58) yx(iy)= yx(iy)+(iachar(y(ith:ith))-50)*10.0**(k)
 !     if (iachar(y(ith+k:ith+k)) .ge. 65) yx(iy)= yx(iy)+(iachar(y(ith:ith))-57)*10.0 **(k)
-
  ! 3-byte numbers have "C" in the second place
  ! achar(50) == 2 ! achar(57) == 9 ! achar(65) == A
       yx(iy) = 0
@@ -1512,7 +1566,6 @@ integer line(200),line2(200),ix,iy
 !    Assumes "D" is the only other code added, could also consider "F" since it is sometimes in place of final "E"
        if ( y(ith:ith) == "D") ith=ith+1
      end do
-
       EyeSys%XX(j,:)=100*YX(:)
       mirecount = max(iy,mirecount)
       y = ""
@@ -1870,11 +1923,11 @@ SUBROUTINE rcnvrtV(read_error,RANAME,XXNAME)
   IMPLICIT NONE
   LOGICAL :: exists
   CHARACTER(len=*), INTENT(IN) :: RANAME,XXNAME
-  CHARACTER(1000) header,header_space
-  INTEGER :: file_idx1,file_idx2,file_idx3,file_idx4,readerr
+  CHARACTER(1000) header
+  INTEGER :: file_idx1,file_idx2,readerr
   INTEGER, INTENT(OUT) :: read_error
-  REAL(wp) :: ZX(24),YX(24),PX,CX,CY
-  INTEGER :: I,J,ITH,unitno1,unitno2,unitno3,unitno4,MM,N,ierr
+  REAL(wp) :: ZX(24),YX(24)
+  INTEGER :: I,J,ITH,unitno1,unitno2,MM,N,ierr
   MM=256
   N=24
   inquire(file=trim(RANAME), exist=exists)

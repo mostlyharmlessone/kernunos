@@ -1,4 +1,4 @@
-/* needs c_null_char terminated from Fortran */
+/* needs c_null_char terminated from Fortran with no extra whitespace */
 /* CleanSemicolons_C.c */
 /* changes to ; (3B) to , (2C) */
 #include <stdio.h>

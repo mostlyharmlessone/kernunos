@@ -86,7 +86,7 @@
       INTEGER, ALLOCATABLE :: iseed(:), saw_points(:)
       INTEGER :: m !, findInterval
 ! Define what will be the collection of matrix triplets.
-      TYPE (dpTripletList) :: s, s_test
+      TYPE (dpTripletList) :: s
 ! Define what will be the CSR version for the design matrix
       TYPE (dpCSRSparseMatrix) :: a_csr
 ! Define what will be the CSR version of A^TA for the design matrix
@@ -97,7 +97,7 @@
       REAL(dkind), ALLOCATABLE :: dense(:,:),d(:)
       INTEGER, allocatable :: ipiv(:)
       INTEGER :: info
-      REAL(dkind) :: sumsq,y,y1,y2,z,zs
+      REAL(dkind) :: sumsq
 ! Define the Harwell-Boeing derived type that holds the
 ! processed triplets.
       TYPE (dpHBSparseMatrix) :: b

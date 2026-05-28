@@ -1,18 +1,11 @@
 FIXES
 
+Consider adding "Save" as an option, and make a JMatrix Save file format, perhaps like EyeSys with multiple columns, or perhaps multiple files
+
 compare/add make averages? for comparison of multiple scans
 consider raw EyeSys mode in addition to JMatrix
 
-Zernike computation needs checking on some standards as it doesn't correspond with Atlas; it might be that Atlas is Zernike for whole eye or something else undocumented
-All defocus on a sphere, MongeAstig has edge effects, probably from second deriv flattening at edges (free spline condition), 
-sphere principal directions are a bit messed up, but probably round off and other errors, and in fact, they should be messed up
 
-
-When running compare, have to recompute Zernike first
-compare is broken with zernike; 
-
-What is displayed after displaying Zernike with one file, then opening another file: have to reset color/function etc upon opening a new file, or always compute Zernike
-opening 2nd file with zernike selected and zernike
 
 findInterval vs bsearch
 
@@ -99,6 +92,8 @@ rename files a laShakespeare: dry eye juliet capulet, kcn demo rex lear, maybe m
 analyze fowler sauna patient: arvo poster introduction
 search for
 Thermally Induced Reversible Corneal Molding after Sauna Use on PubMed
+
+turns out my Atlas OD file and PentaCam file are really not comparablw when looking at MongeAstig, principal directions, Zernike coefficients. So: no repeatability across platforms on N=1 data point.
 
 Windows:  try cross-compile toolchain, again; also look into tools on Windows, free version of VS, nvidia compiler, or even as a WSL app  
 MacOS: need to do reseach on compiles with Xcode, darwin tools, Qt on iMac, possibly also in Mac VM, or as a Parallels/Docker app.
