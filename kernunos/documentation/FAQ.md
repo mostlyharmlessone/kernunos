@@ -72,17 +72,17 @@ Q: What are all the Menu Options and what do they do?
 
 A: Like, a manual?  Let's go through each menu item, from left to right:
 File: 
-
-      Load (use to open a data file of a supported type)
+```
+	  Load (use to open a data file of a supported type)
 	  Test (generates a curved concave test surface)
 	  Check spline consistency (optional test on Atlas/NIDEK/Keratograph files integrating slopes and comparing with supplied elevations, optionally loads a matching PentaCam  file if it exists to compute matching elevations from slopes to elevations)
 	  Use a LSQ spline instead of linear spline for PentaCam conversion 
-      Compare (compares last two loaded files based on current selected function and the 		  Continuous Hue Heatmap Color Scale) These are often called "difference              maps" Note that the legend will have scientific notation added with E-2,            for example, added if the differences are small.
       Decenter (simulates decentering the image)
-	  			Repeat decentering of the same image may eventually lead to artefacts from rounding errors, if so, better reload the data.
-	  Crop (allows for removing peripheral data points or Squashing the data relative to         the average, a primitive noise filter)			
+	  		Repeat decentering of the same image may eventually lead to artefacts from rounding errors, if so, better reload the data.
+	  Crop (allows for removing peripheral data points or Squashing the data relative to    	the average, a primitive noise filter)			
 	  Swap (swaps the last two loaded files/images)
-	  Redraw   (Applies changes to the selection of the function to be plotted and the              colorscale)
+	  Redraw   
+	  		(Applies changes to the selection of the function to be plotted and the colorscale used)
 	  Export as Image/Picture (saves a bitmap of the window as a TGA file)
       Export:
 	         PLY format.. (exports current image as ASCII PLY file)
@@ -91,6 +91,8 @@ File:
 	         STL (ASCII or binary) format...as STL file
 	         Export with assimp: (write the name and pick the format by extension)
 	         Exit
+```
+		
 
 The LSQ spline instead of linear spline for PentaCam conversion option is an attempt to compensate for the noise in PentaCam (ELE) elevation data wherein several points have, within the limits of digits supplied, identical values, leading to local flat areas.  Note that adjacent identical curvatures are not an issue, but are a feature of a smooth surface.
 
@@ -105,8 +107,12 @@ Principal Directions (uses gnuplot to show Principal Direction Vector Fields)
 Center Deviations (see below under Bad data)
 Show circumferential rings (see below under Bad data)		 
 Plot with GnuPlot Splot  (shows image in a pixellated gnuplot version)
+Compare/Difference Map vs. Average of two Maps...
+	(Compares last two loaded files based on current selected function and the 	  Continuous Hue Heatmap Color Scale) These are often called "difference        maps" Note that the legend will have scientific notation added with E-2,       for example, added if the differences are small.
+	Average generates an average of the last two maps. The heatmap is not changed)
 ```
 Zernike calculations are made on the basis of the anterior surface of the cornea only; i.e. they solve a least squares problem for representation of a surface decomposed into a finite number of Zernike polynomials. Understandably, they may not correspond very well to pre-supplied Zernike coefficients supplied by, for example, some Zeiss Atlas 9000 files or Oculus Keratograph files, which probably incorporate other ocular elements of the eye.  GnuPlot windows pop up separately and can be printed/exported to SVG, PDF or PNG. Principal directions are projections onto the x,y plane but computed in the tangent plane of the surface.  See [Curvature_notes.pdf] Round off errors for very spherical surfaces (or in fact using Test with a computed sphere) can lead to unpredictable directions which might have a misleading direction based on round off error.
+Average can be used as noise reduction or data augmentation if you have multiple scan of the same eye in the same clinical scenario, i.e. on the same day, or on different days when there is no anticipated significant change. As with any other data acquisition, multiple remeasurements can be used to improve precision.
 
 Function: (many different things to display, pick one)
 ```
@@ -168,7 +174,7 @@ The first uses simplified formulas to compute properties which do not use calcul
 
 The next two options are for missing data in files. Unlike Oculus Keratograph files, apparently, Zeiss Atlas and at least one EyeSys file encountered in the wild can have missing meridians where presumably no good data was obtained. If one chooses, the missing meridians can be interpolated from their neighbors with one of the two methods. Bear in mind that there really is no cure for bad or missing data, reconstructed poor data will still probably not resemble data from the same eye with a better tear film. The Placido disk uses reflections and measures the optical surface, which comprises the tear film and the underlying cornea, so measuring two different tear films is measuring two different eyes in that sense. Bad data is also more likely to cause computation errors or crashes, YMMV.
 
-Bad data comes in different forms, erroneous numbers, insufficient precision, missing numbers and discontinuities with possible shift dislocations. Some affect global fitting assumptions (ie lsq) more than local (ie spline) assumptions. Analyze|Show circumferential rings shows the effect of LSQ vs spline on filling in circumferential data. The multiple zeroes in ELE/HT files and adjacent identical points have been mentioned before as a source of local flat areas not well represented by smooth curve fits.  Meriodonal 1-D curves that do not meet in a central point make an inconsistent 3-D shape, as demonstrated by the Analyze|Center Deviations plots being non-zero, and can be adjusted in different ways with the tweaks.
+Bad data comes in different forms, erroneous numbers, insufficient precision, missing numbers and discontinuities with possible shift dislocations. Some affect global fitting assumptions (ie lsq) more than local (ie spline) assumptions. Analyze|Show circumferential rings shows the effect of LSQ vs spline on filling in circumferential data. The multiple zeroes in ELE/HT files and adjacent identical points have been mentioned before as a source of local flat areas not well represented by smooth curve fits.  Meriodonal 1-D curves that do not meet in a central point make an inconsistent 3-D shape, as demonstrated by the Analyze|Center Deviations plots being non-zero, and can be adjusted in different ways with the tweaks.  See also Analyze|Average.
  
 The seventh option chooses how to compute the angular derivatives, and illustrates the difference in the pros and cons of LSQ vs splining with noisy data.  
 	  

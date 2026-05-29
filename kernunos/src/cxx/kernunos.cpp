@@ -148,6 +148,10 @@ const unsigned int SCR_HEIGHT = 800;
 // last two digits are the program function
 // 0 = open a file, display
 // 99 = deallocate arrays for program closure
+// 14 = save original
+// 13 = save comparison or average
+// 12 = average
+// 11 = swap
 // 10 = compare two images
 // 9 = show zernike coefficents
 // 8 = show circumferential ring lsqfillin/splinefillin
@@ -520,6 +524,7 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
    liocAct->setEnabled(true);
    makeoffAct->setEnabled(true);
    makeplyAct->setEnabled(true);
+   makesaveAct->setEnabled(true);
    ply2binAct->setEnabled(true);
    off2stlAct->setEnabled(true);
    importexportAct->setEnabled(true);
@@ -598,6 +603,7 @@ void MainWindow::test()
     liocAct->setEnabled(true);
     makeoffAct->setEnabled(true);
     makeplyAct->setEnabled(true);
+    makesaveAct->setEnabled(true);
     ply2binAct->setEnabled(true);
     off2stlAct->setEnabled(true);
     importexportAct->setEnabled(true);
@@ -746,6 +752,7 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
        liocAct->setEnabled(true);
        makeoffAct->setEnabled(true);
        makeplyAct->setEnabled(true);
+       makesaveAct->setEnabled(true);
        ply2binAct->setEnabled(true);
        off2stlAct->setEnabled(true);
        importexportAct->setEnabled(true);
@@ -847,15 +854,16 @@ void MainWindow::swap()
 
 void MainWindow::compare()
 {
-    QMessageBox msgBox(QMessageBox::Question, tr("Compare"),
-                       tr("Would you like to change the current rotation in degrees"), { }, this);
-    msgBox.setInformativeText(tr("The comparison is made with or without pupil alignment/registration " \
+    QMessageBox msgBox(QMessageBox::Question, tr("Compare=Yes/Average=No/Cancel=Do nothing"),
+                       tr("Compare=Yes/Average=No/Cancel=Do nothing"), { }, this);
+    msgBox.setInformativeText(tr("The comparison/average is made with or without pupil alignment/registration " \
                                  "and then rotation counterclockwise around that center in degrees." ));
     msgBox.addButton(QMessageBox::Yes);
     msgBox.addButton(QMessageBox::No);
     msgBox.addButton(QMessageBox::Cancel);
-    msgBox.setDefaultButton(QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::Cancel);
     int pupilvalue = 1;
+    int select;
 
     QSpacerItem *horizontalspacer = new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
     QGridLayout *layout =(QGridLayout*)msgBox.layout();
@@ -866,27 +874,35 @@ void MainWindow::compare()
     layout->addWidget(compareDialogOptionsWidget);
     int reply = msgBox.exec();
     int degrees;
+    int map;
     degrees=ui.zSlider->value();
     degrees=degrees / 16;
 
     if (reply == QMessageBox::Yes){
+        select = 10;
         bool ok;
         degrees = QInputDialog::getInt(this, tr("Rotation "),
                                                  tr("Degrees:"), degrees, 0, 360, 1, &ok,
                                                  Qt::WindowFlags());
     }
     else if (reply == QMessageBox::No){
+        select = 12;
+        bool ok;
+        degrees = QInputDialog::getInt(this, tr("Rotation "),
+                                       tr("Degrees:"), degrees, 0, 360, 1, &ok,
+                                       Qt::WindowFlags());
     }
     if (!(reply == QMessageBox::Cancel)){
 
     ui.zSlider->setValue(degrees * 16);
-    flag=flag-(flag%100)+10;  // last two digits of flag=10 is the code for compare
+    flag=flag-(flag%100)+select;  // last two digits of flag=10 is the code for compare flag=12 for average
 
+    if (select == 10){
 //  for now set compare to hsbrgb
-    int map=(flag-(flag%100))/100%100 ; //save the current selection
+    map=(flag-(flag%100))/100%100 ; //save the current selection
     GLwidget::setAllmapsfalse();
     GLwidget::sethsbrgb(true);
-    checkmapsflags();
+    checkmapsflags();}
 
 //  pupil register is sent through changing dat
     if (compareDialogOptionsWidget->value()){GLwidget::setpupilregister(true);}
@@ -895,6 +911,7 @@ void MainWindow::compare()
     QString fileName=QString("%1").arg(degrees);  //pass the degrees with the filename
     m_GLwidget->DataLoad(fileName,true);
 
+    if(select == 10){
 //  for now restore FROM hsbrgb
     flag=flag+100*(map-3);
     GLwidget::sethsbrgb(false);
@@ -907,7 +924,8 @@ void MainWindow::compare()
     if (map == 7) GLwidget::setUSSpalette(true);
     if (map == 8) GLwidget::setperceptualuniformpalette(true);
     if (map == 9) GLwidget::setUSSNIDEK(true);
-    checkmapsflags();
+    checkmapsflags();}
+
     update();}
     else {
 //        ui.infoLabel->setText(tr("Cancel"));
@@ -1428,6 +1446,19 @@ void MainWindow::makeply(){
    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
    future1.get();
    ui.infoLabel->setText(tr("Wrote  ")+tr(filename));
+}
+
+void MainWindow::makesave(){
+    QString filter = "SAV *.sav  (*.sav) ";
+    QString fileName = QFileDialog::getSaveFileName(this,"Write Data to an ASCII file", "", filter);
+    if (fileName.isEmpty())
+        return;
+    QByteArray ba = fileName.toLocal8Bit();
+    filename = ba.data();
+    flag=flag-(flag%100)+13;  // last two digits of flag=13;
+    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
+    future1.get();
+    ui.infoLabel->setText(tr("Wrote  ")+tr(filename));
 }
 
 void MainWindow::LinesofCurvature() {
@@ -2501,8 +2532,8 @@ void MainWindow::createActions()
    testAct->setStatusTip(tr("Generate some fake data"));
    connect(testAct, &QAction::triggered, this, &MainWindow::test);
 
-   compareAct = new QAction(tr("&Compare/Difference Map..."), this);
-   compareAct->setStatusTip(tr("Compare to previous file/Generate a difference map"));
+   compareAct = new QAction(tr("&Compare/Difference Map vs. Average of two Maps..."), this);
+   compareAct->setStatusTip(tr("Compare to previous file/Generate a difference map or Generate an Average map"));
    compareAct->setEnabled(false);
    connect(compareAct, &QAction::triggered, this, &MainWindow::compare);
 
@@ -2548,6 +2579,11 @@ void MainWindow::createActions()
    makeplyAct->setStatusTip(tr("Write an ASCII PLY file"));
    makeplyAct->setEnabled(false);
    connect(makeplyAct, &QAction::triggered, this, &MainWindow::makeply);
+
+   makesaveAct = new QAction(tr("&Save..."), this);
+   makesaveAct->setStatusTip(tr("Write data to an ASCII file"));
+   makesaveAct->setEnabled(false);
+   connect(makesaveAct, &QAction::triggered, this, &MainWindow::makesave);
 
    importexportAct = new QAction(tr("Export with Assimp (multiple formats)... "), this);
    importexportAct->setStatusTip(tr("Export with Assimp (multiple formats)... "));
@@ -2835,9 +2871,9 @@ void MainWindow::createMenus()
    fileMenu = menuBar()->addMenu(tr("&File"));
    fileMenu->addAction(openAct);
    fileMenu->addAction(testAct);
+   fileMenu->addAction(makesaveAct);
    fileMenu->addAction(consistencyAct);
    fileMenu->addAction(makeLSQsplineAct);
-   fileMenu->addAction(compareAct);
    fileMenu->addAction(decenterAct);
    fileMenu->addAction(croppingAct);
    fileMenu->addAction(swapAct);
@@ -2858,6 +2894,7 @@ void MainWindow::createMenus()
    analyzeMenu->addAction(centerAct);
    analyzeMenu->addAction(ringsAct);
    analyzeMenu->addAction(gnuplotAct);
+   analyzeMenu->addAction(compareAct);
    functionMenu=menuBar()->addMenu(tr("&Function"));
    functionMenu->addAction(AxialAct);
    functionMenu->addAction(ObliqueAct);

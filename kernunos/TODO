@@ -1,11 +1,10 @@
 FIXES
 
-Consider adding "Save" as an option, and make a JMatrix Save file format, perhaps like EyeSys with multiple columns, or perhaps multiple files
-
-compare/add make averages? for comparison of multiple scans
-consider raw EyeSys mode in addition to JMatrix
+ added SaveFile to Save results, not yet tested or incorporated into kernunos,
+ flag 13 or 14 ;  needs reader to reload this version
 
 
+update FAQ, pictures, redo Help qhsc etc.
 
 findInterval vs bsearch
 

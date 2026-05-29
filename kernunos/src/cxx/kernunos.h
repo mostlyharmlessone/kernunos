@@ -156,6 +156,7 @@ private slots:
     void off2stl();
     void makeoff();
     void makeply();
+    void makesave();
     void importexport();
     void normal();
     void checkmapsflags();
@@ -281,6 +282,7 @@ private:
     QAction *off2stlAct;
     QAction *makeoffAct;
     QAction *makeplyAct;
+    QAction *makesaveAct;
     QAction *importexportAct;
 
     QMenu *viewMenu;

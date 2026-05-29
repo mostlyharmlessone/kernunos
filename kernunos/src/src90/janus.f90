@@ -236,7 +236,7 @@ if (mod(flag,100) == 0 ) then  !store last JMatrix when reading in new
  JMatrix1%ZC(:,:,:)=JMatrix%ZC(:,:,:)
 endif
 
-if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3 .or. mod(flag,100) == 13) then
+if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3 .or. mod(flag,100) == 13 .or. mod(flag,100) == 14) then
 !  need new file name if opening a file, printing, saving, or compare for degree information and
 !  local save of inputfile1,inputfile2,logfile
 !  write(*,*) 'file from kernunos: ',file_from_C  ! this will have a lot of extra random non ASCII stuff after the file name
@@ -269,7 +269,7 @@ if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3 .or. mod(
  allocate(CHARACTER(nblines) :: inputfile3)
  allocate(CHARACTER(nblines+3) :: inputfile4)
  allocate(CHARACTER(nblines+3) :: inputfile5)
-endif  ! mod(flag,100) == 0, 10, 2, 3 or 13
+endif  ! mod(flag,100) == 0, 10, 2, 3, 13 or 14
 
 !gnuplot files & calls
 if (mod(flag,100) .eq. 5 .or. mod(flag,100) .eq. 6 .or.&
@@ -295,7 +295,7 @@ if (mod(flag,100) .eq. 5 .or. mod(flag,100) .eq. 6 .or.&
 endif
 
 ! get rotation degrees and pupilregister from name with compare with btest(dat,6) = .true. or .false.
-if (mod(flag,100) .eq. 10  ) then  ! compare with btest(dat,6) = .true. or .false.
+if (mod(flag,100) .eq. 10 .or. mod(flag,100) .eq. 12) then  ! compare with btest(dat,6) = .true. or .false.
  new_path = " "
  do i=1, 4096
     if ( file_from_C (i) == c_null_char ) then
@@ -727,11 +727,6 @@ endif
 
 ! simple difference/subtraction with compare, addition with division by two for average
 if (mod(flag,100) == 10 .or. mod(flag,100) == 12) then
-  if(mod(flag,100) == 10) then
-   op = -1 ; op2 = 1
-  else
-   op = 1 ; op2 = 2
-  endif
 !generate new JMatrix
  JMatrix3=JMatrix
   if (allocated(JMatrix2%R) .and. loaded_files .ge. 2) then
@@ -754,43 +749,42 @@ if (mod(flag,100) == 10 .or. mod(flag,100) == 12) then
 ! regenerates based on new R/tht
   call selectfunction(1,JMatrix3,flag,powctr,powmin,powmax,cardinal,nC)
  endif
-
- rotationdegrees=mod(270-rotationdegrees/2,180) ! makes 180 no rotation without risk of negative indices, odd rotation degrees get floor
- if (rotationdegrees .ne. 0) then
+  rotationdegrees=mod(270-rotationdegrees/2,180) ! makes 180 no rotation without risk of negative indices, odd rotation degrees get floor
   do i=1,M1
    j = mod(i + rotationdegrees,180)
    if (j .eq. 0) j = 180
     if(mod(flag,100) == 10) then
      JMatrix2%MV(i)=min(JMatrix%MV(j),JMatrix1%MV(i))
+     op = -1
+     JMatrix2%Z(:,i)=ABS(JMatrix1%Z(:,i)-JMatrix3%Z(:,j))
+     JMatrix2%SAGC(:,i)=ABS(JMatrix1%SAGC(:,i)-JMatrix3%SAGC(:,j))
+     JMatrix2%Warp(:,i)=ABS(JMatrix1%Warp(:,i)-JMatrix3%Warp(:,j))
+     JMatrix2%INSTC(:,i)=ABS(JMatrix1%INSTC(:,i)-JMatrix3%INSTC(:,j))
+     JMatrix2%GAUSSC(:,i)=ABS(JMatrix1%GAUSSC(:,i)-JMatrix3%GAUSSC(:,j))
+     JMatrix2%MEANC(:,i)=ABS(JMatrix1%MEANC(:,i)-JMatrix3%MEANC(:,j))
+     JMatrix2%MONGEA(:,i)=ABS(JMatrix1%MONGEA(:,i)-JMatrix3%MONGEA(:,j))
+     JMatrix2%ZC(:,i,:)=ABS(JMatrix1%ZC(:,i,:)-JMatrix3%ZC(:,j,:))
     else
      JMatrix2%MV(i)=max(JMatrix%MV(j),JMatrix1%MV(i))
+     op = 1
+     do k=1,JMatrix2%MV(i)
+      if (JMatrix1%SAGC(k,i) > 0 .and. JMatrix3%SAGC(k,j) > 0) then
+       op2 = 2
+      else
+       op2 = 1
+      endif
+      JMatrix2%Z(k,i)=ABS(JMatrix1%Z(k,i)+JMatrix3%Z(k,j))/op2
+      JMatrix2%SAGC(k,i)=ABS(JMatrix1%SAGC(k,i)+JMatrix3%SAGC(k,j))/op2
+      JMatrix2%Warp(k,i)=ABS(JMatrix1%Warp(k,i)+JMatrix3%Warp(k,j))/op2
+      JMatrix2%INSTC(k,i)=ABS(JMatrix1%INSTC(k,i)+JMatrix3%INSTC(k,j))/op2
+      JMatrix2%GAUSSC(k,i)=ABS(JMatrix1%GAUSSC(k,i)+JMatrix3%GAUSSC(k,j))/op2
+      JMatrix2%MEANC(k,i)=ABS(JMatrix1%MEANC(k,i)+JMatrix3%MEANC(k,j))/op2
+      JMatrix2%MONGEA(k,i)=ABS(JMatrix1%MONGEA(k,i)+JMatrix3%MONGEA(k,j))/op2
+      JMatrix2%ZC(k,i,:)=ABS(JMatrix1%ZC(k,i,:)+JMatrix3%ZC(k,j,:))/op2
+     end do
+     op2 = 2  ! for centers below
     endif
-
-!!!!!!needs special treatment here if JMatrix2%MV(i) is larger, then op2 = 1
-
-   JMatrix2%Z(:,i)=ABS(JMatrix1%Z(:,i)+op*JMatrix3%Z(:,j))/op2
-   JMatrix2%SAGC(:,i)=ABS(JMatrix1%SAGC(:,i)+op*JMatrix3%SAGC(:,j))/op2
-   JMatrix2%Warp(:,i)=ABS(JMatrix1%Warp(:,i)+op*JMatrix3%Warp(:,j))/op2
-   JMatrix2%INSTC(:,i)=ABS(JMatrix1%INSTC(:,i)+op*JMatrix3%INSTC(:,j))/op2
-   JMatrix2%GAUSSC(:,i)=ABS(JMatrix1%GAUSSC(:,i)+op*JMatrix3%GAUSSC(:,j))/op2
-   JMatrix2%MEANC(:,i)=ABS(JMatrix1%MEANC(:,i)+op*JMatrix3%MEANC(:,j))/op2
-   JMatrix2%MONGEA(:,i)=ABS(JMatrix1%MONGEA(:,i)+op*JMatrix3%MONGEA(:,j))/op2
-   JMatrix2%ZC(:,i,:)=ABS(JMatrix1%ZC(:,i,:)+op*JMatrix3%ZC(:,j,:))/op2
   end do
- else
-  if(mod(flag,100) == 10) then
-   JMatrix2%MV(:)=min(JMatrix%MV(:),JMatrix1%MV(:))
-  else
-   JMatrix2%MV(:)=max(JMatrix%MV(:),JMatrix1%MV(:))
-  endif
-  JMatrix2%Z(:,:)=ABS(JMatrix1%Z(:,:)+op*JMatrix3%Z(:,:))/op2
-  JMatrix2%SAGC(:,:)=ABS(JMatrix1%SAGC(:,:)+op*JMatrix3%SAGC(:,:))/op2
-  JMatrix2%Warp(:,:)=ABS(JMatrix1%Warp(:,:)+op*JMatrix3%Warp(:,:))/op2
-  JMatrix2%INSTC(:,:)=ABS(JMatrix1%INSTC(:,:)+op*JMatrix3%INSTC(:,:))/op2
-  JMatrix2%GAUSSC(:,:)=ABS(JMatrix1%GAUSSC(:,:)+op*JMatrix3%GAUSSC(:,:))/op2
-  JMatrix2%MEANC(:,:)=ABS(JMatrix1%MEANC(:,:)+op*JMatrix3%MEANC(:,:))/op2
-  JMatrix2%MONGEA(:,:)=ABS(JMatrix1%MONGEA(:,:)+op*JMatrix3%MONGEA(:,:))/op2
- endif
  JMatrix2%SAGC0(:)=ABS(JMatrix1%SAGC0(:)+op*JMatrix3%SAGC0(:))/op2
  JMatrix2%Z0(:)=ABS(JMatrix1%Z0(:)+op*JMatrix3%Z0(:))/op2
  JMatrix2%Warp0(:)=ABS(JMatrix1%Warp0(:)+op*JMatrix3%Warp0(:))/op2
@@ -800,6 +794,8 @@ if (mod(flag,100) == 10 .or. mod(flag,100) == 12) then
  JMatrix2%MONGEA0(:)=ABS(JMatrix1%MONGEA0(:)+op*JMatrix3%MONGEA0(:))/op2
  JMatrix2%ZC(:,:,:)=ABS(JMatrix1%ZC(:,:,:)+op*JMatrix3%ZC(:,:,:))/op2
  JMatrix2%ZC0(:,:)=ABS(JMatrix1%ZC0(:,:)+op*JMatrix3%ZC0(:,:))/op2
+
+
 ! have to re-do min/max
  JMatrix2%SAGC0(2)=1E30   ;  JMatrix2%SAGC0(3)=-1E30
  JMatrix2%Warp0(2)=1E30   ;  JMatrix2%Warp0(3)=-1E30

@@ -552,7 +552,7 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
       // blocks!
       // Start the computation.
       paintme=false;
-      if ((flag%100) == 10){
+      if ((flag%100) == 10 || (flag%100) == 12){
           auto future1 = std::async([&]{return janus_(&flag,filename,elements3,vertices3,legend2,cardinal2,zern,&nV[2],&nE[2],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE, &err_janus);});
           future1.get();}
       else {
