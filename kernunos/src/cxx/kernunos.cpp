@@ -166,6 +166,7 @@ const unsigned int SCR_HEIGHT = 800;
 int64_t flag=500;
 int counter=0;
 char *filename;
+char *filenameout;
 char compiler_name[80];
 bool success=false;
 bool paintme = false;
@@ -854,8 +855,8 @@ void MainWindow::swap()
 
 void MainWindow::compare()
 {
-    QMessageBox msgBox(QMessageBox::Question, tr("Compare=Yes/Average=No/Cancel=Do nothing"),
-                       tr("Compare=Yes/Average=No/Cancel=Do nothing"), { }, this);
+    QMessageBox msgBox(QMessageBox::Question, tr("Compare(Yes)/Average(No)/Cancel = Do nothing"),
+                       tr("Compare = Yes  Average = No  Cancel = Do nothing"), { }, this);
     msgBox.setInformativeText(tr("The comparison/average is made with or without pupil alignment/registration " \
                                  "and then rotation counterclockwise around that center in degrees." ));
     msgBox.addButton(QMessageBox::Yes);
@@ -910,6 +911,7 @@ void MainWindow::compare()
 
     QString fileName=QString("%1").arg(degrees);  //pass the degrees with the filename
     m_GLwidget->DataLoad(fileName,true);
+    makesave2Act->setEnabled(true);
 
     if(select == 10){
 //  for now restore FROM hsbrgb
@@ -1381,7 +1383,7 @@ void MainWindow::off2stl(){
     const char *filename = filenamelocal.c_str();
     */
    QTemporaryFile FILE;
-   FILE.setAutoRemove(true);  //doesnt do anything
+   FILE.setAutoRemove(true);  //doesnt do anything that I can see
    if(!FILE.open()) return;
    QString filenamelocal = FILE.fileName();
    filenamelocal = filenamelocal.append(".off");
@@ -1391,32 +1393,60 @@ void MainWindow::off2stl(){
    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
    future1.get();
    std::string str(filenameout1);
-   bool binary = str.find(".bin.stl")!= std::string::npos;;
-//  prove the weird out of scope thing
-//   std::cout << str << " " << binary << std::endl;   //filenameout1 still here
+
+   QMessageBox msgBox(QMessageBox::Question, tr("Binary STL color"),
+                      tr("Do you want VisCam/SolidView compatible color (Yes),Materials Magic compatible color (No) or no color (Cancel)"), { }, this);
+   msgBox.setInformativeText(tr("This choice does not affect ASCII STL, which never have color information" ));
+   msgBox.addButton(QMessageBox::Yes);
+   msgBox.addButton(QMessageBox::No);
+   msgBox.addButton(QMessageBox::Cancel);
+   msgBox.setDefaultButton(QMessageBox::Yes);
    int deftype =0;
-   if(binary){
-       QMessageBox msgBox(QMessageBox::Question, tr("Binary STL color"),
-                          tr("Do you want VisCam/SolidView compatible color (Yes),Materials Magic compatible color (No) or no color (Cancel)"), { }, this);
-       msgBox.setInformativeText(tr("This choice does not affect ASCII STL, which never have color information" ));
-       msgBox.addButton(QMessageBox::Yes);
-       msgBox.addButton(QMessageBox::No);
-       msgBox.addButton(QMessageBox::Cancel);
-       msgBox.setDefaultButton(QMessageBox::Yes);
-       int reply = msgBox.exec();
-       if (reply == QMessageBox::Yes) {deftype=0;}
-       if (reply == QMessageBox::No) {deftype=1;}
-       if (reply == QMessageBox::Cancel) {deftype=2;}
+   int binary = 1;
+   QSpacerItem *horizontalspacer = new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
+   QGridLayout *layout =(QGridLayout*)msgBox.layout();
+   layout->addItem(horizontalspacer,layout->rowCount(),0,1,layout->columnCount());
+   makeoffDialogOptionsWidget = new DialogOptionsWidget;
+   makeoffDialogOptionsWidget->addCheckBox(tr("Binary"), binary);
+   layout->addWidget(makeoffDialogOptionsWidget);
+   int reply = msgBox.exec();
+   if (reply == QMessageBox::Yes) {deftype=0;}
+   if (reply == QMessageBox::No) {deftype=1;}
+   if (reply == QMessageBox::Cancel) {deftype=2;}
+
+   if (makeoffDialogOptionsWidget->value()){
+    bool binaryext = str.find(".bin.stl")!= std::string::npos;;
+    if (!binaryext){
+        ba = fileName.toLocal8Bit();
+        filenameout = ba.data();
+        std::string str2(filenameout);
+        replace(str2,".stl",".bin");
+        ConvertOFFtoSTL_C_(filename,str2.data(),&deftype);
+    }
+    else
+    {   ba = fileName.toLocal8Bit();
+        filenameout = ba.data();
+        std::string str2(filenameout);
+        ConvertOFFtoSTL_C_(filename,str2.data(),&deftype);
+    }
    }
-// had to do this because filenameout1 disappears when the above if(binary) stanza exists after defining ??!! some weird out of scope thing
-   ba = fileName.toLocal8Bit();
-   char *filenameout = ba.data();
-//   proof of above
-//   std::string str2(filenameout);
-//   std::cout << str2 << " " << deftype << std::endl;
-//   std::string str3(filenameout1);
-//   std::cout << str3 << " " << deftype << std::endl; //filenameout1 gone, unless I define filenameout!
-   ConvertOFFtoSTL_C_(filename,filenameout,&deftype);
+   else {
+    bool binaryext = str.find(".bin.stl")!= std::string::npos;;
+    if (binaryext){
+        ba = fileName.toLocal8Bit();
+        filenameout = ba.data();
+        std::string str2(filenameout);
+        replace(str2,".bin","");
+        ConvertOFFtoSTL_C_(filename,str2.data(),&deftype);
+    }
+    else
+    {   ba = fileName.toLocal8Bit();
+        filenameout = ba.data();
+        std::string str2(filenameout);
+        ConvertOFFtoSTL_C_(filename,str2.data(),&deftype);
+    }
+   }
+
    ui.infoLabel->setText(tr("Wrote  ")+tr(filenameout));
    FILE.remove();    //doesnt do anything
 }
@@ -1450,12 +1480,25 @@ void MainWindow::makeply(){
 
 void MainWindow::makesave(){
     QString filter = "SAV *.sav  (*.sav) ";
-    QString fileName = QFileDialog::getSaveFileName(this,"Write Data to an ASCII file", "", filter);
+    QString fileName = QFileDialog::getSaveFileName(this,"Write (current) Data to an ASCII file", "", filter);
     if (fileName.isEmpty())
         return;
     QByteArray ba = fileName.toLocal8Bit();
     filename = ba.data();
     flag=flag-(flag%100)+13;  // last two digits of flag=13;
+    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
+    future1.get();
+    ui.infoLabel->setText(tr("Wrote  ")+tr(filename));
+}
+
+void MainWindow::makesave2(){
+    QString filter = "SAV *.sav  (*.sav) ";
+    QString fileName = QFileDialog::getSaveFileName(this,"Write (compare or average map) Data to an ASCII file", "", filter);
+    if (fileName.isEmpty())
+        return;
+    QByteArray ba = fileName.toLocal8Bit();
+    filename = ba.data();
+    flag=flag-(flag%100)+14;  // last two digits of flag=14;
     auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
     future1.get();
     ui.infoLabel->setText(tr("Wrote  ")+tr(filename));
@@ -2580,10 +2623,15 @@ void MainWindow::createActions()
    makeplyAct->setEnabled(false);
    connect(makeplyAct, &QAction::triggered, this, &MainWindow::makeply);
 
-   makesaveAct = new QAction(tr("&Save..."), this);
-   makesaveAct->setStatusTip(tr("Write data to an ASCII file"));
+   makesaveAct = new QAction(tr("&Save Current data..."), this);
+   makesaveAct->setStatusTip(tr("Write (current) data to an ASCII file"));
    makesaveAct->setEnabled(false);
    connect(makesaveAct, &QAction::triggered, this, &MainWindow::makesave);
+
+   makesave2Act = new QAction(tr("&Save Compare/Average data..."), this);
+   makesave2Act->setStatusTip(tr("Write (compare/average) data to an ASCII file"));
+   makesave2Act->setEnabled(false);
+   connect(makesave2Act, &QAction::triggered, this, &MainWindow::makesave2);
 
    importexportAct = new QAction(tr("Export with Assimp (multiple formats)... "), this);
    importexportAct->setStatusTip(tr("Export with Assimp (multiple formats)... "));
@@ -2872,8 +2920,10 @@ void MainWindow::createMenus()
    fileMenu->addAction(openAct);
    fileMenu->addAction(testAct);
    fileMenu->addAction(makesaveAct);
+   fileMenu->addAction(makesave2Act);
    fileMenu->addAction(consistencyAct);
    fileMenu->addAction(makeLSQsplineAct);
+   fileMenu->addAction(compareAct);
    fileMenu->addAction(decenterAct);
    fileMenu->addAction(croppingAct);
    fileMenu->addAction(swapAct);
@@ -2894,7 +2944,6 @@ void MainWindow::createMenus()
    analyzeMenu->addAction(centerAct);
    analyzeMenu->addAction(ringsAct);
    analyzeMenu->addAction(gnuplotAct);
-   analyzeMenu->addAction(compareAct);
    functionMenu=menuBar()->addMenu(tr("&Function"));
    functionMenu->addAction(AxialAct);
    functionMenu->addAction(ObliqueAct);

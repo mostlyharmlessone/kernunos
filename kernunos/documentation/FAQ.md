@@ -4,13 +4,13 @@ Frequently Asked Questions, starting with the most traditional:
 
 Q: Has anyone actually asked any of these questions?
 
-A: No, though they're modeled on questions asked by people who actually use other (understandably more popular and useful) programs. Some are questions I asked along the way. They are in no particular order, but I've tentatively sorted them into General/How-to/and Coding questions.  There's also an in-program Help, which references this file as well as the README and other documentation.
+A: No, though they're modeled on questions asked by people who actually use other (understandably more popular and useful) programs. Some are questions I asked along the way. They are in no particular order, but I've tentatively sorted them into General/How-to/and Coding questions.  There's also an in-program Help, which references this file as well as the README and other documentation.  
 
 ###General questions
 
 Q: What is this program for?
 
-A: Read the README, unless your question is existential, in which case the exercise is left to the student.   Basically it is for improving intraoperability of topography machines by allowing the patient data from one topgrapher to be directly compared to data from a different topographer, as well as extending the analysis abilities of the patient data in general. It's an amateur effort, not a professional one. 
+A: Read the README. Basically it is for improving intraoperability of topography machines by allowing the patient data from one topographer to be directly compared to data from a different topographer, as well as extending the analysis abilities of the patient data in general. It's an amateur effort, not a professional one. 
 
 Q: Why is it called Kernunos?
 
@@ -22,7 +22,7 @@ A: With as few errors as possible, hopefully.  The data is imported and a smooth
 
 Q: I found a mistake with your computations! (or a bug in your program, or it crashes etc.) How do I report it?
 
-A: Congratulations and thank you for finding it and being engaged enough to want to provide valuable input. See Contributing in the README: basically, submit your request through github. If you think I'm fundamentally wrong in my whole approach or have completely misinterpreted the data, I'll be open to hearing about it.
+A: Congratulations and thank you for finding it and being engaged enough to want to provide valuable input. See Contributing in the README: basically, contact me through github. If you think I'm fundamentally wrong in my whole approach or have completely misinterpreted the data, I'll be delighted to fix it if possible. The I/O routines for opening files are not particularly robust and may have had limited testing with real world data: if you find a valid file that breaks, please let me know so I can find out why.
 
 Q: Can you add the data files for my topography machine?
 
@@ -36,11 +36,19 @@ A: Only with an in person appointment, no telemedicine provided here.
 
 Q: How do I use it?
 
-A: Use File|Open to select a file. Only five machine types are currently supported. Note that the Zeiss Atlas CSV filter is non-specific and may include non-Atlas CSV files and that for EyeSys or NIDEK files the corresponding XX,ED, PU,PE AND HDR,HT files will be read when opening an RA file, and the corresponding RA, PU,PE and HDR,HT files will be read when opening an XX or ED file.  Corresponding RA and XX or ED files must be present to read, PU,PE and HDR or HT files are optional and contain pupil data and header or elevation data respectively. Some Atlas files may contain pre-existing Zernike coefficients, which are read if present. Reading a Oculus PentaCam CUR can be done with a concurrent read of a corresponding ELE file, if present.  Oculus Keratograph files can be read as the interpolated or non interpolated versions. When applicable I have tried to support compressed versions of files as well as uncompressed versions. You can also use Test to generate a ellipsoidal curved surface mathematically to see the difference in viewing modes under ideal circumstances without the pesky limitations of real data. 
+A: Use File|Open to select a file. Only five machine types are currently supported. Note that the Zeiss Atlas CSV filter is non-specific and may include non-Atlas CSV files and that for EyeSys or NIDEK files the corresponding XX,ED, PU,PE AND HDR,HT files will be read when opening an RA file, and the corresponding RA, PU,PE and HDR,HT files will be read when opening an XX or ED file.  Corresponding RA and XX or ED files must be present to read, PU,PE and HDR or HT files are optional and contain pupil data and header or elevation data respectively. Some Atlas files may contain pre-existing Zernike coefficients, which are read if present. Reading a Oculus PentaCam CUR can be done with a concurrent read of a corresponding ELE file, if present.  Oculus Keratograph files can be read as the interpolated or non interpolated versions, and if there is a ZERNIKE file, it will be read as well. When applicable I have tried to support compressed versions of files as well as uncompressed versions.  You can also use Test to generate a ellipsoidal curved surface mathematically to see the difference in viewing modes under ideal circumstances without the pesky limitations of real data.
 
-Q: How does File|Compare work?
+Q: Are file names case sensitive? 
+
+A: YES, absolutely.  When opening a file, the extensions which are presented as UPPERCASE should be UPPERCASE.  The topography machine files found in the wild are all produced that way, sometimes on case-insensitive filesystems, and my code assumes that is the case. However, when exporting a file, the extensions are all lowercase, and the software assumes that will be the case.
+
+Q: How does File|Compare/Difference Map work?
 
 A: First you load/open a file, as above. It will initially be shown in the central frame. You then open the file to which you would like to compare it. The original will move to the left frame and the last opened file will be central. If you think the comparison would be more valid by rotating the central image, you can use the left most slider to rotate the central image to align it better with the first loaded image (now on the left). You can also move the central image over the original image using the key board A and D keys (with the S key to move the image slightly forward) if that is helpful. The horizontal slider under the image will make the overlaying image more transparent to help alignment. You then pick File|Compare from the main menu. You will be given an option to change the rotation numerically, and an option to align the images using the pupil centers if the data is present. The comparison image generated by the difference between the two surfaces will appear on the right side of the frame, using a relative value color scale in the legend on the right. Note that you probably do not want to enable spline consistency testing if planning on comparing PentaCam files since matching files will be loaded.  Note that if you want to Compare two different Zernike maps, you have to Load, Compute Zernike, then Load the second file, and Compute Zernike and THEN use Compare. Also be sure to have the Tweaks the same between Compares.  Compare does not retroactively change previous calculations, nor does it proactively compute Zernikes.
+
+Q: How does File|Average of two Maps work?
+
+A: Exactly like Compare.
 
 Q: Where's the pupil?
 
@@ -77,6 +85,9 @@ File:
 	  Test (generates a curved concave test surface)
 	  Check spline consistency (optional test on Atlas/NIDEK/Keratograph files integrating slopes and comparing with supplied elevations, optionally loads a matching PentaCam  file if it exists to compute matching elevations from slopes to elevations)
 	  Use a LSQ spline instead of linear spline for PentaCam conversion 
+	  Compare/Difference Map vs. Average of two Maps...
+		(Compares last two loaded files based on current selected function and the 	  Continuous Hue Heatmap Color Scale) These are often called "difference        maps" Note that the legend will have scientific notation added with E-2,       for example, added if the differences are small.
+		Average generates an average of the last two maps. The heatmap is not changed)
       Decenter (simulates decentering the image)
 	  		Repeat decentering of the same image may eventually lead to artefacts from rounding errors, if so, better reload the data.
 	  Crop (allows for removing peripheral data points or Squashing the data relative to    	the average, a primitive noise filter)			
@@ -96,7 +107,9 @@ File:
 
 The LSQ spline instead of linear spline for PentaCam conversion option is an attempt to compensate for the noise in PentaCam (ELE) elevation data wherein several points have, within the limits of digits supplied, identical values, leading to local flat areas.  Note that adjacent identical curvatures are not an issue, but are a feature of a smooth surface.
 
-Note that selecting "STL (ASCII or binary) format.."" will give you an option to select STL without color or two different nonstandard color schemes (VisCam/Solidworks or Materials Magic). You must save the file with extension .bin.stl in order to get the color STL format and the choice of type of color scheme.
+Average of two maps can be used as noise reduction or data augmentation if you have multiple scan of the same eye in the same clinical scenario, i.e. on the same day, or on different days when there is no anticipated significant change. As with any other data acquisition, multiple remeasurements can be used to improve precision.
+
+Note that selecting "STL (ASCII or binary) format.."" will give you an option to select STL without color or two different nonstandard color schemes (VisCam/Solidworks or Materials Magic). Only the binary STL format has (nonstandard) color options, so picking a color option has no effect if you do not check the Binary checkbox.  You have to use the checkbox to pick the binary format. If you pick a .stl file name and if you check Binary, the name will be changed to .bin.stl and be a binary STL file, and vice-versa, if you type a name with .bin.stl and do not select Binary, it will change to the name with .stl and be an ASCII stl.  Don't get cute and use uppercase STL or BIN.STL or names with stl/STL etc. in the name, the error checking is limited.  Don't confuse the name STL file with the extension .stl, or PLY (the name of the file type), with the extension .ply etc. There's also some disagreement about whether binary PLY should be identified as .ply .plyb or .bin.ply, which is what I have chosen. Some programs are better than others at using/ignoring an extension to determine a filetype. 
 
 
 Analyze: 
@@ -107,12 +120,9 @@ Principal Directions (uses gnuplot to show Principal Direction Vector Fields)
 Center Deviations (see below under Bad data)
 Show circumferential rings (see below under Bad data)		 
 Plot with GnuPlot Splot  (shows image in a pixellated gnuplot version)
-Compare/Difference Map vs. Average of two Maps...
-	(Compares last two loaded files based on current selected function and the 	  Continuous Hue Heatmap Color Scale) These are often called "difference        maps" Note that the legend will have scientific notation added with E-2,       for example, added if the differences are small.
-	Average generates an average of the last two maps. The heatmap is not changed)
 ```
 Zernike calculations are made on the basis of the anterior surface of the cornea only; i.e. they solve a least squares problem for representation of a surface decomposed into a finite number of Zernike polynomials. Understandably, they may not correspond very well to pre-supplied Zernike coefficients supplied by, for example, some Zeiss Atlas 9000 files or Oculus Keratograph files, which probably incorporate other ocular elements of the eye.  GnuPlot windows pop up separately and can be printed/exported to SVG, PDF or PNG. Principal directions are projections onto the x,y plane but computed in the tangent plane of the surface.  See [Curvature_notes.pdf] Round off errors for very spherical surfaces (or in fact using Test with a computed sphere) can lead to unpredictable directions which might have a misleading direction based on round off error.
-Average can be used as noise reduction or data augmentation if you have multiple scan of the same eye in the same clinical scenario, i.e. on the same day, or on different days when there is no anticipated significant change. As with any other data acquisition, multiple remeasurements can be used to improve precision.
+
 
 Function: (many different things to display, pick one)
 ```
@@ -192,7 +202,7 @@ A: It should be pointed out that the elevation data is supposedly primary with t
 
 Q: Why are the File Exports for format .{XXX} not read properly by program YYY?
 
-A:  Well, most of the exports are handled by assimp https://assimp-docs.readthedocs.io/en/v5.3.0/exports. For assimp exports, first, (internally) a PLY file is generated (with unreferenced vertices) and then imported by assimp, which then exports to another format (including PLY!). Assimp might be limited in its output; it is, after all, designed primarily for imports, hence the name. (Hint: it's not called assexp).. Colors are not always exported correctly, with the common message: Failed to compute tangents; need UV data in channel0. Perhaps that is because the data coming from the internal PLY file are assigned specifically to a vertex (as opposed to a face as in an OFF file), not with a texture or a material, which is more common in most applications. Perhaps assimp expects textures. If you skip assimp, Export|PLY and Export|OFF make readable files but with extra unreferenced vertices. These are harmless and can be cleaned by (e.g.) meshlab, or you can export a PLY file using assimp, which does not generate unreferenced vertices, if that's important to you.  So, there are known issues, which may improve if upstream addresses them. 
+A:  Well, most of the exports are handled by assimp https://assimp-docs.readthedocs.io/en/v5.3.0/exports. For assimp exports, first, (internally) an ASCII PLY file is generated (with unreferenced vertices) and then imported by assimp, which then exports to another format (including ASCII PLY!). Assimp might be limited in its output; it is, after all, designed primarily for imports, hence the name. (Hint: it's not called assexp).. Colors are not always exported correctly, with the common message: Failed to compute tangents; need UV data in channel0. Perhaps that is because the data coming from the internal PLY file are assigned specifically to a vertex (as opposed to a face as in an OFF file), not with a texture or a material, which is more common in most applications. Perhaps assimp expects textures. If you skip assimp, Export|PLY and Export|OFF make readable files but with extra unreferenced vertices. These are harmless and can be cleaned by (e.g.) meshlab, or you can export a PLY or an STL file using assimp, which does not generate unreferenced vertices, if that's important to you. Bear in mind though that assimp is not used for binary PLY exports, as it appears to generate output not read by meshlab and while binary STL is available from assimp, it does not include the nonstandard color options. So, there are known issues, which may improve if upstream addresses them.  
 
 Known issues at this time:
 
@@ -225,7 +235,13 @@ fstl (https://github.com/fstl-app/fstl or http://www.mattkeeter.com/projects/fst
 cloudcompare (https://www.cloudcompare.org/) apparently only reads geometric information, not colors, so not very useful for this purpose
 ```
 Verified to read PLY, OFF, STL, FBX without color, fails on assimp generated ASCII stl file.
+
 ```
+
+Q: I manually tweaked/edited my topography machine files. Why won't they Load? (this is an actual question from the author)
+
+A: Bear in mind that topography machine files typically have line terminations with Line Feed 0x0A character (aka \n) and a Carriage Return character 0x0D (aka \r).  If you manually edit a file on a Mac or Linux system, your editor may remove the Carriage Return character 0x0D (aka \r) and may cause the file to not be readable.  Files generated by the software will have the line termination determined by the OS. 
+
 
 Q: Speaking of files formats, are you DICOM compliant?
 
@@ -243,7 +259,7 @@ A:  I've made certain choices.  Yours could be different. Back end computations 
 
 Q: Why is the coding so bad/uneven? (and other coding criticisms)
 
-A: Parts of the code were written at different stages of my evolution which might make the code uneven in style. As an example, some of the file I/O is relatively straightforward, with unformatted reads of ASCII text files. However as I wrote routines for different input files, I found that the Fortran standard text file of data can unpredictably (and occasionally compiler dependent) encounter errors with data separated by semicolons or colons.  There are a number of ways to handle the situation, some of which were compiler or compiler switch dependent which I wished to avoid.  The first method I used was to call a system command to automatically replace semicolons with commas. Some are more complicated workarounds.  Later, I read some of these files as binary rather than text and reconverted the data to numerical data, avoiding the entire issue at the cost of increased complexity, or wrote a routine to replace the semicolons. Another language, such as C or C++ would have had completely different file I/O routines. Some of my code is old, either originally written in the 80's and 90's in FORTRAN 77 or K&R style C.  I've also borrowed bits and pieces of code throughout from the internet, particularly from stackoverflow. The coding therefore resembles a magpie's nest more than an organized structure with defined architecture.  
+A: Parts of the code were written at different stages of my evolution which might make the code uneven in style. As an example, some of the file I/O is relatively straightforward, with unformatted reads of ASCII text files. However as I wrote routines for different input files, I found that the Fortran standard text file of data can unpredictably (and occasionally compiler dependent) encounter errors with data separated by semicolons or colons.  There are a number of ways to handle the situation, some of which were compiler or compiler switch dependent which I wished to avoid.  The first method I used was to call a system command to automatically replace semicolons with commas. Some are more complicated workarounds.  Later, I read some of these files as binary rather than text and reconverted the data to numerical data, avoiding the entire issue at the cost of increased complexity, or wrote a routine to replace the semicolons. Another language, such as C or C++ would have had completely different file I/O routines. Some of my code is old, either originally written in the 80's and 90's in FORTRAN 77 or K&R style C.  I've also borrowed bits and pieces of code throughout from the internet, particularly from stackoverflow. The coding therefore resembles a magpie's nest more than an organized structure with defined architecture. And... C++ is like talking in my fourth language.
 
 Q: Why OpenGL and not (insert your preference here)?
 
@@ -251,23 +267,23 @@ A: OpenGL, while relatively easy for an amateur, is now, alas, being deprecated,
 
 Q: Why didn't you develop this with (insert programming environment or toolbox here)?
 
-A: So for example, why not cgal/jet-3, or libigl? Why Qt and not wxWidgets?  With any project there is a trade-off between reusability of code, documentation, language  available code is written in, licensing etc. One doesn't want to reinvent code that has already been written well and done correctly.  One also doesn't want to incorporate a very large general purpose code base with a complicated API to solve a simple problem.  At this time, the old unsupported and deprecated sparsekit.f90 is used rather than the more modern and in development Fortran "stdlib" https://stdlib.fortran-lang.org/index.html for COO/CSR types. There are trade-offs to everything. Compiled languages are used, not interpreted languages like Python (Be thankful it isn't in BASIC, or APL) because the goal is too have a standalone executable (if possible). The project's trade-offs reflect the sophistication or lack thereof of the author.  
+A: So for example, why not boost? why not cgal/jet-3? or libigl? Why Qt and not wxWidgets?  With any project there is a trade-off between reusability of code, documentation, language  available code is written in, licensing etc. One doesn't want to reinvent code that has already been written well and done correctly.  One also doesn't want to incorporate a very large general purpose code base with a complicated API to solve a simple problem.  At this time, the old unsupported and deprecated sparsekit.f90 is used rather than the more modern and in development Fortran "stdlib" https://stdlib.fortran-lang.org/index.html for COO/CSR types. There are trade-offs to everything. Compiled languages are used, not interpreted languages like Python (Be thankful it isn't in BASIC, or APL) because the goal was to have a standalone executable (if possible). The project's trade-offs reflect the sophistication or lack thereof of the author.  And... C++ is like talking in my fourth language.
 
 Q: Is this program secure and safe, written using best software practices?
 
-A: No. See the above. See the README under Usage.  However, there are no intentional exploitable defects, backdoors or malicious code, but if there were, why would you believe me telling you there aren't?  The weakest points are probably in the I/O routines being fed malformed data files causing a crash. No doubt there are memory leaks, particularly as data is passed back and forth between Fortran and C++. One of the advantages of limiting or not using third party libraries, such as a very large general purpose code base with a complicated API, imho, is that at least I don't have to worry about someone else's intentional or unintentional vulnerabilities.
+A: No. See the above. See the README under Usage.  Read the SECURITY file/disclaimer
 
-Q: Why didn't you just "vibe code" this with an AI/LLM? (This is almost actually a real question from a real person too!)
+Q: Why didn't you just "vibe code" this with an "AI"/LLM? (This is almost actually a real question from a real person too!)
 
-A: You're welcome to try that approach.  However it's not for me, see the README, notably, and I quote, "no LLM was used for any part of this project, the goal of which has been to exercise my imagination, not to outsource the effort of making things up." Also see the answer to the second question above in the FAQ.
+A: You're welcome to try that approach.  However it's not for me, see the README, notably, and I quote, "no LLM was used for any part of this project, the goal of which has been to exercise my imagination, not to outsource the effort of making things up." 
 
-Q: Did you really not use an AI/LLM for this?
+Q: Did you really not use an "AI"/LLM for this?
 
 A: Yes and that should be painfully obvious from the coding and writing style.
 
-Q: Do you accept AI/LLM contributions to your code?
+Q: Do you accept "AI"/LLM contributions to your code?
 
-A: I should be so lucky that even a bot would take an interest. Having said that, the LICENSE precludes incorporating any of this code into an LLM's sausage works, for everyone's benefit.  The LLM would have to incorporate it in order to contribute.  The, (ahem), unusual and unique coding style would probably poison its coding probabilities. Since it might well be impossible for me to detect undeclared or partial AI/LLM contributions, at this point, if a human appearing contribution presents itself, I'll look at it.
+A: I should be so lucky that even a bot would take an interest. Having said that, the LICENSE precludes incorporating any of this code into an LLM's sausage works, for everyone's benefit.  The LLM would have to incorporate it in order to contribute.  The, (ahem), unusual and unique coding style would probably poison its coding probabilities. Since it might well be impossible for me to detect undeclared or partial "AI"/LLM contributions, at this point, if a human appearing contribution presents itself, I'll look at it.
 
 Q: Why not just give topography images/data to an AI and have it tell you how they differ or not?
 

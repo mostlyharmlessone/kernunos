@@ -14,6 +14,7 @@ extern const unsigned int SCR_HEIGHT;
 
 extern int64_t flag;
 extern char *filename;
+extern char *filenameout;
 
 extern bool success;
 extern bool paintme;
@@ -157,6 +158,7 @@ private slots:
     void makeoff();
     void makeply();
     void makesave();
+    void makesave2();
     void importexport();
     void normal();
     void checkmapsflags();
@@ -271,6 +273,8 @@ private:
     QMenu *fileMenu;
     QAction *openAct;
     QAction *testAct;
+    QAction *makesaveAct;
+    QAction *makesave2Act;
     QAction *consistencyAct;
     QAction *compareAct;
     QAction *swapAct;
@@ -282,7 +286,6 @@ private:
     QAction *off2stlAct;
     QAction *makeoffAct;
     QAction *makeplyAct;
-    QAction *makesaveAct;
     QAction *importexportAct;
 
     QMenu *viewMenu;
@@ -331,6 +334,7 @@ private:
     QErrorMessage *errorMessageDialog;
     DialogOptionsWidget *compareDialogOptionsWidget;
     DialogOptionsWidget *decenterDialogOptionsWidget;
+    DialogOptionsWidget *makeoffDialogOptionsWidget;
     DialogOptionsWidget *croppingDialogOptionsWidget;
     DialogOptionsWidget *keratoDialogOptionsWidget;
 };

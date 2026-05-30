@@ -45,7 +45,7 @@
     end do
 
   write(*,*) 'input off file from kernunos: ',trim(new_path)
-  nblines=len(trim(new_path)) 
+  nblines=len(trim(new_path))
   allocate(CHARACTER(nblines) :: file_from_C)
   file_from_C=trim(new_path)
 
@@ -111,15 +111,16 @@
   allocate(CHARACTER(nblines) :: file_from_C)
   file_from_C=trim(new_path)
 
-! file_idx will be zero if .bin.stl is not in the filename, ie only ONAME with .bin.stl in it will result in a binary file
-  file_idx=index(file_from_C, ".bin.stl")
+! file_idx will be zero if .bin is not in the filename, ie only ONAME with .bin.stl or .bin in it will result in a binary file
+  file_idx=index(file_from_C, ".bin")
     
 !  Convert to ASCII or binary STL
    unitno1 = get_new_fileunit()
    if( file_idx == 0) then  ! not binary, must be ASCII
-    open(unitno1, file=trim(new_path), action="write", iostat=ierr)
+    open(unitno1, file=file_from_C, action="write", iostat=ierr)
    else
-    open(unitno1, file=trim(new_path), access='stream', status='replace', &
+    if (index(file_from_C, ".stl") == 0) file_from_C = file_from_C // ".stl"  ! convert .bin to .bin.stl
+    open(unitno1, file=file_from_C, access='stream', status='replace', &
        & action='write', iostat=io)
    endif
 

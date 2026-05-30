@@ -507,10 +507,16 @@ endif
 ! Saves an ASCII data file
 if (mod(flag,100) == 13 .or. mod(flag,100) == 14) then
  if (allocated(JMatrix%R)) then
-  if (mod(flag,100) == 13) then
-   call SaveFile(JMatrix2%R(1:N,1),JMatrix2%YPR(:,:),inputfile1)
-  else
+  if (mod(flag,100) == 13) then !save the original
    call SaveFile(JMatrix%R(1:N,1),JMatrix%YPR(:,:),inputfile1)
+  else   !save the comparison/average
+   if (allocated(JMatrix2%R) .and. loaded_files .ge. 2) then
+    call SaveFile(JMatrix2%R(1:N,1),JMatrix2%YPR(:,:),inputfile1)
+   else
+    write(*,*) 'Needs 2 files and a compare to save a compare...'
+    err_janus=14
+    return
+   endif
   endif
   write(*,*) 'Wrote data file...',inputfile1
   return

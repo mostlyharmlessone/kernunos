@@ -1,6 +1,6 @@
 FIXES
 
- added SaveFile to Save results, not yet tested or incorporated into kernunos,
+flag 13 seems to work, not 14; also the directory is weird
  flag 13 or 14 ;  needs reader to reload this version
 
 
@@ -33,6 +33,7 @@ needs testing and reread of NumRec in C to figure out how to effectively remove 
 
 ENHANCEMENTS
 
+case sensitivity
 
 in kernunos menu actions do some key bindings?
 setShortcuts(QKeySequence::UnknownKey);
