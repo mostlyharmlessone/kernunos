@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.30)
 cmake_policy(VERSION 3.30)
-project(kernunos VERSION 0.1.0 LANGUAGES C CXX Fortran)
+project(kernunos VERSION 0.2.0 LANGUAGES C CXX Fortran)
 set(CMAKE_MODULE_PATH cmake)
 include(cmake/FortranEnvironment.cmake)
 enable_language(Fortran)
@@ -10,6 +10,16 @@ enable_language(C)
 # /opt/cuda/bin/nvcc is the compiler
 #enable_language(ASM)
 
+#set(CMAKE_BUILD_TYPE RELEASE) # no debug or bounds check
+set(CMAKE_BUILD_TYPE DEBUG) #this include debugging with addition of bounds flags as specified below
+
+#set(CMAKE_SYSTEM Windows)
+set(CMAKE_SYSTEM UNIX)
+#set(CMAKE_SYSTEM APPLE)
+
+# pick a compiler, last listed is the one
+set (CMAKE_Fortran_COMPILER "ifort")
+set (CMAKE_Fortran_COMPILER "nvfortran")
 set (CMAKE_Fortran_COMPILER_ID "gfortran")
 set (CMAKE_Fortran_COMPILER "gfortran")
 set (CMAKE_C_COMPILER "gcc")
@@ -17,69 +27,10 @@ set (CMAKE_C_COMPILER "gcc")
 set (FC "gfortran")
 set (CXX "g++")
 set (CC "gcc")
-
-# toolchain-mingw64.cmake
-#set(CMAKE_SYSTEM_NAME Windows)
-#set(CMAKE_SYSTEM_PROCESSOR x86_64)
-#set(CMAKE_CROSSCOMPILING true)
-#set(CMAKE_SYSTEM_VERSION 10.0)
-
-# specify the cross compiler
-#set(CMAKE_C_COMPILER x86_64-w64-mingw32-gcc)
-#set(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++)
-#set(CMAKE_RC_COMPILER x86_64-w64-mingw32-windres)
-
-# where is the target environment
-#set(CMAKE_FIND_ROOT_PATH /usr/x86_64-w64-mingw32)
-
-# search for programs in the build host directories
-set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-# for libraries and headers in the target directories
-set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
-
-if(MINGW)
-    message(STATUS "Building with MinGW")
-else()
-    message(STATUS "Not building with MinGW")
-endif()
-
-
-
-
-if(POLICY CMP0167)
-cmake_policy(SET CMP0167 NEW)
-endif(POLICY CMP0167)
-
 set(QT_CREATOR_SKIP_MAINTENANCE_TOOL_PROVIDER on)
 set(CMAKE_CXX_STANDARD 17) # doesn't apply to win32
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
-# should read again how to manage compiler flags with Cmake
-if(CMAKE_Fortran_COMPILER MATCHES "gfortran")
-#    set(dialect "-std=f2018 -cpp -ffree-line-length-none -fall-intrinsics")  #libmath77 multiple failures with deprecated features
-     set(dialect "-std=gnu")
-     set(bounds "-fcheck=bounds")
-#     set(bounds "-fcheck=all -pedantic")
-     set(omp "-fopenmp")
-     set(NaN "-Wall -Wextra -Wimplicit-interface -g -fcheck=all -fbacktrace -ffpe-trap=invalid,zero,overflow -finit-real=snan -finit-integer=-99999999")
-#  profiling with gprof 
- #     set(-pg)    
-#  src profiling with gcov -a -b xxx.f90
-#     set(-g -coverage) 
-#     set(-Wno-deprecated-declarations)
-    set (bugcheck "-fno-strict-aliasing -fwrapv -fno-aggressive-loop-optimizations -fsanitize=undefined")
-    set(optimize "-O2 -fexternal-blas")
-endif()
-if(CMAKE_Fortran_COMPILER MATCHES "Intel")
-    set(dialect "-stand f08 -free -implicitnone")
-    set(bounds "-check bounds")
-endif()
-#  nvfortran==pgi
-if(CMAKE_Fortran_COMPILER MATCHES "nvfortran")
-#    set(dialect "-Mfreeform -Mdclchk -Mstandard -Mallocatable=03")
-#    set(bounds "-C")
-endif()
 
 # needed for qt
 set(CMAKE_AUTOMOC ON)
@@ -90,52 +41,163 @@ set(CMAKE_AUTOUIC ON)
     set(CMAKE_INCLUDE_CURRENT_DIR ON)    
 #endif
 
-#set(CMAKE_BUILD_TYPE RELEASE) # no debug or bounds check
-set(CMAKE_BUILD_TYPE DEBUG) #this include debugging with addition of bounds flags as specified below
+#link_directories(${CMAKE_SOURCE_DIR}/lib
 
-set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${dialect}")
-set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${omp}")
+if (CMAKE_SYSTEM MATCHES Windows)
+
+# toolchain-mingw64.cmake
+  set(CMAKE_SYSTEM_NAME Windows)
+  set(CMAKE_SYSTEM_PROCESSOR x86_64)
+  set(CMAKE_CROSSCOMPILING true)
+  set(CMAKE_SYSTEM_VERSION 10.0)
+
+# specify the cross compiler
+ set (CMAKE_Fortran_COMPILER "x86_64-w64-mingw32-gfortran")
+ set(CMAKE_C_COMPILER "x86_64-w64-mingw32-gcc")
+ set(CMAKE_CXX_COMPILER "x86_64-w64-mingw32-g++")
+# set(CMAKE_RC_COMPILER "x86_64-w64-mingw32-windres")
+
+# where is the target environment
+  set(CMAKE_FIND_ROOT_PATH /usr/x86_64-w64-mingw32)
+
+# STATIC stuff (Windows)
+  set(BUILD_FOR_WIN TRUE)
+  option(STATIC_BUILD "Build a static binary." ${BUILD_FOR_WIN})
+
+  if (STATIC_BUILD)
+          set(CMAKE_EXE_LINKER_FLAGS "-static")
+          set(CMAKE_FIND_LIBRARY_SUFFIXES ".a" CONFIG)
+          set(BUILD_SHARED_LIBS OFF)
+  endif()
+  if (STATIC_BUILD AND ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+          # include plugins into static build on windows
+          # (we lack support for static on other platforms right now)
+          set(QT_PLUGINS SvgIcon WindowsIntegration WindowsVistaStyle)
+  endif()
+
+endif()
+
+if(CMAKE_HOST_SYSTEM MATCHES Linux)
+   message(STATUS "Build host runs Linux")
+endif()
+
+if(APPLE)
+  find_package(Freetype REQUIRED)
+  message(STATUS "Found Freetype in ${FREETYPE_INCLUDE_DIRS}")
+endif(APPLE)
+
+if(CMAKE_SYSTEM MATCHES Windows)
+   message(STATUS "Target system is Windows")
+endif()
+
+# from learnopengl: attempt to make buildable apple/win32 too
+if(WIN32)
+  set(LIBS glfw3 opengl32 freetype irrKlang)
+  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+elseif(UNIX AND NOT APPLE)
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
+# find_package(OpenGL REQUIRED)
+  if ( OPENGL_FOUND )
+  message(STATUS "OPENGL found at ${OPENGL_LIBRARIES}")   
+  add_definitions(${OPENGL_DEFINITIONS})
+ endif()
+#  find_package(X11 REQUIRED)
+  set(LIBS ${GLFW3_LIBRARY} X11 Xrandr Xinerama Xi Xxf86vm Xcursor GL dl pthread freetype )
+  set (CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} -ldl")
+elseif(APPLE)
+  INCLUDE_DIRECTORIES(/System/Library/Frameworks)
+  FIND_LIBRARY(COCOA_LIBRARY Cocoa)
+  FIND_LIBRARY(OpenGL_LIBRARY OpenGL)
+  FIND_LIBRARY(IOKit_LIBRARY IOKit)
+  FIND_LIBRARY(CoreVideo_LIBRARY CoreVideo)
+  MARK_AS_ADVANCED(COCOA_LIBRARY OpenGL_LIBRARY)
+  SET(APPLE_LIBS ${COCOA_LIBRARY} ${IOKit_LIBRARY} ${OpenGL_LIBRARY} ${CoreVideo_LIBRARY})
+  SET(APPLE_LIBS ${APPLE_LIBS} ${GLFW3_LIBRARY} ${FREETYPE_LIBRARIES})
+  set(LIBS ${LIBS} ${APPLE_LIBS})
+else()
+  set(LIBS )
+endif(WIN32)
+
+
+if(CMAKE_Fortran_COMPILER MATCHES "gfortran")
+    set(FC "gfortran")
+    set(dialect "-ffree-form -std=f2008 -fexternal-blas -fno-optimize-sibling-calls") 
+    set(bounds "-Wall -Wextra -Wimplicit-interface -fcheck=all -fbacktrace -fbounds-check -g")
+    set(omp "-fopenmp")
+    set(NaN "-ffpe-trap=invalid,zero,overflow -finit-real=snan -finit-integer=-99999999")
+#  profiling with gprof 
+    set(profile "-pg -g -coverage")
+    set(optimize "-O3 -march=native -ffast-math -funroll-loops")    
+endif()
+if(CMAKE_Fortran_COMPILER MATCHES "ifort")
+    set(FC "ifort")
+    set(dialect "-stand f08 -free -implicitnone")
+    set(type "-shared-intel")
+    set(bounds "-check bounds")
+    set(omp "-qopenmp")   
+endif()
+#  nvfortran==pgi
+if(CMAKE_Fortran_COMPILER MATCHES "nvfortran")
+    set(FC "nvfortran")
+    set(dialect "-Mfreeform -Mdclchk -Mstandard -Mallocatable=03")
+    set(bounds "-Mbounds -g")
+    set(omp "-mp")    
+endif()
 
 set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${bounds}")
+set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${dialect}")
+set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} ${dialect}")
+set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} ${optimize}")
+set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${omp}")
+set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} ${omp}")
+set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${profile}")
 set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${NaN}")
-#set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${bugcheck}")
-
-#set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} ${optimize}")
-set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} ${bounds}")
-set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} ${NaN}")
+set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${type}")
 
 set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_DEBUG_MODE 0) #set to 1 to show dependencies
 
-set (CMAKE_PREFIX_PATH "/usr/local/lib")
+set (CMAKE_PREFIX_PATH "/usr/local")
 
 list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 
-if(WIN32)
-	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
-endif(WIN32)
-
-# STATIC stuff (Windows)
-set(BUILD_FOR_WIN FALSE)
+# Manually set cross-compiled static libraries; I couldn't get find_package to work
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-        set(BUILD_FOR_WIN TRUE)
-endif()
-option(STATIC_BUILD "Build a static binary." ${BUILD_FOR_WIN})
+  set(BLAS_LIBRARIES "/usr/x86_64-w64-mingw32/lib/libblas.a")
+  set(BLAS_FOUND TRUE)
+  set(LAPACK_LIBRARIES "/usr/x86_64-w64-mingw32/lib/liblapack.a")
+  set(LAPACK_FOUND TRUE)
+  set(OpenMP_LIBRARIES "/usr/x86_64-w64-mingw32/lib/libgomp.a;/usr/x86_64-w64-mingw32/lib/libpthread.a")
+  set(OpenMP_Fortran_FLAGS "-fopenmp")
+  set(OpenMP_Fortran_LIB_NAMES "/usr/x86_64-w64-mingw32/lib/libgomp.a;/usr/x86_64-w64-mingw32/lib/libpthread.a")
+  set(OpenMP_Fortran_FOUND TRUE)
+else()    							#Start Now Windows
+  find_package(BLAS)
+  if (BLAS_FOUND )
+   message(STATUS "BLAS found at ${BLAS_LIBRARIES}")
+  else()
+   set(BLAS_LIBRARIES "/usr/lib/libblas.so")
+  endif()
+  find_package(LAPACK)
+  if (LAPACK_FOUND)
+   message(STATUS "LAPACK found at ${LAPACK_LIBRARIES}")
+  else()
+   set(LAPACK_LIBRARIES "/usr/lib/liblapack.so")
+  endif()
+  find_package(OpenMP)
+  if (OpenMP_FOUND)
+   message(STATUS "OpenMP_CXX found at ${OpenMP_CXX_LIBRARIES}")
+   message(STATUS "OpenMP_C found at ${OpenMP_C_LIBRARIES}")
+   message(STATUS "OpenMP_Fortran found at ${OpenMP_Fortran_LIBRARIES}")
+   message(STATUS "OpenMP_CXX_FLAGS found at ${OpenMP_CXX_FLAGS}")
+   message(STATUS "OpenMP_C_FLAGS found at ${OpenMP_C_FLAGS}")
+   message(STATUS "OpenMP_Fortran_FLAGS found at ${OpenMP_Fortran_FLAGS}")
+  else()
+    set(OpenMP_LIBRARIES "/usr/lib/libgomp.so; /usr/lib/libpthread.a")
+  endif()
 
-if (STATIC_BUILD)
-        set(CMAKE_EXE_LINKER_FLAGS "-static")
-        set(CMAKE_FIND_LIBRARY_SUFFIXES ".a" CONFIG)
-        set(BUILD_SHARED_LIBS OFF)
-endif()
-
-if (STATIC_BUILD AND ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-        # include plugins into static build on windows
-        # (we lack support for static on other platforms right now)
-        set(QT_PLUGINS SvgIcon WindowsIntegration WindowsVistaStyle)
-endif()
-
-link_directories(${CMAKE_SOURCE_DIR}/lib)
 
 # find the required packages
 #find_package(GLM REQUIRED)
@@ -164,10 +226,7 @@ link_directories(${CMAKE_SOURCE_DIR}/lib)
 
 # Qt
 set(QT_CREATOR_SKIP_MAINTENANCE_TOOL_PROVIDER ON)
-#SET(Qt5_DIR "/usr/lib/x86_64-linux-gnu/qt5")
 SET(Qt6_DIR "/usr/lib/x86_64-linux-gnu/qt6")
-#find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets OpenGL)
-#find_package(Qt6 REQUIRED COMPONENTS Core Gui Charts OpenGLWidgets OpenGL Widgets LinguistTools)
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core Gui Charts OpenGLWidgets OpenGL Widgets LinguistTools)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Charts OpenGLWidgets OpenGL Widgets LinguistTools 3DCore 3DExtras Pdf PdfWidgets)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Concurrent REQUIRED)
@@ -198,18 +257,7 @@ find_package (PkgConfig REQUIRED)
 
 find_library(GFORTRAN_LIBRARY NAMES gfortran)  # trying to fix ISO_Fortran_binding.h not found error, doesn't solve it, might be Intel compiler only
 ADD_COMPILE_DEFINITIONS(ASSIMP_VERSION="${ASSIMP_VERSION}")
-find_package(BLAS QUIET)
- if ( BLAS_FOUND )
-  message(STATUS "BLAS found at ${BLAS_LIBRARIES}")
- else()
-  set(BLAS_LIBRARIES "/usr/lib/libblas.so")
- endif()
-find_package(LAPACK QUIET)
- if ( LAPACK_FOUND )
-  message(STATUS "LAPACK found at ${LAPACK_LIBRARIES}")
- else()
-  set(LAPACK_LIBRARIES "/usr/lib/liblapack.so.3")
- endif()
+
 find_package(SuperLU)
  if ( SUPERLU_FOUND )
   message(STATUS "SUPERLU found at ${SUPERLU_LIBRARIES}")   
@@ -228,41 +276,14 @@ if(CUDAToolkit_FOUND)
     message("CUDA compiler: ${CUDAToolkit_NVCC_EXECUTABLE}")
     message("CUDA version: ${CUDAToolkit_VERSION}")
 endif()
-find_package(OpenMP)
+
 #  boost, needed for gnuplot-iostream NOT system, edited also CmakeLists.txt in gnuplot-iostreams
 find_package(Boost REQUIRED COMPONENTS iostreams filesystem)
-# from learnopengl: attempt to make buildable apple/win32 too
-if(APPLE)
-  find_package(Freetype REQUIRED)
-  message(STATUS "Found Freetype in ${FREETYPE_INCLUDE_DIRS}")
-endif(APPLE)
-if(WIN32)
-  set(LIBS glfw3 opengl32 freetype irrKlang)
-  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-elseif(UNIX AND NOT APPLE)
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
- find_package(OpenGL REQUIRED)
-  if ( OPENGL_FOUND )
-  message(STATUS "OPENGL found at ${OPENGL_LIBRARIES}")   
-  add_definitions(${OPENGL_DEFINITIONS})
- endif()
-  find_package(X11 REQUIRED)
-  set(LIBS ${GLFW3_LIBRARY} X11 Xrandr Xinerama Xi Xxf86vm Xcursor GL dl pthread freetype )
-  set (CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} -ldl")
-elseif(APPLE)
-  INCLUDE_DIRECTORIES(/System/Library/Frameworks)
-  FIND_LIBRARY(COCOA_LIBRARY Cocoa)
-  FIND_LIBRARY(OpenGL_LIBRARY OpenGL)
-  FIND_LIBRARY(IOKit_LIBRARY IOKit)
-  FIND_LIBRARY(CoreVideo_LIBRARY CoreVideo)
-  MARK_AS_ADVANCED(COCOA_LIBRARY OpenGL_LIBRARY)
-  SET(APPLE_LIBS ${COCOA_LIBRARY} ${IOKit_LIBRARY} ${OpenGL_LIBRARY} ${CoreVideo_LIBRARY})
-  SET(APPLE_LIBS ${APPLE_LIBS} ${GLFW3_LIBRARY} ${FREETYPE_LIBRARIES})
-  set(LIBS ${LIBS} ${APPLE_LIBS})
-else()
-  set(LIBS )
-endif(WIN32)
 
+
+endif()  								# End not Windows
+
+# Compile.
 
 #viennaCL
 # ViennaCL example
@@ -279,8 +300,6 @@ endif(WIN32)
 # Add a CUDA executable
 #    add_executable(dense-blas-bench-cuda src/cxx/vienna/dense_blas.cu)
 #    target_link_libraries(dense-blas-bench-cuda INTERFACE CUDAToolkit::cudart)
-
-# Compile.
 
 #   PLY conversion from  https://w3.impa.br/~diego/software/rply/
 #                        https://github.com/diegonehab/rply
@@ -301,13 +320,11 @@ endif(WIN32)
 
 #   Fortran Source
 
-#    file(GLOB_RECURSE math77_lib     math77/src/MATH77/*.f)
     file(GLOB_RECURSE lib_sources90  src/src90/*.f90 src/src90/*.f90*.for)
     file(GLOB_RECURSE mod_sources90  src/mod90/*.f90
                                      src/HansonHopkins/set_precision.f90
                                      src/HansonHopkins/LapackInterface.f90)
 
-#add_library( libmath77 ${math77_lib})
 
 # external libraries
     set(LIBS ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${SUPERLU_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} freetype ${GFORTRAN_LIBRARY})
@@ -391,7 +408,6 @@ set(sparse_sources
 
 add_library( rply_includes ${rply_sources})
 add_library( modules ${mod_sources90} ${interface})
-#add_library( splia ${lib_sources90} ${math77_lib} ${interface})
 add_library( splia ${lib_sources90} ${interface})
 
 set(PROJECT_SOURCES
@@ -405,7 +421,6 @@ set(PROJECT_SOURCES
                    src/cxx/kernunos.cpp src/cxx/kernunos.h
                    src/cxx/GLwidget.cpp src/cxx/GLwidget.h
                    src/cxx/assistant.cpp src/cxx/assistant.h
- #                  src/cxx/shader_utils.cpp src/cxx/shader_utils.h
                    src/cxx/gnuplot_lioc.cpp
                    src/cxx/gnuplot_load.cpp
                    src/cxx/mainwindow.ui

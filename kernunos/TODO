@@ -1,6 +1,6 @@
 FIXES
 
-flag 13 seems to work, not 14; also the directory is weird
+
  flag 13 or 14 ;  needs reader to reload this version
 
 
@@ -34,6 +34,8 @@ needs testing and reread of NumRec in C to figure out how to effectively remove 
 ENHANCEMENTS
 
 case sensitivity
+
+passing functions: style book p.35
 
 in kernunos menu actions do some key bindings?
 setShortcuts(QKeySequence::UnknownKey);

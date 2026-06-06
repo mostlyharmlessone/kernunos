@@ -113,6 +113,7 @@ MODULE io_functions
     SUBROUTINE rcnvrtV(read_error,RANAME,XXNAME)
     ! VISIA VERSION
      USE set_precision, ONLY : wp
+     USE cornea_arrays, ONLY : EyeSys
      CHARACTER(len=*), INTENT(IN) :: RANAME,XXNAME
      INTEGER, INTENT(OUT) :: read_error
     END SUBROUTINE
@@ -120,6 +121,13 @@ MODULE io_functions
     SUBROUTINE SaveFile(a,b,KXNAME)
      USE set_precision, ONLY : wp
      REAL(wp),INTENT(IN) :: a(:), b(:,:)
+     CHARACTER(len=*), INTENT(IN) :: KXNAME
+    END SUBROUTINE
+
+    SUBROUTINE ReadFile(read_error,KXNAME)
+     USE set_precision, ONLY : wp
+     USE cornea_arrays, ONLY : EyeSys
+     INTEGER, INTENT(OUT) :: read_error
      CHARACTER(len=*), INTENT(IN) :: KXNAME
     END SUBROUTINE
 
@@ -1913,6 +1921,23 @@ SUBROUTINE rcnvrte(read_error,RANAME,XXNAME,PUNAME,HXNAME)
     return
    endif
 END SUBROUTINE rcnvrte
+
+SUBROUTINE ReadFile(read_error,KXNAME)
+USE io_functions, ONLY : get_new_fileunit
+USE set_precision, ONLY : wp
+USE cornea_arrays, ONLY : EyeSys
+USE special_fct, ONLY : replacestr
+IMPLICIT NONE
+LOGICAL :: exists
+CHARACTER(len=*), INTENT(IN) :: KXNAME
+CHARACTER(1000) header
+INTEGER :: file_idx1,file_idx2,readerr
+INTEGER, INTENT(OUT) :: read_error
+REAL(wp) :: ZX(22),YX(22)
+INTEGER :: I,J,ITH,unitno1,unitno2,MM,N,ierr
+MM=180
+N=22
+END SUBROUTINE
 
 SUBROUTINE rcnvrtV(read_error,RANAME,XXNAME)
 ! VISIA VERSION

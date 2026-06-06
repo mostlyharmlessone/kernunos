@@ -508,10 +508,10 @@ endif
 if (mod(flag,100) == 13 .or. mod(flag,100) == 14) then
  if (allocated(JMatrix%R)) then
   if (mod(flag,100) == 13) then !save the original
-   call SaveFile(JMatrix%R(1:N,1),JMatrix%YPR(:,:),inputfile1)
+   call SaveFile(JMatrix%R(1:N1,1),JMatrix%YPR(:,:),inputfile1)
   else   !save the comparison/average
    if (allocated(JMatrix2%R) .and. loaded_files .ge. 2) then
-    call SaveFile(JMatrix2%R(1:N,1),JMatrix2%YPR(:,:),inputfile1)
+    call SaveFile(JMatrix2%R(1:N1,1),JMatrix2%YPR(:,:),inputfile1)
    else
     write(*,*) 'Needs 2 files and a compare to save a compare...'
     err_janus=14
@@ -763,6 +763,7 @@ if (mod(flag,100) == 10 .or. mod(flag,100) == 12) then
      JMatrix2%MV(i)=min(JMatrix%MV(j),JMatrix1%MV(i))
      op = -1
      JMatrix2%Z(:,i)=ABS(JMatrix1%Z(:,i)-JMatrix3%Z(:,j))
+     JMatrix2%YPR(:,i)=JMatrix1%YPR(:,i)-JMatrix3%YPR(:,j)
      JMatrix2%SAGC(:,i)=ABS(JMatrix1%SAGC(:,i)-JMatrix3%SAGC(:,j))
      JMatrix2%Warp(:,i)=ABS(JMatrix1%Warp(:,i)-JMatrix3%Warp(:,j))
      JMatrix2%INSTC(:,i)=ABS(JMatrix1%INSTC(:,i)-JMatrix3%INSTC(:,j))
@@ -779,14 +780,15 @@ if (mod(flag,100) == 10 .or. mod(flag,100) == 12) then
       else
        op2 = 1
       endif
-      JMatrix2%Z(k,i)=ABS(JMatrix1%Z(k,i)+JMatrix3%Z(k,j))/op2
-      JMatrix2%SAGC(k,i)=ABS(JMatrix1%SAGC(k,i)+JMatrix3%SAGC(k,j))/op2
-      JMatrix2%Warp(k,i)=ABS(JMatrix1%Warp(k,i)+JMatrix3%Warp(k,j))/op2
-      JMatrix2%INSTC(k,i)=ABS(JMatrix1%INSTC(k,i)+JMatrix3%INSTC(k,j))/op2
-      JMatrix2%GAUSSC(k,i)=ABS(JMatrix1%GAUSSC(k,i)+JMatrix3%GAUSSC(k,j))/op2
-      JMatrix2%MEANC(k,i)=ABS(JMatrix1%MEANC(k,i)+JMatrix3%MEANC(k,j))/op2
-      JMatrix2%MONGEA(k,i)=ABS(JMatrix1%MONGEA(k,i)+JMatrix3%MONGEA(k,j))/op2
-      JMatrix2%ZC(k,i,:)=ABS(JMatrix1%ZC(k,i,:)+JMatrix3%ZC(k,j,:))/op2
+      JMatrix2%Z(k,i)=(JMatrix1%Z(k,i)+JMatrix3%Z(k,j))/op2
+      JMatrix2%YPR(k,i)=(JMatrix1%YPR(k,i)+JMatrix3%YPR(k,j))/op2
+      JMatrix2%SAGC(k,i)=(JMatrix1%SAGC(k,i)+JMatrix3%SAGC(k,j))/op2
+      JMatrix2%Warp(k,i)=(JMatrix1%Warp(k,i)+JMatrix3%Warp(k,j))/op2
+      JMatrix2%INSTC(k,i)=(JMatrix1%INSTC(k,i)+JMatrix3%INSTC(k,j))/op2
+      JMatrix2%GAUSSC(k,i)=(JMatrix1%GAUSSC(k,i)+JMatrix3%GAUSSC(k,j))/op2
+      JMatrix2%MEANC(k,i)=(JMatrix1%MEANC(k,i)+JMatrix3%MEANC(k,j))/op2
+      JMatrix2%MONGEA(k,i)=(JMatrix1%MONGEA(k,i)+JMatrix3%MONGEA(k,j))/op2
+      JMatrix2%ZC(k,i,:)=(JMatrix1%ZC(k,i,:)+JMatrix3%ZC(k,j,:))/op2
      end do
      op2 = 2  ! for centers below
     endif
@@ -860,7 +862,7 @@ if (mod(flag,100) == 10 .or. mod(flag,100) == 12) then
   return
  else
   write(*,*) "Needs two scans for compare or average"
-  err_janus=10
+  err_janus=mod(flag,100)
   return
  endif
 endif
