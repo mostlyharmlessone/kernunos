@@ -1,8 +1,10 @@
 FIXES
 
+qt6 pdf issue under mingw64; flatpak or QtInstaller?, or C-preprocessor comment out in code for windows version
+might make non-superlu windows version too, or build libsuperlu.a only for cross-compile but not Windows build
+possibly use MSYS2 under Windows
 
- flag 13 or 14 ;  needs reader to reload this version
-
+working on sav/read; might need to write an EyeSys format
 
 update FAQ, pictures, redo Help qhsc etc.
 
@@ -37,13 +39,22 @@ case sensitivity
 
 passing functions: style book p.35
 
-in kernunos menu actions do some key bindings?
-setShortcuts(QKeySequence::UnknownKey);
+change in code and document in FAQ
+logstd.log: program error msgs
+logerr.log: system error msgs/crashes
+kernunos.log: non-error messages, add date/timestamps if possible
+in-app messages, limited to kenunos.cpp/frontend, trim to maintain filename
 
 ability to turn stdoutput logging on/off
 move some fprintf/printf/write to LogC 
 ?addcomments():
 errorMessageDialog
+
+Cmake:
+add icon (did on cyclic-banded)
+cmake for Windows/MacOS (did Windows in cyclic-banded)
+
+clean up capitalization, name issues, comments, style
 
 enable the tweaks prior to loading the file? but not with auto redraw
 
@@ -65,10 +76,12 @@ PentaCam U12 file looks like it has binary data separated by blocks of zero, pos
 
 OPTIMIZING
 
-clean up capitalization, name issues, comments, style
-
 valgrind/profiling 
+Use valgrind in Qt
 valgrind --tool=memcheck --log-file=memcheck00.txt --leak-check=full --read-var-info=yes ./kernunos  shows a lot of leaks but with no interaction
+
+profiling -g flag doesn't work for H&H codes, link errors
+try script with loadfile or juno alternative profiling janus alone, can also do loadfile with program exit after janus call; might work scripts of multiple loadfile calls
 
 Cachegrind, Callgrind and Massif are useful to figure out where the bottlenecks in the application lie, and where one should focus any optimization efforts.
 

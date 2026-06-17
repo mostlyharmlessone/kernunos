@@ -51,26 +51,26 @@
 !        Not part of LAPACK, part of /http://netlib.org/math
 !        Copyright (c) 1996 California Institute of Technology, Pasadena, CA. ALL RIGHTS RESERVED.
 
-         SUBROUTINE DC2FIT(XI,YI,SDI,NXY,B,NB,W,NW,YKNOT,YPKNOT,SIGFAC, IERR1)
-!        Based on Government Sponsored Research NAS7-03001.
-!        >> 2000-12-01 DC2FIT Krogh  Dim. SDI(*) instead NXY.
-!        >> 1995-11-21 DC2FIT Krogh  Converted from SFTRAN to Fortran 77.
-!        >> 1994-10-19 DC2FIT Krogh  Changes to use M77CON
-!        >> 1994-01-31 DC2FIT CLL Added test for SDI(i) .le. 0 when SDI(1) > 0.
-!        >> 1990-01-23 CLL Deleted ref to unused variable NX in call to IERM1
-!        >> 1989-10-20 CLL
-!        >> 1987-10-22 DC2FIT Lawson  Initial code.
-!           Least squares fit to discrete data by a C-2 cubic spline.
-!        Algorithm and program designed by C.L.Lawson and R.J.Hanson.
-!        The general approach but not the complete code is given in
-!        'SOLVING LEAST SQUARES PROBLEMS', by Lawson and Hanson, Prentice-Hall, 1974.
-!        Programming and later changes and corrections by Lawson,Hanson,
-!        T.Lang, and D.Campbell, Sept 1968, Nov 1969, and Aug 1970.
-          INTEGER IERR1, NW, NXY, NB
-          DOUBLE PRECISION XI(NXY), YI(NXY), SDI(*), B(NB), W(NW, 5)
-          DOUBLE PRECISION YKNOT(NB), YPKNOT(NB)
-          DOUBLE PRECISION SIGFAC
-         END SUBROUTINE DC2FIT
+!         SUBROUTINE DC2FIT(XI,YI,SDI,NXY,B,NB,W,NW,YKNOT,YPKNOT,SIGFAC, IERR1)
+!!        Based on Government Sponsored Research NAS7-03001.
+!!        >> 2000-12-01 DC2FIT Krogh  Dim. SDI(*) instead NXY.
+!!        >> 1995-11-21 DC2FIT Krogh  Converted from SFTRAN to Fortran 77.
+!!        >> 1994-10-19 DC2FIT Krogh  Changes to use M77CON
+!!        >> 1994-01-31 DC2FIT CLL Added test for SDI(i) .le. 0 when SDI(1) > 0.
+!!        >> 1990-01-23 CLL Deleted ref to unused variable NX in call to IERM1
+!!        >> 1989-10-20 CLL
+!!        >> 1987-10-22 DC2FIT Lawson  Initial code.
+!!           Least squares fit to discrete data by a C-2 cubic spline.
+!!        Algorithm and program designed by C.L.Lawson and R.J.Hanson.
+!!        The general approach but not the complete code is given in
+!!        'SOLVING LEAST SQUARES PROBLEMS', by Lawson and Hanson, Prentice-Hall, 1974.
+!!        Programming and later changes and corrections by Lawson,Hanson,
+!!        T.Lang, and D.Campbell, Sept 1968, Nov 1969, and Aug 1970.
+!          INTEGER IERR1, NW, NXY, NB
+!          DOUBLE PRECISION XI(NXY), YI(NXY), SDI(*), B(NB), W(NW, 5)
+!          DOUBLE PRECISION YKNOT(NB), YPKNOT(NB)
+!          DOUBLE PRECISION SIGFAC
+!         END SUBROUTINE DC2FIT
 
 !        These are part of LAPACK
 !        LAPACK driver routine (version 3.7.0) --

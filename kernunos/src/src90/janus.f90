@@ -15,7 +15,7 @@
   IMPLICIT NONE
   INTEGER :: i, j, k, ii, kk, m, nn, i1, j1, ierr, info, nrhs
   INTEGER,save :: MM, N ,M1, N1, Power_Rings_Count, loaded_files, crop
-  INTEGER,save :: TestData             ! TestData: -1=test, 0=EyeSys, 1=Atlas, (2-5)=Penta, 6=Nidek, 7=Keratograph
+  INTEGER,save :: TestData             ! TestData: -1=test, 0=EyeSys, 1=Atlas, (2-5)=Penta, 6=Nidek, 7=Keratograph, 8=Saved file
   INTEGER,save :: NP                   ! PentaCam=141
   INTEGER :: unitno1
   CHARACTER(c_char), INTENT(IN), DIMENSION(4096) :: file_from_C
@@ -508,10 +508,10 @@ endif
 if (mod(flag,100) == 13 .or. mod(flag,100) == 14) then
  if (allocated(JMatrix%R)) then
   if (mod(flag,100) == 13) then !save the original
-   call SaveFile(JMatrix%R(1:N1,1),JMatrix%YPR(:,:),inputfile1)
+   call SaveFile(JMatrix,inputfile1)
   else   !save the comparison/average
    if (allocated(JMatrix2%R) .and. loaded_files .ge. 2) then
-    call SaveFile(JMatrix2%R(1:N1,1),JMatrix2%YPR(:,:),inputfile1)
+    call SaveFile(JMatrix2,inputfile1)
    else
     write(*,*) 'Needs 2 files and a compare to save a compare...'
     err_janus=14
@@ -877,6 +877,7 @@ endif
 ! TestData 5 Oculus PentaCam _ELE.CSV file
 ! TestData 6 NIDEK
 ! TestData 7 Oculus Keratograph 5M
+! Testdata 8 Saved file
 if (mod(flag,100) == 0) then
  call CCounter(0,inputfile1//c_null_char)
 ! For EyeSys either RA?.? or XX?.?, set inputfile1 to the XX version, inputfile2 to the RA version, inputfile3 to the PU version,
@@ -894,8 +895,18 @@ if (mod(flag,100) == 0) then
         if( file_idx == 0) then
          file_idx=index(inputfile1, ".OD")+index(inputfile1, ".OS")+index(inputfile1, "EXP_Topo")
          if( file_idx == 0) then
-         write(*,*) 'Unknown file type: make some test data, flag = ',flag
-         TestData=-1; MM=360; N=16 ; NP=141
+          file_idx=index(inputfile1, ".sav")
+          if (file_idx /= 0) then
+           write(*,*) "Saved file: ",inputfile1
+           inquire(file=trim(inputfile1), exist=exists)
+           if(exists) then
+            write(*,*) "Saved file found"
+            TestData=8; MM=180; N=22 ; NP=141
+           endif
+          else
+           write(*,*) 'Unknown file type: make some test data, flag = ',flag
+           TestData=-1; MM=360; N=16 ; NP=141
+          endif
          else
          TestData=7; MM=100; N=60 ; NP=141
           file_idx=index(inputfile1, "EXP_Topo")
@@ -1248,6 +1259,8 @@ if (mod(flag,100) == 0) then
 !    write(*,*)  "TestData,MM,N",TestData,MM,N
  endif ! (mod(flag,100) == 0) parsing the file name,assigning TestData type and MM,N
 
+
+
 if (TestData .eq. 0) then
  MM=360 ; N=16 ! EyeSys if file not read; should not be necessary as should agree with previous value.
 
@@ -1301,11 +1314,51 @@ if (TestData .eq. 0) then
    call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
   endif
 ! Generate the slope matrix
-
   RadSlope=EyeSys
+
+! VISIA version
 !  call RadSlope_eq_Visia(RadSlope,EyeSys)
 
 endif
+
+if (TestData .eq. 8) then
+ if (mod(flag,100) == 0) then !read the files
+! READ THE Saved DATA using EyeSys
+  call CPU_TIME(time_start)
+  MM=180; N=22
+  read_error=0
+  if(.not.allocated(EyeSys%RA)) then
+   call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
+  else
+   EyeSys = 0
+   call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
+  endif
+  inquire(file=trim(inputfile1), exist=exists)
+  if(exists) then
+   call ReadFile(read_error,inputfile1)
+  else
+   write(*,*) "Error finding saved file",inputfile1
+   EyeSys = 0
+   return
+  endif
+  if (read_error /= 0) then
+   write(*,*) "Error reading saved file",inputfile1
+   RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
+   return
+   else
+    if (allocated(RadSlope%r)) then
+     RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
+     call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
+    else
+     call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
+    endif
+ !  Generate the slope matrix
+    RadSlope=EyeSys
+    EyeSys = 0
+  endif
+ endif ! mod(flag,100) == 0)
+endif ! end (TestData == 8)
+
 
 if (TestData .eq. 7) then
  if (mod(flag,100) == 0) then !read the files

@@ -386,7 +386,7 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
 {
    ui.infoLabel->setText(tr("Invoked <b>File|Open</b>"));
    flag=flag-(flag%100)+0;  // last two digits of flag=0; need to reset this
-   QString filter = "Topography files (*.CUR *.ELE *_CUR.CSV *_ELE.CSV RA*.* XX*.* ED*.* *OD.CSV *OS.CSV *.OD *.OS *.zip) ;; PentaCam (*.CUR *.ELE *_CUR.CSV *_ELE.CSV);; Keratograph (*.OS *.OD *.zip);; EyeSys (XX*.*);;Nidek (ED*.*);;Atlas (*OD.CSV *OS.CSV);;EyeSys/Nidek (RA*.* ED*.* XX*.*);;All (*)";
+   QString filter = "Topography files (*.CUR *.ELE *_CUR.CSV *_ELE.CSV RA*.* XX*.* ED*.* *OD.CSV *OS.CSV *.OD *.OS *.zip *.sav) ;; Saved Files (*.sav) ;; PentaCam (*.CUR *.ELE *_CUR.CSV *_ELE.CSV);; Keratograph (*.OS *.OD *.zip);; EyeSys (XX*.*);;Nidek (ED*.*);;Atlas (*OD.CSV *OS.CSV);;EyeSys/Nidek (RA*.* ED*.* XX*.*);;All (*)";
    QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
    if (fileName.isEmpty())
        return;
@@ -397,7 +397,8 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
    pentacam =  str.find(".CUR")!= std::string::npos || str.find(".ELE") != std::string::npos ||
                    str.find("_CUR")!= std::string::npos || str.find("_ELE") != std::string::npos;
    bool atlas = (str.find("OD.CSV")!= std::string::npos) || (str.find("OS.CSV")!= std::string::npos && !pentacam); //OD.CSV OS.CSV but not _ELE.CSV and _CUR.CSV ->atlas
-   bool eyesys= false;               //if substituting XX for RA or RA for XX results in an openable file, then probably EyeSys
+   bool eyesys = false;               //if substituting XX for RA or RA for XX results in an openable file, then probably EyeSys
+   bool saved = (str.find(".sav")!= std::string::npos);
    std::string str2(filename);
    if(replace(str2,"RA","XX")) {
        if(FILE *file = fopen(str2.c_str(),"r")) {
@@ -470,7 +471,7 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
            if(FILE *file = fopen(str3.c_str(),"r")) {
                fclose(file); nidek = true;
            }}};
-   if (!pentacam && !atlas && !eyesys && !nidek && !kerato) return;   //no supported file format
+   if (!pentacam && !atlas && !eyesys && !nidek && !kerato && !saved) return;   //no supported file format
    if (pentacam) {
        centerAct->setEnabled(true);
        ShowZernAct->setEnabled(false);
@@ -504,7 +505,7 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
        LSQfillinAct->setEnabled(false);
        lsqvssplineAct->setEnabled(true);
    };
-   if (eyesys || nidek) {
+   if (eyesys || nidek || saved) {
        ShowZernAct->setEnabled(false);
        centerAct->setEnabled(true);
        ringsAct->setEnabled(true);
@@ -626,6 +627,7 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
                    str.find("_CUR")!= std::string::npos || str.find("_ELE") != std::string::npos;
        bool atlas = (str.find("OD.CSV")!= std::string::npos) || (str.find("OS.CSV")!= std::string::npos && !pentacam); //OD.CSV OS.CSV but not _ELE.CSV and _CUR.CSV ->atlas
        bool eyesys= false;               //if subsitutuing XX for RA or RA for XX results in an openable file, then probably EyeSys
+       bool saved = (str.find(".sav")!= std::string::npos);
        std::string str2(filename);
        if(replace(str2,"RA","XX")) {
            if(FILE *file = fopen(str2.c_str(),"r")) {
@@ -698,7 +700,7 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
                if(FILE *file = fopen(str3.c_str(),"r")) {
                    fclose(file); nidek = true;
                }}};
-       if (!pentacam && !atlas && !eyesys && !nidek && !kerato) {m_GLwidget->DataLoad(fileName, false); return;}  //cube   //no supported file format
+       if (!pentacam && !atlas && !eyesys && !nidek && !kerato && !saved) {m_GLwidget->DataLoad(fileName, false); return;}  //cube   //no supported file format
        if (pentacam){
            centerAct->setEnabled(true);  //change to false to not allow for pentacam, center deviations only for Placido
            ShowZernAct->setEnabled(false);
@@ -732,7 +734,7 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
            LSQfillinAct->setEnabled(false);
            lsqvssplineAct->setEnabled(true);
        };
-       if (eyesys || nidek) {
+       if (eyesys || nidek || saved) {
            ShowZernAct->setEnabled(false);
            centerAct->setEnabled(true);
            ringsAct->setEnabled(true);

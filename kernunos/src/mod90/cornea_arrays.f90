@@ -369,12 +369,12 @@ SUBROUTINE RadSlope_eq_Skyline(lsq,JMatrix, RadSlope, Skyline, Penta)      ! ini
   TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
   LOGICAL, INTENT(IN) :: lsq
   INTEGER :: M1,N1,i,j,k,kk,L2,offset,NP,ITH,err_report,num_zeroes
-  INTEGER :: imv(size(JMatrix%Z,2))
+  INTEGER :: imv(size(JMatrix%Z,2)),firstcheck
   REAL(wp) :: rBo,rBi,DAT,u,v,xx,yy,f,fx,fxx,fy,fxy,fyy,fTmp(Skyline%rows),f2Tmp(Skyline%rows),fxTmp(Skyline%rows),fx2Tmp(Skyline%rows),fxxTmp(Skyline%rows),fxx2Tmp(Skyline%rows)
   REAL(wp) :: r(size(RadSlope%r,2)),z(Skyline%cols),z2(Skyline%cols)
   REAL(wp) :: x(Skyline%cols)              ! maximum size needed, don't need NP
   REAL(wp) :: y(Skyline%rows)
-  REAL(wp) :: rmin,check,firstcheck,secondcheck,q,mean,gaussian,fp
+  REAL(wp) :: rmin,check,secondcheck,q,mean,gaussian,fp
   REAL(wp), allocatable :: knots(:),knotsz(:),knotsz2(:)
   M1=size(RadSlope%r,2)
   N1=size(RadSlope%r,1)
@@ -617,10 +617,8 @@ END SUBROUTINE RadSlope_eq_Visia
 SUBROUTINE RadSlope_eq_Oculus(RadSlope,Oculus)
   TYPE(wpOculusMatrix), INTENT(INOUT) :: Oculus
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
-  INTEGER :: i,j,k,MM,N,imv(100)
-  REAL(wp) :: powmax, powmax2
+  INTEGER :: i,j,MM,N,imv(100)
   REAL(wp) :: ZIX,ZJX,YA3,X2A1
-  REAL(wp) :: DIST,POW
 ! uses SAGC not ELE or INSTC
 ! load Oculus into RadSlope c 100 x 60
   MM = 100 ; N=60
@@ -836,6 +834,7 @@ SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
 !     cardinal values
       do i=1,nC-1
        call SplineEval1Dx1D(iflag,JMatrix%RM,PI*(i-1)/4.0,JMatrix%Z0(i+3))
+       cardinal(i+1)=JMatrix%Z0(i+3)
       end do
      if (TestData.ne.2 .and. TestData.ne.4) then
       JMatrix%Z0(1)=P_TEMP
@@ -878,7 +877,9 @@ SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
 !     cardinal values
       do i=1,nC-1
        call SplineEval1Dx1D(iflag,JMatrix%RM,PI*(i-1)/4.0,JMatrix%SAGC0(i+3))
+       cardinal(i+1)=JMatrix%SAGC0(i+3)
       end do
+
      if (TestData.ne.3 .and. TestData.ne.5) then
       JMatrix%SAGC0(1)=P_TEMP
      else
@@ -915,6 +916,7 @@ SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
 !     cardinal values
       do i=1,nC-1
        call SplineEval1Dx1D(iflag,JMatrix%RM,PI*(i-1)/4.0,JMatrix%Warp0(i+3))
+       cardinal(i+1)=JMatrix%Warp0(i+3)
       end do
 
   !  write(*,*) 'INSTC'
@@ -946,6 +948,7 @@ SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
 !     cardinal values
       do i=1,nC-1
        call SplineEval1Dx1D(iflag,JMatrix%RM,PI*(i-1)/4.0,JMatrix%INSTC0(i+3))
+       cardinal(i+1)=JMatrix%INSTC0(i+3)
       end do
 
   !   write(*,*) 'GAUSSC'
@@ -977,6 +980,7 @@ SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
 !     cardinal values
       do i=1,nC-1
        call SplineEval1Dx1D(iflag,JMatrix%RM,PI*(i-1)/4.0,JMatrix%GAUSSC0(i+3))
+       cardinal(i+1)=JMatrix%GAUSSC0(i+3)
       end do
 
   ! MEANC
@@ -1007,6 +1011,7 @@ SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
 !     cardinal values
       do i=1,nC-1
        call SplineEval1Dx1D(iflag,JMatrix%RM,PI*(i-1)/4.0,JMatrix%MEANC0(i+3))
+       cardinal(i+1)=JMatrix%MEANC0(i+3)
       end do
 
   !  write(*,*) 'MONGEA'
@@ -1038,6 +1043,7 @@ SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
 !     cardinal values
       do i=1,nC-1
        call SplineEval1Dx1D(iflag,JMatrix%RM,PI*(i-1)/4.0,JMatrix%MongeA0(i+3))
+       cardinal(i+1)=JMatrix%MongeA0(i+3)
       end do
 
 END SUBROUTINE centersJMatrix
@@ -1549,8 +1555,8 @@ END SUBROUTINE EyeSys_LSQfillin
  END SUBROUTINE AXIALP
 
 ! tangential power from slope and derivatives
- SUBROUTINE TANGENTP(X2,Y1X,Y2X,INSTC)
-  REAL(wp), INTENT(IN) :: X2,Y1X,Y2X
+ SUBROUTINE TANGENTP(Y1X,Y2X,INSTC)
+  REAL(wp), INTENT(IN) :: Y1X,Y2X
   REAL(wp), INTENT(OUT) :: INSTC
   INSTC=RFCT*Y2X/(SQRT(1+Y1X**2)**3)
  END SUBROUTINE TANGENTP
@@ -1602,7 +1608,7 @@ END SUBROUTINE EyeSys_LSQfillin
   REAL(wp), INTENT(INOUT) :: t,r,hr,ht,hrt,htt,hrr
   REAL(wp), INTENT(OUT) :: u,v,ut,vt
   LOGICAL, INTENT(IN) :: one
-  REAL(wp) :: hu,hv,huu,hvv,huv,g,K,H,m,m1,k1,k2,astig,kappa,RR(3,3),pos(3),R0(3,3),e1(3),e2(3),e3(3),rv1(3),rv2(3)
+  REAL(wp) :: hu,hv,huu,hvv,huv,g,K,H,k1,k2,astig,kappa,RR(3,3),pos(3),R0(3,3),e1(3),e2(3),e3(3),rv1(3),rv2(3)
    r=abs(r) ; hr=abs(hr)
 !  cartesian conversion
    hu = hr*cos(t)-sin(t)*ht/r

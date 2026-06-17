@@ -118,15 +118,14 @@ MODULE io_functions
      INTEGER, INTENT(OUT) :: read_error
     END SUBROUTINE
 
-    SUBROUTINE SaveFile(a,b,KXNAME)
+    SUBROUTINE SaveFile(b,KXNAME)
      USE set_precision, ONLY : wp
-     REAL(wp),INTENT(IN) :: a(:), b(:,:)
+     USE cornea_arrays, ONLY : wpJMatrix
+     TYPE(wpJMatrix),INTENT(IN) :: b
      CHARACTER(len=*), INTENT(IN) :: KXNAME
     END SUBROUTINE
 
     SUBROUTINE ReadFile(read_error,KXNAME)
-     USE set_precision, ONLY : wp
-     USE cornea_arrays, ONLY : EyeSys
      INTEGER, INTENT(OUT) :: read_error
      CHARACTER(len=*), INTENT(IN) :: KXNAME
     END SUBROUTINE
@@ -1922,22 +1921,73 @@ SUBROUTINE rcnvrte(read_error,RANAME,XXNAME,PUNAME,HXNAME)
    endif
 END SUBROUTINE rcnvrte
 
+SUBROUTINE SaveFile(b,KXNAME)
+ USE set_precision, ONLY : wp
+ USE io_functions, ONLY  : get_new_fileunit
+ USE cornea_arrays, ONLY : wpJMatrix
+ TYPE(wpJMatrix),INTENT(IN) :: b
+ CHARACTER(len=*), INTENT(IN) :: KXNAME
+ INTEGER :: N,MM,i,unitno1
+ REAL(wp), ALLOCATABLE :: rowsey(:)
+ N=size(b%R,1)
+ MM=size(b%R,2)
+ allocate(rowsey(N))
+ unitno1 = get_new_fileunit()
+ open(unitno1, file=trim(KXNAME), action="write", iostat=ierr)
+ if (ierr .ne. 0) then
+  write(*,*) 'SaveFile cannot open',KXNAME
+  return
+ else
+! Write the radii, all N of necessary
+  write(unitno1,*) b%R(1:N,1)
+! Write the values up to MV of them
+  do i=1,MM
+   rowsey(1:N)=0
+   do j=1,b%MV(i)
+    rowsey(j)=b%R(j,i)*sqrt(1+b%YPR(j,i)*b%YPR(j,i))/b%YPR(j,i)
+   end do
+   write(unitno1,*) rowsey(1:N)
+  end do
+  close (unitno1)
+ endif
+ deallocate(rowsey)
+END SUBROUTINE SaveFile
+
 SUBROUTINE ReadFile(read_error,KXNAME)
-USE io_functions, ONLY : get_new_fileunit
-USE set_precision, ONLY : wp
-USE cornea_arrays, ONLY : EyeSys
-USE special_fct, ONLY : replacestr
-IMPLICIT NONE
-LOGICAL :: exists
-CHARACTER(len=*), INTENT(IN) :: KXNAME
-CHARACTER(1000) header
-INTEGER :: file_idx1,file_idx2,readerr
-INTEGER, INTENT(OUT) :: read_error
-REAL(wp) :: ZX(22),YX(22)
-INTEGER :: I,J,ITH,unitno1,unitno2,MM,N,ierr
-MM=180
-N=22
-END SUBROUTINE
+ USE io_functions, ONLY  : get_new_fileunit
+ USE cornea_arrays, ONLY : EyeSys
+ INTEGER, INTENT(OUT) :: read_error
+ CHARACTER(len=*), INTENT(IN) :: KXNAME
+ INTEGER :: N,MM,i,unitno1
+ N=size(EyeSys%RA,2)
+ MM=size(EyeSys%RA,1)
+ unitno1 = get_new_fileunit()
+ open(unitno1, file=trim(KXNAME), action="read", iostat=read_error)
+ if (read_error .ne. 0) then
+  write(*,*) 'ReadFile cannot open',KXNAME
+  return
+ else
+!  Read the radii, just N of them necessary
+  read(unitno1,*,iostat=read_error) EyeSys%RA(1,1:N)
+  if (read_error .ne. 0) then
+   write(*,*) 'Error reading values in ReadFile'
+   close (unitno1)
+   return
+  endif
+!  Read the values
+  do i=1,MM
+   EyeSys%DEG(i)=(i-1)
+   EyeSys%RA(i,1:N)=EyeSys%RA(1,1:N)
+   read(unitno1,*,iostat=read_error) EyeSys%XX(i,1:N)
+   if (read_error .ne. 0) then
+    write(*,*) 'Error reading values in ReadFile'
+    close (unitno1)
+    return
+   endif
+  end do
+  close (unitno1)
+ endif
+END SUBROUTINE ReadFile
 
 SUBROUTINE rcnvrtV(read_error,RANAME,XXNAME)
 ! VISIA VERSION
@@ -2325,3 +2375,7 @@ SUBROUTINE rcnvrta(KXNAME,N,read_error)
     RETURN
 
  END SUBROUTINE rcnvrta
+
+
+
+

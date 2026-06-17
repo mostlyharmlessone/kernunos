@@ -1,5 +1,5 @@
   SUBROUTINE GaussJordan( N, NRHS, A, LDA, B, LDB, INFO )
-  USE LapackInterface,  ONLY : xerbla
+  USE LapackInterface, ONLY: XERBLA
   IMPLICIT NONE
   
   INTEGER, PARAMETER :: wp = KIND(0.0D0) ! working precision
@@ -61,7 +61,7 @@
          info = -6
     END IF
     IF( info.NE.0 ) THEN
-       CALL xerbla( 'GAUSSJ ', -info )
+       CALL xerbla( 'GAUSJ ', -info )
        RETURN
     END IF
     
