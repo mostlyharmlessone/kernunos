@@ -2,11 +2,8 @@ FIXES
 
 qt6 pdf issue under mingw64; flatpak or QtInstaller?, or C-preprocessor comment out in code for windows version
 might make non-superlu windows version too, or build libsuperlu.a only for cross-compile but not Windows build
-possibly use MSYS2 under Windows
+possibly use MSYS2 for Windows build ?use CPM.cmake
 
-working on sav/read; might need to write an EyeSys format
-
-update FAQ, pictures, redo Help qhsc etc.
 
 findInterval vs bsearch
 
@@ -45,8 +42,6 @@ logerr.log: system error msgs/crashes
 kernunos.log: non-error messages, add date/timestamps if possible
 in-app messages, limited to kenunos.cpp/frontend, trim to maintain filename
 
-ability to turn stdoutput logging on/off
-move some fprintf/printf/write to LogC 
 ?addcomments():
 errorMessageDialog
 
@@ -60,8 +55,6 @@ enable the tweaks prior to loading the file? but not with auto redraw
 
 
 NEW MACHINE DATA EXPORTS
-
-save JMatrix as part of compare/add, particularly if there's rotations and decentering.
 
 screenshot might need other than tga: have some tiff notes; look at Inkscape formats
 
@@ -110,7 +103,6 @@ Thermally Induced Reversible Corneal Molding after Sauna Use on PubMed
 
 turns out my Atlas OD file and PentaCam file are really not comparablw when looking at MongeAstig, principal directions, Zernike coefficients. So: no repeatability across platforms on N=1 data point.
 
-Windows:  try cross-compile toolchain, again; also look into tools on Windows, free version of VS, nvidia compiler, or even as a WSL app  
 MacOS: need to do reseach on compiles with Xcode, darwin tools, Qt on iMac, possibly also in Mac VM, or as a Parallels/Docker app.
 
 push to github

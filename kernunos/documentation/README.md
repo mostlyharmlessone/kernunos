@@ -175,14 +175,11 @@ After cloning the source, load submodules with git submodule update --init
 
 cmake ./ 
 
-gcc is used as the default compiler with cmake.  clang and ninja seem to have issues. 
+gcc is used as the default compiler with cmake.   
 
 ####Cross-compiling for Windows under Linux
 
-As an alternative, build under Windows if you have the necessary toolset.  AFAIK, this will require Qt, a C/C++ compiler/IDE such as Visual Studio (VS), a Fortran compiler that works with VS and I know nothing about the rest of the integrated toolchain requirements under Windows.<br>
-https://doc.qt.io/qt-6/windows.html
-
-The alternative is cross compiling under Linux, which is not as straightforward as one would like in 2026.  Perhaps it is not the ideal solution; there was a lot more activity >10 years prior. <br>
+Cross compiling under Linux is not as straightforward as one would like in 2026.  Perhaps it is not the ideal solution; there was a lot more activity >10 years prior. <br>
 
 Under Arch Linix using AUR packages<br>
 yay -S mingw-w64-gcc <br>
@@ -206,6 +203,9 @@ https://github.com/Zeranoe/mingw-w64-build <br>
 https://wiki.archlinux.org/title/MinGW_package_guidelines <br>
 wxWidgets<br>
 https://wiki.wxwidgets.org/Cross-Compiling_Under_Linux <br>
+
+As an alternative, build under Windows if you have the necessary toolset.  AFAIK, this will require Qt, a C/C++ compiler/IDE such as Visual Studio (VS), a Fortran compiler that works with VS, such as the Intel Fortran Compiler and I know nothing about the rest of the integrated toolchain requirements under Windows.  You can also use MingW/GCC for the C/C++/Fortran compiler and toolchain under Windows.<br>
+https://doc.qt.io/qt-6/windows.html
 
 ####For MacOS
 
@@ -233,7 +233,7 @@ Do let me know if you find this software useful, or at least, amusing. Any const
  
 
 ## License
-I am not a lawyer, nor can really understand, let alone agree with, their worldview despite decades of adult life, starting with "ignorantia juris non excusat". In so far as I understand from perusing the multiple versions of licenses for the software used in this project, the source code I have written/copied and adapted conforms to their respective licenses and allows for non-commercial use and redistribution with the caveat that the licenses are included and/or referenced and credit is given when known, which I have in good faith attempted. To quote or adapt without proper attribution would be bad manners, plagiarism, or theft of intellectual property. On that note, no AI/LLM was used for any part of this project, the goal of which has been to exercise my imagination, not to outsource the effort of making things up nor using the information of dubious provenance gathered by an LLM without permission or attribution.  Any use of and examination of proprietary trademarks and data has been, to my understanding for the purpose of this project, to be lawful under applicable laws.  My contributions, including the patches for superlu, and any other adaptations of existing software, are licensed as follows:<br>
+I am not a lawyer, nor can really understand, let alone agree with, their worldview despite decades of adult life, starting with "ignorantia juris non excusat". In so far as I understand from perusing the multiple versions of licenses for the software used in this project, the source code I have written/copied and adapted conforms to their respective licenses and allows for non-commercial use and redistribution with the caveat that the licenses are included and/or referenced and credit is given when known, which I have in good faith attempted. In addition, to quote or adapt without proper attribution would be bad manners and/or plagiarism. On that note, no AI/LLM was used for any part of this project, the goal of which has been to exercise my imagination, not to outsource the effort of making things up nor using the information of dubious provenance gathered by an LLM without permission or attribution.  Any use of and examination of proprietary trademarks and data has been, to my understanding for the purpose of this project, to be lawful under applicable laws.  My contributions, including the patches for superlu, and any other adaptations of existing software, are licensed as follows:<br>
 [LICENSE](https://github.com/mostlyharmlessone/kernunos/blob/main/LICENSE)<br> if not superseded by the relevant licenses of the adapted software collected under ./licenses.  Written documentation including this README © 1999 by Anthony M de Beus is licensed under CC BY-SA 4.0. https://creativecommons.org/licenses/by-sa/4.0/ 
 
 

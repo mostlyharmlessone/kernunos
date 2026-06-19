@@ -40,7 +40,7 @@ A: Use File|Open to select a file. Only five machine types are currently support
 
 Q: Are file names case sensitive? 
 
-A: YES, absolutely.  When opening a file, the extensions which are presented as UPPERCASE should be UPPERCASE.  The topography machine files found in the wild are all produced that way, sometimes on case-insensitive filesystems, and my code assumes that is the case. However, when exporting a file, the extensions are all lowercase, and the software assumes that will be the case.
+A: YES, absolutely.  When opening a file, the extensions which are presented as UPPERCASE should be UPPERCASE.  The topography machine files found in the wild are all produced that way, sometimes on case-insensitive filesystems, and my code assumes that is the case. However, when exporting or saving a file, the extensions are all lowercase, and the software assumes that will be the case.
 
 Q: How does File|Compare/Difference Map work?
 
@@ -81,13 +81,15 @@ Q: What are all the Menu Options and what do they do?
 A: Like, a manual?  Let's go through each menu item, from left to right:
 File: 
 ```
-	  Load (use to open a data file of a supported type)
+	  Load (use to open a data file of a supported type, including saved file snapshots)
 	  Test (generates a curved concave test surface)
+	  Save Current data (Writes the data currently in the central frame to an ASCII file)
+	  Save Compare/Average data (Writes the data currently in the right hand frame, the compare or average window, to an ASCII file)
 	  Check spline consistency (optional test on Atlas/NIDEK/Keratograph files integrating slopes and comparing with supplied elevations, optionally loads a matching PentaCam  file if it exists to compute matching elevations from slopes to elevations)
 	  Use a LSQ spline instead of linear spline for PentaCam conversion 
 	  Compare/Difference Map vs. Average of two Maps...
-		(Compares last two loaded files based on current selected function and the 	  Continuous Hue Heatmap Color Scale) These are often called "difference        maps" Note that the legend will have scientific notation added with E-2,       for example, added if the differences are small.
-		Average generates an average of the last two maps. The heatmap is not changed)
+		(Compares last two loaded files based on current selected function and the 	  Continuous Hue Heatmap Color Scale) These are often called "difference        maps" Note that the legend will have scientific notation added with E-2,for example, added if the differences are small.
+		Average generates an average of the last two maps. The heatmap/legendis not changed)
       Decenter (simulates decentering the image)
 	  		Repeat decentering of the same image may eventually lead to artefacts from rounding errors, if so, better reload the data.
 	  Crop (allows for removing peripheral data points or Squashing the data relative to    	the average, a primitive noise filter)			
@@ -107,7 +109,7 @@ File:
 
 The LSQ spline instead of linear spline for PentaCam conversion option is an attempt to compensate for the noise in PentaCam (ELE) elevation data wherein several points have, within the limits of digits supplied, identical values, leading to local flat areas.  Note that adjacent identical curvatures are not an issue, but are a feature of a smooth surface.
 
-Average of two maps can be used as noise reduction or data augmentation if you have multiple scan of the same eye in the same clinical scenario, i.e. on the same day, or on different days when there is no anticipated significant change. As with any other data acquisition, multiple remeasurements can be used to improve precision.
+Average of two maps can be used as noise reduction or data augmentation if you have multiple scan of the same eye in the same clinical scenario, i.e. on the same day, or on different days when there is no anticipated significant change. As with any other data acquisition, multiple remeasurements can be used to improve precision. Averages of multiple files can be achieved by averaging maps two at a time, saving the results and averaging the averages.  Both Compare(difference) and Average maps are shown in the right hand frame with a dedicated legend.
 
 Note that selecting "STL (ASCII or binary) format.."" will give you an option to select STL without color or two different nonstandard color schemes (VisCam/Solidworks or Materials Magic). Only the binary STL format has (nonstandard) color options, so picking a color option has no effect if you do not check the Binary checkbox.  You have to use the checkbox to pick the binary format. If you pick a .stl file name and if you check Binary, the name will be changed to .bin.stl and be a binary STL file, and vice-versa, if you type a name with .bin.stl and do not select Binary, it will change to the name with .stl and be an ASCII stl.  Don't get cute and use uppercase STL or BIN.STL or names with stl/STL etc. in the name, the error checking is limited.  Don't confuse the name STL file with the extension .stl, or PLY (the name of the file type), with the extension .ply etc. There's also some disagreement about whether binary PLY should be identified as .ply .plyb or .bin.ply, which is what I have chosen. Some programs are better than others at using/ignoring an extension to determine a filetype. 
 
@@ -240,7 +242,7 @@ Verified to read PLY, OFF, STL, FBX without color, fails on assimp generated ASC
 
 Q: I manually tweaked/edited my topography machine files. Why won't they Load? (this is an actual question from the author)
 
-A: Bear in mind that topography machine files typically have line terminations with Line Feed 0x0A character (aka \n) and a Carriage Return character 0x0D (aka \r).  If you manually edit a file on a Mac or Linux system, your editor may remove the Carriage Return character 0x0D (aka \r) and may cause the file to not be readable.  Files generated by the software will have the line termination determined by the OS. 
+A: Bear in mind that topography machine files typically have line terminations with Line Feed 0x0A character (aka \n) and a Carriage Return character 0x0D (aka \r).  If you manually edit a file on a Mac or Linux system, your editor may remove the Carriage Return character 0x0D (aka \r) and may cause the file to not be readable.  Files generated by the software will have the line termination determined by the OS. It is easy to write a utility to convert between the two types, which I have included as "sparctxt" and "dostxt" programs.  
 
 
 Q: Speaking of files formats, are you DICOM compliant?
@@ -259,7 +261,7 @@ A:  I've made certain choices.  Yours could be different. Back end computations 
 
 Q: Why is the coding so bad/uneven? (and other coding criticisms)
 
-A: Parts of the code were written at different stages of my evolution which might make the code uneven in style. As an example, some of the file I/O is relatively straightforward, with unformatted reads of ASCII text files. However as I wrote routines for different input files, I found that the Fortran standard text file of data can unpredictably (and occasionally compiler dependent) encounter errors with data separated by semicolons or colons.  There are a number of ways to handle the situation, some of which were compiler or compiler switch dependent which I wished to avoid.  The first method I used was to call a system command to automatically replace semicolons with commas. Some are more complicated workarounds.  Later, I read some of these files as binary rather than text and reconverted the data to numerical data, avoiding the entire issue at the cost of increased complexity, or wrote a routine to replace the semicolons. Another language, such as C or C++ would have had completely different file I/O routines. Some of my code is old, either originally written in the 80's and 90's in FORTRAN 77 or K&R style C.  I've also borrowed bits and pieces of code throughout from the internet, particularly from stackoverflow. The coding therefore resembles a magpie's nest more than an organized structure with defined architecture. And... C++ is like talking in my fourth language.
+A: Parts of the code were written at different stages of my evolution which might make the code uneven in style. As an example, some of the file I/O is relatively straightforward, with unformatted reads of ASCII text files. However as I wrote routines for different input files, I found that the Fortran standard text file of data can unpredictably (and occasionally compiler dependent) encounter errors with data separated by semicolons or colons.  There are a number of ways to handle the situation, some of which were compiler or compiler switch dependent which I wished to avoid.  The first method I used was to call a system command to automatically replace semicolons with commas. Some are more complicated workarounds.  Later, I read some of these files as binary rather than text and reconverted the data to numerical data, avoiding the entire issue at the cost of increased complexity, or wrote a routine to replace the semicolons. Another language, such as C or C++ would have had completely different file I/O routines. Some of my code is old, either originally written in the 80's and 90's in FORTRAN 77 or K&R style C.  I've also borrowed bits and pieces of code throughout from the internet, particularly from stackoverflow. The coding therefore resembles a magpie's nest more than an organized structure with defined architecture. And... for me, C++ is like talking in my fourth language.
 
 Q: Why OpenGL and not (insert your preference here)?
 
@@ -267,7 +269,7 @@ A: OpenGL, while relatively easy for an amateur, is now, alas, being deprecated,
 
 Q: Why didn't you develop this with (insert programming environment or toolbox here)?
 
-A: So for example, why not boost? why not cgal/jet-3? or libigl? Why Qt and not wxWidgets?  With any project there is a trade-off between reusability of code, documentation, language  available code is written in, licensing etc. One doesn't want to reinvent code that has already been written well and done correctly.  One also doesn't want to incorporate a very large general purpose code base with a complicated API to solve a simple problem.  At this time, the old unsupported and deprecated sparsekit.f90 is used rather than the more modern and in development Fortran "stdlib" https://stdlib.fortran-lang.org/index.html for COO/CSR types. There are trade-offs to everything. Compiled languages are used, not interpreted languages like Python (Be thankful it isn't in BASIC, or APL) because the goal was to have a standalone executable (if possible). The project's trade-offs reflect the sophistication or lack thereof of the author.  And... C++ is like talking in my fourth language.
+A: So for example, why not boost? why not cgal/jet-3? or libigl? Why Qt and not wxWidgets?  With any project there is a trade-off between reusability of code, documentation, language  available code is written in, licensing etc. One doesn't want to reinvent code that has already been written well and done correctly.  One also doesn't want to incorporate a very large general purpose code base with a complicated API to solve a simple problem.  At this time, the old unsupported and deprecated sparsekit.f90 is used rather than the more modern and in development Fortran "stdlib" https://stdlib.fortran-lang.org/index.html for COO/CSR types. There are trade-offs to everything. Compiled languages are used, not interpreted languages like Python (Be thankful it isn't in BASIC, or APL) because the goal was to have a standalone executable (if possible). The project's trade-offs reflect the sophistication or lack thereof of the author.  
 
 Q: Is this program secure and safe, written using best software practices?
 
@@ -283,11 +285,11 @@ A: Yes and that should be painfully obvious from the coding and writing style.
 
 Q: Do you accept "AI"/LLM contributions to your code?
 
-A: I should be so lucky that even a bot would take an interest. Having said that, the LICENSE precludes incorporating any of this code into an LLM's sausage works, for everyone's benefit.  The LLM would have to incorporate it in order to contribute.  The, (ahem), unusual and unique coding style would probably poison its coding probabilities. Since it might well be impossible for me to detect undeclared or partial "AI"/LLM contributions, at this point, if a human appearing contribution presents itself, I'll look at it.
+A: I should be so lucky that even a bot would take an interest. Having said that, the LICENSE precludes incorporating any of this code into an LLM's sausage works, for everyone's benefit.  The LLM would have to incorporate it in order to contribute.  The, (ahem), unusual and unique coding style would probably poison its future coding probabilities. Since it might well be impossible for me to detect undeclared or partial "AI"/LLM contributions, at this point, if a human appearing contribution presents itself, I'll look at it.  Use what tools seem right to you, but take responsibility for the output. 
 
 Q: Why not just give topography images/data to an AI and have it tell you how they differ or not?
 
-A: Part of the purpose of this exercise of the imagination is not to just have an answer, an oracle, or an authority, but to understand the data and learn somethng about it and its limitations. If you just want an opinion other than your own, ask any other human being that you trust.  Perhaps one day a real AI will be able to look at two images or data sets, perhaps encrypted proprietary ones, do all the computations done here and give you an answer with detailed data and an explanation that you can believe and explain to someone else, (presumably boring them to tears in the process). Today is not that day.
+A: Part of the purpose of this exercise of the imagination is not to just have an answer, an oracle, or an authority, but to understand the data and learn somethng about it and its limitations. If you just want an opinion other than your own, ask any other human being that you trust.  Perhaps one day a real AI will be able to look at two images or data sets, perhaps encrypted proprietary ones, do all the computations done here and give you an answer with detailed data and an explanation **that you can believe** and explain to someone else, (presumably boring them to tears in the process). Today is not that day.
 
 
 

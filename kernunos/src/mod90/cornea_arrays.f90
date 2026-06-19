@@ -119,7 +119,7 @@ END INTERFACE
  TYPE(wpRadSlopeMatrix) :: RadSlope
  TYPE(wpAtlasMatrix) :: Atlas
  TYPE(wpAtlasMatrix) :: AtlasSave
-  TYPE(wpEyeSysMatrix) :: EyeSysSave
+ TYPE(wpEyeSysMatrix) :: EyeSysSave
  TYPE(wpPentaMatrix) :: Penta
  TYPE(wpOculusMatrix) :: Oculus
  TYPE(wpSkyline) :: Skyline
@@ -557,7 +557,6 @@ SUBROUTINE RadSlope_eq_Skyline(lsq,JMatrix, RadSlope, Skyline, Penta)      ! ini
 END SUBROUTINE RadSlope_eq_Skyline
 
 ! uses ZFCT converts lhs to rhs
-! skips over every other degree in going from 360 to 180
 SUBROUTINE RadSlope_eq_EyeSys(RadSlope,EyeSys) ! initially populates r, thta, Zp, MV
   TYPE(wpEyeSysMatrix), INTENT(INOUT) :: EyeSys
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
@@ -566,9 +565,9 @@ SUBROUTINE RadSlope_eq_EyeSys(RadSlope,EyeSys) ! initially populates r, thta, Zp
   REAL(wp) :: ZIX,ZJX,YA3,X2A1
   MM=size(RadSlope%r,2)
   N=size(RadSlope%r,1)
+  imv(:) = 0
   do i=1,MM
-    imv(i)=0
-    RadSlope%thta(i)=PI*EyeSys%DEG(i)/180.0_wp  ! RadSlope%thta(i)=PI*(i-1)/180.0_wp should always be true for EyeSys
+    RadSlope%thta(i)=2*PI*EyeSys%DEG(i)/(MM*1.0_wp)
       do j=1,N
        ZIX=EyeSys%XX(i,j)
        ZJX=EyeSys%RA(i,j)
@@ -582,11 +581,12 @@ SUBROUTINE RadSlope_eq_EyeSys(RadSlope,EyeSys) ! initially populates r, thta, Zp
        endif
         RadSlope%Zp2(j,i)=1/803.0_wp ! nonzero fallback value before splining for Atlas=RadSlope      
       end do
-      RadSlope%MV(i)=imv(i)
    end do
+   RadSlope%MV(:)=imv(:)
 END SUBROUTINE RadSlope_eq_EyeSys
 
-SUBROUTINE RadSlope_eq_Visia(RadSlope,Visia) ! initially populates r, thta, Zp, MV
+!VISIA version
+SUBROUTINE RadSlope_eq_Visia(RadSlope,Visia)
   TYPE(wpEyeSysMatrix), INTENT(INOUT) :: Visia
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
   INTEGER :: i,j,MM,N
@@ -594,9 +594,9 @@ SUBROUTINE RadSlope_eq_Visia(RadSlope,Visia) ! initially populates r, thta, Zp, 
   REAL(wp) :: ZIX,ZJX,YA3,X2A1
   MM=size(RadSlope%r,2)
   N=size(RadSlope%r,1)
+  imv(:)=0
   do i=1,MM
-    imv(i)=0
-    RadSlope%thta(i)=PI*Visia%DEG(i)/128.0_wp  ! RadSlope%thta(i)=PI*(i-1)/180.0_wp should always be true for EyeSys
+    RadSlope%thta(i)=2*PI*Visia%DEG(i)/(MM*1.0_wp)
       do j=1,N
        ZIX=Visia%XX(i,j)
        ZJX=Visia%RA(i,j)
@@ -610,25 +610,26 @@ SUBROUTINE RadSlope_eq_Visia(RadSlope,Visia) ! initially populates r, thta, Zp, 
        endif
         RadSlope%Zp2(j,i)=1/803.0_wp ! nonzero fallback value before splining for Atlas=RadSlope
       end do
-      RadSlope%MV(i)=imv(i)
    end do
+   RadSlope%MV(:)=imv(:)
 END SUBROUTINE RadSlope_eq_Visia
 
 SUBROUTINE RadSlope_eq_Oculus(RadSlope,Oculus)
   TYPE(wpOculusMatrix), INTENT(INOUT) :: Oculus
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
-  INTEGER :: i,j,MM,N,imv(100)
+  INTEGER :: i,j,MM,N,imv(size(RadSlope%r,2))
   REAL(wp) :: ZIX,ZJX,YA3,X2A1
 ! uses SAGC not ELE or INSTC
 ! load Oculus into RadSlope c 100 x 60
-  MM = 100 ; N=60
+  MM=size(RadSlope%r,2)
+  N=size(RadSlope%r,1)
   ! there are 60 points not including the center in Oculus
 ! Oculus%SAGC(MM,N),Oculus%INSTC(MM,N),Oculus%ELE(MM,N),Oculus%PU(MM),Oculus%Y(MM,N),Oculus%SEG(MM)
 ! seg is angle in grads associated with measurement. have to check if continuous
-  imv=0
+  imv(:)=0
   do j=1,N
    do i=1,MM
-    RadSlope%thta(i)=PI*Oculus%SEG(i)/50.0_wp
+    RadSlope%thta(i)=2*PI*Oculus%SEG(i)/(MM*1.0_wp)
     if ((Oculus%SAGC(i,j) > 0) .AND. (Oculus%INSTC(i,j) > 0) .AND. (Oculus%ELE(i,j) > 0) .AND. (Oculus%Y(i,j) > 0)) then    ! Only for Oculus with valid data /= 0
      ZJX=100*Oculus%Y(i,j)
      ZIX=100*Oculus%SAGC(i,j)

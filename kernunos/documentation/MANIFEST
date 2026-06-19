@@ -6,8 +6,9 @@ data_for_test
 documentation
 FREETYPE_INCLUDE_DIRS
 gnuplot-iostream
+kernunos_icon.ico
+kernunos_icon.rc
 Licenses
-qtcsettings.cmake
 rply
 src
 TODO
@@ -85,10 +86,13 @@ aboutmenu.png
 analyzemenu.png
 colormenu.png
 Color-scales-compared-in-this-study-four-different-American-National-Standards-Institute.png
+compareaverage.png
 example1.png
 example2.png
 example3.png
 exportmenu.png
+filemenu1.png
+filemenu2.png
 filemenu.png
 functionmenu.png
 handbook.png
@@ -110,18 +114,19 @@ src/c:
 Ccounter.c
 charcount.c
 charcount.h
+CleanSemicolons.c
+CleanSemicolons_C.c
 convert.c
-convertplytobin.c
 ConvertPLYtoBIN.c
 counter.h
-DOSTXT.C
+dostxt.c
 get_compiler_name.h
 logc.c
 logc.h
 rply.c
 rplyfile.h
 rply.h
-SPARCTXT.C
+sparctxt.c
 
 src/cxx:
 assistant.cpp
@@ -190,7 +195,7 @@ AdjustRadSplineCenter.f90
 bsearch.f90
 ConvertOFFtoSTL_C.f90
 CubicSplineQuad.f90
-dctsv_reverse.f90
+dctsv.f90
 gauss-jordan.f90
 Geom.f90
 get_compiler_name.f90

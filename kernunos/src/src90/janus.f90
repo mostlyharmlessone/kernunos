@@ -2107,7 +2107,7 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
   JMatrix%R0=0 ; JMatrix%THT0=0
 ! determine the boundary
   do i=1,M1                             ! every 2 degrees
-   JMatrix%THT(i)=PI*(i-1)/90.0_wp
+   JMatrix%THT(i)=2*PI*(i-1)/(M1*1.0_wp)
    JMatrix%MV(i)=N1
    j=N1
    if (MM == 360) then  ! original EyeSys RadSlope or fake data, every degree

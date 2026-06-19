@@ -1938,9 +1938,11 @@ SUBROUTINE SaveFile(b,KXNAME)
   write(*,*) 'SaveFile cannot open',KXNAME
   return
  else
-! Write the radii, all N of necessary
-  write(unitno1,*) b%R(1:N,1)
-! Write the values up to MV of them
+! Write the radii first (RA data)
+  do i=1,MM
+   write(unitno1,*) b%R(1:N,i)
+  end do
+  ! Write the Rowsey radii (XX data)
   do i=1,MM
    rowsey(1:N)=0
    do j=1,b%MV(i)
@@ -1961,23 +1963,25 @@ SUBROUTINE ReadFile(read_error,KXNAME)
  INTEGER :: N,MM,i,unitno1
  N=size(EyeSys%RA,2)
  MM=size(EyeSys%RA,1)
+ read_error = 0
  unitno1 = get_new_fileunit()
  open(unitno1, file=trim(KXNAME), action="read", iostat=read_error)
  if (read_error .ne. 0) then
   write(*,*) 'ReadFile cannot open',KXNAME
   return
  else
-!  Read the radii, just N of them necessary
-  read(unitno1,*,iostat=read_error) EyeSys%RA(1,1:N)
-  if (read_error .ne. 0) then
-   write(*,*) 'Error reading values in ReadFile'
-   close (unitno1)
-   return
-  endif
-!  Read the values
+!  Read the RA first
+  do i=1,MM
+   read(unitno1,*,iostat=read_error) EyeSys%RA(i,1:N)
+   if (read_error .ne. 0) then
+    write(*,*) 'Error reading RA values in ReadFile'
+    close (unitno1)
+    return
+   endif
+  end do
+!  Read the XX values, compute the DEG values
   do i=1,MM
    EyeSys%DEG(i)=(i-1)
-   EyeSys%RA(i,1:N)=EyeSys%RA(1,1:N)
    read(unitno1,*,iostat=read_error) EyeSys%XX(i,1:N)
    if (read_error .ne. 0) then
     write(*,*) 'Error reading values in ReadFile'
