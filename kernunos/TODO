@@ -1,5 +1,28 @@
-FIXES
+ENHANCEMENTS
 
+case sensitivity
+
+passing functions: style book p.35
+
+change in code and document in FAQ
+logstd.log: program error msgs
+logerr.log: system error msgs/crashes
+kernunos.log: non-error messages, add date/timestamps if possible
+in-app messages, limited to kenunos.cpp/frontend, trim to maintain filename
+
+?addcomments():
+errorMessageDialog
+
+Cmake:
+add icon (did on cyclic-banded)
+cmake for Windows/MacOS (did Windows in cyclic-banded)
+
+clean up capitalization, name issues, comments, style
+
+enable the tweaks prior to loading the file? but not with auto redraw
+
+
+FIXES
 
 findInterval vs bsearch
 
@@ -40,7 +63,7 @@ linker issue ? flags? for static with gcc gcc+
 
 which size .ico file?
 need to reduce size of icon 32x32? 256x256? also need it for desktop integration difference between bmp and ico
-Apple icns gnerate from GIMP doesn't work
+Apple icns generate from GIMP doesn't work
 
 appImage, looks straightforward and theres's a linuxdeployqt and macdeployqt apparently so.. ?have to make on oldest Ubuntu LTS
 
@@ -54,30 +77,6 @@ or could just offer the .exe and direct users to use wine, assuming that will wo
 
 upload binaries to releases, read about it appImages, do not commit to repo
 
-
-
-ENHANCEMENTS
-
-case sensitivity
-
-passing functions: style book p.35
-
-change in code and document in FAQ
-logstd.log: program error msgs
-logerr.log: system error msgs/crashes
-kernunos.log: non-error messages, add date/timestamps if possible
-in-app messages, limited to kenunos.cpp/frontend, trim to maintain filename
-
-?addcomments():
-errorMessageDialog
-
-Cmake:
-add icon (did on cyclic-banded)
-cmake for Windows/MacOS (did Windows in cyclic-banded)
-
-clean up capitalization, name issues, comments, style
-
-enable the tweaks prior to loading the file? but not with auto redraw
 
 
 NEW MACHINE DATA EXPORTS
@@ -106,10 +105,6 @@ Cachegrind, Callgrind and Massif are useful to figure out where the bottlenecks 
 
 https://stackoverflow.com/questions/868568/what-do-the-terms-cpu-bound-and-i-o-bound-mean/33510470#33510470
 
-2)need to relook at integration to see if can eliminate extra function calls
-try going back to splineeval1dx1d and removing extra calls to splineeval, aka back to trial that spawned current branch
-also try finding a way to use only local natural splines instead of generating whole circular spline and using pspli
-
 GCC F2018 compliant with deferred length character with Bind C used in janus.f90
 GCC11 problem, ISO_Fortran_binding.h nt available or C++ not C?
 
@@ -120,8 +115,6 @@ Spline routines seem to have explicit shape, and are passed possibly assumed-sha
 
 
 POLISHING/PRESENTATION/LAUNCH
-
-clean up git history
 
 analyze fowler sauna patient: arvo poster introduction
 search for

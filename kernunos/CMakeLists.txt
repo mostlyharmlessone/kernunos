@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.30)
 cmake_policy(VERSION 3.30)
-project(kernunos VERSION 0.2.0 LANGUAGES C CXX Fortran)
+project(kernunos LANGUAGES C CXX Fortran)
+set(VERSION_MAJOR "0")
+set(VERSION_MINOR "2")
+set(VERSION_BugFix "0")
+set(PROJECT_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_BugFix})
+
 set(CMAKE_MODULE_PATH cmake)
 #include(cmake/FortranEnvironment.cmake)
 enable_language(Fortran)
@@ -282,13 +287,16 @@ ADD_COMPILE_DEFINITIONS(ASSIMP_VERSION="${ASSIMP_VERSION}")
 
 # superlu, had to make static library manually, consider using CPM.cmake here
 if (CMAKE_SYSTEM MATCHES Windows)
- set(SUPERLU_LIBRARIES "/usr/local/lib/libsuperlu.a")
+# set(SUPERLU_LIBRARIES "/usr/x86_64-w64-mingw32/lib/libsuperlu.a")
+  set(SUPERLU_LIBRARIES "/usr/local/lib/libsuperlu.a")
+ message(STATUS "SUPERLU found at ${SUPERLU_LIBRARIES}")
 else()
  find_package(SuperLU)
  if ( SUPERLU_FOUND )
   message(STATUS "SUPERLU found at ${SUPERLU_LIBRARIES}")   
  else()
   set(SUPERLU_LIBRARIES "/usr/libsuperlu.so")
+  message(STATUS "SUPERLU found at ${SUPERLU_LIBRARIES}")
  endif()
 endif()
 
@@ -332,7 +340,7 @@ include_directories(src/cxx src/c)
 
 #superlu example from chapter12
 
-set(LIBS2 ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${SUPERLU_LIBRARIES} )
+set(LIBS2 ${SUPERLU_LIBRARIES} ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES} )
 set(HH_SOURCES
                    src/HansonHopkins/driverPiecewiseLinear.f90
                    src/HansonHopkins/set_precision.f90
@@ -528,7 +536,7 @@ install(TARGETS kernunos RUNTIME DESTINATION "${INSTALL_EXAMPLEDIR}"
                 LIBRARY DESTINATION "${INSTALL_EXAMPLEDIR}")
 
 if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(kernunos)
+#    qt_finalize_executable(kernunos)
 endif()
 
 
