@@ -1,7 +1,0 @@
-These patches allow the code to be compatible with version > 5 of the SuperLU package, the original source from Chapter 11 of H&H
-was compatible with version 4.3
-
-An additional patch was also added for cmake build compatibility, the original authors' build system was make.
-
-
-

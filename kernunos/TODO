@@ -1,9 +1,5 @@
 FIXES
 
-qt6 pdf issue under mingw64; flatpak or QtInstaller?, or C-preprocessor comment out in code for windows version
-might make non-superlu windows version too, or build libsuperlu.a only for cross-compile but not Windows build
-possibly use MSYS2 for Windows build ?use CPM.cmake
-
 
 findInterval vs bsearch
 
@@ -29,6 +25,36 @@ consider replacing sparsekit code with https://stdlib.fortran-lang.org/index.htm
 resurrect old noise reduction code to help out monge-astig and meanc for real data?
 need lapack or open version of numrec fourn:  fftpack
 needs testing and reread of NumRec in C to figure out how to effectively remove noise.
+
+
+CROSS-COMPILING/RELEASE VERSIONS ETC
+
+need to set Qt/cmake to make relocatable
+
+qt6 pdf issue under mingw64; flatpak or QtInstaller?, or C-preprocessor comment out in code for windows version
+possibly use MSYS2 for Windows build 
+?use CPM.cmake
+arch's superlu doesn't have static library-built one
+
+linker issue ? flags? for static with gcc gcc+
+
+which size .ico file?
+need to reduce size of icon 32x32? 256x256? also need it for desktop integration difference between bmp and ico
+Apple icns gnerate from GIMP doesn't work
+
+appImage, looks straightforward and theres's a linuxdeployqt and macdeployqt apparently so.. ?have to make on oldest Ubuntu LTS
+
+need to know what is in a git?
+
+need to know all dependencies!
+gimp example: Path Mapping (GIMP) — appimage-builder 1.0.0 documentation
+gambas example
+
+or could just offer the .exe and direct users to use wine, assuming that will work
+
+upload binaries to releases, read about it appImages, do not commit to repo
+
+
 
 ENHANCEMENTS
 
@@ -96,12 +122,15 @@ Spline routines seem to have explicit shape, and are passed possibly assumed-sha
 POLISHING/PRESENTATION/LAUNCH
 
 rename files a laShakespeare: dry eye juliet capulet, kcn demo rex lear, maybe mine can be iago borgia
+clean up git history
 
 analyze fowler sauna patient: arvo poster introduction
 search for
 Thermally Induced Reversible Corneal Molding after Sauna Use on PubMed
 
 turns out my Atlas OD file and PentaCam file are really not comparablw when looking at MongeAstig, principal directions, Zernike coefficients. So: no repeatability across platforms on N=1 data point.
+? magnification for compare (thinking about my topos)
+
 
 MacOS: need to do reseach on compiles with Xcode, darwin tools, Qt on iMac, possibly also in Mac VM, or as a Parallels/Docker app.
 

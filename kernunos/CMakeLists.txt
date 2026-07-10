@@ -99,16 +99,34 @@ endif()
 # STATIC stuff (Windows)
 if (CMAKE_SYSTEM MATCHES Windows)
   set(BUILD_FOR_WIN TRUE)
+  set(WIN32 TRUE)
 else()
   set(BUILD_FOR_WIN FALSE)
 endif()
   option(STATIC_BUILD "Build a static binary." ${BUILD_FOR_WIN})
 
+
   if (STATIC_BUILD)
-          set(CMAKE_EXE_LINKER_FLAGS "-static")
-          set(CMAKE_FIND_LIBRARY_SUFFIXES ".a" CONFIG)
-          set(BUILD_SHARED_LIBS OFF)
-  endif()
+            # Force find commands to search only the target environment packages
+            set(CMAKE_FIND_ROOT_PATH /usr/x86_64-w64-mingw32) # Standard MinGW sysroot directory
+#            set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+#            set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+#            set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+#            set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
+             # Enforce fully static compilation
+            # -static: Links your internal and external third-party libraries statically.
+            # -static-libgcc -static-libstdc++: Removes dependencies on libgcc_s_sjlj-1.dll and libstdc++-6.dll.
+            set(CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc -static-libstdc++" CACHE STRING "" FORCE)
+            set(CMAKE_EXE_LINKER_FLAGS_DEBUG "-static -static-libgcc -static-libstdc++" CACHE STRING "" FORCE)
+            set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-static -static-libgcc -static-libstdc++" CACHE STRING "" FORCE)
+            set(CMAKE_FIND_LIBRARY_SUFFIXES ".a" CONFIG)
+            set(BUILD_SHARED_LIBS OFF)
+    endif()
+    if (STATIC_BUILD AND ${CMAKE_SYSTEM} MATCHES Windows)
+            # include plugins into static build on windows
+            # (we lack support for static on other platforms right now)
+            set(QT_PLUGINS SvgIcon WindowsIntegration WindowsVistaStyle)
+    endif()
 
 endif()
 
@@ -237,8 +255,8 @@ else() #compiling for Linux dynamic libraries
 endif()
 
 # Qt
-set(QT_CREATOR_SKIP_MAINTENANCE_TOOL_PROVIDER ON)
-SET(Qt6_DIR "/usr/lib/x86_64-linux-gnu/qt6")
+#set(QT_CREATOR_SKIP_MAINTENANCE_TOOL_PROVIDER ON)
+#SET(Qt6_DIR "/usr/lib/x86_64-linux-gnu/qt6")
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core Gui Charts OpenGLWidgets OpenGL Widgets LinguistTools)
 
 ##Work around for no Pdf in mingw packages under arch linux
@@ -262,16 +280,21 @@ find_library(GFORTRAN_LIBRARY NAMES gfortran)  # trying to fix ISO_Fortran_bindi
 # assimp
 ADD_COMPILE_DEFINITIONS(ASSIMP_VERSION="${ASSIMP_VERSION}")
 
-# superlu
-find_package(SuperLU)
+# superlu, had to make static library manually, consider using CPM.cmake here
+if (CMAKE_SYSTEM MATCHES Windows)
+ set(SUPERLU_LIBRARIES "/usr/local/lib/libsuperlu.a")
+else()
+ find_package(SuperLU)
  if ( SUPERLU_FOUND )
   message(STATUS "SUPERLU found at ${SUPERLU_LIBRARIES}")   
  else()
   set(SUPERLU_LIBRARIES "/usr/libsuperlu.so")
  endif()
+endif()
+
 
 #  boost, needed for gnuplot-iostream NOT system, edited also CmakeLists.txt in gnuplot-iostreams
- find_package(Boost REQUIRED COMPONENTS iostreams filesystem)
+ find_package(Boost COMPONENTS iostreams filesystem)
 
 
 # Compile.
@@ -302,14 +325,14 @@ find_package(SuperLU)
 
 
 # external libraries
-    set(LIBS ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${SUPERLU_LIBRARIES} ${OPENGL_LIBRARIES} ${LIBEPOXY_LIBRARIES} freetype ${GFORTRAN_LIBRARY})
+    set(LIBS ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${SUPERLU_LIBRARIES} ${OPENGL_LIBRARIES} freetype ${GFORTRAN_LIBRARY})
 
 # need this so that GLwidget.h can be found by AUTOUIC and ui.mainwindow.h, and for rply and assimp
 include_directories(src/cxx src/c)
 
 #superlu example from chapter12
 
-set(LIBS2 ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${SUPERLU_LIBRARIES})
+set(LIBS2 ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${SUPERLU_LIBRARIES} )
 set(HH_SOURCES
                    src/HansonHopkins/driverPiecewiseLinear.f90
                    src/HansonHopkins/set_precision.f90
@@ -331,9 +354,11 @@ set(HH_SOURCES
                    src/HansonHopkins/supermatrix.h
                    src/src90/gauss-jordan.f90
                    )
-               add_executable(driverPiecewiseLinear
-                   ${HH_SOURCES}
-               )
+
+     add_executable(driverPiecewiseLinear
+         ${HH_SOURCES}
+     )
+
 target_link_libraries(driverPiecewiseLinear ${LIBS2})
 
 set(HH_SOURCES2
