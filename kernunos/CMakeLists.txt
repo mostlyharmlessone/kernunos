@@ -12,7 +12,7 @@ enable_language(C)
 
 #set(CMAKE_HOST_NAME Windows)
 set(CMAKE_HOST_NAME Linux)
-set(CMAKE_SYSTEM Windows)
+#set(CMAKE_SYSTEM Windows)
 set(CMAKE_SYSTEM UNIX)
 #set(CMAKE_SYSTEM APPLE)
 
