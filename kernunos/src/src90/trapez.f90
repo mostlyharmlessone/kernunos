@@ -1,0 +1,33 @@
+SUBROUTINE trapez(ii,iflag,rv,zv,z2v,n,r,z)
+!  Cubic Spline Quadrature using trapezoidal rule
+!  ONLY used for radial splines
+   USE set_precision, ONLY  : wp
+   USE spline_interfaces, ONLY  : SplineEval, SplineEvalCenter
+   USE special_fct, ONLY : bsearch
+   REAL(wp), INTENT(IN) ::  rv(*)
+   REAL(wp), INTENT(IN) ::  zv(*),z2v(*),r
+   INTEGER, INTENT(IN) :: n,iflag,ii
+   REAL(wp), INTENT(OUT) :: z
+   REAL(wp) :: TRAP
+   INTEGER :: i, high, low
+   call bsearch(r,rv,n,high,low)
+!  TRAPEZOIDAL RULE, UNEVEN STEPS     
+   TRAP=0
+   if (low .ne. high) then ! not on a knot
+    do i=2,low
+     TRAP=TRAP+(rv(i)-rv(i-1))*(zv(i-1)+zv(i))/2.
+    end do
+    if (mod((iflag-mod(iflag,10))/10,10) == 0) then
+     call SplineEval(0,rv,zv,z2v,n,r,z)
+    endif
+    if (mod((iflag-mod(iflag,10))/10,10) == 1) then  ! using center-node spline
+     call SplineEvalCenter(ii,rv,zv,z2v,n,r,z)
+    endif
+    TRAP=TRAP+(r-rv(low))*(z+zv(low))/2.
+   else
+    do i=2,high
+     TRAP=TRAP+(rv(i)-rv(i-1))*(zv(i-1)+zv(i))/2.
+    end do
+   endif
+   z=TRAP
+END SUBROUTINE trapez       

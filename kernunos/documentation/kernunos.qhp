@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QtHelpProject version="1.0">
+    <namespace>mostlyharmlessone.kernunos</namespace>
+    <virtualFolder>doc</virtualFolder>
+    <filterSection>
+        <toc>
+            <section title="Kernunos/CorneaCopia" ref="index.html">
+                    <section title="File Menu" ref="filemenu.html"/>
+                    <section title="Open File" ref="openfile.html"/>
+                    <section title="Browse" ref="browse.html"/>
+                    <section title="Export" ref="exportmenu.html"/>
+                    <section title="Analyze Menu" ref="analyzemenu.html"/>
+                    <section title="View Menu" ref="viewmenu.html"/>
+                    <section title="Function Menu" ref="functionmenu.html"/>
+                    <section title="Color Menu" ref="colormenu.html"/>
+                    <section title="Tweaks Menu" ref="tweaksmenu.html"/>
+                    <section title="About Menu" ref="aboutmenu.html"/>
+                    <section title="README" ref="README.html"/>
+                    <section title="FAQ" ref="FAQ.html"/>
+                    <section title="SECURITY" ref="SECURITY.html"/>
+            </section>
+        </toc>
+        <keywords>
+            <keyword name="Display" ref="viewmenu.html"/>
+            <keyword name="File name" ref="filemenu.html"/>
+            <keyword name="Export" ref="exportmenu.html"/>
+            <keyword name="Browse" ref="browse.html"/>
+            <keyword name="Directory" ref="browse.html"/>
+            <keyword name="Open" ref="openfile.html"/>
+            <keyword name="Load" ref="openfile.html"/>
+            <keyword name="Select" ref="openfile.html"/>
+        </keywords>
+        <files>
+            <file>browse.html</file>
+            <file>index.html</file>
+            <file>intro.html</file>
+            <file>README.html</file>
+            <file>FAQ.html</file>
+            <file>SECURITY.html</file>
+            <file>about.txt</file>
+            <file>openfile.html</file>
+            <file>filemenu.html</file>
+            <file>analyzemenu.html</file>
+            <file>viewmenu.html</file>
+            <file>colormenu.html</file>
+            <file>functionmenu.html</file>
+            <file>tweaksmenu.html</file>
+            <file>aboutmenu.html</file>
+            <file>exportmenu.html</file>
+            <file>Curvature_notes.pdf</file>
+            <file>Curvature_equations.pdf</file>
+            <file>spline_notes.pdf</file>
+            <file>images/filemenu.png</file>
+            <file>images/filemenu1.png</file>
+            <file>images/filemenu2.png</file>
+            <file>images/compareaverage.png</file>
+            <file>images/analyzemenu.png</file>
+            <file>images/functionmenu.png</file>
+            <file>images/colormenu.png</file>
+            <file>images/tweaksmenu.png</file>
+            <file>images/viewmenu.png</file>
+            <file>images/aboutmenu.png</file>
+            <file>images/exportmenu.png</file>
+            <file>images/icon.ico</file>  
+            <file>images/handbook.png</file>         
+            <file>images/example1.png</file>
+            <file>images/example2.png</file>
+            <file>images/example3.png</file>
+            <file>images/Color-scales-compared-in-this-study-four-different-American-National-Standards-Institute.png</file>
+        </files>
+    </filterSection>
+</QtHelpProject>

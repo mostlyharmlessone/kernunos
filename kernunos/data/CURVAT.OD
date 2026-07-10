@@ -1,0 +1,4108 @@
+Seg: 0  y= 0.00  r(Sag)=  7.68  r(Tan)=  7.72
+Seg: 0  y= 0.10  r(Sag)=  7.68  r(Tan)=  7.72
+Seg: 0  y= 0.20  r(Sag)=  7.69  r(Tan)=  7.72
+Seg: 0  y= 0.30  r(Sag)=  7.69  r(Tan)=  7.73
+Seg: 0  y= 0.40  r(Sag)=  7.70  r(Tan)=  7.73
+Seg: 0  y= 0.50  r(Sag)=  7.71  r(Tan)=  7.74
+Seg: 0  y= 0.60  r(Sag)=  7.72  r(Tan)=  7.75
+Seg: 0  y= 0.70  r(Sag)=  7.72  r(Tan)=  7.76
+Seg: 0  y= 0.80  r(Sag)=  7.73  r(Tan)=  7.78
+Seg: 0  y= 0.90  r(Sag)=  7.73  r(Tan)=  7.79
+Seg: 0  y= 1.00  r(Sag)=  7.74  r(Tan)=  7.80
+Seg: 0  y= 1.10  r(Sag)=  7.75  r(Tan)=  7.82
+Seg: 0  y= 1.20  r(Sag)=  7.75  r(Tan)=  7.83
+Seg: 0  y= 1.30  r(Sag)=  7.76  r(Tan)=  7.84
+Seg: 0  y= 1.40  r(Sag)=  7.77  r(Tan)=  7.85
+Seg: 0  y= 1.50  r(Sag)=  7.77  r(Tan)=  7.86
+Seg: 0  y= 1.60  r(Sag)=  7.78  r(Tan)=  7.87
+Seg: 0  y= 1.70  r(Sag)=  7.78  r(Tan)=  7.87
+Seg: 0  y= 1.80  r(Sag)=  7.79  r(Tan)=  7.88
+Seg: 0  y= 1.90  r(Sag)=  7.79  r(Tan)=  7.90
+Seg: 0  y= 2.00  r(Sag)=  7.80  r(Tan)=  7.91
+Seg: 0  y= 2.10  r(Sag)=  7.80  r(Tan)=  7.93
+Seg: 0  y= 2.20  r(Sag)=  7.81  r(Tan)=  7.96
+Seg: 0  y= 2.30  r(Sag)=  7.82  r(Tan)=  7.99
+Seg: 0  y= 2.40  r(Sag)=  7.82  r(Tan)=  8.02
+Seg: 0  y= 2.50  r(Sag)=  7.83  r(Tan)=  8.06
+Seg: 0  y= 2.60  r(Sag)=  7.84  r(Tan)=  8.11
+Seg: 0  y= 2.70  r(Sag)=  7.85  r(Tan)=  8.17
+Seg: 0  y= 2.80  r(Sag)=  7.86  r(Tan)=  8.23
+Seg: 0  y= 2.90  r(Sag)=  7.87  r(Tan)=  8.30
+Seg: 0  y= 3.00  r(Sag)=  7.89  r(Tan)=  8.38
+Seg: 0  y= 3.10  r(Sag)=  7.90  r(Tan)=  8.47
+Seg: 0  y= 3.20  r(Sag)=  7.92  r(Tan)=  8.55
+Seg: 0  y= 3.30  r(Sag)=  7.94  r(Tan)=  8.63
+Seg: 0  y= 3.40  r(Sag)=  7.96  r(Tan)=  8.71
+Seg: 0  y= 3.50  r(Sag)=  7.98  r(Tan)=  8.77
+Seg: 0  y= 3.60  r(Sag)=  8.00  r(Tan)=  8.82
+Seg: 0  y= 3.70  r(Sag)=  8.03  r(Tan)=  8.85
+Seg: 0  y= 3.80  r(Sag)=  8.05  r(Tan)=  8.89
+Seg: 0  y= 3.90  r(Sag)=  8.07  r(Tan)=  8.92
+Seg: 0  y= 4.00  r(Sag)=  8.09  r(Tan)=  8.96
+Seg: 0  y= 4.10  r(Sag)=  8.10  r(Tan)=  8.97
+Seg: 1  y= 0.00  r(Sag)=  7.68  r(Tan)=  7.72
+Seg: 1  y= 0.10  r(Sag)=  7.68  r(Tan)=  7.72
+Seg: 1  y= 0.20  r(Sag)=  7.69  r(Tan)=  7.72
+Seg: 1  y= 0.30  r(Sag)=  7.70  r(Tan)=  7.73
+Seg: 1  y= 0.40  r(Sag)=  7.70  r(Tan)=  7.74
+Seg: 1  y= 0.50  r(Sag)=  7.71  r(Tan)=  7.74
+Seg: 1  y= 0.60  r(Sag)=  7.72  r(Tan)=  7.75
+Seg: 1  y= 0.70  r(Sag)=  7.72  r(Tan)=  7.77
+Seg: 1  y= 0.80  r(Sag)=  7.73  r(Tan)=  7.78
+Seg: 1  y= 0.90  r(Sag)=  7.74  r(Tan)=  7.79
+Seg: 1  y= 1.00  r(Sag)=  7.74  r(Tan)=  7.81
+Seg: 1  y= 1.10  r(Sag)=  7.75  r(Tan)=  7.82
+Seg: 1  y= 1.20  r(Sag)=  7.76  r(Tan)=  7.83
+Seg: 1  y= 1.30  r(Sag)=  7.76  r(Tan)=  7.84
+Seg: 1  y= 1.40  r(Sag)=  7.77  r(Tan)=  7.85
+Seg: 1  y= 1.50  r(Sag)=  7.77  r(Tan)=  7.85
+Seg: 1  y= 1.60  r(Sag)=  7.78  r(Tan)=  7.86
+Seg: 1  y= 1.70  r(Sag)=  7.78  r(Tan)=  7.87
+Seg: 1  y= 1.80  r(Sag)=  7.79  r(Tan)=  7.88
+Seg: 1  y= 1.90  r(Sag)=  7.79  r(Tan)=  7.90
+Seg: 1  y= 2.00  r(Sag)=  7.80  r(Tan)=  7.92
+Seg: 1  y= 2.10  r(Sag)=  7.80  r(Tan)=  7.94
+Seg: 1  y= 2.20  r(Sag)=  7.81  r(Tan)=  7.96
+Seg: 1  y= 2.30  r(Sag)=  7.82  r(Tan)=  7.99
+Seg: 1  y= 2.40  r(Sag)=  7.82  r(Tan)=  8.03
+Seg: 1  y= 2.50  r(Sag)=  7.83  r(Tan)=  8.07
+Seg: 1  y= 2.60  r(Sag)=  7.84  r(Tan)=  8.12
+Seg: 1  y= 2.70  r(Sag)=  7.85  r(Tan)=  8.17
+Seg: 1  y= 2.80  r(Sag)=  7.86  r(Tan)=  8.24
+Seg: 1  y= 2.90  r(Sag)=  7.87  r(Tan)=  8.32
+Seg: 1  y= 3.00  r(Sag)=  7.89  r(Tan)=  8.40
+Seg: 1  y= 3.10  r(Sag)=  7.91  r(Tan)=  8.48
+Seg: 1  y= 3.20  r(Sag)=  7.92  r(Tan)=  8.57
+Seg: 1  y= 3.30  r(Sag)=  7.94  r(Tan)=  8.66
+Seg: 1  y= 3.40  r(Sag)=  7.96  r(Tan)=  8.74
+Seg: 1  y= 3.50  r(Sag)=  7.99  r(Tan)=  8.80
+Seg: 1  y= 3.60  r(Sag)=  8.01  r(Tan)=  8.86
+Seg: 1  y= 3.70  r(Sag)=  8.03  r(Tan)=  8.90
+Seg: 1  y= 3.80  r(Sag)=  8.05  r(Tan)=  8.94
+Seg: 1  y= 3.90  r(Sag)=  8.08  r(Tan)=  8.97
+Seg: 1  y= 4.00  r(Sag)=  8.10  r(Tan)=  9.00
+Seg: 1  y= 4.10  r(Sag)=  8.11  r(Tan)=  9.01
+Seg: 2  y= 0.00  r(Sag)=  7.68  r(Tan)=  7.71
+Seg: 2  y= 0.10  r(Sag)=  7.68  r(Tan)=  7.72
+Seg: 2  y= 0.20  r(Sag)=  7.69  r(Tan)=  7.72
+Seg: 2  y= 0.30  r(Sag)=  7.70  r(Tan)=  7.73
+Seg: 2  y= 0.40  r(Sag)=  7.70  r(Tan)=  7.74
+Seg: 2  y= 0.50  r(Sag)=  7.71  r(Tan)=  7.74
+Seg: 2  y= 0.60  r(Sag)=  7.72  r(Tan)=  7.76
+Seg: 2  y= 0.70  r(Sag)=  7.73  r(Tan)=  7.77
+Seg: 2  y= 0.80  r(Sag)=  7.73  r(Tan)=  7.78
+Seg: 2  y= 0.90  r(Sag)=  7.74  r(Tan)=  7.79
+Seg: 2  y= 1.00  r(Sag)=  7.75  r(Tan)=  7.81
+Seg: 2  y= 1.10  r(Sag)=  7.75  r(Tan)=  7.82
+Seg: 2  y= 1.20  r(Sag)=  7.76  r(Tan)=  7.82
+Seg: 2  y= 1.30  r(Sag)=  7.76  r(Tan)=  7.83
+Seg: 2  y= 1.40  r(Sag)=  7.77  r(Tan)=  7.84
+Seg: 2  y= 1.50  r(Sag)=  7.77  r(Tan)=  7.85
+Seg: 2  y= 1.60  r(Sag)=  7.78  r(Tan)=  7.86
+Seg: 2  y= 1.70  r(Sag)=  7.78  r(Tan)=  7.87
+Seg: 2  y= 1.80  r(Sag)=  7.79  r(Tan)=  7.89
+Seg: 2  y= 1.90  r(Sag)=  7.79  r(Tan)=  7.90
+Seg: 2  y= 2.00  r(Sag)=  7.80  r(Tan)=  7.92
+Seg: 2  y= 2.10  r(Sag)=  7.80  r(Tan)=  7.94
+Seg: 2  y= 2.20  r(Sag)=  7.81  r(Tan)=  7.97
+Seg: 2  y= 2.30  r(Sag)=  7.82  r(Tan)=  8.00
+Seg: 2  y= 2.40  r(Sag)=  7.82  r(Tan)=  8.03
+Seg: 2  y= 2.50  r(Sag)=  7.83  r(Tan)=  8.08
+Seg: 2  y= 2.60  r(Sag)=  7.84  r(Tan)=  8.13
+Seg: 2  y= 2.70  r(Sag)=  7.85  r(Tan)=  8.18
+Seg: 2  y= 2.80  r(Sag)=  7.86  r(Tan)=  8.25
+Seg: 2  y= 2.90  r(Sag)=  7.88  r(Tan)=  8.32
+Seg: 2  y= 3.00  r(Sag)=  7.89  r(Tan)=  8.41
+Seg: 2  y= 3.10  r(Sag)=  7.91  r(Tan)=  8.49
+Seg: 2  y= 3.20  r(Sag)=  7.93  r(Tan)=  8.58
+Seg: 2  y= 3.30  r(Sag)=  7.95  r(Tan)=  8.67
+Seg: 2  y= 3.40  r(Sag)=  7.97  r(Tan)=  8.75
+Seg: 2  y= 3.50  r(Sag)=  7.99  r(Tan)=  8.83
+Seg: 2  y= 3.60  r(Sag)=  8.01  r(Tan)=  8.89
+Seg: 2  y= 3.70  r(Sag)=  8.04  r(Tan)=  8.93
+Seg: 2  y= 3.80  r(Sag)=  8.06  r(Tan)=  8.97
+Seg: 2  y= 3.90  r(Sag)=  8.08  r(Tan)=  9.01
+Seg: 2  y= 4.00  r(Sag)=  8.10  r(Tan)=  9.03
+Seg: 2  y= 4.10  r(Sag)=  8.12  r(Tan)=  9.04
+Seg: 3  y= 0.00  r(Sag)=  7.68  r(Tan)=  7.71
+Seg: 3  y= 0.10  r(Sag)=  7.68  r(Tan)=  7.72
+Seg: 3  y= 0.20  r(Sag)=  7.69  r(Tan)=  7.72
+Seg: 3  y= 0.30  r(Sag)=  7.70  r(Tan)=  7.73
+Seg: 3  y= 0.40  r(Sag)=  7.70  r(Tan)=  7.74
+Seg: 3  y= 0.50  r(Sag)=  7.71  r(Tan)=  7.75
+Seg: 3  y= 0.60  r(Sag)=  7.72  r(Tan)=  7.76
+Seg: 3  y= 0.70  r(Sag)=  7.73  r(Tan)=  7.77
+Seg: 3  y= 0.80  r(Sag)=  7.73  r(Tan)=  7.78
+Seg: 3  y= 0.90  r(Sag)=  7.74  r(Tan)=  7.79
+Seg: 3  y= 1.00  r(Sag)=  7.75  r(Tan)=  7.80
+Seg: 3  y= 1.10  r(Sag)=  7.75  r(Tan)=  7.81
+Seg: 3  y= 1.20  r(Sag)=  7.76  r(Tan)=  7.82
+Seg: 3  y= 1.30  r(Sag)=  7.76  r(Tan)=  7.83
+Seg: 3  y= 1.40  r(Sag)=  7.77  r(Tan)=  7.84
+Seg: 3  y= 1.50  r(Sag)=  7.77  r(Tan)=  7.85
+Seg: 3  y= 1.60  r(Sag)=  7.78  r(Tan)=  7.86
+Seg: 3  y= 1.70  r(Sag)=  7.78  r(Tan)=  7.87
+Seg: 3  y= 1.80  r(Sag)=  7.79  r(Tan)=  7.89
+Seg: 3  y= 1.90  r(Sag)=  7.79  r(Tan)=  7.90
+Seg: 3  y= 2.00  r(Sag)=  7.80  r(Tan)=  7.92
+Seg: 3  y= 2.10  r(Sag)=  7.80  r(Tan)=  7.95
+Seg: 3  y= 2.20  r(Sag)=  7.81  r(Tan)=  7.98
+Seg: 3  y= 2.30  r(Sag)=  7.82  r(Tan)=  8.01
+Seg: 3  y= 2.40  r(Sag)=  7.83  r(Tan)=  8.04
+Seg: 3  y= 2.50  r(Sag)=  7.83  r(Tan)=  8.09
+Seg: 3  y= 2.60  r(Sag)=  7.84  r(Tan)=  8.14
+Seg: 3  y= 2.70  r(Sag)=  7.85  r(Tan)=  8.19
+Seg: 3  y= 2.80  r(Sag)=  7.87  r(Tan)=  8.26
+Seg: 3  y= 2.90  r(Sag)=  7.88  r(Tan)=  8.33
+Seg: 3  y= 3.00  r(Sag)=  7.89  r(Tan)=  8.41
+Seg: 3  y= 3.10  r(Sag)=  7.91  r(Tan)=  8.49
+Seg: 3  y= 3.20  r(Sag)=  7.93  r(Tan)=  8.58
+Seg: 3  y= 3.30  r(Sag)=  7.95  r(Tan)=  8.67
+Seg: 3  y= 3.40  r(Sag)=  7.97  r(Tan)=  8.75
+Seg: 3  y= 3.50  r(Sag)=  7.99  r(Tan)=  8.83
+Seg: 3  y= 3.60  r(Sag)=  8.01  r(Tan)=  8.90
+Seg: 3  y= 3.70  r(Sag)=  8.04  r(Tan)=  8.95
+Seg: 3  y= 3.80  r(Sag)=  8.06  r(Tan)=  9.00
+Seg: 3  y= 3.90  r(Sag)=  8.08  r(Tan)=  9.03
+Seg: 3  y= 4.00  r(Sag)=  8.11  r(Tan)=  9.06
+Seg: 3  y= 4.10  r(Sag)=  8.13  r(Tan)=  9.07
+Seg: 4  y= 0.00  r(Sag)=  7.68  r(Tan)=  7.71
+Seg: 4  y= 0.10  r(Sag)=  7.68  r(Tan)=  7.71
+Seg: 4  y= 0.20  r(Sag)=  7.69  r(Tan)=  7.72
+Seg: 4  y= 0.30  r(Sag)=  7.70  r(Tan)=  7.73
+Seg: 4  y= 0.40  r(Sag)=  7.70  r(Tan)=  7.74
+Seg: 4  y= 0.50  r(Sag)=  7.71  r(Tan)=  7.75
+Seg: 4  y= 0.60  r(Sag)=  7.72  r(Tan)=  7.76
+Seg: 4  y= 0.70  r(Sag)=  7.73  r(Tan)=  7.77
+Seg: 4  y= 0.80  r(Sag)=  7.74  r(Tan)=  7.78
+Seg: 4  y= 0.90  r(Sag)=  7.74  r(Tan)=  7.79
+Seg: 4  y= 1.00  r(Sag)=  7.75  r(Tan)=  7.80
+Seg: 4  y= 1.10  r(Sag)=  7.75  r(Tan)=  7.81
+Seg: 4  y= 1.20  r(Sag)=  7.76  r(Tan)=  7.82
+Seg: 4  y= 1.30  r(Sag)=  7.76  r(Tan)=  7.82
+Seg: 4  y= 1.40  r(Sag)=  7.77  r(Tan)=  7.83
+Seg: 4  y= 1.50  r(Sag)=  7.77  r(Tan)=  7.84
+Seg: 4  y= 1.60  r(Sag)=  7.77  r(Tan)=  7.85
+Seg: 4  y= 1.70  r(Sag)=  7.78  r(Tan)=  7.87
+Seg: 4  y= 1.80  r(Sag)=  7.78  r(Tan)=  7.89
+Seg: 4  y= 1.90  r(Sag)=  7.79  r(Tan)=  7.91
+Seg: 4  y= 2.00  r(Sag)=  7.80  r(Tan)=  7.93
+Seg: 4  y= 2.10  r(Sag)=  7.80  r(Tan)=  7.96
+Seg: 4  y= 2.20  r(Sag)=  7.81  r(Tan)=  7.99
+Seg: 4  y= 2.30  r(Sag)=  7.82  r(Tan)=  8.02
+Seg: 4  y= 2.40  r(Sag)=  7.83  r(Tan)=  8.06
+Seg: 4  y= 2.50  r(Sag)=  7.84  r(Tan)=  8.10
+Seg: 4  y= 2.60  r(Sag)=  7.85  r(Tan)=  8.15
+Seg: 4  y= 2.70  r(Sag)=  7.86  r(Tan)=  8.20
+Seg: 4  y= 2.80  r(Sag)=  7.87  r(Tan)=  8.26
+Seg: 4  y= 2.90  r(Sag)=  7.88  r(Tan)=  8.33
+Seg: 4  y= 3.00  r(Sag)=  7.90  r(Tan)=  8.41
+Seg: 4  y= 3.10  r(Sag)=  7.91  r(Tan)=  8.49
+Seg: 4  y= 3.20  r(Sag)=  7.93  r(Tan)=  8.57
+Seg: 4  y= 3.30  r(Sag)=  7.95  r(Tan)=  8.66
+Seg: 4  y= 3.40  r(Sag)=  7.97  r(Tan)=  8.74
+Seg: 4  y= 3.50  r(Sag)=  7.99  r(Tan)=  8.82
+Seg: 4  y= 3.60  r(Sag)=  8.01  r(Tan)=  8.90
+Seg: 4  y= 3.70  r(Sag)=  8.04  r(Tan)=  8.96
+Seg: 4  y= 3.80  r(Sag)=  8.06  r(Tan)=  9.01
+Seg: 4  y= 3.90  r(Sag)=  8.08  r(Tan)=  9.05
+Seg: 4  y= 4.00  r(Sag)=  8.11  r(Tan)=  9.08
+Seg: 4  y= 4.10  r(Sag)=  8.13  r(Tan)=  9.09
+Seg: 5  y= 0.00  r(Sag)=  7.68  r(Tan)=  7.70
+Seg: 5  y= 0.10  r(Sag)=  7.68  r(Tan)=  7.71
+Seg: 5  y= 0.20  r(Sag)=  7.69  r(Tan)=  7.72
+Seg: 5  y= 0.30  r(Sag)=  7.69  r(Tan)=  7.73
+Seg: 5  y= 0.40  r(Sag)=  7.70  r(Tan)=  7.74
+Seg: 5  y= 0.50  r(Sag)=  7.71  r(Tan)=  7.74
+Seg: 5  y= 0.60  r(Sag)=  7.72  r(Tan)=  7.76
+Seg: 5  y= 0.70  r(Sag)=  7.73  r(Tan)=  7.77
+Seg: 5  y= 0.80  r(Sag)=  7.73  r(Tan)=  7.78
+Seg: 5  y= 0.90  r(Sag)=  7.74  r(Tan)=  7.79
+Seg: 5  y= 1.00  r(Sag)=  7.75  r(Tan)=  7.80
+Seg: 5  y= 1.10  r(Sag)=  7.75  r(Tan)=  7.80
+Seg: 5  y= 1.20  r(Sag)=  7.76  r(Tan)=  7.81
+Seg: 5  y= 1.30  r(Sag)=  7.76  r(Tan)=  7.82
+Seg: 5  y= 1.40  r(Sag)=  7.76  r(Tan)=  7.82
+Seg: 5  y= 1.50  r(Sag)=  7.77  r(Tan)=  7.83
+Seg: 5  y= 1.60  r(Sag)=  7.77  r(Tan)=  7.85
+Seg: 5  y= 1.70  r(Sag)=  7.78  r(Tan)=  7.87
+Seg: 5  y= 1.80  r(Sag)=  7.78  r(Tan)=  7.89
+Seg: 5  y= 1.90  r(Sag)=  7.79  r(Tan)=  7.91
+Seg: 5  y= 2.00  r(Sag)=  7.79  r(Tan)=  7.94
+Seg: 5  y= 2.10  r(Sag)=  7.80  r(Tan)=  7.97
+Seg: 5  y= 2.20  r(Sag)=  7.81  r(Tan)=  8.00
+Seg: 5  y= 2.30  r(Sag)=  7.82  r(Tan)=  8.03
+Seg: 5  y= 2.40  r(Sag)=  7.83  r(Tan)=  8.07
+Seg: 5  y= 2.50  r(Sag)=  7.84  r(Tan)=  8.11
+Seg: 5  y= 2.60  r(Sag)=  7.85  r(Tan)=  8.16
+Seg: 5  y= 2.70  r(Sag)=  7.86  r(Tan)=  8.21
+Seg: 5  y= 2.80  r(Sag)=  7.87  r(Tan)=  8.27
+Seg: 5  y= 2.90  r(Sag)=  7.88  r(Tan)=  8.33
+Seg: 5  y= 3.00  r(Sag)=  7.90  r(Tan)=  8.40
+Seg: 5  y= 3.10  r(Sag)=  7.91  r(Tan)=  8.48
+Seg: 5  y= 3.20  r(Sag)=  7.93  r(Tan)=  8.56
+Seg: 5  y= 3.30  r(Sag)=  7.95  r(Tan)=  8.64
+Seg: 5  y= 3.40  r(Sag)=  7.97  r(Tan)=  8.72
+Seg: 5  y= 3.50  r(Sag)=  7.99  r(Tan)=  8.80
+Seg: 5  y= 3.60  r(Sag)=  8.01  r(Tan)=  8.88
+Seg: 5  y= 3.70  r(Sag)=  8.04  r(Tan)=  8.96
+Seg: 5  y= 3.80  r(Sag)=  8.06  r(Tan)=  9.01
+Seg: 5  y= 3.90  r(Sag)=  8.08  r(Tan)=  9.06
+Seg: 5  y= 4.00  r(Sag)=  8.11  r(Tan)=  9.08
+Seg: 5  y= 4.10  r(Sag)=  8.13  r(Tan)=  9.11
+Seg: 6  y= 0.00  r(Sag)=  7.68  r(Tan)=  7.70
+Seg: 6  y= 0.10  r(Sag)=  7.68  r(Tan)=  7.71
+Seg: 6  y= 0.20  r(Sag)=  7.69  r(Tan)=  7.72
+Seg: 6  y= 0.30  r(Sag)=  7.69  r(Tan)=  7.73
+Seg: 6  y= 0.40  r(Sag)=  7.70  r(Tan)=  7.73
+Seg: 6  y= 0.50  r(Sag)=  7.71  r(Tan)=  7.74
+Seg: 6  y= 0.60  r(Sag)=  7.72  r(Tan)=  7.75
+Seg: 6  y= 0.70  r(Sag)=  7.73  r(Tan)=  7.77
+Seg: 6  y= 0.80  r(Sag)=  7.73  r(Tan)=  7.78
+Seg: 6  y= 0.90  r(Sag)=  7.74  r(Tan)=  7.79
+Seg: 6  y= 1.00  r(Sag)=  7.75  r(Tan)=  7.79
+Seg: 6  y= 1.10  r(Sag)=  7.75  r(Tan)=  7.80
+Seg: 6  y= 1.20  r(Sag)=  7.76  r(Tan)=  7.80
+Seg: 6  y= 1.30  r(Sag)=  7.76  r(Tan)=  7.81
+Seg: 6  y= 1.40  r(Sag)=  7.76  r(Tan)=  7.82
+Seg: 6  y= 1.50  r(Sag)=  7.76  r(Tan)=  7.83
+Seg: 6  y= 1.60  r(Sag)=  7.77  r(Tan)=  7.85
+Seg: 6  y= 1.70  r(Sag)=  7.77  r(Tan)=  7.86
+Seg: 6  y= 1.80  r(Sag)=  7.78  r(Tan)=  7.89
+Seg: 6  y= 1.90  r(Sag)=  7.78  r(Tan)=  7.91
+Seg: 6  y= 2.00  r(Sag)=  7.79  r(Tan)=  7.94
+Seg: 6  y= 2.10  r(Sag)=  7.80  r(Tan)=  7.98
+Seg: 6  y= 2.20  r(Sag)=  7.81  r(Tan)=  8.01
+Seg: 6  y= 2.30  r(Sag)=  7.82  r(Tan)=  8.05
+Seg: 6  y= 2.40  r(Sag)=  7.83  r(Tan)=  8.09
+Seg: 6  y= 2.50  r(Sag)=  7.84  r(Tan)=  8.13
+Seg: 6  y= 2.60  r(Sag)=  7.85  r(Tan)=  8.17
+Seg: 6  y= 2.70  r(Sag)=  7.86  r(Tan)=  8.22
+Seg: 6  y= 2.80  r(Sag)=  7.87  r(Tan)=  8.27
+Seg: 6  y= 2.90  r(Sag)=  7.89  r(Tan)=  8.33
+Seg: 6  y= 3.00  r(Sag)=  7.90  r(Tan)=  8.39
+Seg: 6  y= 3.10  r(Sag)=  7.92  r(Tan)=  8.46
+Seg: 6  y= 3.20  r(Sag)=  7.93  r(Tan)=  8.53
+Seg: 6  y= 3.30  r(Sag)=  7.95  r(Tan)=  8.61
+Seg: 6  y= 3.40  r(Sag)=  7.97  r(Tan)=  8.69
+Seg: 6  y= 3.50  r(Sag)=  7.99  r(Tan)=  8.78
+Seg: 6  y= 3.60  r(Sag)=  8.01  r(Tan)=  8.86
+Seg: 6  y= 3.70  r(Sag)=  8.03  r(Tan)=  8.94
+Seg: 6  y= 3.80  r(Sag)=  8.06  r(Tan)=  9.01
+Seg: 6  y= 3.90  r(Sag)=  8.08  r(Tan)=  9.05
+Seg: 6  y= 4.00  r(Sag)=  8.10  r(Tan)=  9.08
+Seg: 6  y= 4.10  r(Sag)=  8.13  r(Tan)=  9.11
+Seg: 7  y= 0.00  r(Sag)=  7.68  r(Tan)=  7.70
+Seg: 7  y= 0.10  r(Sag)=  7.68  r(Tan)=  7.70
+Seg: 7  y= 0.20  r(Sag)=  7.69  r(Tan)=  7.71
+Seg: 7  y= 0.30  r(Sag)=  7.69  r(Tan)=  7.72
+Seg: 7  y= 0.40  r(Sag)=  7.70  r(Tan)=  7.73
+Seg: 7  y= 0.50  r(Sag)=  7.70  r(Tan)=  7.74
+Seg: 7  y= 0.60  r(Sag)=  7.71  r(Tan)=  7.75
+Seg: 7  y= 0.70  r(Sag)=  7.72  r(Tan)=  7.76
+Seg: 7  y= 0.80  r(Sag)=  7.73  r(Tan)=  7.77
+Seg: 7  y= 0.90  r(Sag)=  7.74  r(Tan)=  7.78
+Seg: 7  y= 1.00  r(Sag)=  7.74  r(Tan)=  7.79
+Seg: 7  y= 1.10  r(Sag)=  7.75  r(Tan)=  7.79
+Seg: 7  y= 1.20  r(Sag)=  7.75  r(Tan)=  7.80
+Seg: 7  y= 1.30  r(Sag)=  7.76  r(Tan)=  7.81
+Seg: 7  y= 1.40  r(Sag)=  7.76  r(Tan)=  7.81
+Seg: 7  y= 1.50  r(Sag)=  7.76  r(Tan)=  7.83
+Seg: 7  y= 1.60  r(Sag)=  7.76  r(Tan)=  7.84
+Seg: 7  y= 1.70  r(Sag)=  7.77  r(Tan)=  7.86
+Seg: 7  y= 1.80  r(Sag)=  7.77  r(Tan)=  7.89
+Seg: 7  y= 1.90  r(Sag)=  7.78  r(Tan)=  7.92
+Seg: 7  y= 2.00  r(Sag)=  7.79  r(Tan)=  7.95
+Seg: 7  y= 2.10  r(Sag)=  7.80  r(Tan)=  7.99
+Seg: 7  y= 2.20  r(Sag)=  7.80  r(Tan)=  8.02
+Seg: 7  y= 2.30  r(Sag)=  7.81  r(Tan)=  8.06
+Seg: 7  y= 2.40  r(Sag)=  7.83  r(Tan)=  8.10
+Seg: 7  y= 2.50  r(Sag)=  7.84  r(Tan)=  8.14
+Seg: 7  y= 2.60  r(Sag)=  7.85  r(Tan)=  8.18
+Seg: 7  y= 2.70  r(Sag)=  7.86  r(Tan)=  8.23
+Seg: 7  y= 2.80  r(Sag)=  7.87  r(Tan)=  8.28
+Seg: 7  y= 2.90  r(Sag)=  7.89  r(Tan)=  8.33
+Seg: 7  y= 3.00  r(Sag)=  7.90  r(Tan)=  8.38
+Seg: 7  y= 3.10  r(Sag)=  7.92  r(Tan)=  8.44
+Seg: 7  y= 3.20  r(Sag)=  7.93  r(Tan)=  8.51
+Seg: 7  y= 3.30  r(Sag)=  7.95  r(Tan)=  8.58
+Seg: 7  y= 3.40  r(Sag)=  7.97  r(Tan)=  8.66
+Seg: 7  y= 3.50  r(Sag)=  7.99  r(Tan)=  8.74
+Seg: 7  y= 3.60  r(Sag)=  8.01  r(Tan)=  8.83
+Seg: 7  y= 3.70  r(Sag)=  8.03  r(Tan)=  8.92
+Seg: 7  y= 3.80  r(Sag)=  8.05  r(Tan)=  8.99
+Seg: 7  y= 3.90  r(Sag)=  8.07  r(Tan)=  9.04
+Seg: 7  y= 4.00  r(Sag)=  8.10  r(Tan)=  9.07
+Seg: 7  y= 4.10  r(Sag)=  8.12  r(Tan)=  9.10
+Seg: 8  y= 0.00  r(Sag)=  7.68  r(Tan)=  7.69
+Seg: 8  y= 0.10  r(Sag)=  7.68  r(Tan)=  7.70
+Seg: 8  y= 0.20  r(Sag)=  7.69  r(Tan)=  7.71
+Seg: 8  y= 0.30  r(Sag)=  7.69  r(Tan)=  7.72
+Seg: 8  y= 0.40  r(Sag)=  7.70  r(Tan)=  7.73
+Seg: 8  y= 0.50  r(Sag)=  7.70  r(Tan)=  7.73
+Seg: 8  y= 0.60  r(Sag)=  7.71  r(Tan)=  7.74
+Seg: 8  y= 0.70  r(Sag)=  7.72  r(Tan)=  7.76
+Seg: 8  y= 0.80  r(Sag)=  7.73  r(Tan)=  7.77
+Seg: 8  y= 0.90  r(Sag)=  7.73  r(Tan)=  7.78
+Seg: 8  y= 1.00  r(Sag)=  7.74  r(Tan)=  7.79
+Seg: 8  y= 1.10  r(Sag)=  7.74  r(Tan)=  7.79
+Seg: 8  y= 1.20  r(Sag)=  7.75  r(Tan)=  7.79
+Seg: 8  y= 1.30  r(Sag)=  7.75  r(Tan)=  7.80
+Seg: 8  y= 1.40  r(Sag)=  7.75  r(Tan)=  7.81
+Seg: 8  y= 1.50  r(Sag)=  7.76  r(Tan)=  7.82
+Seg: 8  y= 1.60  r(Sag)=  7.76  r(Tan)=  7.84
+Seg: 8  y= 1.70  r(Sag)=  7.76  r(Tan)=  7.86
+Seg: 8  y= 1.80  r(Sag)=  7.77  r(Tan)=  7.89
+Seg: 8  y= 1.90  r(Sag)=  7.78  r(Tan)=  7.92
+Seg: 8  y= 2.00  r(Sag)=  7.78  r(Tan)=  7.96
+Seg: 8  y= 2.10  r(Sag)=  7.79  r(Tan)=  7.99
+Seg: 8  y= 2.20  r(Sag)=  7.80  r(Tan)=  8.03
+Seg: 8  y= 2.30  r(Sag)=  7.81  r(Tan)=  8.07
+Seg: 8  y= 2.40  r(Sag)=  7.82  r(Tan)=  8.11
+Seg: 8  y= 2.50  r(Sag)=  7.84  r(Tan)=  8.15
+Seg: 8  y= 2.60  r(Sag)=  7.85  r(Tan)=  8.20
+Seg: 8  y= 2.70  r(Sag)=  7.86  r(Tan)=  8.24
+Seg: 8  y= 2.80  r(Sag)=  7.88  r(Tan)=  8.28
+Seg: 8  y= 2.90  r(Sag)=  7.89  r(Tan)=  8.32
+Seg: 8  y= 3.00  r(Sag)=  7.90  r(Tan)=  8.37
+Seg: 8  y= 3.10  r(Sag)=  7.92  r(Tan)=  8.42
+Seg: 8  y= 3.20  r(Sag)=  7.93  r(Tan)=  8.48
+Seg: 8  y= 3.30  r(Sag)=  7.95  r(Tan)=  8.55
+Seg: 8  y= 3.40  r(Sag)=  7.97  r(Tan)=  8.63
+Seg: 8  y= 3.50  r(Sag)=  7.98  r(Tan)=  8.71
+Seg: 8  y= 3.60  r(Sag)=  8.00  r(Tan)=  8.80
+Seg: 8  y= 3.70  r(Sag)=  8.02  r(Tan)=  8.89
+Seg: 8  y= 3.80  r(Sag)=  8.04  r(Tan)=  8.97
+Seg: 8  y= 3.90  r(Sag)=  8.07  r(Tan)=  9.02
+Seg: 8  y= 4.00  r(Sag)=  8.09  r(Tan)=  9.06
+Seg: 8  y= 4.10  r(Sag)=  8.12  r(Tan)=  9.09
+Seg: 9  y= 0.00  r(Sag)=  7.68  r(Tan)=  7.69
+Seg: 9  y= 0.10  r(Sag)=  7.68  r(Tan)=  7.70
+Seg: 9  y= 0.20  r(Sag)=  7.68  r(Tan)=  7.70
+Seg: 9  y= 0.30  r(Sag)=  7.69  r(Tan)=  7.71
+Seg: 9  y= 0.40  r(Sag)=  7.69  r(Tan)=  7.72
+Seg: 9  y= 0.50  r(Sag)=  7.70  r(Tan)=  7.73
+Seg: 9  y= 0.60  r(Sag)=  7.71  r(Tan)=  7.74
+Seg: 9  y= 0.70  r(Sag)=  7.71  r(Tan)=  7.75
+Seg: 9  y= 0.80  r(Sag)=  7.72  r(Tan)=  7.76
+Seg: 9  y= 0.90  r(Sag)=  7.73  r(Tan)=  7.77
+Seg: 9  y= 1.00  r(Sag)=  7.73  r(Tan)=  7.78
+Seg: 9  y= 1.10  r(Sag)=  7.74  r(Tan)=  7.79
+Seg: 9  y= 1.20  r(Sag)=  7.74  r(Tan)=  7.79
+Seg: 9  y= 1.30  r(Sag)=  7.75  r(Tan)=  7.80
+Seg: 9  y= 1.40  r(Sag)=  7.75  r(Tan)=  7.81
+Seg: 9  y= 1.50  r(Sag)=  7.75  r(Tan)=  7.82
+Seg: 9  y= 1.60  r(Sag)=  7.76  r(Tan)=  7.84
+Seg: 9  y= 1.70  r(Sag)=  7.76  r(Tan)=  7.86
+Seg: 9  y= 1.80  r(Sag)=  7.77  r(Tan)=  7.89
+Seg: 9  y= 1.90  r(Sag)=  7.77  r(Tan)=  7.92
+Seg: 9  y= 2.00  r(Sag)=  7.78  r(Tan)=  7.96
+Seg: 9  y= 2.10  r(Sag)=  7.79  r(Tan)=  8.00
+Seg: 9  y= 2.20  r(Sag)=  7.80  r(Tan)=  8.04
+Seg: 9  y= 2.30  r(Sag)=  7.81  r(Tan)=  8.08
+Seg: 9  y= 2.40  r(Sag)=  7.82  r(Tan)=  8.12
+Seg: 9  y= 2.50  r(Sag)=  7.84  r(Tan)=  8.16
+Seg: 9  y= 2.60  r(Sag)=  7.85  r(Tan)=  8.20
+Seg: 9  y= 2.70  r(Sag)=  7.86  r(Tan)=  8.24
+Seg: 9  y= 2.80  r(Sag)=  7.88  r(Tan)=  8.28
+Seg: 9  y= 2.90  r(Sag)=  7.89  r(Tan)=  8.31
+Seg: 9  y= 3.00  r(Sag)=  7.90  r(Tan)=  8.35
+Seg: 9  y= 3.10  r(Sag)=  7.92  r(Tan)=  8.40
+Seg: 9  y= 3.20  r(Sag)=  7.93  r(Tan)=  8.46
+Seg: 9  y= 3.30  r(Sag)=  7.95  r(Tan)=  8.52
+Seg: 9  y= 3.40  r(Sag)=  7.96  r(Tan)=  8.59
+Seg: 9  y= 3.50  r(Sag)=  7.98  r(Tan)=  8.68
+Seg: 9  y= 3.60  r(Sag)=  8.00  r(Tan)=  8.77
+Seg: 9  y= 3.70  r(Sag)=  8.02  r(Tan)=  8.86
+Seg: 9  y= 3.80  r(Sag)=  8.04  r(Tan)=  8.94
+Seg: 9  y= 3.90  r(Sag)=  8.06  r(Tan)=  9.00
+Seg: 9  y= 4.00  r(Sag)=  8.09  r(Tan)=  9.04
+Seg: 9  y= 4.10  r(Sag)=  8.11  r(Tan)=  9.07
+Seg:10  y= 0.00  r(Sag)=  7.68  r(Tan)=  7.69
+Seg:10  y= 0.10  r(Sag)=  7.68  r(Tan)=  7.69
+Seg:10  y= 0.20  r(Sag)=  7.68  r(Tan)=  7.70
+Seg:10  y= 0.30  r(Sag)=  7.69  r(Tan)=  7.71
+Seg:10  y= 0.40  r(Sag)=  7.69  r(Tan)=  7.72
+Seg:10  y= 0.50  r(Sag)=  7.70  r(Tan)=  7.72
+Seg:10  y= 0.60  r(Sag)=  7.70  r(Tan)=  7.73
+Seg:10  y= 0.70  r(Sag)=  7.71  r(Tan)=  7.74
+Seg:10  y= 0.80  r(Sag)=  7.72  r(Tan)=  7.76
+Seg:10  y= 0.90  r(Sag)=  7.72  r(Tan)=  7.77
+Seg:10  y= 1.00  r(Sag)=  7.73  r(Tan)=  7.78
+Seg:10  y= 1.10  r(Sag)=  7.73  r(Tan)=  7.78
+Seg:10  y= 1.20  r(Sag)=  7.74  r(Tan)=  7.79
+Seg:10  y= 1.30  r(Sag)=  7.74  r(Tan)=  7.80
+Seg:10  y= 1.40  r(Sag)=  7.74  r(Tan)=  7.81
+Seg:10  y= 1.50  r(Sag)=  7.75  r(Tan)=  7.82
+Seg:10  y= 1.60  r(Sag)=  7.75  r(Tan)=  7.84
+Seg:10  y= 1.70  r(Sag)=  7.76  r(Tan)=  7.86
+Seg:10  y= 1.80  r(Sag)=  7.76  r(Tan)=  7.89
+Seg:10  y= 1.90  r(Sag)=  7.77  r(Tan)=  7.93
+Seg:10  y= 2.00  r(Sag)=  7.78  r(Tan)=  7.96
+Seg:10  y= 2.10  r(Sag)=  7.79  r(Tan)=  8.01
+Seg:10  y= 2.20  r(Sag)=  7.80  r(Tan)=  8.05
+Seg:10  y= 2.30  r(Sag)=  7.81  r(Tan)=  8.09
+Seg:10  y= 2.40  r(Sag)=  7.82  r(Tan)=  8.13
+Seg:10  y= 2.50  r(Sag)=  7.83  r(Tan)=  8.17
+Seg:10  y= 2.60  r(Sag)=  7.85  r(Tan)=  8.21
+Seg:10  y= 2.70  r(Sag)=  7.86  r(Tan)=  8.24
+Seg:10  y= 2.80  r(Sag)=  7.88  r(Tan)=  8.27
+Seg:10  y= 2.90  r(Sag)=  7.89  r(Tan)=  8.31
+Seg:10  y= 3.00  r(Sag)=  7.90  r(Tan)=  8.34
+Seg:10  y= 3.10  r(Sag)=  7.92  r(Tan)=  8.38
+Seg:10  y= 3.20  r(Sag)=  7.93  r(Tan)=  8.43
+Seg:10  y= 3.30  r(Sag)=  7.94  r(Tan)=  8.49
+Seg:10  y= 3.40  r(Sag)=  7.96  r(Tan)=  8.56
+Seg:10  y= 3.50  r(Sag)=  7.97  r(Tan)=  8.65
+Seg:10  y= 3.60  r(Sag)=  7.99  r(Tan)=  8.74
+Seg:10  y= 3.70  r(Sag)=  8.01  r(Tan)=  8.82
+Seg:10  y= 3.80  r(Sag)=  8.03  r(Tan)=  8.91
+Seg:10  y= 3.90  r(Sag)=  8.05  r(Tan)=  8.97
+Seg:10  y= 4.00  r(Sag)=  8.08  r(Tan)=  9.01
+Seg:10  y= 4.10  r(Sag)=  8.10  r(Tan)=  9.05
+Seg:11  y= 0.00  r(Sag)=  7.67  r(Tan)=  7.69
+Seg:11  y= 0.10  r(Sag)=  7.67  r(Tan)=  7.69
+Seg:11  y= 0.20  r(Sag)=  7.68  r(Tan)=  7.70
+Seg:11  y= 0.30  r(Sag)=  7.68  r(Tan)=  7.70
+Seg:11  y= 0.40  r(Sag)=  7.69  r(Tan)=  7.71
+Seg:11  y= 0.50  r(Sag)=  7.69  r(Tan)=  7.72
+Seg:11  y= 0.60  r(Sag)=  7.70  r(Tan)=  7.73
+Seg:11  y= 0.70  r(Sag)=  7.70  r(Tan)=  7.74
+Seg:11  y= 0.80  r(Sag)=  7.71  r(Tan)=  7.75
+Seg:11  y= 0.90  r(Sag)=  7.72  r(Tan)=  7.76
+Seg:11  y= 1.00  r(Sag)=  7.72  r(Tan)=  7.77
+Seg:11  y= 1.10  r(Sag)=  7.73  r(Tan)=  7.78
+Seg:11  y= 1.20  r(Sag)=  7.73  r(Tan)=  7.79
+Seg:11  y= 1.30  r(Sag)=  7.74  r(Tan)=  7.79
+Seg:11  y= 1.40  r(Sag)=  7.74  r(Tan)=  7.81
+Seg:11  y= 1.50  r(Sag)=  7.74  r(Tan)=  7.82
+Seg:11  y= 1.60  r(Sag)=  7.75  r(Tan)=  7.84
+Seg:11  y= 1.70  r(Sag)=  7.75  r(Tan)=  7.86
+Seg:11  y= 1.80  r(Sag)=  7.76  r(Tan)=  7.89
+Seg:11  y= 1.90  r(Sag)=  7.77  r(Tan)=  7.93
+Seg:11  y= 2.00  r(Sag)=  7.77  r(Tan)=  7.97
+Seg:11  y= 2.10  r(Sag)=  7.78  r(Tan)=  8.01
+Seg:11  y= 2.20  r(Sag)=  7.79  r(Tan)=  8.05
+Seg:11  y= 2.30  r(Sag)=  7.81  r(Tan)=  8.09
+Seg:11  y= 2.40  r(Sag)=  7.82  r(Tan)=  8.13
+Seg:11  y= 2.50  r(Sag)=  7.83  r(Tan)=  8.17
+Seg:11  y= 2.60  r(Sag)=  7.85  r(Tan)=  8.20
+Seg:11  y= 2.70  r(Sag)=  7.86  r(Tan)=  8.23
+Seg:11  y= 2.80  r(Sag)=  7.87  r(Tan)=  8.26
+Seg:11  y= 2.90  r(Sag)=  7.89  r(Tan)=  8.29
+Seg:11  y= 3.00  r(Sag)=  7.90  r(Tan)=  8.33
+Seg:11  y= 3.10  r(Sag)=  7.91  r(Tan)=  8.37
+Seg:11  y= 3.20  r(Sag)=  7.93  r(Tan)=  8.41
+Seg:11  y= 3.30  r(Sag)=  7.94  r(Tan)=  8.47
+Seg:11  y= 3.40  r(Sag)=  7.95  r(Tan)=  8.54
+Seg:11  y= 3.50  r(Sag)=  7.97  r(Tan)=  8.62
+Seg:11  y= 3.60  r(Sag)=  7.99  r(Tan)=  8.71
+Seg:11  y= 3.70  r(Sag)=  8.01  r(Tan)=  8.80
+Seg:11  y= 3.80  r(Sag)=  8.03  r(Tan)=  8.88
+Seg:11  y= 3.90  r(Sag)=  8.05  r(Tan)=  8.94
+Seg:11  y= 4.00  r(Sag)=  8.07  r(Tan)=  8.99
+Seg:11  y= 4.10  r(Sag)=  8.09  r(Tan)=  9.03
+Seg:12  y= 0.00  r(Sag)=  7.67  r(Tan)=  7.69
+Seg:12  y= 0.10  r(Sag)=  7.67  r(Tan)=  7.69
+Seg:12  y= 0.20  r(Sag)=  7.67  r(Tan)=  7.69
+Seg:12  y= 0.30  r(Sag)=  7.68  r(Tan)=  7.70
+Seg:12  y= 0.40  r(Sag)=  7.68  r(Tan)=  7.70
+Seg:12  y= 0.50  r(Sag)=  7.69  r(Tan)=  7.71
+Seg:12  y= 0.60  r(Sag)=  7.69  r(Tan)=  7.72
+Seg:12  y= 0.70  r(Sag)=  7.70  r(Tan)=  7.73
+Seg:12  y= 0.80  r(Sag)=  7.70  r(Tan)=  7.74
+Seg:12  y= 0.90  r(Sag)=  7.71  r(Tan)=  7.75
+Seg:12  y= 1.00  r(Sag)=  7.71  r(Tan)=  7.77
+Seg:12  y= 1.10  r(Sag)=  7.72  r(Tan)=  7.78
+Seg:12  y= 1.20  r(Sag)=  7.73  r(Tan)=  7.78
+Seg:12  y= 1.30  r(Sag)=  7.73  r(Tan)=  7.79
+Seg:12  y= 1.40  r(Sag)=  7.73  r(Tan)=  7.81
+Seg:12  y= 1.50  r(Sag)=  7.74  r(Tan)=  7.82
+Seg:12  y= 1.60  r(Sag)=  7.74  r(Tan)=  7.84
+Seg:12  y= 1.70  r(Sag)=  7.75  r(Tan)=  7.86
+Seg:12  y= 1.80  r(Sag)=  7.75  r(Tan)=  7.89
+Seg:12  y= 1.90  r(Sag)=  7.76  r(Tan)=  7.93
+Seg:12  y= 2.00  r(Sag)=  7.77  r(Tan)=  7.96
+Seg:12  y= 2.10  r(Sag)=  7.78  r(Tan)=  8.01
+Seg:12  y= 2.20  r(Sag)=  7.79  r(Tan)=  8.05
+Seg:12  y= 2.30  r(Sag)=  7.80  r(Tan)=  8.09
+Seg:12  y= 2.40  r(Sag)=  7.82  r(Tan)=  8.13
+Seg:12  y= 2.50  r(Sag)=  7.83  r(Tan)=  8.16
+Seg:12  y= 2.60  r(Sag)=  7.84  r(Tan)=  8.19
+Seg:12  y= 2.70  r(Sag)=  7.86  r(Tan)=  8.22
+Seg:12  y= 2.80  r(Sag)=  7.87  r(Tan)=  8.25
+Seg:12  y= 2.90  r(Sag)=  7.88  r(Tan)=  8.28
+Seg:12  y= 3.00  r(Sag)=  7.89  r(Tan)=  8.31
+Seg:12  y= 3.10  r(Sag)=  7.91  r(Tan)=  8.35
+Seg:12  y= 3.20  r(Sag)=  7.92  r(Tan)=  8.40
+Seg:12  y= 3.30  r(Sag)=  7.93  r(Tan)=  8.46
+Seg:12  y= 3.40  r(Sag)=  7.95  r(Tan)=  8.53
+Seg:12  y= 3.50  r(Sag)=  7.96  r(Tan)=  8.61
+Seg:12  y= 3.60  r(Sag)=  7.98  r(Tan)=  8.69
+Seg:12  y= 3.70  r(Sag)=  8.00  r(Tan)=  8.77
+Seg:12  y= 3.80  r(Sag)=  8.02  r(Tan)=  8.85
+Seg:12  y= 3.90  r(Sag)=  8.04  r(Tan)=  8.92
+Seg:12  y= 4.00  r(Sag)=  8.06  r(Tan)=  8.96
+Seg:12  y= 4.10  r(Sag)=  8.08  r(Tan)=  9.00
+Seg:13  y= 0.00  r(Sag)=  7.66  r(Tan)=  7.69
+Seg:13  y= 0.10  r(Sag)=  7.66  r(Tan)=  7.69
+Seg:13  y= 0.20  r(Sag)=  7.67  r(Tan)=  7.69
+Seg:13  y= 0.30  r(Sag)=  7.67  r(Tan)=  7.69
+Seg:13  y= 0.40  r(Sag)=  7.68  r(Tan)=  7.70
+Seg:13  y= 0.50  r(Sag)=  7.68  r(Tan)=  7.70
+Seg:13  y= 0.60  r(Sag)=  7.69  r(Tan)=  7.71
+Seg:13  y= 0.70  r(Sag)=  7.69  r(Tan)=  7.72
+Seg:13  y= 0.80  r(Sag)=  7.70  r(Tan)=  7.74
+Seg:13  y= 0.90  r(Sag)=  7.70  r(Tan)=  7.75
+Seg:13  y= 1.00  r(Sag)=  7.71  r(Tan)=  7.76
+Seg:13  y= 1.10  r(Sag)=  7.71  r(Tan)=  7.77
+Seg:13  y= 1.20  r(Sag)=  7.72  r(Tan)=  7.78
+Seg:13  y= 1.30  r(Sag)=  7.72  r(Tan)=  7.79
+Seg:13  y= 1.40  r(Sag)=  7.73  r(Tan)=  7.81
+Seg:13  y= 1.50  r(Sag)=  7.73  r(Tan)=  7.82
+Seg:13  y= 1.60  r(Sag)=  7.74  r(Tan)=  7.84
+Seg:13  y= 1.70  r(Sag)=  7.74  r(Tan)=  7.86
+Seg:13  y= 1.80  r(Sag)=  7.75  r(Tan)=  7.89
+Seg:13  y= 1.90  r(Sag)=  7.76  r(Tan)=  7.92
+Seg:13  y= 2.00  r(Sag)=  7.77  r(Tan)=  7.96
+Seg:13  y= 2.10  r(Sag)=  7.78  r(Tan)=  8.00
+Seg:13  y= 2.20  r(Sag)=  7.79  r(Tan)=  8.04
+Seg:13  y= 2.30  r(Sag)=  7.80  r(Tan)=  8.08
+Seg:13  y= 2.40  r(Sag)=  7.81  r(Tan)=  8.12
+Seg:13  y= 2.50  r(Sag)=  7.82  r(Tan)=  8.15
+Seg:13  y= 2.60  r(Sag)=  7.84  r(Tan)=  8.18
+Seg:13  y= 2.70  r(Sag)=  7.85  r(Tan)=  8.21
+Seg:13  y= 2.80  r(Sag)=  7.86  r(Tan)=  8.24
+Seg:13  y= 2.90  r(Sag)=  7.88  r(Tan)=  8.27
+Seg:13  y= 3.00  r(Sag)=  7.89  r(Tan)=  8.30
+Seg:13  y= 3.10  r(Sag)=  7.90  r(Tan)=  8.34
+Seg:13  y= 3.20  r(Sag)=  7.91  r(Tan)=  8.39
+Seg:13  y= 3.30  r(Sag)=  7.93  r(Tan)=  8.45
+Seg:13  y= 3.40  r(Sag)=  7.94  r(Tan)=  8.52
+Seg:13  y= 3.50  r(Sag)=  7.96  r(Tan)=  8.60
+Seg:13  y= 3.60  r(Sag)=  7.98  r(Tan)=  8.68
+Seg:13  y= 3.70  r(Sag)=  7.99  r(Tan)=  8.75
+Seg:13  y= 3.80  r(Sag)=  8.01  r(Tan)=  8.83
+Seg:13  y= 3.90  r(Sag)=  8.03  r(Tan)=  8.89
+Seg:13  y= 4.00  r(Sag)=  8.06  r(Tan)=  8.94
+Seg:13  y= 4.10  r(Sag)=  8.08  r(Tan)=  8.98
+Seg:14  y= 0.00  r(Sag)=  7.66  r(Tan)=  7.69
+Seg:14  y= 0.10  r(Sag)=  7.66  r(Tan)=  7.68
+Seg:14  y= 0.20  r(Sag)=  7.66  r(Tan)=  7.69
+Seg:14  y= 0.30  r(Sag)=  7.67  r(Tan)=  7.69
+Seg:14  y= 0.40  r(Sag)=  7.67  r(Tan)=  7.69
+Seg:14  y= 0.50  r(Sag)=  7.68  r(Tan)=  7.70
+Seg:14  y= 0.60  r(Sag)=  7.68  r(Tan)=  7.71
+Seg:14  y= 0.70  r(Sag)=  7.68  r(Tan)=  7.72
+Seg:14  y= 0.80  r(Sag)=  7.69  r(Tan)=  7.73
+Seg:14  y= 0.90  r(Sag)=  7.69  r(Tan)=  7.74
+Seg:14  y= 1.00  r(Sag)=  7.70  r(Tan)=  7.76
+Seg:14  y= 1.10  r(Sag)=  7.71  r(Tan)=  7.77
+Seg:14  y= 1.20  r(Sag)=  7.71  r(Tan)=  7.78
+Seg:14  y= 1.30  r(Sag)=  7.72  r(Tan)=  7.79
+Seg:14  y= 1.40  r(Sag)=  7.72  r(Tan)=  7.81
+Seg:14  y= 1.50  r(Sag)=  7.73  r(Tan)=  7.82
+Seg:14  y= 1.60  r(Sag)=  7.74  r(Tan)=  7.84
+Seg:14  y= 1.70  r(Sag)=  7.74  r(Tan)=  7.86
+Seg:14  y= 1.80  r(Sag)=  7.75  r(Tan)=  7.89
+Seg:14  y= 1.90  r(Sag)=  7.75  r(Tan)=  7.92
+Seg:14  y= 2.00  r(Sag)=  7.76  r(Tan)=  7.95
+Seg:14  y= 2.10  r(Sag)=  7.77  r(Tan)=  7.99
+Seg:14  y= 2.20  r(Sag)=  7.78  r(Tan)=  8.03
+Seg:14  y= 2.30  r(Sag)=  7.79  r(Tan)=  8.06
+Seg:14  y= 2.40  r(Sag)=  7.81  r(Tan)=  8.10
+Seg:14  y= 2.50  r(Sag)=  7.82  r(Tan)=  8.13
+Seg:14  y= 2.60  r(Sag)=  7.83  r(Tan)=  8.16
+Seg:14  y= 2.70  r(Sag)=  7.84  r(Tan)=  8.19
+Seg:14  y= 2.80  r(Sag)=  7.86  r(Tan)=  8.22
+Seg:14  y= 2.90  r(Sag)=  7.87  r(Tan)=  8.25
+Seg:14  y= 3.00  r(Sag)=  7.88  r(Tan)=  8.29
+Seg:14  y= 3.10  r(Sag)=  7.89  r(Tan)=  8.34
+Seg:14  y= 3.20  r(Sag)=  7.91  r(Tan)=  8.39
+Seg:14  y= 3.30  r(Sag)=  7.92  r(Tan)=  8.46
+Seg:14  y= 3.40  r(Sag)=  7.93  r(Tan)=  8.53
+Seg:14  y= 3.50  r(Sag)=  7.95  r(Tan)=  8.60
+Seg:14  y= 3.60  r(Sag)=  7.97  r(Tan)=  8.67
+Seg:14  y= 3.70  r(Sag)=  7.99  r(Tan)=  8.74
+Seg:14  y= 3.80  r(Sag)=  8.01  r(Tan)=  8.81
+Seg:14  y= 3.90  r(Sag)=  8.03  r(Tan)=  8.87
+Seg:14  y= 4.00  r(Sag)=  8.05  r(Tan)=  8.93
+Seg:14  y= 4.10  r(Sag)=  8.07  r(Tan)=  8.96
+Seg:15  y= 0.00  r(Sag)=  7.65  r(Tan)=  7.69
+Seg:15  y= 0.10  r(Sag)=  7.65  r(Tan)=  7.68
+Seg:15  y= 0.20  r(Sag)=  7.66  r(Tan)=  7.68
+Seg:15  y= 0.30  r(Sag)=  7.66  r(Tan)=  7.68
+Seg:15  y= 0.40  r(Sag)=  7.67  r(Tan)=  7.69
+Seg:15  y= 0.50  r(Sag)=  7.67  r(Tan)=  7.69
+Seg:15  y= 0.60  r(Sag)=  7.68  r(Tan)=  7.70
+Seg:15  y= 0.70  r(Sag)=  7.68  r(Tan)=  7.71
+Seg:15  y= 0.80  r(Sag)=  7.68  r(Tan)=  7.72
+Seg:15  y= 0.90  r(Sag)=  7.69  r(Tan)=  7.74
+Seg:15  y= 1.00  r(Sag)=  7.69  r(Tan)=  7.75
+Seg:15  y= 1.10  r(Sag)=  7.70  r(Tan)=  7.77
+Seg:15  y= 1.20  r(Sag)=  7.71  r(Tan)=  7.78
+Seg:15  y= 1.30  r(Sag)=  7.71  r(Tan)=  7.79
+Seg:15  y= 1.40  r(Sag)=  7.72  r(Tan)=  7.81
+Seg:15  y= 1.50  r(Sag)=  7.73  r(Tan)=  7.82
+Seg:15  y= 1.60  r(Sag)=  7.73  r(Tan)=  7.84
+Seg:15  y= 1.70  r(Sag)=  7.74  r(Tan)=  7.86
+Seg:15  y= 1.80  r(Sag)=  7.74  r(Tan)=  7.89
+Seg:15  y= 1.90  r(Sag)=  7.75  r(Tan)=  7.91
+Seg:15  y= 2.00  r(Sag)=  7.76  r(Tan)=  7.95
+Seg:15  y= 2.10  r(Sag)=  7.77  r(Tan)=  7.98
+Seg:15  y= 2.20  r(Sag)=  7.78  r(Tan)=  8.01
+Seg:15  y= 2.30  r(Sag)=  7.79  r(Tan)=  8.04
+Seg:15  y= 2.40  r(Sag)=  7.80  r(Tan)=  8.07
+Seg:15  y= 2.50  r(Sag)=  7.81  r(Tan)=  8.10
+Seg:15  y= 2.60  r(Sag)=  7.82  r(Tan)=  8.13
+Seg:15  y= 2.70  r(Sag)=  7.84  r(Tan)=  8.16
+Seg:15  y= 2.80  r(Sag)=  7.85  r(Tan)=  8.19
+Seg:15  y= 2.90  r(Sag)=  7.86  r(Tan)=  8.23
+Seg:15  y= 3.00  r(Sag)=  7.87  r(Tan)=  8.28
+Seg:15  y= 3.10  r(Sag)=  7.88  r(Tan)=  8.33
+Seg:15  y= 3.20  r(Sag)=  7.90  r(Tan)=  8.40
+Seg:15  y= 3.30  r(Sag)=  7.91  r(Tan)=  8.46
+Seg:15  y= 3.40  r(Sag)=  7.93  r(Tan)=  8.54
+Seg:15  y= 3.50  r(Sag)=  7.94  r(Tan)=  8.61
+Seg:15  y= 3.60  r(Sag)=  7.96  r(Tan)=  8.68
+Seg:15  y= 3.70  r(Sag)=  7.98  r(Tan)=  8.74
+Seg:15  y= 3.80  r(Sag)=  8.00  r(Tan)=  8.80
+Seg:15  y= 3.90  r(Sag)=  8.02  r(Tan)=  8.86
+Seg:15  y= 4.00  r(Sag)=  8.04  r(Tan)=  8.91
+Seg:15  y= 4.10  r(Sag)=  8.06  r(Tan)=  8.94
+Seg:16  y= 0.00  r(Sag)=  7.65  r(Tan)=  7.68
+Seg:16  y= 0.10  r(Sag)=  7.65  r(Tan)=  7.68
+Seg:16  y= 0.20  r(Sag)=  7.65  r(Tan)=  7.68
+Seg:16  y= 0.30  r(Sag)=  7.66  r(Tan)=  7.68
+Seg:16  y= 0.40  r(Sag)=  7.66  r(Tan)=  7.68
+Seg:16  y= 0.50  r(Sag)=  7.67  r(Tan)=  7.69
+Seg:16  y= 0.60  r(Sag)=  7.67  r(Tan)=  7.69
+Seg:16  y= 0.70  r(Sag)=  7.67  r(Tan)=  7.70
+Seg:16  y= 0.80  r(Sag)=  7.67  r(Tan)=  7.72
+Seg:16  y= 0.90  r(Sag)=  7.68  r(Tan)=  7.73
+Seg:16  y= 1.00  r(Sag)=  7.69  r(Tan)=  7.75
+Seg:16  y= 1.10  r(Sag)=  7.69  r(Tan)=  7.76
+Seg:16  y= 1.20  r(Sag)=  7.70  r(Tan)=  7.78
+Seg:16  y= 1.30  r(Sag)=  7.71  r(Tan)=  7.79
+Seg:16  y= 1.40  r(Sag)=  7.71  r(Tan)=  7.81
+Seg:16  y= 1.50  r(Sag)=  7.72  r(Tan)=  7.82
+Seg:16  y= 1.60  r(Sag)=  7.73  r(Tan)=  7.84
+Seg:16  y= 1.70  r(Sag)=  7.73  r(Tan)=  7.86
+Seg:16  y= 1.80  r(Sag)=  7.74  r(Tan)=  7.88
+Seg:16  y= 1.90  r(Sag)=  7.75  r(Tan)=  7.91
+Seg:16  y= 2.00  r(Sag)=  7.75  r(Tan)=  7.93
+Seg:16  y= 2.10  r(Sag)=  7.76  r(Tan)=  7.96
+Seg:16  y= 2.20  r(Sag)=  7.77  r(Tan)=  7.99
+Seg:16  y= 2.30  r(Sag)=  7.78  r(Tan)=  8.02
+Seg:16  y= 2.40  r(Sag)=  7.79  r(Tan)=  8.04
+Seg:16  y= 2.50  r(Sag)=  7.80  r(Tan)=  8.07
+Seg:16  y= 2.60  r(Sag)=  7.81  r(Tan)=  8.10
+Seg:16  y= 2.70  r(Sag)=  7.83  r(Tan)=  8.13
+Seg:16  y= 2.80  r(Sag)=  7.84  r(Tan)=  8.17
+Seg:16  y= 2.90  r(Sag)=  7.85  r(Tan)=  8.21
+Seg:16  y= 3.00  r(Sag)=  7.86  r(Tan)=  8.27
+Seg:16  y= 3.10  r(Sag)=  7.87  r(Tan)=  8.33
+Seg:16  y= 3.20  r(Sag)=  7.88  r(Tan)=  8.40
+Seg:16  y= 3.30  r(Sag)=  7.90  r(Tan)=  8.48
+Seg:16  y= 3.40  r(Sag)=  7.92  r(Tan)=  8.55
+Seg:16  y= 3.50  r(Sag)=  7.93  r(Tan)=  8.62
+Seg:16  y= 3.60  r(Sag)=  7.95  r(Tan)=  8.69
+Seg:16  y= 3.70  r(Sag)=  7.97  r(Tan)=  8.74
+Seg:16  y= 3.80  r(Sag)=  7.99  r(Tan)=  8.80
+Seg:16  y= 3.90  r(Sag)=  8.01  r(Tan)=  8.85
+Seg:16  y= 4.00  r(Sag)=  8.03  r(Tan)=  8.91
+Seg:16  y= 4.10  r(Sag)=  8.05  r(Tan)=  8.93
+Seg:17  y= 0.00  r(Sag)=  7.64  r(Tan)=  7.67
+Seg:17  y= 0.10  r(Sag)=  7.64  r(Tan)=  7.67
+Seg:17  y= 0.20  r(Sag)=  7.64  r(Tan)=  7.67
+Seg:17  y= 0.30  r(Sag)=  7.65  r(Tan)=  7.68
+Seg:17  y= 0.40  r(Sag)=  7.65  r(Tan)=  7.68
+Seg:17  y= 0.50  r(Sag)=  7.66  r(Tan)=  7.68
+Seg:17  y= 0.60  r(Sag)=  7.66  r(Tan)=  7.69
+Seg:17  y= 0.70  r(Sag)=  7.67  r(Tan)=  7.70
+Seg:17  y= 0.80  r(Sag)=  7.67  r(Tan)=  7.71
+Seg:17  y= 0.90  r(Sag)=  7.67  r(Tan)=  7.73
+Seg:17  y= 1.00  r(Sag)=  7.68  r(Tan)=  7.74
+Seg:17  y= 1.10  r(Sag)=  7.69  r(Tan)=  7.76
+Seg:17  y= 1.20  r(Sag)=  7.69  r(Tan)=  7.77
+Seg:17  y= 1.30  r(Sag)=  7.70  r(Tan)=  7.79
+Seg:17  y= 1.40  r(Sag)=  7.71  r(Tan)=  7.81
+Seg:17  y= 1.50  r(Sag)=  7.72  r(Tan)=  7.82
+Seg:17  y= 1.60  r(Sag)=  7.72  r(Tan)=  7.84
+Seg:17  y= 1.70  r(Sag)=  7.73  r(Tan)=  7.86
+Seg:17  y= 1.80  r(Sag)=  7.74  r(Tan)=  7.87
+Seg:17  y= 1.90  r(Sag)=  7.74  r(Tan)=  7.89
+Seg:17  y= 2.00  r(Sag)=  7.75  r(Tan)=  7.92
+Seg:17  y= 2.10  r(Sag)=  7.76  r(Tan)=  7.94
+Seg:17  y= 2.20  r(Sag)=  7.77  r(Tan)=  7.96
+Seg:17  y= 2.30  r(Sag)=  7.78  r(Tan)=  7.99
+Seg:17  y= 2.40  r(Sag)=  7.79  r(Tan)=  8.01
+Seg:17  y= 2.50  r(Sag)=  7.80  r(Tan)=  8.03
+Seg:17  y= 2.60  r(Sag)=  7.80  r(Tan)=  8.06
+Seg:17  y= 2.70  r(Sag)=  7.81  r(Tan)=  8.09
+Seg:17  y= 2.80  r(Sag)=  7.82  r(Tan)=  8.13
+Seg:17  y= 2.90  r(Sag)=  7.83  r(Tan)=  8.19
+Seg:17  y= 3.00  r(Sag)=  7.84  r(Tan)=  8.25
+Seg:17  y= 3.10  r(Sag)=  7.85  r(Tan)=  8.34
+Seg:17  y= 3.20  r(Sag)=  7.87  r(Tan)=  8.43
+Seg:17  y= 3.30  r(Sag)=  7.89  r(Tan)=  8.52
+Seg:17  y= 3.40  r(Sag)=  7.90  r(Tan)=  8.62
+Seg:17  y= 3.50  r(Sag)=  7.93  r(Tan)=  8.70
+Seg:17  y= 3.60  r(Sag)=  7.95  r(Tan)=  8.77
+Seg:18  y= 0.00  r(Sag)=  7.64  r(Tan)=  7.66
+Seg:18  y= 0.10  r(Sag)=  7.64  r(Tan)=  7.67
+Seg:18  y= 0.20  r(Sag)=  7.64  r(Tan)=  7.67
+Seg:18  y= 0.30  r(Sag)=  7.64  r(Tan)=  7.67
+Seg:18  y= 0.40  r(Sag)=  7.65  r(Tan)=  7.67
+Seg:18  y= 0.50  r(Sag)=  7.65  r(Tan)=  7.68
+Seg:18  y= 0.60  r(Sag)=  7.66  r(Tan)=  7.69
+Seg:18  y= 0.70  r(Sag)=  7.66  r(Tan)=  7.70
+Seg:18  y= 0.80  r(Sag)=  7.66  r(Tan)=  7.71
+Seg:18  y= 0.90  r(Sag)=  7.67  r(Tan)=  7.72
+Seg:18  y= 1.00  r(Sag)=  7.67  r(Tan)=  7.74
+Seg:18  y= 1.10  r(Sag)=  7.68  r(Tan)=  7.75
+Seg:18  y= 1.20  r(Sag)=  7.69  r(Tan)=  7.77
+Seg:18  y= 1.30  r(Sag)=  7.69  r(Tan)=  7.79
+Seg:18  y= 1.40  r(Sag)=  7.70  r(Tan)=  7.80
+Seg:18  y= 1.50  r(Sag)=  7.71  r(Tan)=  7.82
+Seg:18  y= 1.60  r(Sag)=  7.72  r(Tan)=  7.83
+Seg:18  y= 1.70  r(Sag)=  7.72  r(Tan)=  7.85
+Seg:18  y= 1.80  r(Sag)=  7.73  r(Tan)=  7.87
+Seg:18  y= 1.90  r(Sag)=  7.74  r(Tan)=  7.88
+Seg:18  y= 2.00  r(Sag)=  7.74  r(Tan)=  7.90
+Seg:18  y= 2.10  r(Sag)=  7.75  r(Tan)=  7.92
+Seg:18  y= 2.20  r(Sag)=  7.76  r(Tan)=  7.94
+Seg:18  y= 2.30  r(Sag)=  7.77  r(Tan)=  7.95
+Seg:18  y= 2.40  r(Sag)=  7.78  r(Tan)=  7.97
+Seg:18  y= 2.50  r(Sag)=  7.78  r(Tan)=  7.99
+Seg:18  y= 2.60  r(Sag)=  7.79  r(Tan)=  8.02
+Seg:18  y= 2.70  r(Sag)=  7.80  r(Tan)=  8.05
+Seg:18  y= 2.80  r(Sag)=  7.81  r(Tan)=  8.10
+Seg:18  y= 2.90  r(Sag)=  7.82  r(Tan)=  8.16
+Seg:18  y= 3.00  r(Sag)=  7.83  r(Tan)=  8.24
+Seg:18  y= 3.10  r(Sag)=  7.84  r(Tan)=  8.34
+Seg:18  y= 3.20  r(Sag)=  7.85  r(Tan)=  8.44
+Seg:18  y= 3.30  r(Sag)=  7.87  r(Tan)=  8.55
+Seg:18  y= 3.40  r(Sag)=  7.89  r(Tan)=  8.65
+Seg:18  y= 3.50  r(Sag)=  7.92  r(Tan)=  8.74
+Seg:18  y= 3.60  r(Sag)=  7.94  r(Tan)=  8.80
+Seg:19  y= 0.00  r(Sag)=  7.63  r(Tan)=  7.66
+Seg:19  y= 0.10  r(Sag)=  7.63  r(Tan)=  7.67
+Seg:19  y= 0.20  r(Sag)=  7.63  r(Tan)=  7.67
+Seg:19  y= 0.30  r(Sag)=  7.63  r(Tan)=  7.67
+Seg:19  y= 0.40  r(Sag)=  7.64  r(Tan)=  7.67
+Seg:19  y= 0.50  r(Sag)=  7.65  r(Tan)=  7.67
+Seg:19  y= 0.60  r(Sag)=  7.65  r(Tan)=  7.68
+Seg:19  y= 0.70  r(Sag)=  7.65  r(Tan)=  7.69
+Seg:19  y= 0.80  r(Sag)=  7.66  r(Tan)=  7.70
+Seg:19  y= 0.90  r(Sag)=  7.66  r(Tan)=  7.71
+Seg:19  y= 1.00  r(Sag)=  7.67  r(Tan)=  7.73
+Seg:19  y= 1.10  r(Sag)=  7.67  r(Tan)=  7.75
+Seg:19  y= 1.20  r(Sag)=  7.68  r(Tan)=  7.77
+Seg:19  y= 1.30  r(Sag)=  7.69  r(Tan)=  7.78
+Seg:19  y= 1.40  r(Sag)=  7.70  r(Tan)=  7.80
+Seg:19  y= 1.50  r(Sag)=  7.70  r(Tan)=  7.81
+Seg:19  y= 1.60  r(Sag)=  7.71  r(Tan)=  7.83
+Seg:19  y= 1.70  r(Sag)=  7.72  r(Tan)=  7.84
+Seg:19  y= 1.80  r(Sag)=  7.72  r(Tan)=  7.86
+Seg:19  y= 1.90  r(Sag)=  7.73  r(Tan)=  7.87
+Seg:19  y= 2.00  r(Sag)=  7.74  r(Tan)=  7.88
+Seg:19  y= 2.10  r(Sag)=  7.75  r(Tan)=  7.89
+Seg:19  y= 2.20  r(Sag)=  7.75  r(Tan)=  7.90
+Seg:19  y= 2.30  r(Sag)=  7.76  r(Tan)=  7.92
+Seg:19  y= 2.40  r(Sag)=  7.77  r(Tan)=  7.93
+Seg:19  y= 2.50  r(Sag)=  7.77  r(Tan)=  7.95
+Seg:19  y= 2.60  r(Sag)=  7.78  r(Tan)=  7.97
+Seg:19  y= 2.70  r(Sag)=  7.79  r(Tan)=  8.01
+Seg:19  y= 2.80  r(Sag)=  7.79  r(Tan)=  8.06
+Seg:19  y= 2.90  r(Sag)=  7.80  r(Tan)=  8.14
+Seg:19  y= 3.00  r(Sag)=  7.81  r(Tan)=  8.23
+Seg:19  y= 3.10  r(Sag)=  7.82  r(Tan)=  8.33
+Seg:19  y= 3.20  r(Sag)=  7.84  r(Tan)=  8.45
+Seg:19  y= 3.30  r(Sag)=  7.86  r(Tan)=  8.57
+Seg:19  y= 3.40  r(Sag)=  7.88  r(Tan)=  8.67
+Seg:19  y= 3.50  r(Sag)=  7.90  r(Tan)=  8.76
+Seg:19  y= 3.60  r(Sag)=  7.93  r(Tan)=  8.82
+Seg:20  y= 0.00  r(Sag)=  7.62  r(Tan)=  7.66
+Seg:20  y= 0.10  r(Sag)=  7.62  r(Tan)=  7.66
+Seg:20  y= 0.20  r(Sag)=  7.62  r(Tan)=  7.66
+Seg:20  y= 0.30  r(Sag)=  7.63  r(Tan)=  7.66
+Seg:20  y= 0.40  r(Sag)=  7.63  r(Tan)=  7.67
+Seg:20  y= 0.50  r(Sag)=  7.64  r(Tan)=  7.67
+Seg:20  y= 0.60  r(Sag)=  7.65  r(Tan)=  7.68
+Seg:20  y= 0.70  r(Sag)=  7.65  r(Tan)=  7.69
+Seg:20  y= 0.80  r(Sag)=  7.65  r(Tan)=  7.70
+Seg:20  y= 0.90  r(Sag)=  7.65  r(Tan)=  7.71
+Seg:20  y= 1.00  r(Sag)=  7.66  r(Tan)=  7.72
+Seg:20  y= 1.10  r(Sag)=  7.67  r(Tan)=  7.74
+Seg:20  y= 1.20  r(Sag)=  7.67  r(Tan)=  7.76
+Seg:20  y= 1.30  r(Sag)=  7.68  r(Tan)=  7.78
+Seg:20  y= 1.40  r(Sag)=  7.69  r(Tan)=  7.79
+Seg:20  y= 1.50  r(Sag)=  7.70  r(Tan)=  7.81
+Seg:20  y= 1.60  r(Sag)=  7.70  r(Tan)=  7.82
+Seg:20  y= 1.70  r(Sag)=  7.71  r(Tan)=  7.83
+Seg:20  y= 1.80  r(Sag)=  7.72  r(Tan)=  7.84
+Seg:20  y= 1.90  r(Sag)=  7.73  r(Tan)=  7.85
+Seg:20  y= 2.00  r(Sag)=  7.73  r(Tan)=  7.86
+Seg:20  y= 2.10  r(Sag)=  7.74  r(Tan)=  7.87
+Seg:20  y= 2.20  r(Sag)=  7.75  r(Tan)=  7.87
+Seg:20  y= 2.30  r(Sag)=  7.75  r(Tan)=  7.88
+Seg:20  y= 2.40  r(Sag)=  7.76  r(Tan)=  7.89
+Seg:20  y= 2.50  r(Sag)=  7.76  r(Tan)=  7.90
+Seg:20  y= 2.60  r(Sag)=  7.77  r(Tan)=  7.93
+Seg:20  y= 2.70  r(Sag)=  7.77  r(Tan)=  7.97
+Seg:20  y= 2.80  r(Sag)=  7.78  r(Tan)=  8.03
+Seg:20  y= 2.90  r(Sag)=  7.78  r(Tan)=  8.11
+Seg:20  y= 3.00  r(Sag)=  7.79  r(Tan)=  8.21
+Seg:20  y= 3.10  r(Sag)=  7.80  r(Tan)=  8.33
+Seg:20  y= 3.20  r(Sag)=  7.82  r(Tan)=  8.46
+Seg:20  y= 3.30  r(Sag)=  7.84  r(Tan)=  8.58
+Seg:20  y= 3.40  r(Sag)=  7.87  r(Tan)=  8.69
+Seg:20  y= 3.50  r(Sag)=  7.89  r(Tan)=  8.78
+Seg:20  y= 3.60  r(Sag)=  7.92  r(Tan)=  8.84
+Seg:21  y= 0.00  r(Sag)=  7.62  r(Tan)=  7.66
+Seg:21  y= 0.10  r(Sag)=  7.62  r(Tan)=  7.66
+Seg:21  y= 0.20  r(Sag)=  7.62  r(Tan)=  7.66
+Seg:21  y= 0.30  r(Sag)=  7.62  r(Tan)=  7.66
+Seg:21  y= 0.40  r(Sag)=  7.63  r(Tan)=  7.66
+Seg:21  y= 0.50  r(Sag)=  7.63  r(Tan)=  7.66
+Seg:21  y= 0.60  r(Sag)=  7.64  r(Tan)=  7.67
+Seg:21  y= 0.70  r(Sag)=  7.64  r(Tan)=  7.68
+Seg:21  y= 0.80  r(Sag)=  7.64  r(Tan)=  7.69
+Seg:21  y= 0.90  r(Sag)=  7.65  r(Tan)=  7.70
+Seg:21  y= 1.00  r(Sag)=  7.65  r(Tan)=  7.72
+Seg:21  y= 1.10  r(Sag)=  7.66  r(Tan)=  7.73
+Seg:21  y= 1.20  r(Sag)=  7.67  r(Tan)=  7.75
+Seg:21  y= 1.30  r(Sag)=  7.68  r(Tan)=  7.77
+Seg:21  y= 1.40  r(Sag)=  7.68  r(Tan)=  7.78
+Seg:21  y= 1.50  r(Sag)=  7.69  r(Tan)=  7.80
+Seg:21  y= 1.60  r(Sag)=  7.70  r(Tan)=  7.81
+Seg:21  y= 1.70  r(Sag)=  7.70  r(Tan)=  7.82
+Seg:21  y= 1.80  r(Sag)=  7.71  r(Tan)=  7.83
+Seg:21  y= 1.90  r(Sag)=  7.72  r(Tan)=  7.84
+Seg:21  y= 2.00  r(Sag)=  7.72  r(Tan)=  7.84
+Seg:21  y= 2.10  r(Sag)=  7.73  r(Tan)=  7.84
+Seg:21  y= 2.20  r(Sag)=  7.74  r(Tan)=  7.84
+Seg:21  y= 2.30  r(Sag)=  7.74  r(Tan)=  7.84
+Seg:21  y= 2.40  r(Sag)=  7.75  r(Tan)=  7.85
+Seg:21  y= 2.50  r(Sag)=  7.75  r(Tan)=  7.86
+Seg:21  y= 2.60  r(Sag)=  7.75  r(Tan)=  7.88
+Seg:21  y= 2.70  r(Sag)=  7.75  r(Tan)=  7.93
+Seg:21  y= 2.80  r(Sag)=  7.76  r(Tan)=  7.99
+Seg:21  y= 2.90  r(Sag)=  7.76  r(Tan)=  8.08
+Seg:21  y= 3.00  r(Sag)=  7.77  r(Tan)=  8.20
+Seg:21  y= 3.10  r(Sag)=  7.79  r(Tan)=  8.32
+Seg:21  y= 3.20  r(Sag)=  7.80  r(Tan)=  8.46
+Seg:21  y= 3.30  r(Sag)=  7.83  r(Tan)=  8.59
+Seg:21  y= 3.40  r(Sag)=  7.85  r(Tan)=  8.70
+Seg:21  y= 3.50  r(Sag)=  7.88  r(Tan)=  8.79
+Seg:21  y= 3.60  r(Sag)=  7.90  r(Tan)=  8.85
+Seg:22  y= 0.00  r(Sag)=  7.61  r(Tan)=  7.67
+Seg:22  y= 0.10  r(Sag)=  7.61  r(Tan)=  7.66
+Seg:22  y= 0.20  r(Sag)=  7.62  r(Tan)=  7.66
+Seg:22  y= 0.30  r(Sag)=  7.62  r(Tan)=  7.66
+Seg:22  y= 0.40  r(Sag)=  7.63  r(Tan)=  7.66
+Seg:22  y= 0.50  r(Sag)=  7.63  r(Tan)=  7.66
+Seg:22  y= 0.60  r(Sag)=  7.63  r(Tan)=  7.67
+Seg:22  y= 0.70  r(Sag)=  7.63  r(Tan)=  7.67
+Seg:22  y= 0.80  r(Sag)=  7.64  r(Tan)=  7.68
+Seg:22  y= 0.90  r(Sag)=  7.64  r(Tan)=  7.70
+Seg:22  y= 1.00  r(Sag)=  7.65  r(Tan)=  7.71
+Seg:22  y= 1.10  r(Sag)=  7.66  r(Tan)=  7.73
+Seg:22  y= 1.20  r(Sag)=  7.66  r(Tan)=  7.74
+Seg:22  y= 1.30  r(Sag)=  7.67  r(Tan)=  7.76
+Seg:22  y= 1.40  r(Sag)=  7.68  r(Tan)=  7.77
+Seg:22  y= 1.50  r(Sag)=  7.68  r(Tan)=  7.79
+Seg:22  y= 1.60  r(Sag)=  7.69  r(Tan)=  7.80
+Seg:22  y= 1.70  r(Sag)=  7.70  r(Tan)=  7.81
+Seg:22  y= 1.80  r(Sag)=  7.70  r(Tan)=  7.82
+Seg:22  y= 1.90  r(Sag)=  7.71  r(Tan)=  7.82
+Seg:22  y= 2.00  r(Sag)=  7.72  r(Tan)=  7.82
+Seg:22  y= 2.10  r(Sag)=  7.72  r(Tan)=  7.82
+Seg:22  y= 2.20  r(Sag)=  7.73  r(Tan)=  7.81
+Seg:22  y= 2.30  r(Sag)=  7.73  r(Tan)=  7.80
+Seg:22  y= 2.40  r(Sag)=  7.73  r(Tan)=  7.80
+Seg:22  y= 2.50  r(Sag)=  7.74  r(Tan)=  7.82
+Seg:22  y= 2.60  r(Sag)=  7.74  r(Tan)=  7.84
+Seg:22  y= 2.70  r(Sag)=  7.74  r(Tan)=  7.89
+Seg:22  y= 2.80  r(Sag)=  7.74  r(Tan)=  7.96
+Seg:22  y= 2.90  r(Sag)=  7.75  r(Tan)=  8.06
+Seg:22  y= 3.00  r(Sag)=  7.76  r(Tan)=  8.17
+Seg:22  y= 3.10  r(Sag)=  7.77  r(Tan)=  8.30
+Seg:22  y= 3.20  r(Sag)=  7.79  r(Tan)=  8.44
+Seg:22  y= 3.30  r(Sag)=  7.81  r(Tan)=  8.56
+Seg:22  y= 3.40  r(Sag)=  7.83  r(Tan)=  8.67
+Seg:22  y= 3.50  r(Sag)=  7.86  r(Tan)=  8.75
+Seg:22  y= 3.60  r(Sag)=  7.89  r(Tan)=  8.81
+Seg:22  y= 3.70  r(Sag)=  7.91  r(Tan)=  8.85
+Seg:22  y= 3.80  r(Sag)=  7.93  r(Tan)=  8.88
+Seg:22  y= 3.90  r(Sag)=  7.96  r(Tan)=  8.93
+Seg:22  y= 4.00  r(Sag)=  7.97  r(Tan)=  8.97
+Seg:23  y= 0.00  r(Sag)=  7.61  r(Tan)=  7.67
+Seg:23  y= 0.10  r(Sag)=  7.61  r(Tan)=  7.66
+Seg:23  y= 0.20  r(Sag)=  7.61  r(Tan)=  7.65
+Seg:23  y= 0.30  r(Sag)=  7.62  r(Tan)=  7.65
+Seg:23  y= 0.40  r(Sag)=  7.62  r(Tan)=  7.65
+Seg:23  y= 0.50  r(Sag)=  7.62  r(Tan)=  7.66
+Seg:23  y= 0.60  r(Sag)=  7.62  r(Tan)=  7.66
+Seg:23  y= 0.70  r(Sag)=  7.63  r(Tan)=  7.67
+Seg:23  y= 0.80  r(Sag)=  7.63  r(Tan)=  7.68
+Seg:23  y= 0.90  r(Sag)=  7.64  r(Tan)=  7.69
+Seg:23  y= 1.00  r(Sag)=  7.64  r(Tan)=  7.71
+Seg:23  y= 1.10  r(Sag)=  7.65  r(Tan)=  7.72
+Seg:23  y= 1.20  r(Sag)=  7.66  r(Tan)=  7.73
+Seg:23  y= 1.30  r(Sag)=  7.66  r(Tan)=  7.75
+Seg:23  y= 1.40  r(Sag)=  7.67  r(Tan)=  7.76
+Seg:23  y= 1.50  r(Sag)=  7.68  r(Tan)=  7.77
+Seg:23  y= 1.60  r(Sag)=  7.68  r(Tan)=  7.79
+Seg:23  y= 1.70  r(Sag)=  7.69  r(Tan)=  7.80
+Seg:23  y= 1.80  r(Sag)=  7.70  r(Tan)=  7.80
+Seg:23  y= 1.90  r(Sag)=  7.70  r(Tan)=  7.80
+Seg:23  y= 2.00  r(Sag)=  7.71  r(Tan)=  7.80
+Seg:23  y= 2.10  r(Sag)=  7.71  r(Tan)=  7.79
+Seg:23  y= 2.20  r(Sag)=  7.72  r(Tan)=  7.78
+Seg:23  y= 2.30  r(Sag)=  7.72  r(Tan)=  7.77
+Seg:23  y= 2.40  r(Sag)=  7.72  r(Tan)=  7.77
+Seg:23  y= 2.50  r(Sag)=  7.72  r(Tan)=  7.78
+Seg:23  y= 2.60  r(Sag)=  7.72  r(Tan)=  7.80
+Seg:23  y= 2.70  r(Sag)=  7.72  r(Tan)=  7.85
+Seg:23  y= 2.80  r(Sag)=  7.73  r(Tan)=  7.93
+Seg:23  y= 2.90  r(Sag)=  7.73  r(Tan)=  8.03
+Seg:23  y= 3.00  r(Sag)=  7.74  r(Tan)=  8.15
+Seg:23  y= 3.10  r(Sag)=  7.75  r(Tan)=  8.29
+Seg:23  y= 3.20  r(Sag)=  7.77  r(Tan)=  8.43
+Seg:23  y= 3.30  r(Sag)=  7.79  r(Tan)=  8.56
+Seg:23  y= 3.40  r(Sag)=  7.82  r(Tan)=  8.68
+Seg:23  y= 3.50  r(Sag)=  7.85  r(Tan)=  8.76
+Seg:23  y= 3.60  r(Sag)=  7.87  r(Tan)=  8.83
+Seg:23  y= 3.70  r(Sag)=  7.90  r(Tan)=  8.87
+Seg:23  y= 3.80  r(Sag)=  7.92  r(Tan)=  8.90
+Seg:23  y= 3.90  r(Sag)=  7.94  r(Tan)=  8.95
+Seg:23  y= 4.00  r(Sag)=  7.96  r(Tan)=  8.99
+Seg:24  y= 0.00  r(Sag)=  7.60  r(Tan)=  7.66
+Seg:24  y= 0.10  r(Sag)=  7.60  r(Tan)=  7.65
+Seg:24  y= 0.20  r(Sag)=  7.61  r(Tan)=  7.65
+Seg:24  y= 0.30  r(Sag)=  7.61  r(Tan)=  7.65
+Seg:24  y= 0.40  r(Sag)=  7.62  r(Tan)=  7.65
+Seg:24  y= 0.50  r(Sag)=  7.62  r(Tan)=  7.65
+Seg:24  y= 0.60  r(Sag)=  7.62  r(Tan)=  7.66
+Seg:24  y= 0.70  r(Sag)=  7.62  r(Tan)=  7.66
+Seg:24  y= 0.80  r(Sag)=  7.63  r(Tan)=  7.67
+Seg:24  y= 0.90  r(Sag)=  7.63  r(Tan)=  7.68
+Seg:24  y= 1.00  r(Sag)=  7.64  r(Tan)=  7.70
+Seg:24  y= 1.10  r(Sag)=  7.65  r(Tan)=  7.71
+Seg:24  y= 1.20  r(Sag)=  7.65  r(Tan)=  7.72
+Seg:24  y= 1.30  r(Sag)=  7.66  r(Tan)=  7.74
+Seg:24  y= 1.40  r(Sag)=  7.66  r(Tan)=  7.75
+Seg:24  y= 1.50  r(Sag)=  7.67  r(Tan)=  7.76
+Seg:24  y= 1.60  r(Sag)=  7.68  r(Tan)=  7.77
+Seg:24  y= 1.70  r(Sag)=  7.68  r(Tan)=  7.78
+Seg:24  y= 1.80  r(Sag)=  7.69  r(Tan)=  7.79
+Seg:24  y= 1.90  r(Sag)=  7.70  r(Tan)=  7.79
+Seg:24  y= 2.00  r(Sag)=  7.70  r(Tan)=  7.78
+Seg:24  y= 2.10  r(Sag)=  7.71  r(Tan)=  7.77
+Seg:24  y= 2.20  r(Sag)=  7.71  r(Tan)=  7.76
+Seg:24  y= 2.30  r(Sag)=  7.71  r(Tan)=  7.74
+Seg:24  y= 2.40  r(Sag)=  7.71  r(Tan)=  7.74
+Seg:24  y= 2.50  r(Sag)=  7.71  r(Tan)=  7.74
+Seg:24  y= 2.60  r(Sag)=  7.71  r(Tan)=  7.77
+Seg:24  y= 2.70  r(Sag)=  7.71  r(Tan)=  7.82
+Seg:24  y= 2.80  r(Sag)=  7.71  r(Tan)=  7.90
+Seg:24  y= 2.90  r(Sag)=  7.71  r(Tan)=  8.00
+Seg:24  y= 3.00  r(Sag)=  7.72  r(Tan)=  8.13
+Seg:24  y= 3.10  r(Sag)=  7.74  r(Tan)=  8.27
+Seg:24  y= 3.20  r(Sag)=  7.76  r(Tan)=  8.41
+Seg:24  y= 3.30  r(Sag)=  7.78  r(Tan)=  8.55
+Seg:24  y= 3.40  r(Sag)=  7.80  r(Tan)=  8.67
+Seg:24  y= 3.50  r(Sag)=  7.83  r(Tan)=  8.77
+Seg:24  y= 3.60  r(Sag)=  7.86  r(Tan)=  8.84
+Seg:24  y= 3.70  r(Sag)=  7.88  r(Tan)=  8.89
+Seg:24  y= 3.80  r(Sag)=  7.91  r(Tan)=  8.93
+Seg:24  y= 3.90  r(Sag)=  7.93  r(Tan)=  8.97
+Seg:24  y= 4.00  r(Sag)=  7.95  r(Tan)=  9.01
+Seg:25  y= 0.00  r(Sag)=  7.60  r(Tan)=  7.66
+Seg:25  y= 0.10  r(Sag)=  7.60  r(Tan)=  7.65
+Seg:25  y= 0.20  r(Sag)=  7.61  r(Tan)=  7.64
+Seg:25  y= 0.30  r(Sag)=  7.61  r(Tan)=  7.64
+Seg:25  y= 0.40  r(Sag)=  7.61  r(Tan)=  7.65
+Seg:25  y= 0.50  r(Sag)=  7.61  r(Tan)=  7.65
+Seg:25  y= 0.60  r(Sag)=  7.61  r(Tan)=  7.65
+Seg:25  y= 0.70  r(Sag)=  7.62  r(Tan)=  7.66
+Seg:25  y= 0.80  r(Sag)=  7.62  r(Tan)=  7.67
+Seg:25  y= 0.90  r(Sag)=  7.63  r(Tan)=  7.68
+Seg:25  y= 1.00  r(Sag)=  7.64  r(Tan)=  7.69
+Seg:25  y= 1.10  r(Sag)=  7.64  r(Tan)=  7.70
+Seg:25  y= 1.20  r(Sag)=  7.65  r(Tan)=  7.71
+Seg:25  y= 1.30  r(Sag)=  7.65  r(Tan)=  7.73
+Seg:25  y= 1.40  r(Sag)=  7.66  r(Tan)=  7.74
+Seg:25  y= 1.50  r(Sag)=  7.66  r(Tan)=  7.75
+Seg:25  y= 1.60  r(Sag)=  7.67  r(Tan)=  7.76
+Seg:25  y= 1.70  r(Sag)=  7.67  r(Tan)=  7.77
+Seg:25  y= 1.80  r(Sag)=  7.68  r(Tan)=  7.78
+Seg:25  y= 1.90  r(Sag)=  7.69  r(Tan)=  7.77
+Seg:25  y= 2.00  r(Sag)=  7.69  r(Tan)=  7.76
+Seg:25  y= 2.10  r(Sag)=  7.70  r(Tan)=  7.75
+Seg:25  y= 2.20  r(Sag)=  7.70  r(Tan)=  7.73
+Seg:25  y= 2.30  r(Sag)=  7.70  r(Tan)=  7.72
+Seg:25  y= 2.40  r(Sag)=  7.70  r(Tan)=  7.71
+Seg:25  y= 2.50  r(Sag)=  7.70  r(Tan)=  7.71
+Seg:25  y= 2.60  r(Sag)=  7.70  r(Tan)=  7.74
+Seg:25  y= 2.70  r(Sag)=  7.70  r(Tan)=  7.79
+Seg:25  y= 2.80  r(Sag)=  7.70  r(Tan)=  7.87
+Seg:25  y= 2.90  r(Sag)=  7.70  r(Tan)=  7.97
+Seg:25  y= 3.00  r(Sag)=  7.71  r(Tan)=  8.10
+Seg:25  y= 3.10  r(Sag)=  7.72  r(Tan)=  8.24
+Seg:25  y= 3.20  r(Sag)=  7.74  r(Tan)=  8.39
+Seg:25  y= 3.30  r(Sag)=  7.76  r(Tan)=  8.53
+Seg:25  y= 3.40  r(Sag)=  7.79  r(Tan)=  8.66
+Seg:25  y= 3.50  r(Sag)=  7.81  r(Tan)=  8.76
+Seg:25  y= 3.60  r(Sag)=  7.84  r(Tan)=  8.84
+Seg:25  y= 3.70  r(Sag)=  7.87  r(Tan)=  8.90
+Seg:25  y= 3.80  r(Sag)=  7.89  r(Tan)=  8.95
+Seg:25  y= 3.90  r(Sag)=  7.92  r(Tan)=  8.99
+Seg:25  y= 4.00  r(Sag)=  7.94  r(Tan)=  9.02
+Seg:26  y= 0.00  r(Sag)=  7.60  r(Tan)=  7.66
+Seg:26  y= 0.10  r(Sag)=  7.60  r(Tan)=  7.65
+Seg:26  y= 0.20  r(Sag)=  7.60  r(Tan)=  7.64
+Seg:26  y= 0.30  r(Sag)=  7.61  r(Tan)=  7.64
+Seg:26  y= 0.40  r(Sag)=  7.61  r(Tan)=  7.64
+Seg:26  y= 0.50  r(Sag)=  7.61  r(Tan)=  7.65
+Seg:26  y= 0.60  r(Sag)=  7.61  r(Tan)=  7.65
+Seg:26  y= 0.70  r(Sag)=  7.62  r(Tan)=  7.65
+Seg:26  y= 0.80  r(Sag)=  7.62  r(Tan)=  7.66
+Seg:26  y= 0.90  r(Sag)=  7.63  r(Tan)=  7.67
+Seg:26  y= 1.00  r(Sag)=  7.63  r(Tan)=  7.68
+Seg:26  y= 1.10  r(Sag)=  7.64  r(Tan)=  7.69
+Seg:26  y= 1.20  r(Sag)=  7.64  r(Tan)=  7.71
+Seg:26  y= 1.30  r(Sag)=  7.65  r(Tan)=  7.72
+Seg:26  y= 1.40  r(Sag)=  7.65  r(Tan)=  7.73
+Seg:26  y= 1.50  r(Sag)=  7.66  r(Tan)=  7.74
+Seg:26  y= 1.60  r(Sag)=  7.66  r(Tan)=  7.75
+Seg:26  y= 1.70  r(Sag)=  7.67  r(Tan)=  7.76
+Seg:26  y= 1.80  r(Sag)=  7.67  r(Tan)=  7.76
+Seg:26  y= 1.90  r(Sag)=  7.68  r(Tan)=  7.76
+Seg:26  y= 2.00  r(Sag)=  7.69  r(Tan)=  7.75
+Seg:26  y= 2.10  r(Sag)=  7.69  r(Tan)=  7.73
+Seg:26  y= 2.20  r(Sag)=  7.69  r(Tan)=  7.72
+Seg:26  y= 2.30  r(Sag)=  7.69  r(Tan)=  7.70
+Seg:26  y= 2.40  r(Sag)=  7.69  r(Tan)=  7.69
+Seg:26  y= 2.50  r(Sag)=  7.69  r(Tan)=  7.69
+Seg:26  y= 2.60  r(Sag)=  7.69  r(Tan)=  7.71
+Seg:26  y= 2.70  r(Sag)=  7.69  r(Tan)=  7.75
+Seg:26  y= 2.80  r(Sag)=  7.69  r(Tan)=  7.82
+Seg:26  y= 2.90  r(Sag)=  7.69  r(Tan)=  7.91
+Seg:26  y= 3.00  r(Sag)=  7.69  r(Tan)=  8.02
+Seg:26  y= 3.10  r(Sag)=  7.71  r(Tan)=  8.15
+Seg:26  y= 3.20  r(Sag)=  7.72  r(Tan)=  8.28
+Seg:27  y= 0.00  r(Sag)=  7.60  r(Tan)=  7.66
+Seg:27  y= 0.10  r(Sag)=  7.60  r(Tan)=  7.64
+Seg:27  y= 0.20  r(Sag)=  7.60  r(Tan)=  7.64
+Seg:27  y= 0.30  r(Sag)=  7.61  r(Tan)=  7.64
+Seg:27  y= 0.40  r(Sag)=  7.61  r(Tan)=  7.64
+Seg:27  y= 0.50  r(Sag)=  7.61  r(Tan)=  7.64
+Seg:27  y= 0.60  r(Sag)=  7.61  r(Tan)=  7.64
+Seg:27  y= 0.70  r(Sag)=  7.61  r(Tan)=  7.65
+Seg:27  y= 0.80  r(Sag)=  7.62  r(Tan)=  7.65
+Seg:27  y= 0.90  r(Sag)=  7.62  r(Tan)=  7.66
+Seg:27  y= 1.00  r(Sag)=  7.63  r(Tan)=  7.67
+Seg:27  y= 1.10  r(Sag)=  7.63  r(Tan)=  7.69
+Seg:27  y= 1.20  r(Sag)=  7.64  r(Tan)=  7.70
+Seg:27  y= 1.30  r(Sag)=  7.64  r(Tan)=  7.71
+Seg:27  y= 1.40  r(Sag)=  7.65  r(Tan)=  7.72
+Seg:27  y= 1.50  r(Sag)=  7.65  r(Tan)=  7.73
+Seg:27  y= 1.60  r(Sag)=  7.66  r(Tan)=  7.74
+Seg:27  y= 1.70  r(Sag)=  7.66  r(Tan)=  7.75
+Seg:27  y= 1.80  r(Sag)=  7.67  r(Tan)=  7.75
+Seg:27  y= 1.90  r(Sag)=  7.67  r(Tan)=  7.75
+Seg:27  y= 2.00  r(Sag)=  7.68  r(Tan)=  7.74
+Seg:27  y= 2.10  r(Sag)=  7.68  r(Tan)=  7.72
+Seg:27  y= 2.20  r(Sag)=  7.69  r(Tan)=  7.70
+Seg:27  y= 2.30  r(Sag)=  7.69  r(Tan)=  7.68
+Seg:27  y= 2.40  r(Sag)=  7.68  r(Tan)=  7.67
+Seg:27  y= 2.50  r(Sag)=  7.68  r(Tan)=  7.67
+Seg:27  y= 2.60  r(Sag)=  7.68  r(Tan)=  7.70
+Seg:27  y= 2.70  r(Sag)=  7.67  r(Tan)=  7.75
+Seg:27  y= 2.80  r(Sag)=  7.67  r(Tan)=  7.83
+Seg:27  y= 2.90  r(Sag)=  7.68  r(Tan)=  7.94
+Seg:27  y= 3.00  r(Sag)=  7.69  r(Tan)=  8.07
+Seg:27  y= 3.10  r(Sag)=  7.70  r(Tan)=  8.22
+Seg:27  y= 3.20  r(Sag)=  7.72  r(Tan)=  8.36
+Seg:27  y= 3.30  r(Sag)=  7.74  r(Tan)=  8.50
+Seg:27  y= 3.40  r(Sag)=  7.77  r(Tan)=  8.60
+Seg:27  y= 3.50  r(Sag)=  7.79  r(Tan)=  8.67
+Seg:27  y= 3.60  r(Sag)=  7.82  r(Tan)=  8.72
+Seg:27  y= 3.70  r(Sag)=  7.84  r(Tan)=  8.75
+Seg:27  y= 3.80  r(Sag)=  7.86  r(Tan)=  8.78
+Seg:27  y= 3.90  r(Sag)=  7.88  r(Tan)=  8.83
+Seg:27  y= 4.00  r(Sag)=  7.90  r(Tan)=  8.88
+Seg:28  y= 0.00  r(Sag)=  7.60  r(Tan)=  7.64
+Seg:28  y= 0.10  r(Sag)=  7.60  r(Tan)=  7.63
+Seg:28  y= 0.20  r(Sag)=  7.60  r(Tan)=  7.63
+Seg:28  y= 0.30  r(Sag)=  7.61  r(Tan)=  7.63
+Seg:28  y= 0.40  r(Sag)=  7.61  r(Tan)=  7.63
+Seg:28  y= 0.50  r(Sag)=  7.61  r(Tan)=  7.64
+Seg:28  y= 0.60  r(Sag)=  7.61  r(Tan)=  7.64
+Seg:28  y= 0.70  r(Sag)=  7.61  r(Tan)=  7.64
+Seg:28  y= 0.80  r(Sag)=  7.62  r(Tan)=  7.65
+Seg:28  y= 0.90  r(Sag)=  7.62  r(Tan)=  7.66
+Seg:28  y= 1.00  r(Sag)=  7.63  r(Tan)=  7.67
+Seg:28  y= 1.10  r(Sag)=  7.63  r(Tan)=  7.68
+Seg:28  y= 1.20  r(Sag)=  7.64  r(Tan)=  7.69
+Seg:28  y= 1.30  r(Sag)=  7.64  r(Tan)=  7.70
+Seg:28  y= 1.40  r(Sag)=  7.64  r(Tan)=  7.71
+Seg:28  y= 1.50  r(Sag)=  7.65  r(Tan)=  7.72
+Seg:28  y= 1.60  r(Sag)=  7.65  r(Tan)=  7.73
+Seg:28  y= 1.70  r(Sag)=  7.66  r(Tan)=  7.74
+Seg:28  y= 1.80  r(Sag)=  7.66  r(Tan)=  7.74
+Seg:28  y= 1.90  r(Sag)=  7.67  r(Tan)=  7.74
+Seg:28  y= 2.00  r(Sag)=  7.67  r(Tan)=  7.73
+Seg:28  y= 2.10  r(Sag)=  7.68  r(Tan)=  7.71
+Seg:28  y= 2.20  r(Sag)=  7.68  r(Tan)=  7.69
+Seg:28  y= 2.30  r(Sag)=  7.68  r(Tan)=  7.67
+Seg:28  y= 2.40  r(Sag)=  7.68  r(Tan)=  7.66
+Seg:28  y= 2.50  r(Sag)=  7.67  r(Tan)=  7.66
+Seg:28  y= 2.60  r(Sag)=  7.67  r(Tan)=  7.69
+Seg:28  y= 2.70  r(Sag)=  7.67  r(Tan)=  7.73
+Seg:28  y= 2.80  r(Sag)=  7.67  r(Tan)=  7.80
+Seg:28  y= 2.90  r(Sag)=  7.67  r(Tan)=  7.89
+Seg:28  y= 3.00  r(Sag)=  7.68  r(Tan)=  8.01
+Seg:28  y= 3.10  r(Sag)=  7.69  r(Tan)=  8.15
+Seg:28  y= 3.20  r(Sag)=  7.71  r(Tan)=  8.29
+Seg:28  y= 3.30  r(Sag)=  7.72  r(Tan)=  8.44
+Seg:28  y= 3.40  r(Sag)=  7.75  r(Tan)=  8.58
+Seg:28  y= 3.50  r(Sag)=  7.77  r(Tan)=  8.71
+Seg:28  y= 3.60  r(Sag)=  7.80  r(Tan)=  8.82
+Seg:28  y= 3.70  r(Sag)=  7.83  r(Tan)=  8.91
+Seg:28  y= 3.80  r(Sag)=  7.85  r(Tan)=  8.98
+Seg:28  y= 3.90  r(Sag)=  7.88  r(Tan)=  9.01
+Seg:28  y= 4.00  r(Sag)=  7.91  r(Tan)=  9.02
+Seg:29  y= 0.00  r(Sag)=  7.60  r(Tan)=  7.64
+Seg:29  y= 0.10  r(Sag)=  7.60  r(Tan)=  7.63
+Seg:29  y= 0.20  r(Sag)=  7.61  r(Tan)=  7.63
+Seg:29  y= 0.30  r(Sag)=  7.61  r(Tan)=  7.63
+Seg:29  y= 0.40  r(Sag)=  7.61  r(Tan)=  7.63
+Seg:29  y= 0.50  r(Sag)=  7.61  r(Tan)=  7.64
+Seg:29  y= 0.60  r(Sag)=  7.61  r(Tan)=  7.64
+Seg:29  y= 0.70  r(Sag)=  7.61  r(Tan)=  7.64
+Seg:29  y= 0.80  r(Sag)=  7.62  r(Tan)=  7.64
+Seg:29  y= 0.90  r(Sag)=  7.62  r(Tan)=  7.65
+Seg:29  y= 1.00  r(Sag)=  7.63  r(Tan)=  7.66
+Seg:29  y= 1.10  r(Sag)=  7.63  r(Tan)=  7.67
+Seg:29  y= 1.20  r(Sag)=  7.63  r(Tan)=  7.68
+Seg:29  y= 1.30  r(Sag)=  7.64  r(Tan)=  7.69
+Seg:29  y= 1.40  r(Sag)=  7.64  r(Tan)=  7.70
+Seg:29  y= 1.50  r(Sag)=  7.64  r(Tan)=  7.71
+Seg:29  y= 1.60  r(Sag)=  7.65  r(Tan)=  7.72
+Seg:29  y= 1.70  r(Sag)=  7.65  r(Tan)=  7.73
+Seg:29  y= 1.80  r(Sag)=  7.66  r(Tan)=  7.74
+Seg:29  y= 1.90  r(Sag)=  7.66  r(Tan)=  7.73
+Seg:29  y= 2.00  r(Sag)=  7.67  r(Tan)=  7.72
+Seg:29  y= 2.10  r(Sag)=  7.67  r(Tan)=  7.70
+Seg:29  y= 2.20  r(Sag)=  7.67  r(Tan)=  7.68
+Seg:29  y= 2.30  r(Sag)=  7.67  r(Tan)=  7.67
+Seg:29  y= 2.40  r(Sag)=  7.67  r(Tan)=  7.66
+Seg:29  y= 2.50  r(Sag)=  7.67  r(Tan)=  7.66
+Seg:29  y= 2.60  r(Sag)=  7.67  r(Tan)=  7.68
+Seg:29  y= 2.70  r(Sag)=  7.66  r(Tan)=  7.72
+Seg:29  y= 2.80  r(Sag)=  7.66  r(Tan)=  7.78
+Seg:29  y= 2.90  r(Sag)=  7.67  r(Tan)=  7.87
+Seg:29  y= 3.00  r(Sag)=  7.67  r(Tan)=  7.98
+Seg:29  y= 3.10  r(Sag)=  7.68  r(Tan)=  8.11
+Seg:29  y= 3.20  r(Sag)=  7.70  r(Tan)=  8.25
+Seg:29  y= 3.30  r(Sag)=  7.72  r(Tan)=  8.40
+Seg:29  y= 3.40  r(Sag)=  7.74  r(Tan)=  8.54
+Seg:29  y= 3.50  r(Sag)=  7.76  r(Tan)=  8.68
+Seg:29  y= 3.60  r(Sag)=  7.79  r(Tan)=  8.80
+Seg:29  y= 3.70  r(Sag)=  7.81  r(Tan)=  8.90
+Seg:29  y= 3.80  r(Sag)=  7.84  r(Tan)=  8.97
+Seg:29  y= 3.90  r(Sag)=  7.87  r(Tan)=  9.00
+Seg:29  y= 4.00  r(Sag)=  7.90  r(Tan)=  9.00
+Seg:30  y= 0.00  r(Sag)=  7.60  r(Tan)=  7.64
+Seg:30  y= 0.10  r(Sag)=  7.60  r(Tan)=  7.63
+Seg:30  y= 0.20  r(Sag)=  7.61  r(Tan)=  7.63
+Seg:30  y= 0.30  r(Sag)=  7.61  r(Tan)=  7.63
+Seg:30  y= 0.40  r(Sag)=  7.61  r(Tan)=  7.63
+Seg:30  y= 0.50  r(Sag)=  7.61  r(Tan)=  7.63
+Seg:30  y= 0.60  r(Sag)=  7.61  r(Tan)=  7.63
+Seg:30  y= 0.70  r(Sag)=  7.61  r(Tan)=  7.63
+Seg:30  y= 0.80  r(Sag)=  7.62  r(Tan)=  7.64
+Seg:30  y= 0.90  r(Sag)=  7.62  r(Tan)=  7.65
+Seg:30  y= 1.00  r(Sag)=  7.62  r(Tan)=  7.66
+Seg:30  y= 1.10  r(Sag)=  7.63  r(Tan)=  7.66
+Seg:30  y= 1.20  r(Sag)=  7.63  r(Tan)=  7.67
+Seg:30  y= 1.30  r(Sag)=  7.63  r(Tan)=  7.68
+Seg:30  y= 1.40  r(Sag)=  7.64  r(Tan)=  7.69
+Seg:30  y= 1.50  r(Sag)=  7.64  r(Tan)=  7.71
+Seg:30  y= 1.60  r(Sag)=  7.64  r(Tan)=  7.72
+Seg:30  y= 1.70  r(Sag)=  7.65  r(Tan)=  7.73
+Seg:30  y= 1.80  r(Sag)=  7.66  r(Tan)=  7.73
+Seg:30  y= 1.90  r(Sag)=  7.66  r(Tan)=  7.73
+Seg:30  y= 2.00  r(Sag)=  7.67  r(Tan)=  7.72
+Seg:30  y= 2.10  r(Sag)=  7.67  r(Tan)=  7.70
+Seg:30  y= 2.20  r(Sag)=  7.67  r(Tan)=  7.68
+Seg:30  y= 2.30  r(Sag)=  7.67  r(Tan)=  7.67
+Seg:30  y= 2.40  r(Sag)=  7.67  r(Tan)=  7.66
+Seg:30  y= 2.50  r(Sag)=  7.67  r(Tan)=  7.66
+Seg:30  y= 2.60  r(Sag)=  7.66  r(Tan)=  7.68
+Seg:30  y= 2.70  r(Sag)=  7.66  r(Tan)=  7.71
+Seg:30  y= 2.80  r(Sag)=  7.66  r(Tan)=  7.77
+Seg:30  y= 2.90  r(Sag)=  7.66  r(Tan)=  7.85
+Seg:30  y= 3.00  r(Sag)=  7.67  r(Tan)=  7.96
+Seg:30  y= 3.10  r(Sag)=  7.68  r(Tan)=  8.08
+Seg:30  y= 3.20  r(Sag)=  7.69  r(Tan)=  8.21
+Seg:30  y= 3.30  r(Sag)=  7.71  r(Tan)=  8.36
+Seg:30  y= 3.40  r(Sag)=  7.73  r(Tan)=  8.50
+Seg:30  y= 3.50  r(Sag)=  7.75  r(Tan)=  8.64
+Seg:30  y= 3.60  r(Sag)=  7.78  r(Tan)=  8.77
+Seg:30  y= 3.70  r(Sag)=  7.80  r(Tan)=  8.88
+Seg:30  y= 3.80  r(Sag)=  7.83  r(Tan)=  8.96
+Seg:30  y= 3.90  r(Sag)=  7.86  r(Tan)=  8.98
+Seg:31  y= 0.00  r(Sag)=  7.61  r(Tan)=  7.64
+Seg:31  y= 0.10  r(Sag)=  7.61  r(Tan)=  7.63
+Seg:31  y= 0.20  r(Sag)=  7.61  r(Tan)=  7.63
+Seg:31  y= 0.30  r(Sag)=  7.61  r(Tan)=  7.63
+Seg:31  y= 0.40  r(Sag)=  7.61  r(Tan)=  7.63
+Seg:31  y= 0.50  r(Sag)=  7.61  r(Tan)=  7.63
+Seg:31  y= 0.60  r(Sag)=  7.61  r(Tan)=  7.63
+Seg:31  y= 0.70  r(Sag)=  7.61  r(Tan)=  7.63
+Seg:31  y= 0.80  r(Sag)=  7.62  r(Tan)=  7.64
+Seg:31  y= 0.90  r(Sag)=  7.62  r(Tan)=  7.64
+Seg:31  y= 1.00  r(Sag)=  7.62  r(Tan)=  7.65
+Seg:31  y= 1.10  r(Sag)=  7.63  r(Tan)=  7.66
+Seg:31  y= 1.20  r(Sag)=  7.63  r(Tan)=  7.67
+Seg:31  y= 1.30  r(Sag)=  7.63  r(Tan)=  7.68
+Seg:31  y= 1.40  r(Sag)=  7.63  r(Tan)=  7.69
+Seg:31  y= 1.50  r(Sag)=  7.64  r(Tan)=  7.70
+Seg:31  y= 1.60  r(Sag)=  7.64  r(Tan)=  7.72
+Seg:31  y= 1.70  r(Sag)=  7.65  r(Tan)=  7.72
+Seg:31  y= 1.80  r(Sag)=  7.65  r(Tan)=  7.73
+Seg:31  y= 1.90  r(Sag)=  7.66  r(Tan)=  7.72
+Seg:31  y= 2.00  r(Sag)=  7.66  r(Tan)=  7.71
+Seg:31  y= 2.10  r(Sag)=  7.67  r(Tan)=  7.70
+Seg:31  y= 2.20  r(Sag)=  7.67  r(Tan)=  7.68
+Seg:31  y= 2.30  r(Sag)=  7.67  r(Tan)=  7.67
+Seg:31  y= 2.40  r(Sag)=  7.67  r(Tan)=  7.66
+Seg:31  y= 2.50  r(Sag)=  7.67  r(Tan)=  7.66
+Seg:31  y= 2.60  r(Sag)=  7.66  r(Tan)=  7.68
+Seg:31  y= 2.70  r(Sag)=  7.66  r(Tan)=  7.71
+Seg:31  y= 2.80  r(Sag)=  7.66  r(Tan)=  7.77
+Seg:31  y= 2.90  r(Sag)=  7.66  r(Tan)=  7.84
+Seg:31  y= 3.00  r(Sag)=  7.67  r(Tan)=  7.93
+Seg:31  y= 3.10  r(Sag)=  7.68  r(Tan)=  8.05
+Seg:31  y= 3.20  r(Sag)=  7.69  r(Tan)=  8.17
+Seg:31  y= 3.30  r(Sag)=  7.71  r(Tan)=  8.31
+Seg:31  y= 3.40  r(Sag)=  7.72  r(Tan)=  8.46
+Seg:31  y= 3.50  r(Sag)=  7.75  r(Tan)=  8.60
+Seg:31  y= 3.60  r(Sag)=  7.77  r(Tan)=  8.74
+Seg:31  y= 3.70  r(Sag)=  7.80  r(Tan)=  8.85
+Seg:31  y= 3.80  r(Sag)=  7.82  r(Tan)=  8.93
+Seg:31  y= 3.90  r(Sag)=  7.85  r(Tan)=  8.95
+Seg:32  y= 0.00  r(Sag)=  7.61  r(Tan)=  7.68
+Seg:32  y= 0.10  r(Sag)=  7.61  r(Tan)=  7.66
+Seg:32  y= 0.20  r(Sag)=  7.62  r(Tan)=  7.64
+Seg:32  y= 0.30  r(Sag)=  7.63  r(Tan)=  7.64
+Seg:32  y= 0.40  r(Sag)=  7.63  r(Tan)=  7.64
+Seg:32  y= 0.50  r(Sag)=  7.63  r(Tan)=  7.64
+Seg:32  y= 0.60  r(Sag)=  7.62  r(Tan)=  7.63
+Seg:32  y= 0.70  r(Sag)=  7.62  r(Tan)=  7.62
+Seg:32  y= 0.80  r(Sag)=  7.62  r(Tan)=  7.63
+Seg:32  y= 0.90  r(Sag)=  7.62  r(Tan)=  7.64
+Seg:32  y= 1.00  r(Sag)=  7.63  r(Tan)=  7.65
+Seg:32  y= 1.10  r(Sag)=  7.63  r(Tan)=  7.66
+Seg:32  y= 1.20  r(Sag)=  7.63  r(Tan)=  7.67
+Seg:32  y= 1.30  r(Sag)=  7.63  r(Tan)=  7.68
+Seg:32  y= 1.40  r(Sag)=  7.64  r(Tan)=  7.69
+Seg:32  y= 1.50  r(Sag)=  7.64  r(Tan)=  7.70
+Seg:32  y= 1.60  r(Sag)=  7.64  r(Tan)=  7.71
+Seg:32  y= 1.70  r(Sag)=  7.65  r(Tan)=  7.72
+Seg:32  y= 1.80  r(Sag)=  7.65  r(Tan)=  7.73
+Seg:32  y= 1.90  r(Sag)=  7.66  r(Tan)=  7.72
+Seg:32  y= 2.00  r(Sag)=  7.66  r(Tan)=  7.71
+Seg:32  y= 2.10  r(Sag)=  7.67  r(Tan)=  7.70
+Seg:32  y= 2.20  r(Sag)=  7.67  r(Tan)=  7.69
+Seg:32  y= 2.30  r(Sag)=  7.67  r(Tan)=  7.67
+Seg:32  y= 2.40  r(Sag)=  7.67  r(Tan)=  7.67
+Seg:32  y= 2.50  r(Sag)=  7.67  r(Tan)=  7.67
+Seg:32  y= 2.60  r(Sag)=  7.66  r(Tan)=  7.69
+Seg:32  y= 2.70  r(Sag)=  7.66  r(Tan)=  7.72
+Seg:32  y= 2.80  r(Sag)=  7.66  r(Tan)=  7.77
+Seg:32  y= 2.90  r(Sag)=  7.67  r(Tan)=  7.83
+Seg:32  y= 3.00  r(Sag)=  7.67  r(Tan)=  7.89
+Seg:32  y= 3.10  r(Sag)=  7.68  r(Tan)=  7.96
+Seg:32  y= 3.20  r(Sag)=  7.69  r(Tan)=  8.04
+Seg:32  y= 3.30  r(Sag)=  7.70  r(Tan)=  8.11
+Seg:32  y= 3.40  r(Sag)=  7.72  r(Tan)=  8.20
+Seg:32  y= 3.50  r(Sag)=  7.73  r(Tan)=  8.29
+Seg:32  y= 3.60  r(Sag)=  7.74  r(Tan)=  8.40
+Seg:33  y= 0.00  r(Sag)=  7.62  r(Tan)=  7.66
+Seg:33  y= 0.10  r(Sag)=  7.62  r(Tan)=  7.65
+Seg:33  y= 0.20  r(Sag)=  7.62  r(Tan)=  7.64
+Seg:33  y= 0.30  r(Sag)=  7.63  r(Tan)=  7.64
+Seg:33  y= 0.40  r(Sag)=  7.63  r(Tan)=  7.64
+Seg:33  y= 0.50  r(Sag)=  7.63  r(Tan)=  7.64
+Seg:33  y= 0.60  r(Sag)=  7.63  r(Tan)=  7.63
+Seg:33  y= 0.70  r(Sag)=  7.62  r(Tan)=  7.63
+Seg:33  y= 0.80  r(Sag)=  7.63  r(Tan)=  7.63
+Seg:33  y= 0.90  r(Sag)=  7.63  r(Tan)=  7.64
+Seg:33  y= 1.00  r(Sag)=  7.63  r(Tan)=  7.65
+Seg:33  y= 1.10  r(Sag)=  7.63  r(Tan)=  7.65
+Seg:33  y= 1.20  r(Sag)=  7.63  r(Tan)=  7.67
+Seg:33  y= 1.30  r(Sag)=  7.63  r(Tan)=  7.68
+Seg:33  y= 1.40  r(Sag)=  7.64  r(Tan)=  7.69
+Seg:33  y= 1.50  r(Sag)=  7.64  r(Tan)=  7.70
+Seg:33  y= 1.60  r(Sag)=  7.64  r(Tan)=  7.71
+Seg:33  y= 1.70  r(Sag)=  7.65  r(Tan)=  7.72
+Seg:33  y= 1.80  r(Sag)=  7.66  r(Tan)=  7.73
+Seg:33  y= 1.90  r(Sag)=  7.66  r(Tan)=  7.72
+Seg:33  y= 2.00  r(Sag)=  7.67  r(Tan)=  7.72
+Seg:33  y= 2.10  r(Sag)=  7.67  r(Tan)=  7.70
+Seg:33  y= 2.20  r(Sag)=  7.67  r(Tan)=  7.69
+Seg:33  y= 2.30  r(Sag)=  7.67  r(Tan)=  7.68
+Seg:33  y= 2.40  r(Sag)=  7.67  r(Tan)=  7.68
+Seg:33  y= 2.50  r(Sag)=  7.67  r(Tan)=  7.68
+Seg:33  y= 2.60  r(Sag)=  7.67  r(Tan)=  7.70
+Seg:33  y= 2.70  r(Sag)=  7.67  r(Tan)=  7.73
+Seg:33  y= 2.80  r(Sag)=  7.67  r(Tan)=  7.77
+Seg:33  y= 2.90  r(Sag)=  7.67  r(Tan)=  7.83
+Seg:33  y= 3.00  r(Sag)=  7.68  r(Tan)=  7.89
+Seg:33  y= 3.10  r(Sag)=  7.68  r(Tan)=  7.97
+Seg:33  y= 3.20  r(Sag)=  7.69  r(Tan)=  8.05
+Seg:33  y= 3.30  r(Sag)=  7.71  r(Tan)=  8.14
+Seg:33  y= 3.40  r(Sag)=  7.72  r(Tan)=  8.24
+Seg:33  y= 3.50  r(Sag)=  7.73  r(Tan)=  8.36
+Seg:33  y= 3.60  r(Sag)=  7.75  r(Tan)=  8.49
+Seg:33  y= 3.70  r(Sag)=  7.77  r(Tan)=  8.63
+Seg:33  y= 3.80  r(Sag)=  7.79  r(Tan)=  8.77
+Seg:33  y= 3.90  r(Sag)=  7.81  r(Tan)=  8.90
+Seg:33  y= 4.00  r(Sag)=  7.84  r(Tan)=  8.99
+Seg:33  y= 4.10  r(Sag)=  7.87  r(Tan)=  9.07
+Seg:33  y= 4.20  r(Sag)=  7.90  r(Tan)=  9.15
+Seg:33  y= 4.30  r(Sag)=  7.93  r(Tan)=  9.22
+Seg:34  y= 0.00  r(Sag)=  7.63  r(Tan)=  7.62
+Seg:34  y= 0.10  r(Sag)=  7.63  r(Tan)=  7.63
+Seg:34  y= 0.20  r(Sag)=  7.62  r(Tan)=  7.64
+Seg:34  y= 0.30  r(Sag)=  7.62  r(Tan)=  7.64
+Seg:34  y= 0.40  r(Sag)=  7.62  r(Tan)=  7.64
+Seg:34  y= 0.50  r(Sag)=  7.63  r(Tan)=  7.64
+Seg:34  y= 0.60  r(Sag)=  7.63  r(Tan)=  7.64
+Seg:34  y= 0.70  r(Sag)=  7.64  r(Tan)=  7.64
+Seg:34  y= 0.80  r(Sag)=  7.64  r(Tan)=  7.64
+Seg:34  y= 0.90  r(Sag)=  7.64  r(Tan)=  7.64
+Seg:34  y= 1.00  r(Sag)=  7.63  r(Tan)=  7.64
+Seg:34  y= 1.10  r(Sag)=  7.63  r(Tan)=  7.65
+Seg:34  y= 1.20  r(Sag)=  7.63  r(Tan)=  7.66
+Seg:34  y= 1.30  r(Sag)=  7.63  r(Tan)=  7.68
+Seg:34  y= 1.40  r(Sag)=  7.64  r(Tan)=  7.69
+Seg:34  y= 1.50  r(Sag)=  7.64  r(Tan)=  7.71
+Seg:34  y= 1.60  r(Sag)=  7.65  r(Tan)=  7.72
+Seg:34  y= 1.70  r(Sag)=  7.65  r(Tan)=  7.73
+Seg:34  y= 1.80  r(Sag)=  7.66  r(Tan)=  7.73
+Seg:34  y= 1.90  r(Sag)=  7.66  r(Tan)=  7.73
+Seg:34  y= 2.00  r(Sag)=  7.67  r(Tan)=  7.72
+Seg:34  y= 2.10  r(Sag)=  7.67  r(Tan)=  7.71
+Seg:34  y= 2.20  r(Sag)=  7.67  r(Tan)=  7.70
+Seg:34  y= 2.30  r(Sag)=  7.67  r(Tan)=  7.69
+Seg:34  y= 2.40  r(Sag)=  7.67  r(Tan)=  7.69
+Seg:34  y= 2.50  r(Sag)=  7.67  r(Tan)=  7.70
+Seg:34  y= 2.60  r(Sag)=  7.67  r(Tan)=  7.71
+Seg:34  y= 2.70  r(Sag)=  7.67  r(Tan)=  7.74
+Seg:34  y= 2.80  r(Sag)=  7.67  r(Tan)=  7.77
+Seg:34  y= 2.90  r(Sag)=  7.68  r(Tan)=  7.83
+Seg:34  y= 3.00  r(Sag)=  7.68  r(Tan)=  7.90
+Seg:34  y= 3.10  r(Sag)=  7.69  r(Tan)=  7.98
+Seg:34  y= 3.20  r(Sag)=  7.70  r(Tan)=  8.08
+Seg:34  y= 3.30  r(Sag)=  7.71  r(Tan)=  8.19
+Seg:34  y= 3.40  r(Sag)=  7.72  r(Tan)=  8.29
+Seg:34  y= 3.50  r(Sag)=  7.74  r(Tan)=  8.40
+Seg:34  y= 3.60  r(Sag)=  7.76  r(Tan)=  8.48
+Seg:34  y= 3.70  r(Sag)=  7.78  r(Tan)=  8.52
+Seg:34  y= 3.80  r(Sag)=  7.80  r(Tan)=  8.54
+Seg:34  y= 3.90  r(Sag)=  7.82  r(Tan)=  8.53
+Seg:34  y= 4.00  r(Sag)=  7.84  r(Tan)=  8.51
+Seg:34  y= 4.10  r(Sag)=  7.86  r(Tan)=  8.50
+Seg:34  y= 4.20  r(Sag)=  7.87  r(Tan)=  8.46
+Seg:34  y= 4.30  r(Sag)=  7.88  r(Tan)=  8.42
+Seg:35  y= 0.00  r(Sag)=  7.63  r(Tan)=  7.62
+Seg:35  y= 0.10  r(Sag)=  7.63  r(Tan)=  7.64
+Seg:35  y= 0.20  r(Sag)=  7.63  r(Tan)=  7.65
+Seg:35  y= 0.30  r(Sag)=  7.62  r(Tan)=  7.65
+Seg:35  y= 0.40  r(Sag)=  7.63  r(Tan)=  7.65
+Seg:35  y= 0.50  r(Sag)=  7.64  r(Tan)=  7.64
+Seg:35  y= 0.60  r(Sag)=  7.64  r(Tan)=  7.64
+Seg:35  y= 0.70  r(Sag)=  7.65  r(Tan)=  7.65
+Seg:35  y= 0.80  r(Sag)=  7.65  r(Tan)=  7.64
+Seg:35  y= 0.90  r(Sag)=  7.64  r(Tan)=  7.64
+Seg:35  y= 1.00  r(Sag)=  7.64  r(Tan)=  7.64
+Seg:35  y= 1.10  r(Sag)=  7.64  r(Tan)=  7.65
+Seg:35  y= 1.20  r(Sag)=  7.64  r(Tan)=  7.66
+Seg:35  y= 1.30  r(Sag)=  7.64  r(Tan)=  7.68
+Seg:35  y= 1.40  r(Sag)=  7.64  r(Tan)=  7.70
+Seg:35  y= 1.50  r(Sag)=  7.65  r(Tan)=  7.71
+Seg:35  y= 1.60  r(Sag)=  7.65  r(Tan)=  7.72
+Seg:35  y= 1.70  r(Sag)=  7.66  r(Tan)=  7.73
+Seg:35  y= 1.80  r(Sag)=  7.66  r(Tan)=  7.73
+Seg:35  y= 1.90  r(Sag)=  7.67  r(Tan)=  7.73
+Seg:35  y= 2.00  r(Sag)=  7.67  r(Tan)=  7.72
+Seg:35  y= 2.10  r(Sag)=  7.67  r(Tan)=  7.71
+Seg:35  y= 2.20  r(Sag)=  7.68  r(Tan)=  7.71
+Seg:35  y= 2.30  r(Sag)=  7.68  r(Tan)=  7.70
+Seg:35  y= 2.40  r(Sag)=  7.68  r(Tan)=  7.70
+Seg:35  y= 2.50  r(Sag)=  7.68  r(Tan)=  7.71
+Seg:35  y= 2.60  r(Sag)=  7.68  r(Tan)=  7.72
+Seg:35  y= 2.70  r(Sag)=  7.68  r(Tan)=  7.75
+Seg:35  y= 2.80  r(Sag)=  7.68  r(Tan)=  7.78
+Seg:35  y= 2.90  r(Sag)=  7.68  r(Tan)=  7.83
+Seg:35  y= 3.00  r(Sag)=  7.69  r(Tan)=  7.89
+Seg:35  y= 3.10  r(Sag)=  7.69  r(Tan)=  7.97
+Seg:35  y= 3.20  r(Sag)=  7.70  r(Tan)=  8.06
+Seg:35  y= 3.30  r(Sag)=  7.71  r(Tan)=  8.15
+Seg:35  y= 3.40  r(Sag)=  7.73  r(Tan)=  8.25
+Seg:35  y= 3.50  r(Sag)=  7.74  r(Tan)=  8.34
+Seg:35  y= 3.60  r(Sag)=  7.76  r(Tan)=  8.42
+Seg:35  y= 3.70  r(Sag)=  7.78  r(Tan)=  8.46
+Seg:35  y= 3.80  r(Sag)=  7.80  r(Tan)=  8.48
+Seg:35  y= 3.90  r(Sag)=  7.82  r(Tan)=  8.47
+Seg:35  y= 4.00  r(Sag)=  7.84  r(Tan)=  8.45
+Seg:35  y= 4.10  r(Sag)=  7.85  r(Tan)=  8.43
+Seg:35  y= 4.20  r(Sag)=  7.86  r(Tan)=  8.40
+Seg:35  y= 4.30  r(Sag)=  7.87  r(Tan)=  8.36
+Seg:36  y= 0.00  r(Sag)=  7.64  r(Tan)=  7.63
+Seg:36  y= 0.10  r(Sag)=  7.64  r(Tan)=  7.65
+Seg:36  y= 0.20  r(Sag)=  7.63  r(Tan)=  7.66
+Seg:36  y= 0.30  r(Sag)=  7.63  r(Tan)=  7.66
+Seg:36  y= 0.40  r(Sag)=  7.64  r(Tan)=  7.65
+Seg:36  y= 0.50  r(Sag)=  7.65  r(Tan)=  7.65
+Seg:36  y= 0.60  r(Sag)=  7.65  r(Tan)=  7.65
+Seg:36  y= 0.70  r(Sag)=  7.66  r(Tan)=  7.65
+Seg:36  y= 0.80  r(Sag)=  7.65  r(Tan)=  7.65
+Seg:36  y= 0.90  r(Sag)=  7.65  r(Tan)=  7.64
+Seg:36  y= 1.00  r(Sag)=  7.65  r(Tan)=  7.64
+Seg:36  y= 1.10  r(Sag)=  7.64  r(Tan)=  7.65
+Seg:36  y= 1.20  r(Sag)=  7.64  r(Tan)=  7.66
+Seg:36  y= 1.30  r(Sag)=  7.64  r(Tan)=  7.68
+Seg:36  y= 1.40  r(Sag)=  7.65  r(Tan)=  7.70
+Seg:36  y= 1.50  r(Sag)=  7.65  r(Tan)=  7.72
+Seg:36  y= 1.60  r(Sag)=  7.66  r(Tan)=  7.73
+Seg:36  y= 1.70  r(Sag)=  7.66  r(Tan)=  7.74
+Seg:36  y= 1.80  r(Sag)=  7.67  r(Tan)=  7.74
+Seg:36  y= 1.90  r(Sag)=  7.67  r(Tan)=  7.73
+Seg:36  y= 2.00  r(Sag)=  7.68  r(Tan)=  7.73
+Seg:36  y= 2.10  r(Sag)=  7.68  r(Tan)=  7.72
+Seg:36  y= 2.20  r(Sag)=  7.68  r(Tan)=  7.72
+Seg:36  y= 2.30  r(Sag)=  7.68  r(Tan)=  7.71
+Seg:36  y= 2.40  r(Sag)=  7.68  r(Tan)=  7.72
+Seg:36  y= 2.50  r(Sag)=  7.68  r(Tan)=  7.72
+Seg:36  y= 2.60  r(Sag)=  7.68  r(Tan)=  7.74
+Seg:36  y= 2.70  r(Sag)=  7.69  r(Tan)=  7.76
+Seg:36  y= 2.80  r(Sag)=  7.69  r(Tan)=  7.80
+Seg:36  y= 2.90  r(Sag)=  7.69  r(Tan)=  7.84
+Seg:36  y= 3.00  r(Sag)=  7.70  r(Tan)=  7.89
+Seg:36  y= 3.10  r(Sag)=  7.70  r(Tan)=  7.96
+Seg:36  y= 3.20  r(Sag)=  7.71  r(Tan)=  8.04
+Seg:36  y= 3.30  r(Sag)=  7.72  r(Tan)=  8.12
+Seg:36  y= 3.40  r(Sag)=  7.73  r(Tan)=  8.21
+Seg:36  y= 3.50  r(Sag)=  7.75  r(Tan)=  8.30
+Seg:36  y= 3.60  r(Sag)=  7.76  r(Tan)=  8.37
+Seg:36  y= 3.70  r(Sag)=  7.78  r(Tan)=  8.41
+Seg:36  y= 3.80  r(Sag)=  7.80  r(Tan)=  8.43
+Seg:36  y= 3.90  r(Sag)=  7.82  r(Tan)=  8.43
+Seg:36  y= 4.00  r(Sag)=  7.83  r(Tan)=  8.43
+Seg:36  y= 4.10  r(Sag)=  7.85  r(Tan)=  8.42
+Seg:36  y= 4.20  r(Sag)=  7.86  r(Tan)=  8.40
+Seg:36  y= 4.30  r(Sag)=  7.87  r(Tan)=  8.37
+Seg:37  y= 0.00  r(Sag)=  7.64  r(Tan)=  7.64
+Seg:37  y= 0.10  r(Sag)=  7.64  r(Tan)=  7.66
+Seg:37  y= 0.20  r(Sag)=  7.64  r(Tan)=  7.67
+Seg:37  y= 0.30  r(Sag)=  7.64  r(Tan)=  7.67
+Seg:37  y= 0.40  r(Sag)=  7.64  r(Tan)=  7.66
+Seg:37  y= 0.50  r(Sag)=  7.65  r(Tan)=  7.66
+Seg:37  y= 0.60  r(Sag)=  7.66  r(Tan)=  7.66
+Seg:37  y= 0.70  r(Sag)=  7.67  r(Tan)=  7.66
+Seg:37  y= 0.80  r(Sag)=  7.66  r(Tan)=  7.65
+Seg:37  y= 0.90  r(Sag)=  7.66  r(Tan)=  7.65
+Seg:37  y= 1.00  r(Sag)=  7.65  r(Tan)=  7.65
+Seg:37  y= 1.10  r(Sag)=  7.65  r(Tan)=  7.65
+Seg:37  y= 1.20  r(Sag)=  7.65  r(Tan)=  7.67
+Seg:37  y= 1.30  r(Sag)=  7.65  r(Tan)=  7.69
+Seg:37  y= 1.40  r(Sag)=  7.65  r(Tan)=  7.70
+Seg:37  y= 1.50  r(Sag)=  7.66  r(Tan)=  7.72
+Seg:37  y= 1.60  r(Sag)=  7.66  r(Tan)=  7.74
+Seg:37  y= 1.70  r(Sag)=  7.67  r(Tan)=  7.74
+Seg:37  y= 1.80  r(Sag)=  7.68  r(Tan)=  7.74
+Seg:37  y= 1.90  r(Sag)=  7.68  r(Tan)=  7.74
+Seg:37  y= 2.00  r(Sag)=  7.68  r(Tan)=  7.73
+Seg:37  y= 2.10  r(Sag)=  7.69  r(Tan)=  7.73
+Seg:37  y= 2.20  r(Sag)=  7.69  r(Tan)=  7.72
+Seg:37  y= 2.30  r(Sag)=  7.69  r(Tan)=  7.72
+Seg:37  y= 2.40  r(Sag)=  7.69  r(Tan)=  7.73
+Seg:37  y= 2.50  r(Sag)=  7.69  r(Tan)=  7.74
+Seg:37  y= 2.60  r(Sag)=  7.69  r(Tan)=  7.76
+Seg:37  y= 2.70  r(Sag)=  7.69  r(Tan)=  7.78
+Seg:37  y= 2.80  r(Sag)=  7.70  r(Tan)=  7.81
+Seg:37  y= 2.90  r(Sag)=  7.70  r(Tan)=  7.85
+Seg:37  y= 3.00  r(Sag)=  7.70  r(Tan)=  7.90
+Seg:37  y= 3.10  r(Sag)=  7.71  r(Tan)=  7.96
+Seg:37  y= 3.20  r(Sag)=  7.72  r(Tan)=  8.02
+Seg:37  y= 3.30  r(Sag)=  7.73  r(Tan)=  8.10
+Seg:37  y= 3.40  r(Sag)=  7.74  r(Tan)=  8.18
+Seg:37  y= 3.50  r(Sag)=  7.75  r(Tan)=  8.26
+Seg:37  y= 3.60  r(Sag)=  7.77  r(Tan)=  8.32
+Seg:37  y= 3.70  r(Sag)=  7.78  r(Tan)=  8.35
+Seg:37  y= 3.80  r(Sag)=  7.80  r(Tan)=  8.36
+Seg:37  y= 3.90  r(Sag)=  7.82  r(Tan)=  8.35
+Seg:37  y= 4.00  r(Sag)=  7.83  r(Tan)=  8.33
+Seg:37  y= 4.10  r(Sag)=  7.84  r(Tan)=  8.32
+Seg:37  y= 4.20  r(Sag)=  7.85  r(Tan)=  8.29
+Seg:37  y= 4.30  r(Sag)=  7.86  r(Tan)=  8.25
+Seg:38  y= 0.00  r(Sag)=  7.65  r(Tan)=  7.65
+Seg:38  y= 0.10  r(Sag)=  7.65  r(Tan)=  7.67
+Seg:38  y= 0.20  r(Sag)=  7.64  r(Tan)=  7.68
+Seg:38  y= 0.30  r(Sag)=  7.64  r(Tan)=  7.68
+Seg:38  y= 0.40  r(Sag)=  7.65  r(Tan)=  7.67
+Seg:38  y= 0.50  r(Sag)=  7.66  r(Tan)=  7.67
+Seg:38  y= 0.60  r(Sag)=  7.67  r(Tan)=  7.67
+Seg:38  y= 0.70  r(Sag)=  7.68  r(Tan)=  7.66
+Seg:38  y= 0.80  r(Sag)=  7.67  r(Tan)=  7.66
+Seg:38  y= 0.90  r(Sag)=  7.67  r(Tan)=  7.65
+Seg:38  y= 1.00  r(Sag)=  7.66  r(Tan)=  7.65
+Seg:38  y= 1.10  r(Sag)=  7.66  r(Tan)=  7.66
+Seg:38  y= 1.20  r(Sag)=  7.66  r(Tan)=  7.67
+Seg:38  y= 1.30  r(Sag)=  7.66  r(Tan)=  7.69
+Seg:38  y= 1.40  r(Sag)=  7.66  r(Tan)=  7.71
+Seg:38  y= 1.50  r(Sag)=  7.67  r(Tan)=  7.73
+Seg:38  y= 1.60  r(Sag)=  7.67  r(Tan)=  7.74
+Seg:38  y= 1.70  r(Sag)=  7.68  r(Tan)=  7.75
+Seg:38  y= 1.80  r(Sag)=  7.68  r(Tan)=  7.75
+Seg:38  y= 1.90  r(Sag)=  7.69  r(Tan)=  7.75
+Seg:38  y= 2.00  r(Sag)=  7.69  r(Tan)=  7.74
+Seg:38  y= 2.10  r(Sag)=  7.69  r(Tan)=  7.74
+Seg:38  y= 2.20  r(Sag)=  7.69  r(Tan)=  7.73
+Seg:38  y= 2.30  r(Sag)=  7.69  r(Tan)=  7.73
+Seg:38  y= 2.40  r(Sag)=  7.69  r(Tan)=  7.74
+Seg:38  y= 2.50  r(Sag)=  7.70  r(Tan)=  7.75
+Seg:38  y= 2.60  r(Sag)=  7.70  r(Tan)=  7.77
+Seg:38  y= 2.70  r(Sag)=  7.70  r(Tan)=  7.80
+Seg:38  y= 2.80  r(Sag)=  7.70  r(Tan)=  7.83
+Seg:38  y= 2.90  r(Sag)=  7.71  r(Tan)=  7.86
+Seg:38  y= 3.00  r(Sag)=  7.71  r(Tan)=  7.90
+Seg:38  y= 3.10  r(Sag)=  7.72  r(Tan)=  7.96
+Seg:38  y= 3.20  r(Sag)=  7.73  r(Tan)=  8.02
+Seg:38  y= 3.30  r(Sag)=  7.74  r(Tan)=  8.08
+Seg:38  y= 3.40  r(Sag)=  7.75  r(Tan)=  8.15
+Seg:38  y= 3.50  r(Sag)=  7.76  r(Tan)=  8.22
+Seg:38  y= 3.60  r(Sag)=  7.77  r(Tan)=  8.27
+Seg:38  y= 3.70  r(Sag)=  7.79  r(Tan)=  8.31
+Seg:38  y= 3.80  r(Sag)=  7.80  r(Tan)=  8.32
+Seg:38  y= 3.90  r(Sag)=  7.82  r(Tan)=  8.30
+Seg:38  y= 4.00  r(Sag)=  7.83  r(Tan)=  8.29
+Seg:38  y= 4.10  r(Sag)=  7.84  r(Tan)=  8.28
+Seg:38  y= 4.20  r(Sag)=  7.85  r(Tan)=  8.25
+Seg:38  y= 4.30  r(Sag)=  7.86  r(Tan)=  8.22
+Seg:39  y= 0.00  r(Sag)=  7.65  r(Tan)=  7.72
+Seg:39  y= 0.10  r(Sag)=  7.65  r(Tan)=  7.71
+Seg:39  y= 0.20  r(Sag)=  7.66  r(Tan)=  7.70
+Seg:39  y= 0.30  r(Sag)=  7.67  r(Tan)=  7.69
+Seg:39  y= 0.40  r(Sag)=  7.67  r(Tan)=  7.69
+Seg:39  y= 0.50  r(Sag)=  7.68  r(Tan)=  7.68
+Seg:39  y= 0.60  r(Sag)=  7.68  r(Tan)=  7.67
+Seg:39  y= 0.70  r(Sag)=  7.68  r(Tan)=  7.66
+Seg:39  y= 0.80  r(Sag)=  7.67  r(Tan)=  7.66
+Seg:39  y= 0.90  r(Sag)=  7.67  r(Tan)=  7.66
+Seg:39  y= 1.00  r(Sag)=  7.67  r(Tan)=  7.66
+Seg:39  y= 1.10  r(Sag)=  7.67  r(Tan)=  7.67
+Seg:39  y= 1.20  r(Sag)=  7.67  r(Tan)=  7.68
+Seg:39  y= 1.30  r(Sag)=  7.67  r(Tan)=  7.70
+Seg:39  y= 1.40  r(Sag)=  7.67  r(Tan)=  7.71
+Seg:39  y= 1.50  r(Sag)=  7.67  r(Tan)=  7.73
+Seg:39  y= 1.60  r(Sag)=  7.68  r(Tan)=  7.74
+Seg:39  y= 1.70  r(Sag)=  7.68  r(Tan)=  7.75
+Seg:39  y= 1.80  r(Sag)=  7.69  r(Tan)=  7.75
+Seg:39  y= 1.90  r(Sag)=  7.69  r(Tan)=  7.75
+Seg:39  y= 2.00  r(Sag)=  7.70  r(Tan)=  7.75
+Seg:39  y= 2.10  r(Sag)=  7.70  r(Tan)=  7.74
+Seg:39  y= 2.20  r(Sag)=  7.70  r(Tan)=  7.74
+Seg:39  y= 2.30  r(Sag)=  7.70  r(Tan)=  7.74
+Seg:39  y= 2.40  r(Sag)=  7.70  r(Tan)=  7.75
+Seg:39  y= 2.50  r(Sag)=  7.70  r(Tan)=  7.77
+Seg:39  y= 2.60  r(Sag)=  7.70  r(Tan)=  7.79
+Seg:39  y= 2.70  r(Sag)=  7.71  r(Tan)=  7.82
+Seg:39  y= 2.80  r(Sag)=  7.71  r(Tan)=  7.85
+Seg:39  y= 2.90  r(Sag)=  7.72  r(Tan)=  7.88
+Seg:39  y= 3.00  r(Sag)=  7.72  r(Tan)=  7.90
+Seg:39  y= 3.10  r(Sag)=  7.73  r(Tan)=  7.93
+Seg:39  y= 3.20  r(Sag)=  7.74  r(Tan)=  7.96
+Seg:39  y= 3.30  r(Sag)=  7.74  r(Tan)=  7.98
+Seg:39  y= 3.40  r(Sag)=  7.75  r(Tan)=  8.02
+Seg:39  y= 3.50  r(Sag)=  7.76  r(Tan)=  8.07
+Seg:39  y= 3.60  r(Sag)=  7.76  r(Tan)=  8.13
+Seg:40  y= 0.00  r(Sag)=  7.65  r(Tan)=  7.72
+Seg:40  y= 0.10  r(Sag)=  7.65  r(Tan)=  7.72
+Seg:40  y= 0.20  r(Sag)=  7.66  r(Tan)=  7.71
+Seg:40  y= 0.30  r(Sag)=  7.67  r(Tan)=  7.70
+Seg:40  y= 0.40  r(Sag)=  7.68  r(Tan)=  7.70
+Seg:40  y= 0.50  r(Sag)=  7.69  r(Tan)=  7.69
+Seg:40  y= 0.60  r(Sag)=  7.69  r(Tan)=  7.68
+Seg:40  y= 0.70  r(Sag)=  7.69  r(Tan)=  7.67
+Seg:40  y= 0.80  r(Sag)=  7.68  r(Tan)=  7.67
+Seg:40  y= 0.90  r(Sag)=  7.68  r(Tan)=  7.67
+Seg:40  y= 1.00  r(Sag)=  7.68  r(Tan)=  7.67
+Seg:40  y= 1.10  r(Sag)=  7.68  r(Tan)=  7.68
+Seg:40  y= 1.20  r(Sag)=  7.67  r(Tan)=  7.69
+Seg:40  y= 1.30  r(Sag)=  7.68  r(Tan)=  7.70
+Seg:40  y= 1.40  r(Sag)=  7.68  r(Tan)=  7.72
+Seg:40  y= 1.50  r(Sag)=  7.68  r(Tan)=  7.73
+Seg:40  y= 1.60  r(Sag)=  7.69  r(Tan)=  7.75
+Seg:40  y= 1.70  r(Sag)=  7.69  r(Tan)=  7.76
+Seg:40  y= 1.80  r(Sag)=  7.70  r(Tan)=  7.76
+Seg:40  y= 1.90  r(Sag)=  7.70  r(Tan)=  7.76
+Seg:40  y= 2.00  r(Sag)=  7.70  r(Tan)=  7.76
+Seg:40  y= 2.10  r(Sag)=  7.71  r(Tan)=  7.75
+Seg:40  y= 2.20  r(Sag)=  7.71  r(Tan)=  7.75
+Seg:40  y= 2.30  r(Sag)=  7.71  r(Tan)=  7.75
+Seg:40  y= 2.40  r(Sag)=  7.71  r(Tan)=  7.76
+Seg:40  y= 2.50  r(Sag)=  7.71  r(Tan)=  7.78
+Seg:40  y= 2.60  r(Sag)=  7.71  r(Tan)=  7.80
+Seg:40  y= 2.70  r(Sag)=  7.72  r(Tan)=  7.83
+Seg:40  y= 2.80  r(Sag)=  7.72  r(Tan)=  7.86
+Seg:40  y= 2.90  r(Sag)=  7.73  r(Tan)=  7.89
+Seg:40  y= 3.00  r(Sag)=  7.73  r(Tan)=  7.92
+Seg:40  y= 3.10  r(Sag)=  7.74  r(Tan)=  7.94
+Seg:40  y= 3.20  r(Sag)=  7.75  r(Tan)=  7.96
+Seg:40  y= 3.30  r(Sag)=  7.75  r(Tan)=  7.99
+Seg:40  y= 3.40  r(Sag)=  7.76  r(Tan)=  8.02
+Seg:40  y= 3.50  r(Sag)=  7.77  r(Tan)=  8.06
+Seg:40  y= 3.60  r(Sag)=  7.77  r(Tan)=  8.11
+Seg:41  y= 0.00  r(Sag)=  7.66  r(Tan)=  7.68
+Seg:41  y= 0.10  r(Sag)=  7.66  r(Tan)=  7.70
+Seg:41  y= 0.20  r(Sag)=  7.66  r(Tan)=  7.71
+Seg:41  y= 0.30  r(Sag)=  7.66  r(Tan)=  7.71
+Seg:41  y= 0.40  r(Sag)=  7.67  r(Tan)=  7.70
+Seg:41  y= 0.50  r(Sag)=  7.69  r(Tan)=  7.70
+Seg:41  y= 0.60  r(Sag)=  7.70  r(Tan)=  7.70
+Seg:41  y= 0.70  r(Sag)=  7.70  r(Tan)=  7.69
+Seg:41  y= 0.80  r(Sag)=  7.70  r(Tan)=  7.68
+Seg:41  y= 0.90  r(Sag)=  7.69  r(Tan)=  7.68
+Seg:41  y= 1.00  r(Sag)=  7.69  r(Tan)=  7.67
+Seg:41  y= 1.10  r(Sag)=  7.68  r(Tan)=  7.68
+Seg:41  y= 1.20  r(Sag)=  7.68  r(Tan)=  7.69
+Seg:41  y= 1.30  r(Sag)=  7.68  r(Tan)=  7.71
+Seg:41  y= 1.40  r(Sag)=  7.68  r(Tan)=  7.72
+Seg:41  y= 1.50  r(Sag)=  7.69  r(Tan)=  7.74
+Seg:41  y= 1.60  r(Sag)=  7.69  r(Tan)=  7.75
+Seg:41  y= 1.70  r(Sag)=  7.70  r(Tan)=  7.76
+Seg:41  y= 1.80  r(Sag)=  7.70  r(Tan)=  7.76
+Seg:41  y= 1.90  r(Sag)=  7.71  r(Tan)=  7.76
+Seg:41  y= 2.00  r(Sag)=  7.71  r(Tan)=  7.76
+Seg:41  y= 2.10  r(Sag)=  7.71  r(Tan)=  7.76
+Seg:41  y= 2.20  r(Sag)=  7.71  r(Tan)=  7.76
+Seg:41  y= 2.30  r(Sag)=  7.71  r(Tan)=  7.76
+Seg:41  y= 2.40  r(Sag)=  7.72  r(Tan)=  7.77
+Seg:41  y= 2.50  r(Sag)=  7.72  r(Tan)=  7.79
+Seg:41  y= 2.60  r(Sag)=  7.72  r(Tan)=  7.81
+Seg:41  y= 2.70  r(Sag)=  7.72  r(Tan)=  7.84
+Seg:41  y= 2.80  r(Sag)=  7.73  r(Tan)=  7.87
+Seg:41  y= 2.90  r(Sag)=  7.73  r(Tan)=  7.90
+Seg:41  y= 3.00  r(Sag)=  7.74  r(Tan)=  7.93
+Seg:41  y= 3.10  r(Sag)=  7.75  r(Tan)=  7.97
+Seg:41  y= 3.20  r(Sag)=  7.75  r(Tan)=  8.01
+Seg:41  y= 3.30  r(Sag)=  7.76  r(Tan)=  8.05
+Seg:41  y= 3.40  r(Sag)=  7.77  r(Tan)=  8.10
+Seg:41  y= 3.50  r(Sag)=  7.78  r(Tan)=  8.14
+Seg:41  y= 3.60  r(Sag)=  7.79  r(Tan)=  8.18
+Seg:41  y= 3.70  r(Sag)=  7.80  r(Tan)=  8.21
+Seg:41  y= 3.80  r(Sag)=  7.81  r(Tan)=  8.22
+Seg:41  y= 3.90  r(Sag)=  7.82  r(Tan)=  8.22
+Seg:41  y= 4.00  r(Sag)=  7.83  r(Tan)=  8.21
+Seg:41  y= 4.10  r(Sag)=  7.84  r(Tan)=  8.21
+Seg:41  y= 4.20  r(Sag)=  7.85  r(Tan)=  8.20
+Seg:41  y= 4.30  r(Sag)=  7.86  r(Tan)=  8.18
+Seg:42  y= 0.00  r(Sag)=  7.66  r(Tan)=  7.69
+Seg:42  y= 0.10  r(Sag)=  7.66  r(Tan)=  7.71
+Seg:42  y= 0.20  r(Sag)=  7.66  r(Tan)=  7.72
+Seg:42  y= 0.30  r(Sag)=  7.67  r(Tan)=  7.72
+Seg:42  y= 0.40  r(Sag)=  7.68  r(Tan)=  7.71
+Seg:42  y= 0.50  r(Sag)=  7.69  r(Tan)=  7.71
+Seg:42  y= 0.60  r(Sag)=  7.71  r(Tan)=  7.71
+Seg:42  y= 0.70  r(Sag)=  7.71  r(Tan)=  7.70
+Seg:42  y= 0.80  r(Sag)=  7.71  r(Tan)=  7.69
+Seg:42  y= 0.90  r(Sag)=  7.70  r(Tan)=  7.69
+Seg:42  y= 1.00  r(Sag)=  7.70  r(Tan)=  7.68
+Seg:42  y= 1.10  r(Sag)=  7.69  r(Tan)=  7.69
+Seg:42  y= 1.20  r(Sag)=  7.69  r(Tan)=  7.70
+Seg:42  y= 1.30  r(Sag)=  7.69  r(Tan)=  7.71
+Seg:42  y= 1.40  r(Sag)=  7.69  r(Tan)=  7.73
+Seg:42  y= 1.50  r(Sag)=  7.70  r(Tan)=  7.74
+Seg:42  y= 1.60  r(Sag)=  7.70  r(Tan)=  7.76
+Seg:42  y= 1.70  r(Sag)=  7.71  r(Tan)=  7.76
+Seg:42  y= 1.80  r(Sag)=  7.71  r(Tan)=  7.77
+Seg:42  y= 1.90  r(Sag)=  7.71  r(Tan)=  7.77
+Seg:42  y= 2.00  r(Sag)=  7.72  r(Tan)=  7.76
+Seg:42  y= 2.10  r(Sag)=  7.72  r(Tan)=  7.76
+Seg:42  y= 2.20  r(Sag)=  7.72  r(Tan)=  7.76
+Seg:42  y= 2.30  r(Sag)=  7.72  r(Tan)=  7.77
+Seg:42  y= 2.40  r(Sag)=  7.72  r(Tan)=  7.78
+Seg:42  y= 2.50  r(Sag)=  7.72  r(Tan)=  7.80
+Seg:42  y= 2.60  r(Sag)=  7.73  r(Tan)=  7.82
+Seg:42  y= 2.70  r(Sag)=  7.73  r(Tan)=  7.85
+Seg:42  y= 2.80  r(Sag)=  7.73  r(Tan)=  7.88
+Seg:42  y= 2.90  r(Sag)=  7.74  r(Tan)=  7.91
+Seg:42  y= 3.00  r(Sag)=  7.75  r(Tan)=  7.94
+Seg:42  y= 3.10  r(Sag)=  7.75  r(Tan)=  7.97
+Seg:42  y= 3.20  r(Sag)=  7.76  r(Tan)=  8.01
+Seg:42  y= 3.30  r(Sag)=  7.77  r(Tan)=  8.05
+Seg:42  y= 3.40  r(Sag)=  7.78  r(Tan)=  8.09
+Seg:42  y= 3.50  r(Sag)=  7.78  r(Tan)=  8.12
+Seg:42  y= 3.60  r(Sag)=  7.79  r(Tan)=  8.16
+Seg:42  y= 3.70  r(Sag)=  7.80  r(Tan)=  8.18
+Seg:42  y= 3.80  r(Sag)=  7.82  r(Tan)=  8.20
+Seg:42  y= 3.90  r(Sag)=  7.83  r(Tan)=  8.20
+Seg:42  y= 4.00  r(Sag)=  7.84  r(Tan)=  8.20
+Seg:42  y= 4.10  r(Sag)=  7.85  r(Tan)=  8.21
+Seg:42  y= 4.20  r(Sag)=  7.85  r(Tan)=  8.20
+Seg:42  y= 4.30  r(Sag)=  7.86  r(Tan)=  8.19
+Seg:43  y= 0.00  r(Sag)=  7.67  r(Tan)=  7.70
+Seg:43  y= 0.10  r(Sag)=  7.67  r(Tan)=  7.72
+Seg:43  y= 0.20  r(Sag)=  7.67  r(Tan)=  7.73
+Seg:43  y= 0.30  r(Sag)=  7.67  r(Tan)=  7.73
+Seg:43  y= 0.40  r(Sag)=  7.68  r(Tan)=  7.72
+Seg:43  y= 0.50  r(Sag)=  7.70  r(Tan)=  7.72
+Seg:43  y= 0.60  r(Sag)=  7.71  r(Tan)=  7.71
+Seg:43  y= 0.70  r(Sag)=  7.72  r(Tan)=  7.71
+Seg:43  y= 0.80  r(Sag)=  7.72  r(Tan)=  7.70
+Seg:43  y= 0.90  r(Sag)=  7.71  r(Tan)=  7.70
+Seg:43  y= 1.00  r(Sag)=  7.71  r(Tan)=  7.69
+Seg:43  y= 1.10  r(Sag)=  7.70  r(Tan)=  7.69
+Seg:43  y= 1.20  r(Sag)=  7.70  r(Tan)=  7.70
+Seg:43  y= 1.30  r(Sag)=  7.70  r(Tan)=  7.72
+Seg:43  y= 1.40  r(Sag)=  7.70  r(Tan)=  7.73
+Seg:43  y= 1.50  r(Sag)=  7.70  r(Tan)=  7.74
+Seg:43  y= 1.60  r(Sag)=  7.71  r(Tan)=  7.76
+Seg:43  y= 1.70  r(Sag)=  7.71  r(Tan)=  7.76
+Seg:43  y= 1.80  r(Sag)=  7.72  r(Tan)=  7.77
+Seg:43  y= 1.90  r(Sag)=  7.72  r(Tan)=  7.77
+Seg:43  y= 2.00  r(Sag)=  7.72  r(Tan)=  7.77
+Seg:43  y= 2.10  r(Sag)=  7.72  r(Tan)=  7.77
+Seg:43  y= 2.20  r(Sag)=  7.73  r(Tan)=  7.77
+Seg:43  y= 2.30  r(Sag)=  7.73  r(Tan)=  7.78
+Seg:43  y= 2.40  r(Sag)=  7.73  r(Tan)=  7.79
+Seg:43  y= 2.50  r(Sag)=  7.73  r(Tan)=  7.81
+Seg:43  y= 2.60  r(Sag)=  7.73  r(Tan)=  7.83
+Seg:43  y= 2.70  r(Sag)=  7.74  r(Tan)=  7.86
+Seg:43  y= 2.80  r(Sag)=  7.74  r(Tan)=  7.89
+Seg:43  y= 2.90  r(Sag)=  7.75  r(Tan)=  7.92
+Seg:43  y= 3.00  r(Sag)=  7.75  r(Tan)=  7.95
+Seg:43  y= 3.10  r(Sag)=  7.76  r(Tan)=  7.98
+Seg:43  y= 3.20  r(Sag)=  7.77  r(Tan)=  8.01
+Seg:43  y= 3.30  r(Sag)=  7.77  r(Tan)=  8.04
+Seg:43  y= 3.40  r(Sag)=  7.78  r(Tan)=  8.08
+Seg:43  y= 3.50  r(Sag)=  7.79  r(Tan)=  8.11
+Seg:43  y= 3.60  r(Sag)=  7.80  r(Tan)=  8.14
+Seg:43  y= 3.70  r(Sag)=  7.81  r(Tan)=  8.17
+Seg:43  y= 3.80  r(Sag)=  7.82  r(Tan)=  8.19
+Seg:43  y= 3.90  r(Sag)=  7.83  r(Tan)=  8.20
+Seg:43  y= 4.00  r(Sag)=  7.84  r(Tan)=  8.20
+Seg:43  y= 4.10  r(Sag)=  7.85  r(Tan)=  8.21
+Seg:43  y= 4.20  r(Sag)=  7.86  r(Tan)=  8.21
+Seg:43  y= 4.30  r(Sag)=  7.86  r(Tan)=  8.20
+Seg:44  y= 0.00  r(Sag)=  7.67  r(Tan)=  7.71
+Seg:44  y= 0.10  r(Sag)=  7.67  r(Tan)=  7.73
+Seg:44  y= 0.20  r(Sag)=  7.67  r(Tan)=  7.73
+Seg:44  y= 0.30  r(Sag)=  7.68  r(Tan)=  7.73
+Seg:44  y= 0.40  r(Sag)=  7.69  r(Tan)=  7.73
+Seg:44  y= 0.50  r(Sag)=  7.70  r(Tan)=  7.72
+Seg:44  y= 0.60  r(Sag)=  7.72  r(Tan)=  7.72
+Seg:44  y= 0.70  r(Sag)=  7.72  r(Tan)=  7.72
+Seg:44  y= 0.80  r(Sag)=  7.72  r(Tan)=  7.71
+Seg:44  y= 0.90  r(Sag)=  7.72  r(Tan)=  7.71
+Seg:44  y= 1.00  r(Sag)=  7.71  r(Tan)=  7.70
+Seg:44  y= 1.10  r(Sag)=  7.71  r(Tan)=  7.70
+Seg:44  y= 1.20  r(Sag)=  7.71  r(Tan)=  7.71
+Seg:44  y= 1.30  r(Sag)=  7.71  r(Tan)=  7.72
+Seg:44  y= 1.40  r(Sag)=  7.71  r(Tan)=  7.73
+Seg:44  y= 1.50  r(Sag)=  7.71  r(Tan)=  7.75
+Seg:44  y= 1.60  r(Sag)=  7.71  r(Tan)=  7.76
+Seg:44  y= 1.70  r(Sag)=  7.72  r(Tan)=  7.76
+Seg:44  y= 1.80  r(Sag)=  7.72  r(Tan)=  7.77
+Seg:44  y= 1.90  r(Sag)=  7.73  r(Tan)=  7.77
+Seg:44  y= 2.00  r(Sag)=  7.73  r(Tan)=  7.77
+Seg:44  y= 2.10  r(Sag)=  7.73  r(Tan)=  7.77
+Seg:44  y= 2.20  r(Sag)=  7.73  r(Tan)=  7.77
+Seg:44  y= 2.30  r(Sag)=  7.73  r(Tan)=  7.78
+Seg:44  y= 2.40  r(Sag)=  7.73  r(Tan)=  7.79
+Seg:44  y= 2.50  r(Sag)=  7.73  r(Tan)=  7.81
+Seg:44  y= 2.60  r(Sag)=  7.74  r(Tan)=  7.84
+Seg:44  y= 2.70  r(Sag)=  7.74  r(Tan)=  7.86
+Seg:44  y= 2.80  r(Sag)=  7.75  r(Tan)=  7.89
+Seg:44  y= 2.90  r(Sag)=  7.75  r(Tan)=  7.92
+Seg:44  y= 3.00  r(Sag)=  7.76  r(Tan)=  7.95
+Seg:44  y= 3.10  r(Sag)=  7.76  r(Tan)=  7.98
+Seg:44  y= 3.20  r(Sag)=  7.77  r(Tan)=  8.01
+Seg:44  y= 3.30  r(Sag)=  7.78  r(Tan)=  8.04
+Seg:44  y= 3.40  r(Sag)=  7.79  r(Tan)=  8.07
+Seg:44  y= 3.50  r(Sag)=  7.79  r(Tan)=  8.10
+Seg:44  y= 3.60  r(Sag)=  7.80  r(Tan)=  8.13
+Seg:44  y= 3.70  r(Sag)=  7.81  r(Tan)=  8.16
+Seg:44  y= 3.80  r(Sag)=  7.82  r(Tan)=  8.19
+Seg:44  y= 3.90  r(Sag)=  7.83  r(Tan)=  8.21
+Seg:44  y= 4.00  r(Sag)=  7.84  r(Tan)=  8.23
+Seg:44  y= 4.10  r(Sag)=  7.85  r(Tan)=  8.24
+Seg:44  y= 4.20  r(Sag)=  7.86  r(Tan)=  8.25
+Seg:44  y= 4.30  r(Sag)=  7.87  r(Tan)=  8.26
+Seg:45  y= 0.00  r(Sag)=  7.67  r(Tan)=  7.72
+Seg:45  y= 0.10  r(Sag)=  7.67  r(Tan)=  7.73
+Seg:45  y= 0.20  r(Sag)=  7.67  r(Tan)=  7.74
+Seg:45  y= 0.30  r(Sag)=  7.68  r(Tan)=  7.74
+Seg:45  y= 0.40  r(Sag)=  7.69  r(Tan)=  7.73
+Seg:45  y= 0.50  r(Sag)=  7.71  r(Tan)=  7.73
+Seg:45  y= 0.60  r(Sag)=  7.72  r(Tan)=  7.73
+Seg:45  y= 0.70  r(Sag)=  7.73  r(Tan)=  7.73
+Seg:45  y= 0.80  r(Sag)=  7.72  r(Tan)=  7.72
+Seg:45  y= 0.90  r(Sag)=  7.72  r(Tan)=  7.71
+Seg:45  y= 1.00  r(Sag)=  7.72  r(Tan)=  7.71
+Seg:45  y= 1.10  r(Sag)=  7.72  r(Tan)=  7.71
+Seg:45  y= 1.20  r(Sag)=  7.71  r(Tan)=  7.72
+Seg:45  y= 1.30  r(Sag)=  7.71  r(Tan)=  7.72
+Seg:45  y= 1.40  r(Sag)=  7.71  r(Tan)=  7.74
+Seg:45  y= 1.50  r(Sag)=  7.72  r(Tan)=  7.75
+Seg:45  y= 1.60  r(Sag)=  7.72  r(Tan)=  7.76
+Seg:45  y= 1.70  r(Sag)=  7.72  r(Tan)=  7.76
+Seg:45  y= 1.80  r(Sag)=  7.73  r(Tan)=  7.77
+Seg:45  y= 1.90  r(Sag)=  7.73  r(Tan)=  7.77
+Seg:45  y= 2.00  r(Sag)=  7.73  r(Tan)=  7.77
+Seg:45  y= 2.10  r(Sag)=  7.73  r(Tan)=  7.77
+Seg:45  y= 2.20  r(Sag)=  7.73  r(Tan)=  7.78
+Seg:45  y= 2.30  r(Sag)=  7.74  r(Tan)=  7.79
+Seg:45  y= 2.40  r(Sag)=  7.74  r(Tan)=  7.80
+Seg:45  y= 2.50  r(Sag)=  7.74  r(Tan)=  7.82
+Seg:45  y= 2.60  r(Sag)=  7.74  r(Tan)=  7.84
+Seg:45  y= 2.70  r(Sag)=  7.75  r(Tan)=  7.87
+Seg:45  y= 2.80  r(Sag)=  7.75  r(Tan)=  7.90
+Seg:45  y= 2.90  r(Sag)=  7.76  r(Tan)=  7.92
+Seg:45  y= 3.00  r(Sag)=  7.76  r(Tan)=  7.95
+Seg:45  y= 3.10  r(Sag)=  7.77  r(Tan)=  7.98
+Seg:45  y= 3.20  r(Sag)=  7.78  r(Tan)=  8.01
+Seg:45  y= 3.30  r(Sag)=  7.78  r(Tan)=  8.03
+Seg:45  y= 3.40  r(Sag)=  7.79  r(Tan)=  8.06
+Seg:45  y= 3.50  r(Sag)=  7.80  r(Tan)=  8.09
+Seg:45  y= 3.60  r(Sag)=  7.81  r(Tan)=  8.12
+Seg:45  y= 3.70  r(Sag)=  7.81  r(Tan)=  8.15
+Seg:45  y= 3.80  r(Sag)=  7.82  r(Tan)=  8.18
+Seg:45  y= 3.90  r(Sag)=  7.83  r(Tan)=  8.20
+Seg:45  y= 4.00  r(Sag)=  7.84  r(Tan)=  8.22
+Seg:45  y= 4.10  r(Sag)=  7.85  r(Tan)=  8.23
+Seg:45  y= 4.20  r(Sag)=  7.86  r(Tan)=  8.24
+Seg:45  y= 4.30  r(Sag)=  7.87  r(Tan)=  8.25
+Seg:46  y= 0.00  r(Sag)=  7.67  r(Tan)=  7.73
+Seg:46  y= 0.10  r(Sag)=  7.67  r(Tan)=  7.73
+Seg:46  y= 0.20  r(Sag)=  7.68  r(Tan)=  7.74
+Seg:46  y= 0.30  r(Sag)=  7.68  r(Tan)=  7.74
+Seg:46  y= 0.40  r(Sag)=  7.70  r(Tan)=  7.74
+Seg:46  y= 0.50  r(Sag)=  7.71  r(Tan)=  7.73
+Seg:46  y= 0.60  r(Sag)=  7.72  r(Tan)=  7.73
+Seg:46  y= 0.70  r(Sag)=  7.73  r(Tan)=  7.73
+Seg:46  y= 0.80  r(Sag)=  7.73  r(Tan)=  7.73
+Seg:46  y= 0.90  r(Sag)=  7.73  r(Tan)=  7.72
+Seg:46  y= 1.00  r(Sag)=  7.72  r(Tan)=  7.72
+Seg:46  y= 1.10  r(Sag)=  7.72  r(Tan)=  7.72
+Seg:46  y= 1.20  r(Sag)=  7.72  r(Tan)=  7.72
+Seg:46  y= 1.30  r(Sag)=  7.72  r(Tan)=  7.73
+Seg:46  y= 1.40  r(Sag)=  7.72  r(Tan)=  7.74
+Seg:46  y= 1.50  r(Sag)=  7.72  r(Tan)=  7.75
+Seg:46  y= 1.60  r(Sag)=  7.72  r(Tan)=  7.75
+Seg:46  y= 1.70  r(Sag)=  7.73  r(Tan)=  7.76
+Seg:46  y= 1.80  r(Sag)=  7.73  r(Tan)=  7.77
+Seg:46  y= 1.90  r(Sag)=  7.73  r(Tan)=  7.77
+Seg:46  y= 2.00  r(Sag)=  7.73  r(Tan)=  7.77
+Seg:46  y= 2.10  r(Sag)=  7.74  r(Tan)=  7.78
+Seg:46  y= 2.20  r(Sag)=  7.74  r(Tan)=  7.78
+Seg:46  y= 2.30  r(Sag)=  7.74  r(Tan)=  7.79
+Seg:46  y= 2.40  r(Sag)=  7.74  r(Tan)=  7.80
+Seg:46  y= 2.50  r(Sag)=  7.74  r(Tan)=  7.82
+Seg:46  y= 2.60  r(Sag)=  7.75  r(Tan)=  7.84
+Seg:46  y= 2.70  r(Sag)=  7.75  r(Tan)=  7.87
+Seg:46  y= 2.80  r(Sag)=  7.75  r(Tan)=  7.90
+Seg:46  y= 2.90  r(Sag)=  7.76  r(Tan)=  7.92
+Seg:46  y= 3.00  r(Sag)=  7.77  r(Tan)=  7.95
+Seg:46  y= 3.10  r(Sag)=  7.77  r(Tan)=  7.98
+Seg:46  y= 3.20  r(Sag)=  7.78  r(Tan)=  8.00
+Seg:46  y= 3.30  r(Sag)=  7.79  r(Tan)=  8.03
+Seg:46  y= 3.40  r(Sag)=  7.79  r(Tan)=  8.06
+Seg:46  y= 3.50  r(Sag)=  7.80  r(Tan)=  8.08
+Seg:46  y= 3.60  r(Sag)=  7.81  r(Tan)=  8.11
+Seg:46  y= 3.70  r(Sag)=  7.82  r(Tan)=  8.14
+Seg:46  y= 3.80  r(Sag)=  7.82  r(Tan)=  8.18
+Seg:46  y= 3.90  r(Sag)=  7.83  r(Tan)=  8.20
+Seg:46  y= 4.00  r(Sag)=  7.84  r(Tan)=  8.23
+Seg:46  y= 4.10  r(Sag)=  7.85  r(Tan)=  8.24
+Seg:46  y= 4.20  r(Sag)=  7.86  r(Tan)=  8.26
+Seg:46  y= 4.30  r(Sag)=  7.87  r(Tan)=  8.28
+Seg:47  y= 0.00  r(Sag)=  7.67  r(Tan)=  7.73
+Seg:47  y= 0.10  r(Sag)=  7.67  r(Tan)=  7.73
+Seg:47  y= 0.20  r(Sag)=  7.68  r(Tan)=  7.74
+Seg:47  y= 0.30  r(Sag)=  7.69  r(Tan)=  7.74
+Seg:47  y= 0.40  r(Sag)=  7.70  r(Tan)=  7.74
+Seg:47  y= 0.50  r(Sag)=  7.71  r(Tan)=  7.74
+Seg:47  y= 0.60  r(Sag)=  7.72  r(Tan)=  7.74
+Seg:47  y= 0.70  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:47  y= 0.80  r(Sag)=  7.73  r(Tan)=  7.73
+Seg:47  y= 0.90  r(Sag)=  7.73  r(Tan)=  7.73
+Seg:47  y= 1.00  r(Sag)=  7.73  r(Tan)=  7.73
+Seg:47  y= 1.10  r(Sag)=  7.73  r(Tan)=  7.73
+Seg:47  y= 1.20  r(Sag)=  7.73  r(Tan)=  7.73
+Seg:47  y= 1.30  r(Sag)=  7.73  r(Tan)=  7.73
+Seg:47  y= 1.40  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:47  y= 1.50  r(Sag)=  7.73  r(Tan)=  7.75
+Seg:47  y= 1.60  r(Sag)=  7.73  r(Tan)=  7.75
+Seg:47  y= 1.70  r(Sag)=  7.73  r(Tan)=  7.76
+Seg:47  y= 1.80  r(Sag)=  7.73  r(Tan)=  7.76
+Seg:47  y= 1.90  r(Sag)=  7.73  r(Tan)=  7.77
+Seg:47  y= 2.00  r(Sag)=  7.74  r(Tan)=  7.77
+Seg:47  y= 2.10  r(Sag)=  7.74  r(Tan)=  7.78
+Seg:47  y= 2.20  r(Sag)=  7.74  r(Tan)=  7.78
+Seg:47  y= 2.30  r(Sag)=  7.74  r(Tan)=  7.79
+Seg:47  y= 2.40  r(Sag)=  7.74  r(Tan)=  7.81
+Seg:47  y= 2.50  r(Sag)=  7.74  r(Tan)=  7.82
+Seg:47  y= 2.60  r(Sag)=  7.75  r(Tan)=  7.85
+Seg:47  y= 2.70  r(Sag)=  7.75  r(Tan)=  7.87
+Seg:47  y= 2.80  r(Sag)=  7.76  r(Tan)=  7.90
+Seg:47  y= 2.90  r(Sag)=  7.76  r(Tan)=  7.92
+Seg:47  y= 3.00  r(Sag)=  7.77  r(Tan)=  7.95
+Seg:47  y= 3.10  r(Sag)=  7.77  r(Tan)=  7.98
+Seg:47  y= 3.20  r(Sag)=  7.78  r(Tan)=  8.00
+Seg:47  y= 3.30  r(Sag)=  7.79  r(Tan)=  8.02
+Seg:47  y= 3.40  r(Sag)=  7.79  r(Tan)=  8.05
+Seg:47  y= 3.50  r(Sag)=  7.80  r(Tan)=  8.08
+Seg:47  y= 3.60  r(Sag)=  7.81  r(Tan)=  8.11
+Seg:47  y= 3.70  r(Sag)=  7.82  r(Tan)=  8.14
+Seg:47  y= 3.80  r(Sag)=  7.82  r(Tan)=  8.18
+Seg:47  y= 3.90  r(Sag)=  7.83  r(Tan)=  8.21
+Seg:47  y= 4.00  r(Sag)=  7.84  r(Tan)=  8.24
+Seg:47  y= 4.10  r(Sag)=  7.85  r(Tan)=  8.26
+Seg:47  y= 4.20  r(Sag)=  7.86  r(Tan)=  8.28
+Seg:47  y= 4.30  r(Sag)=  7.87  r(Tan)=  8.30
+Seg:48  y= 0.00  r(Sag)=  7.68  r(Tan)=  7.73
+Seg:48  y= 0.10  r(Sag)=  7.68  r(Tan)=  7.73
+Seg:48  y= 0.20  r(Sag)=  7.68  r(Tan)=  7.74
+Seg:48  y= 0.30  r(Sag)=  7.69  r(Tan)=  7.74
+Seg:48  y= 0.40  r(Sag)=  7.70  r(Tan)=  7.74
+Seg:48  y= 0.50  r(Sag)=  7.71  r(Tan)=  7.74
+Seg:48  y= 0.60  r(Sag)=  7.72  r(Tan)=  7.74
+Seg:48  y= 0.70  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:48  y= 0.80  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:48  y= 0.90  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:48  y= 1.00  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:48  y= 1.10  r(Sag)=  7.73  r(Tan)=  7.73
+Seg:48  y= 1.20  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:48  y= 1.30  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:48  y= 1.40  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:48  y= 1.50  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:48  y= 1.60  r(Sag)=  7.73  r(Tan)=  7.75
+Seg:48  y= 1.70  r(Sag)=  7.73  r(Tan)=  7.75
+Seg:48  y= 1.80  r(Sag)=  7.73  r(Tan)=  7.76
+Seg:48  y= 1.90  r(Sag)=  7.74  r(Tan)=  7.76
+Seg:48  y= 2.00  r(Sag)=  7.74  r(Tan)=  7.77
+Seg:48  y= 2.10  r(Sag)=  7.74  r(Tan)=  7.78
+Seg:48  y= 2.20  r(Sag)=  7.74  r(Tan)=  7.78
+Seg:48  y= 2.30  r(Sag)=  7.74  r(Tan)=  7.79
+Seg:48  y= 2.40  r(Sag)=  7.74  r(Tan)=  7.81
+Seg:48  y= 2.50  r(Sag)=  7.75  r(Tan)=  7.82
+Seg:48  y= 2.60  r(Sag)=  7.75  r(Tan)=  7.84
+Seg:48  y= 2.70  r(Sag)=  7.75  r(Tan)=  7.87
+Seg:48  y= 2.80  r(Sag)=  7.76  r(Tan)=  7.89
+Seg:48  y= 2.90  r(Sag)=  7.76  r(Tan)=  7.92
+Seg:48  y= 3.00  r(Sag)=  7.77  r(Tan)=  7.94
+Seg:48  y= 3.10  r(Sag)=  7.77  r(Tan)=  7.97
+Seg:48  y= 3.20  r(Sag)=  7.78  r(Tan)=  8.00
+Seg:48  y= 3.30  r(Sag)=  7.79  r(Tan)=  8.02
+Seg:48  y= 3.40  r(Sag)=  7.79  r(Tan)=  8.04
+Seg:48  y= 3.50  r(Sag)=  7.80  r(Tan)=  8.07
+Seg:48  y= 3.60  r(Sag)=  7.81  r(Tan)=  8.10
+Seg:48  y= 3.70  r(Sag)=  7.82  r(Tan)=  8.14
+Seg:48  y= 3.80  r(Sag)=  7.82  r(Tan)=  8.18
+Seg:48  y= 3.90  r(Sag)=  7.83  r(Tan)=  8.22
+Seg:48  y= 4.00  r(Sag)=  7.84  r(Tan)=  8.25
+Seg:48  y= 4.10  r(Sag)=  7.85  r(Tan)=  8.27
+Seg:48  y= 4.20  r(Sag)=  7.86  r(Tan)=  8.29
+Seg:48  y= 4.30  r(Sag)=  7.88  r(Tan)=  8.32
+Seg:49  y= 0.00  r(Sag)=  7.68  r(Tan)=  7.73
+Seg:49  y= 0.10  r(Sag)=  7.68  r(Tan)=  7.73
+Seg:49  y= 0.20  r(Sag)=  7.69  r(Tan)=  7.73
+Seg:49  y= 0.30  r(Sag)=  7.69  r(Tan)=  7.74
+Seg:49  y= 0.40  r(Sag)=  7.70  r(Tan)=  7.74
+Seg:49  y= 0.50  r(Sag)=  7.71  r(Tan)=  7.74
+Seg:49  y= 0.60  r(Sag)=  7.72  r(Tan)=  7.74
+Seg:49  y= 0.70  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:49  y= 0.80  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:49  y= 0.90  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:49  y= 1.00  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:49  y= 1.10  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:49  y= 1.20  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:49  y= 1.30  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:49  y= 1.40  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:49  y= 1.50  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:49  y= 1.60  r(Sag)=  7.73  r(Tan)=  7.75
+Seg:49  y= 1.70  r(Sag)=  7.73  r(Tan)=  7.75
+Seg:49  y= 1.80  r(Sag)=  7.74  r(Tan)=  7.75
+Seg:49  y= 1.90  r(Sag)=  7.74  r(Tan)=  7.76
+Seg:49  y= 2.00  r(Sag)=  7.74  r(Tan)=  7.77
+Seg:49  y= 2.10  r(Sag)=  7.74  r(Tan)=  7.77
+Seg:49  y= 2.20  r(Sag)=  7.74  r(Tan)=  7.78
+Seg:49  y= 2.30  r(Sag)=  7.74  r(Tan)=  7.79
+Seg:49  y= 2.40  r(Sag)=  7.74  r(Tan)=  7.81
+Seg:49  y= 2.50  r(Sag)=  7.75  r(Tan)=  7.82
+Seg:49  y= 2.60  r(Sag)=  7.75  r(Tan)=  7.84
+Seg:49  y= 2.70  r(Sag)=  7.75  r(Tan)=  7.86
+Seg:49  y= 2.80  r(Sag)=  7.76  r(Tan)=  7.89
+Seg:49  y= 2.90  r(Sag)=  7.76  r(Tan)=  7.91
+Seg:49  y= 3.00  r(Sag)=  7.77  r(Tan)=  7.94
+Seg:49  y= 3.10  r(Sag)=  7.77  r(Tan)=  7.96
+Seg:49  y= 3.20  r(Sag)=  7.78  r(Tan)=  7.99
+Seg:49  y= 3.30  r(Sag)=  7.79  r(Tan)=  8.01
+Seg:49  y= 3.40  r(Sag)=  7.79  r(Tan)=  8.04
+Seg:49  y= 3.50  r(Sag)=  7.80  r(Tan)=  8.07
+Seg:49  y= 3.60  r(Sag)=  7.81  r(Tan)=  8.10
+Seg:49  y= 3.70  r(Sag)=  7.82  r(Tan)=  8.13
+Seg:49  y= 3.80  r(Sag)=  7.82  r(Tan)=  8.18
+Seg:49  y= 3.90  r(Sag)=  7.83  r(Tan)=  8.22
+Seg:49  y= 4.00  r(Sag)=  7.84  r(Tan)=  8.26
+Seg:49  y= 4.10  r(Sag)=  7.85  r(Tan)=  8.28
+Seg:49  y= 4.20  r(Sag)=  7.86  r(Tan)=  8.31
+Seg:49  y= 4.30  r(Sag)=  7.88  r(Tan)=  8.33
+Seg:50  y= 0.00  r(Sag)=  7.68  r(Tan)=  7.73
+Seg:50  y= 0.10  r(Sag)=  7.68  r(Tan)=  7.73
+Seg:50  y= 0.20  r(Sag)=  7.69  r(Tan)=  7.73
+Seg:50  y= 0.30  r(Sag)=  7.70  r(Tan)=  7.73
+Seg:50  y= 0.40  r(Sag)=  7.70  r(Tan)=  7.73
+Seg:50  y= 0.50  r(Sag)=  7.71  r(Tan)=  7.74
+Seg:50  y= 0.60  r(Sag)=  7.72  r(Tan)=  7.74
+Seg:50  y= 0.70  r(Sag)=  7.72  r(Tan)=  7.74
+Seg:50  y= 0.80  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:50  y= 0.90  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:50  y= 1.00  r(Sag)=  7.73  r(Tan)=  7.75
+Seg:50  y= 1.10  r(Sag)=  7.73  r(Tan)=  7.75
+Seg:50  y= 1.20  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:50  y= 1.30  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:50  y= 1.40  r(Sag)=  7.74  r(Tan)=  7.74
+Seg:50  y= 1.50  r(Sag)=  7.74  r(Tan)=  7.74
+Seg:50  y= 1.60  r(Sag)=  7.74  r(Tan)=  7.74
+Seg:50  y= 1.70  r(Sag)=  7.74  r(Tan)=  7.74
+Seg:50  y= 1.80  r(Sag)=  7.74  r(Tan)=  7.75
+Seg:50  y= 1.90  r(Sag)=  7.74  r(Tan)=  7.75
+Seg:50  y= 2.00  r(Sag)=  7.74  r(Tan)=  7.76
+Seg:50  y= 2.10  r(Sag)=  7.74  r(Tan)=  7.77
+Seg:50  y= 2.20  r(Sag)=  7.74  r(Tan)=  7.78
+Seg:50  y= 2.30  r(Sag)=  7.74  r(Tan)=  7.79
+Seg:50  y= 2.40  r(Sag)=  7.74  r(Tan)=  7.81
+Seg:50  y= 2.50  r(Sag)=  7.75  r(Tan)=  7.82
+Seg:50  y= 2.60  r(Sag)=  7.75  r(Tan)=  7.84
+Seg:50  y= 2.70  r(Sag)=  7.75  r(Tan)=  7.86
+Seg:50  y= 2.80  r(Sag)=  7.76  r(Tan)=  7.88
+Seg:50  y= 2.90  r(Sag)=  7.76  r(Tan)=  7.91
+Seg:50  y= 3.00  r(Sag)=  7.77  r(Tan)=  7.93
+Seg:50  y= 3.10  r(Sag)=  7.77  r(Tan)=  7.96
+Seg:50  y= 3.20  r(Sag)=  7.78  r(Tan)=  7.98
+Seg:50  y= 3.30  r(Sag)=  7.78  r(Tan)=  8.01
+Seg:50  y= 3.40  r(Sag)=  7.79  r(Tan)=  8.04
+Seg:50  y= 3.50  r(Sag)=  7.80  r(Tan)=  8.06
+Seg:50  y= 3.60  r(Sag)=  7.81  r(Tan)=  8.10
+Seg:50  y= 3.70  r(Sag)=  7.81  r(Tan)=  8.13
+Seg:50  y= 3.80  r(Sag)=  7.82  r(Tan)=  8.17
+Seg:50  y= 3.90  r(Sag)=  7.83  r(Tan)=  8.22
+Seg:50  y= 4.00  r(Sag)=  7.84  r(Tan)=  8.26
+Seg:50  y= 4.10  r(Sag)=  7.85  r(Tan)=  8.28
+Seg:50  y= 4.20  r(Sag)=  7.86  r(Tan)=  8.31
+Seg:50  y= 4.30  r(Sag)=  7.87  r(Tan)=  8.34
+Seg:51  y= 0.00  r(Sag)=  7.68  r(Tan)=  7.72
+Seg:51  y= 0.10  r(Sag)=  7.68  r(Tan)=  7.72
+Seg:51  y= 0.20  r(Sag)=  7.69  r(Tan)=  7.72
+Seg:51  y= 0.30  r(Sag)=  7.70  r(Tan)=  7.72
+Seg:51  y= 0.40  r(Sag)=  7.70  r(Tan)=  7.73
+Seg:51  y= 0.50  r(Sag)=  7.71  r(Tan)=  7.73
+Seg:51  y= 0.60  r(Sag)=  7.72  r(Tan)=  7.73
+Seg:51  y= 0.70  r(Sag)=  7.72  r(Tan)=  7.74
+Seg:51  y= 0.80  r(Sag)=  7.72  r(Tan)=  7.74
+Seg:51  y= 0.90  r(Sag)=  7.73  r(Tan)=  7.75
+Seg:51  y= 1.00  r(Sag)=  7.73  r(Tan)=  7.75
+Seg:51  y= 1.10  r(Sag)=  7.73  r(Tan)=  7.75
+Seg:51  y= 1.20  r(Sag)=  7.73  r(Tan)=  7.75
+Seg:51  y= 1.30  r(Sag)=  7.74  r(Tan)=  7.74
+Seg:51  y= 1.40  r(Sag)=  7.74  r(Tan)=  7.74
+Seg:51  y= 1.50  r(Sag)=  7.74  r(Tan)=  7.74
+Seg:51  y= 1.60  r(Sag)=  7.74  r(Tan)=  7.74
+Seg:51  y= 1.70  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:51  y= 1.80  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:51  y= 1.90  r(Sag)=  7.73  r(Tan)=  7.75
+Seg:51  y= 2.00  r(Sag)=  7.74  r(Tan)=  7.76
+Seg:51  y= 2.10  r(Sag)=  7.74  r(Tan)=  7.77
+Seg:51  y= 2.20  r(Sag)=  7.74  r(Tan)=  7.78
+Seg:51  y= 2.30  r(Sag)=  7.74  r(Tan)=  7.79
+Seg:51  y= 2.40  r(Sag)=  7.74  r(Tan)=  7.80
+Seg:51  y= 2.50  r(Sag)=  7.75  r(Tan)=  7.82
+Seg:51  y= 2.60  r(Sag)=  7.75  r(Tan)=  7.83
+Seg:51  y= 2.70  r(Sag)=  7.75  r(Tan)=  7.85
+Seg:51  y= 2.80  r(Sag)=  7.75  r(Tan)=  7.87
+Seg:51  y= 2.90  r(Sag)=  7.76  r(Tan)=  7.90
+Seg:51  y= 3.00  r(Sag)=  7.76  r(Tan)=  7.92
+Seg:51  y= 3.10  r(Sag)=  7.77  r(Tan)=  7.95
+Seg:51  y= 3.20  r(Sag)=  7.77  r(Tan)=  7.98
+Seg:51  y= 3.30  r(Sag)=  7.78  r(Tan)=  8.00
+Seg:51  y= 3.40  r(Sag)=  7.79  r(Tan)=  8.03
+Seg:51  y= 3.50  r(Sag)=  7.80  r(Tan)=  8.06
+Seg:51  y= 3.60  r(Sag)=  7.80  r(Tan)=  8.09
+Seg:51  y= 3.70  r(Sag)=  7.81  r(Tan)=  8.13
+Seg:51  y= 3.80  r(Sag)=  7.82  r(Tan)=  8.17
+Seg:51  y= 3.90  r(Sag)=  7.83  r(Tan)=  8.22
+Seg:51  y= 4.00  r(Sag)=  7.84  r(Tan)=  8.26
+Seg:51  y= 4.10  r(Sag)=  7.85  r(Tan)=  8.28
+Seg:51  y= 4.20  r(Sag)=  7.86  r(Tan)=  8.31
+Seg:51  y= 4.30  r(Sag)=  7.87  r(Tan)=  8.34
+Seg:52  y= 0.00  r(Sag)=  7.68  r(Tan)=  7.72
+Seg:52  y= 0.10  r(Sag)=  7.68  r(Tan)=  7.72
+Seg:52  y= 0.20  r(Sag)=  7.69  r(Tan)=  7.72
+Seg:52  y= 0.30  r(Sag)=  7.70  r(Tan)=  7.72
+Seg:52  y= 0.40  r(Sag)=  7.70  r(Tan)=  7.72
+Seg:52  y= 0.50  r(Sag)=  7.71  r(Tan)=  7.73
+Seg:52  y= 0.60  r(Sag)=  7.71  r(Tan)=  7.73
+Seg:52  y= 0.70  r(Sag)=  7.72  r(Tan)=  7.74
+Seg:52  y= 0.80  r(Sag)=  7.72  r(Tan)=  7.74
+Seg:52  y= 0.90  r(Sag)=  7.72  r(Tan)=  7.75
+Seg:52  y= 1.00  r(Sag)=  7.73  r(Tan)=  7.75
+Seg:52  y= 1.10  r(Sag)=  7.73  r(Tan)=  7.75
+Seg:52  y= 1.20  r(Sag)=  7.73  r(Tan)=  7.75
+Seg:52  y= 1.30  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:52  y= 1.40  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:52  y= 1.50  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:52  y= 1.60  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:52  y= 1.70  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:52  y= 1.80  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:52  y= 1.90  r(Sag)=  7.73  r(Tan)=  7.75
+Seg:52  y= 2.00  r(Sag)=  7.73  r(Tan)=  7.75
+Seg:52  y= 2.10  r(Sag)=  7.73  r(Tan)=  7.76
+Seg:52  y= 2.20  r(Sag)=  7.74  r(Tan)=  7.77
+Seg:52  y= 2.30  r(Sag)=  7.74  r(Tan)=  7.78
+Seg:52  y= 2.40  r(Sag)=  7.74  r(Tan)=  7.80
+Seg:52  y= 2.50  r(Sag)=  7.74  r(Tan)=  7.81
+Seg:52  y= 2.60  r(Sag)=  7.75  r(Tan)=  7.83
+Seg:52  y= 2.70  r(Sag)=  7.75  r(Tan)=  7.84
+Seg:52  y= 2.80  r(Sag)=  7.75  r(Tan)=  7.86
+Seg:52  y= 2.90  r(Sag)=  7.76  r(Tan)=  7.89
+Seg:52  y= 3.00  r(Sag)=  7.76  r(Tan)=  7.91
+Seg:52  y= 3.10  r(Sag)=  7.76  r(Tan)=  7.94
+Seg:52  y= 3.20  r(Sag)=  7.77  r(Tan)=  7.97
+Seg:52  y= 3.30  r(Sag)=  7.78  r(Tan)=  8.00
+Seg:52  y= 3.40  r(Sag)=  7.78  r(Tan)=  8.03
+Seg:52  y= 3.50  r(Sag)=  7.79  r(Tan)=  8.06
+Seg:52  y= 3.60  r(Sag)=  7.80  r(Tan)=  8.09
+Seg:52  y= 3.70  r(Sag)=  7.81  r(Tan)=  8.13
+Seg:52  y= 3.80  r(Sag)=  7.81  r(Tan)=  8.17
+Seg:52  y= 3.90  r(Sag)=  7.82  r(Tan)=  8.22
+Seg:52  y= 4.00  r(Sag)=  7.83  r(Tan)=  8.25
+Seg:52  y= 4.10  r(Sag)=  7.84  r(Tan)=  8.28
+Seg:52  y= 4.20  r(Sag)=  7.85  r(Tan)=  8.30
+Seg:52  y= 4.30  r(Sag)=  7.87  r(Tan)=  8.33
+Seg:53  y= 0.00  r(Sag)=  7.68  r(Tan)=  7.71
+Seg:53  y= 0.10  r(Sag)=  7.68  r(Tan)=  7.71
+Seg:53  y= 0.20  r(Sag)=  7.69  r(Tan)=  7.71
+Seg:53  y= 0.30  r(Sag)=  7.70  r(Tan)=  7.71
+Seg:53  y= 0.40  r(Sag)=  7.70  r(Tan)=  7.71
+Seg:53  y= 0.50  r(Sag)=  7.71  r(Tan)=  7.72
+Seg:53  y= 0.60  r(Sag)=  7.71  r(Tan)=  7.72
+Seg:53  y= 0.70  r(Sag)=  7.71  r(Tan)=  7.73
+Seg:53  y= 0.80  r(Sag)=  7.71  r(Tan)=  7.74
+Seg:53  y= 0.90  r(Sag)=  7.72  r(Tan)=  7.74
+Seg:53  y= 1.00  r(Sag)=  7.72  r(Tan)=  7.75
+Seg:53  y= 1.10  r(Sag)=  7.73  r(Tan)=  7.75
+Seg:53  y= 1.20  r(Sag)=  7.73  r(Tan)=  7.75
+Seg:53  y= 1.30  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:53  y= 1.40  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:53  y= 1.50  r(Sag)=  7.73  r(Tan)=  7.73
+Seg:53  y= 1.60  r(Sag)=  7.73  r(Tan)=  7.73
+Seg:53  y= 1.70  r(Sag)=  7.73  r(Tan)=  7.73
+Seg:53  y= 1.80  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:53  y= 1.90  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:53  y= 2.00  r(Sag)=  7.73  r(Tan)=  7.75
+Seg:53  y= 2.10  r(Sag)=  7.73  r(Tan)=  7.76
+Seg:53  y= 2.20  r(Sag)=  7.73  r(Tan)=  7.77
+Seg:53  y= 2.30  r(Sag)=  7.73  r(Tan)=  7.78
+Seg:53  y= 2.40  r(Sag)=  7.74  r(Tan)=  7.79
+Seg:53  y= 2.50  r(Sag)=  7.74  r(Tan)=  7.80
+Seg:53  y= 2.60  r(Sag)=  7.74  r(Tan)=  7.82
+Seg:53  y= 2.70  r(Sag)=  7.74  r(Tan)=  7.84
+Seg:53  y= 2.80  r(Sag)=  7.75  r(Tan)=  7.86
+Seg:53  y= 2.90  r(Sag)=  7.75  r(Tan)=  7.88
+Seg:53  y= 3.00  r(Sag)=  7.76  r(Tan)=  7.90
+Seg:53  y= 3.10  r(Sag)=  7.76  r(Tan)=  7.93
+Seg:53  y= 3.20  r(Sag)=  7.77  r(Tan)=  7.96
+Seg:53  y= 3.30  r(Sag)=  7.77  r(Tan)=  7.99
+Seg:53  y= 3.40  r(Sag)=  7.78  r(Tan)=  8.02
+Seg:53  y= 3.50  r(Sag)=  7.79  r(Tan)=  8.06
+Seg:53  y= 3.60  r(Sag)=  7.79  r(Tan)=  8.09
+Seg:53  y= 3.70  r(Sag)=  7.80  r(Tan)=  8.13
+Seg:53  y= 3.80  r(Sag)=  7.81  r(Tan)=  8.17
+Seg:53  y= 3.90  r(Sag)=  7.82  r(Tan)=  8.21
+Seg:53  y= 4.00  r(Sag)=  7.83  r(Tan)=  8.25
+Seg:53  y= 4.10  r(Sag)=  7.84  r(Tan)=  8.27
+Seg:53  y= 4.20  r(Sag)=  7.85  r(Tan)=  8.29
+Seg:53  y= 4.30  r(Sag)=  7.86  r(Tan)=  8.32
+Seg:54  y= 0.00  r(Sag)=  7.69  r(Tan)=  7.70
+Seg:54  y= 0.10  r(Sag)=  7.69  r(Tan)=  7.70
+Seg:54  y= 0.20  r(Sag)=  7.69  r(Tan)=  7.70
+Seg:54  y= 0.30  r(Sag)=  7.70  r(Tan)=  7.70
+Seg:54  y= 0.40  r(Sag)=  7.70  r(Tan)=  7.71
+Seg:54  y= 0.50  r(Sag)=  7.70  r(Tan)=  7.71
+Seg:54  y= 0.60  r(Sag)=  7.70  r(Tan)=  7.72
+Seg:54  y= 0.70  r(Sag)=  7.71  r(Tan)=  7.72
+Seg:54  y= 0.80  r(Sag)=  7.71  r(Tan)=  7.73
+Seg:54  y= 0.90  r(Sag)=  7.71  r(Tan)=  7.74
+Seg:54  y= 1.00  r(Sag)=  7.72  r(Tan)=  7.74
+Seg:54  y= 1.10  r(Sag)=  7.72  r(Tan)=  7.75
+Seg:54  y= 1.20  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:54  y= 1.30  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:54  y= 1.40  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:54  y= 1.50  r(Sag)=  7.73  r(Tan)=  7.73
+Seg:54  y= 1.60  r(Sag)=  7.73  r(Tan)=  7.73
+Seg:54  y= 1.70  r(Sag)=  7.73  r(Tan)=  7.73
+Seg:54  y= 1.80  r(Sag)=  7.73  r(Tan)=  7.73
+Seg:54  y= 1.90  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:54  y= 2.00  r(Sag)=  7.73  r(Tan)=  7.74
+Seg:54  y= 2.10  r(Sag)=  7.73  r(Tan)=  7.75
+Seg:54  y= 2.20  r(Sag)=  7.73  r(Tan)=  7.76
+Seg:54  y= 2.30  r(Sag)=  7.73  r(Tan)=  7.77
+Seg:54  y= 2.40  r(Sag)=  7.73  r(Tan)=  7.78
+Seg:54  y= 2.50  r(Sag)=  7.74  r(Tan)=  7.80
+Seg:54  y= 2.60  r(Sag)=  7.74  r(Tan)=  7.81
+Seg:54  y= 2.70  r(Sag)=  7.74  r(Tan)=  7.83
+Seg:54  y= 2.80  r(Sag)=  7.74  r(Tan)=  7.85
+Seg:54  y= 2.90  r(Sag)=  7.75  r(Tan)=  7.87
+Seg:54  y= 3.00  r(Sag)=  7.75  r(Tan)=  7.90
+Seg:54  y= 3.10  r(Sag)=  7.76  r(Tan)=  7.92
+Seg:54  y= 3.20  r(Sag)=  7.76  r(Tan)=  7.96
+Seg:54  y= 3.30  r(Sag)=  7.77  r(Tan)=  7.99
+Seg:54  y= 3.40  r(Sag)=  7.77  r(Tan)=  8.02
+Seg:54  y= 3.50  r(Sag)=  7.78  r(Tan)=  8.06
+Seg:54  y= 3.60  r(Sag)=  7.79  r(Tan)=  8.09
+Seg:54  y= 3.70  r(Sag)=  7.80  r(Tan)=  8.12
+Seg:54  y= 3.80  r(Sag)=  7.81  r(Tan)=  8.16
+Seg:54  y= 3.90  r(Sag)=  7.81  r(Tan)=  8.20
+Seg:54  y= 4.00  r(Sag)=  7.82  r(Tan)=  8.24
+Seg:54  y= 4.10  r(Sag)=  7.83  r(Tan)=  8.26
+Seg:54  y= 4.20  r(Sag)=  7.84  r(Tan)=  8.28
+Seg:54  y= 4.30  r(Sag)=  7.86  r(Tan)=  8.30
+Seg:55  y= 0.00  r(Sag)=  7.69  r(Tan)=  7.69
+Seg:55  y= 0.10  r(Sag)=  7.69  r(Tan)=  7.69
+Seg:55  y= 0.20  r(Sag)=  7.69  r(Tan)=  7.69
+Seg:55  y= 0.30  r(Sag)=  7.70  r(Tan)=  7.69
+Seg:55  y= 0.40  r(Sag)=  7.70  r(Tan)=  7.70
+Seg:55  y= 0.50  r(Sag)=  7.70  r(Tan)=  7.71
+Seg:55  y= 0.60  r(Sag)=  7.70  r(Tan)=  7.71
+Seg:55  y= 0.70  r(Sag)=  7.70  r(Tan)=  7.72
+Seg:55  y= 0.80  r(Sag)=  7.70  r(Tan)=  7.73
+Seg:55  y= 0.90  r(Sag)=  7.71  r(Tan)=  7.73
+Seg:55  y= 1.00  r(Sag)=  7.71  r(Tan)=  7.74
+Seg:55  y= 1.10  r(Sag)=  7.72  r(Tan)=  7.74
+Seg:55  y= 1.20  r(Sag)=  7.72  r(Tan)=  7.74
+Seg:55  y= 1.30  r(Sag)=  7.72  r(Tan)=  7.74
+Seg:55  y= 1.40  r(Sag)=  7.72  r(Tan)=  7.73
+Seg:55  y= 1.50  r(Sag)=  7.72  r(Tan)=  7.73
+Seg:55  y= 1.60  r(Sag)=  7.72  r(Tan)=  7.73
+Seg:55  y= 1.70  r(Sag)=  7.72  r(Tan)=  7.73
+Seg:55  y= 1.80  r(Sag)=  7.72  r(Tan)=  7.73
+Seg:55  y= 1.90  r(Sag)=  7.72  r(Tan)=  7.73
+Seg:55  y= 2.00  r(Sag)=  7.72  r(Tan)=  7.74
+Seg:55  y= 2.10  r(Sag)=  7.72  r(Tan)=  7.75
+Seg:55  y= 2.20  r(Sag)=  7.72  r(Tan)=  7.76
+Seg:55  y= 2.30  r(Sag)=  7.73  r(Tan)=  7.77
+Seg:55  y= 2.40  r(Sag)=  7.73  r(Tan)=  7.78
+Seg:55  y= 2.50  r(Sag)=  7.73  r(Tan)=  7.79
+Seg:55  y= 2.60  r(Sag)=  7.73  r(Tan)=  7.80
+Seg:55  y= 2.70  r(Sag)=  7.74  r(Tan)=  7.82
+Seg:55  y= 2.80  r(Sag)=  7.74  r(Tan)=  7.84
+Seg:55  y= 2.90  r(Sag)=  7.74  r(Tan)=  7.86
+Seg:55  y= 3.00  r(Sag)=  7.74  r(Tan)=  7.89
+Seg:55  y= 3.10  r(Sag)=  7.75  r(Tan)=  7.92
+Seg:55  y= 3.20  r(Sag)=  7.75  r(Tan)=  7.95
+Seg:55  y= 3.30  r(Sag)=  7.76  r(Tan)=  7.99
+Seg:55  y= 3.40  r(Sag)=  7.77  r(Tan)=  8.02
+Seg:55  y= 3.50  r(Sag)=  7.78  r(Tan)=  8.05
+Seg:55  y= 3.60  r(Sag)=  7.78  r(Tan)=  8.09
+Seg:55  y= 3.70  r(Sag)=  7.79  r(Tan)=  8.12
+Seg:55  y= 3.80  r(Sag)=  7.80  r(Tan)=  8.16
+Seg:55  y= 3.90  r(Sag)=  7.81  r(Tan)=  8.19
+Seg:55  y= 4.00  r(Sag)=  7.82  r(Tan)=  8.23
+Seg:55  y= 4.10  r(Sag)=  7.83  r(Tan)=  8.24
+Seg:55  y= 4.20  r(Sag)=  7.84  r(Tan)=  8.26
+Seg:55  y= 4.30  r(Sag)=  7.85  r(Tan)=  8.28
+Seg:56  y= 0.00  r(Sag)=  7.69  r(Tan)=  7.68
+Seg:56  y= 0.10  r(Sag)=  7.69  r(Tan)=  7.68
+Seg:56  y= 0.20  r(Sag)=  7.69  r(Tan)=  7.68
+Seg:56  y= 0.30  r(Sag)=  7.69  r(Tan)=  7.69
+Seg:56  y= 0.40  r(Sag)=  7.70  r(Tan)=  7.69
+Seg:56  y= 0.50  r(Sag)=  7.70  r(Tan)=  7.70
+Seg:56  y= 0.60  r(Sag)=  7.70  r(Tan)=  7.70
+Seg:56  y= 0.70  r(Sag)=  7.70  r(Tan)=  7.71
+Seg:56  y= 0.80  r(Sag)=  7.70  r(Tan)=  7.72
+Seg:56  y= 0.90  r(Sag)=  7.70  r(Tan)=  7.73
+Seg:56  y= 1.00  r(Sag)=  7.71  r(Tan)=  7.73
+Seg:56  y= 1.10  r(Sag)=  7.71  r(Tan)=  7.73
+Seg:56  y= 1.20  r(Sag)=  7.71  r(Tan)=  7.73
+Seg:56  y= 1.30  r(Sag)=  7.72  r(Tan)=  7.73
+Seg:56  y= 1.40  r(Sag)=  7.72  r(Tan)=  7.73
+Seg:56  y= 1.50  r(Sag)=  7.72  r(Tan)=  7.72
+Seg:56  y= 1.60  r(Sag)=  7.72  r(Tan)=  7.72
+Seg:56  y= 1.70  r(Sag)=  7.72  r(Tan)=  7.72
+Seg:56  y= 1.80  r(Sag)=  7.72  r(Tan)=  7.72
+Seg:56  y= 1.90  r(Sag)=  7.72  r(Tan)=  7.73
+Seg:56  y= 2.00  r(Sag)=  7.72  r(Tan)=  7.74
+Seg:56  y= 2.10  r(Sag)=  7.72  r(Tan)=  7.74
+Seg:56  y= 2.20  r(Sag)=  7.72  r(Tan)=  7.75
+Seg:56  y= 2.30  r(Sag)=  7.72  r(Tan)=  7.76
+Seg:56  y= 2.40  r(Sag)=  7.72  r(Tan)=  7.77
+Seg:56  y= 2.50  r(Sag)=  7.72  r(Tan)=  7.78
+Seg:56  y= 2.60  r(Sag)=  7.73  r(Tan)=  7.79
+Seg:56  y= 2.70  r(Sag)=  7.73  r(Tan)=  7.81
+Seg:56  y= 2.80  r(Sag)=  7.73  r(Tan)=  7.83
+Seg:56  y= 2.90  r(Sag)=  7.74  r(Tan)=  7.85
+Seg:56  y= 3.00  r(Sag)=  7.74  r(Tan)=  7.88
+Seg:56  y= 3.10  r(Sag)=  7.74  r(Tan)=  7.91
+Seg:56  y= 3.20  r(Sag)=  7.75  r(Tan)=  7.95
+Seg:56  y= 3.30  r(Sag)=  7.76  r(Tan)=  7.98
+Seg:56  y= 3.40  r(Sag)=  7.76  r(Tan)=  8.02
+Seg:56  y= 3.50  r(Sag)=  7.77  r(Tan)=  8.05
+Seg:56  y= 3.60  r(Sag)=  7.78  r(Tan)=  8.09
+Seg:56  y= 3.70  r(Sag)=  7.79  r(Tan)=  8.12
+Seg:56  y= 3.80  r(Sag)=  7.80  r(Tan)=  8.15
+Seg:56  y= 3.90  r(Sag)=  7.80  r(Tan)=  8.19
+Seg:56  y= 4.00  r(Sag)=  7.81  r(Tan)=  8.21
+Seg:56  y= 4.10  r(Sag)=  7.82  r(Tan)=  8.23
+Seg:56  y= 4.20  r(Sag)=  7.83  r(Tan)=  8.25
+Seg:56  y= 4.30  r(Sag)=  7.84  r(Tan)=  8.26
+Seg:57  y= 0.00  r(Sag)=  7.69  r(Tan)=  7.67
+Seg:57  y= 0.10  r(Sag)=  7.69  r(Tan)=  7.67
+Seg:57  y= 0.20  r(Sag)=  7.69  r(Tan)=  7.67
+Seg:57  y= 0.30  r(Sag)=  7.69  r(Tan)=  7.68
+Seg:57  y= 0.40  r(Sag)=  7.69  r(Tan)=  7.68
+Seg:57  y= 0.50  r(Sag)=  7.69  r(Tan)=  7.69
+Seg:57  y= 0.60  r(Sag)=  7.69  r(Tan)=  7.69
+Seg:57  y= 0.70  r(Sag)=  7.69  r(Tan)=  7.70
+Seg:57  y= 0.80  r(Sag)=  7.69  r(Tan)=  7.71
+Seg:57  y= 0.90  r(Sag)=  7.70  r(Tan)=  7.72
+Seg:57  y= 1.00  r(Sag)=  7.70  r(Tan)=  7.72
+Seg:57  y= 1.10  r(Sag)=  7.70  r(Tan)=  7.72
+Seg:57  y= 1.20  r(Sag)=  7.71  r(Tan)=  7.72
+Seg:57  y= 1.30  r(Sag)=  7.71  r(Tan)=  7.72
+Seg:57  y= 1.40  r(Sag)=  7.71  r(Tan)=  7.72
+Seg:57  y= 1.50  r(Sag)=  7.71  r(Tan)=  7.72
+Seg:57  y= 1.60  r(Sag)=  7.71  r(Tan)=  7.72
+Seg:57  y= 1.70  r(Sag)=  7.71  r(Tan)=  7.72
+Seg:57  y= 1.80  r(Sag)=  7.71  r(Tan)=  7.72
+Seg:57  y= 1.90  r(Sag)=  7.71  r(Tan)=  7.73
+Seg:57  y= 2.00  r(Sag)=  7.71  r(Tan)=  7.73
+Seg:57  y= 2.10  r(Sag)=  7.71  r(Tan)=  7.74
+Seg:57  y= 2.20  r(Sag)=  7.71  r(Tan)=  7.75
+Seg:57  y= 2.30  r(Sag)=  7.72  r(Tan)=  7.75
+Seg:57  y= 2.40  r(Sag)=  7.72  r(Tan)=  7.76
+Seg:57  y= 2.50  r(Sag)=  7.72  r(Tan)=  7.77
+Seg:57  y= 2.60  r(Sag)=  7.72  r(Tan)=  7.79
+Seg:57  y= 2.70  r(Sag)=  7.72  r(Tan)=  7.80
+Seg:57  y= 2.80  r(Sag)=  7.73  r(Tan)=  7.82
+Seg:57  y= 2.90  r(Sag)=  7.73  r(Tan)=  7.85
+Seg:57  y= 3.00  r(Sag)=  7.73  r(Tan)=  7.87
+Seg:57  y= 3.10  r(Sag)=  7.74  r(Tan)=  7.91
+Seg:57  y= 3.20  r(Sag)=  7.74  r(Tan)=  7.94
+Seg:57  y= 3.30  r(Sag)=  7.75  r(Tan)=  7.98
+Seg:57  y= 3.40  r(Sag)=  7.76  r(Tan)=  8.02
+Seg:57  y= 3.50  r(Sag)=  7.76  r(Tan)=  8.05
+Seg:57  y= 3.60  r(Sag)=  7.77  r(Tan)=  8.08
+Seg:57  y= 3.70  r(Sag)=  7.78  r(Tan)=  8.12
+Seg:57  y= 3.80  r(Sag)=  7.79  r(Tan)=  8.15
+Seg:57  y= 3.90  r(Sag)=  7.80  r(Tan)=  8.18
+Seg:57  y= 4.00  r(Sag)=  7.81  r(Tan)=  8.21
+Seg:57  y= 4.10  r(Sag)=  7.82  r(Tan)=  8.22
+Seg:57  y= 4.20  r(Sag)=  7.83  r(Tan)=  8.23
+Seg:57  y= 4.30  r(Sag)=  7.84  r(Tan)=  8.25
+Seg:58  y= 0.00  r(Sag)=  7.69  r(Tan)=  7.66
+Seg:58  y= 0.10  r(Sag)=  7.69  r(Tan)=  7.66
+Seg:58  y= 0.20  r(Sag)=  7.69  r(Tan)=  7.67
+Seg:58  y= 0.30  r(Sag)=  7.69  r(Tan)=  7.67
+Seg:58  y= 0.40  r(Sag)=  7.69  r(Tan)=  7.68
+Seg:58  y= 0.50  r(Sag)=  7.69  r(Tan)=  7.68
+Seg:58  y= 0.60  r(Sag)=  7.69  r(Tan)=  7.69
+Seg:58  y= 0.70  r(Sag)=  7.69  r(Tan)=  7.69
+Seg:58  y= 0.80  r(Sag)=  7.69  r(Tan)=  7.70
+Seg:58  y= 0.90  r(Sag)=  7.69  r(Tan)=  7.71
+Seg:58  y= 1.00  r(Sag)=  7.69  r(Tan)=  7.71
+Seg:58  y= 1.10  r(Sag)=  7.70  r(Tan)=  7.71
+Seg:58  y= 1.20  r(Sag)=  7.70  r(Tan)=  7.71
+Seg:58  y= 1.30  r(Sag)=  7.70  r(Tan)=  7.71
+Seg:58  y= 1.40  r(Sag)=  7.70  r(Tan)=  7.71
+Seg:58  y= 1.50  r(Sag)=  7.70  r(Tan)=  7.71
+Seg:58  y= 1.60  r(Sag)=  7.70  r(Tan)=  7.71
+Seg:58  y= 1.70  r(Sag)=  7.70  r(Tan)=  7.72
+Seg:58  y= 1.80  r(Sag)=  7.70  r(Tan)=  7.72
+Seg:58  y= 1.90  r(Sag)=  7.70  r(Tan)=  7.72
+Seg:58  y= 2.00  r(Sag)=  7.70  r(Tan)=  7.73
+Seg:58  y= 2.10  r(Sag)=  7.71  r(Tan)=  7.73
+Seg:58  y= 2.20  r(Sag)=  7.71  r(Tan)=  7.74
+Seg:58  y= 2.30  r(Sag)=  7.71  r(Tan)=  7.75
+Seg:58  y= 2.40  r(Sag)=  7.71  r(Tan)=  7.76
+Seg:58  y= 2.50  r(Sag)=  7.71  r(Tan)=  7.77
+Seg:58  y= 2.60  r(Sag)=  7.71  r(Tan)=  7.78
+Seg:58  y= 2.70  r(Sag)=  7.72  r(Tan)=  7.80
+Seg:58  y= 2.80  r(Sag)=  7.72  r(Tan)=  7.82
+Seg:58  y= 2.90  r(Sag)=  7.72  r(Tan)=  7.84
+Seg:58  y= 3.00  r(Sag)=  7.73  r(Tan)=  7.87
+Seg:58  y= 3.10  r(Sag)=  7.73  r(Tan)=  7.90
+Seg:58  y= 3.20  r(Sag)=  7.74  r(Tan)=  7.94
+Seg:58  y= 3.30  r(Sag)=  7.74  r(Tan)=  7.98
+Seg:58  y= 3.40  r(Sag)=  7.75  r(Tan)=  8.01
+Seg:58  y= 3.50  r(Sag)=  7.76  r(Tan)=  8.05
+Seg:58  y= 3.60  r(Sag)=  7.77  r(Tan)=  8.08
+Seg:58  y= 3.70  r(Sag)=  7.78  r(Tan)=  8.11
+Seg:58  y= 3.80  r(Sag)=  7.78  r(Tan)=  8.15
+Seg:58  y= 3.90  r(Sag)=  7.79  r(Tan)=  8.17
+Seg:58  y= 4.00  r(Sag)=  7.80  r(Tan)=  8.20
+Seg:58  y= 4.10  r(Sag)=  7.81  r(Tan)=  8.21
+Seg:58  y= 4.20  r(Sag)=  7.82  r(Tan)=  8.22
+Seg:58  y= 4.30  r(Sag)=  7.83  r(Tan)=  8.24
+Seg:59  y= 0.00  r(Sag)=  7.68  r(Tan)=  7.65
+Seg:59  y= 0.10  r(Sag)=  7.68  r(Tan)=  7.65
+Seg:59  y= 0.20  r(Sag)=  7.69  r(Tan)=  7.66
+Seg:59  y= 0.30  r(Sag)=  7.69  r(Tan)=  7.66
+Seg:59  y= 0.40  r(Sag)=  7.68  r(Tan)=  7.67
+Seg:59  y= 0.50  r(Sag)=  7.68  r(Tan)=  7.67
+Seg:59  y= 0.60  r(Sag)=  7.68  r(Tan)=  7.68
+Seg:59  y= 0.70  r(Sag)=  7.68  r(Tan)=  7.68
+Seg:59  y= 0.80  r(Sag)=  7.68  r(Tan)=  7.69
+Seg:59  y= 0.90  r(Sag)=  7.68  r(Tan)=  7.70
+Seg:59  y= 1.00  r(Sag)=  7.69  r(Tan)=  7.70
+Seg:59  y= 1.10  r(Sag)=  7.69  r(Tan)=  7.70
+Seg:59  y= 1.20  r(Sag)=  7.69  r(Tan)=  7.70
+Seg:59  y= 1.30  r(Sag)=  7.69  r(Tan)=  7.70
+Seg:59  y= 1.40  r(Sag)=  7.69  r(Tan)=  7.70
+Seg:59  y= 1.50  r(Sag)=  7.69  r(Tan)=  7.71
+Seg:59  y= 1.60  r(Sag)=  7.69  r(Tan)=  7.71
+Seg:59  y= 1.70  r(Sag)=  7.69  r(Tan)=  7.71
+Seg:59  y= 1.80  r(Sag)=  7.69  r(Tan)=  7.72
+Seg:59  y= 1.90  r(Sag)=  7.70  r(Tan)=  7.72
+Seg:59  y= 2.00  r(Sag)=  7.70  r(Tan)=  7.73
+Seg:59  y= 2.10  r(Sag)=  7.70  r(Tan)=  7.73
+Seg:59  y= 2.20  r(Sag)=  7.70  r(Tan)=  7.74
+Seg:59  y= 2.30  r(Sag)=  7.70  r(Tan)=  7.74
+Seg:59  y= 2.40  r(Sag)=  7.70  r(Tan)=  7.75
+Seg:59  y= 2.50  r(Sag)=  7.71  r(Tan)=  7.76
+Seg:59  y= 2.60  r(Sag)=  7.71  r(Tan)=  7.78
+Seg:59  y= 2.70  r(Sag)=  7.71  r(Tan)=  7.79
+Seg:59  y= 2.80  r(Sag)=  7.71  r(Tan)=  7.81
+Seg:59  y= 2.90  r(Sag)=  7.72  r(Tan)=  7.84
+Seg:59  y= 3.00  r(Sag)=  7.72  r(Tan)=  7.87
+Seg:59  y= 3.10  r(Sag)=  7.72  r(Tan)=  7.90
+Seg:59  y= 3.20  r(Sag)=  7.73  r(Tan)=  7.94
+Seg:59  y= 3.30  r(Sag)=  7.74  r(Tan)=  7.97
+Seg:59  y= 3.40  r(Sag)=  7.74  r(Tan)=  8.01
+Seg:59  y= 3.50  r(Sag)=  7.75  r(Tan)=  8.05
+Seg:59  y= 3.60  r(Sag)=  7.76  r(Tan)=  8.08
+Seg:59  y= 3.70  r(Sag)=  7.77  r(Tan)=  8.12
+Seg:59  y= 3.80  r(Sag)=  7.78  r(Tan)=  8.15
+Seg:59  y= 3.90  r(Sag)=  7.79  r(Tan)=  8.17
+Seg:59  y= 4.00  r(Sag)=  7.80  r(Tan)=  8.20
+Seg:59  y= 4.10  r(Sag)=  7.81  r(Tan)=  8.21
+Seg:59  y= 4.20  r(Sag)=  7.82  r(Tan)=  8.22
+Seg:59  y= 4.30  r(Sag)=  7.83  r(Tan)=  8.23
+Seg:60  y= 0.00  r(Sag)=  7.68  r(Tan)=  7.64
+Seg:60  y= 0.10  r(Sag)=  7.68  r(Tan)=  7.65
+Seg:60  y= 0.20  r(Sag)=  7.68  r(Tan)=  7.65
+Seg:60  y= 0.30  r(Sag)=  7.68  r(Tan)=  7.66
+Seg:60  y= 0.40  r(Sag)=  7.68  r(Tan)=  7.66
+Seg:60  y= 0.50  r(Sag)=  7.68  r(Tan)=  7.66
+Seg:60  y= 0.60  r(Sag)=  7.67  r(Tan)=  7.67
+Seg:60  y= 0.70  r(Sag)=  7.68  r(Tan)=  7.67
+Seg:60  y= 0.80  r(Sag)=  7.68  r(Tan)=  7.68
+Seg:60  y= 0.90  r(Sag)=  7.68  r(Tan)=  7.68
+Seg:60  y= 1.00  r(Sag)=  7.68  r(Tan)=  7.69
+Seg:60  y= 1.10  r(Sag)=  7.68  r(Tan)=  7.69
+Seg:60  y= 1.20  r(Sag)=  7.68  r(Tan)=  7.69
+Seg:60  y= 1.30  r(Sag)=  7.68  r(Tan)=  7.69
+Seg:60  y= 1.40  r(Sag)=  7.68  r(Tan)=  7.69
+Seg:60  y= 1.50  r(Sag)=  7.68  r(Tan)=  7.70
+Seg:60  y= 1.60  r(Sag)=  7.68  r(Tan)=  7.70
+Seg:60  y= 1.70  r(Sag)=  7.68  r(Tan)=  7.71
+Seg:60  y= 1.80  r(Sag)=  7.69  r(Tan)=  7.71
+Seg:60  y= 1.90  r(Sag)=  7.69  r(Tan)=  7.72
+Seg:60  y= 2.00  r(Sag)=  7.69  r(Tan)=  7.72
+Seg:60  y= 2.10  r(Sag)=  7.69  r(Tan)=  7.73
+Seg:60  y= 2.20  r(Sag)=  7.69  r(Tan)=  7.74
+Seg:60  y= 2.30  r(Sag)=  7.69  r(Tan)=  7.74
+Seg:60  y= 2.40  r(Sag)=  7.70  r(Tan)=  7.75
+Seg:60  y= 2.50  r(Sag)=  7.70  r(Tan)=  7.76
+Seg:60  y= 2.60  r(Sag)=  7.70  r(Tan)=  7.78
+Seg:60  y= 2.70  r(Sag)=  7.70  r(Tan)=  7.79
+Seg:60  y= 2.80  r(Sag)=  7.71  r(Tan)=  7.81
+Seg:60  y= 2.90  r(Sag)=  7.71  r(Tan)=  7.84
+Seg:60  y= 3.00  r(Sag)=  7.71  r(Tan)=  7.87
+Seg:60  y= 3.10  r(Sag)=  7.72  r(Tan)=  7.90
+Seg:60  y= 3.20  r(Sag)=  7.73  r(Tan)=  7.94
+Seg:60  y= 3.30  r(Sag)=  7.73  r(Tan)=  7.97
+Seg:60  y= 3.40  r(Sag)=  7.74  r(Tan)=  8.01
+Seg:60  y= 3.50  r(Sag)=  7.75  r(Tan)=  8.05
+Seg:60  y= 3.60  r(Sag)=  7.76  r(Tan)=  8.08
+Seg:60  y= 3.70  r(Sag)=  7.77  r(Tan)=  8.12
+Seg:60  y= 3.80  r(Sag)=  7.77  r(Tan)=  8.15
+Seg:60  y= 3.90  r(Sag)=  7.78  r(Tan)=  8.18
+Seg:60  y= 4.00  r(Sag)=  7.79  r(Tan)=  8.20
+Seg:60  y= 4.10  r(Sag)=  7.80  r(Tan)=  8.22
+Seg:60  y= 4.20  r(Sag)=  7.81  r(Tan)=  8.23
+Seg:60  y= 4.30  r(Sag)=  7.82  r(Tan)=  8.24
+Seg:61  y= 0.00  r(Sag)=  7.68  r(Tan)=  7.64
+Seg:61  y= 0.10  r(Sag)=  7.68  r(Tan)=  7.64
+Seg:61  y= 0.20  r(Sag)=  7.68  r(Tan)=  7.65
+Seg:61  y= 0.30  r(Sag)=  7.68  r(Tan)=  7.65
+Seg:61  y= 0.40  r(Sag)=  7.68  r(Tan)=  7.65
+Seg:61  y= 0.50  r(Sag)=  7.67  r(Tan)=  7.66
+Seg:61  y= 0.60  r(Sag)=  7.67  r(Tan)=  7.66
+Seg:61  y= 0.70  r(Sag)=  7.67  r(Tan)=  7.66
+Seg:61  y= 0.80  r(Sag)=  7.67  r(Tan)=  7.67
+Seg:61  y= 0.90  r(Sag)=  7.67  r(Tan)=  7.67
+Seg:61  y= 1.00  r(Sag)=  7.67  r(Tan)=  7.67
+Seg:61  y= 1.10  r(Sag)=  7.67  r(Tan)=  7.67
+Seg:61  y= 1.20  r(Sag)=  7.67  r(Tan)=  7.68
+Seg:61  y= 1.30  r(Sag)=  7.67  r(Tan)=  7.68
+Seg:61  y= 1.40  r(Sag)=  7.67  r(Tan)=  7.68
+Seg:61  y= 1.50  r(Sag)=  7.67  r(Tan)=  7.69
+Seg:61  y= 1.60  r(Sag)=  7.67  r(Tan)=  7.70
+Seg:61  y= 1.70  r(Sag)=  7.67  r(Tan)=  7.70
+Seg:61  y= 1.80  r(Sag)=  7.68  r(Tan)=  7.71
+Seg:61  y= 1.90  r(Sag)=  7.68  r(Tan)=  7.72
+Seg:61  y= 2.00  r(Sag)=  7.68  r(Tan)=  7.72
+Seg:61  y= 2.10  r(Sag)=  7.68  r(Tan)=  7.73
+Seg:61  y= 2.20  r(Sag)=  7.69  r(Tan)=  7.73
+Seg:61  y= 2.30  r(Sag)=  7.69  r(Tan)=  7.74
+Seg:61  y= 2.40  r(Sag)=  7.69  r(Tan)=  7.75
+Seg:61  y= 2.50  r(Sag)=  7.69  r(Tan)=  7.76
+Seg:61  y= 2.60  r(Sag)=  7.69  r(Tan)=  7.78
+Seg:61  y= 2.70  r(Sag)=  7.70  r(Tan)=  7.80
+Seg:61  y= 2.80  r(Sag)=  7.70  r(Tan)=  7.82
+Seg:61  y= 2.90  r(Sag)=  7.70  r(Tan)=  7.84
+Seg:61  y= 3.00  r(Sag)=  7.71  r(Tan)=  7.87
+Seg:61  y= 3.10  r(Sag)=  7.71  r(Tan)=  7.90
+Seg:61  y= 3.20  r(Sag)=  7.72  r(Tan)=  7.94
+Seg:61  y= 3.30  r(Sag)=  7.73  r(Tan)=  7.97
+Seg:61  y= 3.40  r(Sag)=  7.74  r(Tan)=  8.01
+Seg:61  y= 3.50  r(Sag)=  7.74  r(Tan)=  8.05
+Seg:61  y= 3.60  r(Sag)=  7.75  r(Tan)=  8.09
+Seg:61  y= 3.70  r(Sag)=  7.76  r(Tan)=  8.12
+Seg:61  y= 3.80  r(Sag)=  7.77  r(Tan)=  8.16
+Seg:61  y= 3.90  r(Sag)=  7.78  r(Tan)=  8.19
+Seg:61  y= 4.00  r(Sag)=  7.79  r(Tan)=  8.21
+Seg:61  y= 4.10  r(Sag)=  7.80  r(Tan)=  8.23
+Seg:61  y= 4.20  r(Sag)=  7.81  r(Tan)=  8.25
+Seg:61  y= 4.30  r(Sag)=  7.82  r(Tan)=  8.26
+Seg:62  y= 0.00  r(Sag)=  7.68  r(Tan)=  7.63
+Seg:62  y= 0.10  r(Sag)=  7.68  r(Tan)=  7.63
+Seg:62  y= 0.20  r(Sag)=  7.68  r(Tan)=  7.64
+Seg:62  y= 0.30  r(Sag)=  7.67  r(Tan)=  7.64
+Seg:62  y= 0.40  r(Sag)=  7.67  r(Tan)=  7.65
+Seg:62  y= 0.50  r(Sag)=  7.67  r(Tan)=  7.65
+Seg:62  y= 0.60  r(Sag)=  7.66  r(Tan)=  7.65
+Seg:62  y= 0.70  r(Sag)=  7.66  r(Tan)=  7.65
+Seg:62  y= 0.80  r(Sag)=  7.66  r(Tan)=  7.66
+Seg:62  y= 0.90  r(Sag)=  7.66  r(Tan)=  7.66
+Seg:62  y= 1.00  r(Sag)=  7.66  r(Tan)=  7.66
+Seg:62  y= 1.10  r(Sag)=  7.66  r(Tan)=  7.66
+Seg:62  y= 1.20  r(Sag)=  7.66  r(Tan)=  7.66
+Seg:62  y= 1.30  r(Sag)=  7.66  r(Tan)=  7.67
+Seg:62  y= 1.40  r(Sag)=  7.66  r(Tan)=  7.67
+Seg:62  y= 1.50  r(Sag)=  7.66  r(Tan)=  7.68
+Seg:62  y= 1.60  r(Sag)=  7.66  r(Tan)=  7.69
+Seg:62  y= 1.70  r(Sag)=  7.66  r(Tan)=  7.70
+Seg:62  y= 1.80  r(Sag)=  7.67  r(Tan)=  7.71
+Seg:62  y= 1.90  r(Sag)=  7.67  r(Tan)=  7.71
+Seg:62  y= 2.00  r(Sag)=  7.67  r(Tan)=  7.72
+Seg:62  y= 2.10  r(Sag)=  7.67  r(Tan)=  7.73
+Seg:62  y= 2.20  r(Sag)=  7.68  r(Tan)=  7.73
+Seg:62  y= 2.30  r(Sag)=  7.68  r(Tan)=  7.74
+Seg:62  y= 2.40  r(Sag)=  7.68  r(Tan)=  7.75
+Seg:62  y= 2.50  r(Sag)=  7.68  r(Tan)=  7.77
+Seg:62  y= 2.60  r(Sag)=  7.69  r(Tan)=  7.78
+Seg:62  y= 2.70  r(Sag)=  7.69  r(Tan)=  7.80
+Seg:62  y= 2.80  r(Sag)=  7.69  r(Tan)=  7.83
+Seg:62  y= 2.90  r(Sag)=  7.70  r(Tan)=  7.85
+Seg:62  y= 3.00  r(Sag)=  7.70  r(Tan)=  7.88
+Seg:62  y= 3.10  r(Sag)=  7.71  r(Tan)=  7.91
+Seg:62  y= 3.20  r(Sag)=  7.72  r(Tan)=  7.94
+Seg:62  y= 3.30  r(Sag)=  7.72  r(Tan)=  7.98
+Seg:62  y= 3.40  r(Sag)=  7.73  r(Tan)=  8.01
+Seg:62  y= 3.50  r(Sag)=  7.74  r(Tan)=  8.05
+Seg:62  y= 3.60  r(Sag)=  7.75  r(Tan)=  8.09
+Seg:62  y= 3.70  r(Sag)=  7.76  r(Tan)=  8.13
+Seg:62  y= 3.80  r(Sag)=  7.77  r(Tan)=  8.17
+Seg:62  y= 3.90  r(Sag)=  7.78  r(Tan)=  8.21
+Seg:62  y= 4.00  r(Sag)=  7.79  r(Tan)=  8.23
+Seg:62  y= 4.10  r(Sag)=  7.80  r(Tan)=  8.25
+Seg:62  y= 4.20  r(Sag)=  7.81  r(Tan)=  8.27
+Seg:62  y= 4.30  r(Sag)=  7.82  r(Tan)=  8.29
+Seg:63  y= 0.00  r(Sag)=  7.67  r(Tan)=  7.63
+Seg:63  y= 0.10  r(Sag)=  7.67  r(Tan)=  7.63
+Seg:63  y= 0.20  r(Sag)=  7.67  r(Tan)=  7.63
+Seg:63  y= 0.30  r(Sag)=  7.67  r(Tan)=  7.64
+Seg:63  y= 0.40  r(Sag)=  7.66  r(Tan)=  7.64
+Seg:63  y= 0.50  r(Sag)=  7.66  r(Tan)=  7.64
+Seg:63  y= 0.60  r(Sag)=  7.66  r(Tan)=  7.64
+Seg:63  y= 0.70  r(Sag)=  7.66  r(Tan)=  7.64
+Seg:63  y= 0.80  r(Sag)=  7.66  r(Tan)=  7.64
+Seg:63  y= 0.90  r(Sag)=  7.65  r(Tan)=  7.65
+Seg:63  y= 1.00  r(Sag)=  7.65  r(Tan)=  7.65
+Seg:63  y= 1.10  r(Sag)=  7.65  r(Tan)=  7.65
+Seg:63  y= 1.20  r(Sag)=  7.65  r(Tan)=  7.65
+Seg:63  y= 1.30  r(Sag)=  7.65  r(Tan)=  7.66
+Seg:63  y= 1.40  r(Sag)=  7.65  r(Tan)=  7.66
+Seg:63  y= 1.50  r(Sag)=  7.65  r(Tan)=  7.67
+Seg:63  y= 1.60  r(Sag)=  7.65  r(Tan)=  7.68
+Seg:63  y= 1.70  r(Sag)=  7.66  r(Tan)=  7.69
+Seg:63  y= 1.80  r(Sag)=  7.66  r(Tan)=  7.70
+Seg:63  y= 1.90  r(Sag)=  7.66  r(Tan)=  7.71
+Seg:63  y= 2.00  r(Sag)=  7.66  r(Tan)=  7.72
+Seg:63  y= 2.10  r(Sag)=  7.67  r(Tan)=  7.73
+Seg:63  y= 2.20  r(Sag)=  7.67  r(Tan)=  7.73
+Seg:63  y= 2.30  r(Sag)=  7.67  r(Tan)=  7.74
+Seg:63  y= 2.40  r(Sag)=  7.67  r(Tan)=  7.76
+Seg:63  y= 2.50  r(Sag)=  7.68  r(Tan)=  7.77
+Seg:63  y= 2.60  r(Sag)=  7.68  r(Tan)=  7.79
+Seg:63  y= 2.70  r(Sag)=  7.69  r(Tan)=  7.81
+Seg:63  y= 2.80  r(Sag)=  7.69  r(Tan)=  7.84
+Seg:63  y= 2.90  r(Sag)=  7.70  r(Tan)=  7.86
+Seg:63  y= 3.00  r(Sag)=  7.70  r(Tan)=  7.89
+Seg:63  y= 3.10  r(Sag)=  7.71  r(Tan)=  7.92
+Seg:63  y= 3.20  r(Sag)=  7.71  r(Tan)=  7.95
+Seg:63  y= 3.30  r(Sag)=  7.72  r(Tan)=  7.98
+Seg:63  y= 3.40  r(Sag)=  7.73  r(Tan)=  8.02
+Seg:63  y= 3.50  r(Sag)=  7.74  r(Tan)=  8.06
+Seg:63  y= 3.60  r(Sag)=  7.75  r(Tan)=  8.10
+Seg:63  y= 3.70  r(Sag)=  7.76  r(Tan)=  8.15
+Seg:63  y= 3.80  r(Sag)=  7.77  r(Tan)=  8.19
+Seg:63  y= 3.90  r(Sag)=  7.78  r(Tan)=  8.23
+Seg:63  y= 4.00  r(Sag)=  7.79  r(Tan)=  8.26
+Seg:63  y= 4.10  r(Sag)=  7.80  r(Tan)=  8.28
+Seg:63  y= 4.20  r(Sag)=  7.81  r(Tan)=  8.31
+Seg:63  y= 4.30  r(Sag)=  7.83  r(Tan)=  8.33
+Seg:64  y= 0.00  r(Sag)=  7.67  r(Tan)=  7.62
+Seg:64  y= 0.10  r(Sag)=  7.67  r(Tan)=  7.63
+Seg:64  y= 0.20  r(Sag)=  7.67  r(Tan)=  7.63
+Seg:64  y= 0.30  r(Sag)=  7.66  r(Tan)=  7.63
+Seg:64  y= 0.40  r(Sag)=  7.66  r(Tan)=  7.63
+Seg:64  y= 0.50  r(Sag)=  7.65  r(Tan)=  7.63
+Seg:64  y= 0.60  r(Sag)=  7.65  r(Tan)=  7.63
+Seg:64  y= 0.70  r(Sag)=  7.65  r(Tan)=  7.63
+Seg:64  y= 0.80  r(Sag)=  7.65  r(Tan)=  7.63
+Seg:64  y= 0.90  r(Sag)=  7.65  r(Tan)=  7.63
+Seg:64  y= 1.00  r(Sag)=  7.64  r(Tan)=  7.63
+Seg:64  y= 1.10  r(Sag)=  7.64  r(Tan)=  7.64
+Seg:64  y= 1.20  r(Sag)=  7.64  r(Tan)=  7.64
+Seg:64  y= 1.30  r(Sag)=  7.64  r(Tan)=  7.65
+Seg:64  y= 1.40  r(Sag)=  7.64  r(Tan)=  7.66
+Seg:64  y= 1.50  r(Sag)=  7.64  r(Tan)=  7.67
+Seg:64  y= 1.60  r(Sag)=  7.64  r(Tan)=  7.68
+Seg:64  y= 1.70  r(Sag)=  7.65  r(Tan)=  7.69
+Seg:64  y= 1.80  r(Sag)=  7.65  r(Tan)=  7.70
+Seg:64  y= 1.90  r(Sag)=  7.65  r(Tan)=  7.71
+Seg:64  y= 2.00  r(Sag)=  7.66  r(Tan)=  7.72
+Seg:64  y= 2.10  r(Sag)=  7.66  r(Tan)=  7.73
+Seg:64  y= 2.20  r(Sag)=  7.66  r(Tan)=  7.74
+Seg:64  y= 2.30  r(Sag)=  7.66  r(Tan)=  7.75
+Seg:64  y= 2.40  r(Sag)=  7.67  r(Tan)=  7.76
+Seg:64  y= 2.50  r(Sag)=  7.67  r(Tan)=  7.78
+Seg:64  y= 2.60  r(Sag)=  7.68  r(Tan)=  7.80
+Seg:64  y= 2.70  r(Sag)=  7.68  r(Tan)=  7.83
+Seg:64  y= 2.80  r(Sag)=  7.69  r(Tan)=  7.85
+Seg:64  y= 2.90  r(Sag)=  7.69  r(Tan)=  7.88
+Seg:64  y= 3.00  r(Sag)=  7.70  r(Tan)=  7.90
+Seg:64  y= 3.10  r(Sag)=  7.71  r(Tan)=  7.93
+Seg:64  y= 3.20  r(Sag)=  7.71  r(Tan)=  7.96
+Seg:64  y= 3.30  r(Sag)=  7.72  r(Tan)=  7.99
+Seg:64  y= 3.40  r(Sag)=  7.73  r(Tan)=  8.03
+Seg:64  y= 3.50  r(Sag)=  7.74  r(Tan)=  8.07
+Seg:64  y= 3.60  r(Sag)=  7.74  r(Tan)=  8.11
+Seg:64  y= 3.70  r(Sag)=  7.75  r(Tan)=  8.16
+Seg:64  y= 3.80  r(Sag)=  7.76  r(Tan)=  8.22
+Seg:64  y= 3.90  r(Sag)=  7.78  r(Tan)=  8.26
+Seg:64  y= 4.00  r(Sag)=  7.79  r(Tan)=  8.30
+Seg:64  y= 4.10  r(Sag)=  7.80  r(Tan)=  8.32
+Seg:64  y= 4.20  r(Sag)=  7.82  r(Tan)=  8.35
+Seg:64  y= 4.30  r(Sag)=  7.83  r(Tan)=  8.38
+Seg:65  y= 0.00  r(Sag)=  7.66  r(Tan)=  7.62
+Seg:65  y= 0.10  r(Sag)=  7.66  r(Tan)=  7.62
+Seg:65  y= 0.20  r(Sag)=  7.66  r(Tan)=  7.62
+Seg:65  y= 0.30  r(Sag)=  7.66  r(Tan)=  7.63
+Seg:65  y= 0.40  r(Sag)=  7.65  r(Tan)=  7.63
+Seg:65  y= 0.50  r(Sag)=  7.65  r(Tan)=  7.63
+Seg:65  y= 0.60  r(Sag)=  7.64  r(Tan)=  7.62
+Seg:65  y= 0.70  r(Sag)=  7.64  r(Tan)=  7.62
+Seg:65  y= 0.80  r(Sag)=  7.64  r(Tan)=  7.62
+Seg:65  y= 0.90  r(Sag)=  7.64  r(Tan)=  7.62
+Seg:65  y= 1.00  r(Sag)=  7.64  r(Tan)=  7.62
+Seg:65  y= 1.10  r(Sag)=  7.63  r(Tan)=  7.63
+Seg:65  y= 1.20  r(Sag)=  7.63  r(Tan)=  7.63
+Seg:65  y= 1.30  r(Sag)=  7.63  r(Tan)=  7.64
+Seg:65  y= 1.40  r(Sag)=  7.63  r(Tan)=  7.65
+Seg:65  y= 1.50  r(Sag)=  7.63  r(Tan)=  7.66
+Seg:65  y= 1.60  r(Sag)=  7.63  r(Tan)=  7.67
+Seg:65  y= 1.70  r(Sag)=  7.64  r(Tan)=  7.68
+Seg:65  y= 1.80  r(Sag)=  7.64  r(Tan)=  7.70
+Seg:65  y= 1.90  r(Sag)=  7.64  r(Tan)=  7.71
+Seg:65  y= 2.00  r(Sag)=  7.65  r(Tan)=  7.72
+Seg:65  y= 2.10  r(Sag)=  7.65  r(Tan)=  7.73
+Seg:65  y= 2.20  r(Sag)=  7.65  r(Tan)=  7.74
+Seg:65  y= 2.30  r(Sag)=  7.66  r(Tan)=  7.75
+Seg:65  y= 2.40  r(Sag)=  7.66  r(Tan)=  7.77
+Seg:65  y= 2.50  r(Sag)=  7.67  r(Tan)=  7.79
+Seg:65  y= 2.60  r(Sag)=  7.67  r(Tan)=  7.82
+Seg:65  y= 2.70  r(Sag)=  7.68  r(Tan)=  7.84
+Seg:65  y= 2.80  r(Sag)=  7.68  r(Tan)=  7.87
+Seg:65  y= 2.90  r(Sag)=  7.69  r(Tan)=  7.90
+Seg:65  y= 3.00  r(Sag)=  7.70  r(Tan)=  7.92
+Seg:65  y= 3.10  r(Sag)=  7.70  r(Tan)=  7.95
+Seg:65  y= 3.20  r(Sag)=  7.71  r(Tan)=  7.97
+Seg:65  y= 3.30  r(Sag)=  7.72  r(Tan)=  8.00
+Seg:65  y= 3.40  r(Sag)=  7.73  r(Tan)=  8.04
+Seg:65  y= 3.50  r(Sag)=  7.74  r(Tan)=  8.08
+Seg:65  y= 3.60  r(Sag)=  7.75  r(Tan)=  8.13
+Seg:65  y= 3.70  r(Sag)=  7.75  r(Tan)=  8.19
+Seg:65  y= 3.80  r(Sag)=  7.77  r(Tan)=  8.24
+Seg:65  y= 3.90  r(Sag)=  7.78  r(Tan)=  8.30
+Seg:65  y= 4.00  r(Sag)=  7.79  r(Tan)=  8.34
+Seg:65  y= 4.10  r(Sag)=  7.81  r(Tan)=  8.37
+Seg:65  y= 4.20  r(Sag)=  7.82  r(Tan)=  8.41
+Seg:65  y= 4.30  r(Sag)=  7.84  r(Tan)=  8.43
+Seg:66  y= 0.00  r(Sag)=  7.66  r(Tan)=  7.62
+Seg:66  y= 0.10  r(Sag)=  7.66  r(Tan)=  7.62
+Seg:66  y= 0.20  r(Sag)=  7.65  r(Tan)=  7.62
+Seg:66  y= 0.30  r(Sag)=  7.65  r(Tan)=  7.62
+Seg:66  y= 0.40  r(Sag)=  7.65  r(Tan)=  7.62
+Seg:66  y= 0.50  r(Sag)=  7.64  r(Tan)=  7.62
+Seg:66  y= 0.60  r(Sag)=  7.63  r(Tan)=  7.62
+Seg:66  y= 0.70  r(Sag)=  7.63  r(Tan)=  7.61
+Seg:66  y= 0.80  r(Sag)=  7.63  r(Tan)=  7.61
+Seg:66  y= 0.90  r(Sag)=  7.63  r(Tan)=  7.61
+Seg:66  y= 1.00  r(Sag)=  7.63  r(Tan)=  7.61
+Seg:66  y= 1.10  r(Sag)=  7.62  r(Tan)=  7.62
+Seg:66  y= 1.20  r(Sag)=  7.62  r(Tan)=  7.62
+Seg:66  y= 1.30  r(Sag)=  7.62  r(Tan)=  7.63
+Seg:66  y= 1.40  r(Sag)=  7.62  r(Tan)=  7.64
+Seg:66  y= 1.50  r(Sag)=  7.62  r(Tan)=  7.65
+Seg:66  y= 1.60  r(Sag)=  7.63  r(Tan)=  7.67
+Seg:66  y= 1.70  r(Sag)=  7.63  r(Tan)=  7.68
+Seg:66  y= 1.80  r(Sag)=  7.63  r(Tan)=  7.69
+Seg:66  y= 1.90  r(Sag)=  7.64  r(Tan)=  7.71
+Seg:66  y= 2.00  r(Sag)=  7.64  r(Tan)=  7.72
+Seg:66  y= 2.10  r(Sag)=  7.64  r(Tan)=  7.73
+Seg:66  y= 2.20  r(Sag)=  7.65  r(Tan)=  7.74
+Seg:66  y= 2.30  r(Sag)=  7.65  r(Tan)=  7.76
+Seg:66  y= 2.40  r(Sag)=  7.66  r(Tan)=  7.78
+Seg:66  y= 2.50  r(Sag)=  7.66  r(Tan)=  7.81
+Seg:66  y= 2.60  r(Sag)=  7.67  r(Tan)=  7.83
+Seg:66  y= 2.70  r(Sag)=  7.67  r(Tan)=  7.86
+Seg:66  y= 2.80  r(Sag)=  7.68  r(Tan)=  7.89
+Seg:66  y= 2.90  r(Sag)=  7.69  r(Tan)=  7.92
+Seg:66  y= 3.00  r(Sag)=  7.70  r(Tan)=  7.94
+Seg:66  y= 3.10  r(Sag)=  7.70  r(Tan)=  7.97
+Seg:66  y= 3.20  r(Sag)=  7.71  r(Tan)=  7.99
+Seg:66  y= 3.30  r(Sag)=  7.72  r(Tan)=  8.02
+Seg:66  y= 3.40  r(Sag)=  7.73  r(Tan)=  8.05
+Seg:66  y= 3.50  r(Sag)=  7.74  r(Tan)=  8.10
+Seg:66  y= 3.60  r(Sag)=  7.75  r(Tan)=  8.15
+Seg:66  y= 3.70  r(Sag)=  7.76  r(Tan)=  8.21
+Seg:66  y= 3.80  r(Sag)=  7.77  r(Tan)=  8.28
+Seg:66  y= 3.90  r(Sag)=  7.78  r(Tan)=  8.34
+Seg:66  y= 4.00  r(Sag)=  7.80  r(Tan)=  8.39
+Seg:66  y= 4.10  r(Sag)=  7.81  r(Tan)=  8.43
+Seg:66  y= 4.20  r(Sag)=  7.83  r(Tan)=  8.46
+Seg:66  y= 4.30  r(Sag)=  7.84  r(Tan)=  8.50
+Seg:67  y= 0.00  r(Sag)=  7.65  r(Tan)=  7.62
+Seg:67  y= 0.10  r(Sag)=  7.65  r(Tan)=  7.62
+Seg:67  y= 0.20  r(Sag)=  7.65  r(Tan)=  7.62
+Seg:67  y= 0.30  r(Sag)=  7.65  r(Tan)=  7.61
+Seg:67  y= 0.40  r(Sag)=  7.64  r(Tan)=  7.61
+Seg:67  y= 0.50  r(Sag)=  7.64  r(Tan)=  7.61
+Seg:67  y= 0.60  r(Sag)=  7.63  r(Tan)=  7.61
+Seg:67  y= 0.70  r(Sag)=  7.63  r(Tan)=  7.61
+Seg:67  y= 0.80  r(Sag)=  7.62  r(Tan)=  7.60
+Seg:67  y= 0.90  r(Sag)=  7.62  r(Tan)=  7.60
+Seg:67  y= 1.00  r(Sag)=  7.62  r(Tan)=  7.61
+Seg:67  y= 1.10  r(Sag)=  7.62  r(Tan)=  7.61
+Seg:67  y= 1.20  r(Sag)=  7.61  r(Tan)=  7.62
+Seg:67  y= 1.30  r(Sag)=  7.61  r(Tan)=  7.62
+Seg:67  y= 1.40  r(Sag)=  7.61  r(Tan)=  7.64
+Seg:67  y= 1.50  r(Sag)=  7.62  r(Tan)=  7.65
+Seg:67  y= 1.60  r(Sag)=  7.62  r(Tan)=  7.66
+Seg:67  y= 1.70  r(Sag)=  7.62  r(Tan)=  7.68
+Seg:67  y= 1.80  r(Sag)=  7.63  r(Tan)=  7.69
+Seg:67  y= 1.90  r(Sag)=  7.63  r(Tan)=  7.70
+Seg:67  y= 2.00  r(Sag)=  7.63  r(Tan)=  7.72
+Seg:67  y= 2.10  r(Sag)=  7.64  r(Tan)=  7.73
+Seg:67  y= 2.20  r(Sag)=  7.64  r(Tan)=  7.75
+Seg:67  y= 2.30  r(Sag)=  7.65  r(Tan)=  7.77
+Seg:67  y= 2.40  r(Sag)=  7.65  r(Tan)=  7.79
+Seg:67  y= 2.50  r(Sag)=  7.66  r(Tan)=  7.82
+Seg:67  y= 2.60  r(Sag)=  7.66  r(Tan)=  7.85
+Seg:67  y= 2.70  r(Sag)=  7.67  r(Tan)=  7.88
+Seg:67  y= 2.80  r(Sag)=  7.68  r(Tan)=  7.91
+Seg:67  y= 2.90  r(Sag)=  7.69  r(Tan)=  7.94
+Seg:67  y= 3.00  r(Sag)=  7.70  r(Tan)=  7.97
+Seg:67  y= 3.10  r(Sag)=  7.71  r(Tan)=  7.99
+Seg:67  y= 3.20  r(Sag)=  7.71  r(Tan)=  8.01
+Seg:67  y= 3.30  r(Sag)=  7.72  r(Tan)=  8.04
+Seg:67  y= 3.40  r(Sag)=  7.73  r(Tan)=  8.07
+Seg:67  y= 3.50  r(Sag)=  7.74  r(Tan)=  8.12
+Seg:67  y= 3.60  r(Sag)=  7.75  r(Tan)=  8.17
+Seg:67  y= 3.70  r(Sag)=  7.76  r(Tan)=  8.24
+Seg:67  y= 3.80  r(Sag)=  7.77  r(Tan)=  8.32
+Seg:67  y= 3.90  r(Sag)=  7.79  r(Tan)=  8.39
+Seg:67  y= 4.00  r(Sag)=  7.80  r(Tan)=  8.44
+Seg:67  y= 4.10  r(Sag)=  7.82  r(Tan)=  8.48
+Seg:67  y= 4.20  r(Sag)=  7.84  r(Tan)=  8.53
+Seg:67  y= 4.30  r(Sag)=  7.85  r(Tan)=  8.57
+Seg:68  y= 0.00  r(Sag)=  7.64  r(Tan)=  7.62
+Seg:68  y= 0.10  r(Sag)=  7.64  r(Tan)=  7.62
+Seg:68  y= 0.20  r(Sag)=  7.64  r(Tan)=  7.61
+Seg:68  y= 0.30  r(Sag)=  7.64  r(Tan)=  7.61
+Seg:68  y= 0.40  r(Sag)=  7.64  r(Tan)=  7.61
+Seg:68  y= 0.50  r(Sag)=  7.63  r(Tan)=  7.61
+Seg:68  y= 0.60  r(Sag)=  7.62  r(Tan)=  7.60
+Seg:68  y= 0.70  r(Sag)=  7.62  r(Tan)=  7.60
+Seg:68  y= 0.80  r(Sag)=  7.61  r(Tan)=  7.60
+Seg:68  y= 0.90  r(Sag)=  7.61  r(Tan)=  7.60
+Seg:68  y= 1.00  r(Sag)=  7.61  r(Tan)=  7.60
+Seg:68  y= 1.10  r(Sag)=  7.61  r(Tan)=  7.60
+Seg:68  y= 1.20  r(Sag)=  7.61  r(Tan)=  7.61
+Seg:68  y= 1.30  r(Sag)=  7.61  r(Tan)=  7.62
+Seg:68  y= 1.40  r(Sag)=  7.61  r(Tan)=  7.63
+Seg:68  y= 1.50  r(Sag)=  7.61  r(Tan)=  7.64
+Seg:68  y= 1.60  r(Sag)=  7.61  r(Tan)=  7.66
+Seg:68  y= 1.70  r(Sag)=  7.62  r(Tan)=  7.67
+Seg:68  y= 1.80  r(Sag)=  7.62  r(Tan)=  7.69
+Seg:68  y= 1.90  r(Sag)=  7.62  r(Tan)=  7.70
+Seg:68  y= 2.00  r(Sag)=  7.63  r(Tan)=  7.72
+Seg:68  y= 2.10  r(Sag)=  7.63  r(Tan)=  7.73
+Seg:68  y= 2.20  r(Sag)=  7.64  r(Tan)=  7.75
+Seg:68  y= 2.30  r(Sag)=  7.64  r(Tan)=  7.78
+Seg:68  y= 2.40  r(Sag)=  7.65  r(Tan)=  7.80
+Seg:68  y= 2.50  r(Sag)=  7.65  r(Tan)=  7.84
+Seg:68  y= 2.60  r(Sag)=  7.66  r(Tan)=  7.87
+Seg:68  y= 2.70  r(Sag)=  7.67  r(Tan)=  7.90
+Seg:68  y= 2.80  r(Sag)=  7.68  r(Tan)=  7.94
+Seg:68  y= 2.90  r(Sag)=  7.69  r(Tan)=  7.96
+Seg:68  y= 3.00  r(Sag)=  7.70  r(Tan)=  7.99
+Seg:68  y= 3.10  r(Sag)=  7.71  r(Tan)=  8.02
+Seg:68  y= 3.20  r(Sag)=  7.72  r(Tan)=  8.04
+Seg:68  y= 3.30  r(Sag)=  7.73  r(Tan)=  8.06
+Seg:68  y= 3.40  r(Sag)=  7.74  r(Tan)=  8.10
+Seg:68  y= 3.50  r(Sag)=  7.75  r(Tan)=  8.14
+Seg:68  y= 3.60  r(Sag)=  7.75  r(Tan)=  8.20
+Seg:68  y= 3.70  r(Sag)=  7.77  r(Tan)=  8.28
+Seg:68  y= 3.80  r(Sag)=  7.78  r(Tan)=  8.36
+Seg:68  y= 3.90  r(Sag)=  7.79  r(Tan)=  8.43
+Seg:68  y= 4.00  r(Sag)=  7.81  r(Tan)=  8.49
+Seg:68  y= 4.10  r(Sag)=  7.83  r(Tan)=  8.54
+Seg:68  y= 4.20  r(Sag)=  7.85  r(Tan)=  8.59
+Seg:68  y= 4.30  r(Sag)=  7.87  r(Tan)=  8.64
+Seg:69  y= 0.00  r(Sag)=  7.64  r(Tan)=  7.62
+Seg:69  y= 0.10  r(Sag)=  7.64  r(Tan)=  7.61
+Seg:69  y= 0.20  r(Sag)=  7.64  r(Tan)=  7.61
+Seg:69  y= 0.30  r(Sag)=  7.63  r(Tan)=  7.61
+Seg:69  y= 0.40  r(Sag)=  7.63  r(Tan)=  7.60
+Seg:69  y= 0.50  r(Sag)=  7.62  r(Tan)=  7.60
+Seg:69  y= 0.60  r(Sag)=  7.61  r(Tan)=  7.60
+Seg:69  y= 0.70  r(Sag)=  7.61  r(Tan)=  7.59
+Seg:69  y= 0.80  r(Sag)=  7.61  r(Tan)=  7.59
+Seg:69  y= 0.90  r(Sag)=  7.61  r(Tan)=  7.59
+Seg:69  y= 1.00  r(Sag)=  7.60  r(Tan)=  7.60
+Seg:69  y= 1.10  r(Sag)=  7.60  r(Tan)=  7.60
+Seg:69  y= 1.20  r(Sag)=  7.60  r(Tan)=  7.61
+Seg:69  y= 1.30  r(Sag)=  7.60  r(Tan)=  7.62
+Seg:69  y= 1.40  r(Sag)=  7.60  r(Tan)=  7.63
+Seg:69  y= 1.50  r(Sag)=  7.61  r(Tan)=  7.64
+Seg:69  y= 1.60  r(Sag)=  7.61  r(Tan)=  7.66
+Seg:69  y= 1.70  r(Sag)=  7.61  r(Tan)=  7.67
+Seg:69  y= 1.80  r(Sag)=  7.62  r(Tan)=  7.68
+Seg:69  y= 1.90  r(Sag)=  7.62  r(Tan)=  7.70
+Seg:69  y= 2.00  r(Sag)=  7.62  r(Tan)=  7.72
+Seg:69  y= 2.10  r(Sag)=  7.63  r(Tan)=  7.74
+Seg:69  y= 2.20  r(Sag)=  7.63  r(Tan)=  7.76
+Seg:69  y= 2.30  r(Sag)=  7.64  r(Tan)=  7.79
+Seg:69  y= 2.40  r(Sag)=  7.64  r(Tan)=  7.82
+Seg:69  y= 2.50  r(Sag)=  7.65  r(Tan)=  7.85
+Seg:69  y= 2.60  r(Sag)=  7.66  r(Tan)=  7.89
+Seg:69  y= 2.70  r(Sag)=  7.67  r(Tan)=  7.92
+Seg:69  y= 2.80  r(Sag)=  7.68  r(Tan)=  7.96
+Seg:69  y= 2.90  r(Sag)=  7.69  r(Tan)=  7.99
+Seg:69  y= 3.00  r(Sag)=  7.70  r(Tan)=  8.02
+Seg:69  y= 3.10  r(Sag)=  7.71  r(Tan)=  8.04
+Seg:69  y= 3.20  r(Sag)=  7.72  r(Tan)=  8.07
+Seg:69  y= 3.30  r(Sag)=  7.73  r(Tan)=  8.09
+Seg:69  y= 3.40  r(Sag)=  7.74  r(Tan)=  8.13
+Seg:69  y= 3.50  r(Sag)=  7.75  r(Tan)=  8.17
+Seg:69  y= 3.60  r(Sag)=  7.76  r(Tan)=  8.24
+Seg:69  y= 3.70  r(Sag)=  7.77  r(Tan)=  8.31
+Seg:69  y= 3.80  r(Sag)=  7.78  r(Tan)=  8.40
+Seg:69  y= 3.90  r(Sag)=  7.80  r(Tan)=  8.48
+Seg:69  y= 4.00  r(Sag)=  7.82  r(Tan)=  8.55
+Seg:69  y= 4.10  r(Sag)=  7.84  r(Tan)=  8.60
+Seg:69  y= 4.20  r(Sag)=  7.86  r(Tan)=  8.66
+Seg:69  y= 4.30  r(Sag)=  7.88  r(Tan)=  8.71
+Seg:70  y= 0.00  r(Sag)=  7.63  r(Tan)=  7.62
+Seg:70  y= 0.10  r(Sag)=  7.63  r(Tan)=  7.61
+Seg:70  y= 0.20  r(Sag)=  7.63  r(Tan)=  7.61
+Seg:70  y= 0.30  r(Sag)=  7.63  r(Tan)=  7.60
+Seg:70  y= 0.40  r(Sag)=  7.62  r(Tan)=  7.60
+Seg:70  y= 0.50  r(Sag)=  7.62  r(Tan)=  7.60
+Seg:70  y= 0.60  r(Sag)=  7.61  r(Tan)=  7.59
+Seg:70  y= 0.70  r(Sag)=  7.60  r(Tan)=  7.59
+Seg:70  y= 0.80  r(Sag)=  7.60  r(Tan)=  7.59
+Seg:70  y= 0.90  r(Sag)=  7.60  r(Tan)=  7.59
+Seg:70  y= 1.00  r(Sag)=  7.60  r(Tan)=  7.59
+Seg:70  y= 1.10  r(Sag)=  7.60  r(Tan)=  7.60
+Seg:70  y= 1.20  r(Sag)=  7.60  r(Tan)=  7.61
+Seg:70  y= 1.30  r(Sag)=  7.60  r(Tan)=  7.62
+Seg:70  y= 1.40  r(Sag)=  7.60  r(Tan)=  7.63
+Seg:70  y= 1.50  r(Sag)=  7.60  r(Tan)=  7.64
+Seg:70  y= 1.60  r(Sag)=  7.61  r(Tan)=  7.65
+Seg:70  y= 1.70  r(Sag)=  7.61  r(Tan)=  7.67
+Seg:70  y= 1.80  r(Sag)=  7.61  r(Tan)=  7.68
+Seg:70  y= 1.90  r(Sag)=  7.62  r(Tan)=  7.70
+Seg:70  y= 2.00  r(Sag)=  7.62  r(Tan)=  7.72
+Seg:70  y= 2.10  r(Sag)=  7.62  r(Tan)=  7.74
+Seg:70  y= 2.20  r(Sag)=  7.63  r(Tan)=  7.76
+Seg:70  y= 2.30  r(Sag)=  7.63  r(Tan)=  7.79
+Seg:70  y= 2.40  r(Sag)=  7.64  r(Tan)=  7.83
+Seg:70  y= 2.50  r(Sag)=  7.65  r(Tan)=  7.87
+Seg:70  y= 2.60  r(Sag)=  7.66  r(Tan)=  7.91
+Seg:70  y= 2.70  r(Sag)=  7.67  r(Tan)=  7.95
+Seg:70  y= 2.80  r(Sag)=  7.68  r(Tan)=  7.98
+Seg:70  y= 2.90  r(Sag)=  7.69  r(Tan)=  8.02
+Seg:70  y= 3.00  r(Sag)=  7.70  r(Tan)=  8.05
+Seg:70  y= 3.10  r(Sag)=  7.71  r(Tan)=  8.07
+Seg:70  y= 3.20  r(Sag)=  7.72  r(Tan)=  8.09
+Seg:70  y= 3.30  r(Sag)=  7.74  r(Tan)=  8.12
+Seg:70  y= 3.40  r(Sag)=  7.75  r(Tan)=  8.16
+Seg:70  y= 3.50  r(Sag)=  7.76  r(Tan)=  8.21
+Seg:70  y= 3.60  r(Sag)=  7.77  r(Tan)=  8.27
+Seg:70  y= 3.70  r(Sag)=  7.78  r(Tan)=  8.35
+Seg:70  y= 3.80  r(Sag)=  7.79  r(Tan)=  8.44
+Seg:70  y= 3.90  r(Sag)=  7.81  r(Tan)=  8.53
+Seg:70  y= 4.00  r(Sag)=  7.83  r(Tan)=  8.60
+Seg:70  y= 4.10  r(Sag)=  7.85  r(Tan)=  8.66
+Seg:70  y= 4.20  r(Sag)=  7.87  r(Tan)=  8.72
+Seg:70  y= 4.30  r(Sag)=  7.89  r(Tan)=  8.78
+Seg:71  y= 0.00  r(Sag)=  7.62  r(Tan)=  7.61
+Seg:71  y= 0.10  r(Sag)=  7.62  r(Tan)=  7.61
+Seg:71  y= 0.20  r(Sag)=  7.62  r(Tan)=  7.60
+Seg:71  y= 0.30  r(Sag)=  7.62  r(Tan)=  7.60
+Seg:71  y= 0.40  r(Sag)=  7.62  r(Tan)=  7.59
+Seg:71  y= 0.50  r(Sag)=  7.61  r(Tan)=  7.59
+Seg:71  y= 0.60  r(Sag)=  7.60  r(Tan)=  7.59
+Seg:71  y= 0.70  r(Sag)=  7.60  r(Tan)=  7.59
+Seg:71  y= 0.80  r(Sag)=  7.60  r(Tan)=  7.59
+Seg:71  y= 0.90  r(Sag)=  7.59  r(Tan)=  7.59
+Seg:71  y= 1.00  r(Sag)=  7.59  r(Tan)=  7.60
+Seg:71  y= 1.10  r(Sag)=  7.59  r(Tan)=  7.60
+Seg:71  y= 1.20  r(Sag)=  7.59  r(Tan)=  7.61
+Seg:71  y= 1.30  r(Sag)=  7.60  r(Tan)=  7.62
+Seg:71  y= 1.40  r(Sag)=  7.60  r(Tan)=  7.63
+Seg:71  y= 1.50  r(Sag)=  7.60  r(Tan)=  7.64
+Seg:71  y= 1.60  r(Sag)=  7.60  r(Tan)=  7.66
+Seg:71  y= 1.70  r(Sag)=  7.61  r(Tan)=  7.67
+Seg:71  y= 1.80  r(Sag)=  7.61  r(Tan)=  7.68
+Seg:71  y= 1.90  r(Sag)=  7.61  r(Tan)=  7.70
+Seg:71  y= 2.00  r(Sag)=  7.62  r(Tan)=  7.72
+Seg:71  y= 2.10  r(Sag)=  7.62  r(Tan)=  7.74
+Seg:71  y= 2.20  r(Sag)=  7.63  r(Tan)=  7.77
+Seg:71  y= 2.30  r(Sag)=  7.63  r(Tan)=  7.80
+Seg:71  y= 2.40  r(Sag)=  7.64  r(Tan)=  7.84
+Seg:71  y= 2.50  r(Sag)=  7.65  r(Tan)=  7.88
+Seg:71  y= 2.60  r(Sag)=  7.66  r(Tan)=  7.92
+Seg:71  y= 2.70  r(Sag)=  7.67  r(Tan)=  7.97
+Seg:71  y= 2.80  r(Sag)=  7.68  r(Tan)=  8.01
+Seg:71  y= 2.90  r(Sag)=  7.69  r(Tan)=  8.04
+Seg:71  y= 3.00  r(Sag)=  7.70  r(Tan)=  8.07
+Seg:71  y= 3.10  r(Sag)=  7.72  r(Tan)=  8.10
+Seg:71  y= 3.20  r(Sag)=  7.73  r(Tan)=  8.12
+Seg:71  y= 3.30  r(Sag)=  7.74  r(Tan)=  8.15
+Seg:71  y= 3.40  r(Sag)=  7.75  r(Tan)=  8.19
+Seg:71  y= 3.50  r(Sag)=  7.76  r(Tan)=  8.24
+Seg:71  y= 3.60  r(Sag)=  7.77  r(Tan)=  8.31
+Seg:71  y= 3.70  r(Sag)=  7.79  r(Tan)=  8.39
+Seg:71  y= 3.80  r(Sag)=  7.80  r(Tan)=  8.49
+Seg:71  y= 3.90  r(Sag)=  7.82  r(Tan)=  8.58
+Seg:71  y= 4.00  r(Sag)=  7.84  r(Tan)=  8.66
+Seg:71  y= 4.10  r(Sag)=  7.86  r(Tan)=  8.72
+Seg:71  y= 4.20  r(Sag)=  7.88  r(Tan)=  8.78
+Seg:71  y= 4.30  r(Sag)=  7.90  r(Tan)=  8.84
+Seg:72  y= 0.00  r(Sag)=  7.62  r(Tan)=  7.61
+Seg:72  y= 0.10  r(Sag)=  7.62  r(Tan)=  7.61
+Seg:72  y= 0.20  r(Sag)=  7.62  r(Tan)=  7.60
+Seg:72  y= 0.30  r(Sag)=  7.62  r(Tan)=  7.60
+Seg:72  y= 0.40  r(Sag)=  7.61  r(Tan)=  7.59
+Seg:72  y= 0.50  r(Sag)=  7.61  r(Tan)=  7.59
+Seg:72  y= 0.60  r(Sag)=  7.60  r(Tan)=  7.59
+Seg:72  y= 0.70  r(Sag)=  7.59  r(Tan)=  7.59
+Seg:72  y= 0.80  r(Sag)=  7.59  r(Tan)=  7.59
+Seg:72  y= 0.90  r(Sag)=  7.59  r(Tan)=  7.59
+Seg:72  y= 1.00  r(Sag)=  7.59  r(Tan)=  7.60
+Seg:72  y= 1.10  r(Sag)=  7.59  r(Tan)=  7.61
+Seg:72  y= 1.20  r(Sag)=  7.59  r(Tan)=  7.62
+Seg:72  y= 1.30  r(Sag)=  7.59  r(Tan)=  7.63
+Seg:72  y= 1.40  r(Sag)=  7.60  r(Tan)=  7.64
+Seg:72  y= 1.50  r(Sag)=  7.60  r(Tan)=  7.65
+Seg:72  y= 1.60  r(Sag)=  7.60  r(Tan)=  7.66
+Seg:72  y= 1.70  r(Sag)=  7.61  r(Tan)=  7.67
+Seg:72  y= 1.80  r(Sag)=  7.61  r(Tan)=  7.68
+Seg:72  y= 1.90  r(Sag)=  7.61  r(Tan)=  7.70
+Seg:72  y= 2.00  r(Sag)=  7.62  r(Tan)=  7.72
+Seg:72  y= 2.10  r(Sag)=  7.62  r(Tan)=  7.74
+Seg:72  y= 2.20  r(Sag)=  7.63  r(Tan)=  7.77
+Seg:72  y= 2.30  r(Sag)=  7.63  r(Tan)=  7.81
+Seg:72  y= 2.40  r(Sag)=  7.64  r(Tan)=  7.85
+Seg:72  y= 2.50  r(Sag)=  7.65  r(Tan)=  7.89
+Seg:72  y= 2.60  r(Sag)=  7.66  r(Tan)=  7.94
+Seg:72  y= 2.70  r(Sag)=  7.67  r(Tan)=  7.98
+Seg:72  y= 2.80  r(Sag)=  7.68  r(Tan)=  8.03
+Seg:72  y= 2.90  r(Sag)=  7.70  r(Tan)=  8.06
+Seg:72  y= 3.00  r(Sag)=  7.71  r(Tan)=  8.09
+Seg:72  y= 3.10  r(Sag)=  7.72  r(Tan)=  8.12
+Seg:72  y= 3.20  r(Sag)=  7.73  r(Tan)=  8.15
+Seg:72  y= 3.30  r(Sag)=  7.75  r(Tan)=  8.18
+Seg:72  y= 3.40  r(Sag)=  7.76  r(Tan)=  8.22
+Seg:72  y= 3.50  r(Sag)=  7.77  r(Tan)=  8.28
+Seg:72  y= 3.60  r(Sag)=  7.78  r(Tan)=  8.35
+Seg:72  y= 3.70  r(Sag)=  7.80  r(Tan)=  8.44
+Seg:72  y= 3.80  r(Sag)=  7.81  r(Tan)=  8.53
+Seg:72  y= 3.90  r(Sag)=  7.83  r(Tan)=  8.63
+Seg:72  y= 4.00  r(Sag)=  7.85  r(Tan)=  8.71
+Seg:72  y= 4.10  r(Sag)=  7.87  r(Tan)=  8.77
+Seg:72  y= 4.20  r(Sag)=  7.89  r(Tan)=  8.83
+Seg:72  y= 4.30  r(Sag)=  7.92  r(Tan)=  8.89
+Seg:73  y= 0.00  r(Sag)=  7.62  r(Tan)=  7.60
+Seg:73  y= 0.10  r(Sag)=  7.62  r(Tan)=  7.60
+Seg:73  y= 0.20  r(Sag)=  7.61  r(Tan)=  7.60
+Seg:73  y= 0.30  r(Sag)=  7.61  r(Tan)=  7.59
+Seg:73  y= 0.40  r(Sag)=  7.61  r(Tan)=  7.59
+Seg:73  y= 0.50  r(Sag)=  7.60  r(Tan)=  7.59
+Seg:73  y= 0.60  r(Sag)=  7.59  r(Tan)=  7.59
+Seg:73  y= 0.70  r(Sag)=  7.59  r(Tan)=  7.59
+Seg:73  y= 0.80  r(Sag)=  7.59  r(Tan)=  7.59
+Seg:73  y= 0.90  r(Sag)=  7.59  r(Tan)=  7.59
+Seg:73  y= 1.00  r(Sag)=  7.59  r(Tan)=  7.60
+Seg:73  y= 1.10  r(Sag)=  7.59  r(Tan)=  7.61
+Seg:73  y= 1.20  r(Sag)=  7.59  r(Tan)=  7.62
+Seg:73  y= 1.30  r(Sag)=  7.59  r(Tan)=  7.63
+Seg:73  y= 1.40  r(Sag)=  7.60  r(Tan)=  7.64
+Seg:73  y= 1.50  r(Sag)=  7.60  r(Tan)=  7.65
+Seg:73  y= 1.60  r(Sag)=  7.61  r(Tan)=  7.66
+Seg:73  y= 1.70  r(Sag)=  7.61  r(Tan)=  7.67
+Seg:73  y= 1.80  r(Sag)=  7.61  r(Tan)=  7.68
+Seg:73  y= 1.90  r(Sag)=  7.62  r(Tan)=  7.70
+Seg:73  y= 2.00  r(Sag)=  7.62  r(Tan)=  7.72
+Seg:73  y= 2.10  r(Sag)=  7.62  r(Tan)=  7.74
+Seg:73  y= 2.20  r(Sag)=  7.63  r(Tan)=  7.78
+Seg:73  y= 2.30  r(Sag)=  7.63  r(Tan)=  7.82
+Seg:73  y= 2.40  r(Sag)=  7.64  r(Tan)=  7.86
+Seg:73  y= 2.50  r(Sag)=  7.65  r(Tan)=  7.91
+Seg:73  y= 2.60  r(Sag)=  7.66  r(Tan)=  7.95
+Seg:73  y= 2.70  r(Sag)=  7.67  r(Tan)=  8.00
+Seg:73  y= 2.80  r(Sag)=  7.69  r(Tan)=  8.04
+Seg:73  y= 2.90  r(Sag)=  7.70  r(Tan)=  8.08
+Seg:73  y= 3.00  r(Sag)=  7.71  r(Tan)=  8.11
+Seg:73  y= 3.10  r(Sag)=  7.73  r(Tan)=  8.14
+Seg:73  y= 3.20  r(Sag)=  7.74  r(Tan)=  8.17
+Seg:73  y= 3.30  r(Sag)=  7.75  r(Tan)=  8.21
+Seg:73  y= 3.40  r(Sag)=  7.76  r(Tan)=  8.25
+Seg:73  y= 3.50  r(Sag)=  7.78  r(Tan)=  8.31
+Seg:73  y= 3.60  r(Sag)=  7.79  r(Tan)=  8.39
+Seg:73  y= 3.70  r(Sag)=  7.80  r(Tan)=  8.48
+Seg:73  y= 3.80  r(Sag)=  7.82  r(Tan)=  8.58
+Seg:73  y= 3.90  r(Sag)=  7.84  r(Tan)=  8.68
+Seg:73  y= 4.00  r(Sag)=  7.86  r(Tan)=  8.76
+Seg:73  y= 4.10  r(Sag)=  7.88  r(Tan)=  8.82
+Seg:73  y= 4.20  r(Sag)=  7.91  r(Tan)=  8.88
+Seg:73  y= 4.30  r(Sag)=  7.93  r(Tan)=  8.94
+Seg:74  y= 0.00  r(Sag)=  7.61  r(Tan)=  7.60
+Seg:74  y= 0.10  r(Sag)=  7.61  r(Tan)=  7.60
+Seg:74  y= 0.20  r(Sag)=  7.61  r(Tan)=  7.60
+Seg:74  y= 0.30  r(Sag)=  7.61  r(Tan)=  7.59
+Seg:74  y= 0.40  r(Sag)=  7.60  r(Tan)=  7.59
+Seg:74  y= 0.50  r(Sag)=  7.60  r(Tan)=  7.59
+Seg:74  y= 0.60  r(Sag)=  7.59  r(Tan)=  7.59
+Seg:74  y= 0.70  r(Sag)=  7.59  r(Tan)=  7.59
+Seg:74  y= 0.80  r(Sag)=  7.59  r(Tan)=  7.59
+Seg:74  y= 0.90  r(Sag)=  7.59  r(Tan)=  7.60
+Seg:74  y= 1.00  r(Sag)=  7.59  r(Tan)=  7.61
+Seg:74  y= 1.10  r(Sag)=  7.59  r(Tan)=  7.62
+Seg:74  y= 1.20  r(Sag)=  7.59  r(Tan)=  7.63
+Seg:74  y= 1.30  r(Sag)=  7.60  r(Tan)=  7.64
+Seg:74  y= 1.40  r(Sag)=  7.60  r(Tan)=  7.65
+Seg:74  y= 1.50  r(Sag)=  7.60  r(Tan)=  7.66
+Seg:74  y= 1.60  r(Sag)=  7.61  r(Tan)=  7.67
+Seg:74  y= 1.70  r(Sag)=  7.61  r(Tan)=  7.67
+Seg:74  y= 1.80  r(Sag)=  7.61  r(Tan)=  7.69
+Seg:74  y= 1.90  r(Sag)=  7.62  r(Tan)=  7.70
+Seg:74  y= 2.00  r(Sag)=  7.62  r(Tan)=  7.72
+Seg:74  y= 2.10  r(Sag)=  7.63  r(Tan)=  7.75
+Seg:74  y= 2.20  r(Sag)=  7.63  r(Tan)=  7.78
+Seg:74  y= 2.30  r(Sag)=  7.64  r(Tan)=  7.82
+Seg:74  y= 2.40  r(Sag)=  7.64  r(Tan)=  7.87
+Seg:74  y= 2.50  r(Sag)=  7.65  r(Tan)=  7.92
+Seg:74  y= 2.60  r(Sag)=  7.66  r(Tan)=  7.96
+Seg:74  y= 2.70  r(Sag)=  7.68  r(Tan)=  8.01
+Seg:74  y= 2.80  r(Sag)=  7.69  r(Tan)=  8.05
+Seg:74  y= 2.90  r(Sag)=  7.70  r(Tan)=  8.09
+Seg:74  y= 3.00  r(Sag)=  7.72  r(Tan)=  8.13
+Seg:74  y= 3.10  r(Sag)=  7.73  r(Tan)=  8.16
+Seg:74  y= 3.20  r(Sag)=  7.74  r(Tan)=  8.19
+Seg:74  y= 3.30  r(Sag)=  7.76  r(Tan)=  8.23
+Seg:74  y= 3.40  r(Sag)=  7.77  r(Tan)=  8.28
+Seg:74  y= 3.50  r(Sag)=  7.78  r(Tan)=  8.34
+Seg:74  y= 3.60  r(Sag)=  7.80  r(Tan)=  8.42
+Seg:74  y= 3.70  r(Sag)=  7.81  r(Tan)=  8.52
+Seg:74  y= 3.80  r(Sag)=  7.83  r(Tan)=  8.62
+Seg:74  y= 3.90  r(Sag)=  7.85  r(Tan)=  8.72
+Seg:74  y= 4.00  r(Sag)=  7.87  r(Tan)=  8.80
+Seg:74  y= 4.10  r(Sag)=  7.89  r(Tan)=  8.86
+Seg:74  y= 4.20  r(Sag)=  7.92  r(Tan)=  8.92
+Seg:74  y= 4.30  r(Sag)=  7.94  r(Tan)=  8.98
+Seg:75  y= 0.00  r(Sag)=  7.61  r(Tan)=  7.59
+Seg:75  y= 0.10  r(Sag)=  7.61  r(Tan)=  7.59
+Seg:75  y= 0.20  r(Sag)=  7.60  r(Tan)=  7.59
+Seg:75  y= 0.30  r(Sag)=  7.60  r(Tan)=  7.59
+Seg:75  y= 0.40  r(Sag)=  7.60  r(Tan)=  7.59
+Seg:75  y= 0.50  r(Sag)=  7.60  r(Tan)=  7.59
+Seg:75  y= 0.60  r(Sag)=  7.59  r(Tan)=  7.59
+Seg:75  y= 0.70  r(Sag)=  7.59  r(Tan)=  7.60
+Seg:75  y= 0.80  r(Sag)=  7.59  r(Tan)=  7.60
+Seg:75  y= 0.90  r(Sag)=  7.59  r(Tan)=  7.60
+Seg:75  y= 1.00  r(Sag)=  7.59  r(Tan)=  7.61
+Seg:75  y= 1.10  r(Sag)=  7.59  r(Tan)=  7.62
+Seg:75  y= 1.20  r(Sag)=  7.59  r(Tan)=  7.63
+Seg:75  y= 1.30  r(Sag)=  7.60  r(Tan)=  7.65
+Seg:75  y= 1.40  r(Sag)=  7.60  r(Tan)=  7.66
+Seg:75  y= 1.50  r(Sag)=  7.61  r(Tan)=  7.66
+Seg:75  y= 1.60  r(Sag)=  7.61  r(Tan)=  7.67
+Seg:75  y= 1.70  r(Sag)=  7.62  r(Tan)=  7.68
+Seg:75  y= 1.80  r(Sag)=  7.62  r(Tan)=  7.69
+Seg:75  y= 1.90  r(Sag)=  7.62  r(Tan)=  7.70
+Seg:75  y= 2.00  r(Sag)=  7.62  r(Tan)=  7.73
+Seg:75  y= 2.10  r(Sag)=  7.63  r(Tan)=  7.75
+Seg:75  y= 2.20  r(Sag)=  7.63  r(Tan)=  7.79
+Seg:75  y= 2.30  r(Sag)=  7.64  r(Tan)=  7.83
+Seg:75  y= 2.40  r(Sag)=  7.65  r(Tan)=  7.88
+Seg:75  y= 2.50  r(Sag)=  7.66  r(Tan)=  7.92
+Seg:75  y= 2.60  r(Sag)=  7.67  r(Tan)=  7.97
+Seg:75  y= 2.70  r(Sag)=  7.68  r(Tan)=  8.02
+Seg:75  y= 2.80  r(Sag)=  7.69  r(Tan)=  8.06
+Seg:75  y= 2.90  r(Sag)=  7.71  r(Tan)=  8.10
+Seg:75  y= 3.00  r(Sag)=  7.72  r(Tan)=  8.13
+Seg:75  y= 3.10  r(Sag)=  7.73  r(Tan)=  8.17
+Seg:75  y= 3.20  r(Sag)=  7.75  r(Tan)=  8.20
+Seg:75  y= 3.30  r(Sag)=  7.76  r(Tan)=  8.25
+Seg:75  y= 3.40  r(Sag)=  7.77  r(Tan)=  8.30
+Seg:75  y= 3.50  r(Sag)=  7.79  r(Tan)=  8.37
+Seg:75  y= 3.60  r(Sag)=  7.80  r(Tan)=  8.46
+Seg:75  y= 3.70  r(Sag)=  7.82  r(Tan)=  8.55
+Seg:75  y= 3.80  r(Sag)=  7.84  r(Tan)=  8.66
+Seg:75  y= 3.90  r(Sag)=  7.86  r(Tan)=  8.76
+Seg:75  y= 4.00  r(Sag)=  7.88  r(Tan)=  8.84
+Seg:75  y= 4.10  r(Sag)=  7.90  r(Tan)=  8.90
+Seg:75  y= 4.20  r(Sag)=  7.93  r(Tan)=  8.96
+Seg:75  y= 4.30  r(Sag)=  7.95  r(Tan)=  9.02
+Seg:76  y= 0.00  r(Sag)=  7.61  r(Tan)=  7.58
+Seg:76  y= 0.10  r(Sag)=  7.61  r(Tan)=  7.59
+Seg:76  y= 0.20  r(Sag)=  7.60  r(Tan)=  7.59
+Seg:76  y= 0.30  r(Sag)=  7.60  r(Tan)=  7.59
+Seg:76  y= 0.40  r(Sag)=  7.59  r(Tan)=  7.59
+Seg:76  y= 0.50  r(Sag)=  7.59  r(Tan)=  7.59
+Seg:76  y= 0.60  r(Sag)=  7.59  r(Tan)=  7.60
+Seg:76  y= 0.70  r(Sag)=  7.59  r(Tan)=  7.60
+Seg:76  y= 0.80  r(Sag)=  7.59  r(Tan)=  7.61
+Seg:76  y= 0.90  r(Sag)=  7.59  r(Tan)=  7.61
+Seg:76  y= 1.00  r(Sag)=  7.59  r(Tan)=  7.62
+Seg:76  y= 1.10  r(Sag)=  7.59  r(Tan)=  7.63
+Seg:76  y= 1.20  r(Sag)=  7.60  r(Tan)=  7.64
+Seg:76  y= 1.30  r(Sag)=  7.60  r(Tan)=  7.65
+Seg:76  y= 1.40  r(Sag)=  7.61  r(Tan)=  7.66
+Seg:76  y= 1.50  r(Sag)=  7.61  r(Tan)=  7.67
+Seg:76  y= 1.60  r(Sag)=  7.62  r(Tan)=  7.68
+Seg:76  y= 1.70  r(Sag)=  7.62  r(Tan)=  7.69
+Seg:76  y= 1.80  r(Sag)=  7.62  r(Tan)=  7.70
+Seg:76  y= 1.90  r(Sag)=  7.63  r(Tan)=  7.71
+Seg:76  y= 2.00  r(Sag)=  7.63  r(Tan)=  7.73
+Seg:76  y= 2.10  r(Sag)=  7.63  r(Tan)=  7.76
+Seg:76  y= 2.20  r(Sag)=  7.64  r(Tan)=  7.79
+Seg:76  y= 2.30  r(Sag)=  7.64  r(Tan)=  7.84
+Seg:76  y= 2.40  r(Sag)=  7.65  r(Tan)=  7.88
+Seg:76  y= 2.50  r(Sag)=  7.66  r(Tan)=  7.93
+Seg:76  y= 2.60  r(Sag)=  7.67  r(Tan)=  7.98
+Seg:76  y= 2.70  r(Sag)=  7.69  r(Tan)=  8.02
+Seg:76  y= 2.80  r(Sag)=  7.70  r(Tan)=  8.06
+Seg:76  y= 2.90  r(Sag)=  7.71  r(Tan)=  8.10
+Seg:76  y= 3.00  r(Sag)=  7.73  r(Tan)=  8.13
+Seg:76  y= 3.10  r(Sag)=  7.74  r(Tan)=  8.17
+Seg:76  y= 3.20  r(Sag)=  7.75  r(Tan)=  8.21
+Seg:76  y= 3.30  r(Sag)=  7.76  r(Tan)=  8.26
+Seg:76  y= 3.40  r(Sag)=  7.78  r(Tan)=  8.32
+Seg:76  y= 3.50  r(Sag)=  7.79  r(Tan)=  8.39
+Seg:76  y= 3.60  r(Sag)=  7.81  r(Tan)=  8.48
+Seg:76  y= 3.70  r(Sag)=  7.82  r(Tan)=  8.58
+Seg:76  y= 3.80  r(Sag)=  7.84  r(Tan)=  8.69
+Seg:76  y= 3.90  r(Sag)=  7.86  r(Tan)=  8.79
+Seg:76  y= 4.00  r(Sag)=  7.89  r(Tan)=  8.88
+Seg:76  y= 4.10  r(Sag)=  7.91  r(Tan)=  8.94
+Seg:76  y= 4.20  r(Sag)=  7.94  r(Tan)=  8.99
+Seg:76  y= 4.30  r(Sag)=  7.96  r(Tan)=  9.04
+Seg:77  y= 0.00  r(Sag)=  7.61  r(Tan)=  7.57
+Seg:77  y= 0.10  r(Sag)=  7.61  r(Tan)=  7.58
+Seg:77  y= 0.20  r(Sag)=  7.60  r(Tan)=  7.59
+Seg:77  y= 0.30  r(Sag)=  7.59  r(Tan)=  7.59
+Seg:77  y= 0.40  r(Sag)=  7.59  r(Tan)=  7.59
+Seg:77  y= 0.50  r(Sag)=  7.59  r(Tan)=  7.59
+Seg:77  y= 0.60  r(Sag)=  7.59  r(Tan)=  7.60
+Seg:77  y= 0.70  r(Sag)=  7.59  r(Tan)=  7.61
+Seg:77  y= 0.80  r(Sag)=  7.60  r(Tan)=  7.62
+Seg:77  y= 0.90  r(Sag)=  7.60  r(Tan)=  7.62
+Seg:77  y= 1.00  r(Sag)=  7.60  r(Tan)=  7.63
+Seg:77  y= 1.10  r(Sag)=  7.60  r(Tan)=  7.64
+Seg:77  y= 1.20  r(Sag)=  7.60  r(Tan)=  7.65
+Seg:77  y= 1.30  r(Sag)=  7.61  r(Tan)=  7.66
+Seg:77  y= 1.40  r(Sag)=  7.61  r(Tan)=  7.67
+Seg:77  y= 1.50  r(Sag)=  7.62  r(Tan)=  7.68
+Seg:77  y= 1.60  r(Sag)=  7.62  r(Tan)=  7.69
+Seg:77  y= 1.70  r(Sag)=  7.63  r(Tan)=  7.70
+Seg:77  y= 1.80  r(Sag)=  7.63  r(Tan)=  7.71
+Seg:77  y= 1.90  r(Sag)=  7.63  r(Tan)=  7.72
+Seg:77  y= 2.00  r(Sag)=  7.64  r(Tan)=  7.74
+Seg:77  y= 2.10  r(Sag)=  7.64  r(Tan)=  7.77
+Seg:77  y= 2.20  r(Sag)=  7.64  r(Tan)=  7.80
+Seg:77  y= 2.30  r(Sag)=  7.65  r(Tan)=  7.84
+Seg:77  y= 2.40  r(Sag)=  7.66  r(Tan)=  7.89
+Seg:77  y= 2.50  r(Sag)=  7.67  r(Tan)=  7.94
+Seg:77  y= 2.60  r(Sag)=  7.68  r(Tan)=  7.98
+Seg:77  y= 2.70  r(Sag)=  7.69  r(Tan)=  8.02
+Seg:77  y= 2.80  r(Sag)=  7.71  r(Tan)=  8.06
+Seg:77  y= 2.90  r(Sag)=  7.72  r(Tan)=  8.10
+Seg:77  y= 3.00  r(Sag)=  7.73  r(Tan)=  8.13
+Seg:77  y= 3.10  r(Sag)=  7.74  r(Tan)=  8.16
+Seg:77  y= 3.20  r(Sag)=  7.76  r(Tan)=  8.20
+Seg:77  y= 3.30  r(Sag)=  7.77  r(Tan)=  8.26
+Seg:77  y= 3.40  r(Sag)=  7.78  r(Tan)=  8.32
+Seg:77  y= 3.50  r(Sag)=  7.80  r(Tan)=  8.41
+Seg:77  y= 3.60  r(Sag)=  7.81  r(Tan)=  8.50
+Seg:77  y= 3.70  r(Sag)=  7.83  r(Tan)=  8.61
+Seg:77  y= 3.80  r(Sag)=  7.85  r(Tan)=  8.72
+Seg:77  y= 3.90  r(Sag)=  7.87  r(Tan)=  8.82
+Seg:77  y= 4.00  r(Sag)=  7.89  r(Tan)=  8.91
+Seg:77  y= 4.10  r(Sag)=  7.92  r(Tan)=  8.97
+Seg:77  y= 4.20  r(Sag)=  7.94  r(Tan)=  9.02
+Seg:77  y= 4.30  r(Sag)=  7.97  r(Tan)=  9.07
+Seg:78  y= 0.00  r(Sag)=  7.61  r(Tan)=  7.55
+Seg:78  y= 0.10  r(Sag)=  7.61  r(Tan)=  7.58
+Seg:78  y= 0.20  r(Sag)=  7.60  r(Tan)=  7.59
+Seg:78  y= 0.30  r(Sag)=  7.59  r(Tan)=  7.60
+Seg:78  y= 0.40  r(Sag)=  7.59  r(Tan)=  7.60
+Seg:78  y= 0.50  r(Sag)=  7.59  r(Tan)=  7.60
+Seg:78  y= 0.60  r(Sag)=  7.59  r(Tan)=  7.61
+Seg:78  y= 0.70  r(Sag)=  7.60  r(Tan)=  7.62
+Seg:78  y= 0.80  r(Sag)=  7.60  r(Tan)=  7.63
+Seg:78  y= 0.90  r(Sag)=  7.60  r(Tan)=  7.63
+Seg:78  y= 1.00  r(Sag)=  7.60  r(Tan)=  7.63
+Seg:78  y= 1.10  r(Sag)=  7.60  r(Tan)=  7.64
+Seg:78  y= 1.20  r(Sag)=  7.61  r(Tan)=  7.65
+Seg:78  y= 1.30  r(Sag)=  7.61  r(Tan)=  7.67
+Seg:78  y= 1.40  r(Sag)=  7.62  r(Tan)=  7.68
+Seg:78  y= 1.50  r(Sag)=  7.62  r(Tan)=  7.69
+Seg:78  y= 1.60  r(Sag)=  7.63  r(Tan)=  7.70
+Seg:78  y= 1.70  r(Sag)=  7.63  r(Tan)=  7.71
+Seg:78  y= 1.80  r(Sag)=  7.64  r(Tan)=  7.71
+Seg:78  y= 1.90  r(Sag)=  7.64  r(Tan)=  7.73
+Seg:78  y= 2.00  r(Sag)=  7.64  r(Tan)=  7.75
+Seg:78  y= 2.10  r(Sag)=  7.65  r(Tan)=  7.78
+Seg:78  y= 2.20  r(Sag)=  7.65  r(Tan)=  7.81
+Seg:78  y= 2.30  r(Sag)=  7.66  r(Tan)=  7.85
+Seg:78  y= 2.40  r(Sag)=  7.67  r(Tan)=  7.90
+Seg:78  y= 2.50  r(Sag)=  7.68  r(Tan)=  7.94
+Seg:78  y= 2.60  r(Sag)=  7.69  r(Tan)=  7.98
+Seg:78  y= 2.70  r(Sag)=  7.70  r(Tan)=  8.02
+Seg:78  y= 2.80  r(Sag)=  7.71  r(Tan)=  8.06
+Seg:78  y= 2.90  r(Sag)=  7.73  r(Tan)=  8.09
+Seg:78  y= 3.00  r(Sag)=  7.74  r(Tan)=  8.11
+Seg:78  y= 3.10  r(Sag)=  7.75  r(Tan)=  8.15
+Seg:78  y= 3.20  r(Sag)=  7.76  r(Tan)=  8.19
+Seg:78  y= 3.30  r(Sag)=  7.77  r(Tan)=  8.25
+Seg:78  y= 3.40  r(Sag)=  7.78  r(Tan)=  8.32
+Seg:78  y= 3.50  r(Sag)=  7.80  r(Tan)=  8.41
+Seg:78  y= 3.60  r(Sag)=  7.81  r(Tan)=  8.51
+Seg:78  y= 3.70  r(Sag)=  7.83  r(Tan)=  8.63
+Seg:78  y= 3.80  r(Sag)=  7.85  r(Tan)=  8.74
+Seg:78  y= 3.90  r(Sag)=  7.88  r(Tan)=  8.84
+Seg:78  y= 4.00  r(Sag)=  7.90  r(Tan)=  8.93
+Seg:78  y= 4.10  r(Sag)=  7.93  r(Tan)=  8.99
+Seg:78  y= 4.20  r(Sag)=  7.95  r(Tan)=  9.04
+Seg:78  y= 4.30  r(Sag)=  7.97  r(Tan)=  9.08
+Seg:79  y= 0.00  r(Sag)=  7.62  r(Tan)=  7.54
+Seg:79  y= 0.10  r(Sag)=  7.62  r(Tan)=  7.57
+Seg:79  y= 0.20  r(Sag)=  7.60  r(Tan)=  7.59
+Seg:79  y= 0.30  r(Sag)=  7.59  r(Tan)=  7.60
+Seg:79  y= 0.40  r(Sag)=  7.59  r(Tan)=  7.60
+Seg:79  y= 0.50  r(Sag)=  7.59  r(Tan)=  7.60
+Seg:79  y= 0.60  r(Sag)=  7.59  r(Tan)=  7.62
+Seg:79  y= 0.70  r(Sag)=  7.60  r(Tan)=  7.63
+Seg:79  y= 0.80  r(Sag)=  7.61  r(Tan)=  7.64
+Seg:79  y= 0.90  r(Sag)=  7.61  r(Tan)=  7.64
+Seg:79  y= 1.00  r(Sag)=  7.61  r(Tan)=  7.64
+Seg:79  y= 1.10  r(Sag)=  7.61  r(Tan)=  7.65
+Seg:79  y= 1.20  r(Sag)=  7.61  r(Tan)=  7.66
+Seg:79  y= 1.30  r(Sag)=  7.62  r(Tan)=  7.67
+Seg:79  y= 1.40  r(Sag)=  7.62  r(Tan)=  7.68
+Seg:79  y= 1.50  r(Sag)=  7.63  r(Tan)=  7.70
+Seg:79  y= 1.60  r(Sag)=  7.63  r(Tan)=  7.71
+Seg:79  y= 1.70  r(Sag)=  7.64  r(Tan)=  7.72
+Seg:79  y= 1.80  r(Sag)=  7.64  r(Tan)=  7.73
+Seg:79  y= 1.90  r(Sag)=  7.65  r(Tan)=  7.74
+Seg:79  y= 2.00  r(Sag)=  7.65  r(Tan)=  7.76
+Seg:79  y= 2.10  r(Sag)=  7.65  r(Tan)=  7.79
+Seg:79  y= 2.20  r(Sag)=  7.66  r(Tan)=  7.82
+Seg:79  y= 2.30  r(Sag)=  7.67  r(Tan)=  7.86
+Seg:79  y= 2.40  r(Sag)=  7.67  r(Tan)=  7.90
+Seg:79  y= 2.50  r(Sag)=  7.68  r(Tan)=  7.95
+Seg:79  y= 2.60  r(Sag)=  7.70  r(Tan)=  7.99
+Seg:79  y= 2.70  r(Sag)=  7.71  r(Tan)=  8.02
+Seg:79  y= 2.80  r(Sag)=  7.72  r(Tan)=  8.05
+Seg:79  y= 2.90  r(Sag)=  7.73  r(Tan)=  8.07
+Seg:79  y= 3.00  r(Sag)=  7.74  r(Tan)=  8.09
+Seg:79  y= 3.10  r(Sag)=  7.75  r(Tan)=  8.12
+Seg:79  y= 3.20  r(Sag)=  7.76  r(Tan)=  8.17
+Seg:79  y= 3.30  r(Sag)=  7.77  r(Tan)=  8.23
+Seg:79  y= 3.40  r(Sag)=  7.79  r(Tan)=  8.31
+Seg:79  y= 3.50  r(Sag)=  7.80  r(Tan)=  8.41
+Seg:79  y= 3.60  r(Sag)=  7.81  r(Tan)=  8.52
+Seg:79  y= 3.70  r(Sag)=  7.83  r(Tan)=  8.63
+Seg:79  y= 3.80  r(Sag)=  7.85  r(Tan)=  8.72
+Seg:79  y= 3.90  r(Sag)=  7.88  r(Tan)=  8.80
+Seg:80  y= 0.00  r(Sag)=  7.62  r(Tan)=  7.53
+Seg:80  y= 0.10  r(Sag)=  7.62  r(Tan)=  7.56
+Seg:80  y= 0.20  r(Sag)=  7.60  r(Tan)=  7.59
+Seg:80  y= 0.30  r(Sag)=  7.59  r(Tan)=  7.60
+Seg:80  y= 0.40  r(Sag)=  7.59  r(Tan)=  7.61
+Seg:80  y= 0.50  r(Sag)=  7.59  r(Tan)=  7.61
+Seg:80  y= 0.60  r(Sag)=  7.60  r(Tan)=  7.63
+Seg:80  y= 0.70  r(Sag)=  7.61  r(Tan)=  7.64
+Seg:80  y= 0.80  r(Sag)=  7.61  r(Tan)=  7.65
+Seg:80  y= 0.90  r(Sag)=  7.62  r(Tan)=  7.65
+Seg:80  y= 1.00  r(Sag)=  7.62  r(Tan)=  7.65
+Seg:80  y= 1.10  r(Sag)=  7.62  r(Tan)=  7.66
+Seg:80  y= 1.20  r(Sag)=  7.62  r(Tan)=  7.67
+Seg:80  y= 1.30  r(Sag)=  7.62  r(Tan)=  7.68
+Seg:80  y= 1.40  r(Sag)=  7.63  r(Tan)=  7.69
+Seg:80  y= 1.50  r(Sag)=  7.63  r(Tan)=  7.70
+Seg:80  y= 1.60  r(Sag)=  7.64  r(Tan)=  7.71
+Seg:80  y= 1.70  r(Sag)=  7.64  r(Tan)=  7.73
+Seg:80  y= 1.80  r(Sag)=  7.65  r(Tan)=  7.74
+Seg:80  y= 1.90  r(Sag)=  7.65  r(Tan)=  7.75
+Seg:80  y= 2.00  r(Sag)=  7.66  r(Tan)=  7.77
+Seg:80  y= 2.10  r(Sag)=  7.66  r(Tan)=  7.80
+Seg:80  y= 2.20  r(Sag)=  7.67  r(Tan)=  7.83
+Seg:80  y= 2.30  r(Sag)=  7.67  r(Tan)=  7.87
+Seg:80  y= 2.40  r(Sag)=  7.68  r(Tan)=  7.91
+Seg:80  y= 2.50  r(Sag)=  7.69  r(Tan)=  7.95
+Seg:80  y= 2.60  r(Sag)=  7.70  r(Tan)=  7.99
+Seg:80  y= 2.70  r(Sag)=  7.72  r(Tan)=  8.02
+Seg:80  y= 2.80  r(Sag)=  7.73  r(Tan)=  8.04
+Seg:80  y= 2.90  r(Sag)=  7.74  r(Tan)=  8.05
+Seg:80  y= 3.00  r(Sag)=  7.75  r(Tan)=  8.07
+Seg:80  y= 3.10  r(Sag)=  7.76  r(Tan)=  8.10
+Seg:80  y= 3.20  r(Sag)=  7.77  r(Tan)=  8.14
+Seg:80  y= 3.30  r(Sag)=  7.78  r(Tan)=  8.20
+Seg:80  y= 3.40  r(Sag)=  7.79  r(Tan)=  8.29
+Seg:80  y= 3.50  r(Sag)=  7.80  r(Tan)=  8.40
+Seg:80  y= 3.60  r(Sag)=  7.81  r(Tan)=  8.52
+Seg:80  y= 3.70  r(Sag)=  7.83  r(Tan)=  8.64
+Seg:80  y= 3.80  r(Sag)=  7.86  r(Tan)=  8.75
+Seg:80  y= 3.90  r(Sag)=  7.88  r(Tan)=  8.82
+Seg:81  y= 0.00  r(Sag)=  7.62  r(Tan)=  7.53
+Seg:81  y= 0.10  r(Sag)=  7.62  r(Tan)=  7.56
+Seg:81  y= 0.20  r(Sag)=  7.60  r(Tan)=  7.59
+Seg:81  y= 0.30  r(Sag)=  7.59  r(Tan)=  7.60
+Seg:81  y= 0.40  r(Sag)=  7.59  r(Tan)=  7.61
+Seg:81  y= 0.50  r(Sag)=  7.59  r(Tan)=  7.61
+Seg:81  y= 0.60  r(Sag)=  7.60  r(Tan)=  7.63
+Seg:81  y= 0.70  r(Sag)=  7.61  r(Tan)=  7.65
+Seg:81  y= 0.80  r(Sag)=  7.62  r(Tan)=  7.66
+Seg:81  y= 0.90  r(Sag)=  7.62  r(Tan)=  7.66
+Seg:81  y= 1.00  r(Sag)=  7.62  r(Tan)=  7.66
+Seg:81  y= 1.10  r(Sag)=  7.63  r(Tan)=  7.66
+Seg:81  y= 1.20  r(Sag)=  7.63  r(Tan)=  7.67
+Seg:81  y= 1.30  r(Sag)=  7.63  r(Tan)=  7.68
+Seg:81  y= 1.40  r(Sag)=  7.63  r(Tan)=  7.70
+Seg:81  y= 1.50  r(Sag)=  7.64  r(Tan)=  7.71
+Seg:81  y= 1.60  r(Sag)=  7.65  r(Tan)=  7.72
+Seg:81  y= 1.70  r(Sag)=  7.65  r(Tan)=  7.74
+Seg:81  y= 1.80  r(Sag)=  7.66  r(Tan)=  7.75
+Seg:81  y= 1.90  r(Sag)=  7.66  r(Tan)=  7.77
+Seg:81  y= 2.00  r(Sag)=  7.67  r(Tan)=  7.79
+Seg:81  y= 2.10  r(Sag)=  7.67  r(Tan)=  7.82
+Seg:81  y= 2.20  r(Sag)=  7.68  r(Tan)=  7.85
+Seg:81  y= 2.30  r(Sag)=  7.68  r(Tan)=  7.89
+Seg:81  y= 2.40  r(Sag)=  7.69  r(Tan)=  7.92
+Seg:81  y= 2.50  r(Sag)=  7.70  r(Tan)=  7.96
+Seg:81  y= 2.60  r(Sag)=  7.71  r(Tan)=  7.99
+Seg:81  y= 2.70  r(Sag)=  7.73  r(Tan)=  8.01
+Seg:81  y= 2.80  r(Sag)=  7.74  r(Tan)=  8.03
+Seg:81  y= 2.90  r(Sag)=  7.75  r(Tan)=  8.04
+Seg:81  y= 3.00  r(Sag)=  7.76  r(Tan)=  8.05
+Seg:81  y= 3.10  r(Sag)=  7.77  r(Tan)=  8.07
+Seg:81  y= 3.20  r(Sag)=  7.77  r(Tan)=  8.10
+Seg:81  y= 3.30  r(Sag)=  7.78  r(Tan)=  8.17
+Seg:81  y= 3.40  r(Sag)=  7.79  r(Tan)=  8.26
+Seg:81  y= 3.50  r(Sag)=  7.80  r(Tan)=  8.38
+Seg:81  y= 3.60  r(Sag)=  7.81  r(Tan)=  8.51
+Seg:81  y= 3.70  r(Sag)=  7.83  r(Tan)=  8.65
+Seg:81  y= 3.80  r(Sag)=  7.86  r(Tan)=  8.76
+Seg:81  y= 3.90  r(Sag)=  7.88  r(Tan)=  8.84
+Seg:82  y= 0.00  r(Sag)=  7.63  r(Tan)=  7.55
+Seg:82  y= 0.10  r(Sag)=  7.63  r(Tan)=  7.57
+Seg:82  y= 0.20  r(Sag)=  7.62  r(Tan)=  7.59
+Seg:82  y= 0.30  r(Sag)=  7.61  r(Tan)=  7.61
+Seg:82  y= 0.40  r(Sag)=  7.60  r(Tan)=  7.62
+Seg:82  y= 0.50  r(Sag)=  7.60  r(Tan)=  7.63
+Seg:82  y= 0.60  r(Sag)=  7.60  r(Tan)=  7.64
+Seg:82  y= 0.70  r(Sag)=  7.62  r(Tan)=  7.65
+Seg:82  y= 0.80  r(Sag)=  7.62  r(Tan)=  7.66
+Seg:82  y= 0.90  r(Sag)=  7.63  r(Tan)=  7.67
+Seg:82  y= 1.00  r(Sag)=  7.63  r(Tan)=  7.67
+Seg:82  y= 1.10  r(Sag)=  7.63  r(Tan)=  7.68
+Seg:82  y= 1.20  r(Sag)=  7.64  r(Tan)=  7.68
+Seg:82  y= 1.30  r(Sag)=  7.64  r(Tan)=  7.69
+Seg:82  y= 1.40  r(Sag)=  7.64  r(Tan)=  7.70
+Seg:82  y= 1.50  r(Sag)=  7.65  r(Tan)=  7.72
+Seg:82  y= 1.60  r(Sag)=  7.65  r(Tan)=  7.73
+Seg:82  y= 1.70  r(Sag)=  7.66  r(Tan)=  7.75
+Seg:82  y= 1.80  r(Sag)=  7.66  r(Tan)=  7.77
+Seg:82  y= 1.90  r(Sag)=  7.67  r(Tan)=  7.78
+Seg:82  y= 2.00  r(Sag)=  7.67  r(Tan)=  7.81
+Seg:82  y= 2.10  r(Sag)=  7.68  r(Tan)=  7.83
+Seg:82  y= 2.20  r(Sag)=  7.69  r(Tan)=  7.86
+Seg:82  y= 2.30  r(Sag)=  7.69  r(Tan)=  7.90
+Seg:82  y= 2.40  r(Sag)=  7.70  r(Tan)=  7.93
+Seg:82  y= 2.50  r(Sag)=  7.71  r(Tan)=  7.97
+Seg:82  y= 2.60  r(Sag)=  7.72  r(Tan)=  8.00
+Seg:82  y= 2.70  r(Sag)=  7.73  r(Tan)=  8.02
+Seg:82  y= 2.80  r(Sag)=  7.75  r(Tan)=  8.02
+Seg:82  y= 2.90  r(Sag)=  7.76  r(Tan)=  8.01
+Seg:82  y= 3.00  r(Sag)=  7.77  r(Tan)=  8.00
+Seg:82  y= 3.10  r(Sag)=  7.78  r(Tan)=  7.98
+Seg:82  y= 3.20  r(Sag)=  7.78  r(Tan)=  7.98
+Seg:82  y= 3.30  r(Sag)=  7.78  r(Tan)=  8.00
+Seg:82  y= 3.40  r(Sag)=  7.79  r(Tan)=  8.05
+Seg:82  y= 3.50  r(Sag)=  7.79  r(Tan)=  8.14
+Seg:82  y= 3.60  r(Sag)=  7.80  r(Tan)=  8.27
+Seg:83  y= 0.00  r(Sag)=  7.63  r(Tan)=  7.56
+Seg:83  y= 0.10  r(Sag)=  7.63  r(Tan)=  7.58
+Seg:83  y= 0.20  r(Sag)=  7.62  r(Tan)=  7.60
+Seg:83  y= 0.30  r(Sag)=  7.61  r(Tan)=  7.61
+Seg:83  y= 0.40  r(Sag)=  7.60  r(Tan)=  7.63
+Seg:83  y= 0.50  r(Sag)=  7.60  r(Tan)=  7.63
+Seg:83  y= 0.60  r(Sag)=  7.61  r(Tan)=  7.65
+Seg:83  y= 0.70  r(Sag)=  7.62  r(Tan)=  7.66
+Seg:83  y= 0.80  r(Sag)=  7.63  r(Tan)=  7.67
+Seg:83  y= 0.90  r(Sag)=  7.64  r(Tan)=  7.68
+Seg:83  y= 1.00  r(Sag)=  7.64  r(Tan)=  7.68
+Seg:83  y= 1.10  r(Sag)=  7.64  r(Tan)=  7.68
+Seg:83  y= 1.20  r(Sag)=  7.64  r(Tan)=  7.69
+Seg:83  y= 1.30  r(Sag)=  7.65  r(Tan)=  7.70
+Seg:83  y= 1.40  r(Sag)=  7.65  r(Tan)=  7.71
+Seg:83  y= 1.50  r(Sag)=  7.65  r(Tan)=  7.72
+Seg:83  y= 1.60  r(Sag)=  7.66  r(Tan)=  7.74
+Seg:83  y= 1.70  r(Sag)=  7.66  r(Tan)=  7.76
+Seg:83  y= 1.80  r(Sag)=  7.67  r(Tan)=  7.78
+Seg:83  y= 1.90  r(Sag)=  7.68  r(Tan)=  7.80
+Seg:83  y= 2.00  r(Sag)=  7.68  r(Tan)=  7.82
+Seg:83  y= 2.10  r(Sag)=  7.69  r(Tan)=  7.85
+Seg:83  y= 2.20  r(Sag)=  7.70  r(Tan)=  7.88
+Seg:83  y= 2.30  r(Sag)=  7.70  r(Tan)=  7.91
+Seg:83  y= 2.40  r(Sag)=  7.71  r(Tan)=  7.95
+Seg:83  y= 2.50  r(Sag)=  7.72  r(Tan)=  7.98
+Seg:83  y= 2.60  r(Sag)=  7.73  r(Tan)=  8.00
+Seg:83  y= 2.70  r(Sag)=  7.75  r(Tan)=  8.01
+Seg:83  y= 2.80  r(Sag)=  7.76  r(Tan)=  8.01
+Seg:83  y= 2.90  r(Sag)=  7.77  r(Tan)=  7.99
+Seg:83  y= 3.00  r(Sag)=  7.78  r(Tan)=  7.97
+Seg:83  y= 3.10  r(Sag)=  7.78  r(Tan)=  7.95
+Seg:83  y= 3.20  r(Sag)=  7.79  r(Tan)=  7.93
+Seg:83  y= 3.30  r(Sag)=  7.79  r(Tan)=  7.95
+Seg:83  y= 3.40  r(Sag)=  7.79  r(Tan)=  8.00
+Seg:83  y= 3.50  r(Sag)=  7.79  r(Tan)=  8.09
+Seg:83  y= 3.60  r(Sag)=  7.79  r(Tan)=  8.22
+Seg:84  y= 0.00  r(Sag)=  7.63  r(Tan)=  7.58
+Seg:84  y= 0.10  r(Sag)=  7.63  r(Tan)=  7.59
+Seg:84  y= 0.20  r(Sag)=  7.63  r(Tan)=  7.60
+Seg:84  y= 0.30  r(Sag)=  7.62  r(Tan)=  7.62
+Seg:84  y= 0.40  r(Sag)=  7.61  r(Tan)=  7.63
+Seg:84  y= 0.50  r(Sag)=  7.61  r(Tan)=  7.64
+Seg:84  y= 0.60  r(Sag)=  7.61  r(Tan)=  7.65
+Seg:84  y= 0.70  r(Sag)=  7.63  r(Tan)=  7.67
+Seg:84  y= 0.80  r(Sag)=  7.64  r(Tan)=  7.68
+Seg:84  y= 0.90  r(Sag)=  7.64  r(Tan)=  7.69
+Seg:84  y= 1.00  r(Sag)=  7.65  r(Tan)=  7.69
+Seg:84  y= 1.10  r(Sag)=  7.65  r(Tan)=  7.69
+Seg:84  y= 1.20  r(Sag)=  7.65  r(Tan)=  7.70
+Seg:84  y= 1.30  r(Sag)=  7.66  r(Tan)=  7.70
+Seg:84  y= 1.40  r(Sag)=  7.66  r(Tan)=  7.71
+Seg:84  y= 1.50  r(Sag)=  7.66  r(Tan)=  7.73
+Seg:84  y= 1.60  r(Sag)=  7.66  r(Tan)=  7.75
+Seg:84  y= 1.70  r(Sag)=  7.67  r(Tan)=  7.77
+Seg:84  y= 1.80  r(Sag)=  7.68  r(Tan)=  7.79
+Seg:84  y= 1.90  r(Sag)=  7.68  r(Tan)=  7.82
+Seg:84  y= 2.00  r(Sag)=  7.69  r(Tan)=  7.84
+Seg:84  y= 2.10  r(Sag)=  7.70  r(Tan)=  7.87
+Seg:84  y= 2.20  r(Sag)=  7.71  r(Tan)=  7.89
+Seg:84  y= 2.30  r(Sag)=  7.71  r(Tan)=  7.92
+Seg:84  y= 2.40  r(Sag)=  7.72  r(Tan)=  7.96
+Seg:84  y= 2.50  r(Sag)=  7.73  r(Tan)=  7.99
+Seg:84  y= 2.60  r(Sag)=  7.74  r(Tan)=  8.03
+Seg:84  y= 2.70  r(Sag)=  7.75  r(Tan)=  8.06
+Seg:84  y= 2.80  r(Sag)=  7.76  r(Tan)=  8.09
+Seg:84  y= 2.90  r(Sag)=  7.78  r(Tan)=  8.12
+Seg:84  y= 3.00  r(Sag)=  7.79  r(Tan)=  8.14
+Seg:84  y= 3.10  r(Sag)=  7.80  r(Tan)=  8.16
+Seg:84  y= 3.20  r(Sag)=  7.81  r(Tan)=  8.18
+Seg:85  y= 0.00  r(Sag)=  7.64  r(Tan)=  7.59
+Seg:85  y= 0.10  r(Sag)=  7.64  r(Tan)=  7.60
+Seg:85  y= 0.20  r(Sag)=  7.63  r(Tan)=  7.61
+Seg:85  y= 0.30  r(Sag)=  7.63  r(Tan)=  7.63
+Seg:85  y= 0.40  r(Sag)=  7.62  r(Tan)=  7.64
+Seg:85  y= 0.50  r(Sag)=  7.62  r(Tan)=  7.65
+Seg:85  y= 0.60  r(Sag)=  7.62  r(Tan)=  7.66
+Seg:85  y= 0.70  r(Sag)=  7.63  r(Tan)=  7.67
+Seg:85  y= 0.80  r(Sag)=  7.64  r(Tan)=  7.69
+Seg:85  y= 0.90  r(Sag)=  7.65  r(Tan)=  7.69
+Seg:85  y= 1.00  r(Sag)=  7.66  r(Tan)=  7.70
+Seg:85  y= 1.10  r(Sag)=  7.66  r(Tan)=  7.70
+Seg:85  y= 1.20  r(Sag)=  7.66  r(Tan)=  7.70
+Seg:85  y= 1.30  r(Sag)=  7.66  r(Tan)=  7.71
+Seg:85  y= 1.40  r(Sag)=  7.67  r(Tan)=  7.72
+Seg:85  y= 1.50  r(Sag)=  7.67  r(Tan)=  7.74
+Seg:85  y= 1.60  r(Sag)=  7.67  r(Tan)=  7.76
+Seg:85  y= 1.70  r(Sag)=  7.68  r(Tan)=  7.78
+Seg:85  y= 1.80  r(Sag)=  7.68  r(Tan)=  7.81
+Seg:85  y= 1.90  r(Sag)=  7.69  r(Tan)=  7.83
+Seg:85  y= 2.00  r(Sag)=  7.70  r(Tan)=  7.86
+Seg:85  y= 2.10  r(Sag)=  7.71  r(Tan)=  7.88
+Seg:85  y= 2.20  r(Sag)=  7.72  r(Tan)=  7.91
+Seg:85  y= 2.30  r(Sag)=  7.72  r(Tan)=  7.94
+Seg:85  y= 2.40  r(Sag)=  7.73  r(Tan)=  7.97
+Seg:85  y= 2.50  r(Sag)=  7.74  r(Tan)=  8.00
+Seg:85  y= 2.60  r(Sag)=  7.75  r(Tan)=  8.03
+Seg:85  y= 2.70  r(Sag)=  7.76  r(Tan)=  8.07
+Seg:85  y= 2.80  r(Sag)=  7.77  r(Tan)=  8.10
+Seg:85  y= 2.90  r(Sag)=  7.79  r(Tan)=  8.12
+Seg:85  y= 3.00  r(Sag)=  7.80  r(Tan)=  8.14
+Seg:85  y= 3.10  r(Sag)=  7.81  r(Tan)=  8.16
+Seg:85  y= 3.20  r(Sag)=  7.82  r(Tan)=  8.18
+Seg:86  y= 0.00  r(Sag)=  7.64  r(Tan)=  7.60
+Seg:86  y= 0.10  r(Sag)=  7.64  r(Tan)=  7.61
+Seg:86  y= 0.20  r(Sag)=  7.64  r(Tan)=  7.62
+Seg:86  y= 0.30  r(Sag)=  7.63  r(Tan)=  7.63
+Seg:86  y= 0.40  r(Sag)=  7.63  r(Tan)=  7.65
+Seg:86  y= 0.50  r(Sag)=  7.63  r(Tan)=  7.66
+Seg:86  y= 0.60  r(Sag)=  7.63  r(Tan)=  7.67
+Seg:86  y= 0.70  r(Sag)=  7.64  r(Tan)=  7.68
+Seg:86  y= 0.80  r(Sag)=  7.65  r(Tan)=  7.69
+Seg:86  y= 0.90  r(Sag)=  7.66  r(Tan)=  7.70
+Seg:86  y= 1.00  r(Sag)=  7.66  r(Tan)=  7.71
+Seg:86  y= 1.10  r(Sag)=  7.67  r(Tan)=  7.71
+Seg:86  y= 1.20  r(Sag)=  7.67  r(Tan)=  7.71
+Seg:86  y= 1.30  r(Sag)=  7.67  r(Tan)=  7.72
+Seg:86  y= 1.40  r(Sag)=  7.67  r(Tan)=  7.73
+Seg:86  y= 1.50  r(Sag)=  7.68  r(Tan)=  7.75
+Seg:86  y= 1.60  r(Sag)=  7.68  r(Tan)=  7.77
+Seg:86  y= 1.70  r(Sag)=  7.69  r(Tan)=  7.79
+Seg:86  y= 1.80  r(Sag)=  7.69  r(Tan)=  7.82
+Seg:86  y= 1.90  r(Sag)=  7.70  r(Tan)=  7.85
+Seg:86  y= 2.00  r(Sag)=  7.71  r(Tan)=  7.87
+Seg:86  y= 2.10  r(Sag)=  7.72  r(Tan)=  7.90
+Seg:86  y= 2.20  r(Sag)=  7.73  r(Tan)=  7.93
+Seg:86  y= 2.30  r(Sag)=  7.73  r(Tan)=  7.95
+Seg:86  y= 2.40  r(Sag)=  7.74  r(Tan)=  7.98
+Seg:86  y= 2.50  r(Sag)=  7.75  r(Tan)=  8.01
+Seg:86  y= 2.60  r(Sag)=  7.76  r(Tan)=  8.04
+Seg:86  y= 2.70  r(Sag)=  7.77  r(Tan)=  8.07
+Seg:86  y= 2.80  r(Sag)=  7.78  r(Tan)=  8.10
+Seg:86  y= 2.90  r(Sag)=  7.80  r(Tan)=  8.12
+Seg:86  y= 3.00  r(Sag)=  7.81  r(Tan)=  8.14
+Seg:86  y= 3.10  r(Sag)=  7.82  r(Tan)=  8.16
+Seg:86  y= 3.20  r(Sag)=  7.83  r(Tan)=  8.18
+Seg:87  y= 0.00  r(Sag)=  7.65  r(Tan)=  7.61
+Seg:87  y= 0.10  r(Sag)=  7.65  r(Tan)=  7.62
+Seg:87  y= 0.20  r(Sag)=  7.65  r(Tan)=  7.63
+Seg:87  y= 0.30  r(Sag)=  7.64  r(Tan)=  7.64
+Seg:87  y= 0.40  r(Sag)=  7.64  r(Tan)=  7.65
+Seg:87  y= 0.50  r(Sag)=  7.63  r(Tan)=  7.66
+Seg:87  y= 0.60  r(Sag)=  7.64  r(Tan)=  7.67
+Seg:87  y= 0.70  r(Sag)=  7.64  r(Tan)=  7.69
+Seg:87  y= 0.80  r(Sag)=  7.65  r(Tan)=  7.70
+Seg:87  y= 0.90  r(Sag)=  7.66  r(Tan)=  7.71
+Seg:87  y= 1.00  r(Sag)=  7.67  r(Tan)=  7.72
+Seg:87  y= 1.10  r(Sag)=  7.68  r(Tan)=  7.72
+Seg:87  y= 1.20  r(Sag)=  7.68  r(Tan)=  7.72
+Seg:87  y= 1.30  r(Sag)=  7.68  r(Tan)=  7.73
+Seg:87  y= 1.40  r(Sag)=  7.68  r(Tan)=  7.74
+Seg:87  y= 1.50  r(Sag)=  7.68  r(Tan)=  7.76
+Seg:87  y= 1.60  r(Sag)=  7.69  r(Tan)=  7.78
+Seg:87  y= 1.70  r(Sag)=  7.69  r(Tan)=  7.80
+Seg:87  y= 1.80  r(Sag)=  7.70  r(Tan)=  7.83
+Seg:87  y= 1.90  r(Sag)=  7.71  r(Tan)=  7.86
+Seg:87  y= 2.00  r(Sag)=  7.72  r(Tan)=  7.89
+Seg:87  y= 2.10  r(Sag)=  7.73  r(Tan)=  7.92
+Seg:87  y= 2.20  r(Sag)=  7.73  r(Tan)=  7.94
+Seg:87  y= 2.30  r(Sag)=  7.74  r(Tan)=  7.97
+Seg:87  y= 2.40  r(Sag)=  7.75  r(Tan)=  8.00
+Seg:87  y= 2.50  r(Sag)=  7.76  r(Tan)=  8.02
+Seg:87  y= 2.60  r(Sag)=  7.77  r(Tan)=  8.05
+Seg:87  y= 2.70  r(Sag)=  7.78  r(Tan)=  8.08
+Seg:87  y= 2.80  r(Sag)=  7.79  r(Tan)=  8.10
+Seg:87  y= 2.90  r(Sag)=  7.81  r(Tan)=  8.13
+Seg:87  y= 3.00  r(Sag)=  7.82  r(Tan)=  8.15
+Seg:87  y= 3.10  r(Sag)=  7.83  r(Tan)=  8.16
+Seg:87  y= 3.20  r(Sag)=  7.84  r(Tan)=  8.18
+Seg:88  y= 0.00  r(Sag)=  7.65  r(Tan)=  7.62
+Seg:88  y= 0.10  r(Sag)=  7.65  r(Tan)=  7.63
+Seg:88  y= 0.20  r(Sag)=  7.65  r(Tan)=  7.64
+Seg:88  y= 0.30  r(Sag)=  7.65  r(Tan)=  7.65
+Seg:88  y= 0.40  r(Sag)=  7.64  r(Tan)=  7.66
+Seg:88  y= 0.50  r(Sag)=  7.64  r(Tan)=  7.67
+Seg:88  y= 0.60  r(Sag)=  7.64  r(Tan)=  7.68
+Seg:88  y= 0.70  r(Sag)=  7.65  r(Tan)=  7.69
+Seg:88  y= 0.80  r(Sag)=  7.66  r(Tan)=  7.71
+Seg:88  y= 0.90  r(Sag)=  7.67  r(Tan)=  7.72
+Seg:88  y= 1.00  r(Sag)=  7.68  r(Tan)=  7.73
+Seg:88  y= 1.10  r(Sag)=  7.68  r(Tan)=  7.73
+Seg:88  y= 1.20  r(Sag)=  7.69  r(Tan)=  7.73
+Seg:88  y= 1.30  r(Sag)=  7.69  r(Tan)=  7.74
+Seg:88  y= 1.40  r(Sag)=  7.69  r(Tan)=  7.75
+Seg:88  y= 1.50  r(Sag)=  7.69  r(Tan)=  7.77
+Seg:88  y= 1.60  r(Sag)=  7.70  r(Tan)=  7.79
+Seg:88  y= 1.70  r(Sag)=  7.70  r(Tan)=  7.81
+Seg:88  y= 1.80  r(Sag)=  7.71  r(Tan)=  7.84
+Seg:88  y= 1.90  r(Sag)=  7.72  r(Tan)=  7.87
+Seg:88  y= 2.00  r(Sag)=  7.72  r(Tan)=  7.90
+Seg:88  y= 2.10  r(Sag)=  7.73  r(Tan)=  7.93
+Seg:88  y= 2.20  r(Sag)=  7.74  r(Tan)=  7.96
+Seg:88  y= 2.30  r(Sag)=  7.75  r(Tan)=  7.98
+Seg:88  y= 2.40  r(Sag)=  7.76  r(Tan)=  8.01
+Seg:88  y= 2.50  r(Sag)=  7.77  r(Tan)=  8.04
+Seg:88  y= 2.60  r(Sag)=  7.78  r(Tan)=  8.06
+Seg:88  y= 2.70  r(Sag)=  7.79  r(Tan)=  8.09
+Seg:88  y= 2.80  r(Sag)=  7.80  r(Tan)=  8.11
+Seg:88  y= 2.90  r(Sag)=  7.81  r(Tan)=  8.13
+Seg:88  y= 3.00  r(Sag)=  7.83  r(Tan)=  8.15
+Seg:88  y= 3.10  r(Sag)=  7.84  r(Tan)=  8.17
+Seg:88  y= 3.20  r(Sag)=  7.85  r(Tan)=  8.18
+Seg:89  y= 0.00  r(Sag)=  7.66  r(Tan)=  7.63
+Seg:89  y= 0.10  r(Sag)=  7.66  r(Tan)=  7.64
+Seg:89  y= 0.20  r(Sag)=  7.66  r(Tan)=  7.64
+Seg:89  y= 0.30  r(Sag)=  7.66  r(Tan)=  7.65
+Seg:89  y= 0.40  r(Sag)=  7.65  r(Tan)=  7.66
+Seg:89  y= 0.50  r(Sag)=  7.65  r(Tan)=  7.67
+Seg:89  y= 0.60  r(Sag)=  7.65  r(Tan)=  7.69
+Seg:89  y= 0.70  r(Sag)=  7.66  r(Tan)=  7.70
+Seg:89  y= 0.80  r(Sag)=  7.67  r(Tan)=  7.71
+Seg:89  y= 0.90  r(Sag)=  7.68  r(Tan)=  7.72
+Seg:89  y= 1.00  r(Sag)=  7.68  r(Tan)=  7.73
+Seg:89  y= 1.10  r(Sag)=  7.69  r(Tan)=  7.74
+Seg:89  y= 1.20  r(Sag)=  7.69  r(Tan)=  7.75
+Seg:89  y= 1.30  r(Sag)=  7.70  r(Tan)=  7.75
+Seg:89  y= 1.40  r(Sag)=  7.70  r(Tan)=  7.76
+Seg:89  y= 1.50  r(Sag)=  7.70  r(Tan)=  7.78
+Seg:89  y= 1.60  r(Sag)=  7.71  r(Tan)=  7.80
+Seg:89  y= 1.70  r(Sag)=  7.71  r(Tan)=  7.82
+Seg:89  y= 1.80  r(Sag)=  7.72  r(Tan)=  7.85
+Seg:89  y= 1.90  r(Sag)=  7.72  r(Tan)=  7.88
+Seg:89  y= 2.00  r(Sag)=  7.73  r(Tan)=  7.91
+Seg:89  y= 2.10  r(Sag)=  7.74  r(Tan)=  7.94
+Seg:89  y= 2.20  r(Sag)=  7.75  r(Tan)=  7.97
+Seg:89  y= 2.30  r(Sag)=  7.76  r(Tan)=  7.99
+Seg:89  y= 2.40  r(Sag)=  7.77  r(Tan)=  8.02
+Seg:89  y= 2.50  r(Sag)=  7.78  r(Tan)=  8.05
+Seg:89  y= 2.60  r(Sag)=  7.79  r(Tan)=  8.07
+Seg:89  y= 2.70  r(Sag)=  7.80  r(Tan)=  8.09
+Seg:89  y= 2.80  r(Sag)=  7.81  r(Tan)=  8.12
+Seg:89  y= 2.90  r(Sag)=  7.82  r(Tan)=  8.14
+Seg:89  y= 3.00  r(Sag)=  7.83  r(Tan)=  8.16
+Seg:89  y= 3.10  r(Sag)=  7.84  r(Tan)=  8.17
+Seg:89  y= 3.20  r(Sag)=  7.86  r(Tan)=  8.19
+Seg:90  y= 0.00  r(Sag)=  7.66  r(Tan)=  7.64
+Seg:90  y= 0.10  r(Sag)=  7.66  r(Tan)=  7.65
+Seg:90  y= 0.20  r(Sag)=  7.66  r(Tan)=  7.65
+Seg:90  y= 0.30  r(Sag)=  7.66  r(Tan)=  7.66
+Seg:90  y= 0.40  r(Sag)=  7.66  r(Tan)=  7.67
+Seg:90  y= 0.50  r(Sag)=  7.66  r(Tan)=  7.68
+Seg:90  y= 0.60  r(Sag)=  7.66  r(Tan)=  7.69
+Seg:90  y= 0.70  r(Sag)=  7.67  r(Tan)=  7.71
+Seg:90  y= 0.80  r(Sag)=  7.67  r(Tan)=  7.72
+Seg:90  y= 0.90  r(Sag)=  7.68  r(Tan)=  7.73
+Seg:90  y= 1.00  r(Sag)=  7.69  r(Tan)=  7.74
+Seg:90  y= 1.10  r(Sag)=  7.69  r(Tan)=  7.75
+Seg:90  y= 1.20  r(Sag)=  7.70  r(Tan)=  7.76
+Seg:90  y= 1.30  r(Sag)=  7.70  r(Tan)=  7.76
+Seg:90  y= 1.40  r(Sag)=  7.71  r(Tan)=  7.77
+Seg:90  y= 1.50  r(Sag)=  7.71  r(Tan)=  7.79
+Seg:90  y= 1.60  r(Sag)=  7.71  r(Tan)=  7.81
+Seg:90  y= 1.70  r(Sag)=  7.72  r(Tan)=  7.83
+Seg:90  y= 1.80  r(Sag)=  7.73  r(Tan)=  7.85
+Seg:90  y= 1.90  r(Sag)=  7.73  r(Tan)=  7.88
+Seg:90  y= 2.00  r(Sag)=  7.74  r(Tan)=  7.91
+Seg:90  y= 2.10  r(Sag)=  7.75  r(Tan)=  7.94
+Seg:90  y= 2.20  r(Sag)=  7.76  r(Tan)=  7.97
+Seg:90  y= 2.30  r(Sag)=  7.77  r(Tan)=  8.00
+Seg:90  y= 2.40  r(Sag)=  7.78  r(Tan)=  8.03
+Seg:90  y= 2.50  r(Sag)=  7.79  r(Tan)=  8.06
+Seg:90  y= 2.60  r(Sag)=  7.80  r(Tan)=  8.08
+Seg:90  y= 2.70  r(Sag)=  7.81  r(Tan)=  8.10
+Seg:90  y= 2.80  r(Sag)=  7.82  r(Tan)=  8.12
+Seg:90  y= 2.90  r(Sag)=  7.83  r(Tan)=  8.14
+Seg:90  y= 3.00  r(Sag)=  7.84  r(Tan)=  8.16
+Seg:90  y= 3.10  r(Sag)=  7.85  r(Tan)=  8.18
+Seg:90  y= 3.20  r(Sag)=  7.86  r(Tan)=  8.21
+Seg:91  y= 0.00  r(Sag)=  7.66  r(Tan)=  7.65
+Seg:91  y= 0.10  r(Sag)=  7.66  r(Tan)=  7.65
+Seg:91  y= 0.20  r(Sag)=  7.66  r(Tan)=  7.66
+Seg:91  y= 0.30  r(Sag)=  7.66  r(Tan)=  7.67
+Seg:91  y= 0.40  r(Sag)=  7.66  r(Tan)=  7.68
+Seg:91  y= 0.50  r(Sag)=  7.66  r(Tan)=  7.69
+Seg:91  y= 0.60  r(Sag)=  7.67  r(Tan)=  7.70
+Seg:91  y= 0.70  r(Sag)=  7.67  r(Tan)=  7.71
+Seg:91  y= 0.80  r(Sag)=  7.68  r(Tan)=  7.73
+Seg:91  y= 0.90  r(Sag)=  7.69  r(Tan)=  7.74
+Seg:91  y= 1.00  r(Sag)=  7.69  r(Tan)=  7.75
+Seg:91  y= 1.10  r(Sag)=  7.70  r(Tan)=  7.76
+Seg:91  y= 1.20  r(Sag)=  7.71  r(Tan)=  7.77
+Seg:91  y= 1.30  r(Sag)=  7.71  r(Tan)=  7.78
+Seg:91  y= 1.40  r(Sag)=  7.72  r(Tan)=  7.79
+Seg:91  y= 1.50  r(Sag)=  7.72  r(Tan)=  7.80
+Seg:91  y= 1.60  r(Sag)=  7.72  r(Tan)=  7.82
+Seg:91  y= 1.70  r(Sag)=  7.73  r(Tan)=  7.84
+Seg:91  y= 1.80  r(Sag)=  7.73  r(Tan)=  7.86
+Seg:91  y= 1.90  r(Sag)=  7.74  r(Tan)=  7.89
+Seg:91  y= 2.00  r(Sag)=  7.75  r(Tan)=  7.92
+Seg:91  y= 2.10  r(Sag)=  7.76  r(Tan)=  7.95
+Seg:91  y= 2.20  r(Sag)=  7.77  r(Tan)=  7.98
+Seg:91  y= 2.30  r(Sag)=  7.78  r(Tan)=  8.01
+Seg:91  y= 2.40  r(Sag)=  7.79  r(Tan)=  8.04
+Seg:91  y= 2.50  r(Sag)=  7.80  r(Tan)=  8.06
+Seg:91  y= 2.60  r(Sag)=  7.81  r(Tan)=  8.09
+Seg:91  y= 2.70  r(Sag)=  7.82  r(Tan)=  8.11
+Seg:91  y= 2.80  r(Sag)=  7.83  r(Tan)=  8.13
+Seg:91  y= 2.90  r(Sag)=  7.84  r(Tan)=  8.15
+Seg:91  y= 3.00  r(Sag)=  7.85  r(Tan)=  8.18
+Seg:91  y= 3.10  r(Sag)=  7.86  r(Tan)=  8.20
+Seg:91  y= 3.20  r(Sag)=  7.87  r(Tan)=  8.22
+Seg:92  y= 0.00  r(Sag)=  7.67  r(Tan)=  7.66
+Seg:92  y= 0.10  r(Sag)=  7.67  r(Tan)=  7.66
+Seg:92  y= 0.20  r(Sag)=  7.67  r(Tan)=  7.67
+Seg:92  y= 0.30  r(Sag)=  7.67  r(Tan)=  7.68
+Seg:92  y= 0.40  r(Sag)=  7.67  r(Tan)=  7.68
+Seg:92  y= 0.50  r(Sag)=  7.67  r(Tan)=  7.69
+Seg:92  y= 0.60  r(Sag)=  7.67  r(Tan)=  7.70
+Seg:92  y= 0.70  r(Sag)=  7.68  r(Tan)=  7.72
+Seg:92  y= 0.80  r(Sag)=  7.69  r(Tan)=  7.73
+Seg:92  y= 0.90  r(Sag)=  7.69  r(Tan)=  7.75
+Seg:92  y= 1.00  r(Sag)=  7.70  r(Tan)=  7.76
+Seg:92  y= 1.10  r(Sag)=  7.71  r(Tan)=  7.77
+Seg:92  y= 1.20  r(Sag)=  7.71  r(Tan)=  7.78
+Seg:92  y= 1.30  r(Sag)=  7.72  r(Tan)=  7.79
+Seg:92  y= 1.40  r(Sag)=  7.72  r(Tan)=  7.80
+Seg:92  y= 1.50  r(Sag)=  7.73  r(Tan)=  7.81
+Seg:92  y= 1.60  r(Sag)=  7.73  r(Tan)=  7.83
+Seg:92  y= 1.70  r(Sag)=  7.74  r(Tan)=  7.84
+Seg:92  y= 1.80  r(Sag)=  7.74  r(Tan)=  7.87
+Seg:92  y= 1.90  r(Sag)=  7.75  r(Tan)=  7.89
+Seg:92  y= 2.00  r(Sag)=  7.76  r(Tan)=  7.92
+Seg:92  y= 2.10  r(Sag)=  7.76  r(Tan)=  7.95
+Seg:92  y= 2.20  r(Sag)=  7.77  r(Tan)=  7.98
+Seg:92  y= 2.30  r(Sag)=  7.78  r(Tan)=  8.01
+Seg:92  y= 2.40  r(Sag)=  7.79  r(Tan)=  8.04
+Seg:92  y= 2.50  r(Sag)=  7.80  r(Tan)=  8.07
+Seg:92  y= 2.60  r(Sag)=  7.81  r(Tan)=  8.09
+Seg:92  y= 2.70  r(Sag)=  7.83  r(Tan)=  8.12
+Seg:92  y= 2.80  r(Sag)=  7.84  r(Tan)=  8.14
+Seg:92  y= 2.90  r(Sag)=  7.85  r(Tan)=  8.16
+Seg:92  y= 3.00  r(Sag)=  7.86  r(Tan)=  8.19
+Seg:92  y= 3.10  r(Sag)=  7.87  r(Tan)=  8.22
+Seg:92  y= 3.20  r(Sag)=  7.88  r(Tan)=  8.25
+Seg:93  y= 0.00  r(Sag)=  7.67  r(Tan)=  7.67
+Seg:93  y= 0.10  r(Sag)=  7.67  r(Tan)=  7.67
+Seg:93  y= 0.20  r(Sag)=  7.67  r(Tan)=  7.68
+Seg:93  y= 0.30  r(Sag)=  7.68  r(Tan)=  7.68
+Seg:93  y= 0.40  r(Sag)=  7.68  r(Tan)=  7.69
+Seg:93  y= 0.50  r(Sag)=  7.68  r(Tan)=  7.70
+Seg:93  y= 0.60  r(Sag)=  7.68  r(Tan)=  7.71
+Seg:93  y= 0.70  r(Sag)=  7.68  r(Tan)=  7.72
+Seg:93  y= 0.80  r(Sag)=  7.69  r(Tan)=  7.74
+Seg:93  y= 0.90  r(Sag)=  7.70  r(Tan)=  7.75
+Seg:93  y= 1.00  r(Sag)=  7.70  r(Tan)=  7.77
+Seg:93  y= 1.10  r(Sag)=  7.71  r(Tan)=  7.78
+Seg:93  y= 1.20  r(Sag)=  7.72  r(Tan)=  7.79
+Seg:93  y= 1.30  r(Sag)=  7.72  r(Tan)=  7.80
+Seg:93  y= 1.40  r(Sag)=  7.73  r(Tan)=  7.81
+Seg:93  y= 1.50  r(Sag)=  7.74  r(Tan)=  7.82
+Seg:93  y= 1.60  r(Sag)=  7.74  r(Tan)=  7.84
+Seg:93  y= 1.70  r(Sag)=  7.75  r(Tan)=  7.85
+Seg:93  y= 1.80  r(Sag)=  7.75  r(Tan)=  7.87
+Seg:93  y= 1.90  r(Sag)=  7.76  r(Tan)=  7.89
+Seg:93  y= 2.00  r(Sag)=  7.76  r(Tan)=  7.92
+Seg:93  y= 2.10  r(Sag)=  7.77  r(Tan)=  7.95
+Seg:93  y= 2.20  r(Sag)=  7.78  r(Tan)=  7.98
+Seg:93  y= 2.30  r(Sag)=  7.79  r(Tan)=  8.01
+Seg:93  y= 2.40  r(Sag)=  7.80  r(Tan)=  8.04
+Seg:93  y= 2.50  r(Sag)=  7.81  r(Tan)=  8.07
+Seg:93  y= 2.60  r(Sag)=  7.82  r(Tan)=  8.10
+Seg:93  y= 2.70  r(Sag)=  7.83  r(Tan)=  8.11
+Seg:93  y= 2.80  r(Sag)=  7.84  r(Tan)=  8.12
+Seg:93  y= 2.90  r(Sag)=  7.85  r(Tan)=  8.13
+Seg:93  y= 3.00  r(Sag)=  7.86  r(Tan)=  8.13
+Seg:93  y= 3.10  r(Sag)=  7.87  r(Tan)=  8.14
+Seg:93  y= 3.20  r(Sag)=  7.88  r(Tan)=  8.15
+Seg:93  y= 3.30  r(Sag)=  7.89  r(Tan)=  8.18
+Seg:93  y= 3.40  r(Sag)=  7.89  r(Tan)=  8.22
+Seg:93  y= 3.50  r(Sag)=  7.90  r(Tan)=  8.28
+Seg:93  y= 3.60  r(Sag)=  7.91  r(Tan)=  8.37
+Seg:94  y= 0.00  r(Sag)=  7.67  r(Tan)=  7.68
+Seg:94  y= 0.10  r(Sag)=  7.67  r(Tan)=  7.68
+Seg:94  y= 0.20  r(Sag)=  7.68  r(Tan)=  7.68
+Seg:94  y= 0.30  r(Sag)=  7.68  r(Tan)=  7.69
+Seg:94  y= 0.40  r(Sag)=  7.68  r(Tan)=  7.70
+Seg:94  y= 0.50  r(Sag)=  7.68  r(Tan)=  7.70
+Seg:94  y= 0.60  r(Sag)=  7.69  r(Tan)=  7.72
+Seg:94  y= 0.70  r(Sag)=  7.69  r(Tan)=  7.73
+Seg:94  y= 0.80  r(Sag)=  7.70  r(Tan)=  7.74
+Seg:94  y= 0.90  r(Sag)=  7.70  r(Tan)=  7.76
+Seg:94  y= 1.00  r(Sag)=  7.71  r(Tan)=  7.78
+Seg:94  y= 1.10  r(Sag)=  7.72  r(Tan)=  7.79
+Seg:94  y= 1.20  r(Sag)=  7.72  r(Tan)=  7.80
+Seg:94  y= 1.30  r(Sag)=  7.73  r(Tan)=  7.81
+Seg:94  y= 1.40  r(Sag)=  7.74  r(Tan)=  7.82
+Seg:94  y= 1.50  r(Sag)=  7.74  r(Tan)=  7.83
+Seg:94  y= 1.60  r(Sag)=  7.75  r(Tan)=  7.84
+Seg:94  y= 1.70  r(Sag)=  7.75  r(Tan)=  7.86
+Seg:94  y= 1.80  r(Sag)=  7.76  r(Tan)=  7.87
+Seg:94  y= 1.90  r(Sag)=  7.77  r(Tan)=  7.89
+Seg:94  y= 2.00  r(Sag)=  7.77  r(Tan)=  7.92
+Seg:94  y= 2.10  r(Sag)=  7.78  r(Tan)=  7.95
+Seg:94  y= 2.20  r(Sag)=  7.79  r(Tan)=  7.98
+Seg:94  y= 2.30  r(Sag)=  7.79  r(Tan)=  8.01
+Seg:94  y= 2.40  r(Sag)=  7.80  r(Tan)=  8.04
+Seg:94  y= 2.50  r(Sag)=  7.81  r(Tan)=  8.07
+Seg:94  y= 2.60  r(Sag)=  7.83  r(Tan)=  8.10
+Seg:94  y= 2.70  r(Sag)=  7.84  r(Tan)=  8.12
+Seg:94  y= 2.80  r(Sag)=  7.85  r(Tan)=  8.14
+Seg:94  y= 2.90  r(Sag)=  7.86  r(Tan)=  8.16
+Seg:94  y= 3.00  r(Sag)=  7.87  r(Tan)=  8.18
+Seg:94  y= 3.10  r(Sag)=  7.88  r(Tan)=  8.20
+Seg:94  y= 3.20  r(Sag)=  7.89  r(Tan)=  8.23
+Seg:94  y= 3.30  r(Sag)=  7.90  r(Tan)=  8.27
+Seg:94  y= 3.40  r(Sag)=  7.91  r(Tan)=  8.31
+Seg:94  y= 3.50  r(Sag)=  7.92  r(Tan)=  8.37
+Seg:94  y= 3.60  r(Sag)=  7.93  r(Tan)=  8.44
+Seg:95  y= 0.00  r(Sag)=  7.67  r(Tan)=  7.69
+Seg:95  y= 0.10  r(Sag)=  7.67  r(Tan)=  7.69
+Seg:95  y= 0.20  r(Sag)=  7.68  r(Tan)=  7.69
+Seg:95  y= 0.30  r(Sag)=  7.68  r(Tan)=  7.70
+Seg:95  y= 0.40  r(Sag)=  7.69  r(Tan)=  7.70
+Seg:95  y= 0.50  r(Sag)=  7.69  r(Tan)=  7.71
+Seg:95  y= 0.60  r(Sag)=  7.69  r(Tan)=  7.72
+Seg:95  y= 0.70  r(Sag)=  7.70  r(Tan)=  7.74
+Seg:95  y= 0.80  r(Sag)=  7.70  r(Tan)=  7.75
+Seg:95  y= 0.90  r(Sag)=  7.71  r(Tan)=  7.77
+Seg:95  y= 1.00  r(Sag)=  7.71  r(Tan)=  7.78
+Seg:95  y= 1.10  r(Sag)=  7.72  r(Tan)=  7.80
+Seg:95  y= 1.20  r(Sag)=  7.73  r(Tan)=  7.81
+Seg:95  y= 1.30  r(Sag)=  7.74  r(Tan)=  7.82
+Seg:95  y= 1.40  r(Sag)=  7.74  r(Tan)=  7.83
+Seg:95  y= 1.50  r(Sag)=  7.75  r(Tan)=  7.84
+Seg:95  y= 1.60  r(Sag)=  7.76  r(Tan)=  7.85
+Seg:95  y= 1.70  r(Sag)=  7.76  r(Tan)=  7.86
+Seg:95  y= 1.80  r(Sag)=  7.77  r(Tan)=  7.88
+Seg:95  y= 1.90  r(Sag)=  7.77  r(Tan)=  7.90
+Seg:95  y= 2.00  r(Sag)=  7.78  r(Tan)=  7.92
+Seg:95  y= 2.10  r(Sag)=  7.78  r(Tan)=  7.94
+Seg:95  y= 2.20  r(Sag)=  7.79  r(Tan)=  7.97
+Seg:95  y= 2.30  r(Sag)=  7.80  r(Tan)=  8.00
+Seg:95  y= 2.40  r(Sag)=  7.81  r(Tan)=  8.04
+Seg:95  y= 2.50  r(Sag)=  7.82  r(Tan)=  8.07
+Seg:95  y= 2.60  r(Sag)=  7.83  r(Tan)=  8.10
+Seg:95  y= 2.70  r(Sag)=  7.84  r(Tan)=  8.13
+Seg:95  y= 2.80  r(Sag)=  7.85  r(Tan)=  8.16
+Seg:95  y= 2.90  r(Sag)=  7.86  r(Tan)=  8.19
+Seg:95  y= 3.00  r(Sag)=  7.87  r(Tan)=  8.22
+Seg:95  y= 3.10  r(Sag)=  7.88  r(Tan)=  8.26
+Seg:95  y= 3.20  r(Sag)=  7.89  r(Tan)=  8.30
+Seg:95  y= 3.30  r(Sag)=  7.91  r(Tan)=  8.35
+Seg:95  y= 3.40  r(Sag)=  7.92  r(Tan)=  8.40
+Seg:95  y= 3.50  r(Sag)=  7.93  r(Tan)=  8.46
+Seg:95  y= 3.60  r(Sag)=  7.95  r(Tan)=  8.52
+Seg:96  y= 0.00  r(Sag)=  7.68  r(Tan)=  7.69
+Seg:96  y= 0.10  r(Sag)=  7.68  r(Tan)=  7.70
+Seg:96  y= 0.20  r(Sag)=  7.68  r(Tan)=  7.70
+Seg:96  y= 0.30  r(Sag)=  7.68  r(Tan)=  7.70
+Seg:96  y= 0.40  r(Sag)=  7.69  r(Tan)=  7.71
+Seg:96  y= 0.50  r(Sag)=  7.70  r(Tan)=  7.72
+Seg:96  y= 0.60  r(Sag)=  7.70  r(Tan)=  7.73
+Seg:96  y= 0.70  r(Sag)=  7.70  r(Tan)=  7.74
+Seg:96  y= 0.80  r(Sag)=  7.71  r(Tan)=  7.76
+Seg:96  y= 0.90  r(Sag)=  7.71  r(Tan)=  7.77
+Seg:96  y= 1.00  r(Sag)=  7.72  r(Tan)=  7.79
+Seg:96  y= 1.10  r(Sag)=  7.73  r(Tan)=  7.80
+Seg:96  y= 1.20  r(Sag)=  7.74  r(Tan)=  7.82
+Seg:96  y= 1.30  r(Sag)=  7.74  r(Tan)=  7.83
+Seg:96  y= 1.40  r(Sag)=  7.75  r(Tan)=  7.84
+Seg:96  y= 1.50  r(Sag)=  7.76  r(Tan)=  7.85
+Seg:96  y= 1.60  r(Sag)=  7.76  r(Tan)=  7.86
+Seg:96  y= 1.70  r(Sag)=  7.77  r(Tan)=  7.87
+Seg:96  y= 1.80  r(Sag)=  7.77  r(Tan)=  7.88
+Seg:96  y= 1.90  r(Sag)=  7.78  r(Tan)=  7.90
+Seg:96  y= 2.00  r(Sag)=  7.78  r(Tan)=  7.92
+Seg:96  y= 2.10  r(Sag)=  7.79  r(Tan)=  7.94
+Seg:96  y= 2.20  r(Sag)=  7.80  r(Tan)=  7.97
+Seg:96  y= 2.30  r(Sag)=  7.80  r(Tan)=  8.00
+Seg:96  y= 2.40  r(Sag)=  7.81  r(Tan)=  8.03
+Seg:96  y= 2.50  r(Sag)=  7.82  r(Tan)=  8.07
+Seg:96  y= 2.60  r(Sag)=  7.83  r(Tan)=  8.10
+Seg:96  y= 2.70  r(Sag)=  7.84  r(Tan)=  8.14
+Seg:96  y= 2.80  r(Sag)=  7.85  r(Tan)=  8.18
+Seg:96  y= 2.90  r(Sag)=  7.86  r(Tan)=  8.22
+Seg:96  y= 3.00  r(Sag)=  7.88  r(Tan)=  8.27
+Seg:96  y= 3.10  r(Sag)=  7.89  r(Tan)=  8.32
+Seg:96  y= 3.20  r(Sag)=  7.90  r(Tan)=  8.37
+Seg:96  y= 3.30  r(Sag)=  7.91  r(Tan)=  8.43
+Seg:96  y= 3.40  r(Sag)=  7.93  r(Tan)=  8.49
+Seg:96  y= 3.50  r(Sag)=  7.95  r(Tan)=  8.55
+Seg:96  y= 3.60  r(Sag)=  7.96  r(Tan)=  8.60
+Seg:96  y= 3.70  r(Sag)=  7.98  r(Tan)=  8.65
+Seg:97  y= 0.00  r(Sag)=  7.68  r(Tan)=  7.70
+Seg:97  y= 0.10  r(Sag)=  7.68  r(Tan)=  7.70
+Seg:97  y= 0.20  r(Sag)=  7.68  r(Tan)=  7.71
+Seg:97  y= 0.30  r(Sag)=  7.69  r(Tan)=  7.71
+Seg:97  y= 0.40  r(Sag)=  7.69  r(Tan)=  7.72
+Seg:97  y= 0.50  r(Sag)=  7.70  r(Tan)=  7.72
+Seg:97  y= 0.60  r(Sag)=  7.71  r(Tan)=  7.73
+Seg:97  y= 0.70  r(Sag)=  7.71  r(Tan)=  7.75
+Seg:97  y= 0.80  r(Sag)=  7.71  r(Tan)=  7.76
+Seg:97  y= 0.90  r(Sag)=  7.72  r(Tan)=  7.78
+Seg:97  y= 1.00  r(Sag)=  7.73  r(Tan)=  7.79
+Seg:97  y= 1.10  r(Sag)=  7.73  r(Tan)=  7.81
+Seg:97  y= 1.20  r(Sag)=  7.74  r(Tan)=  7.82
+Seg:97  y= 1.30  r(Sag)=  7.75  r(Tan)=  7.84
+Seg:97  y= 1.40  r(Sag)=  7.76  r(Tan)=  7.85
+Seg:97  y= 1.50  r(Sag)=  7.76  r(Tan)=  7.85
+Seg:97  y= 1.60  r(Sag)=  7.77  r(Tan)=  7.86
+Seg:97  y= 1.70  r(Sag)=  7.77  r(Tan)=  7.87
+Seg:97  y= 1.80  r(Sag)=  7.78  r(Tan)=  7.88
+Seg:97  y= 1.90  r(Sag)=  7.78  r(Tan)=  7.90
+Seg:97  y= 2.00  r(Sag)=  7.79  r(Tan)=  7.91
+Seg:97  y= 2.10  r(Sag)=  7.79  r(Tan)=  7.94
+Seg:97  y= 2.20  r(Sag)=  7.80  r(Tan)=  7.96
+Seg:97  y= 2.30  r(Sag)=  7.81  r(Tan)=  7.99
+Seg:97  y= 2.40  r(Sag)=  7.82  r(Tan)=  8.03
+Seg:97  y= 2.50  r(Sag)=  7.82  r(Tan)=  8.06
+Seg:97  y= 2.60  r(Sag)=  7.83  r(Tan)=  8.10
+Seg:97  y= 2.70  r(Sag)=  7.84  r(Tan)=  8.15
+Seg:97  y= 2.80  r(Sag)=  7.86  r(Tan)=  8.19
+Seg:97  y= 2.90  r(Sag)=  7.87  r(Tan)=  8.25
+Seg:97  y= 3.00  r(Sag)=  7.88  r(Tan)=  8.30
+Seg:97  y= 3.10  r(Sag)=  7.89  r(Tan)=  8.36
+Seg:97  y= 3.20  r(Sag)=  7.91  r(Tan)=  8.43
+Seg:97  y= 3.30  r(Sag)=  7.92  r(Tan)=  8.50
+Seg:97  y= 3.40  r(Sag)=  7.94  r(Tan)=  8.56
+Seg:97  y= 3.50  r(Sag)=  7.96  r(Tan)=  8.62
+Seg:97  y= 3.60  r(Sag)=  7.98  r(Tan)=  8.67
+Seg:97  y= 3.70  r(Sag)=  8.00  r(Tan)=  8.72
+Seg:98  y= 0.00  r(Sag)=  7.68  r(Tan)=  7.71
+Seg:98  y= 0.10  r(Sag)=  7.68  r(Tan)=  7.71
+Seg:98  y= 0.20  r(Sag)=  7.68  r(Tan)=  7.72
+Seg:98  y= 0.30  r(Sag)=  7.69  r(Tan)=  7.72
+Seg:98  y= 0.40  r(Sag)=  7.70  r(Tan)=  7.72
+Seg:98  y= 0.50  r(Sag)=  7.70  r(Tan)=  7.73
+Seg:98  y= 0.60  r(Sag)=  7.71  r(Tan)=  7.74
+Seg:98  y= 0.70  r(Sag)=  7.71  r(Tan)=  7.75
+Seg:98  y= 0.80  r(Sag)=  7.72  r(Tan)=  7.77
+Seg:98  y= 0.90  r(Sag)=  7.72  r(Tan)=  7.78
+Seg:98  y= 1.00  r(Sag)=  7.73  r(Tan)=  7.80
+Seg:98  y= 1.10  r(Sag)=  7.74  r(Tan)=  7.81
+Seg:98  y= 1.20  r(Sag)=  7.75  r(Tan)=  7.83
+Seg:98  y= 1.30  r(Sag)=  7.75  r(Tan)=  7.84
+Seg:98  y= 1.40  r(Sag)=  7.76  r(Tan)=  7.85
+Seg:98  y= 1.50  r(Sag)=  7.77  r(Tan)=  7.86
+Seg:98  y= 1.60  r(Sag)=  7.77  r(Tan)=  7.86
+Seg:98  y= 1.70  r(Sag)=  7.78  r(Tan)=  7.87
+Seg:98  y= 1.80  r(Sag)=  7.78  r(Tan)=  7.88
+Seg:98  y= 1.90  r(Sag)=  7.79  r(Tan)=  7.90
+Seg:98  y= 2.00  r(Sag)=  7.79  r(Tan)=  7.91
+Seg:98  y= 2.10  r(Sag)=  7.80  r(Tan)=  7.94
+Seg:98  y= 2.20  r(Sag)=  7.80  r(Tan)=  7.96
+Seg:98  y= 2.30  r(Sag)=  7.81  r(Tan)=  7.99
+Seg:98  y= 2.40  r(Sag)=  7.82  r(Tan)=  8.02
+Seg:98  y= 2.50  r(Sag)=  7.83  r(Tan)=  8.06
+Seg:98  y= 2.60  r(Sag)=  7.84  r(Tan)=  8.11
+Seg:98  y= 2.70  r(Sag)=  7.85  r(Tan)=  8.15
+Seg:98  y= 2.80  r(Sag)=  7.86  r(Tan)=  8.21
+Seg:98  y= 2.90  r(Sag)=  7.87  r(Tan)=  8.27
+Seg:98  y= 3.00  r(Sag)=  7.88  r(Tan)=  8.34
+Seg:98  y= 3.10  r(Sag)=  7.90  r(Tan)=  8.41
+Seg:98  y= 3.20  r(Sag)=  7.91  r(Tan)=  8.47
+Seg:98  y= 3.30  r(Sag)=  7.93  r(Tan)=  8.54
+Seg:98  y= 3.40  r(Sag)=  7.95  r(Tan)=  8.60
+Seg:98  y= 3.50  r(Sag)=  7.97  r(Tan)=  8.65
+Seg:98  y= 3.60  r(Sag)=  7.99  r(Tan)=  8.69
+Seg:98  y= 3.70  r(Sag)=  8.01  r(Tan)=  8.73
+Seg:98  y= 3.80  r(Sag)=  8.02  r(Tan)=  8.77
+Seg:98  y= 3.90  r(Sag)=  8.04  r(Tan)=  8.81
+Seg:98  y= 4.00  r(Sag)=  8.06  r(Tan)=  8.86
+Seg:98  y= 4.10  r(Sag)=  8.07  r(Tan)=  8.88
+Seg:99  y= 0.00  r(Sag)=  7.68  r(Tan)=  7.72
+Seg:99  y= 0.10  r(Sag)=  7.68  r(Tan)=  7.72
+Seg:99  y= 0.20  r(Sag)=  7.69  r(Tan)=  7.72
+Seg:99  y= 0.30  r(Sag)=  7.69  r(Tan)=  7.72
+Seg:99  y= 0.40  r(Sag)=  7.70  r(Tan)=  7.73
+Seg:99  y= 0.50  r(Sag)=  7.71  r(Tan)=  7.73
+Seg:99  y= 0.60  r(Sag)=  7.71  r(Tan)=  7.74
+Seg:99  y= 0.70  r(Sag)=  7.72  r(Tan)=  7.76
+Seg:99  y= 0.80  r(Sag)=  7.72  r(Tan)=  7.77
+Seg:99  y= 0.90  r(Sag)=  7.73  r(Tan)=  7.79
+Seg:99  y= 1.00  r(Sag)=  7.73  r(Tan)=  7.80
+Seg:99  y= 1.10  r(Sag)=  7.74  r(Tan)=  7.82
+Seg:99  y= 1.20  r(Sag)=  7.75  r(Tan)=  7.83
+Seg:99  y= 1.30  r(Sag)=  7.76  r(Tan)=  7.84
+Seg:99  y= 1.40  r(Sag)=  7.76  r(Tan)=  7.85
+Seg:99  y= 1.50  r(Sag)=  7.77  r(Tan)=  7.86
+Seg:99  y= 1.60  r(Sag)=  7.78  r(Tan)=  7.87
+Seg:99  y= 1.70  r(Sag)=  7.78  r(Tan)=  7.87
+Seg:99  y= 1.80  r(Sag)=  7.79  r(Tan)=  7.88
+Seg:99  y= 1.90  r(Sag)=  7.79  r(Tan)=  7.90
+Seg:99  y= 2.00  r(Sag)=  7.80  r(Tan)=  7.91
+Seg:99  y= 2.10  r(Sag)=  7.80  r(Tan)=  7.93
+Seg:99  y= 2.20  r(Sag)=  7.81  r(Tan)=  7.96
+Seg:99  y= 2.30  r(Sag)=  7.81  r(Tan)=  7.99
+Seg:99  y= 2.40  r(Sag)=  7.82  r(Tan)=  8.02
+Seg:99  y= 2.50  r(Sag)=  7.83  r(Tan)=  8.06
+Seg:99  y= 2.60  r(Sag)=  7.84  r(Tan)=  8.11
+Seg:99  y= 2.70  r(Sag)=  7.85  r(Tan)=  8.16
+Seg:99  y= 2.80  r(Sag)=  7.86  r(Tan)=  8.22
+Seg:99  y= 2.90  r(Sag)=  7.87  r(Tan)=  8.29
+Seg:99  y= 3.00  r(Sag)=  7.88  r(Tan)=  8.36
+Seg:99  y= 3.10  r(Sag)=  7.90  r(Tan)=  8.44
+Seg:99  y= 3.20  r(Sag)=  7.92  r(Tan)=  8.52
+Seg:99  y= 3.30  r(Sag)=  7.94  r(Tan)=  8.59
+Seg:99  y= 3.40  r(Sag)=  7.96  r(Tan)=  8.66
+Seg:99  y= 3.50  r(Sag)=  7.98  r(Tan)=  8.72
+Seg:99  y= 3.60  r(Sag)=  8.00  r(Tan)=  8.76
+Seg:99  y= 3.70  r(Sag)=  8.02  r(Tan)=  8.80
+Seg:99  y= 3.80  r(Sag)=  8.04  r(Tan)=  8.83
+Seg:99  y= 3.90  r(Sag)=  8.06  r(Tan)=  8.87
+Seg:99  y= 4.00  r(Sag)=  8.07  r(Tan)=  8.91
+Seg:99  y= 4.10  r(Sag)=  8.09  r(Tan)=  8.92

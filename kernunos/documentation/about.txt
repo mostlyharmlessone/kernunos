@@ -1,0 +1,3 @@
+The Kernunos/CorneaCopia program is used to view and manipulate corneal topography data files.
+
+The program can input files, compute different properties of the surface data and display them. Files from different machines can be compared to each other.

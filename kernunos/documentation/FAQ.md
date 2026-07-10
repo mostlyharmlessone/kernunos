@@ -1,0 +1,303 @@
+# FAQ/HowTo
+
+Frequently Asked Questions, starting with the most traditional:
+
+Q: Has anyone actually asked any of these questions?
+
+A: No, though they're modeled on questions asked by people who actually use other (understandably more popular and useful) programs. Some are questions I asked along the way. They are in no particular order, but I've tentatively sorted them into General/How-to/and Coding questions.  There's also an in-program Help, which references this file as well as the README and other documentation.  
+
+###General questions
+
+Q: What is this program for?
+
+A: Read the README. Basically it is for improving intraoperability of topography machines by allowing the patient data from one topographer to be directly compared to data from a different topographer, as well as extending the analysis abilities of the patient data in general. It's an amateur effort, not a professional one. 
+
+Q: Why is it called Kernunos?
+
+A: I thought about calling it CorneaCopia, but decided not to.
+
+Q: How does this program work?
+
+A: With as few errors as possible, hopefully.  The data is imported and a smooth surface is interpolated to fit the surface. For example, splines are placed through each meridian for the Placido disk data files, then circumferential splining or least-square fitting is used for interpolation. The cartesian data from the PentaCam is splined horizontally then vertically. The spline data is then used to calculate all the relative curve properties. See [spline_notes.pdf]. While splines have the advantage of being smooth and passing through each data point, they can introduce local oscillations between points that might not reflect the surface derivatives accurately. Least-square methods rely more on the global set of data, but may not accurately represent the surface locally either, though depending on the basis functions, may have more desirable properties such as robustness, ie, not being influenced as much by erroneous data points. The subject of optimal representation of data points by a smooth surface is complicated and beyond the scope of this FAQ.
+
+Q: I found a mistake with your computations! (or a bug in your program, or it crashes etc.) How do I report it?
+
+A: Congratulations and thank you for finding it and being engaged enough to want to provide valuable input. See Contributing in the README: basically, contact me through github. If you think I'm fundamentally wrong in my whole approach or have completely misinterpreted the data, I'll be delighted to fix it if possible. The I/O routines for opening files are not particularly robust and may have had limited testing with real world data: if you find a valid file that breaks, please let me know so I can find out why.
+
+Q: Can you add the data files for my topography machine?
+
+A: I would love to. There's a good chance if the data is human readable in a text editor or if you have documentation or the API of whatever binary format that it is in (e.g. a SDK). I'm also ok with including a binary proprietary decoder from the manufacturer if absolutely necessary, as long as it is either freely distributable, or available to be downloaded from the manufacturer without cost and if its input and output are documented.
+
+Q: Can you interpret my topography pictures?
+
+A: Only with an in person appointment, no telemedicine provided here.
+
+###How-to type questions
+
+Q: How do I use it?
+
+A: Use File|Open to select a file. Only five machine types are currently supported. Note that the Zeiss Atlas CSV filter is non-specific and may include non-Atlas CSV files and that for EyeSys or NIDEK files the corresponding XX,ED, PU,PE AND HDR,HT files will be read when opening an RA file, and the corresponding RA, PU,PE and HDR,HT files will be read when opening an XX or ED file.  Corresponding RA and XX or ED files must be present to read, PU,PE and HDR or HT files are optional and contain pupil data and header or elevation data respectively. Some Atlas files may contain pre-existing Zernike coefficients, which are read if present. Reading a Oculus PentaCam CUR can be done with a concurrent read of a corresponding ELE file, if present.  Oculus Keratograph files can be read as the interpolated or non interpolated versions, and if there is a ZERNIKE file, it will be read as well. When applicable I have tried to support compressed versions of files as well as uncompressed versions.  You can also use Test to generate a ellipsoidal curved surface mathematically to see the difference in viewing modes under ideal circumstances without the pesky limitations of real data.
+
+Q: Are file names case sensitive? 
+
+A: YES, absolutely.  When opening a file, the extensions which are presented as UPPERCASE should be UPPERCASE.  The topography machine files found in the wild are all produced that way, sometimes on case-insensitive filesystems, and my code assumes that is the case. However, when exporting or saving a file, the extensions are all lowercase, and the software assumes that will be the case.
+
+Q: How does File|Compare/Difference Map work?
+
+A: First you load/open a file, as above. It will initially be shown in the central frame. You then open the file to which you would like to compare it. The original will move to the left frame and the last opened file will be central. If you think the comparison would be more valid by rotating the central image, you can use the left most slider to rotate the central image to align it better with the first loaded image (now on the left). You can also move the central image over the original image using the key board A and D keys (with the S key to move the image slightly forward) if that is helpful. The horizontal slider under the image will make the overlaying image more transparent to help alignment. You then pick File|Compare from the main menu. You will be given an option to change the rotation numerically, and an option to align the images using the pupil centers if the data is present. The comparison image generated by the difference between the two surfaces will appear on the right side of the frame, using a relative value color scale in the legend on the right. Note that you probably do not want to enable spline consistency testing if planning on comparing PentaCam files since matching files will be loaded.  Note that if you want to Compare two different Zernike maps, you have to Load, Compute Zernike, then Load the second file, and Compute Zernike and THEN use Compare. Also be sure to have the Tweaks the same between Compares.  Compare does not retroactively change previous calculations, nor does it proactively compute Zernikes.
+
+Q: How does File|Average of two Maps work?
+
+A: Exactly like Compare.
+
+Q: Where's the pupil?
+
+A: When the teacher is ready, the pupil will appear. Or... you can go to View|Pupil. Pupil data is read from any file that has it. PentaCam CUR or ELE files may have incomplete pupil data leading to incomplete and/or noncircular pupils. NIDEK files may be interpreted incorrectly,leading to weirdly distorted pupils. Pupils are depicted as black pie shapes at an arbitrary distance behind the corneal depiction.  Their center position can be used for correction of decentration/registration and comparison.
+
+Q: What can I plot? What is shown on the plot?
+
+A: You can pick the function to be plotted on the 3-D heatmap with Function, eg. Function|Axial or Sagittal Power, and pick your heatmap color scale with Color, eg. Color|Uniform Standard Scale... If you want Zernike coefficients and maps, you can then select Analyze|Compute Zernike Coefficients. After that completes, the Zernike maps can be selected as well. The graph of the surface can be exported to a number of 3-D file formats with File|Export. Some graphs, such as Principal directions, or center deviations can be plotted by GnuPlot, if present on your system.
+
+Q: How do change the view?
+
+A: If you want to see the surface normals or play with shadows you can pick those in View. You can also turn the Pupil depiction on or off. Rotate the object with the mouse, wheel, vertical sliders or keyboard keys A,D,W, and X for horizontal motion, Q to zoom out, S to zoom in. M and N make large jumps in magnification. A mouse scroll wheel is the easiest for zooming. The horizontal slider changes the transparency when surface normals and shadows are not being used.  The view can also be changed to show a relative elevation of the function rather than the corneal elevation.
+
+Q: I can't select a function!
+
+A: In order to select a function, you have to load data first. In order to select any of the Zernike map functions, you have to go to Analyze and generate/compute the Zernike functions first. In order to Export, you have to load something...
+
+Q: What is Redraw and View/AutoRedraw?
+
+A: After you load data, you will see the default function: Axial/Sagittal curvatures, displayed with the default USS fixed color scale and no data tweaks unless you selected something else prior to loading.  If you select a different function or color or tweak, you have to Redraw to see the result.  If you do not want to keep clicking Redraw, you can select AutoRedraw under View. With AutoRedraw, any selection of a new function, color, or tweak will trigger a Redraw. However, deselecting a function or color (which automatically resets to the default) will not.  Note that while changing color or function will be applied with Redraw/AutoRedraw, in order to apply a data tweak to a Zernike map, a recomputation of the Zernike functions will be necessary.
+
+Q: What are the Center Deviations?
+
+A: Center Deviations shows where the spline of slopes is zero, it should be close to zero  for a concave center with a unique maximum.  Because Placido disk data is stored by meridian with the implicit assumption that rays stay in the plane (which is only true for non-astigmatic axially symmetric surfaces), the one dimensional spline reconstructions through the center (where there is no data) will all predict a different local minmax. It should be noted that elevation data, as found in an ELE file from the Oculus PentaCam device or HT files from a NIDEK machine also do not have a unique min/max, at least not within the limits of the significant digits of the exported data. The one Oculus Keratograph CORNEA.O(D/S) file I have seen has computed data, with a min/max at the origin enforced. Different machine files differ as to how the deviations differ from each other. Decentering the image increases the deviations. 
+
+Decentering simply moves intrinsic properties such as shape and principal curvatures, but non-tensor quantities, for example slope based, change with a change of basis/coordinate axis. One of the fundamental problems with traditional corneal topography maps is that they are slope based axial "curvatures", and as derivatives of vectors, unlike vectors, are not tensors. They are therefore not intrinsic, and change with decentering.  As a demonstration, if one decenters an image while using the axisymmetric definitions of axial power, the plot will show distortion similar to central astigmatism. If the "axial power" is redefined as the first principal curvatures, the plot does not change with decentering (within the limits of computational errors induced). Or you could use Gaussian power, or any other function.
+
+Q: What are all the Menu Options and what do they do?
+
+A: Like, a manual?  Let's go through each menu item, from left to right:
+File: 
+```
+	  Load (use to open a data file of a supported type, including saved file snapshots)
+	  Test (generates a curved concave test surface)
+	  Save Current data (Writes the data currently in the central frame to an ASCII file)
+	  Save Compare/Average data (Writes the data currently in the right hand frame, the compare or average window, to an ASCII file)
+	  Check spline consistency (optional test on Atlas/NIDEK/Keratograph files integrating slopes and comparing with supplied elevations, optionally loads a matching PentaCam  file if it exists to compute matching elevations from slopes to elevations)
+	  Use a LSQ spline instead of linear spline for PentaCam conversion 
+	  Compare/Difference Map vs. Average of two Maps...
+		(Compares last two loaded files based on current selected function and the 	  Continuous Hue Heatmap Color Scale) These are often called "difference        maps" Note that the legend will have scientific notation added with E-2,for example, added if the differences are small.
+		Average generates an average of the last two maps. The heatmap/legendis not changed)
+      Decenter (simulates decentering the image)
+	  		Repeat decentering of the same image may eventually lead to artefacts from rounding errors, if so, better reload the data.
+	  Crop (allows for removing peripheral data points or Squashing the data relative to    	the average, a primitive noise filter)			
+	  Swap (swaps the last two loaded files/images)
+	  Redraw   
+	  		(Applies changes to the selection of the function to be plotted and the colorscale used)
+	  Export as Image/Picture (saves a bitmap of the window as a TGA file)
+      Export:
+	         PLY format.. (exports current image as ASCII PLY file)
+	         Binary PLY format...(as binary PLY file)
+	         OFF format...as OFF file
+	         STL (ASCII or binary) format...as STL file
+	         Export with assimp: (write the name and pick the format by extension)
+	         Exit
+```
+		
+
+The LSQ spline instead of linear spline for PentaCam conversion option is an attempt to compensate for the noise in PentaCam (ELE) elevation data wherein several points have, within the limits of digits supplied, identical values, leading to local flat areas.  Note that adjacent identical curvatures are not an issue, but are a feature of a smooth surface.
+
+Average of two maps can be used as noise reduction or data augmentation if you have multiple scan of the same eye in the same clinical scenario, i.e. on the same day, or on different days when there is no anticipated significant change. As with any other data acquisition, multiple remeasurements can be used to improve precision. Averages of multiple files can be achieved by averaging maps two at a time, saving the results and averaging the averages.  Both Compare(difference) and Average maps are shown in the right hand frame with a dedicated legend.
+
+Note that selecting "STL (ASCII or binary) format.."" will give you an option to select STL without color or two different nonstandard color schemes (VisCam/Solidworks or Materials Magic). Only the binary STL format has (nonstandard) color options, so picking a color option has no effect if you do not check the Binary checkbox.  You have to use the checkbox to pick the binary format. If you pick a .stl file name and if you check Binary, the name will be changed to .bin.stl and be a binary STL file, and vice-versa, if you type a name with .bin.stl and do not select Binary, it will change to the name with .stl and be an ASCII stl.  Don't get cute and use uppercase STL or BIN.STL or names with stl/STL etc. in the name, the error checking is limited.  Don't confuse the name STL file with the extension .stl, or PLY (the name of the file type), with the extension .ply etc. There's also some disagreement about whether binary PLY should be identified as .ply .plyb or .bin.ply, which is what I have chosen. Some programs are better than others at using/ignoring an extension to determine a filetype. 
+
+
+Analyze: 
+```
+Compute Zernike (computes central Zernike coefficients and maps)
+Show Zernike (uses gnuplot to show Zernike coefficients if present)
+Principal Directions (uses gnuplot to show Principal Direction Vector Fields)
+Center Deviations (see below under Bad data)
+Show circumferential rings (see below under Bad data)		 
+Plot with GnuPlot Splot  (shows image in a pixellated gnuplot version)
+```
+Zernike calculations are made on the basis of the anterior surface of the cornea only; i.e. they solve a least squares problem for representation of a surface decomposed into a finite number of Zernike polynomials. Understandably, they may not correspond very well to pre-supplied Zernike coefficients supplied by, for example, some Zeiss Atlas 9000 files or Oculus Keratograph files, which probably incorporate other ocular elements of the eye.  GnuPlot windows pop up separately and can be printed/exported to SVG, PDF or PNG. Principal directions are projections onto the x,y plane but computed in the tangent plane of the surface.  See [Curvature_notes.pdf] Round off errors for very spherical surfaces (or in fact using Test with a computed sphere) can lead to unpredictable directions which might have a misleading direction based on round off error.
+
+
+Function: (many different things to display, pick one)
+```
+Axial or Sagittal Power
+Warp or Oblique Power
+Tangential or Instantaneous Power
+Gaussian Power
+Mean Power
+Monge Astigmatism
+Elevation
+Zernike quantities (listed, greyed out until computed)
+```
+
+The Axial power is selected by default. Note that the Axial and Tangential powers are really only defined under axisymmetric assumptions. See [Curvature_notes.pdf] There are multiple other ways in which it could be defined, see [Curvature_equations.pdf] for alternatives.  It is unclear (because of the lack of documentation) which equation VK machines actually use, or if they are the same.
+
+If not imposing axisymmetric assumptions (see Tweaks below), the Axial Power shown is the first principal curvature, with the second principal curvature shown by Tangential or Instantaneous Power. There are alternate definitions of "Axial Power" proposed in the literature, although I do not use them.  The "Warp or Oblique Power" substitutes circumferential curvature for meridional curvature in the "axial power" formula and shows the logical and mathematical disjunction of these concepts. It is not a recognized concept in the literature or known to have any clinical usefulness, but I find it interesting.
+There are edge effects in calculations, as the second derivatives at the edges are assumed to be zero for natural radial splines. 
+
+Color: (palette choice, pick one)
+
+```
+Discrete 2 color Heatmap with linear interpolation
+Discrete 5 color Heatmap with linear interpolation
+Continuous Hue Heatmap with Fixed Saturation and Brightness
+Discrete 12 color Heatmap no interpolation gnuplot style
+Uniform Standard Scale (Smolek-Klyce) discrete map with linear interpolation between 26 colors with fixed range for sagittal/axial powers
+Uniform Standard Scale (NIDEK extension) discrete map with linear interpolation between 26 colors with fixed range for sagittal/axial powers
+Uniform Standard Scale (Smolek-Klyce) discrete map with linear interpolation between 26 colors
+Perceptually Uniform 9 shade Palette discrete map with linear interpolation with ANSI Z80.3 fixed range
+Perceptually Uniform 9 shade palette discrete map with linear interpolation
+```
+
+ Hopefully self explanatory, the Universal Scale Smolek-Klyce with fixed range is selected by default, though it is really best for Axial/Sagittal curvatures. Monge Astigmatism, for example, has much smaller values and would benefit from a relative rather than absolute scale, such as the Continuous Hue Heatmap. The last two attempt to be more readable for individuals with impaired color vision.
+
+View: 
+
+      Auto Redraw (triggers Redraw everytime a color of function is changed)
+      Lighting (applies a point light source to the image)
+	  Show Normals (shows surface normals)  
+	  Show Pupil (shows pupil data if any)
+      Show Axes (shows axes, not compatible with Normals)
+	  Show Angles (shows a circle with degrees at each clock hour, not compatible with Normals)
+	  Show Powers (shows some representative central powers, not compatible with Normals)
+	  Scaled power instead of elevation makes a scaled elevation map of the plotted power instead of mapping the corneal elevation (requires a Redraw command) These are sometimes called potato chip graphs/plots.
+	  
+These seem self explanatory.  
+
+Placido Disk Tweaks:
+
+      Impose axisymmetry assumptions in calculations
+	  Create center node (forces meridians to have a common center at zero)
+      Adjust meridional radii (forces meridians to have a common center at zero)
+	  Use cubic integration instead of trapezoidal
+	  Fillin Placido by circumferential LSQ
+	  Fillin Placido by circumferential spline
+	  Use LSQ instead of circumferential spline
+	  
+The first uses simplified formulas to compute properties which do not use calculated radially based derivatives. See [Curvature_equations.pdf]. Since the computed angular derivatives are quite sensitive to data error, this might be the only way to get reasonable pictures. Using the Test option instead of real data can illustrate the difference in the axisymmetric assumptions quite well. See for example the appearance of umbilical points in the Test data only when using the axisymmetric equations. Umbilical points? see [Curvature_notes.pdf]  Umbilical points are best spotted with either Monge Astigmatism (look for minima/zeroes) or Principal directions (look for derangement). The next three are somewhat self explanatory, but read the README as well as the aforementioned pdfs. Some data with one or either centernode tweaks and cubic integration and no axisymmetry may lead to poor results centrally.  Note that Principal curvature vector fields under Analyze are always computed without axisymmetric assumptions, because axisymmetry leads to only one vector field: radials and cricles.
+
+The next two options are for missing data in files. Unlike Oculus Keratograph files, apparently, Zeiss Atlas and at least one EyeSys file encountered in the wild can have missing meridians where presumably no good data was obtained. If one chooses, the missing meridians can be interpolated from their neighbors with one of the two methods. Bear in mind that there really is no cure for bad or missing data, reconstructed poor data will still probably not resemble data from the same eye with a better tear film. The Placido disk uses reflections and measures the optical surface, which comprises the tear film and the underlying cornea, so measuring two different tear films is measuring two different eyes in that sense. Bad data is also more likely to cause computation errors or crashes, YMMV.
+
+Bad data comes in different forms, erroneous numbers, insufficient precision, missing numbers and discontinuities with possible shift dislocations. Some affect global fitting assumptions (ie lsq) more than local (ie spline) assumptions. Analyze|Show circumferential rings shows the effect of LSQ vs spline on filling in circumferential data. The multiple zeroes in ELE/HT files and adjacent identical points have been mentioned before as a source of local flat areas not well represented by smooth curve fits.  Meriodonal 1-D curves that do not meet in a central point make an inconsistent 3-D shape, as demonstrated by the Analyze|Center Deviations plots being non-zero, and can be adjusted in different ways with the tweaks.  See also Analyze|Average.
+ 
+The seventh option chooses how to compute the angular derivatives, and illustrates the difference in the pros and cons of LSQ vs splining with noisy data.  
+	  
+About: 
+
+       Help: (shows manual, including links to this document and others)
+       About (provides some information about the hardware)
+	   Documentation (small pdf reader for relevant documentation)
+	   About Qt (about the graphical widgets used to make the GUI with C++)
+
+
+Q: Why does the PentaCam "Check spline consistency" ELE and CUR files consistency check not correspond in the center, or why do these plots look different in the center?
+
+A: It should be pointed out that the elevation data is supposedly primary with this machine and that the central elevations shown in the data can frequently have equal (zero) measurements at the center and other areas, with an effective flat center or other area with infinite curvature which can produce artifacts in the center and elsewhere depending on how the data is used.  When the program detects multiple zeroes in an ELE/ELE.CSV file, the number of multiple zeroes is logged. Adjacent local values for curvatures can integrate to a smooth surface, but adjacent local values for slopes or elevations can lead to locally flat areas. When doing a spline interpolation of a flat area, artifacts of curvature can be generated. Some of the central artifacts in the elevation ELE file can be minimized by decentering the image. A subsequent comparison with the corresponding CUR file will show better agreement.
+
+Q: Why are the File Exports for format .{XXX} not read properly by program YYY?
+
+A:  Well, most of the exports are handled by assimp https://assimp-docs.readthedocs.io/en/v5.3.0/exports. For assimp exports, first, (internally) an ASCII PLY file is generated (with unreferenced vertices) and then imported by assimp, which then exports to another format (including ASCII PLY!). Assimp might be limited in its output; it is, after all, designed primarily for imports, hence the name. (Hint: it's not called assexp).. Colors are not always exported correctly, with the common message: Failed to compute tangents; need UV data in channel0. Perhaps that is because the data coming from the internal PLY file are assigned specifically to a vertex (as opposed to a face as in an OFF file), not with a texture or a material, which is more common in most applications. Perhaps assimp expects textures. If you skip assimp, Export|PLY and Export|OFF make readable files but with extra unreferenced vertices. These are harmless and can be cleaned by (e.g.) meshlab, or you can export a PLY or an STL file using assimp, which does not generate unreferenced vertices, if that's important to you. Bear in mind though that assimp is not used for binary PLY exports, as it appears to generate output not read by meshlab and while binary STL is available from assimp, it does not include the nonstandard color options. So, there are known issues, which may improve if upstream addresses them.  
+
+Known issues at this time:
+
+meshlab https://www.meshlab.net/ can open a large number of formats. However a few assimp exports are not readable or give errors even though meshlab supports the format, as follows:
+```
+.obj  files the following error appears: .OBJ Error details: Some materials definitions were not found, a default white material is used where no material was available  (file opens normally however)
+
+.fbx opens without color; I am not sure if this is normal
+
+.glb and .gltf open with color, but only assimp export formats 11 and 13, not 10 and 12.
+```
+
+3D Viewer or Paint3D (Windows 10/11) states support for files with formats 3mf,fbx,obj,stl,ply,gltf,glb 
+
+However:
+```
+.obj and .ply:  the file opens but only as a greyscale shape (meshlab confirms there is color information and opens the file correctly) .obj also has rendering artifacts
+.fbx opens without color; I am not sure if this is normal; .stl opens without color, which is normal for ascii stl which has no color, but the binary stl colors are ignored.
+.glb and .gltf open with color, as with meshlab, but only assimp export formats 11 and 13, not 10 and 12
+.3mf does not open
+```
+
+It's unclear to me where the incompatibility between assimp output and 3D Viewer/Paint3D input lies, though Microsoft has deprecated Paint3D as of 11/04/2024.  I recommend using meshlab if you want to work with the exported 3-D data.
+
+fstl (https://github.com/fstl-app/fstl or http://www.mattkeeter.com/projects/fstl/)
+```
+.stl files: fstl apparently only reads binary stl files, (exported with the nonstandard abbreviation stlb) but without importing either (admittedly nonstandard) color schemes
+```
+
+cloudcompare (https://www.cloudcompare.org/) apparently only reads geometric information, not colors, so not very useful for this purpose
+```
+Verified to read PLY, OFF, STL, FBX without color, fails on assimp generated ASCII stl file.
+
+```
+
+Q: I manually tweaked/edited my topography machine files. Why won't they Load? (this is an actual question from the author)
+
+A: Bear in mind that topography machine files typically have line terminations with Line Feed 0x0A character (aka \n) and a Carriage Return character 0x0D (aka \r).  If you manually edit a file on a Mac or Linux system, your editor may remove the Carriage Return character 0x0D (aka \r) and may cause the file to not be readable.  Files generated by the software will have the line termination determined by the OS. It is easy to write a utility to convert between the two types, which I have included as "sparctxt" and "dostxt" programs.  
+
+
+Q: Speaking of files formats, are you DICOM compliant?
+
+A: No. There's a whole lot to DICOM compliance. As far as data export is concerned, in a typical "DICOM Conformance statement" for a topographer (which this is not), the following categories are sufficient for transfer: Multiframe True Color Secondary Capture Image Storage and Encapsulated PDF Storage.  As such, as far as DICOM for export, no, though you could always export the data or the image in a supported format and then convert it to a PNG or TIFF and thence to EPS with some other easily obtainable software.  
+
+Q: Are there any Easter Eggs?
+A: Well, not really, but if you start the program from the command line, you can use the help option, as in ./kernunos -h  There are some commandline options not available from the program menu. You can use "--transparent" to make the window transparent. You can use "--reverse" (found under --help-all for generic Qt options) to reverse the program so the menus are on the right hand side and kind of backwards...
+
+
+###Mostly coding questions:
+
+Q: Why is so much of the code in Fortran instead of (insert your favorite language here)...?  (This is almost actually a real question from a real person!)
+
+A:  I've made certain choices.  Yours could be different. Back end computations are done in mostly modern Fortran, mostly using features of Fortran 90, 03 or 08, though a few 2018 features may have crept in. It's not FORTRAN 66; at least I try not to have it be. Hanson & Hopkins 2013 text is (IMHO) a good reference. The back end is written in "modern" Fortran, a language designed for computation, with the front end written in C++ with Qt, more appropriate for graphics (and in my case use of OpenGL) and user interaction, at least at the time of this writing.  Kernunos isn't meant to run in the cloud, or any network not transparently handled by the underlying OS, or in a VM, or have multiple instances, or share resources. It is not thread safe. Some file operations are done in C++ and some in Fortran, with a few C routines as noncombatants or because I didn't know how to otherwise or because it was easier.  For those who are interested in issues with C in scientific programming (some of which still apply to C++), Press et al.'s (listed earlier) editorial comments are, to my mind, quite insightful, though some improvements anticipated at the time have been achieved. One such comment is pertinent here:  "One of the cultural barriers that separates computer scientists from "regular" scientists and engineers *(and physicians)* is a differing point of view on whether a 30% or 50% loss of speed is worth worrying about. In many real-time or state-of-the-art scientific applications, such a loss is catastrophic. The practical scientist is trying to solve tomorrow's problems with yesterday's computer; the computer scientist, we think, often has it the other way around."  Besides, I'm comfortable programming in Fortran, rather than whatever is the language de jour.  C++ is like talking in my fourth language.
+
+Q: Why is the coding so bad/uneven? (and other coding criticisms)
+
+A: Parts of the code were written at different stages of my evolution which might make the code uneven in style. As an example, some of the file I/O is relatively straightforward, with unformatted reads of ASCII text files. However as I wrote routines for different input files, I found that the Fortran standard text file of data can unpredictably (and occasionally compiler dependent) encounter errors with data separated by semicolons or colons.  There are a number of ways to handle the situation, some of which were compiler or compiler switch dependent which I wished to avoid.  The first method I used was to call a system command to automatically replace semicolons with commas. Some are more complicated workarounds.  Later, I read some of these files as binary rather than text and reconverted the data to numerical data, avoiding the entire issue at the cost of increased complexity, or wrote a routine to replace the semicolons. Another language, such as C or C++ would have had completely different file I/O routines. Some of my code is old, either originally written in the 80's and 90's in FORTRAN 77 or K&R style C.  I've also borrowed bits and pieces of code throughout from the internet, particularly from stackoverflow. The coding therefore resembles a magpie's nest more than an organized structure with defined architecture. And... for me, C++ is like talking in my fourth language.
+
+Q: Why OpenGL and not (insert your preference here)?
+
+A: OpenGL, while relatively easy for an amateur, is now, alas, being deprecated, with no clear long term successor, imo. Please don't suggest any.  For the last 50 years it's been one hot mess after another coding graphics. It'd be great if graphics were completely supported within C++ or any other general purpose compiled language, with whatever new API (Vulkan, Metal etc.) transparently supported by the compiler writers. Come on guys, it's not as though I have to have a new API every time I want to write to storage, or memory, or add numbers.  Well, maybe when it comes to adding numbers:  GPU and parallel computing.  At least modern Fortran is making some efforts to support parallel operations in the language proper, as opposed to using OpenCL or CUDA or MPI, OpenMPI, OpenMP, TBB, and some compilers are making high level matrix operations supported by e.g. LAPACK under the hood as needed.  On that note, vendor specific extensions are avoided with the intent of trying to make the code able to be compiled on any operating system with freely available tools. 
+
+Q: Why didn't you develop this with (insert programming environment or toolbox here)?
+
+A: So for example, why not boost? why not cgal/jet-3? or libigl? Why Qt and not wxWidgets?  With any project there is a trade-off between reusability of code, documentation, language  available code is written in, licensing etc. One doesn't want to reinvent code that has already been written well and done correctly.  One also doesn't want to incorporate a very large general purpose code base with a complicated API to solve a simple problem.  At this time, the old unsupported and deprecated sparsekit.f90 is used rather than the more modern and in development Fortran "stdlib" https://stdlib.fortran-lang.org/index.html for COO/CSR types. There are trade-offs to everything. Compiled languages are used, not interpreted languages like Python (Be thankful it isn't in BASIC, or APL) because the goal was to have a standalone executable (if possible). The project's trade-offs reflect the sophistication or lack thereof of the author.  
+
+Q: Is this program secure and safe, written using best software practices?
+
+A: No. See the above. See the README under Usage.  Read the SECURITY file/disclaimer
+
+Q: Why didn't you just "vibe code" this with an "AI"/LLM? (This is almost actually a real question from a real person too!)
+
+A: You're welcome to try that approach.  However it's not for me, see the README, notably, and I quote, "no LLM was used for any part of this project, the goal of which has been to exercise my imagination, not to outsource the effort of making things up." 
+
+Q: Did you really not use an "AI"/LLM for this?
+
+A: Yes and that should be painfully obvious from the coding and writing style.
+
+Q: Do you accept "AI"/LLM contributions to your code?
+
+A: I should be so lucky that even a bot would take an interest. Having said that, the LICENSE precludes incorporating any of this code into an LLM's sausage works, for everyone's benefit.  The LLM would have to incorporate it in order to contribute.  The, (ahem), unusual and unique coding style would probably poison its future coding probabilities. Since it might well be impossible for me to detect undeclared or partial "AI"/LLM contributions, at this point, if a human appearing contribution presents itself, I'll look at it.  Use what tools seem right to you, but take responsibility for the output. 
+
+Q: Why not just give topography images/data to an AI and have it tell you how they differ or not?
+
+A: Part of the purpose of this exercise of the imagination is not to just have an answer, an oracle, or an authority, but to understand the data and learn somethng about it and its limitations. If you just want an opinion other than your own, ask any other human being that you trust.  Perhaps one day a real AI will be able to look at two images or data sets, perhaps encrypted proprietary ones, do all the computations done here and give you an answer with detailed data and an explanation **that you can believe** and explain to someone else, (presumably boring them to tears in the process). Today is not that day.
+
+
+
+
+
+
+
+
+
+
+

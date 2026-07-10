@@ -37,13 +37,19 @@
 [submodule "assimp"]
 	path = assimp
 	url = https://github.com/assimp/assimp.git
-[submodule "Janus/coretran"]
-	path = Janus/coretran
-	url = https://github.com/leonfoks/coretran
-[submodule "4935ae72bcbcc1ba5c72"]
-	path = 4935ae72bcbcc1ba5c72
-	url = https://gist.github.com/fairlight1337/4935ae72bcbcc1ba5c72.git
 [submodule "Janus/rply"]
 	path = Janus/rply
 	url = https://github.com/diegonehab/rply
         branch = master
+[submodule "Janus/assimp"]
+	path = Janus/assimp
+	url = https://github.com/assimp/assimp
+[submodule "kernunos/assimp"]
+	path = kernunos/assimp
+	url = https://github.com/assimp/assimp
+[submodule "kernunos/gnuplot-iostream"]
+	path = kernunos/gnuplot-iostream
+	url = https://github.com/dstahlke/gnuplot-iostream
+[submodule "kernunos/rply"]
+	path = kernunos/rply
+	url = https://github.com/diegonehab/rply

@@ -1,0 +1,47 @@
+As related to software:
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+- Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
+
+- Redistributions in binary form must reproduce the above copyright
+  notice, this list of conditions and the following disclaimer listed
+  in this license in the documentation and/or other materials
+  provided with the distribution.
+
+- Neither the name of the copyright holders nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+The copyright holders provide no reassurances that the source code
+provided does not infringe any patent, copyright, or any other
+intellectual property rights of third parties.  The copyright holders
+disclaim any liability to any recipient for claims brought against
+recipient by any third party for infringement of that parties
+intellectual property rights.
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+In addition, the following restrictions apply:
+
+1. The Software and any modifications made to it may not be used for the purpose of training or improving machine learning algorithms,
+including but not limited to artificial intelligence, natural language processing, or data mining. This condition applies to any derivatives,
+modifications, or updates based on the Software code. Any usage of the Software in an AI-training dataset is considered a breach of this License.
+
+2. The Software may not be included in any dataset used for training or improving machine learning algorithms,
+including but not limited to artificial intelligence, natural language processing, or data mining.
+
+3. Any person or organization found to be in violation of these restrictions will be subject to legal action and may be held liable
+for any damages resulting from such use.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+As related to other written material not counted as software:
+
+Copyright © 2026 by Anthony M de Beus is licensed under CC BY-SA 4.0. To view a copy of this license, visit https://creativecommons.org/licenses/by-sa/4.0/ 

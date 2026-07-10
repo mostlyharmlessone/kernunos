@@ -1,0 +1,347 @@
+#ifndef KERNUNOS_H
+#define KERNUNOS_H
+
+#include "GLwidget.h"
+#include "ui_mainwindow.h"
+#include <QWidget>
+
+QT_FORWARD_DECLARE_CLASS(QSlider)
+QT_FORWARD_DECLARE_CLASS(QPushButton)
+
+// global variables
+extern const unsigned int SCR_WIDTH;
+extern const unsigned int SCR_HEIGHT;
+
+extern int64_t flag;
+extern char *filename;
+extern char *filenameout;
+
+extern bool success;
+extern bool paintme;
+
+//how very annoying that these need to be extern & global, but unfortunately cannot then be static
+extern int nV[3];
+extern int nE[3];
+extern std::vector<GLuint> Elements;
+extern std::vector<GLfloat> Vertices;
+extern GLfloat* vertices;
+extern GLuint* elements;
+extern std::vector<GLuint> Elements2;
+extern std::vector<GLfloat> Vertices2;
+extern GLfloat* vertices2;
+extern GLuint* elements2;
+extern std::vector<GLuint> Elements3;
+extern std::vector<GLfloat> Vertices3;
+extern GLfloat* vertices3;
+extern GLuint* elements3;
+
+extern int err_janus;
+extern int pupil_nV;
+extern int pupil_nE;
+extern std::vector<GLuint> pupil_Elements;
+extern std::vector<GLfloat> pupil_Vertices;
+extern GLfloat* pupil_vertices;
+extern GLuint* pupil_elements;
+
+extern int pupil_nV2;
+extern int pupil_nE2;
+extern std::vector<GLuint> pupil_Elements2;
+extern std::vector<GLfloat> pupil_Vertices2;
+extern GLfloat* pupil_vertices2;
+extern GLuint* pupil_elements2;
+
+extern std::vector<float> legendVector;
+extern float* legend;
+extern int nL;
+
+extern std::vector<double> cardinalVector;
+extern double* cardinal;
+extern int nC;
+
+extern std::vector<float> zernVector;
+extern float* zern;
+extern int nZ;
+
+extern std::vector<float> legendVector2;
+extern float* legend2;
+
+extern std::vector<double> cardinalVector2;
+extern double* cardinal2;
+
+extern std::vector<float> zernVector2;
+extern float* zern2;
+
+// calling fortran code
+// fortran code needs an underscore despite c_interface.f90 bind C declaration
+
+extern "C" {
+void janus_(int64_t *flag,char *filename,GLuint *elements,GLfloat *vertices,float *legend,double *cardinal,float *zern,int *nV,int *nE,int *nL,int *nC,GLuint *pupil_elements,GLfloat *pupil_vertices,int *pupil_nV, int *pupil_nE, int *err_janus);
+};
+
+extern "C" {
+void ConvertOFFtoSTL_C_(char *iname, char *oname,int *deftype);
+};
+
+extern "C" {
+void get_compiler_name_(char *compiler_name);
+};
+
+// calling C code
+
+extern "C" {
+int ConvertPLYtoBIN(const char *iname, const char *oname);
+};
+
+extern "C" {
+int CleanSemicolons_C(const char *iname, const char *oname);
+};
+
+extern "C" {
+void LogC(const char *Message);
+};
+
+extern "C" {
+void Ccounter (int *inc,const char *iname);
+};
+
+// external cpp code
+int lioc(const char *iname);
+
+extern QString *m_GLString;
+extern QString glstring_global;
+
+QT_BEGIN_NAMESPACE
+class QAction;
+class QActionGroup;
+class QLabel;
+class QMenu;
+class QCheckBox;
+class QErrorMessage;
+QT_END_NAMESPACE
+
+class Assistant;
+class DialogOptionsWidget;
+
+class MainWindow : public QMainWindow
+
+{
+    Q_OBJECT
+
+public:
+//    MainWindow();
+    explicit MainWindow(QMainWindow *parent = nullptr);
+    void SetGLString(QString& gls);
+    void loadFile(QString& fileName, bool filepresent);
+    QTimer t;
+    bool pentacam;  //needed nonlocally
+    int previous_crop = 0;
+
+protected:
+    void closeEvent(QCloseEvent *event) override;
+
+private slots:
+    bool replace(std::string& str,const std::string& from,const std::string& to);
+    void open();
+    void test();
+    void showDocumentation();
+    void addComments();
+    void redraw();
+    void compare();
+    void decenter();
+    void cropping();
+    void swap();
+    void exportpicture();
+    void zerncompute();
+    void showzern();
+    void ply2bin();
+    void off2stl();
+    void makeoff();
+    void makeply();
+    void makesave();
+    void makesave2();
+    void importexport();
+    void normal();
+    void checkmapsflags();
+    void checkfctsflags();
+    void light();
+    void pupil();
+    void axes();
+    void angles();
+    void power();
+    void redrawOption();
+    void about();
+    void aboutQt();
+    void pdfopen();
+    void updateResult();
+    void LinesofCurvature();
+    void center();
+    void rings();
+    void gnuplotsplot();
+    void consistency();
+    void fctAxial();
+    void fctOblique();
+    void fctTangential();
+    void fctGaussian();
+    void fctMean();
+    void fctMongeAstig();
+    void fctElevation();
+    void fctZ44();
+    void fctZ42();
+    void fctZ40();
+    void fctZ4neg2();
+    void fctZ4neg4();
+    void fctZ33();
+    void fctZ31();
+    void fctZ3neg1();
+    void fctZ3neg3();
+    void fctZ22();
+    void fctZ20();
+    void fctZ2neg2();
+    void fctZ11();
+    void fctZ1neg1();
+    void fctZ00();
+    void tweakcenterNode();
+    void tweakadjustradii();
+    void tweakcubic();
+    void tweakLSQfill();
+    void tweakSplinefill();
+    void tweakLSQspline();
+    void tweaklsqvsspline();
+    void tweakaxisymmetric();
+    void tweaknotelevation();
+    void colorrgb2();
+    void colorrgb5();
+    void colorhsbrgb();
+    void colorgplotpalette();
+    void colorPerceptualUniformfixed();
+    void colorPerceptualUniformpalette();
+    void colorUSSpalettefixed();
+    void colorUSSpaletteNIDEK();
+    void colorUSSpalette();
+
+private:
+    void createActions();
+    void createMenus();
+    Ui::MainWindow ui;
+
+    QSlider *createSlider();
+
+    Assistant *assistant;
+
+    GLwidget *glWidget;
+    QSlider *xSlider;
+    QSlider *ySlider;
+    QSlider *zSlider;
+
+    GLwidget* m_GLwidget;
+
+    QMenu *functionMenu;
+    QAction *AxialAct;
+    QAction *ObliqueAct;
+    QAction *TangentialAct;
+    QAction *GaussianAct;
+    QAction *MeanAct;
+    QAction *AstigAct;
+    QAction *ElevationAct;
+    QAction *Z44VerticalQuatrafoilAct;
+    QAction *Z42Vertical2ndAstigAct;
+    QAction *Z40SphericalAberrationAct;
+    QAction *Z4neg2Oblique2ndAstigAct;
+    QAction *Z4neg4ObliqueQuatrafoilAct;
+    QAction *Z33ObliqueTrefoilAct;
+    QAction *Z3neg3VerticalTrefoilAct;
+    QAction *Z31HorizontalComaAct;
+    QAction *Z3neg1VerticalComaAct;
+    QAction *Z22VerticalAstigAct;
+    QAction *Z2neg2ObliqueAstigAct;
+    QAction *Z20DefocusAct;
+    QAction *Z11XtiltAct;
+    QAction *Z1neg1YtiltAct;
+    QAction *Z00PistonAct;
+
+    QMenu *colorMenu;
+    QAction *rgb2Act;
+    QAction *rgb5Act;
+    QAction *hsbrgbAct;
+    QAction *gplotpaletteAct;
+    QAction *USSfixedAct;
+    QAction *USSNIDEKAct;
+    QAction *USSPaletteAct;
+    QAction *PerceptualfixedAct;
+    QAction *PerceptuallyUniformPaletteAct;
+
+    QMenu *fileMenu;
+    QAction *openAct;
+    QAction *testAct;
+    QAction *makesaveAct;
+    QAction *makesave2Act;
+    QAction *consistencyAct;
+    QAction *compareAct;
+    QAction *swapAct;
+    QAction *screenshotAct;
+    QAction *exitAct;
+
+    QMenu *exportMenu;
+    QAction *ply2binAct;
+    QAction *off2stlAct;
+    QAction *makeoffAct;
+    QAction *makeplyAct;
+    QAction *importexportAct;
+
+    QMenu *viewMenu;
+    QAction *redrawOptionAct;
+    QAction *lightAct;
+    QAction *normalAct;
+    QAction *pupilAct;
+    QAction *axesAct;
+    QAction *anglesAct;
+    QAction *powerAct;
+
+    QMenu *analyzeMenu;
+    QAction *zernAct;
+    QAction *ShowZernAct;
+    QAction *liocAct;
+    QAction *centerAct;
+    QAction *ringsAct;
+    QAction *gnuplotAct;
+
+    QMenu *tweaksMenu;
+    QAction *centernodeAct;
+    QAction *adjustradiiAct;
+    QAction *cubicAct;
+    QAction *LSQfillinAct;
+    QAction *SplinefillinAct;
+    QAction *decenterAct;
+    QAction *croppingAct;
+    QAction *lsqvssplineAct;
+    QAction *makeLSQsplineAct;
+    QAction *axisymmetricAct;
+    QAction *notelevationAct;
+
+    QMenu *helpMenu;
+    QAction *aboutAct;
+    QAction *aboutQtAct;
+    QAction *DocsAct;
+    QAction *HelpAct;
+
+    QAction *redrawAct;
+
+    QLabel *infoLabel;
+    QLabel *multiLineTextLabel;
+    QLabel *degreeLabel;
+    QLabel *xLabel;
+    QLabel *yLabel;
+    QErrorMessage *errorMessageDialog;
+    DialogOptionsWidget *compareDialogOptionsWidget;
+    DialogOptionsWidget *decenterDialogOptionsWidget;
+    DialogOptionsWidget *makeoffDialogOptionsWidget;
+    DialogOptionsWidget *croppingDialogOptionsWidget;
+    DialogOptionsWidget *keratoDialogOptionsWidget;
+};
+
+QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)
+
+
+
+
+#endif // KERNUNOS_H

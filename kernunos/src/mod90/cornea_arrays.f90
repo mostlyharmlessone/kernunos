@@ -1,0 +1,2230 @@
+MODULE cornea_arrays
+! defines arrays and functions used for corneal topography
+ USE set_precision, ONLY : wp, sk, int3d
+ USE LapackInterface, ONLY : dgetrf, dgetrs, dgesv, dsyev, GaussJordan
+ USE spline_interfaces 
+ USE, INTRINSIC ::  ieee_arithmetic
+ USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char,c_int64_t,c_double
+ USE parameters
+ USE special_fct, ONLY : cross_product
+ IMPLICIT NONE
+
+! Defining common data arrays
+ 
+ TYPE wpEyeSysMatrix
+!  RA, XX are undocumented but assumed to compute to powers and radii using Zfct, there are 360 rows
+   REAL (wp), ALLOCATABLE :: RA(:,:), XX(:,:),PU(:),HT(:,:)
+   INTEGER, ALLOCATABLE :: DEG(:)
+   REAL (wp) :: Pupil_Center(2)
+ END TYPE wpEyeSysMatrix
+ 
+ TYPE wpRadSlopeMatrix
+!  theta, r are polar coordinates, Z,Zp,Zp2,Zt2 are elevation, slope, and second derivatives
+   REAL (wp), ALLOCATABLE :: thta(:), r(:,:), Z(:,:), Zp(:,:), Zp2(:,:), Zt2(:,:)
+   INTEGER, ALLOCATABLE :: MV(:)
+ END TYPE wpRadSlopeMatrix
+ 
+ TYPE wpAtlasMatrix
+!  AR radius (polar coord), AD "distance?",AP is axial(sagittal) power in diopters ,AY elevation, DEG polar coord
+   REAL (wp), ALLOCATABLE :: AR(:,:),AD(:,:),AP(:,:),AY(:,:),DEG(:),PU(:,:)
+   REAL (wp) :: Pupil_Center(2)
+ END TYPE wpAtlasMatrix
+
+ TYPE wpJMatrix
+!  Computed results: R is from make rings or Penta version; need to declare one of each of these for each data set for comparison
+!  each array except for R,THT, is (N+1,MM) to include values at each ring and also at center RC==RadSplineCenter pseudo ring
+!  each matching name has the value at origin, min value and max value
+   REAL (wp), ALLOCATABLE :: R(:,:),Z(:,:),THT(:),SAGC(:,:),INSTC(:,:),GAUSSC(:,:),MEANC(:,:),MONGEA(:,:),Warp(:,:)
+   REAL (wp), ALLOCATABLE :: RC(:,:),YPR(:,:),YPTHETA(:,:),YP2R2(:,:),YP2THETA(:,:),YPRTHETA(:,:),PU(:)  ! RC is RadSplineCenter, compare to R0
+   INTEGER, ALLOCATABLE :: MV(:)
+!  SAGC0(1) is central, SAGC0(2) is minimum, SAGC0(3) is maximum, SAGC0(4-11) is are in cardinal directions at dist RM
+   REAL (wp) :: R0,RM,THT0,Z0(11),SAGC0(11),INSTC0(11),GAUSSC0(11),MEANC0(11),MONGEA0(11),Warp0(11),Pupil_Center(2)
+   REAL(wp) SAGC_AVG,INSTC_AVG,MONGEA_AVG,MEANC_AVG,Warp_AVG,GAUSSC_AVG,Z_AVG,ZC_AVG(15)
+   ! 12 up to 15 zernike coordinates
+   REAL(wp),ALLOCATABLE :: ZC(:,:,:)
+   REAL(wp) :: ZC0(11,15) !origin,min,max,cardinal pts for each
+ END TYPE wpJMatrix
+
+ TYPE wpPentaMatrix
+!  DAT is sagittal/axial curvature or elevation in mm, on 141x141 grid of -7.00 mm to +7.00 mm, no data=-1 or 0
+   REAL (wp), ALLOCATABLE :: DAT(:,:),PU(:,:)
+   REAL (wp) :: Pupil_Center(2)
+ END TYPE wpPentaMatrix
+
+ TYPE wpOculusMatrix
+ ! for the Oculus Keratograph 5M
+ !  sagittal/axial, tangential curvature or elevation in mm, radial position, usually 100 segments corresponding to every 4 grads, with 60 points each
+   REAL (wp), ALLOCATABLE :: SAGC(:,:),INSTC(:,:),ELE(:,:),PU(:),Y(:,:)
+   REAL(wp), ALLOCATABLE :: SEG(:),SAGC0(:),INSTC0(:),ELE0(:),Y0(:)  ! MM values at origin Y0(:) should all be 0.0
+   REAL (wp) :: Pupil_Center(3)  !includes diameter as #3
+ END TYPE wpOculusMatrix
+
+ TYPE wpSkyline
+!  DAT is sagittal/axial curvature or elevation in mm, on 141x141 grid of -7.00 mm to +7.00 mm, no data=-1 or 0
+   REAL (wp), ALLOCATABLE :: DAT(:,:),x(:,:),y(:,:),z2DAT(:,:)
+   INTEGER, ALLOCATABLE :: L2x(:),L2y(:),index_col(:)
+   INTEGER :: rows,cols,first_row   ! skyline needed rows and columns
+ END TYPE wpSkyline
+ 
+ TYPE wpDiaSlopeMatrix
+!  rd is the radius positive and negative along the diagonal, rearranged from RadSlope above
+   REAL (wp), ALLOCATABLE :: rd(:,:), Zd(:,:), Zpd(:,:), Zpd2(:,:)
+   REAL (wp), ALLOCATABLE :: rOutMin(:),rInMin(:),rOutMax(:),rInMax(:)
+   INTEGER, ALLOCATABLE :: L2(:)
+ END TYPE wpDiaSlopeMatrix
+
+ TYPE wpsplinevect
+   REAL (wp), ALLOCATABLE :: r(:),z(:),zp2(:)
+   INTEGER, ALLOCATABLE :: mvjr(:)
+ END TYPE wpsplinevect 
+ 
+! all subroutines not in a module need an explicit INTERFACE section below 
+
+! overloading of assignments for operations, defining operators
+
+INTERFACE ASSIGNMENT (=)  
+!Type(FirstArg) = Type(SecondArg) converts/populates to rhs to lhs
+ MODULE PROCEDURE Atlas_eq_RadSlope
+ MODULE PROCEDURE Skyline_eq_Penta
+ MODULE PROCEDURE RadSlope_eq_EyeSys
+ MODULE PROCEDURE RadSlope_eq_Atlas
+ MODULE PROCEDURE DiaSlope_eq_RadSlope
+ MODULE PROCEDURE RadSlope_eq_DiaSlope
+ MODULE PROCEDURE RadSlope_eq_JMatrix
+ MODULE PROCEDURE RadSlope_eq_Oculus
+ ! Type(oneofthesebelow) = INTEGER(0) deallocates the matrix
+ MODULE PROCEDURE destroy_EyeSys
+ MODULE PROCEDURE destroy_Penta
+ MODULE PROCEDURE destroy_Oculus
+ MODULE PROCEDURE destroy_Atlas
+ MODULE PROCEDURE destroy_RadSlope
+ MODULE PROCEDURE destroy_DiaSlope
+ MODULE PROCEDURE destroy_Skyline
+ MODULE PROCEDURE destroy_JMatrix
+END INTERFACE
+
+INTERFACE OPERATOR (.n.) ! unary operator
+! .n. TypeDiaSlopeMatrix populates the matrix with second radial derivatives of z
+ MODULE PROCEDURE DiaSpline ! uses nspline.f90
+END INTERFACE 
+INTERFACE OPERATOR (.nc.) ! unary operator
+! .n. TypeDiaSlopeMatrix populates the matrix with second radial derivatives of z
+ MODULE PROCEDURE DiaSplineCenter ! uses nspline.f90
+END INTERFACE
+
+! declaring common global data arrays
+ REAL(wp), allocatable :: RadSplineCenter(:,:)
+ TYPE(wpJMatrix) :: JMatrix,JMatrix1,JMatrix2,JMatrix3
+ TYPE(wpEyeSysMatrix) :: EyeSys
+ TYPE(wpRadSlopeMatrix) :: RadSlope
+ TYPE(wpAtlasMatrix) :: Atlas
+ TYPE(wpAtlasMatrix) :: AtlasSave
+ TYPE(wpEyeSysMatrix) :: EyeSysSave
+ TYPE(wpPentaMatrix) :: Penta
+ TYPE(wpOculusMatrix) :: Oculus
+ TYPE(wpSkyline) :: Skyline
+ TYPE(wpDiaSlopeMatrix) :: DiaSlope
+
+ CONTAINS
+ 
+SUBROUTINE init_mat_Penta(NP,Penta,Skyline) ! allocate PentaCam arrays
+  INTEGER, INTENT(IN) :: NP
+  INTEGER :: ERROR
+  CHARACTER :: ERR_MSG
+  TYPE(wpPentaMatrix) :: Penta 
+  TYPE(wpSkyline) :: Skyline  
+  allocate (Penta%DAT(NP,NP),Penta%PU(256,2), STAT=ERROR, ERRMSG=ERR_MSG)
+  if (ERROR .NE. 0) then 
+   write(*,*) 'Allocation error: ',ERROR,ERR_MSG
+   return
+  endif 
+  Penta%DAT(:,:)=0 ; Penta%PU(:,:)=0
+  allocate (Skyline%DAT(NP,NP),Skyline%x(NP,NP),&
+            Skyline%z2DAT(NP,NP),Skyline%L2x(NP),Skyline%L2y(NP),&
+            Skyline%index_col(NP), STAT=ERROR, ERRMSG=ERR_MSG)
+  if (ERROR .NE. 0) then 
+   write(*,*) 'Allocation error: ',ERROR,ERR_MSG
+   return
+  endif
+  Skyline%DAT(:,:)=0
+  Skyline%x(:,:)=0
+  Skyline%z2DAT(:,:)=0
+  Skyline%L2x(:)=0
+  Skyline%L2y(:)=0
+  Skyline%index_col(:)=0
+END SUBROUTINE init_mat_Penta
+
+SUBROUTINE init_mat_Oculus(MM,N,Oculus) ! allocate Oculus arrays
+  INTEGER, INTENT(IN) :: MM,N
+  TYPE(wpOculusMatrix) :: Oculus
+  allocate (Oculus%SAGC(MM,N),Oculus%INSTC(MM,N),Oculus%ELE(MM,N),Oculus%PU(MM),Oculus%Y(MM,N),Oculus%SEG(MM))
+  allocate (Oculus%SAGC0(MM),Oculus%INSTC0(MM),Oculus%ELE0(MM),Oculus%Y0(MM))
+  Oculus%SAGC(:,:)=0 ; Oculus%INSTC(:,:)=0 ; Oculus%ELE(:,:)=0 ; Oculus%PU(:)=0 ; Oculus%Y(:,:)=0 ; Oculus%SEG(:)=0
+  Oculus%Pupil_Center=0 ; Oculus%SAGC0(:)=0 ; Oculus%INSTC0(:)=0 ; Oculus%ELE0(:)=0 ; Oculus%Y0(:)=0
+END SUBROUTINE init_mat_Oculus
+
+SUBROUTINE init_mat_JMatrix(MM,N,b) ! allocate common storage arrays
+  INTEGER, INTENT(IN) :: MM,N
+  TYPE(wpJMatrix) :: b
+   allocate (b%R(N,MM),b%Z(N+1,MM),b%THT(MM),b%YPR(N,MM),b%YPTHETA(N,MM),b%SAGC(N+1,MM),&
+            b%INSTC(N+1,MM),b%GAUSSC(N+1,MM),b%MEANC(N+1,MM),b%MONGEA(N+1,MM))
+   allocate (b%MV(MM),b%RC(3,MM),b%Warp(N+1,MM),b%YP2R2(N,MM),b%YP2THETA(N,MM),b%YPRTHETA(N,MM),b%PU(MM))
+   b%R(:,:)=0 ; b%Z(:,:)=0 ; b%THT(:)=0 ; b%YPR(:,:)=0 ; b%YPTHETA(:,:)=0 ; b%SAGC(:,:)=0
+   b%INSTC(:,:)=0 ; b%GAUSSC(:,:)=0 ; b%MEANC(:,:)=0 ; b%MONGEA(:,:)=0 ;  b%Warp(:,:)=0
+   b%MV(:)=0 ; b%RC(:,:)=0 ; b%PU(:)=0; b%Pupil_Center(:)=0 ; b%YP2R2(:,:)=0 ; b%YP2THETA(:,:)=0 ; b%YPRTHETA(:,:)=0
+   allocate (b%ZC(N+1,MM,15))
+   b%ZC(:,:,:)=0
+END SUBROUTINE init_mat_JMatrix
+
+SUBROUTINE init_mat_EyeSys(MM,N,EyeSys) ! allocate EyeSys arrays
+  INTEGER, INTENT(IN) :: MM,N
+  TYPE(wpEyeSysMatrix) :: EyeSys
+  allocate (EyeSys%RA(MM,N),EyeSys%XX(MM,N),EyeSys%PU(MM),EyeSys%DEG(MM),EyeSys%HT(MM,N))
+  EyeSys%RA(:,:)=0 ; EyeSys%XX(:,:)=0 ; EyeSys%PU(:)=0 ; EyeSys%HT(:,:)=0
+  EyeSys%DEG(:)=0 ; EyeSys%Pupil_Center=0
+END SUBROUTINE init_mat_EyeSys
+
+SUBROUTINE init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter) ! allocate common arrays
+  INTEGER, INTENT(IN) :: MM,N
+  REAL(wp), allocatable :: RadSplineCenter(:,:)
+  TYPE(wpRadSlopeMatrix) :: RadSlope  
+  TYPE(wpDiaSlopeMatrix) :: DiaSlope
+  allocate (RadSlope%r(N,MM),RadSlope%Z(N,MM),RadSlope%Zp(N,MM),RadSlope%Zp2(N,MM),&
+            Radslope%Zt2(N,MM),RadSlope%thta(MM),RadSlope%MV(MM))  
+  allocate (DiaSlope%rd(2*N,MM/2),DiaSlope%Zd(2*N,MM/2),DiaSlope%Zpd(2*N,MM/2),&
+            DiaSlope%Zpd2(2*N,MM/2),DiaSlope%L2(MM/2))
+  allocate (DiaSlope%rOutMax(MM/2),DiaSlope%rInMax(MM/2),&
+            DiaSlope%rOutMin(MM/2),DiaSlope%rInMin(MM/2))
+  allocate (RadSplineCenter(3,MM))
+  RadSlope%r(:,:)=0 ; RadSlope%Z(:,:)=0 ; RadSlope%Zp(:,:)=0 ; RadSlope%Zp2(:,:)=0
+  Radslope%Zt2(:,:)=0 ; RadSlope%thta(:)=0 ; RadSlope%MV(:)=0
+  DiaSlope%rd(:,:)=0 ; DiaSlope%Zd(:,:)=0 ; DiaSlope%Zpd(:,:)=0
+  DiaSlope%Zpd2(:,:)=0 ; DiaSlope%L2(:)=0
+  DiaSlope%rOutMax(:)=0 ; DiaSlope%rInMax(:)=0
+  DiaSlope%rOutMin(:)=0 ; DiaSlope%rInMin(:)=0
+  RadSplineCenter(:,:)=0
+END SUBROUTINE init_mat
+
+SUBROUTINE init_mat_Atlas(MM,N,Atlas) ! allocate common arrays
+  INTEGER, INTENT(IN) :: MM,N
+  TYPE(wpAtlasMatrix) :: Atlas
+  allocate (Atlas%AR(MM,N),Atlas%AD(MM,N),Atlas%AP(MM,N),&
+            Atlas%AY(MM,N),Atlas%DEG(MM),Atlas%PU(MM,2))
+  Atlas%AR(:,:)=0 ; Atlas%AD(:,:)=0 ; Atlas%AP(:,:)=0 ; Atlas%PU(:,:)=0
+  Atlas%AY(:,:)=0 ; Atlas%DEG(:)=0 ; Atlas%Pupil_Center=0
+END SUBROUTINE init_mat_Atlas
+
+! Type()=0 deallocates storage
+
+SUBROUTINE destroy_EyeSys(EyeSys,iflag)
+  TYPE(wpEyeSysMatrix), INTENT(INOUT) :: EyeSys
+  INTEGER, INTENT (IN) :: iflag
+  IF (iflag==0) THEN
+   deallocate (EyeSys%RA,EyeSys%XX,EyeSys%PU,EyeSys%DEG,EyeSys%HT)
+  ENDIF
+END SUBROUTINE destroy_EyeSys
+
+SUBROUTINE destroy_Oculus(Oculus,iflag)
+  TYPE(wpOculusMatrix), INTENT(INOUT) :: Oculus
+  INTEGER, INTENT (IN) :: iflag
+  IF (iflag==0) THEN
+   deallocate (Oculus%SAGC,Oculus%INSTC,Oculus%ELE,Oculus%PU,Oculus%Y,Oculus%SEG)
+   deallocate (Oculus%SAGC0,Oculus%INSTC0,Oculus%ELE0,Oculus%Y0)
+  ENDIF
+END SUBROUTINE destroy_Oculus
+
+SUBROUTINE destroy_Atlas(Atlas,iflag)
+  TYPE(wpAtlasMatrix), INTENT(INOUT) :: Atlas
+  INTEGER, INTENT (IN) :: iflag
+  IF (iflag==0) THEN
+   deallocate (Atlas%AR,Atlas%AD,Atlas%AP,Atlas%AY,Atlas%DEG,Atlas%PU)
+  ENDIF
+END SUBROUTINE destroy_Atlas
+
+SUBROUTINE destroy_JMatrix(JMatrix,iflag)
+  TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
+  INTEGER, INTENT (IN) :: iflag
+  IF (iflag==0) THEN
+   deallocate (JMatrix%R,JMatrix%Z,JMatrix%THT,JMatrix%SAGC,JMatrix%INSTC,JMatrix%GAUSSC,&
+              JMatrix%MEANC,JMatrix%MONGEA,JMatrix%MV,JMatrix%RC,JMatrix%ZC,JMatrix%YPR,&
+              JMatrix%YP2R2,JMatrix%YPTHETA,JMatrix%YP2THETA,JMatrix%YPRTHETA)
+  ENDIF
+END SUBROUTINE destroy_JMatrix
+
+SUBROUTINE destroy_RadSlope(RadSlope,iflag)
+  TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
+  INTEGER, INTENT (IN) :: iflag
+  IF (iflag==0) THEN
+   deallocate (RadSlope%r,RadSlope%Z,RadSlope%Zp,RadSlope%Zp2,&
+            Radslope%Zt2,RadSlope%thta,RadSlope%MV)
+  ENDIF
+END SUBROUTINE destroy_RadSlope
+
+SUBROUTINE destroy_DiaSlope(DiaSlope,iflag)
+  TYPE(wpDiaSlopeMatrix), INTENT(INOUT) :: DiaSlope
+  INTEGER, INTENT (IN) :: iflag
+  IF (iflag==0) THEN
+  deallocate (DiaSlope%rd,DiaSlope%Zd,DiaSlope%Zpd,DiaSlope%Zpd2,DiaSlope%L2,&
+              DiaSlope%rOutMax,DiaSlope%rInMax,DiaSlope%rOutMin,DiaSlope%rInMin)
+  ENDIF
+END SUBROUTINE destroy_DiaSlope
+
+SUBROUTINE destroy_Penta(Penta,iflag)
+  TYPE(wpPentaMatrix), INTENT(INOUT) :: Penta
+  INTEGER, INTENT (IN) :: iflag
+  IF (iflag==0) THEN
+  deallocate (Penta%DAT,Penta%PU)
+  ENDIF
+END SUBROUTINE destroy_Penta
+
+SUBROUTINE destroy_Skyline(Skyline,iflag)
+  TYPE(wpSkyline), INTENT(INOUT) :: Skyline
+  INTEGER, INTENT (IN) :: iflag
+  IF (iflag==0) THEN
+  deallocate (Skyline%DAT,Skyline%x,Skyline%z2DAT,&
+              Skyline%L2x,Skyline%L2y,Skyline%index_col)
+  ENDIF
+END SUBROUTINE destroy_Skyline
+!!array conversion routines
+
+! Skyline strategy saves 33% storage space and computing time vs straight grid
+SUBROUTINE Skyline_eq_Penta(Skyline,Penta)  ! Arrange data Skyline, that will allow loading into SplineEval
+  TYPE(wpSkyline), INTENT(INOUT) :: Skyline                ! x,f(x) knots, number of knots(length) and u (test point)
+  TYPE(wpPentaMatrix), INTENT(IN) :: Penta              ! This is the equivalent of DiaSlope=RadSlope
+  INTEGER :: i,j,NP,ii,jj                   ! skyline x by rows, generate y using indices later
+  INTEGER :: first_row,last_row,col(size(Penta%DAT,1)),index_row(size(Penta%DAT,1))
+  INTEGER :: first_col,last_col,row(size(Penta%DAT,1)),index_col(size(Penta%DAT,1))
+  NP=size(Penta%DAT,1)
+! Find edges of data, Penta "data" is assumed contiguous and simply connected
+  index_row=0 ; col=0 ; Skyline%cols=0 ; first_row=0 ; last_row=141  
+  index_col=0 ; row=0 ; Skyline%rows=0 ; first_col=0 ; last_col=141
+  Skyline%x=0 ; Skyline%DAT=0 ; Skyline%L2x=0 ; Skyline%L2y=0
+  do i=1,NP
+   do j=1,NP
+    if (Penta%DAT(i,j) > 0) then 
+     col(i)=col(i)+1                 ! count number of nonnegative (columns) entries (data points) in row (i)
+     if ( index_row(i) < 1 ) then
+      index_row(i)=j                 ! remember starting point on col(i), assumes no holes in data
+     endif
+     if (first_row < 1) then         ! remember first_row
+       first_row=i
+     endif
+    endif
+!   For calculating L2y, transpose the matrix
+    if (Penta%DAT(j,i) > 0) then
+     row(i)=row(i)+1                 ! count number of nonnegative (rows) entries (data points) in column (j)
+     if ( index_col(i) < 1 ) then
+      index_col(i)=j                 ! remember starting point on row(j), assumes no holes in data
+     endif
+     if (first_col < 1) then         ! remember first_col
+       first_col=i
+     endif
+    endif
+   end do
+   if (last_row .eq. NP .and. first_row > 0 .and. col(i) .eq. 0) then  ! remember last row, this assumes contiguous data
+    last_row=i-1
+   endif
+  end do
+! Write Skyline
+  do i=1,last_row-first_row+1             ! number of rows
+   do j=1,col(first_row+i-1)              ! number of columns col(first_row+i-1) for that row
+!   skyline dat i,j Penta ii jj
+!   starting column jj = index_row(first_row+i-1)
+!   row ii = first_row+i-1
+    ii=first_row+i-1
+    jj=index_row(first_row+i-1)+j-1
+    Skyline%x(i,j)=-700.0+((jj-1)*1400.0)/(NP-1.0)
+    Skyline%DAT(i,j)=Penta%DAT(ii,jj)/10.0
+!   Count rows in each column
+    Skyline%L2y(j)=row(first_col+j-1)              ! number of rows == length of each splining vector
+    Skyline%index_col(j)=index_col(first_col+j-1)  ! Skyline these for border calculation
+    if (Skyline%L2y(j) > Skyline%rows) then        ! Skyline%rows is the maximum length of L2y
+     Skyline%rows=Skyline%L2y(j)
+    endif
+   end do
+!  Count columns in each row
+   Skyline%L2x(i)=col(first_row+i-1)         ! number of columns == length of each splining vector
+   if (Skyline%L2x(i) > Skyline%cols) then   ! Skyline%cols is the maximum length of L2x
+    Skyline%cols=Skyline%L2x(i)
+   endif
+  end do
+  Skyline%first_row=first_row                         ! needed for offset
+  if  ( Skyline%rows .ne. last_row-first_row+1 ) then
+   write(*,*) 'Inconsistent row count in Skyline',Skyline%rows,last_row-first_row+1 ! numbers of rows should be maximum length of columns
+   return
+  endif
+!  ii = 0 ; jj= 0
+!  do i=1,NP
+!   ii=ii+row(i)
+!   jj=jj+col(i) 
+!  end do
+!  write (*,*) 'Total number vertices in Skyline: ',ii,jj
+END SUBROUTINE Skyline_eq_Penta
+
+! generates curvatures for ELE files
+SUBROUTINE RadSlope_eq_Skyline(lsq,JMatrix, RadSlope, Skyline, Penta)      ! initially populates JMatrix & RadSlope with splining
+  TYPE(wpSkyline), INTENT(INOUT) :: Skyline                                             
+  TYPE(wpPentaMatrix), INTENT(IN) :: Penta
+  TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
+  TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
+  LOGICAL, INTENT(IN) :: lsq
+  INTEGER :: M1,N1,i,j,k,kk,L2,offset,NP,ITH,err_report,num_zeroes
+  INTEGER :: imv(size(JMatrix%Z,2)),firstcheck
+  REAL(wp) :: rBo,rBi,DAT,u,v,xx,yy,f,fx,fxx,fy,fxy,fyy,fTmp(Skyline%rows),f2Tmp(Skyline%rows),fxTmp(Skyline%rows),fx2Tmp(Skyline%rows),fxxTmp(Skyline%rows),fxx2Tmp(Skyline%rows)
+  REAL(wp) :: r(size(RadSlope%r,2)),z(Skyline%cols),z2(Skyline%cols)
+  REAL(wp) :: x(Skyline%cols)              ! maximum size needed, don't need NP
+  REAL(wp) :: y(Skyline%rows)
+  REAL(wp) :: rmin,check,secondcheck,q,mean,gaussian,fp
+  REAL(wp), allocatable :: knots(:),knotsz(:),knotsz2(:)
+  M1=size(RadSlope%r,2)
+  N1=size(RadSlope%r,1)
+  NP=size(Skyline%DAT,1)                                                   
+  imv=0 ; err_report = 0 ; num_zeroes=0
+  rmin=1E30
+! Spline in x                               (this is the equivalent of DiaSpline)
+  do i=1,Skyline%rows
+   L2=Skyline%L2x(i)
+ ! check for orphan data
+   if (L2 < 10) then
+    write(*,*) 'Orphan data in x, cropping/skipping'
+    cycle
+   endif
+   x(1:L2)=Skyline%x(i,1:L2)
+   z(1:L2)=Skyline%DAT(i,1:L2)
+!  multiple zeroes detection; only the most noticable flat area in elevation files
+   do j=1,L2
+    if (ABS(Skyline%DAT(i,j)) .lt. eps) then
+     num_zeroes=num_zeroes+1
+    endif
+   end do  
+   if (.not. lsq) then
+    call nspline(x,z,L2,z2,err_report)                                ! generate zxDAT
+   else
+    allocate (knots(L2/3),knotsz(L2/3),knotsz2(L2/3))
+    call LSQspline(x, z, L2, knots, knotsz, knotsz2, L2/3, err_report, periodic, csr , sparse)
+    if (err_report .ne. 0) write(*,*) 'Error in LSQspline',err_report
+!    makes zigzags, larger z2
+!    call LSQ_DC2FIT(x, z, L2, knots, knotsz, knotsz2, L2/3, err_report)
+!    if (err_report .ne. 0) write(*,*) 'Error in LSQ_DC2FIT',err_report
+!   repopulate z,  generate z2 with lsqspline not nspline
+    do j=1,L2
+     call SplineEval(0,knots,knotsz,knotsz2,L2/3,x(j),z(j),fp,z2(j))
+    end do
+    deallocate(knots,knotsz,knotsz2)
+   endif
+  Skyline%DAT(i,1:L2)=z(1:L2)
+  Skyline%z2DAT(i,1:L2)=z2(1:L2)
+  end do 
+  if (num_zeroes .gt. 1) then
+   write (*,*) 'multiple zeroes in ELE profile',num_zeroes
+  endif
+! make rings
+! scale in 14x 14 mm of Penta matrix 141x141 divided by 2
+  rBo=700.0                                   ! try to make radius at least out to 7 (theoretical max on PentaCam)
+  rBi=0.05*rBo                              ! donut 
+  JMatrix%SAGC0(2)=1E30                     ! bound setting
+  JMatrix%SAGC0(3)=-1E30
+  JMatrix%Z0(2)=1E30
+  JMatrix%Z0(3)=-1E30  
+  do i=1,M1
+   ITH=2*(i-1)                             ! every 2 degrees
+   RadSlope%thta(i)=PI*ITH/180.0_wp
+   do j=1,N1+1                             ! include center point
+    if (j > N1) then
+     u=0 ; v=0
+    else
+     r(j)=(j-1)*(rBo-rBi)/(N1-1)+rBi
+     u=r(j)*COS(RadSlope%thta(i))        ! x,y coordinates of ring point
+     v=r(j)*SIN(RadSlope%thta(i))
+    endif
+!    Populate JMatrix with Splined PentaCam
+!    Spline in y      (this is the equivalent of Spline1Dx1D)
+     firstcheck=0
+     do k=1,Skyline%rows
+      L2=Skyline%L2x(k)
+      x(1:L2)=Skyline%x(k,1:L2)
+      z(1:L2)=Skyline%DAT(k,1:L2)
+      z2(1:L2)=Skyline%z2DAT(k,1:L2)
+!     f is value at u, fTmp is a new 1:(Skyline%rows) column of values at u
+      call SplineEval(0,x(1:L2),z(1:L2),z2(1:L2),L2,u,f,fx,fxx)   ! first parameter = 0 nonperiodic
+      call SplineEval(2,x(1:L2),z(1:L2),z2(1:L2),L2,u,check)   ! first parameter = 2 extrapolation check
+      if (check == 0 ) firstcheck=firstcheck+1 ! how much extrapolation
+      fTmp(k)=f
+      fxTmp(k)=fx     ! only for ELE files
+      fxxTmp(k)=fxx     ! only for ELE files
+     end do
+     offset=Skyline%first_row-1
+     L2=Skyline%rows       ! this L2 will introduce bogus values at the end of the splines needing trimming
+     do kk=1,L2            ! fTmp has to align with y; but ftmp starts at Skyline%first_row, y starts at 1 for calculation
+      y(kk)=700.0-((kk-1+offset)*1400.0)/(NP-1.0)
+     end do
+     if (.not. lsq) then
+      call nspline(y(1:L2),fTmp(1:L2),L2,f2Tmp(1:L2),err_report)             ! spline in Y of f
+     else
+      allocate (knots(L2/3),knotsz(L2/3),knotsz2(L2/3))
+      call LSQspline(y(1:L2), fTmp(1:L2), L2, knots, knotsz, knotsz2, L2/3, err_report, periodic, csr , sparse)
+      if (err_report .ne. 0) write(*,*) 'Error in LSQspline',err_report
+!     repopulate z,  generate z2 with lsqspline not nspline
+      do kk=1,L2
+       call SplineEval(0,knots,knotsz,knotsz2,L2/3,y(kk),fTmp(kk),fp,f2Tmp(kk))
+      end do
+      deallocate(knots,knotsz,knotsz2)
+     endif
+     if (err_report .ne. 0) write(*,*) 'Error in RadSlope_eq_Skyline f(Y)'
+     call SplineEval(2,y(1:L2),fTmp(1:L2),f2Tmp(1:L2),L2,v,secondcheck)  ! first parameter = 2 extrapolation check
+     if (secondcheck /= 0) then
+      if (.not. lsq) then
+       call nspline(y(1:L2),fxTmp(1:L2),L2,fx2Tmp(1:L2),err_report)           ! spline in Y of fx to get fxy (only for ELE files)
+      else
+       allocate (knots(L2/3),knotsz(L2/3),knotsz2(L2/3))
+       call LSQspline(y(1:L2), fxTmp(1:L2), L2, knots, knotsz, knotsz2, L2/3, err_report, periodic, csr , sparse)
+       if (err_report .ne. 0) write(*,*) 'Error in LSQspline',err_report
+ !     repopulate z,  generate z2 with lsqspline not nspline
+       do kk=1,L2
+        call SplineEval(0,knots,knotsz,knotsz2,L2/3,y(kk),fxTmp(kk),fp,fx2Tmp(kk))
+       end do
+       deallocate(knots,knotsz,knotsz2)
+      endif
+      if (err_report .ne. 0) write(*,*) 'Error in RadSlope_eq_Skyline fx(Y)'
+      if (.not. lsq) then
+       call nspline(y(1:L2),fxxTmp(1:L2),L2,fxx2Tmp(1:L2),err_report)          ! spline in Y of fxx to get fxx (only for ELE files)
+      else
+       allocate (knots(L2/3),knotsz(L2/3),knotsz2(L2/3))
+       call LSQspline(y(1:L2), fxxTmp(1:L2), L2, knots, knotsz, knotsz2, L2/3, err_report, periodic, csr , sparse)
+       if (err_report .ne. 0) write(*,*) 'Error in LSQspline',err_report
+ !     repopulate z,  generate z2 with lsqspline not nspline
+       do kk=1,L2
+        call SplineEval(0,knots,knotsz,knotsz2,L2/3,y(kk),fxxTmp(kk),fp,fxx2Tmp(kk))
+       end do
+       deallocate(knots,knotsz,knotsz2)
+      endif
+      if (err_report .ne. 0) write(*,*) 'Error in RadSlope_eq_Skyline fxx(Y)'
+      call SplineEval(0,y(1:L2),fTmp(1:L2),f2Tmp(1:L2),L2,v,DAT,fy,fyy)  ! first parameter = 0 nonperiodic
+      call SplineEval(0,y(1:L2),fxTmp(1:L2),fx2Tmp(1:L2),L2,v,fx,fxy)  ! first parameter = 0 nonperiodic
+      call SplineEval(0,y(1:L2),fxxTmp(1:L2),fxx2Tmp(1:L2),L2,v,fxx)  ! first parameter = 0 nonperiodic
+      if (j > N1) then
+       if (i .eq. 1) then  !only have to do the center once, not for each i
+        JMatrix%R0=0 ; JMatrix%THT0=0
+        if (ABS(DAT) > 0) then
+         JMatrix%SAGC0(1)=RFCT/(1000.0*ABS(DAT))  ! if curvatures
+        endif
+         JMatrix%Z0(1)=ABS(DAT)                ! if elevation (this seems to be zero by design in .ELE/.ELE.csv files)
+       endif
+      else
+!     boundary check here
+      xx=u*(NP-1)/1400.0 ; yy=v*(NP-1)/1400.0
+      if (Penta%DAT(1+(NP-1)/2+sign(floor(ABS(xx)),floor(xx)),&
+                &1+(NP-1)/2+sign(floor(ABS(yy)),floor(yy))) >= 0) then  ! test for >=0 is why Penta needed here; careful because of center
+       if (firstcheck < 70) then ! better extrapolation check; the 70 here is arbitrary, 40 is getting too low
+        imv(i)=imv(i)+1
+        if (ABS(DAT) > 0 ) then
+         RadSlope%Z(j,i)=ABS(DAT)              ! if DAT is elevation
+         CALL ZFCT(M1,i,ABS(r(j))/100.0,10.0*ABS(DAT),RadSlope%R(j,i),RadSlope%Zp(j,i))    !only for DAT is curvature/SAGC
+         RadSlope%R(j,i)=100*RadSlope%R(j,i)
+        endif
+        JMatrix%Z(j,i)=RadSlope%Z(j,i)   !only for elevations, put in RadSlope%Zp(j,i) in janus
+        gaussian =  (fxx*fyy - fxy*fxy)/((1+fx*fx+fy*fy)**2)
+        mean =  ((fyy*(1+fx*fx)) + fxx*(1+fy*fy) - 2*fx*fy*fxy)/(2*(1+fx*fx+fy*fy)**1.5)
+        q = mean + sign(sqrt(mean*mean-gaussian),mean)
+!       only for elevations; yields worse results than splining; tried at knots as well, no better
+        JMatrix%MONGEA(j,i)=RFCT*(q-gaussian/q)
+        JMatrix%MEANC(j,i)=RFCT*mean
+        JMatrix%INSTC(j,i)=RFCT*q
+        JMatrix%SAGC(j,i)=RFCT*gaussian/q
+        JMatrix%GAUSSC(j,i)=RFCT*sqrt(abs(gaussian))
+!        if ((fxx*fxx-fxy*fxy) < 0) write(*,*) 'Hessian negative in RadSlope_eq_Skyline: gaussian',gaussian,RFCT*sqrt(abs(gaussian)),u,v
+       else  ! outside boundary
+        if (r(j) < rmin) then
+         rmin=r(j)
+        endif
+       endif
+      else  ! outside boundary
+       if (r(j) < rmin) then
+        rmin=r(j)
+       endif
+      endif
+     endif
+    endif
+   end do !j to N1
+ end do !i to M1
+!  write(*,*) 'rmin from RadSlope_eq_Skyline',rmin
+!  write(*,*) imv(:)
+! trim down imv for r > rmin
+  do i=1,M1
+   if ((imv(i)-1)*(rBo-rBi)/(N1-1)+rBi .gt. rmin) imv(i)=int(1+(N1-1)*(rmin-rBi)/(rBo-rBi))
+  end do
+  RadSlope%MV(:)=imv(:)  ! save boundary
+END SUBROUTINE RadSlope_eq_Skyline
+
+! uses ZFCT converts lhs to rhs
+SUBROUTINE RadSlope_eq_EyeSys(RadSlope,EyeSys) ! initially populates r, thta, Zp, MV
+  TYPE(wpEyeSysMatrix), INTENT(INOUT) :: EyeSys
+  TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
+  INTEGER :: i,j,MM,N
+  INTEGER :: imv(size(RadSlope%r,2))
+  REAL(wp) :: ZIX,ZJX,YA3,X2A1
+  MM=size(RadSlope%r,2)
+  N=size(RadSlope%r,1)
+  imv(:) = 0
+  do i=1,MM
+    RadSlope%thta(i)=2*PI*EyeSys%DEG(i)/(MM*1.0_wp)
+      do j=1,N
+       ZIX=EyeSys%XX(i,j)
+       ZJX=EyeSys%RA(i,j)
+       if (ZIX > 0 .AND. ZJX > 0) then
+        imv(i)=imv(i)+1
+        call ZFCT(MM,i,ZJX,ZIX,X2A1,YA3)
+        RadSlope%Zp(imv(i),i)=YA3
+        RadSlope%r(imv(i),i)=X2A1
+        else
+        RadSlope%Zp(j,i)=0._wp  ! sets border
+       endif
+        RadSlope%Zp2(j,i)=1/803.0_wp ! nonzero fallback value before splining for Atlas=RadSlope      
+      end do
+   end do
+   RadSlope%MV(:)=imv(:)
+END SUBROUTINE RadSlope_eq_EyeSys
+
+!VISIA version
+SUBROUTINE RadSlope_eq_Visia(RadSlope,Visia)
+  TYPE(wpEyeSysMatrix), INTENT(INOUT) :: Visia
+  TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
+  INTEGER :: i,j,MM,N
+  INTEGER :: imv(size(RadSlope%r,2))
+  REAL(wp) :: ZIX,ZJX,YA3,X2A1
+  MM=size(RadSlope%r,2)
+  N=size(RadSlope%r,1)
+  imv(:)=0
+  do i=1,MM
+    RadSlope%thta(i)=2*PI*Visia%DEG(i)/(MM*1.0_wp)
+      do j=1,N
+       ZIX=Visia%XX(i,j)
+       ZJX=Visia%RA(i,j)
+       if (ZIX > 0 .AND. ZJX > 0) then
+        imv(i)=imv(i)+1
+        call ZFCT(MM,i,ZJX,ZIX,X2A1,YA3)
+        RadSlope%Zp(imv(i),i)=YA3
+        RadSlope%r(imv(i),i)=X2A1
+        else
+        RadSlope%Zp(j,i)=0._wp  ! sets border
+       endif
+        RadSlope%Zp2(j,i)=1/803.0_wp ! nonzero fallback value before splining for Atlas=RadSlope
+      end do
+   end do
+   RadSlope%MV(:)=imv(:)
+END SUBROUTINE RadSlope_eq_Visia
+
+SUBROUTINE RadSlope_eq_Oculus(RadSlope,Oculus)
+  TYPE(wpOculusMatrix), INTENT(INOUT) :: Oculus
+  TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
+  INTEGER :: i,j,MM,N,imv(size(RadSlope%r,2))
+  REAL(wp) :: ZIX,ZJX,YA3,X2A1
+! uses SAGC not ELE or INSTC
+! load Oculus into RadSlope c 100 x 60
+  MM=size(RadSlope%r,2)
+  N=size(RadSlope%r,1)
+  ! there are 60 points not including the center in Oculus
+! Oculus%SAGC(MM,N),Oculus%INSTC(MM,N),Oculus%ELE(MM,N),Oculus%PU(MM),Oculus%Y(MM,N),Oculus%SEG(MM)
+! seg is angle in grads associated with measurement. have to check if continuous
+  imv(:)=0
+  do j=1,N
+   do i=1,MM
+    RadSlope%thta(i)=2*PI*Oculus%SEG(i)/(MM*1.0_wp)
+    if ((Oculus%SAGC(i,j) > 0) .AND. (Oculus%INSTC(i,j) > 0) .AND. (Oculus%ELE(i,j) > 0) .AND. (Oculus%Y(i,j) > 0)) then    ! Only for Oculus with valid data /= 0
+     ZJX=100*Oculus%Y(i,j)
+     ZIX=100*Oculus%SAGC(i,j)
+     if (ZIX > ZJX) then
+      imv(i)=imv(i)+1
+      CALL ZFCT(MM,i,ZJX,ZIX,X2A1,YA3)
+     else
+      cycle
+     endif
+     RadSlope%r(imv(i),i)=X2A1
+     RadSlope%Zp(imv(i),i)=YA3
+  !  The range might be incompatible
+     RadSlope%Z(imv(i),i)=Oculus%ELE(i,j)
+     RadSlope%Zp2(imv(i),i)=0.01*(sqrt(1+YA3*YA3)**3)/Oculus%INSTC(i,j)
+    endif
+   end do
+  end do
+  RadSlope%MV(:)=imv(:)
+ END SUBROUTINE RadSlope_eq_Oculus
+
+SUBROUTINE RadSlope_eq_JMatrix(RadSlope,JMatrix)
+  TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
+  TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
+  REAL(wp) :: ZIX,YA3,X2A1
+  INTEGER :: i,j,MM
+    MM=size(JMatrix%R,2)
+    RadSlope%thta(:)=JMatrix%THT(:)
+    RadSlope%MV(:)=JMatrix%MV(:)
+    do i=1,MM
+     do j=1,JMatrix%MV(i)
+      if (ABS(JMatrix%SAGC(j,i)) > 0) then
+       ZIX=RFCT/JMatrix%SAGC(j,i)
+       if (ZIX > ABS(JMatrix%R(j,i)) ) then
+        call ZFCT(MM,i,ABS(JMatrix%R(j,i)),ZIX,X2A1,YA3)
+       else
+        if (i > (MM/2)) then  ! > PI negative
+         RadSlope%r(j,i)=-JMatrix%R(j,i)
+        else
+         RadSlope%r(j,i)=JMatrix%R(j,i)
+        endif
+        RadSlope%Zp(j,i)=0._wp  ! sets border
+        RadSlope%Z(j,i)=JMatrix%Z(j,i)
+        RadSlope%Zp2(j,i)=1/803.0_wp ! fallback value before splining
+        cycle
+       endif
+       RadSlope%r(j,i)=X2A1
+       RadSlope%Zp(j,i)=YA3
+       RadSlope%Z(j,i)=JMatrix%Z(j,i)
+       RadSlope%Zp2(j,i)=1/803.0_wp ! fallback value before splining
+      else
+       if (i > (MM/2)) then  ! > PI negative R
+        RadSlope%r(j,i)=-JMatrix%R(j,i)
+       else
+        RadSlope%r(j,i)=JMatrix%R(j,i)
+       endif
+       RadSlope%Zp(j,i)=0._wp  ! sets border
+       RadSlope%Z(j,i)=JMatrix%Z(j,i)
+       RadSlope%Zp2(j,i)=1/803.0_wp ! fallback value before splining
+       cycle      
+      endif       
+     end do
+    end do
+END SUBROUTINE RadSlope_eq_JMatrix
+
+! finds the minmax values of the JMatrix
+SUBROUTINE minmax(JMatrix)
+  TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
+  INTEGER :: i,j,k,M1
+  M1=size(JMatrix%R,2)
+  JMatrix%SAGC0(2)=1E30   ;  JMatrix%SAGC0(3)=-1E30
+  JMatrix%Warp0(2)=1E30   ;  JMatrix%Warp0(3)=-1E30
+  JMatrix%Z0(2)=1E30      ;  JMatrix%Z0(3)=-1E30
+  JMatrix%INSTC0(2)=1E30  ;  JMatrix%INSTC0(3)=-1E30
+  JMatrix%GAUSSC0(2)=1E30 ;  JMatrix%GAUSSC0(3)=-1E30
+  JMatrix%MEANC0(2)=1E30  ;  JMatrix%MEANC0(3)=-1E30
+  JMatrix%MONGEA0(2)=1E30 ;  JMatrix%MONGEA0(3)=-1E30
+  JMatrix%ZC0(2,:)=1E30   ;  JMatrix%ZC0(3,:)=-1E30
+  if (JMatrix%INSTC0(1) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC0(1)
+  if (JMatrix%INSTC0(1) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC0(1)
+  if (JMatrix%GAUSSC0(1) <= JMatrix%GAUSSC0(2)) JMatrix%GAUSSC0(2)=JMatrix%GAUSSC0(1)
+  if (JMatrix%GAUSSC0(1) >= JMatrix%GAUSSC0(3)) JMatrix%GAUSSC0(3)=JMatrix%GAUSSC0(1)
+  if (JMatrix%Z0(1) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z0(1)
+  if (JMatrix%Z0(1) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z0(1)
+  if (JMatrix%SAGC0(1) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC0(1)
+  if (JMatrix%SAGC0(1) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC0(1)
+  if (JMatrix%Warp0(1) <= JMatrix%Warp0(2)) JMatrix%Warp0(2)=JMatrix%Warp0(1)
+  if (JMatrix%Warp0(1) >= JMatrix%Warp0(3)) JMatrix%Warp0(3)=JMatrix%Warp0(1)
+  if (JMatrix%MEANC0(1) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC0(1)
+  if (JMatrix%MEANC0(1) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC0(1)
+  if (JMatrix%MONGEA0(1) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA0(1)
+  if (JMatrix%MONGEA0(1) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA0(1)
+  do k = 1,15
+  if (JMatrix%ZC0(1,k) <= JMatrix%ZC0(2,k)) JMatrix%ZC0(2,k)=JMatrix%ZC0(1,k)
+  if (JMatrix%ZC0(1,k) >= JMatrix%ZC0(3,k)) JMatrix%ZC0(3,k)=JMatrix%ZC0(1,k)
+  end do
+  do i=1,M1
+  do j=1,JMatrix%MV(i)
+   if (JMatrix%INSTC(j,i) <= JMatrix%INSTC0(2)) JMatrix%INSTC0(2)=JMatrix%INSTC(j,i)
+   if (JMatrix%INSTC(j,i) >= JMatrix%INSTC0(3)) JMatrix%INSTC0(3)=JMatrix%INSTC(j,i)
+   if (JMatrix%GAUSSC(j,i) <= JMatrix%GAUSSC0(2)) JMatrix%GAUSSC0(2)=JMatrix%GAUSSC(j,i)
+   if (JMatrix%GAUSSC(j,i) >= JMatrix%GAUSSC0(3)) JMatrix%GAUSSC0(3)=JMatrix%GAUSSC(j,i)
+   if (JMatrix%Z(j,i) <= JMatrix%Z0(2)) JMatrix%Z0(2)=JMatrix%Z(j,i)
+   if (JMatrix%Z(j,i) >= JMatrix%Z0(3)) JMatrix%Z0(3)=JMatrix%Z(j,i)
+   if (JMatrix%SAGC(j,i) <= JMatrix%SAGC0(2)) JMatrix%SAGC0(2)=JMatrix%SAGC(j,i)
+   if (JMatrix%SAGC(j,i) >= JMatrix%SAGC0(3)) JMatrix%SAGC0(3)=JMatrix%SAGC(j,i)
+   if (JMatrix%Warp(j,i) <= JMatrix%Warp0(2)) JMatrix%Warp0(2)=JMatrix%Warp(j,i)
+   if (JMatrix%Warp(j,i) >= JMatrix%Warp0(3)) JMatrix%Warp0(3)=JMatrix%Warp(j,i)
+   if (JMatrix%MEANC(j,i) <= JMatrix%MEANC0(2)) JMatrix%MEANC0(2)=JMatrix%MEANC(j,i)
+   if (JMatrix%MEANC(j,i) >= JMatrix%MEANC0(3)) JMatrix%MEANC0(3)=JMatrix%MEANC(j,i)
+   if (JMatrix%MONGEA(j,i) <= JMatrix%MONGEA0(2)) JMatrix%MONGEA0(2)=JMatrix%MONGEA(j,i)
+   if (JMatrix%MONGEA(j,i) >= JMatrix%MONGEA0(3)) JMatrix%MONGEA0(3)=JMatrix%MONGEA(j,i)
+   do k = 1,15
+    if (JMatrix%ZC(j,i,k) <= JMatrix%ZC0(2,k)) JMatrix%ZC0(2,k)=JMatrix%ZC(j,i,k)
+    if (JMatrix%ZC(j,i,k) >= JMatrix%ZC0(3,k)) JMatrix%ZC0(3,k)=JMatrix%ZC(j,i,k)
+   end do
+  end do
+  end do
+END SUBROUTINE minmax
+
+! primitive noise reduction based on percentage of deviation from the arithmetic average
+! finds averages first
+SUBROUTINE squash(JMatrix,percent_squash)
+TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
+REAL(wp), INTENT(IN) :: percent_squash
+INTEGER :: i,j,k,M1,SUM_OF_POINTS
+M1=size(JMatrix%R,2)
+SUM_OF_POINTS = 0
+do i=1,M1
+ do j=1,JMatrix%MV(i)
+  JMatrix%SAGC_AVG = JMatrix%SAGC_AVG + JMatrix%SAGC(j,i)
+  JMatrix%INSTC_AVG = JMatrix%INSTC_AVG + JMatrix%INSTC(j,i)
+  JMatrix%GAUSSC_AVG = JMatrix%GAUSSC_AVG + JMatrix%INSTC(j,i)
+  JMatrix%Z_AVG = JMatrix%Z_AVG + JMatrix%Z(j,i)
+  JMatrix%Warp_AVG = JMatrix%Warp_AVG + JMatrix%Warp(j,i)
+  JMatrix%MEANC_AVG = JMatrix%MEANC_AVG + JMatrix%MEANC(j,i)
+  JMatrix%MONGEA_AVG = JMatrix%MONGEA_AVG + JMatrix%MONGEA(j,i)
+  do k = 1,15
+   JMatrix%ZC_AVG(k) = JMatrix%ZC_AVG(k) + JMatrix%ZC(j,i,k)
+  end do
+  SUM_OF_POINTS=SUM_OF_POINTS+1
+ end do
+end do
+JMatrix%SAGC_AVG = JMatrix%SAGC_AVG/SUM_OF_POINTS
+JMatrix%SAGC_AVG = JMatrix%INSTC_AVG/SUM_OF_POINTS
+JMatrix%GAUSSC_AVG = JMatrix%GAUSSC_AVG/SUM_OF_POINTS
+JMatrix%Z_AVG = JMatrix%Z_AVG/SUM_OF_POINTS
+JMatrix%Warp_AVG = JMatrix%Warp_AVG/SUM_OF_POINTS
+JMatrix%MEANC_AVG = JMatrix%MEANC_AVG/SUM_OF_POINTS
+JMatrix%MONGEA_AVG = JMatrix%MONGEA_AVG/SUM_OF_POINTS
+do k = 1,15
+ JMatrix%ZC_AVG(k) = JMatrix%ZC_AVG(k)/SUM_OF_POINTS
+end do
+! reduce outliers more than given percentage over average to average
+do i=1,M1
+ do j=1,JMatrix%MV(i)
+  if (ABS(JMatrix%SAGC(j,i)-JMatrix%SAGC_AVG)*percent_squash > ABS(JMatrix%SAGC_AVG)) JMatrix%SAGC(j,i) = (JMatrix%SAGC(j,i)*(1-percent_squash/100.0)+JMatrix%SAGC_AVG+percent_squash/100.0)/2.0
+!  if (ABS(JMatrix%Z(j,i)-JMatrix%Z_AVG)*percent_squash > ABS(JMatrix%Z_AVG)) JMatrix%Z(j,i) = (JMatrix%Z(j,i)*(1-percent_squash/100.0)+JMatrix%Z_AVG+percent_squash/100.0)/2.0
+  if (ABS(JMatrix%INSTC(j,i)-JMatrix%INSTC_AVG)*percent_squash > ABS(JMatrix%INSTC_AVG)) JMatrix%INSTC(j,i) = (JMatrix%INSTC(j,i)*(1-percent_squash/100.0)+JMatrix%INSTC_AVG+percent_squash/100.0)/2.0
+  if (ABS(JMatrix%GAUSSC(j,i)-JMatrix%GAUSSC_AVG)*percent_squash > ABS(JMatrix%GAUSSC_AVG)) JMatrix%GAUSSC(j,i) = (JMatrix%GAUSSC(j,i)*(1-percent_squash/100.0)+JMatrix%GAUSSC_AVG+percent_squash/100.0)/2.0
+  if (ABS(JMatrix%MEANC(j,i)-JMatrix%MEANC_AVG)*percent_squash > ABS(JMatrix%MEANC_AVG)) JMatrix%MEANC(j,i) = (JMatrix%MEANC(j,i)*(1-percent_squash/100.0)+JMatrix%MEANC_AVG+percent_squash/100.0)/2.0
+  if (ABS(JMatrix%MONGEA(j,i)-JMatrix%MONGEA_AVG)*percent_squash > ABS(JMatrix%MONGEA_AVG)) JMatrix%MONGEA(j,i) = (JMatrix%MONGEA(j,i)*(1-percent_squash/100.0)+JMatrix%MONGEA_AVG+percent_squash/100.0)/2.0
+  if (ABS(JMatrix%Warp(j,i)-JMatrix%Warp_AVG)*percent_squash > ABS(JMatrix%Warp_AVG)) JMatrix%Warp(j,i) = (JMatrix%Warp(j,i)*(1-percent_squash/100.0)+JMatrix%Warp_AVG+percent_squash/100.0)/2.0
+ do k = 1,15
+  if (ABS(JMatrix%ZC(j,i,k)-JMatrix%ZC_AVG(k))*percent_squash > ABS(JMatrix%ZC_AVG(k))) JMatrix%ZC(j,i,k) = (JMatrix%ZC(j,i,k)*(1-percent_squash/100.0)+JMatrix%ZC_AVG(k)+percent_squash/100.0)/2.0
+ end do
+ end do
+end do
+if (ABS(JMatrix%SAGC0(1)-JMatrix%SAGC_AVG)*percent_squash > ABS(JMatrix%SAGC_AVG)) JMatrix%SAGC0(1) = (JMatrix%SAGC0(1)*(1.0-percent_squash/100.0)+JMatrix%SAGC_AVG+percent_squash/100.0)/2.0
+! if (ABS(JMatrix%Z0(1)-JMatrix%Z_AVG)*percent_squash > ABS(JMatrix%Z_AVG)) JMatrix%Z0(1) = (JMatrix%Z0(1)*(1-percent_squash/100.0)+JMatrix%Z_AVG+percent_squash/100.0)/2.0
+if (ABS(JMatrix%INSTC0(1)-JMatrix%INSTC_AVG)*percent_squash > ABS(JMatrix%INSTC_AVG)) JMatrix%INSTC0(1) = (JMatrix%INSTC0(1)*(1.0-percent_squash/100.0)+JMatrix%INSTC_AVG+percent_squash/100.0)/2.0
+if (ABS(JMatrix%MEANC0(1)-JMatrix%MEANC_AVG)*percent_squash > ABS(JMatrix%MEANC_AVG)) JMatrix%MEANC0(1) = (JMatrix%MEANC0(1)*(1.0-percent_squash/100.0)+JMatrix%MEANC_AVG+percent_squash/100.0)/2.0
+if (ABS(JMatrix%GAUSSC0(1)-JMatrix%GAUSSC_AVG)*percent_squash > ABS(JMatrix%GAUSSC_AVG)) JMatrix%GAUSSC0(1) = (JMatrix%GAUSSC0(1)*(1.0-percent_squash/100.0)+JMatrix%GAUSSC_AVG+percent_squash/100.0)/2.0
+if (ABS(JMatrix%MONGEA0(1)-JMatrix%MONGEA_AVG)*percent_squash > ABS(JMatrix%MONGEA_AVG)) JMatrix%MONGEA0(1) = (JMatrix%MONGEA0(1)*(1.0-percent_squash/100.0)+JMatrix%MONGEA_AVG+percent_squash/100.0)/2.0
+if (ABS(JMatrix%Warp0(1)-JMatrix%Warp_AVG)*percent_squash > ABS(JMatrix%Warp_AVG)) JMatrix%Warp0(1) = (JMatrix%Warp0(1)*(1.0-percent_squash/100.0)+JMatrix%Warp_AVG+percent_squash/100.0)/2.0
+do k = 1,15
+if (ABS(JMatrix%ZC0(1,k)-JMatrix%ZC_AVG(k))*percent_squash > ABS(JMatrix%ZC_AVG(k))) JMatrix%ZC0(1,k) = (JMatrix%ZC0(1,k)*(1.0-percent_squash/100.0)+JMatrix%ZC_AVG(k)+percent_squash/100.0)/2.0
+end do
+END SUBROUTINE squash
+
+! make new central values for JMatrix by loading each into RadSlope/DiaSlope and splining
+SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
+  TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
+  INTEGER, INTENT(IN) :: TestData
+  INTEGER, INTENT(INOUT) :: iflag
+  INTEGER(c_int64_t), INTENT(IN) :: dat
+  REAL(c_double), INTENT(INOUT) :: cardinal(*)
+  INTEGER(c_int), INTENT(INOUT) :: nC
+  INTEGER :: i,j,M1,N1
+  REAL (wp) :: P_TEMP
+  N1=size(JMatrix%R,1)
+  M1=size(JMatrix%R,2)
+  JMatrix%RM = 150.0
+  !  Z
+  !   notice that we didn't load Z into Zp and then use iflag=10, and 0, though it should be the same
+      do i=1,M1
+       call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%Z(N1+1,i))  !center value of elevation; needs integration from slopes
+       if (i .eq. 1) then
+        P_TEMP=JMatrix%Z(N1+1,1)
+       else
+        P_TEMP=(i*P_TEMP+JMatrix%Z(N1+1,i))/(i+1)      ! cumulative average
+       endif
+      end do
+!     cardinal values
+      do i=1,nC-1
+       call SplineEval1Dx1D(iflag,JMatrix%RM,PI*(i-1)/4.0,JMatrix%Z0(i+3))
+       cardinal(i+1)=JMatrix%Z0(i+3)
+      end do
+     if (TestData.ne.2 .and. TestData.ne.4) then
+      JMatrix%Z0(1)=P_TEMP
+     else
+      write(*,*) 'Central elevation already set in RadSlope_eq_Skyline: center elevation supplied, average calculated',JMatrix%Z0(1),P_TEMP
+     endif
+
+
+  !   write(*,*) 'sagc'
+  !  SAGC
+  !  Reload RadSlope with SAGC & re-spline; can't compute it from surface because ill-defined at origin
+      do i=1,M1
+       do j=1,RadSlope%MV(i)
+        RadSlope%Zp(j,i)=JMatrix%SAGC(j,i)
+       end do
+      end do
+      DiaSlope=RadSlope              ! move to diagonal format
+
+  !   reset iflag for centers: no integration when splining
+
+      if (btest(dat,0)) then
+       iflag=10
+       DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+      else
+       iflag=0
+       DiaSlope%Zpd2 = .n. DiaSlope
+      endif
+  !   lsq instead of circumferential spline
+      if (btest(dat, 8)) then
+       iflag = iflag+100
+      endif
+      do i=1,M1
+       call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%SAGC(N1+1,i))  ! center value
+       if (i .eq. 1) then
+        P_TEMP=JMatrix%SAGC(N1+1,1)
+       else
+        P_TEMP=(i*P_TEMP+JMatrix%SAGC(N1+1,i))/(i+1)      ! cumulative average
+       endif
+      end do
+!     cardinal values
+      do i=1,nC-1
+       call SplineEval1Dx1D(iflag,JMatrix%RM,PI*(i-1)/4.0,JMatrix%SAGC0(i+3))
+       cardinal(i+1)=JMatrix%SAGC0(i+3)
+      end do
+
+     if (TestData.ne.3 .and. TestData.ne.5) then
+      JMatrix%SAGC0(1)=P_TEMP
+     else
+      write(*,*) 'Central Axial Power already set in RadSlope_eq_Skyline, center power supplied, average calculated',JMatrix%SAGC0(1),P_TEMP
+     endif
+
+
+  !   write(*,*) 'Warp'
+  !  Warp
+  !  Reload RadSlope & re-spline; can't compute it from surface because ill-defined at origin
+      do i=1,M1
+       do j=1,RadSlope%MV(i)
+        RadSlope%Zp(j,i)=JMatrix%Warp(j,i)
+       end do
+      end do
+      DiaSlope=RadSlope              ! move to diagonal format
+      if (btest(dat,0)) then
+       iflag=10
+       DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+      else
+       iflag=0
+       DiaSlope%Zpd2 = .n. DiaSlope
+      endif
+
+      do i=1,M1
+       call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%Warp(N1+1,i))  ! center value
+       if (i .eq. 1) then
+        JMatrix%Warp0(1)=JMatrix%Warp(N1+1,1)
+       else
+       JMatrix%Warp0(1)=(i*JMatrix%Warp0(1)+JMatrix%Warp(N1+1,i))/(i+1)      ! cumulative average
+       endif
+      end do
+
+!     cardinal values
+      do i=1,nC-1
+       call SplineEval1Dx1D(iflag,JMatrix%RM,PI*(i-1)/4.0,JMatrix%Warp0(i+3))
+       cardinal(i+1)=JMatrix%Warp0(i+3)
+      end do
+
+  !  write(*,*) 'INSTC'
+  !  INSTC
+  !  Reload RadSlope & respline
+     do i=1,M1
+      do j=1,RadSlope%MV(i)
+       RadSlope%Zp(j,i)=JMatrix%INSTC(j,i)
+      end do
+     end do
+     DiaSlope=RadSlope              ! move to diagonal format
+     if (btest(dat,0)) then
+      iflag=10
+      DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+     else
+      iflag=0
+      DiaSlope%Zpd2 = .n. DiaSlope
+     endif
+
+     do i=1,M1
+      call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC(N1+1,i))  ! center value
+     if (i .eq. 1) then
+      JMatrix%INSTC0(1)=JMatrix%INSTC(N1+1,1)
+     else
+      JMatrix%INSTC0(1)=(i*JMatrix%INSTC0(1)+JMatrix%INSTC(N1+1,i))/(i+1)      ! cumulative average
+     endif
+    end do
+
+!     cardinal values
+      do i=1,nC-1
+       call SplineEval1Dx1D(iflag,JMatrix%RM,PI*(i-1)/4.0,JMatrix%INSTC0(i+3))
+       cardinal(i+1)=JMatrix%INSTC0(i+3)
+      end do
+
+  !   write(*,*) 'GAUSSC'
+  ! GAUSSC
+  ! Reload RadSlope & respline
+    do i=1,M1
+     do j=1,RadSlope%MV(i)
+      RadSlope%Zp(j,i)=JMatrix%GAUSSC(j,i)
+     end do
+    end do
+    DiaSlope=RadSlope              ! move to diagonal format
+    if (btest(dat,0)) then
+     iflag=10
+     DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+    else
+     iflag=0
+     DiaSlope%Zpd2 = .n. DiaSlope
+    endif
+
+    do i=1,M1
+     call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%GAUSSC(N1+1,i))  ! center value
+     if (i .eq. 1) then
+      JMatrix%GAUSSC0(1)=JMatrix%GAUSSC(N1+1,1)
+     else
+      JMatrix%GAUSSC0(1)=(i*JMatrix%GAUSSC0(1)+JMatrix%GAUSSC(N1+1,i))/(i+1)      ! cumulative average
+     endif
+    end do
+
+!     cardinal values
+      do i=1,nC-1
+       call SplineEval1Dx1D(iflag,JMatrix%RM,PI*(i-1)/4.0,JMatrix%GAUSSC0(i+3))
+       cardinal(i+1)=JMatrix%GAUSSC0(i+3)
+      end do
+
+  ! MEANC
+  ! Reload RadSlope & respline
+    do i=1,M1
+     do j=1,RadSlope%MV(i)
+      RadSlope%Zp(j,i)=JMatrix%MEANC(j,i)
+     end do
+    end do
+    DiaSlope=RadSlope              ! move to diagonal format
+    if (btest(dat,0)) then
+     iflag=10
+     DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+    else
+     iflag=0
+     DiaSlope%Zpd2 = .n. DiaSlope
+    endif
+
+    do i=1,M1
+     call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%MEANC(N1+1,i))  ! center value
+     if (i .eq. 1) then
+      JMatrix%MEANC0(1)=JMatrix%MEANC(N1+1,1)
+     else
+      JMatrix%MEANC0(1)=(i*JMatrix%MEANC0(1)+JMatrix%MEANC(N1+1,i))/(i+1)      ! cumulative average
+     endif
+    end do
+
+!     cardinal values
+      do i=1,nC-1
+       call SplineEval1Dx1D(iflag,JMatrix%RM,PI*(i-1)/4.0,JMatrix%MEANC0(i+3))
+       cardinal(i+1)=JMatrix%MEANC0(i+3)
+      end do
+
+  !  write(*,*) 'MONGEA'
+  ! MONGEA
+  ! Reload RadSlope & respline
+    do i=1,M1
+     do j=1,RadSlope%MV(i)
+      RadSlope%Zp(j,i)=JMatrix%MONGEA(j,i)
+     end do
+    end do
+    DiaSlope=RadSlope              ! move to diagonal format
+    if (btest(dat,0)) then
+     iflag=10
+     DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+    else
+     iflag=0
+     DiaSlope%Zpd2 = .n. DiaSlope
+    endif
+
+    do i=1,M1
+     call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%MONGEA(N1+1,i))  ! center value
+    if (i .eq. 1) then
+     JMatrix%MONGEA0(1)=JMatrix%MONGEA(N1+1,1)
+    else
+     JMatrix%MONGEA0(1)=(i*JMatrix%MONGEA0(1)+JMatrix%MONGEA(N1+1,i))/(i+1)      ! cumulative average
+    endif
+   end do
+
+!     cardinal values
+      do i=1,nC-1
+       call SplineEval1Dx1D(iflag,JMatrix%RM,PI*(i-1)/4.0,JMatrix%MongeA0(i+3))
+       cardinal(i+1)=JMatrix%MongeA0(i+3)
+      end do
+
+END SUBROUTINE centersJMatrix
+
+! aka SLOPE2POWER using AXIALP converts lhs to rhs
+SUBROUTINE Atlas_eq_RadSlope(Atlas,RadSlope)
+  TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
+  TYPE(wpAtlasMatrix), INTENT(INOUT) :: Atlas
+  INTEGER :: i,j,imv,MM,N
+  REAL(wp) :: X2,YP,Y2X,POW
+  imv=0
+  Atlas%AP=0._wp
+  MM=size(RadSlope%r,2)
+  N=size(RadSlope%r,1)
+  do i=1,MM
+     Atlas%DEG(i)=180.0_wp*RadSlope%thta(i)/PI
+      do j=1,N
+      X2=RadSlope%r(j,i)
+      YP=RadSlope%Zp(j,i)
+      Y2X=RadSlope%Zp2(j,i)
+      if (ABS(YP) > 0._wp) then
+       CALL AXIALP(X2,YP,Y2X,POW)
+       Atlas%AD(i,j)=ABS(RadSlope%r(j,i))/100.0_wp ! scale value
+       Atlas%AR(i,j)=Atlas%AD(i,j)  !just to make something
+       Atlas%AP(i,j)=POW
+       Atlas%AY(i,j)=RadSlope%Z(j,i)  !completely scaled wrong
+      endif
+      end do
+  end do
+END SUBROUTINE Atlas_eq_RadSlope
+
+!aka power2slope using ZFCT converts lhs to rhs
+SUBROUTINE RadSlope_eq_Atlas(RadSlope,Atlas) ! initially populates r, thta, Zp, MV
+  TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
+  TYPE(wpAtlasMatrix), INTENT(INOUT) :: Atlas
+  REAL(wp) :: ZIX,ZJX,YA3,X2A1
+  REAL(wp) :: DIST,R,POW
+  INTEGER :: i,j,MM,N,imv(size(RadSlope%r,2))
+    MM=size(RadSlope%r,2)
+    N=size(RadSlope%r,1)
+    imv=0
+    do j=1,N
+     do i=1,MM
+      RadSlope%thta(i)=PI*Atlas%DEG(i)/180.0_wp
+      if ((Atlas%AP(i,j) > 0) .AND. (Atlas%AR(i,j) > 0) .AND. (Atlas%AD(i,j) > 0) .AND. (Atlas%AY(i,j) > 0)) then    ! Only for Atlas with valid data /= 0
+       DIST=Atlas%AD(i,j)
+       R=Atlas%AR(i,j)
+       POW=Atlas%AP(i,j)
+       ZIX=RFCT/POW
+!      only use AD == DIST not R here
+       ZJX=DIST*100
+       if (ZIX > ZJX) then
+        imv(i)=imv(i)+1                                            
+        CALL ZFCT(MM,i,ZJX,ZIX,X2A1,YA3)
+       else
+        cycle
+       endif
+       RadSlope%r(imv(i),i)=X2A1
+       RadSlope%Zp(imv(i),i)=YA3
+    !  These are not even close; Y is tiny, AY range is in the 2's
+       RadSlope%Z(imv(i),i)=Atlas%AY(i,j) 
+       RadSlope%Zp2(imv(i),i)=1/803.0_wp ! fallback value before splining
+      endif
+     end do
+    end do
+    RadSlope%MV(:)=imv(:)
+END SUBROUTINE RadSlope_eq_Atlas
+
+SUBROUTINE DiaSlope_eq_RadSlope(DiaSlope,RadSlope)
+ TYPE(wpDiaSlopeMatrix), INTENT(INOUT) :: DiaSlope
+ TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
+ INTEGER :: i,j
+ INTEGER :: M1,N1
+ REAL(wp) :: rB
+ ASSOCIATE(MV=>RadSlope%MV,rOMIN=>DiaSlope%rOutMin,rIMIN=>DiaSlope%rInMin,&
+                           rOMAX=>DiaSlope%rOutMax,rIMAX=>DiaSlope%rInMax)
+   M1=size(DiaSlope%rd,2) !M1=MM/2
+   N1=size(DiaSlope%rd,1) !N1=2*N
+   do i=1,M1
+    DiaSlope%L2(i)=MV(i)+MV(i+M1)
+!   initialize bounds    
+    rOMIN(i)=1E30
+    rOMAX(i)=-1E30
+    rIMIN(i)=-1E30
+    rIMAX(i)=1E30
+    do j=1,N1   ! only go to 2*N, or out of bounds for RadSlope, central value DiaSlope provided in nSplineCenter
+      if (j <= MV(i+M1)) then
+!      NO SIGN CHANGE HERE FOR RADIUS, ALREADY DONE IN RCNVRT 
+       DiaSlope%rd(j,i)=RadSlope%r(MV(i+M1)-j+1,i+M1)
+       DiaSlope%Zd(j,i)=RadSlope%Z(MV(i+M1)-j+1,i+M1)
+       DiaSlope%Zpd(j,i)=RadSlope%Zp(MV(i+M1)-j+1,i+M1)
+       DiaSlope%Zpd2(j,i)=RadSlope%Zp2(MV(i+M1)-j+1,i+M1)
+!      FIND BOUNDS          
+       rB=DiaSlope%rd(j,i) 
+       if (rB <= rOMIN(i)) rOMIN(i)=rB
+       if (rB >= rIMIN(i)) rIMIN(i)=rB                    
+      endif
+      if (j <= MV(i)) then
+       DiaSlope%rd(j+MV(i+M1),i)=RadSlope%r(j,i)
+       DiaSlope%Zd(j+MV(i+M1),i)=RadSlope%Z(j,i)
+       DiaSlope%Zpd(j+MV(i+M1),i)=RadSlope%Zp(j,i)
+       DiaSlope%Zpd2(j+MV(i+M1),i)=RadSlope%Zp2(j,i)    
+!      FIND BOUNDS          
+       rB=DiaSlope%rd(j+MV(i+M1),i)
+       if (rB <= rIMAX(i)) rIMAX(i)=rB
+       if (rB >= rOMAX(i)) rOMAX(i)=rB                        
+      endif
+    end do
+   end do
+ end ASSOCIATE
+END SUBROUTINE DiaSlope_eq_RadSlope
+
+SUBROUTINE RadSlope_eq_DiaSlope(RadSlope,DiaSlope)
+ INTEGER :: i,j
+ INTEGER :: M1,N1
+ TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
+ TYPE(wpDiaSlopeMatrix), INTENT(INOUT) :: DiaSlope
+ ASSOCIATE(MV => RadSlope%MV) 
+   M1=size(DiaSlope%rd,2) !M1=MM/2
+   N1=size(DiaSlope%rd,1) !N1=2*N
+   do i=1,M1
+    do j=1,N1  ! only go to 2*N, or out of bounds for RadSlope, central value DiaSlope provided in nSplineCenter
+      if (j <= MV(i+M1)) then
+       RadSlope%r(MV(i+M1)-j+1,i+M1)=DiaSlope%rd(j,i)
+       RadSlope%Z(MV(i+M1)-j+1,i+M1)=DiaSlope%Zd(j,i)
+       RadSlope%Zp(MV(i+M1)-j+1,i+M1)=DiaSlope%Zpd(j,i)
+       RadSlope%Zp2(MV(i+M1)-j+1,i+M1)=DiaSlope%Zpd2(j,i)
+      endif
+      if (j <= MV(i)) then
+       RadSlope%r(j,i)=DiaSlope%rd(j+MV(i+M1),i)
+       RadSlope%Z(j,i)=DiaSlope%Zd(j+MV(i+M1),i)
+       RadSlope%Zp(j,i)=DiaSlope%Zpd(j+MV(i+M1),i)
+       RadSlope%Zp2(j,i)=DiaSlope%Zpd2(j+MV(i+M1),i)
+      endif
+    end do
+   end do
+ end ASSOCIATE   
+END SUBROUTINE RadSlope_eq_DiaSlope
+
+! spline b%rd(:,i),b%Zpd(:,i)
+ FUNCTION DiaSpline(b) result(a)
+ TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b
+ INTEGER :: M1,N1,i,err_report
+ REAL(wp) :: a(size(b%rd,1),size(b%rd,2))
+ N1=size(b%rd,1) !N1=2*N*M
+ M1=size(b%rd,2) !M1=MM/2
+  a=0  !initialize else the damn thing will fill with NaN
+  err_report = 0
+  do i=1,M1 
+   call nspline(b%rd(:,i),b%Zpd(:,i),b%L2(i),a(:,i),err_report)
+   if (err_report .ne. 0) then
+    write(*,*) 'FATAL DiaSpline error at meridian: ',i
+    write(*,*) 'rd',b%rd(:,i)
+    write(*,*) 'zpd', b%Zpd(:,i)
+    write(*,*) 'L2', b%L2(i)
+    write(*,*) 'a',a(:,i)
+    stop
+   endif
+  end do
+END FUNCTION DiaSpline
+
+ FUNCTION DiaSplineCenter(b) result(a)
+ TYPE(wpDiaSlopeMatrix),INTENT(IN) :: b
+ REAL(wp) :: a(size(b%rd,1),size(b%rd,2))
+ INTEGER :: M1,N1,i, err_report
+ N1=size(b%rd,1) !N1=2*N*M
+ M1=size(b%rd,2) !M1=MM/2
+ a=0 ; err_report = 0
+  do i=1,M1 
+   call nsplineCenter(i,b%rd(:,i),b%Zpd(:,i),b%L2(i),a(:,i),err_report)
+   if (err_report .ne. 0) then
+    write(*,*) 'DiaSplineCenter error at meridian: ',i
+   endif
+  end do
+END FUNCTION DiaSplineCenter
+
+SUBROUTINE Atlas_SplineFillin(Atlas,b,a)
+ TYPE(wpAtlasMatrix), INTENT(IN) :: Atlas
+ REAL(wp),INTENT(IN) :: b(:,:)
+ REAL(wp), INTENT(OUT) :: a(size(b,1),size(b,2))
+ TYPE(wpsplinevect) :: spline
+ INTEGER :: M1,N1,i,j,k,err_report
+ REAL(wp) :: tht(size(b,1)),RTEMP,Q,radianK
+! if Atlas then  size(b,2)->N and size(b,1)->M
+ N1=size(b,2) !N1=N
+ M1=size(b,1) !M1=MM
+ a=b ; tht=0  !initialize else the damn thing will fill with NaN
+ allocate (spline%r(M1),spline%z(M1),spline%zp2(M1),spline%mvjr(N1))
+ associate (t=>spline%r,z=>spline%z,zt2=>spline%zp2,mvjr=>spline%mvjr)
+  mvjr=0
+  do j=1,M1
+   tht(j)=PI*(j-1)/90.0_wp  ! every 2 degrees
+  end do
+  do i=1,N1
+   do j=1,M1
+    Q=b(j,i)
+    if ((Atlas%AP(j,i) > 0) .AND. (Atlas%AR(j,i) > 0) .AND. (Atlas%AD(j,i) > 0) .AND. (Atlas%AY(j,i) > 0)) then ! eliminate all the bad points
+!    if (ABS(Q) > 0.) then
+     mvjr(i)=mvjr(i)+1
+     t(mvjr(i))=tht(j)
+     z(mvjr(i))=Q
+    endif
+   end do
+!  no splining if less than half the points available
+   if (mvjr(i) .gt. (M1/2)) then
+    call pspli(t,z,mvjr(i),zt2,err_report)
+   else
+    cycle
+   endif
+   do k=1,M1
+    radianK=tht(k)
+    call SplineEval(1,t,z,zt2,mvjr(i),radianK,RTEMP)
+    if(ABS(b(k,i)-RTEMP) > EPS) then
+     if ((Atlas%AP(k,i) > 0) .AND. (Atlas%AR(k,i) > 0) .AND. (Atlas%AD(k,i) > 0) .AND. (Atlas%AY(k,i) > 0)) then ! eliminate all the bad points
+!     if(ABS(b(k,i)) > EPS) then
+      write(*,*) 'spline error in cornea_arrays Atlas fillin',K,I,b(K,I),RTEMP
+     endif
+     a(k,i)=RTEMP
+    endif
+   end do
+  end do
+ end associate
+ deallocate (spline%r,spline%z,spline%zp2,spline%mvjr)
+END SUBROUTINE Atlas_SplineFillin
+
+SUBROUTINE EyeSys_SplineFillin(EyeSys,b,a)
+  TYPE(wpEyeSysMatrix), INTENT(INOUT) :: EyeSys
+  REAL(wp),INTENT(IN) :: b(:,:)
+  REAL(wp), INTENT(OUT) :: a(size(b,1),size(b,2))
+  TYPE(wpsplinevect) :: spline
+  INTEGER :: M1,N1,i,j,k,err_report
+  REAL(wp) :: tht(size(b,1)),RTEMP,Q,radianK
+ ! if EyeSys then  size(b,2)->N and size(b,1)->M
+  N1=size(b,2) !N1=N
+  M1=size(b,1) !M1=MM
+  a=b ; tht=0  !initialize else the damn thing will fill with NaN
+  allocate (spline%r(M1),spline%z(M1),spline%zp2(M1),spline%mvjr(N1))
+  associate (t=>spline%r,z=>spline%z,zt2=>spline%zp2,mvjr=>spline%mvjr)
+   mvjr=0
+   do j=1,M1
+    tht(j)=PI*(j-1)/180.0_wp  ! every degrees for EyeSys/NIDEK
+   end do
+   do i=1,N1
+    do j=1,M1
+     Q=b(j,i)
+     if ((EyeSys%RA(j,i) > 0) .AND. (EyeSys%XX(j,i) > 0) ) then ! eliminate all the bad points, assumes if HT exists that it is the same
+ !    if (ABS(Q) > 0.) then
+      mvjr(i)=mvjr(i)+1
+      t(mvjr(i))=tht(j)
+      z(mvjr(i))=Q
+     endif
+    end do
+ !  no splining if less than half the points available
+    if (mvjr(i) .gt. (M1/2)) then
+     call pspli(t,z,mvjr(i),zt2,err_report)
+    else
+     cycle
+    endif
+    do k=1,M1
+     radianK=tht(k)
+     call SplineEval(1,t,z,zt2,mvjr(i),radianK,RTEMP)
+     if(ABS(b(k,i)-RTEMP) > EPS) then
+      if ((EyeSys%RA(k,i) > 0) .AND. (EyeSys%XX(k,i) > 0) ) then ! eliminate all the bad points, assumes if HT exists that it is the same
+ !     if(ABS(b(k,i)) > EPS) then
+       write(*,*) 'spline error in cornea_arrays EyeSys fillin',K,I,b(K,I),RTEMP
+      endif
+      a(k,i)=RTEMP
+     endif
+    end do
+   end do
+  end associate
+  deallocate (spline%r,spline%z,spline%zp2,spline%mvjr)
+END SUBROUTINE EyeSys_SplineFillin
+
+! this version is for matrices that are NxM, ie. JMatrix
+ FUNCTION splinefillintranspose(b) result(a)
+ REAL(wp),INTENT(IN) :: b(:,:)
+ TYPE(wpsplinevect) :: spline
+ INTEGER :: M1,N1,i,j,k, err_report
+ REAL(wp) :: a(size(b,1),size(b,2)),tht(size(b,2)),RTEMP,Q,radianK
+! if JMatrix then  size(b,2)->M and size(b,1)->N
+ N1=size(b,1) !N1=N
+ M1=size(b,2) !M1=MM
+ a=b ; tht=0  !initialize else the damn thing will fill with NaN
+ allocate (spline%r(M1),spline%z(M1),spline%zp2(M1),spline%mvjr(N1))
+ associate (t=>spline%r,z=>spline%z,zt2=>spline%zp2,mvjr=>spline%mvjr)
+  do j=1,M1
+   tht(j)=PI*(j-1)/90.0_wp  ! every 2 degrees
+  end do
+  mvjr=0
+  do i=1,N1
+     do j=1,M1
+       Q=b(i,j)
+        if (ABS(Q) > 0.) then ! ABS is optional for AR or AP
+         mvjr(i)=mvjr(i)+1
+         t(mvjr(i))=tht(j)
+         z(mvjr(i))=Q
+        endif
+      end do
+!     no splining if less than half the points available
+      if (mvjr(i) .gt. (M1/2)) then
+       call pspli(t,z,mvjr(i),zt2,err_report)
+       else
+        cycle
+       endif
+      do k=1,M1
+      radianK=tht(k)
+       call SplineEval(1,t,z,zt2,mvjr(i),radianK,RTEMP)
+        if(ABS(b(i,k)-RTEMP) > EPS) then
+         if(ABS(b(i,k)) > EPS) then
+         write(*,*) 'spline error in cornea_arrays fillin',K,I,b(i,k),RTEMP
+         endif
+         a(i,k)=RTEMP
+        endif
+      end do
+   end do
+   end associate
+   deallocate (spline%r,spline%z,spline%zp2,spline%mvjr)
+END FUNCTION splinefillintranspose
+
+SUBROUTINE Atlas_LSQfillin(Atlas,b,a)
+ TYPE(wpAtlasMatrix), INTENT(IN) :: Atlas
+ REAL(wp),INTENT(IN) :: b(:,:)
+ REAL(wp), INTENT(OUT) :: a(size(b,1),size(b,2))
+ INTEGER :: M1,N1,i,j,k,mvjr(size(b,2))
+ REAL(wp) ::t(size(b,1)),z(size(b,1))
+ REAL(wp) :: c(M2)
+ N1=size(b,2) !N1=N
+ M1=size(b,1) !M1=MM
+ a=0 ; z=0 ; t=0 ; c=0 ; mvjr = 0
+ do i=1,N1
+  do j=1,M2
+   do k=1,M1
+    if ((Atlas%AP(k,i) > 0) .AND. (Atlas%AR(k,i) > 0) .AND. (Atlas%AD(k,i) > 0) .AND. (Atlas%AY(k,i) > 0)) then ! eliminate all the bad points
+     if (ABS(b(k,i)) .gt. 0) then ! means it is  =/ 0
+      z(k)=b(k,i)
+      t(k)=PI*(k-1)/90.0_wp  ! every 2 degrees
+      mvjr(i)=mvjr(i)+1
+     endif
+    endif
+   end do
+  end do
+  if (mvjr(i) > M1/2) then ! only do LSQ if at least half the points are there
+! generate lsq fillin values; uses cosines and sines, not splines
+   call lsqfit(t,z,M1,M2,c)
+   do k=1,M1
+!    changed this to a smoothing routine with relatively low M2 (10), as LSQ is terrible at discontinuities.
+!    if (ABS(b(k,i)) .gt. 0) then ! means it is  =/ 0
+!     a(k,i)=b(k,i)   ! retain old values where they exist, this is a fill-in, not a smoothing routine.
+!    else
+    call LSQEval(M2,c,t(k),a(k,i))
+!    endif
+   end do
+  endif
+ end do
+END SUBROUTINE Atlas_LSQfillin
+
+SUBROUTINE EyeSys_LSQfillin(EyeSys,b,a)
+ TYPE(wpEyeSysMatrix), INTENT(INOUT) :: EyeSys
+ REAL(wp),INTENT(IN) :: b(:,:)
+ REAL(wp), INTENT(OUT) :: a(size(b,1),size(b,2))
+ INTEGER :: M1,N1,i,j,k,mvjr(size(b,2))
+ REAL(wp) ::t(size(b,1)),z(size(b,1))
+ REAL(wp) :: c(M2)
+ N1=size(b,2) !N1=N
+ M1=size(b,1) !M1=MM
+ a=0  ;  z=0 ; t=0 ; c=0 ; mvjr = 0
+ do i=1,N1
+  do j=1,M2
+   do k=1,M1
+    if ((EyeSys%RA(k,i) > 0) .AND. (EyeSys%XX(k,i) > 0) ) then ! eliminate all the bad points, assumes if HT exists that it is the same
+     if (ABS(b(k,i)) .gt. 0) then ! means it is  =/ 0
+      z(k)=b(k,i)
+      t(k)=PI*(k-1)/180.0_wp  ! every degree
+      mvjr(i)=mvjr(i)+1
+     endif
+    endif
+   end do
+  end do
+  if (mvjr(i) > M1/2) then ! only do LSQ if at least half the points are there
+!  generate lsq fillin values; uses cosines and sines, not splines
+   call lsqfit(t,z,M1,M2,c)
+   do k=1,M1
+!   changed this to a smoothing routine with relatively low M2 (10), as LSQ is terrible at discontinuities.
+!    if (ABS(b(k,i)) .gt. 0) then ! means it is  =/ 0
+!     a(k,i)=b(k,i)   ! retain old values where they exist, this is a fill-in, not a smoothing routine.
+!    else
+    call LSQEval(M2,c,t(k),a(k,i))
+!    endif
+   end do
+  endif
+ end do
+END SUBROUTINE EyeSys_LSQfillin
+
+! not being used currently
+ FUNCTION pca(M3,b) result(a)
+ USE set_precision, ONLY : wp
+ TYPE(wpRadSlopeMatrix),INTENT(IN) :: b
+ TYPE(wpRadSlopeMatrix) :: a
+ INTEGER, INTENT(IN) :: M3  ! pca terms, 2 or 3
+ INTEGER :: M1,N1,i,j,k,l,info,lwork,M
+ REAL(wp) :: X(M3,size(b%r,1)),XTX(M3,M3),work(3*M3),w(M3)
+ LOGICAL :: Q
+ lwork=size(work)
+ N1=size(b%r,1) !N1=N 
+ M1=size(b%r,2) !M1=MM
+ a=0  !initialize else the damn thing will fill with NaN
+ if (M3==2) then ! each ring
+  do i=1,N1 
+   do k=1,M1  
+    Q=ABS(b%r(k,i)) > 0  
+    if (Q) then ! means it is  =/ 0
+     X(1,k)=b%r(k,i)*cos(360*b%thta(k)/M1)
+     X(2,k)=b%r(k,i)*sin(360*b%thta(k)/M1) 
+    endif       
+   end do   
+! X transpose X
+  XTX=0
+  M=0
+  do j=1,M3
+   do l=1,M3 
+    do k=1,M1 
+     Q=ABS(b%r(k,i)) > 0  
+     if (Q) then ! means it is  =/ 0    
+      XTX(j,l)=XTX(j,l)+X(j,k)*X(l,k)
+      M=M+1
+     endif
+    end do
+   end do
+  end do
+  XTX=M3*M3*XTX/M
+! compute the eigenvalues
+  call DSYEV( 'V', 'U', M3, XTX, M3, W, WORK, LWORK, INFO )
+   if ( info /= 0 ) then
+    WRITE (*,'(''Argument '',i3,'' has an illegal value'')') - info
+   endif
+   write(*,*) i,'th eigenvalues W from pca in cornea_arrays: ',SQRT(W)  
+  end do 
+
+ else          ! whole data set
+
+  do i=1,N1   
+   do k=1,M1  
+    Q=ABS(b%r(k,i)) > 0  
+    if (Q) then ! means it is  =/ 0
+     X(1,k)=b%r(k,i)*cos(360*b%thta(k)/M1)
+     X(2,k)=b%r(k,i)*sin(360*b%thta(k)/M1) 
+     X(3,k)=b%Zp(k,i)
+    endif       
+   end do 
+! X transpose X
+  XTX=0
+  M=0
+  do j=1,M3
+   do l=1,M3 
+    do k=1,M1 
+     Q=ABS(b%r(k,i)) > 0  
+     if (Q) then ! means it is  =/ 0    
+      XTX(j,l)=XTX(j,l)+X(j,k)*X(l,k)
+      M=M+1
+     endif
+    end do
+   end do
+  end do
+  end do
+  XTX=M3*M3*XTX/M          ! same as division by M1 if no missing points
+! compute the eigenvalues
+  call DSYEV( 'V', 'U', M3, XTX, M3, W, WORK, LWORK, INFO )
+   if ( info /= 0 ) then
+    WRITE (*,'(''Argument '',i3,'' has an illegal value'')') - info
+   endif
+   write(*,*) 'The eigenvalues W from pca in cornea_arrays: ',SQRT(W)
+ endif
+ END FUNCTION pca
+
+!! corneal calculation subroutines
+
+! signed slope and radius from eyesys style data, or ZIX=RFCT/POW, POW is axial power from Atlas style data
+ SUBROUTINE ZFCT(MM,ITH,ZJX,ZIX,X2A1,YA3)
+  REAL(wp), INTENT(IN) :: ZIX,ZJX
+  REAL(wp), INTENT(OUT) :: YA3,X2A1
+  REAL(wp) :: YA1,YA2
+  INTEGER, INTENT(IN) :: ITH,MM
+ !     INVERSE IS AXIALP	
+      if (ZIX <= ZJX) WRITE (*,*) 'ERROR IN ARCTAN',ZIX,ZJX
+ !     CONVERTS ZIX TO DZ/DR
+      YA1=ZJX/(ZIX-ZJX)
+      YA2=ZJX/(ZIX+ZJX)
+      if (ITH > (MM/2)) then  ! PI
+ !       SIGN CHANGE HERE FOR R, OR DZ/DR  *ONLY* WHEN SPLINING ALONG R
+        YA3=-SQRT(YA1*YA2)
+        X2A1=-ZJX   
+      else
+        YA3=SQRT(YA1*YA2)
+        X2A1=ZJX 
+      endif
+ END SUBROUTINE ZFCT
+
+! axial power from slope and derivatives
+ SUBROUTINE AXIALP(X2,Y1X,Y2X,SAGC)
+  REAL(wp), INTENT(IN) :: X2,Y1X,Y2X
+  REAL(wp), INTENT(OUT) :: SAGC
+  if (ABS(X2) < eps) then
+! UNDEFINED AT ORIGIN X2=0, LIMIT IS RFCT*Y2X             
+   SAGC=RFCT*Y2X
+  else
+   SAGC=RFCT*Y1X/(X2*SQRT(1+Y1X**2))
+  endif
+ END SUBROUTINE AXIALP
+
+! tangential power from slope and derivatives
+ SUBROUTINE TANGENTP(Y1X,Y2X,INSTC)
+  REAL(wp), INTENT(IN) :: Y1X,Y2X
+  REAL(wp), INTENT(OUT) :: INSTC
+  INSTC=RFCT*Y2X/(SQRT(1+Y1X**2)**3)
+ END SUBROUTINE TANGENTP
+
+! principal curvature calculations
+ SUBROUTINE principal(t,r,hr,ht,hrt,htt,hrr,K,H,k1,k2,A)
+  REAL(wp), INTENT(INOUT) :: t,r,hr,ht,hrt,htt,hrr
+  REAL(wp), INTENT(OUT) :: K,H,k1,k2,A
+  REAL(wp) :: hu,hv,huu,hvv,huv,g
+   r=abs(r) ; hr=abs(hr)
+   if (ABS(r) > EPS) then
+!   cartesian conversion
+    hu = hr*cos(t)-sin(t)*ht/r
+    hv = hr*sin(t)+cos(t)*ht/r
+    huu=hrr-(sin(t)**2)*(hrr-hr/r-htt/(r**2))+2*cos(t)*sin(t)*(ht/(r**2)-hrt/r)
+    hvv=hrr-(cos(t)**2)*(hrr-hr/r-htt/(r**2))-2*cos(t)*sin(t)*(ht/(r**2)-hrt/r)
+    huv=cos(t)*sin(t)*(hrr-hr/r-htt/(r**2))+(sin(t)**2-cos(t)**2)*(ht/(r**2)-hrt/r)
+    g = 1 + hu**2 + hv**2
+    K=(huu*hvv-huv*huv)/(g*g)
+    H=((1+hv**2)*huu-2*hu*hv*huv+(1+hu**2)*hvv)/(2*(sqrt(g)**3))
+    if (H**2-K < 0) write(*,*) 'FATAL error in principal,H,K,H^2-K',H,K,H**2-K
+    if (H**2-K < 0) stop
+!    if ((huu*hvv-huv*huv) < 0) write(*,*) 'Hessian negative in principal: t,gaussian,K',t,K,RFCT*sqrt(abs(K))
+     k1=H+sign(sqrt(abs(H**2-K)),H)  ! better way to compute quadratic roots without cancellation
+     k2=K/k1
+     A=2*sqrt(abs(H**2-K))
+     K=sqrt(abs(K))  ! use sqrt of gaussian curvature for output->geometric mean power in same units ; absolute power for saddle points
+     if(.not.ieee_is_finite(A)) then
+      write(*,*) 'Error in principal'
+      write(*,*) hu,hv,huu,hvv,huv
+     endif
+   else
+!   AT ORIGIN r = 0, things get weird at the limit
+    if ( ABS(ht) > EPS ) then  ! but really it depends on ht/r and htt/r^2
+     K=(htt/ht)**2
+    else ! axisymmetric answer
+     K=hrr
+    endif
+    H=hrr
+    k1=hrr
+    k2=hrr
+    A=0
+   endif
+ END SUBROUTINE principal
+
+! principal_directions calculations in horizontal plane, not being used currently
+ SUBROUTINE principal_directions_0(one,t,r,hr,ht,hrt,htt,hrr,u,v,ut,vt)
+  IMPLICIT NONE
+  REAL(wp), INTENT(INOUT) :: t,r,hr,ht,hrt,htt,hrr
+  REAL(wp), INTENT(OUT) :: u,v,ut,vt
+  LOGICAL, INTENT(IN) :: one
+  REAL(wp) :: hu,hv,huu,hvv,huv,g,K,H,k1,k2,astig,kappa,RR(3,3),pos(3),R0(3,3),e1(3),e2(3),e3(3),rv1(3),rv2(3)
+   r=abs(r) ; hr=abs(hr)
+!  cartesian conversion
+   hu = hr*cos(t)-sin(t)*ht/r
+   hv = hr*sin(t)+cos(t)*ht/r
+   huu=hrr-(sin(t)**2)*(hrr-hr/r-htt/(r**2))+2*cos(t)*sin(t)*(ht/(r**2)-hrt/r)
+   hvv=hrr-(cos(t)**2)*(hrr-hr/r-htt/(r**2))-2*cos(t)*sin(t)*(ht/(r**2)-hrt/r)
+   huv=cos(t)*sin(t)*(hrr-hr/r-htt/(r**2))+(sin(t)**2-cos(t)**2)*(ht/(r**2)-hrt/r)
+   g = 1 + hu**2 + hv**2
+   K=(huu*hvv-huv*huv)/(g*g)
+   H=((1+hv**2)*huu-2*hu*hv*huv+(1+hu**2)*hvv)/(2*(sqrt(g)**3))
+!   if (H**2-K < 0) write(*,*) 'FATAL error in principal_directions,H,K,H^2-K',H,K,H**2-K
+!   if (H**2-K < 0) stop
+   u=r*cos(t)
+   v=r*sin(t)
+   k1 = H + sqrt(abs(H*H-K))
+   k2 = H - sqrt(abs(H*H-K))
+   astig=2*sqrt(abs(H*H-K))
+   kappa = (hvv*v*v+2*u*v*huv+huu*u*u)/((v*v*(1+hv*hv)+u*u*(1+hu*hu)+2*u*v*hu*hv)*sqrt(g))
+   pos(1) = u/r ;  pos(2) = v/r ; pos(3) = 0
+!  cartesian basis
+   e1(:) = 0 ; e2(:) = 0 ; e3(:) = 0
+   e1(1) = 1 ; e2(2) = 1 ; e3(3) = 1
+!  cartesian rotation by 90 degrees
+   R0(1,:) = e2(:) ; R0(2,:) = -e1(:) ; R0(3,:) = e3(:)
+ ! rotation of principal directions in cartesian coordinates
+   RR(1,1) = sign(sqrt(ABS((k1-kappa)/astig)),u) ; RR(1,2) = sign(sqrt(ABS((kappa-k2)/astig)),v) ; RR(1,3) = 0
+   RR(2,1) = -RR(1,2)  ;                           RR(2,2) =  RR(1,1) ;                            RR(2,3) = 0
+   RR(3,1) = 0 ;                                   RR(3,2) = 0 ;                                   RR(3,3) = 1
+   rv1 = matmul(RR,pos)
+   rv2 = matmul(matmul(R0,RR),pos)
+   if (one) then
+    ut=-sign(RFCT*k2*rv2(1),v)
+    vt= sign(RFCT*k2*rv2(2),u)
+   else
+    ut=sign(RFCT*k1*rv1(1),u)
+    vt=sign(RFCT*k1*rv1(2),v)
+   endif
+ END SUBROUTINE principal_directions_0
+
+
+! this version with calculations in the tangent plane
+ SUBROUTINE principal_directions(one,t,r,hr,ht,hrt,htt,hrr,u,v,ut,vt)
+  IMPLICIT NONE
+  REAL(wp), INTENT(INOUT) :: t,r,hr,ht,hrt,htt,hrr
+  REAL(wp), INTENT(OUT) :: u,v,ut,vt
+  LOGICAL, INTENT(IN) :: one
+  ! these names follow the conventions/are defined in Curvature_equations/notes
+  REAL(wp) :: hu,hv,huu,hvv,huv,g,K,H,k1,k2,astig,kappa
+  REAL(wp) :: MMM(3,3),nrml(3),rv(3),rvp1(3),rvp2(3),pos(3),J(3,3),e1(3),e1p(3),e2(3),e2p(3),e3(3),e3p(3),IJ(3,3),B(3),RR(3,3),R0(3,3)
+  INTEGER :: INFO
+  r=abs(r) ; hr=abs(hr)
+! convert to cartesian conversion
+  u=r*cos(t)
+  v=r*sin(t)
+  hu = hr*cos(t)-sin(t)*ht/r
+  hv = hr*sin(t)+cos(t)*ht/r
+  huu=hrr-(sin(t)**2)*(hrr-hr/r-htt/(r**2))+2*cos(t)*sin(t)*(ht/(r**2)-hrt/r)
+  hvv=hrr-(cos(t)**2)*(hrr-hr/r-htt/(r**2))-2*cos(t)*sin(t)*(ht/(r**2)-hrt/r)
+  huv=cos(t)*sin(t)*(hrr-hr/r-htt/(r**2))+(sin(t)**2-cos(t)**2)*(ht/(r**2)-hrt/r)
+  g = 1 + hu**2 + hv**2
+  K=(huu*hvv-huv*huv)/(g*g)
+  H=((1+hv**2)*huu-2*hu*hv*huv+(1+hu**2)*hvv)/(2*(sqrt(g)**3))
+ ! if (H**2-K < 0) write(*,*) 'FATAL error in principal_directions,H,K,H^2-K',H,K,H**2-K
+ ! if (H**2-K < 0) stop
+  u=r*cos(t)
+  v=r*sin(t)
+  k1 = H + sqrt(abs(H*H-K))
+  k2 = H - sqrt(abs(H*H-K))
+  astig=2*sqrt(abs(H*H-K))
+  kappa = (hvv*v*v+2*u*v*huv+huu*u*u)/((v*v*(1+hv*hv)+u*u*(1+hu*hu)+2*u*v*hu*hv)*sqrt(g))
+  pos(1) = u/r ;  pos(2) = v/r ; pos(3) = 0
+  nrml(1) = -hu ;   nrml(2) = -hv  ;   nrml(3) = 1
+  MMM(1,1) = g - hu**2  ; MMM(1,2) = -hu*hv ;     MMM(1,3) = hu
+  MMM(2,1) = -hu*hv  ;    MMM(2,2) = g - hv**2 ;  MMM(2,3) = hv
+  MMM(3,1) = hu  ;        MMM(3,2) = hv ;         MMM(3,3) = g - 1
+  MMM = MMM/g
+! cartesian basis
+  e1(:) = 0 ; e2(:) = 0 ; e3(:) = 0
+  e1(1) = 1 ; e2(2) = 1 ; e3(3) = 1
+! cartesian rotation by 90 degrees
+  R0(1,:) = e2(:) ; R0(2,:) = -e1(:) ; R0(3,:) = e3(:)
+! rotation of principal directions in cartesian coordinates
+  RR(1,1) = sign(sqrt(ABS((k1-kappa)/astig)),u) ; RR(1,2) = sign(sqrt(ABS((kappa-k2)/astig)),v) ; RR(1,3) = 0
+  RR(2,1) = -RR(1,2)  ;                           RR(2,2) =  RR(1,1) ;                            RR(2,3) = 0
+  RR(3,1) = 0 ;                                   RR(3,2) = 0 ;                                   RR(3,3) = 1
+  rv(:) = matmul(MMM,pos)
+  e3p(:) = nrml(:)/sqrt(g)
+  e1p(:) = rv(:) - dot_product(rv,e3p)*e3p(:)
+  e1p(:) = e1p(:)/sqrt(dot_product(e1p,e1p))
+  e2p(:) = cross_product(e3p,e1p)
+  ! metric tensor
+  J(1,1) = dot_product(e1,e1p) ; J(1,2) = dot_product(e1,e2p) ; J(1,3) = dot_product(e1,e3p)
+  J(2,1) = dot_product(e2,e1p) ; J(2,2) = dot_product(e2,e2p) ; J(2,3) = dot_product(e2,e3p)
+  J(3,1) = dot_product(e3,e1p) ; J(3,2) = dot_product(e3,e2p) ; J(3,3) = dot_product(e3,e3p)
+  IJ=J
+  ! gets the inverse of the metric tensor
+  call GaussJordan( 3, 0, IJ, 3, B, 3, INFO )
+  if (INFO .ne. 0) then
+   write(*,*) 'Warning in G_J in principal directions'
+  endif
+  rvp1 = matmul(matmul(matmul(Transpose(IJ),RR),Transpose(J)),rv) 
+  rvp2 = matmul(matmul(matmul(Transpose(IJ),matmul(R0,RR)),Transpose(J)),rv)
+! sanity checks/tests
+!  N[(m.rvp1).(m.rv)-(m.rv).(m.rv)*cos]->0
+!  N[(m.rvp2).(m.rv)+(m.rv).(m.rv)*sin]->0
+!  N[tv.rvp-tv.rv]->0
+!  N[rvp.rvp-rv.rv]->0
+!   write(*,*) dot_product(rvp1,rvp1)-dot_product(rv,rv)
+!   write(*,*) dot_product(nrml,(rvp1-rv))
+!   write(*,*) dot_product(matmul(MMM,rvp1),matmul(MMM,rv))-dot_product(matmul(MMM,rv),matmul(MMM,rv))*RR(1,1)
+!   write(*,*) dot_product(rvp2,rvp2)-dot_product(rv,rv)
+!   write(*,*) dot_product(nrml,(rvp2-rv))
+!   write(*,*) dot_product(matmul(MMM,rvp2),matmul(MMM,rv))+dot_product(matmul(MMM,rv),matmul(MMM,rv))*RR(1,2)
+   if (one) then
+    ut=-sign(RFCT*k2*rvp2(1),v)
+    vt= sign(RFCT*k2*rvp2(2),u)
+   else
+    ut=sign(RFCT*k1*rvp1(1),u)
+    vt=sign(RFCT*k1*rvp1(2),v)
+   endif
+END SUBROUTINE principal_directions
+
+! axisymmetric_principal curvature calculations
+ SUBROUTINE axisymmetric_principal(r,hr,hrr,K,H,k1,k2,A)
+  REAL(wp), INTENT(INOUT) :: r,hr,hrr
+  REAL(wp), INTENT(OUT) :: K,H,k1,k2,A
+    k1 = hrr/(SQRT(1+(hr)**2)**3)
+   if (ABS(r) < eps) then
+!   UNDEFINED AT ORIGIN X2=0, LIMIT IS RFCT*Y2X
+    k2=hrr
+   else
+    k2=abs(hr/(r*SQRT(1+hr**2)))
+   endif
+   A=abs(k1-k2)
+   H=(k1+k2)/2.
+   K=sqrt(abs(k1*k2)) ! use sqrt of gaussian curvature for output->geometric mean power in same units; absolute power for saddle points
+ END SUBROUTINE axisymmetric_principal
+
+! "tangential" power and mean power in terms of axial/"sagittal" power,radius and radial derivative of axial power
+ SUBROUTINE sagc2(X2,SAGC,DSAGC,TANC,ZMM)
+  REAL(wp), INTENT(IN) :: X2,SAGC,DSAGC
+  REAL(wp), INTENT(OUT) :: TANC,ZMM
+  TANC=SAGC+X2*DSAGC
+  ZMM=0.5_wp*(SAGC+TANC)
+  END SUBROUTINE sagc2
+
+! world's ugliest hack
+! select function (fct), respline JMatrix of that function
+! iflag = 0 just load powmin powmax,powctr,cardinals for legend
+! iflag = 1 respline selected function
+! iflag = 2 just respline elevation Z regardless of fct
+SUBROUTINE selectfunction(iflag,b,flag,powctr,powmin,powmax,cardinal,nC)
+IMPLICIT NONE
+integer(c_int64_t), INTENT(IN) :: flag
+INTEGER,INTENT(IN) :: iflag
+integer(c_int64_t) :: dat,fct
+INTEGER :: i,j,M1
+REAL (wp), INTENT(OUT) :: powctr,powmin,powmax
+real(c_double), INTENT(INOUT) :: cardinal(*)
+integer(c_int), INTENT(INOUT) :: nC
+TYPE(wpJMatrix), INTENT(INOUT) :: b
+dat=(flag-mod(flag,1000000))/1000000 ! first two digits
+fct=mod(((flag-mod(flag,10000))/10000),100) ! second two digits, color map functions
+M1=size(b%r,2)
+if (fct .lt. 16 .and. fct .gt. 0) then
+  if (iflag == 0) then ! iflag == 0 load center/min/max into powctr/powmin/powmax
+   powctr=b%ZC0(1,fct)
+   powmin=b%ZC0(2,fct)
+   powmax=b%ZC0(3,fct)
+!  cardinal values
+   do i=2,nC
+    cardinal(i)=b%ZC0(i+2,fct)
+   end do
+  endif
+  if (iflag == 1) then ! iflag == 1 remake JMatrix (b) including center
+   do i=1,M1
+    do j=1,RadSlope%MV(i)
+      RadSlope%Zp(j,i)=b%ZC(j,i,fct)
+    end do
+   end do
+   DiaSlope=RadSlope              ! move to diagonal format
+   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+    DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+   else
+    DiaSlope%Zpd2 = .n. DiaSlope
+   endif
+   do i=1,M1
+    do j=1,b%MV(i)
+     if (btest(dat,0)) then                                    !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
+      call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%ZC(j,i,fct))
+     else
+      call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%ZC(j,i,fct))
+     endif
+     if (b%ZC(j,i,fct) <= b%ZC0(2,fct)) b%ZC0(2,fct)=b%ZC(j,i,fct)
+     if (b%ZC(j,i,fct) >= b%ZC0(3,fct)) b%ZC0(3,fct)=b%ZC(j,i,fct)
+    end do
+   end do
+   if (btest(dat,0)) then                                      !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
+    call SplineEval1Dx1D(10,b%R0,b%THT0,b%ZC0(1,fct))  ! center value
+!  cardinal values
+    do i=1,nC-1
+     call SplineEval1Dx1D(10,JMatrix%RM,PI*(i-1)/4.0,JMatrix%ZC0(i+3,fct))
+    end do
+   else
+    call SplineEval1Dx1D(0,b%R0,b%THT0,b%ZC0(1,fct))  ! center value
+!  cardinal values
+    do i=1,nC-1
+     call SplineEval1Dx1D(0,JMatrix%RM,PI*(i-1)/4.0,JMatrix%ZC0(i+3,fct))
+    end do
+   endif
+   if (b%ZC0(1,fct) <= b%ZC0(2,fct)) b%ZC0(2,fct)=b%ZC0(1,fct)
+   if (b%ZC0(1,fct) >= b%ZC0(3,fct)) b%ZC0(3,fct)=b%ZC0(1,fct)
+  endif
+else
+SELECT CASE (fct)
+  CASE (0)
+  if (iflag == 0) then ! iflag == 0 load center/min/max into powctr/powmin/powmax
+   powctr=b%SAGC0(1)
+   powmin=b%SAGC0(2)
+   powmax=b%SAGC0(3)
+!  cardinal values
+   do i=2,nC
+    cardinal(i)=b%SAGC0(i+2)
+   end do
+  endif
+  if (iflag == 1) then ! iflag == 1 remake JMatrix (b) including center
+   do i=1,M1
+    do j=1,RadSlope%MV(i)
+      RadSlope%Zp(j,i)=b%SAGC(j,i)
+    end do
+   end do
+   DiaSlope=RadSlope              ! move to diagonal format
+   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+    DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+   else
+    DiaSlope%Zpd2 = .n. DiaSlope
+   endif
+   do i=1,M1
+    do j=1,b%MV(i)
+     if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
+      call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%SAGC(j,i))
+     else
+      call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%SAGC(j,i))
+     endif
+     if (b%SAGC(j,i) <= b%SAGC0(2)) b%SAGC0(2)=b%SAGC(j,i)
+     if (b%SAGC(j,i) >= b%SAGC0(3)) b%SAGC0(3)=b%SAGC(j,i)
+    end do
+   end do
+   if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
+    call SplineEval1Dx1D(10,b%R0,b%THT0,b%SAGC0(1))  ! center value
+!  cardinal values
+    do i=1,nC-1
+     call SplineEval1Dx1D(10,JMatrix%RM,PI*(i-1)/4.0,JMatrix%SAGC0(i+3))
+    end do
+   else
+    call SplineEval1Dx1D(0,b%R0,b%THT0,b%SAGC0(1))  ! center value
+!  cardinal values
+    do i=1,nC-1
+     call SplineEval1Dx1D(0,JMatrix%RM,PI*(i-1)/4.0,JMatrix%SAGC0(i+3))
+    end do
+   endif
+   if (b%SAGC0(1) <= b%SAGC0(2)) b%SAGC0(2)=b%SAGC0(1)
+   if (b%SAGC0(1) >= b%SAGC0(3)) b%SAGC0(3)=b%SAGC0(1)
+  endif
+  CASE (16)
+  if (iflag == 0) then ! iflag == 0 load center/min/max into powctr/powmin/powmax
+   powctr=b%INSTC0(1)
+   powmin=b%INSTC0(2)
+   powmax=b%INSTC0(3)
+!  cardinal values
+   do i=2,nC
+    cardinal(i)=b%INSTC0(i+2)
+   end do
+  endif
+  if (iflag == 1) then ! iflag == 1 remake JMatrix (b) including center
+   do i=1,M1
+    do j=1,RadSlope%MV(i)
+      RadSlope%Zp(j,i)=b%INSTC(j,i)
+    end do
+   end do
+   DiaSlope=RadSlope              ! move to diagonal format
+   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+    DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+   else
+    DiaSlope%Zpd2 = .n. DiaSlope
+   endif
+   do i=1,M1
+    do j=1,b%MV(i)
+     if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
+      call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%INSTC(j,i))
+     else
+      call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%INSTC(j,i))
+     endif
+     if (b%INSTC(j,i) <= b%INSTC0(2)) b%INSTC0(2)=b%INSTC(j,i)
+     if (b%INSTC(j,i) >= b%INSTC0(3)) b%INSTC0(3)=b%INSTC(j,i)
+    end do
+   end do
+   if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
+    call SplineEval1Dx1D(10,b%R0,b%THT0,b%INSTC0(1))  ! center value
+!  cardinal values
+    do i=1,nC-1
+     call SplineEval1Dx1D(10,JMatrix%RM,PI*(i-1)/4.0,JMatrix%INSTC0(i+3))
+    end do
+   else
+    call SplineEval1Dx1D(0,b%R0,b%THT0,b%INSTC0(1))  ! center value
+!  cardinal values
+    do i=1,nC-1
+     call SplineEval1Dx1D(0,JMatrix%RM,PI*(i-1)/4.0,JMatrix%INSTC0(i+3))
+    end do
+   endif
+   if (b%INSTC0(1) <= b%INSTC0(2)) b%INSTC0(2)=b%INSTC0(1)
+   if (b%INSTC0(1) >= b%INSTC0(3)) b%INSTC0(3)=b%INSTC0(1)
+  endif
+  CASE (17)
+  if (iflag == 0) then ! iflag == 0 load center/min/max into powctr/powmin/powmax
+   powctr=b%GAUSSC0(1)
+   powmin=b%GAUSSC0(2)
+   powmax=b%GAUSSC0(3)
+!  cardinal values
+   do i=2,nC
+    cardinal(i)=b%GAUSSC0(i+2)
+   end do
+  endif
+  if (iflag == 1) then ! iflag == 1 remake JMatrix (b) including center
+   do i=1,M1
+    do j=1,RadSlope%MV(i)
+      RadSlope%Zp(j,i)=b%GAUSSC(j,i)
+    end do
+   end do
+   DiaSlope=RadSlope              ! move to diagonal format
+   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+    DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+   else
+    DiaSlope%Zpd2 = .n. DiaSlope
+   endif
+   do i=1,M1
+    do j=1,b%MV(i)
+     if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
+      call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%GAUSSC(j,i))   
+     else
+      call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%GAUSSC(j,i))
+     endif
+     if (b%GAUSSC(j,i) <= b%GAUSSC0(2)) b%GAUSSC0(2)=b%GAUSSC(j,i)
+     if (b%GAUSSC(j,i) >= b%GAUSSC0(3)) b%GAUSSC0(3)=b%GAUSSC(j,i)
+    end do
+   end do
+   if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
+    call SplineEval1Dx1D(10,b%R0,b%THT0,b%GAUSSC0(1))  ! center value
+!  cardinal values
+    do i=1,nC-1
+     call SplineEval1Dx1D(10,JMatrix%RM,PI*(i-1)/4.0,JMatrix%GAUSSC0(i+3))
+    end do
+   else
+    call SplineEval1Dx1D(0,b%R0,b%THT0,b%GAUSSC0(1))  ! center value
+!  cardinal values
+    do i=1,nC-1
+     call SplineEval1Dx1D(0,JMatrix%RM,PI*(i-1)/4.0,JMatrix%GAUSSC0(i+3))
+    end do
+   endif
+   if (b%GAUSSC0(1) <= b%GAUSSC0(2)) b%GAUSSC0(2)=b%GAUSSC0(1)
+   if (b%GAUSSC0(1) >= b%GAUSSC0(3)) b%GAUSSC0(3)=b%GAUSSC0(1)
+  endif
+  CASE (18)
+  if (iflag == 0) then ! iflag == 0 load center/min/max into powctr/powmin/powmax
+   powctr=b%MEANC0(1)
+   powmin=b%MEANC0(2)
+   powmax=b%MEANC0(3)
+!  cardinal values
+   do i=2,nC
+    cardinal(i)=b%MEANC0(i+2)
+   end do
+  endif
+  if (iflag == 1) then ! iflag == 1 remake JMatrix (b) including center
+   do i=1,M1
+    do j=1,RadSlope%MV(i)
+      RadSlope%Zp(j,i)=b%MEANC(j,i)
+    end do
+   end do
+   DiaSlope=RadSlope              ! move to diagonal format
+   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+    DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+   else
+    DiaSlope%Zpd2 = .n. DiaSlope
+   endif
+   do i=1,M1
+    do j=1,b%MV(i)
+     if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
+      call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%MEANC(j,i))
+     else
+      call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%MEANC(j,i))
+     endif
+     if (b%MEANC(j,i) <= b%MEANC0(2)) b%MEANC0(2)=b%MEANC(j,i)
+     if (b%MEANC(j,i) >= b%MEANC0(3)) b%MEANC0(3)=b%MEANC(j,i)
+    end do
+   end do
+   if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
+    call SplineEval1Dx1D(10,b%R0,b%THT0,b%MEANC0(1))  ! center value
+!  cardinal values
+    do i=1,nC-1
+     call SplineEval1Dx1D(10,JMatrix%RM,PI*(i-1)/4.0,JMatrix%MEANC0(i+3))
+    end do
+   else
+    call SplineEval1Dx1D(0,b%R0,b%THT0,b%MEANC0(1))  ! center value
+!  cardinal values
+    do i=1,nC-1
+     call SplineEval1Dx1D(0,JMatrix%RM,PI*(i-1)/4.0,JMatrix%MEANC0(i+3))
+    end do
+   endif
+   if (b%MEANC0(1) <= b%MEANC0(2)) b%MEANC0(2)=b%MEANC0(1)
+   if (b%MEANC0(1) >= b%MEANC0(3)) b%MEANC0(3)=b%MEANC0(1)
+  endif
+  CASE (19)
+  if (iflag == 0) then ! iflag == 0 load center/min/max into powctr/powmin/powmax
+   powctr=b%MONGEA0(1)
+   powmin=b%MONGEA0(2)
+   powmax=b%MONGEA0(3)
+!  cardinal values
+   do i=2,nC
+    cardinal(i)=b%MongeA0(i+2)
+   end do
+  endif
+  if (iflag == 1) then ! iflag == 1 remake JMatrix (b) including center
+   do i=1,M1
+    do j=1,RadSlope%MV(i)
+      RadSlope%Zp(j,i)=b%MONGEA(j,i)
+    end do
+   end do
+   DiaSlope=RadSlope              ! move to diagonal format
+   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+    DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+   else
+    DiaSlope%Zpd2 = .n. DiaSlope
+   endif
+   do i=1,M1
+    do j=1,b%MV(i)
+     if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
+      call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%MONGEA(j,i))
+     else
+      call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%MONGEA(j,i))
+     endif
+     if (b%MONGEA(j,i) <= b%MONGEA0(2)) b%MONGEA0(2)=b%MONGEA(j,i)
+     if (b%MONGEA(j,i) >= b%MONGEA0(3)) b%MONGEA0(3)=b%MONGEA(j,i)
+    end do
+   end do
+   if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
+    call SplineEval1Dx1D(10,b%R0,b%THT0,b%MONGEA0(1))  ! center value
+!  cardinal values
+    do i=1,nC-1
+     call SplineEval1Dx1D(10,JMatrix%RM,PI*(i-1)/4.0,JMatrix%MongeA0(i+3))
+    end do
+   else
+    call SplineEval1Dx1D(0,b%R0,b%THT0,b%MONGEA0(1))  ! center value
+!  cardinal values
+    do i=1,nC-1
+     call SplineEval1Dx1D(0,JMatrix%RM,PI*(i-1)/4.0,JMatrix%MongeA0(i+3))
+    end do
+   endif
+   if (b%MONGEA0(1) <= b%MONGEA0(2)) b%MONGEA0(2)=b%MONGEA0(1)
+   if (b%MONGEA0(1) >= b%MONGEA0(3)) b%MONGEA0(3)=b%MONGEA0(1)
+  endif
+  CASE (20)
+  if (iflag == 0) then ! iflag == 0 load center/min/max into powctr/powmin/powmax
+   powctr=b%Z0(1)
+   powmin=b%Z0(2)
+   powmax=b%Z0(3)
+!  cardinal values
+   do i=2,nC
+    cardinal(i)=b%Z0(i+2)
+   end do
+  endif
+  CASE (21)
+  if (iflag == 0) then ! iflag == 0 load center/min/max into powctr/powmin/powmax
+   powctr=b%Warp0(1)
+   powmin=b%Warp0(2)
+   powmax=b%Warp0(3)
+!  cardinal values
+   do i=2,nC
+    cardinal(i)=b%Warp0(i+2)
+   end do
+  endif
+  if (iflag == 1) then ! iflag == 1 remake JMatrix (b) including center
+   do i=1,M1
+    do j=1,RadSlope%MV(i)
+      RadSlope%Zp(j,i)=b%Warp(j,i)
+    end do
+   end do
+   DiaSlope=RadSlope              ! move to diagonal format
+   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+    DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+   else
+    DiaSlope%Zpd2 = .n. DiaSlope
+   endif
+   do i=1,M1
+    do j=1,b%MV(i)
+     if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
+      call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%Warp(j,i))
+     else
+      call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%Warp(j,i))
+     endif
+     if (b%Warp(j,i) <= b%Warp0(2)) b%Warp0(2)=b%Warp(j,i)
+     if (b%Warp(j,i) >= b%Warp0(3)) b%Warp0(3)=b%Warp(j,i)
+    end do
+   end do
+   if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
+    call SplineEval1Dx1D(10,b%R0,b%THT0,b%Warp0(1))  ! center value
+!  cardinal values
+    do i=1,nC-1
+     call SplineEval1Dx1D(10,JMatrix%RM,PI*(i-1)/4.0,JMatrix%Warp0(i+3))
+    end do
+   else
+    call SplineEval1Dx1D(0,b%R0,b%THT0,b%Warp0(1))  ! center value
+!  cardinal values
+    do i=1,nC-1
+     call SplineEval1Dx1D(0,JMatrix%RM,PI*(i-1)/4.0,JMatrix%Warp0(i+3))
+    end do
+   endif
+   if (b%Warp0(1) <= b%Warp0(2)) b%Warp0(2)=b%Warp0(1)
+   if (b%Warp0(1) >= b%Warp0(3)) b%Warp0(3)=b%Warp0(1)
+  endif
+  CASE DEFAULT
+  if (iflag == 0) then ! iflag == 0 load center/min/max into powctr/powmin/powmax
+   powctr=b%SAGC0(1)
+   powmin=b%SAGC0(2)
+   powmax=b%SAGC0(3)
+!  cardinal values
+   do i=2,nC
+    cardinal(i)=b%SAGC0(i+2)
+   end do
+  endif
+  if (iflag == 1) then ! iflag == 1 remake JMatrix (b) including center
+   do i=1,M1
+    do j=1,RadSlope%MV(i)
+      RadSlope%Zp(j,i)=b%SAGC(j,i)
+    end do
+   end do
+   DiaSlope=RadSlope              ! move to diagonal format
+   if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+    DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+   else
+    DiaSlope%Zpd2 = .n. DiaSlope
+   endif
+   do i=1,M1
+    do j=1,b%MV(i)
+     if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
+      call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%SAGC(j,i))
+     else
+      call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%SAGC(j,i))
+     endif
+     if (b%SAGC(j,i) <= b%SAGC0(2)) b%SAGC0(2)=b%SAGC(j,i)
+     if (b%SAGC(j,i) >= b%SAGC0(3)) b%SAGC0(3)=b%SAGC(j,i)
+    end do
+   end do
+   if (btest(dat,0)) then                                       !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
+    call SplineEval1Dx1D(10,b%R0,b%THT0,b%SAGC0(1))  ! center value
+!  cardinal values
+    do i=1,nC-1
+     call SplineEval1Dx1D(10,JMatrix%RM,PI*(i-1)/4.0,JMatrix%SAGC0(i+3))
+    end do
+   else
+    call SplineEval1Dx1D(0,b%R0,b%THT0,b%SAGC0(1))  ! center value
+!  cardinal values
+    do i=1,nC-1
+     call SplineEval1Dx1D(0,JMatrix%RM,PI*(i-1)/4.0,JMatrix%SAGC0(i+3))
+    end do
+   endif
+   if (b%SAGC0(1) <= b%SAGC0(2)) b%SAGC0(2)=b%SAGC0(1)
+   if (b%SAGC0(1) >= b%SAGC0(3)) b%SAGC0(3)=b%SAGC0(1)
+  endif
+END SELECT
+endif
+! always do Z to display the geometry
+if (iflag == 1 .or. iflag ==2) then ! iflag == 1 iflag ==2 just elevation remake JMatrix (b) including center
+ do i=1,M1
+  do j=1,RadSlope%MV(i)
+    RadSlope%Zp(j,i)=b%Z(j,i)
+  end do
+ end do
+ DiaSlope=RadSlope              ! move to diagonal format
+ if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
+  DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
+ else
+  DiaSlope%Zpd2 = .n. DiaSlope
+ endif
+ do i=1,M1
+  do j=1,b%MV(i)
+   if (btest(dat,0)) then                                    !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
+    call SplineEval1Dx1D(10,b%R(j,i),b%THT(i),b%Z(j,i))
+   else
+    call SplineEval1Dx1D(0,b%R(j,i),b%THT(i),b%Z(j,i))
+   endif
+   if (b%Z(j,i) <= b%Z0(2)) b%Z0(2)=b%Z(j,i)
+   if (b%Z(j,i) >= b%Z0(3)) b%Z0(3)=b%Z(j,i)
+  end do
+ end do
+ if (btest(dat,0)) then                                      !!!(btest(dat,0)  selectfunction SplineEval1Dx1D without ft!
+  call SplineEval1Dx1D(10,b%R0,b%THT0,b%Z0(1))  ! center value
+!  cardinal values
+    do i=1,nC-1
+     call SplineEval1Dx1D(10,JMatrix%RM,PI*(i-1)/4.0,JMatrix%Z0(i+3))
+    end do
+ else
+  call SplineEval1Dx1D(0,b%R0,b%THT0,b%Z0(1))  ! center value
+!  cardinal values
+    do i=1,nC-1
+     call SplineEval1Dx1D(0,JMatrix%RM,PI*(i-1)/4.0,JMatrix%Z0(i+3))
+    end do
+ endif
+ if (b%Z0(1) <= b%Z0(2)) b%Z0(2)=b%Z0(1)
+ if (b%Z0(1) >= b%Z0(3)) b%Z0(3)=b%Z0(1)
+endif
+! always
+cardinal(1)=powctr
+
+endsubroutine selectfunction
+
+END MODULE cornea_arrays
+
+

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QHelpCollectionProject version="1.0">
+    <assistant>
+        <title>Kernunos/CorneaCopia</title>
+        <applicationIcon>images/icon.ico</applicationIcon>
+        <cacheDirectory>kernunos</cacheDirectory>
+        <startPage>qthelp:index.html</startPage>
+        <aboutMenuText>
+            <text>About Kernunos</text>
+        </aboutMenuText>
+        <aboutDialog>
+            <file>about.txt</file>
+            <icon>images/handbook.png</icon>
+        </aboutDialog>
+        <enableDocumentationManager>true</enableDocumentationManager>
+        <enableAddressBar>true</enableAddressBar>
+        <enableFilterFunctionality>true</enableFilterFunctionality>
+    </assistant>
+    <docFiles>
+        <generate>
+            <file>
+                <input>kernunos.qhp</input>
+                <output>kernunos.qch</output>
+            </file>
+        </generate>
+        <register>
+            <file>kernunos.qch</file>
+        </register>
+    </docFiles>
+</QHelpCollectionProject>

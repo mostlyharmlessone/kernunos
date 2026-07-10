@@ -1,0 +1,127 @@
+! no center point version, periodic/natural/optional radial extrapolation
+SUBROUTINE SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
+ USE set_precision, ONLY : wp
+ USE parameters
+ USE special_fct, ONLY : bsearch, OPERATOR(.p.) !tensor summation convention
+ USE, INTRINSIC :: ieee_arithmetic
+ IMPLICIT NONE
+! !1-D version
+! adapted from Computer Methods for Mathematical Computations Forsythe et al. 1977
+! http://www.pdas.com/fmmdownload.html : SUBROUTINE Seval3Single(u,x,y,b,c,d,f,fp,fpp,fppp)
+! ---------------------------------------------------------------------------
+!  PURPOSE - Evaluate the cubic spline function and its derivatives
+!     S(u)=w*y(i+1)+wbar*y(i) + dr*dr*( (w**3-w)*y2(i+1)+(wbar**3-wbar)*y2(i) )/6 p.71
+!     Press et al. notation, A=w,B=wbar,C=dr*dr*(w**3-w)/6,D=dr*dr*(wbar**3-wbar)/6 p.95
+!           where  x(i) <= u < x(i+1)
+
+!  for extrapolation:  if u<x(1), i=1 is used;if u>x(n), i=n is used 
+
+  INTEGER, INTENT(IN) :: KP ! periodic KP=1 vs natural spline flag KP=0; KP=2 no extrapolation
+  INTEGER, INTENT(IN) :: n ! vector input length
+  REAL(wp),INTENT(IN) :: u ! abscissa at which the spline is to be evaluated
+  REAL(wp),INTENT(IN) :: x(n) ! abscissas of knots
+  REAL(wp),INTENT(IN) :: y(n) ! ordinates of knots
+  REAL(wp),INTENT(IN) :: y2(n) ! second deriv at knots
+  REAL(wp),INTENT(OUT),OPTIONAL :: f,fp,fpp,fppp ! function, 1st,2nd,3rd deriv
+  INTEGER :: i,i1 ! i1=i+1 unless periodic across gap
+  REAL(wp) :: dr,PERD,A,B,C,D,dA,dB,dC,dD
+  REAL(wp), DIMENSION(2) :: AB,CD,dAB,dCD,z,z2
+  LOGICAL :: IsInf
+
+  PERD=2*PI ! period of spline if applicable
+  if (n .eq. 1) then  ! degenerate case
+   write(*,*) 'Warning: degenerate SplineEval'
+   if (Present(f)) f=y(n)
+   if (Present(fp)) fp=0
+   if (Present(fpp)) fpp=y2(n)
+   if (Present(fppp)) fppp=0
+   return
+  endif
+  call bsearch(u,x,n,i1,i) ! binary search
+  if (i1 .eq. i) then
+   if (i .ne. n) then  ! on a knot
+    i1=i+1
+    dr=x(i1)-x(i)
+    B=0 ; A=1
+   else   
+    if (KP .ne. 1) then
+     i1=n ; i=n-1 ! should be usual default with floor
+     dr=x(i1)-x(i)
+     B=1 ; A=0    ! terminal knot natural spline
+    else
+     i1=1 ; i=n  !catches the terminal knot in the forward interval, KP = 1
+     dr=x(i1)-x(i)+PERD
+     B=0 ; A=1
+    endif    
+   endif   
+  else                   ! normal sequence
+   dr=x(i1)-x(i)
+   A=(x(i1)-u)/dr
+   B=(u-x(i))/dr
+  ! FOR PERIODIC SPLINES PERIOD 2*PI
+   if ((A*B) < 0) then  !redefine A,B,i,i1
+    if (KP == 1) then
+!    Interpolation across gap with KP=1 , periodic spline
+     i=N
+     i1=1
+     dr=x(i1)-x(i)+PERD
+     if (A < 0) then
+       B=(u-x(i))/dr
+       A=(x(i1)-u+PERD)/dr
+     else
+!      B < 0
+       B=(u-x(i)+PERD)/dr
+       A=(x(i1)-u)/dr
+     endif
+    end if
+   endif
+  endif
+  dA=-1/dr ; ; dB=1/dr
+  C=dr*dr*(A**3-A)/6; dC=dr*dr*dA*(3*A**2-1)/6
+  D=dr*dr*(B**3-B)/6; dD=dr*dr*dB*(3*B**2-1)/6
+  AB(1)=A ; AB(2)=B ; dAB(1)=dA ; dAB(2)=dB
+  CD(1)=C ; CD(2)=D ; dCD(1)=dC ; dCD(2)=dD
+  z(1)=y(i)
+  z(2)=y(i1)
+  z2(1)=y2(i)
+  z2(2)=y2(i1)
+  if ((A*B) < 0) then
+   if (KP /= 1) then  !  natural spline extrapolation z2=0 outside spline
+    z2=0._wp
+    if (KP ==2) then
+     if (Present(f)) f=0
+     if (Present(fp)) fp=0
+     if (Present(fpp)) fpp=0
+     if (Present(fppp)) fppp=0
+     return
+    endif
+   end if
+  end if
+  if (A < 0 .and. B < 0) then
+   if (KP /= 1) then
+    write (*,*) 'Unexpected input in SplineEval',x(i1),u,x(i)
+    return
+   end if
+  end if
+
+   if (Present(f)) f = (AB.p.z) + (CD.p.z2) !f=A*y(i)+B*y(i1)+((A**3-A)*y2(i)+(B**3-B)*y2(i1))*(dr**2)/6.0_wp                    
+!  1st deriv       
+   if (Present(fp)) fp = (dAB.p.z) + (dCD.p.z2) !fp=(y(i1)-y(i))/dr-(3*A*A-1)*dr*y2(i)/6.0+(3*B*B-1)*dr*y2(i1)/6.0_wp 
+!  2nd deriv N.B ddAB=0 ddCD=AB
+   if (Present(fpp)) fpp = (AB.p.z2)  ! fpp=A*y2(i)+B*y2(i1) 
+!  3rd deriv 
+   if (Present(fppp)) fppp = (dAB.p.z2) ! fppp=(y2(i1)-y2(i))/dr   
+
+   if (Present(f)) IsInf=ieee_is_finite(f)
+   if (Present(fp)) IsInf=ieee_is_finite(f) .and. ieee_is_finite(fp)
+   if(.not.IsInf) then
+    write(*,*) 'Error in SplineEval',KP,u,n,i1,i,z,z2,dr
+    write(*,*) AB,CD,dAB,dCD
+    return
+   endif
+                           
+  return
+END SUBROUTINE SplineEval
+
+
+

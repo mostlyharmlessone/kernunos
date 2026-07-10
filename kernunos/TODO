@@ -1,0 +1,201 @@
+FIXES
+
+
+findInterval vs bsearch
+
+enforce, or have a warning having to make new zernike after loading new data, also if tweaks changed
+
+enforce, or have a warning having to make new zernike after loading new data, also if tweaks changed
+
+try to (b)lock opening another file while Zernike is computing to avoid crash ? condition on counter? cannot run Open
+possibly just change zerncompute to not detach thread and block program..though that will block cccounter
+you can run other Analyze ie center gnusplotplot, lioc, and move the picture
+probably can run kernunos but not janus?
+
+search for Visia in source code to strip out or enable eysys version of reading visia if I fix it
+redo- Rowsey curvature?
+
+2-D LSQSpline: review article again, work on stand-alone program first, but probably want polar version with adjustable grid size
+
+consider adding sound to play after/during zernike compute, but might need option to turn off http://github.com/zserge/beep or get fancy with .ogg
+
+consider replacing sparsekit code with https://stdlib.fortran-lang.org/index.html COO/CSR types https://stdlib.fortran-lang.org/module/stdlib_sparse_kinds.html
+
+? needs extreme value filter; or histogram of values for median and color scale  like OPDIII
+resurrect old noise reduction code to help out monge-astig and meanc for real data?
+need lapack or open version of numrec fourn:  fftpack
+needs testing and reread of NumRec in C to figure out how to effectively remove noise.
+
+
+CROSS-COMPILING/RELEASE VERSIONS ETC
+
+need to set Qt/cmake to make relocatable
+
+qt6 pdf issue under mingw64; flatpak or QtInstaller?, or C-preprocessor comment out in code for windows version
+possibly use MSYS2 for Windows build 
+?use CPM.cmake
+arch's superlu doesn't have static library-built one
+
+linker issue ? flags? for static with gcc gcc+
+
+which size .ico file?
+need to reduce size of icon 32x32? 256x256? also need it for desktop integration difference between bmp and ico
+Apple icns gnerate from GIMP doesn't work
+
+appImage, looks straightforward and theres's a linuxdeployqt and macdeployqt apparently so.. ?have to make on oldest Ubuntu LTS
+
+need to know what is in a git?
+
+need to know all dependencies!
+gimp example: Path Mapping (GIMP) — appimage-builder 1.0.0 documentation
+gambas example
+
+or could just offer the .exe and direct users to use wine, assuming that will work
+
+upload binaries to releases, read about it appImages, do not commit to repo
+
+
+
+ENHANCEMENTS
+
+case sensitivity
+
+passing functions: style book p.35
+
+change in code and document in FAQ
+logstd.log: program error msgs
+logerr.log: system error msgs/crashes
+kernunos.log: non-error messages, add date/timestamps if possible
+in-app messages, limited to kenunos.cpp/frontend, trim to maintain filename
+
+?addcomments():
+errorMessageDialog
+
+Cmake:
+add icon (did on cyclic-banded)
+cmake for Windows/MacOS (did Windows in cyclic-banded)
+
+clean up capitalization, name issues, comments, style
+
+enable the tweaks prior to loading the file? but not with auto redraw
+
+
+NEW MACHINE DATA EXPORTS
+
+screenshot might need other than tga: have some tiff notes; look at Inkscape formats
+
+export Mathematica plots?
+
+NEW MACHINE DATA IMPORTS
+
+iTrace 8640 points = 360 x 24; has "Data" binary compressed with gzip
+
+PentaCam U12 file looks like it has binary data separated by blocks of zero, possibly readable, could compare with known data?
+
+
+OPTIMIZING
+
+valgrind/profiling 
+Use valgrind in Qt
+valgrind --tool=memcheck --log-file=memcheck00.txt --leak-check=full --read-var-info=yes ./kernunos  shows a lot of leaks but with no interaction
+
+profiling -g flag doesn't work for H&H codes, link errors
+try script with loadfile or juno alternative profiling janus alone, can also do loadfile with program exit after janus call; might work scripts of multiple loadfile calls
+
+Cachegrind, Callgrind and Massif are useful to figure out where the bottlenecks in the application lie, and where one should focus any optimization efforts.
+
+https://stackoverflow.com/questions/868568/what-do-the-terms-cpu-bound-and-i-o-bound-mean/33510470#33510470
+
+2)need to relook at integration to see if can eliminate extra function calls
+try going back to splineeval1dx1d and removing extra calls to splineeval, aka back to trial that spawned current branch
+also try finding a way to use only local natural splines instead of generating whole circular spline and using pspli
+
+GCC F2018 compliant with deferred length character with Bind C used in janus.f90
+GCC11 problem, ISO_Fortran_binding.h nt available or C++ not C?
+
+Passing an assumed-shape array or array pointer to an explicit-shape array can slow run-time performance. 
+https://www.cita.utoronto.ca/~merz/intel_f10b/main_for/mergedProjects/optaps_for/fortran/optaps_prg_arrs_f.htm
+Spline routines seem to have explicit shape, and are passed possibly assumed-shape
+
+
+
+POLISHING/PRESENTATION/LAUNCH
+
+clean up git history
+
+analyze fowler sauna patient: arvo poster introduction
+search for
+Thermally Induced Reversible Corneal Molding after Sauna Use on PubMed
+
+turns out my Atlas OD file and PentaCam file are really not comparablw when looking at MongeAstig, principal directions, Zernike coefficients. So: no repeatability across platforms on N=1 data point.
+? magnification for compare (thinking about my topos)
+
+
+MacOS: need to do reseach on compiles with Xcode, darwin tools, Qt on iMac, possibly also in Mac VM, or as a Parallels/Docker app.
+
+push to github
+
+
+MISCELLANEOUS
+
+instructions on running win3.1, ie designer or mathematica:
+dosbox-x: select drive in menu to map DXSCSI1 to D: and DXSCSI2 to E:, force scaling, normal x2 or normal x3 go to E:\WINDOWS and run win, select mouse capture in menu
+Export as EPS.
+
+https://docs.nersc.gov/performance/readiness/
+maybe try this for cyclic band tests on other project
+can also try helegrind for cyclic 4 way slow down
+nvidia compiler flags -fast -mp=gpu -gpu=cc80  (openMP offload to gpu, source NSERC, 
+also recommend "teams" directive not  "target parallel for" in c++
+OpenMP 4 
+#pragma omp target teams distribute parallel for 
+for (int i = 0; i < N; i++) a[i]=b[i]+ scalar * c[i]; 
+OpenMP 5.0
+#pragma omp target teams loop
+for (int i = 0; i < N; i++) a[i]=b[i]+ scalar * c[i];)
+
+tiff support
+
+https://www.ncbi.nlm.nih.gov/IEB/ToolBox/CPP_DOC/lxr/source/src/util/image/image_io_tiff.cpp
+void CImageIOTiff::WriteImage(const CImage& image, CNcbiOstream& ostr,
+                              size_t x, size_t y, size_t w, size_t h,
+                              CImageIO::ECompress compress)
+{
+    CRef<CImage> subimage(image.GetSubImage(x, y, w, h));
+    WriteImage(*subimage, ostr, compress);
+}
+
+or
+#include "tiffio.h"
+#include <vector>
+
+void saveBufferAsTiff(const char* filename, uint32_t width, uint32_t height, unsigned char* buffer) {
+    TIFF* tif = TIFFOpen(filename, "w");
+    if (!tif) return;
+
+    // Set basic TIFF tags
+    TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, width);
+    TIFFSetField(tif, TIFFTAG_IMAGELENGTH, height);
+    TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 1); // 1 for Grayscale, 3 for RGB
+    TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 8);
+    TIFFSetField(tif, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
+    TIFFSetField(tif, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
+    TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);
+
+    // Write the buffer row by row
+    for (uint32_t row = 0; row < height; row++) {
+        if (TIFFWriteScanline(tif, buffer + (row * width), row, 0) < 0) break;
+    }
+
+    TIFFClose(tif);
+}
+
+
+
+
+
+
+
+
+
+
