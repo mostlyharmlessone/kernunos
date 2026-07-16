@@ -2,10 +2,7 @@
 // from c++ call with LogC("text here")
 
 #include "logc.h"
-#include <bits/types/FILE.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <stdarg.h>
 #include <stdbool.h>
 

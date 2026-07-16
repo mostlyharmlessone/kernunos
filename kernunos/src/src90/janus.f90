@@ -1,4 +1,5 @@
-  SUBROUTINE Janus(flag,file_from_C,elements,vertices,legend,cardinal,zern,nV,nE,nL,nC,pupil_elements,pupil_vertices,pupil_nV,pupil_nE,err_janus) bind(C,name='janus_')
+  SUBROUTINE Janus(flag,file_from_C,elements,vertices,legend,cardinal,zern,nV,nE,nL&
+  &,nC,pupil_elements,pupil_vertices,pupil_nV,pupil_nE,err_janus) bind(C,name='janus_')
 ! back end for calculations
   USE set_precision, ONLY : wp, sk
   USE lapackinterface
@@ -1957,7 +1958,8 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
       powmax2=powmax2+ABS(Y-powmax+100*Atlas%AY(i,j))
      endif
 !   checks that power at knots is correct at knots; since this is a spline without LSQ it should be.
-     if (ABS(Atlas%AP(i,j)-pow) > EPS .and. (Atlas%AP(i,j) .gt. 0) .and. (Atlas%AD(i,j) .gt. 0) .and. (Atlas%AY(i,j) .gt. 0) .AND. (Atlas%AR(i,j) > 0)) then
+     if (ABS(Atlas%AP(i,j)-pow) > EPS .and. (Atlas%AP(i,j) .gt. 0) .and.&
+     &(Atlas%AD(i,j) .gt. 0) .and. (Atlas%AY(i,j) .gt. 0) .AND. (Atlas%AR(i,j) > 0)) then
       write(*,*) 'Atlas power spline error in janus: ',j,i,Atlas%AP(i,j),pow
      endif
     end do
@@ -2178,7 +2180,8 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
 
 if (abs(YP2THETA) .gt. 2000) then
 
-write(*,*) ABS(JMatrix%R(j,i))*COS(JMatrix%THT(i)),ABS(JMatrix%R(j,i))*SIN(JMatrix%THT(i)),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA,ABS(JMatrix%R(j,i))
+write(*,*) ABS(JMatrix%R(j,i))*COS(JMatrix%THT(i)),ABS(JMatrix%R(j,i))*SIN(JMatrix%THT(i))&
+&,JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA,ABS(JMatrix%R(j,i))
 !nb only for mm=60
 ! needs modification for oculus
 if (i .gt. M1/2) then

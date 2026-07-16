@@ -164,7 +164,8 @@
         if (abs(delta*delta*v*(v*v-one)/6.0) > 0) s = dpTriplet(j,2*k, delta*delta*v*(v*v-one)/6.0 )
         if (k .lt. n) then
          if (abs(one-v) > 0) s = dpTriplet(j,2*k+1,one-v)
-         if (abs(delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0) > 0) s = dpTriplet(j,2*k+2,delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0 )
+         if (abs(delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0) > 0) &
+         &s = dpTriplet(j,2*k+2,delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0 )
         endif
  ! For H&H approach write A, A^T and I_M
       else
@@ -172,7 +173,8 @@
         if (abs(delta*delta*v*(v*v-one)/6.0) > 0)s = dpTriplet(j,2*k, delta*delta*v*(v*v-one)/6.0 )
         if (k .lt. n) then
          if (abs(one-v) > 0) s = dpTriplet(j,2*k+1,one-v)
-         if (abs(delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0) > 0) s = dpTriplet(j,2*k+2,delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0 )
+         if (abs(delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0) > 0) &
+         &s = dpTriplet(j,2*k+2,delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0 )
         endif
 ! Write adjacent rows of the A^T matrix, in middle of B:
 ! Starts at m+1st row and 2*n+1st column, 2*n rows, m columns
@@ -180,7 +182,8 @@
         if (abs(delta*delta*v*(v*v-one)/6.0) > 0) s = dpTriplet(2*k+m,2*n+j, delta*delta*v*(v*v-one)/6.0 )
         if (k .lt. n) then
          if(abs(one-v) > 0) s = dpTriplet(2*k+1+m,2*n+j,one-v)
-         if (abs(delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0) > 0) s = dpTriplet(2*k+2+m,2*n+j,delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0 )
+         if (abs(delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0) > 0) s =&
+         &dpTriplet(2*k+2+m,2*n+j,delta*delta*(one-v)*((one-v)*(one-v)-one)/6.0 )
         endif
 ! Write row of identity matrix I_M, top middle of B:
         s = dpTriplet(j,2*n+j,one)

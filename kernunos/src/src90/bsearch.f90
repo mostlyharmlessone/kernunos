@@ -161,7 +161,8 @@ SUBROUTINE bsearch(r,rv,n,high,low)
 
 ! if not in the interval and not a knot and not a reverse sequence but still not starting with minimum value
 ! then almost certainly actually is in interval but one boundary is the periodic one  .or. (r < rv(low)), so don't check for that
- if ( (r > rv(high) .and. abs(2*PI-r) > rv(high) .and. abs(r) .le. 2*PI ) .and. (i0 > 1) .and. (direction > 0) .and. (high .ne. low) ) then
+ if ( (r > rv(high) .and. abs(2*PI-r) > rv(high) .and. abs(r) .le. 2*PI )&
+        &.and. (i0 > 1) .and. (direction > 0) .and. (high .ne. low) ) then
   write(*,*) 'FATAL possible index error in bsearch: low,high,rv(low),r,abs(2*PI-r),rv(high),direction>0,m,n,i0'
   write(*,*) low,high,rv(low),r,abs(2*PI-r),rv(high),direction>0,m,n,i0
   write(*,*) rv
