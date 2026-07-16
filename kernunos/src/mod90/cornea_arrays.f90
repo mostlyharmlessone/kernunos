@@ -370,7 +370,8 @@ SUBROUTINE RadSlope_eq_Skyline(lsq,JMatrix, RadSlope, Skyline, Penta)      ! ini
   LOGICAL, INTENT(IN) :: lsq
   INTEGER :: M1,N1,i,j,k,kk,L2,offset,NP,ITH,err_report,num_zeroes
   INTEGER :: imv(size(JMatrix%Z,2)),firstcheck
-  REAL(wp) :: rBo,rBi,DAT,u,v,xx,yy,f,fx,fxx,fy,fxy,fyy,fTmp(Skyline%rows),f2Tmp(Skyline%rows),fxTmp(Skyline%rows),fx2Tmp(Skyline%rows),fxxTmp(Skyline%rows),fxx2Tmp(Skyline%rows)
+  REAL(wp) :: rBo,rBi,DAT,u,v,xx,yy,f,fx,fxx,fy,fxy,fyy,fTmp(Skyline%rows),f2Tmp(Skyline%rows)&
+         &,fxTmp(Skyline%rows),fx2Tmp(Skyline%rows),fxxTmp(Skyline%rows),fxx2Tmp(Skyline%rows)
   REAL(wp) :: r(size(RadSlope%r,2)),z(Skyline%cols),z2(Skyline%cols)
   REAL(wp) :: x(Skyline%cols)              ! maximum size needed, don't need NP
   REAL(wp) :: y(Skyline%rows)
@@ -785,27 +786,41 @@ end do
 ! reduce outliers more than given percentage over average to average
 do i=1,M1
  do j=1,JMatrix%MV(i)
-  if (ABS(JMatrix%SAGC(j,i)-JMatrix%SAGC_AVG)*percent_squash > ABS(JMatrix%SAGC_AVG)) JMatrix%SAGC(j,i) = (JMatrix%SAGC(j,i)*(1-percent_squash/100.0)+JMatrix%SAGC_AVG+percent_squash/100.0)/2.0
+  if (ABS(JMatrix%SAGC(j,i)-JMatrix%SAGC_AVG)*percent_squash > ABS(JMatrix%SAGC_AVG)) &
+  &JMatrix%SAGC(j,i) = (JMatrix%SAGC(j,i)*(1-percent_squash/100.0)+JMatrix%SAGC_AVG+percent_squash/100.0)/2.0
 !  if (ABS(JMatrix%Z(j,i)-JMatrix%Z_AVG)*percent_squash > ABS(JMatrix%Z_AVG)) JMatrix%Z(j,i) = (JMatrix%Z(j,i)*(1-percent_squash/100.0)+JMatrix%Z_AVG+percent_squash/100.0)/2.0
-  if (ABS(JMatrix%INSTC(j,i)-JMatrix%INSTC_AVG)*percent_squash > ABS(JMatrix%INSTC_AVG)) JMatrix%INSTC(j,i) = (JMatrix%INSTC(j,i)*(1-percent_squash/100.0)+JMatrix%INSTC_AVG+percent_squash/100.0)/2.0
-  if (ABS(JMatrix%GAUSSC(j,i)-JMatrix%GAUSSC_AVG)*percent_squash > ABS(JMatrix%GAUSSC_AVG)) JMatrix%GAUSSC(j,i) = (JMatrix%GAUSSC(j,i)*(1-percent_squash/100.0)+JMatrix%GAUSSC_AVG+percent_squash/100.0)/2.0
-  if (ABS(JMatrix%MEANC(j,i)-JMatrix%MEANC_AVG)*percent_squash > ABS(JMatrix%MEANC_AVG)) JMatrix%MEANC(j,i) = (JMatrix%MEANC(j,i)*(1-percent_squash/100.0)+JMatrix%MEANC_AVG+percent_squash/100.0)/2.0
-  if (ABS(JMatrix%MONGEA(j,i)-JMatrix%MONGEA_AVG)*percent_squash > ABS(JMatrix%MONGEA_AVG)) JMatrix%MONGEA(j,i) = (JMatrix%MONGEA(j,i)*(1-percent_squash/100.0)+JMatrix%MONGEA_AVG+percent_squash/100.0)/2.0
-  if (ABS(JMatrix%Warp(j,i)-JMatrix%Warp_AVG)*percent_squash > ABS(JMatrix%Warp_AVG)) JMatrix%Warp(j,i) = (JMatrix%Warp(j,i)*(1-percent_squash/100.0)+JMatrix%Warp_AVG+percent_squash/100.0)/2.0
+  if (ABS(JMatrix%INSTC(j,i)-JMatrix%INSTC_AVG)*percent_squash > ABS(JMatrix%INSTC_AVG))&
+  &JMatrix%INSTC(j,i) = (JMatrix%INSTC(j,i)*(1-percent_squash/100.0)+JMatrix%INSTC_AVG+percent_squash/100.0)/2.0
+  if (ABS(JMatrix%GAUSSC(j,i)-JMatrix%GAUSSC_AVG)*percent_squash > ABS(JMatrix%GAUSSC_AVG))&
+  &JMatrix%GAUSSC(j,i) = (JMatrix%GAUSSC(j,i)*(1-percent_squash/100.0)+JMatrix%GAUSSC_AVG+percent_squash/100.0)/2.0
+  if (ABS(JMatrix%MEANC(j,i)-JMatrix%MEANC_AVG)*percent_squash > ABS(JMatrix%MEANC_AVG)) &
+  &JMatrix%MEANC(j,i) = (JMatrix%MEANC(j,i)*(1-percent_squash/100.0)+JMatrix%MEANC_AVG+percent_squash/100.0)/2.0
+  if (ABS(JMatrix%MONGEA(j,i)-JMatrix%MONGEA_AVG)*percent_squash > ABS(JMatrix%MONGEA_AVG))&
+  &JMatrix%MONGEA(j,i) = (JMatrix%MONGEA(j,i)*(1-percent_squash/100.0)+JMatrix%MONGEA_AVG+percent_squash/100.0)/2.0
+  if (ABS(JMatrix%Warp(j,i)-JMatrix%Warp_AVG)*percent_squash > ABS(JMatrix%Warp_AVG))&
+  &JMatrix%Warp(j,i) = (JMatrix%Warp(j,i)*(1-percent_squash/100.0)+JMatrix%Warp_AVG+percent_squash/100.0)/2.0
  do k = 1,15
-  if (ABS(JMatrix%ZC(j,i,k)-JMatrix%ZC_AVG(k))*percent_squash > ABS(JMatrix%ZC_AVG(k))) JMatrix%ZC(j,i,k) = (JMatrix%ZC(j,i,k)*(1-percent_squash/100.0)+JMatrix%ZC_AVG(k)+percent_squash/100.0)/2.0
+  if (ABS(JMatrix%ZC(j,i,k)-JMatrix%ZC_AVG(k))*percent_squash > ABS(JMatrix%ZC_AVG(k)))&
+  &JMatrix%ZC(j,i,k) = (JMatrix%ZC(j,i,k)*(1-percent_squash/100.0)+JMatrix%ZC_AVG(k)+percent_squash/100.0)/2.0
  end do
  end do
 end do
-if (ABS(JMatrix%SAGC0(1)-JMatrix%SAGC_AVG)*percent_squash > ABS(JMatrix%SAGC_AVG)) JMatrix%SAGC0(1) = (JMatrix%SAGC0(1)*(1.0-percent_squash/100.0)+JMatrix%SAGC_AVG+percent_squash/100.0)/2.0
+if (ABS(JMatrix%SAGC0(1)-JMatrix%SAGC_AVG)*percent_squash > ABS(JMatrix%SAGC_AVG)) &
+&JMatrix%SAGC0(1) = (JMatrix%SAGC0(1)*(1.0-percent_squash/100.0)+JMatrix%SAGC_AVG+percent_squash/100.0)/2.0
 ! if (ABS(JMatrix%Z0(1)-JMatrix%Z_AVG)*percent_squash > ABS(JMatrix%Z_AVG)) JMatrix%Z0(1) = (JMatrix%Z0(1)*(1-percent_squash/100.0)+JMatrix%Z_AVG+percent_squash/100.0)/2.0
-if (ABS(JMatrix%INSTC0(1)-JMatrix%INSTC_AVG)*percent_squash > ABS(JMatrix%INSTC_AVG)) JMatrix%INSTC0(1) = (JMatrix%INSTC0(1)*(1.0-percent_squash/100.0)+JMatrix%INSTC_AVG+percent_squash/100.0)/2.0
-if (ABS(JMatrix%MEANC0(1)-JMatrix%MEANC_AVG)*percent_squash > ABS(JMatrix%MEANC_AVG)) JMatrix%MEANC0(1) = (JMatrix%MEANC0(1)*(1.0-percent_squash/100.0)+JMatrix%MEANC_AVG+percent_squash/100.0)/2.0
-if (ABS(JMatrix%GAUSSC0(1)-JMatrix%GAUSSC_AVG)*percent_squash > ABS(JMatrix%GAUSSC_AVG)) JMatrix%GAUSSC0(1) = (JMatrix%GAUSSC0(1)*(1.0-percent_squash/100.0)+JMatrix%GAUSSC_AVG+percent_squash/100.0)/2.0
-if (ABS(JMatrix%MONGEA0(1)-JMatrix%MONGEA_AVG)*percent_squash > ABS(JMatrix%MONGEA_AVG)) JMatrix%MONGEA0(1) = (JMatrix%MONGEA0(1)*(1.0-percent_squash/100.0)+JMatrix%MONGEA_AVG+percent_squash/100.0)/2.0
-if (ABS(JMatrix%Warp0(1)-JMatrix%Warp_AVG)*percent_squash > ABS(JMatrix%Warp_AVG)) JMatrix%Warp0(1) = (JMatrix%Warp0(1)*(1.0-percent_squash/100.0)+JMatrix%Warp_AVG+percent_squash/100.0)/2.0
+if (ABS(JMatrix%INSTC0(1)-JMatrix%INSTC_AVG)*percent_squash > ABS(JMatrix%INSTC_AVG))&
+& JMatrix%INSTC0(1) =(JMatrix%INSTC0(1)*(1.0-percent_squash/100.0)+JMatrix%INSTC_AVG+percent_squash/100.0)/2.0
+if (ABS(JMatrix%MEANC0(1)-JMatrix%MEANC_AVG)*percent_squash > ABS(JMatrix%MEANC_AVG)) JMatrix%MEANC0(1) =&
+&(JMatrix%MEANC0(1)*(1.0-percent_squash/100.0)+JMatrix%MEANC_AVG+percent_squash/100.0)/2.0
+if (ABS(JMatrix%GAUSSC0(1)-JMatrix%GAUSSC_AVG)*percent_squash > ABS(JMatrix%GAUSSC_AVG)) &
+&JMatrix%GAUSSC0(1) = (JMatrix%GAUSSC0(1)*(1.0-percent_squash/100.0)+JMatrix%GAUSSC_AVG+percent_squash/100.0)/2.0
+if (ABS(JMatrix%MONGEA0(1)-JMatrix%MONGEA_AVG)*percent_squash > ABS(JMatrix%MONGEA_AVG))&
+&JMatrix%MONGEA0(1) = (JMatrix%MONGEA0(1)*(1.0-percent_squash/100.0)+JMatrix%MONGEA_AVG+percent_squash/100.0)/2.0
+if (ABS(JMatrix%Warp0(1)-JMatrix%Warp_AVG)*percent_squash > ABS(JMatrix%Warp_AVG)) &
+&JMatrix%Warp0(1) = (JMatrix%Warp0(1)*(1.0-percent_squash/100.0)+JMatrix%Warp_AVG+percent_squash/100.0)/2.0
 do k = 1,15
-if (ABS(JMatrix%ZC0(1,k)-JMatrix%ZC_AVG(k))*percent_squash > ABS(JMatrix%ZC_AVG(k))) JMatrix%ZC0(1,k) = (JMatrix%ZC0(1,k)*(1.0-percent_squash/100.0)+JMatrix%ZC_AVG(k)+percent_squash/100.0)/2.0
+if (ABS(JMatrix%ZC0(1,k)-JMatrix%ZC_AVG(k))*percent_squash > ABS(JMatrix%ZC_AVG(k)))&
+&JMatrix%ZC0(1,k) = (JMatrix%ZC0(1,k)*(1.0-percent_squash/100.0)+JMatrix%ZC_AVG(k)+percent_squash/100.0)/2.0
 end do
 END SUBROUTINE squash
 
@@ -840,13 +855,14 @@ SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
      if (TestData.ne.2 .and. TestData.ne.4) then
       JMatrix%Z0(1)=P_TEMP
      else
-      write(*,*) 'Central elevation already set in RadSlope_eq_Skyline: center elevation supplied, average calculated',JMatrix%Z0(1),P_TEMP
+      write(*,*) 'Central elevation already set in RadSlope_eq_Skyline: center elevation supplied,&
+      &average calculated',JMatrix%Z0(1),P_TEMP
      endif
 
 
   !   write(*,*) 'sagc'
   !  SAGC
-  !  Reload RadSlope with SAGC & re-spline; can't compute it from surface because ill-defined at origin
+  !  Reload RadSlope with SAGC & re-spline; can't compute it from surface because ill-defined &at origin
       do i=1,M1
        do j=1,RadSlope%MV(i)
         RadSlope%Zp(j,i)=JMatrix%SAGC(j,i)
@@ -884,7 +900,8 @@ SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
      if (TestData.ne.3 .and. TestData.ne.5) then
       JMatrix%SAGC0(1)=P_TEMP
      else
-      write(*,*) 'Central Axial Power already set in RadSlope_eq_Skyline, center power supplied, average calculated',JMatrix%SAGC0(1),P_TEMP
+      write(*,*) 'Central Axial Power already set in RadSlope_eq_Skyline, center power supplied,&
+      &average calculated',JMatrix%SAGC0(1),P_TEMP
      endif
 
 
@@ -1658,7 +1675,8 @@ END SUBROUTINE EyeSys_LSQfillin
   LOGICAL, INTENT(IN) :: one
   ! these names follow the conventions/are defined in Curvature_equations/notes
   REAL(wp) :: hu,hv,huu,hvv,huv,g,K,H,k1,k2,astig,kappa
-  REAL(wp) :: MMM(3,3),nrml(3),rv(3),rvp1(3),rvp2(3),pos(3),J(3,3),e1(3),e1p(3),e2(3),e2p(3),e3(3),e3p(3),IJ(3,3),B(3),RR(3,3),R0(3,3)
+  REAL(wp) :: MMM(3,3),nrml(3),rv(3),rvp1(3),rvp2(3),pos(3),J(3,3),e1(3),e1p(3),e2(3),&
+             &e2p(3),e3(3),e3p(3),IJ(3,3),B(3),RR(3,3),R0(3,3)
   INTEGER :: INFO
   r=abs(r) ; hr=abs(hr)
 ! convert to cartesian conversion

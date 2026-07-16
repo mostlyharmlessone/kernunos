@@ -552,7 +552,8 @@ USE sparsekit, ONLY: coocsr
   END IF
 ! coocsr destroys ir, make working copy of triplets%rows
   ir(1:dcsr%nnz)=sparse%rows(1:dcsr%nnz)
-  call coocsr( dcsr%noOfRows, dcsr%nnz, sparse%values(1:dcsr%nnz), ir(1:dcsr%nnz), sparse%columns(1:dcsr%nnz), dcsr%a, dcsr%ja, dcsr%ia )
+  call coocsr( dcsr%noOfRows, dcsr%nnz, sparse%values(1:dcsr%nnz), ir(1:dcsr%nnz),&
+               &sparse%columns(1:dcsr%nnz), dcsr%a, dcsr%ja, dcsr%ia )
   DEALLOCATE(ind,itemp,ir)
 
 END SUBROUTINE dcsr_eq_list_of_triplets
@@ -606,7 +607,8 @@ USE sparsekit, ONLY: dnscsr
   ALLOCATE(dcsr%a(1:dcsr%nnz), dcsr%ja(1:dcsr%nnz), dcsr%ia(1:dcsr%nnz))
   dcsr%noOfRows=size(matrix,1)
   dcsr%noOfColumns=size(matrix,2)
-  call dnscsr ( size(matrix,1), size(matrix,2), dcsr%nnz, matrix, size(matrix,1), dcsr%a(1:dcsr%nnz), dcsr%ja(1:dcsr%nnz), dcsr%ia(1:dcsr%nnz), dcsr%errFlag )
+  call dnscsr ( size(matrix,1), size(matrix,2), dcsr%nnz, matrix, size(matrix,1),&
+       &dcsr%a(1:dcsr%nnz), dcsr%ja(1:dcsr%nnz), dcsr%ia(1:dcsr%nnz), dcsr%errFlag )
   IF (dcsr%errFlag /= 0) THEN
    write(*,*) 'Error in dnscsr'
    RETURN

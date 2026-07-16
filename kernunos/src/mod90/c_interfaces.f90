@@ -3,7 +3,8 @@ MODULE c_interfaces
  INTERFACE
 
 ! call from c++ to fortran as extern "C" for data exchange
- SUBROUTINE Janus(flag,file_from_C,elements,vertices,legend,cardinal,zern,nV,nE,nL,nC,pupil_elements,pupil_vertices,pupil_nV,pupil_nE,err_janus) bind(C,name='janus_')
+ SUBROUTINE Janus(flag,file_from_C,elements,vertices,legend,cardinal,zern,nV,&
+ &nE,nL,nC,pupil_elements,pupil_vertices,pupil_nV,pupil_nE,err_janus) bind(C,name='janus_')
  USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char,c_int64_t,c_double
  IMPLICIT NONE 
  CHARACTER(c_char), INTENT(IN), DIMENSION(4096) :: file_from_C

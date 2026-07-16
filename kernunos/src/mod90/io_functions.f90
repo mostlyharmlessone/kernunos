@@ -768,7 +768,8 @@ SUBROUTINE rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
                    name_match = (y(2:len(trim(y))) .eq. trim(someline))
                   endif
                   if (mod(j-1,93) .eq. 5) then
-                   date_match = (index(trim(somecharacter),replacestr(string=(y(2:len(trim(y))-4)//y(len(trim(y))-1:len(trim(y)))),search="/",substitute=".")) .gt. 0)
+                   date_match = (index(trim(somecharacter),replacestr(string=(y(2:len(trim(y))-4)&
+                   &//y(len(trim(y))-1:len(trim(y)))),search="/",substitute=".")) .gt. 0)
                   endif
                   if (mod(j-1,93) .eq. 7) then
 !                   write(*,*) 'Eye: ',y(2:len(trim(y)))
