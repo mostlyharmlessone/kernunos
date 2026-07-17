@@ -27,9 +27,9 @@
 #include <cmath>
 #include <algorithm>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+//#include <glm/glm.hpp>
+//#include <glm/gtc/matrix_transform.hpp>
+//#include <glm/gtc/type_ptr.hpp>
 
 #include <QOpenGLWidget>
 #include <QOpenGLShaderProgram>
@@ -52,7 +52,7 @@
 #include <QLocale>
 #include <QTranslator>
 
-#include <qt6/QtCore/qtmetamacros.h>
+//#include <qt6/QtCore/qtmetamacros.h>
 
 
 // global variables

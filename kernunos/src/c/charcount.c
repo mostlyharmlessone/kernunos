@@ -1,7 +1,6 @@
 //https://stackoverflow.com/questions/72566680/count-occurrences-of-character-in-file-c
 
 #include "charcount.h"
-#include <bits/types/FILE.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

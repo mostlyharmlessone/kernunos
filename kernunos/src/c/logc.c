@@ -8,6 +8,7 @@
 
 bool LogCreated = false;
 void LogC(const char *Message) { FILE *file;
+    char buffer[256];
     if (!LogCreated) { file = fopen(LOGFILE, "w");
         LogCreated = true; }
     else file = fopen(LOGFILE, "a");

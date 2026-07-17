@@ -12,7 +12,9 @@
 /* Kind of integer to hold a pointer.  Use 'long int'
 so it works on 64-bit systems. On the Fortran side
 this is declared as TYPE(C_PTR).*/
-typedef long int fptr;  /* 64 bit */
+//typedef long int fptr;  /* 64 bit */
+/* changed for Windows build*/
+typedef uintptr_t fptr;  /* 64 bit */
 
 typedef struct {
 	SuperMatrix *L;
