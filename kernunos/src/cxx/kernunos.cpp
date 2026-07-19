@@ -69,7 +69,7 @@
 #include <QTemporaryFile>
 #include <QFont>
 
-#include <assimp/cimport.h>
+#include <assimp/include/assimp/cimport.h>
 #include <assimp/Importer.hpp>
 #include <assimp/Exporter.hpp>
 #include <assimp/scene.h>

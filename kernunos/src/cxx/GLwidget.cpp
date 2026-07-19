@@ -3,7 +3,7 @@
 #include "qtconcurrentrun.h"
 
 #include <iostream>
-#include <map>
+//#include <map>
 #include <string>
 
 // path problems with freetype; have to put softlink in src

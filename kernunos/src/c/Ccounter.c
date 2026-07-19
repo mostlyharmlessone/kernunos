@@ -3,7 +3,7 @@
 
 #include "counter.h"
 #include <stdio.h>
-#include <stdlib.h>
+//#include <stdlib.h>
 #include <stdarg.h>
 #include <stdbool.h>
 

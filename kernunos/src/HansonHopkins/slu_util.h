@@ -35,11 +35,11 @@
 #define USER_ABORT(msg) superlu_abort_and_exit(msg)
 #endif
 
+/*mdified to change to snprintf with buffer*/
 #define ABORT(err_msg) \
  { char msg[256];\
    snprintf(msg,sizeof(msg),"%s at line %d in file %s\n",err_msg,__LINE__, __FILE__);\
    USER_ABORT(msg); }
-
 
 #ifndef USER_MALLOC
 #if 1

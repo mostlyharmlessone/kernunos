@@ -10,7 +10,7 @@ int CleanSemicolons_C(const char *iname, const char *oname)
 	if( (fptr1 = fopen(iname,"rb")) == NULL)
         { printf("can't open file %s \n",iname); return(2);};
         if( (fptr2 = fopen(oname,"wb")) == NULL)
-        { printf("can't open file %s \n",oname); return(3);};
+        { printf("can't open file %s \n",oname); fclose(fptr1); return(3);};
 	while( (ch=getc(fptr1)) != EOF ) {
 		if(ch == 0x3B) {putc(0x2C,fptr2);};
                 if(ch != 0x3B) {putc(ch,fptr2);};

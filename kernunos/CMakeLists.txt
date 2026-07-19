@@ -178,6 +178,9 @@ list(APPEND CMAKE_PREFIX_PATH "C:/boost")
 list(APPEND CMAKE_PREFIX_PATH "C:/boost/stage/lib/cmake")
 list(APPEND CMAKE_PREFIX_PATH "C:/Program Files (x86)/OpenBLAS")
 list(APPEND CMAKE_PREFIX_PATH "C:/Program Files (x86)/SuperLU")
+list(APPEND CMAKE_PREFIX_PATH "C:/Program Files (x86)/Assimp")
+list(APPEND CMAKE_PREFIX_PATH "C:/Program Files (x86)/freetype")
+list(APPEND CMAKE_PREFIX_PATH "C:/Program Files (x86)/glm")
 else()
 set (CMAKE_PREFIX_PATH "/usr/lib/")
 endif()
@@ -253,9 +256,16 @@ if (CMAKE_HOST_SYSTEM MATCHES Windows)
  set(QT_DIR "C:/Qt/6.8.3/mingw_64")
  find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Concurrent Pdf PdfWidgets OpenGLWidgets OpenGL LinguistTools)
  message(STATUS "Qt " ${Qt6_FOUND})
+ # Find the glm package
+ add_subdirectory(glm/)
+ find_package(GLM REQUIRED)
+#set(GLM_DIR "glm/")
+#set(GLM_INCLUDE_DIR "glm/glm/")
 # Find the FreeType2 package
- set(FREETYPE_DIR "C:/msys64/mingw64/include/freetype2")
- set(FREETYPE_INCLUDE_DIR "C:/msys64/mingw64/include/freetype2/freetype")
+add_subdirectory(freetype/)
+find_package(Freetype REQUIRED)
+# set(FREETYPE_DIR "freetype/")
+# set(FREETYPE_INCLUDE_DIR "freetype/include/freetype2/")
 else()
   set(QT_CREATOR_SKIP_MAINTENANCE_TOOL_PROVIDER ON)
   SET(Qt6_DIR "/usr/lib/x86_64-linux-gnu/qt6")
@@ -271,8 +281,12 @@ endif()
 
 set(TS_FILES src/cxx/kernunos_en_US.ts)
 # assimp
-#find_package(assimp REQUIRED CONFIG)
-set(${ASSIMP_INCLUDE_DIRS} "assimp/include/assimp" )
+add_subdirectory(assimp/)
+find_package(assimp REQUIRED)
+message(STATUS "ASSIMP_INCLUDE_DIRS" ${ASSIMP_INCLUDE_DIRS})
+# had to set these in Qt/Projects cmake settings
+set(${ASSIMP_INCLUDE_DIRS} assimp/include/assimp)
+set(${ASSIMP_WARNINGS_AS_ERRORS}=OFF)
 ADD_COMPILE_DEFINITIONS(ASSIMP_VERSION="${ASSIMP_VERSION}")
 
 # superlu
@@ -497,17 +511,6 @@ endif()
 
 if (TRUE)
 
-# if (CMAKE_HOST_SYSTEM MATCHES Windows)
-#  string(REPLACE "C:" "/c" QT_DIR "${QT_DIR}")
-#  string(REPLACE "C:" "/c" CMAKE_CURRENT_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
-#  string(REPLACE "C:" "/c" FREETYPE_DIR "${FREETYPE_DIR}")
-#  string(REPLACE "C:" "/c" FREETYPE_INCLUDE_DIR "${FREETYPE_INCLUDE_DIR}")
-#  string(REPLACE "C:" "/c" Boost_DIR "${Boost_DIR}")#
-
-#  message (STATUS "CMAKE_CURRENT_BINARY_DIR " ${CMAKE_CURRENT_BINARY_DIR})
-# endif()
-
-
 #Qt6 or greater
     qt_add_executable(kernunos
     MANUAL_FINALIZATION
@@ -534,8 +537,13 @@ target_link_libraries(gnuplot_iostream INTERFACE
     Boost::filesystem)
 
 # Target Freetype
-target_include_directories(kernunos PUBLIC FREETYPE_INCLUDE_DIRS)
+if (CMAKE_HOST_SYSTEM MATCHES Windows)
+ target_include_directories(kernunos PUBLIC ${FREETYPE_INCLUDE_DIRS})
+ target_include_directories(kernunos PUBLIC ${FREETYPE_DIR})
+else()
+target_include_directories(kernunos PUBLIC ${FREETYPE_INCLUDE_DIRS})
 target_include_directories(kernunos PUBLIC /usr/include/freetype2)
+endif()
 
 target_link_libraries(kernunos
                 PRIVATE Qt6::Concurrent OpenMP::OpenMP_CXX
