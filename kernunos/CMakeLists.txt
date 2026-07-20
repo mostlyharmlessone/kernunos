@@ -11,10 +11,10 @@ enable_language(Fortran)
 enable_language(CXX)
 enable_language(C)
 
-set(CMAKE_HOST_NAME Windows)
-#set(CMAKE_HOST_NAME Linux)
-set(CMAKE_SYSTEM Windows)
-#set(CMAKE_SYSTEM UNIX)
+#set(CMAKE_HOST_NAME Windows)
+set(CMAKE_HOST_NAME Linux)
+#set(CMAKE_SYSTEM Windows)
+set(CMAKE_SYSTEM UNIX)
 #set(CMAKE_SYSTEM APPLE)
 
 #set(CMAKE_BUILD_TYPE RELEASE) # no debug or bounds check
@@ -173,7 +173,7 @@ set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${type}")
 set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_DEBUG_MODE 0) #set to 1 to show dependencies
 
 if (${CMAKE_HOST_NAME} MATCHES "Windows")
-set (CMAKE_PREFIX_PATH "C:/Qt/6.8.3/mingw_64")
+set (CMAKE_PREFIX_PATH "C:/Qt/6.9.3/mingw_64")
 list(APPEND CMAKE_PREFIX_PATH "C:/boost")
 list(APPEND CMAKE_PREFIX_PATH "C:/boost/stage/lib/cmake")
 list(APPEND CMAKE_PREFIX_PATH "C:/Program Files (x86)/OpenBLAS")
@@ -182,7 +182,8 @@ list(APPEND CMAKE_PREFIX_PATH "C:/Program Files (x86)/Assimp")
 list(APPEND CMAKE_PREFIX_PATH "C:/Program Files (x86)/freetype")
 list(APPEND CMAKE_PREFIX_PATH "C:/Program Files (x86)/glm")
 else()
-set (CMAKE_PREFIX_PATH "/usr/lib/")
+ set (CMAKE_PREFIX_PATH "/usr/lib/")
+ list(APPEND CMAKE_PREFIX_PATH "../../Qt/6.9.3/gcc_64/lib/")
 endif()
 
 list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -271,6 +272,7 @@ else()
   SET(Qt6_DIR "/usr/lib/x86_64-linux-gnu/qt6")
   find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Pdf PdfWidgets OpenGLWidgets OpenGL Widgets LinguistTools REQUIRED )
   find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Concurrent REQUIRED)
+  message(STATUS "Qt " ${Qt6_FOUND})
   # Find the FreeType2 package
   set(FREETYPE_DIR "/usr/include/freetype2")
   set(FREETYPE_INCLUDE_DIR "/usr/include/freetype2/freetype")
@@ -278,7 +280,6 @@ else()
 endif()
   message(STATUS "Found Freetype in ${FREETYPE_INCLUDE_DIRS}")
   message(STATUS "Found Freetype in ${FREETYPE_DIR}")
-
 set(TS_FILES src/cxx/kernunos_en_US.ts)
 # assimp
 add_subdirectory(assimp/)
@@ -351,6 +352,9 @@ endif()
 # need this so that GLwidget.h can be found by AUTOUIC and ui.mainwindow.h, and for rply and assimp
 include_directories(src/cxx src/c)
 
+
+if(FALSE)
+
 #superlu example from chapter12
 
 set(LIBS2 ${SUPERLU_LIBRARIES} ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES} )
@@ -410,7 +414,6 @@ if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(driverPiecewiseLinear)
 endif()
 
-if(FALSE)
 
 set(HH_SOURCES2
                    src/HansonHopkins/driverPiecewiseCubic.f90
