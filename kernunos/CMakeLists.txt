@@ -545,11 +545,12 @@ target_include_directories(kernunos PUBLIC ${FREETYPE_INCLUDE_DIRS})
 target_include_directories(kernunos PUBLIC /usr/include/freetype2)
 endif()
 
-target_link_libraries(kernunos
+if (CMAKE_HOST_SYSTEM MATCHES Windows)
+ target_link_libraries(kernunos
                 PRIVATE Qt6::Concurrent OpenMP::OpenMP_CXX
                 gnuplot_iostream
-                boost_iostreams
-                boost_filesystem
+                Boost::iostreams
+                Boost::filesystem
                 PUBLIC Qt${QT_VERSION_MAJOR}::Core
                 Qt${QT_VERSION_MAJOR}::OpenGLWidgets
                 Qt${QT_VERSION_MAJOR}::Gui
@@ -558,7 +559,25 @@ target_link_libraries(kernunos
                 Qt${QT_VERSION_MAJOR}::Pdf
                 Qt${QT_VERSION_MAJOR}::PdfWidgets
                 assimp modules splia rply_includes ${LIBS} ${OpenMP_LIBRARIES}
+# need the OpenGl library from C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\um\x64
+                OpenGL32.Lib
             )
+else()
+ target_link_libraries(kernunos
+                PRIVATE Qt6::Concurrent OpenMP::OpenMP_CXX
+                gnuplot_iostream
+                Boost::iostreams
+                Boost::filesystem
+                PUBLIC Qt${QT_VERSION_MAJOR}::Core
+                Qt${QT_VERSION_MAJOR}::OpenGLWidgets
+                Qt${QT_VERSION_MAJOR}::Gui
+                Qt${QT_VERSION_MAJOR}::Widgets
+                Qt${QT_VERSION_MAJOR}::OpenGL
+                Qt${QT_VERSION_MAJOR}::Pdf
+                Qt${QT_VERSION_MAJOR}::PdfWidgets
+                assimp modules splia rply_includes ${LIBS} ${OpenMP_LIBRARIES}
+           )
+endif()
 
 if(NOT DEFINED INSTALL_EXAMPLESDIR)
     set(INSTALL_EXAMPLESDIR "../")

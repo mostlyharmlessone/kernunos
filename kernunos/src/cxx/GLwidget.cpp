@@ -6,14 +6,13 @@
 //#include <map>
 #include <string>
 
-// path problems with freetype; have to put softlink in src
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
 using std::vector;
 
 static const GLchar* vertexSource = R"glsl(
-    #version 330 core
+ #version 330 core
     in vec3 position;   // the position variable has attribute position 0
     in vec3 normal; // the normal variable has attribute position 1
     in vec3 incolor; // the color variable has attribute position 2
@@ -34,7 +33,7 @@ static const GLchar* vertexSource = R"glsl(
 )glsl";
 
 static const GLchar* vertexGeoSource = R"glsl(
-    #version 330 core
+ #version 330 core
     in vec3 position;   // the position variable has attribute position 0
     in vec3 normal; // the normal variable has attribute position 1
     in vec3 incolor; // the color variable has attribute position 2
@@ -98,7 +97,7 @@ void main()
 )glsl";
 
 static const GLchar* fragmentColor = R"glsl(
-    #version 330 core
+ #version 330 core
     out vec4 fragColor;
     in vec3 outColor;
     uniform vec4 alpha;
@@ -109,7 +108,7 @@ static const GLchar* fragmentColor = R"glsl(
 )glsl";
 
 static const GLchar* fragmentColorNormal = R"glsl(
-    #version 330 core
+ #version 330 core
     out vec4 fragColor;
     in vec3 outColor;
     in vec3 vert;
