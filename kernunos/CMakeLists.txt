@@ -6,6 +6,7 @@ set(VERSION_MINOR "2")
 set(VERSION_BugFix "0")
 set(PROJECT_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_BugFix})
 
+set(QT_FORCE_CMP0156_TO_VALUE OLD)
 set(CMAKE_MODULE_PATH cmake)
 enable_language(Fortran)
 enable_language(CXX)
@@ -183,7 +184,8 @@ list(APPEND CMAKE_PREFIX_PATH "C:/Program Files (x86)/freetype")
 list(APPEND CMAKE_PREFIX_PATH "C:/Program Files (x86)/glm")
 else()
  set (CMAKE_PREFIX_PATH "/usr/lib/")
- list(APPEND CMAKE_PREFIX_PATH "../../Qt/6.9.3/gcc_64/lib/")
+ list(APPEND CMAKE_PREFIX_PATH "../../Qt/6.9.3/gcc_64/lib/cmake/")
+# list(APPEND CMAKE_PREFIX_PATH "/usr/lib/x86_64-linux-gnu/qt6")
 endif()
 
 list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -267,11 +269,19 @@ add_subdirectory(freetype/)
 find_package(Freetype REQUIRED)
 # set(FREETYPE_DIR "freetype/")
 # set(FREETYPE_INCLUDE_DIR "freetype/include/freetype2/")
+# assimp
+add_subdirectory(assimp/)
+find_package(assimp REQUIRED)
+message(STATUS "ASSIMP_INCLUDE_DIRS" ${ASSIMP_INCLUDE_DIRS})
+# had to set these in Qt/Projects cmake settings under Windows
+set(${ASSIMP_INCLUDE_DIRS} assimp/include/assimp)
+set(${ASSIMP_WARNINGS_AS_ERRORS}=OFF)
 else()
+  #also set in QtCreator
   set(QT_CREATOR_SKIP_MAINTENANCE_TOOL_PROVIDER ON)
-  SET(Qt6_DIR "/usr/lib/x86_64-linux-gnu/qt6")
-  find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Pdf PdfWidgets OpenGLWidgets OpenGL Widgets LinguistTools REQUIRED )
-  find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Concurrent REQUIRED)
+  SET(Qt6_DIR "../../Qt/6.9.3/gcc_64/")
+  find_package(Qt6 COMPONENTS Core Gui Pdf PdfWidgets OpenGLWidgets OpenGL Widgets LinguistTools REQUIRED )
+  find_package(Qt6 COMPONENTS Concurrent REQUIRED)
   message(STATUS "Qt " ${Qt6_FOUND})
   # Find the FreeType2 package
   set(FREETYPE_DIR "/usr/include/freetype2")
@@ -281,13 +291,7 @@ endif()
   message(STATUS "Found Freetype in ${FREETYPE_INCLUDE_DIRS}")
   message(STATUS "Found Freetype in ${FREETYPE_DIR}")
 set(TS_FILES src/cxx/kernunos_en_US.ts)
-# assimp
-add_subdirectory(assimp/)
-find_package(assimp REQUIRED)
-message(STATUS "ASSIMP_INCLUDE_DIRS" ${ASSIMP_INCLUDE_DIRS})
-# had to set these in Qt/Projects cmake settings
-set(${ASSIMP_INCLUDE_DIRS} assimp/include/assimp)
-set(${ASSIMP_WARNINGS_AS_ERRORS}=OFF)
+
 ADD_COMPILE_DEFINITIONS(ASSIMP_VERSION="${ASSIMP_VERSION}")
 
 # superlu
@@ -353,7 +357,7 @@ endif()
 include_directories(src/cxx src/c)
 
 
-if(FALSE)
+if(TRUE)
 
 #superlu example from chapter12
 

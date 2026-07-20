@@ -13,10 +13,6 @@ in-app messages, limited to kenunos.cpp/frontend, trim to maintain filename
 ?addcomments():
 errorMessageDialog
 
-Cmake:
-add icon (did on cyclic-banded)
-cmake for Windows/MacOS (did Windows in cyclic-banded)
-
 clean up capitalization, name issues, comments, style
 
 enable the tweaks prior to loading the file? but not with auto redraw
@@ -27,13 +23,6 @@ FIXES
 findInterval vs bsearch
 
 enforce, or have a warning having to make new zernike after loading new data, also if tweaks changed
-
-enforce, or have a warning having to make new zernike after loading new data, also if tweaks changed
-
-try to (b)lock opening another file while Zernike is computing to avoid crash ? condition on counter? cannot run Open
-possibly just change zerncompute to not detach thread and block program..though that will block cccounter
-you can run other Analyze ie center gnusplotplot, lioc, and move the picture
-probably can run kernunos but not janus?
 
 search for Visia in source code to strip out or enable eysys version of reading visia if I fix it
 redo- Rowsey curvature?
@@ -46,34 +35,25 @@ consider replacing sparsekit code with https://stdlib.fortran-lang.org/index.htm
 
 ? needs extreme value filter; or histogram of values for median and color scale  like OPDIII
 resurrect old noise reduction code to help out monge-astig and meanc for real data?
-need lapack or open version of numrec fourn:  fftpack
-needs testing and reread of NumRec in C to figure out how to effectively remove noise.
+?fftpack needs testing to figure out how to effectively remove noise.
 
 
 CROSS-COMPILING/RELEASE VERSIONS ETC
 
-need to set Qt/cmake to make relocatable
-
 qt6 pdf issue under mingw64; flatpak or QtInstaller?, or C-preprocessor comment out in code for windows version
-possibly use MSYS2 for Windows build 
-?use CPM.cmake
 arch's superlu doesn't have static library-built one
 
 linker issue ? flags? for static with gcc gcc+
 
-which size .ico file?
-need to reduce size of icon 32x32? 256x256? also need it for desktop integration difference between bmp and ico
+icons: only for Windows at this point
+also need it for desktop integration if I want an 
 Apple icns generate from GIMP doesn't work
 
 appImage, looks straightforward and theres's a linuxdeployqt and macdeployqt apparently so.. ?have to make on oldest Ubuntu LTS
 
-need to know what is in a git?
-
 need to know all dependencies!
 gimp example: Path Mapping (GIMP) — appimage-builder 1.0.0 documentation
 gambas example
-
-or could just offer the .exe and direct users to use wine, assuming that will work
 
 upload binaries to releases, read about it appImages, do not commit to repo
 
@@ -135,17 +115,6 @@ instructions on running win3.1, ie designer or mathematica:
 dosbox-x: select drive in menu to map DXSCSI1 to D: and DXSCSI2 to E:, force scaling, normal x2 or normal x3 go to E:\WINDOWS and run win, select mouse capture in menu
 Export as EPS.
 
-https://docs.nersc.gov/performance/readiness/
-maybe try this for cyclic band tests on other project
-can also try helegrind for cyclic 4 way slow down
-nvidia compiler flags -fast -mp=gpu -gpu=cc80  (openMP offload to gpu, source NSERC, 
-also recommend "teams" directive not  "target parallel for" in c++
-OpenMP 4 
-#pragma omp target teams distribute parallel for 
-for (int i = 0; i < N; i++) a[i]=b[i]+ scalar * c[i]; 
-OpenMP 5.0
-#pragma omp target teams loop
-for (int i = 0; i < N; i++) a[i]=b[i]+ scalar * c[i];)
 
 tiff support
 

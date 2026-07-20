@@ -7,6 +7,7 @@
 * side the ISO C bindings are used at the interface.
 */
 
+#include <stdint.h>  //need this for uintptr_t under linux
 #include "slu_ddefs.h"
 
 /* Kind of integer to hold a pointer.  Use 'long int'

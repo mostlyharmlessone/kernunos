@@ -161,7 +161,7 @@ It is an embarrassment to have to state the following, as it should be understoo
 ## Building
 
 ###Under Linux 
-This software was developed at various times under the Slackware, Ubuntu, Arch, Manjaro distributions of GNU/Linux. Dependencies include Qt, assimp, lapack, rply, gnuplot, gnuplot-iostream, boost, freetype, and superlu. Some routines are adapted from other sources and included, for example excerpts from Hanson & Hopkins (see below). OpenGL is used as the primary graphics API, though some specific modifications are made for Qt.  
+This software was developed at various times under the Slackware, Ubuntu, Arch, Manjaro distributions of GNU/Linux. Dependencies include Qt6, assimp, lapack, rply, gnuplot, gnuplot-iostream, boost, freetype, and superlu. Some routines are adapted from other sources and included, for example excerpts from Hanson & Hopkins (see below). OpenGL is used as the primary graphics API, needs GLSL 3.30.  Qt appears to be deprecating C++ support in favor of QML: you may need to make sure the proper support is present.
 
 There are some patches to Hanson & Hopkins http://www.siam.org/books/ot134 chapters 2,4, & 11 to accomodate superlu versions > 4.3 and to support CSR sparse matrices
 
@@ -171,15 +171,27 @@ Linux system calls from C++  { system() } are called for starting with a command
 
 If you don't have access to those system calls, you'll have to extract the cabinet files to their uncompressed data files manually and clean up the temporary files manually, which has not been tested, YMMV.
 
-After cloning the source, load submodules with git submodule update --init
+After cloning the source, load submodules with git submodule update --init, then the usual:
 
 cmake ./ 
 
-gcc is used as the default compiler with cmake.   
+gcc is used as the default compiler with cmake.  
+
+Building within QtCreator is also possible, but the default of using Ninja does not work with the Fortran dependencies. I had to edit .qtcreator/CMakeLists.txt.user directly to replace ninja in the following lines:
+-DCMAKE_GENERATOR:STRING=Unix Makefiles
+-DCMAKE_MAKE_PROGRAM:STRING=/usr/bin/make
+
+####Under Windows
+
+As an alternative, build under Windows if you have the necessary toolset.  
+
+Under Windows 10, I used MingW/GCC for the C/C++/Fortran compiler and toolchain under Windows.<br> https://doc.qt.io/qt-6/windows.html; <br> I was unable to get Visual Studio and the Intel Fortran compiler to compile the code. In addition, the additional libraries would have to be compiled with the same toolchain.  I built assimp, superlu, glm, freetype, lapack and OpenBLAS with the the same toolset using git-bash after downloading them directly from upstream.
+
+
 
 ####Cross-compiling for Windows under Linux
 
-Cross compiling under Linux is not as straightforward as one would like in 2026.  Perhaps it is not the ideal solution; there was a lot more activity >10 years prior. <br>
+Cross compiling under Linux is not as straightforward as one would like in 2026.  Perhaps it is not the ideal solution; there was a lot more activity >10 years prior. As of this writing, I haven't managed a complete cross-compile build.<br>
 
 Under Arch Linix using AUR packages<br>
 yay -S mingw-w64-gcc <br>
@@ -204,8 +216,7 @@ https://wiki.archlinux.org/title/MinGW_package_guidelines <br>
 wxWidgets<br>
 https://wiki.wxwidgets.org/Cross-Compiling_Under_Linux <br>
 
-As an alternative, build under Windows if you have the necessary toolset.  AFAIK, this will require Qt, a C/C++ compiler/IDE such as Visual Studio (VS), a Fortran compiler that works with VS, such as the Intel Fortran Compiler and I know nothing about the rest of the integrated toolchain requirements under Windows.  You can also use MingW/GCC for the C/C++/Fortran compiler and toolchain under Windows.<br>
-https://doc.qt.io/qt-6/windows.html
+
 
 ####For MacOS
 

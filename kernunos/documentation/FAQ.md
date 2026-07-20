@@ -208,6 +208,8 @@ A:  Well, most of the exports are handled by assimp https://assimp-docs.readthed
 
 Known issues at this time:
 
+opening another file, and possibly some other operations while Zernike is computing will lead to a crash. It's probably because the code isn't thread safe..
+
 meshlab https://www.meshlab.net/ can open a large number of formats. However a few assimp exports are not readable or give errors even though meshlab supports the format, as follows:
 ```
 .obj  files the following error appears: .OBJ Error details: Some materials definitions were not found, a default white material is used where no material was available  (file opens normally however)

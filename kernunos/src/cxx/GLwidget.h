@@ -27,9 +27,16 @@
 #include <cmath>
 #include <algorithm>
 
+//weird path in my Windows build environment
+#if defined(_WIN32)
 #include "glm/glm/glm.hpp"
 #include "glm/glm/gtc/matrix_transform.hpp"
 #include "glm/glm/gtc/type_ptr.hpp"
+#else
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#endif
 
 #include <QOpenGLWidget>
 #include <QOpenGLShaderProgram>
