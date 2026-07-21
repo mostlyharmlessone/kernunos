@@ -1,0 +1,102 @@
+cmake_minimum_required(VERSION 3.10)
+Project(GnuPlot_iostream LANGUAGES CXX)
+
+if(CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR)
+  message(FATAL_ERROR "In-source builds are not allowed. Please make a separate build directory.")
+endif()
+
+include(CMakePackageConfigHelpers)
+include(GNUInstallDirs)
+
+if(POLICY CMP0167)
+cmake_policy(SET CMP0167 NEW)
+endif(POLICY CMP0167)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+#options.
+option(GnuPlotIostream_BuildTests "build gnuplot iostream tests" ON)
+option(GnuPlotIostream_BuildExamples "build gnuplot iostream examples" ON)
+
+# packages.
+find_package(Boost REQUIRED COMPONENTS
+    iostreams filesystem
+)
+
+# Target.
+add_library(gnuplot_iostream INTERFACE)
+target_include_directories(gnuplot_iostream INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_FULL_INCLUDEDIR}/>)
+target_link_libraries(gnuplot_iostream INTERFACE
+    Boost::iostreams
+    Boost::filesystem
+)
+set_target_properties(gnuplot_iostream PROPERTIES PUBLIC_HEADER gnuplot-iostream.h)
+
+write_basic_package_version_file(
+    "${PROJECT_BINARY_DIR}/GnuplotIostreamConfigVersion.cmake"
+    VERSION 0.1
+    COMPATIBILITY AnyNewerVersion
+)
+
+configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
+  "${CMAKE_CURRENT_BINARY_DIR}/GnuplotIostreamConfig.cmake"
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/gnuplot_iostream
+)
+
+install(TARGETS gnuplot_iostream
+  EXPORT gnuplot_iostreamTargets
+  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gnuplot_iostream
+)
+
+install(EXPORT gnuplot_iostreamTargets
+  FILE GnuplotIostreamTargets.cmake
+  NAMESPACE gnuplot_iostream::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/gnuplot_iostream
+)
+
+install(FILES
+          "${CMAKE_CURRENT_BINARY_DIR}/GnuplotIostreamConfig.cmake"
+          "${CMAKE_CURRENT_BINARY_DIR}/GnuplotIostreamConfigVersion.cmake"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/gnuplot_iostream
+)
+
+if(GnuPlotIostream_BuildTests)
+  set(GnuPlotIostream_tests
+    # These two are not supposed to compile.
+    #test-assert-depth
+    #test-assert-depth-colmajor
+    test-empty
+    test-noncopyable
+    test-outputs
+    )
+  foreach(atest ${GnuPlotIostream_tests})
+    add_executable(${atest} ${atest}.cc)
+    target_compile_features(${atest} PRIVATE cxx_std_17)
+    target_compile_options(${atest} PRIVATE -Wall -Wextra)
+    target_link_libraries(${atest} PRIVATE
+      gnuplot_iostream
+      boost_iostreams
+      boost_filesystem
+      )
+  endforeach()
+endif()
+
+if(GnuPlotIostream_BuildExamples)
+  set(GnuPlotIostream_examples
+    example-data-1d
+    example-data-2d
+    example-interactive
+    example-misc
+    )
+  foreach(an_example ${GnuPlotIostream_examples})
+    add_executable(${an_example} ${an_example}.cc)
+    target_compile_features(${an_example} PRIVATE cxx_std_17)
+    target_compile_options(${an_example} PRIVATE -Wall -Wextra)
+    target_link_libraries(${an_example} PRIVATE 
+      gnuplot_iostream
+      util
+      )
+  endforeach()
+endif()
