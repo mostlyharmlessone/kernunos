@@ -14,8 +14,8 @@ enable_language(C)
 
 #set(CMAKE_HOST_NAME Windows)
 set(CMAKE_HOST_NAME Linux)
-#set(CMAKE_SYSTEM Windows)
-set(CMAKE_SYSTEM UNIX)
+set(CMAKE_SYSTEM Windows)
+#set(CMAKE_SYSTEM UNIX)
 #set(CMAKE_SYSTEM APPLE)
 
 #set(CMAKE_BUILD_TYPE RELEASE) # no debug or bounds check
@@ -23,6 +23,8 @@ set(CMAKE_BUILD_TYPE DEBUG) #this include debugging with addition of bounds flag
 
 if (${CMAKE_HOST_NAME} MATCHES Linux)
  set (CMAKE_Fortran_COMPILER "gfortran")
+ set(CMAKE_C_COMPILER "gcc")
+ set(CMAKE_CXX_COMPILER "g++")
  # these don't override system environment, unfortunately
  set (FC "gfortran")
  set (CXX "g++")
@@ -171,10 +173,18 @@ set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${omp}")
 set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${NaN}")
 set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${type}")
 
+
+#set(OpenMP_C_FLAGS "-fopenmp")
+#set(OpenMP_CXX_FLAGS "-fopenmp")
+#set(OpenMP_C_LIB_NAMES "gomp")
+#set(OpenMP_CXX_LIB_NAMES "gomp")
+#set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${omp}")
+#set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${omp}")
+
 set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_DEBUG_MODE 0) #set to 1 to show dependencies
 
-if (${CMAKE_HOST_NAME} MATCHES "Windows")
-set (CMAKE_PREFIX_PATH "C:/Qt/6.9.3/mingw_64")
+if (${CMAKE_HOST_NAME} MATCHES Windows)
+set (CMAKE_PREFIX_PATH "C:/Qt/6.8.3/mingw_64")
 list(APPEND CMAKE_PREFIX_PATH "C:/boost")
 list(APPEND CMAKE_PREFIX_PATH "C:/boost/stage/lib/cmake")
 list(APPEND CMAKE_PREFIX_PATH "C:/Program Files (x86)/OpenBLAS")
@@ -184,8 +194,11 @@ list(APPEND CMAKE_PREFIX_PATH "C:/Program Files (x86)/freetype")
 list(APPEND CMAKE_PREFIX_PATH "C:/Program Files (x86)/glm")
 else()
  set (CMAKE_PREFIX_PATH "/usr/lib/")
- list(APPEND CMAKE_PREFIX_PATH "../Qt/6.9.3/gcc_64/lib/cmake/")
-# list(APPEND CMAKE_PREFIX_PATH "/usr/lib/x86_64-linux-gnu/qt6")
+ if (${CMAKE_SYSTEM} MATCHES Windows)
+  list(APPEND CMAKE_PREFIX_PATH "../Qt/6.8.3/mingw64/lib/cmake/")
+ else()
+   list(APPEND CMAKE_PREFIX_PATH "../Qt/6.8.3/gcc_64/lib/cmake/")
+ endif()
 endif()
 
 list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -218,6 +231,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(OpenMP_Fortran_FLAGS "-fopenmp")
   set(OpenMP_Fortran_LIB_NAMES "/usr/x86_64-w64-mingw32/lib/libgomp.a;/usr/x86_64-w64-mingw32/lib/libpthread.a")
   set(OpenMP_Fortran_FOUND TRUE)
+ # find_package(OpenMP)
   set(OpenMP_C_FLAGS "-fopenmp")
   set(OpenMP_C_LIB_NAMES "/usr/x86_64-w64-mingw32/lib/libgomp.a;/usr/x86_64-w64-mingw32/lib/libpthread.a")
   set(OpenMP_C_LIBRARIES "/usr/x86_64-w64-mingw32/lib/libgomp.a;/usr/x86_64-w64-mingw32/lib/libpthread.a")
@@ -258,7 +272,7 @@ endif()
 if (CMAKE_HOST_SYSTEM MATCHES Windows)
  set(QT_DIR "C:/Qt/6.8.3/mingw_64")
  find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Concurrent Pdf PdfWidgets OpenGLWidgets OpenGL LinguistTools)
- message(STATUS "Qt " ${Qt6_FOUND})
+ message(STATUS "Qt Windows " ${Qt6_FOUND})
  # Find the glm package
  add_subdirectory(glm/)
  find_package(GLM REQUIRED)
@@ -279,10 +293,14 @@ set(${ASSIMP_WARNINGS_AS_ERRORS}=OFF)
 else()
   #also set in QtCreator
   set(QT_CREATOR_SKIP_MAINTENANCE_TOOL_PROVIDER ON)
-  SET(Qt6_DIR "../Qt/6.9.3/gcc_64/")
+  if (${CMAKE_SYSTEM} MATCHES Windows)
+   SET(Qt6_DIR "../Qt/6.8.3/mingw64/")
+  else()
+   SET(Qt6_DIR "../Qt/6.8.3/gcc_64/")
+  endif()
   find_package(Qt6 COMPONENTS Core Gui Pdf PdfWidgets OpenGLWidgets OpenGL Widgets LinguistTools REQUIRED )
   find_package(Qt6 COMPONENTS Concurrent REQUIRED)
-  message(STATUS "Qt " ${Qt6_FOUND})
+  message(STATUS "Qt linux " ${Qt6_FOUND})
   # Find the FreeType2 package
   set(FREETYPE_DIR "/usr/include/freetype2")
   set(FREETYPE_INCLUDE_DIR "/usr/include/freetype2/freetype")
@@ -566,12 +584,13 @@ if (CMAKE_HOST_SYSTEM MATCHES Windows)
                 Qt${QT_VERSION_MAJOR}::Pdf
                 Qt${QT_VERSION_MAJOR}::PdfWidgets
                 assimp modules splia rply_includes ${LIBS} ${OpenMP_LIBRARIES}
-# need the OpenGl library from C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\um\x64
+# need the OpenGl library from e.g. C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\um\x64
                 OpenGL32.Lib
             )
 else()
  target_link_libraries(kernunos
-                PRIVATE Qt6::Concurrent OpenMP::OpenMP_CXX
+                PRIVATE Qt6::Concurrent
+#                OpenMP::OpenMP_CXX # if (CMAKE_SYSTEM MATCHES Windows)
                 gnuplot_iostream
                 Boost::iostreams
                 Boost::filesystem

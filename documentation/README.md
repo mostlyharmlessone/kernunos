@@ -161,13 +161,13 @@ It is an embarrassment to have to state the following, as it should be understoo
 ## Building
 
 ###Under Linux 
-This software was developed at various times under the Slackware, Ubuntu, Arch, Manjaro distributions of GNU/Linux. Dependencies include Qt6, assimp, lapack, rply, gnuplot, gnuplot-iostream, boost, freetype, and superlu. Some routines are adapted from other sources and included, for example excerpts from Hanson & Hopkins (see below). OpenGL is used as the primary graphics API, needs GLSL 3.30.  Qt appears to be deprecating C++ support in favor of QML: you may need to make sure the proper support is present. You might need to adjust some of the paths in the CMakeLists.txt to build.
+This software was developed at various times under the Slackware, Ubuntu, Arch, Manjaro distributions of GNU/Linux. Dependencies include Qt6, assimp, lapack, rply, gnuplot, gnuplot-iostream, boost, freetype, unzip, cabextract and superlu. Some routines are adapted from other sources and included, for example excerpts from Hanson & Hopkins (see below). OpenGL is used as the primary graphics API, needs GLSL 3.30.  Qt appears to be deprecating C++ support in favor of QML: you may need to make sure the proper support is present. This version was built with Qt 6.8.3. You might need to adjust some of the paths in the CMakeLists.txt to build.
 
-There are some patches to Hanson & Hopkins http://www.siam.org/books/ot134 chapters 2,4, & 11 to accomodate superlu versions > 4.3 and to support CSR sparse matrices
+There are some patches to Hanson & Hopkins http://www.siam.org/books/ot134 chapters 2,4, & 11 to accomodate superlu versions > 4.3, for Windows compilation and to support CSR sparse matrices
 
-For some file formats, Fortran Linux system calls {call execute_command_line() } to cabextract and rm are used for convenience in reading compressed Windows cabinet files and cleaning up temporary files. 
+For some file formats, Fortran Linux system calls {call execute_command_line() } to cabextract and rm (or Expand and del under Wiindows) are used for convenience in reading compressed Windows cabinet files and cleaning up temporary files. 
 
-Linux system calls from C++  { system() } are called for starting with a command shell for gnuplot and assorted file ops such as del, rm, touch, cp.  
+Linux system calls from C++  { system() } are called for starting with a command shell for gnuplot and assorted file ops such as unzip, rm, touch, cp, or Windows calls to cmd, tar, del, type and copy.  
 
 If you don't have access to those system calls, you'll have to extract the cabinet files to their uncompressed data files manually and clean up the temporary files manually, which has not been tested, YMMV.
 
@@ -281,7 +281,7 @@ Do let me know if you find this software useful, or at least, amusing. Any const
  
 
 ## License
-I am not a lawyer, nor can really understand, let alone agree with, their worldview despite decades of adult life, starting with "ignorantia juris non excusat". In so far as I understand from perusing the multiple versions of licenses for the software used in this project, the source code I have written/copied and adapted conforms to their respective licenses and allows for non-commercial use and redistribution with the caveat that the licenses are included and/or referenced and credit is given when known, which I have in good faith attempted. In addition, to quote or adapt without proper attribution would be bad manners and/or plagiarism. On that note, no AI/LLM was used for any part of this project, the goal of which has been to exercise my imagination, not to outsource the effort of making things up nor using the information of dubious provenance gathered by an LLM without permission or attribution.  Any use of and examination of proprietary trademarks and data has been, to my understanding for the purpose of this project, to be lawful under applicable laws.  My contributions, including the patches for superlu, and any other adaptations of existing software, are licensed as follows:<br>
+I am not a lawyer, nor can really understand, let alone agree with, their worldview despite decades of adult life, starting with "ignorantia juris non excusat". In so far as I understand from perusing the multiple versions of licenses for the software used in this project, the source code I have written/copied and adapted conforms to their respective licenses and allows for non-commercial use and redistribution with the caveat that the licenses are included and/or referenced and credit is given when known, which I have in good faith attempted. More importantly, to quote or adapt without proper attribution would be bad manners and/or plagiarism. On that note, no AI/LLM was used for any part of this project, the goal of which has been to exercise my imagination, not to outsource the effort of making things up nor using the information of dubious provenance gathered by an LLM without permission or attribution.  Any use of and examination of proprietary trademarks and data has been, to my understanding for the purpose of this project, to be lawful under applicable laws.  My contributions, including the patches for superlu, and any other adaptations of existing software, are licensed as follows:<br>
 [LICENSE](https://github.com/mostlyharmlessone/kernunos/blob/main/LICENSE)<br> if not superseded by the relevant licenses of the adapted software collected under ./licenses.  Written documentation including this README © 1999 by Anthony M de Beus is licensed under CC BY-SA 4.0. https://creativecommons.org/licenses/by-sa/4.0/ 
 
 
@@ -481,14 +481,22 @@ see also for c++ <br>
 https://gist.github.com/fairlight1337/4935ae72bcbcc1ba5c72#file-hsvrgb-cpp <br>
 
 ###libraries
+some of these were used only in development <br>
+https://github.com/assimp/assimp <br>
+https://github.com/xiaoyeli/superlu  superlu <br>
+https://github.com/g-truc/glm glm <br>
+https://gitlab.freedesktop.org/freetype/freetype freetype <br>
+https://github.com/Reference-LAPACK/lapack lapack <br>
+https://github.com/OpenMathLib/OpenBLAS OpenBLAS <br>
+https://github.com/boostorg/boost boost <br>
+https://github.com/kyz/libmspack/tree/master/cabextract <br>
+above are necessary for building/running, under Linux it might be easier/better to use your distro's package manager <br>
 http://www.netlib.org/lapack/      BSD <br>
 http://www.netlib.org/blas/        BSD <br>
 https://github.com/jacobwilliams/math77 CalTech license <br>
-https://github.com/assimp/assimp <br>
-https://github.com/xiaoyeli/superlu  superlu <br>
-https://github.com/OpenMathLib/OpenBLAS/wiki/Faq <br>
 https://portal.nersc.gov/project/sparse/strumpack/master/GPU_Support.html <br>
 https://portal.nersc.gov/project/sparse/strumpack/master/ <br>
+https://github.com/cpm-cmake/CPM.cmake CPM.cmake <br>
 https://people.math.sc.edu/Burkardt/f_src/sparsekit/sparsekit.f90 <br>
 
 ###cmake 
