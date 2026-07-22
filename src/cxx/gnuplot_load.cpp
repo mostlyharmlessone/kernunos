@@ -5,12 +5,21 @@ extern "C" int gnuplot_load(const char *iname);
 
 int gnuplot_load(const char *iname) {
 
+#ifdef _WIN32
+    if (system(NULL)) puts (" gnuplot available");
+    else exit (EXIT_FAILURE);
+    if(system("cmd -v gnuplot > NUL 2>&1") ){
+        std::cout << "'gnuplot' command is not available.\n";
+        return 1;
+    }
+#else
     if (system(NULL)) puts (" gnuplot available");
     else exit (EXIT_FAILURE);
     if(system("command -v gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
         return 1;
     }
+#endif
 
     Gnuplot gp;
     gp << "load \"" << iname << "\n";

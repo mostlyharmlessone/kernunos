@@ -1398,6 +1398,20 @@ if (TestData .eq. 7) then
    if (cab_inputfile1 .ne. inputfile1) then
     if(allocated(cab_inputfile1)) then
      write(*,*) "Removing temp files"  ! do not remove ZERNIKE inputfile5
+#ifdef _WIN32
+     call execute_command_line ('del ' // inputfile1, exitstat=io)
+     read_error=io
+     call execute_command_line ('del ' // inputfile2, exitstat=io)
+     read_error=read_error+io
+     call execute_command_line ('del ' // inputfile3, exitstat=io)
+     read_error=read_error+io
+     call execute_command_line ('del ' // inputfile4, exitstat=io)
+     read_error=read_error+io
+     call execute_command_line ('del ' // inputfile6, exitstat=io)
+     read_error=read_error+io
+     call execute_command_line ('del ' // inputfile7, exitstat=io)
+     read_error=read_error+io
+#else
      call execute_command_line ('rm ' // inputfile1, exitstat=io)
      read_error=io
      call execute_command_line ('rm ' // inputfile2, exitstat=io)
@@ -1410,6 +1424,7 @@ if (TestData .eq. 7) then
      read_error=read_error+io
      call execute_command_line ('rm ' // inputfile7, exitstat=io)
      read_error=read_error+io
+#endif
      if (read_error > 0) then
       write (*,*) 'failed system command to remove one of temporary uncompressed keratograph files '
       read_error=13
@@ -1448,7 +1463,11 @@ if (TestData .eq. 6) then
    if ( file_idx .ne. 0 )  then
     allocate(CHARACTER(nblines) :: cab_inputfile1)
     cab_inputfile1=inputfile1
+#ifdef _WIN32
+    call execute_command_line ('Expand.exe ' // cab_inputfile1 // ' -F:*', exitstat=io)
+#else
     call execute_command_line ('cabextract ' // cab_inputfile1, exitstat=io)
+#endif
     if (io == 0) then
      inputfile1=replacestr(string=inputfile1,search=".CAB",substitute=".DAT")
      file_idx=1+index(inputfile1, "/ED")
@@ -1460,8 +1479,12 @@ if (TestData .eq. 6) then
      return
     endif
     allocate(CHARACTER(nblines) :: cab_inputfile2)
-    cab_inputfile2=inputfile2
+    cab_inputfile2=inputfile2   
+#ifdef _WIN32
+    call execute_command_line ('Expand.exe ' // cab_inputfile2 // ' -F:*', exitstat=io)
+#else
     call execute_command_line ('cabextract ' // cab_inputfile2, exitstat=io)
+#endif
     if (io == 0) then
      inputfile2=replacestr(string=inputfile2,search=".CAB",substitute=".DAT")
      file_idx=1+index(inputfile2, "/RA")
@@ -1476,7 +1499,11 @@ if (TestData .eq. 6) then
     if (exists) then
      allocate(CHARACTER(nblines) :: cab_inputfile4)
      cab_inputfile4=inputfile4
-     call execute_command_line ('cabextract ' // cab_inputfile4, exitstat=io)
+#ifdef _WIN32
+    call execute_command_line ('Expand.exe ' // cab_inputfile4 // ' -F:*', exitstat=io)
+#else
+    call execute_command_line ('cabextract ' // cab_inputfile4, exitstat=io)
+#endif
      if (io == 0) then
       inputfile4=replacestr(string=inputfile4,search=".CAB",substitute=".DAT")
       file_idx=1+index(inputfile4, "/PE")
@@ -1547,7 +1574,11 @@ if (TestData .eq. 6) then
     JMatrix%PU(i)=(EyeSys%PU(2*i-1)+EyeSys%PU(2*i))*50.
    end do
    if(allocated(cab_inputfile1)) then
+#ifdef _WIN32
+    call execute_command_line ('del ' // inputfile1, exitstat=io)
+#else
     call execute_command_line ('rm ' // inputfile1, exitstat=io)
+#endif
     if (io > 0) then
      write (*,*) 'failed system command to remove tmp file',inputfile1
      read_error=12
@@ -1555,7 +1586,11 @@ if (TestData .eq. 6) then
     deallocate(cab_inputfile1)
    endif
    if(allocated(cab_inputfile2)) then
+#ifdef _WIN32
+    call execute_command_line ('del ' // inputfile2, exitstat=io)
+#else
     call execute_command_line ('rm ' // inputfile2, exitstat=io)
+#endif
     if (io > 0) then
      write (*,*) 'failed system command to remove tmp file',inputfile2
      read_error=12
@@ -1563,7 +1598,11 @@ if (TestData .eq. 6) then
     deallocate(cab_inputfile2)
    endif
    if(allocated(cab_inputfile4)) then
+#ifdef _WIN32
+    call execute_command_line ('del ' // inputfile4, exitstat=io)
+#else
     call execute_command_line ('rm ' // inputfile4, exitstat=io)
+#endif
     if (io > 0) then
      write (*,*) 'failed system command to remove tmp file',inputfile4
      read_error=12
@@ -1619,7 +1658,11 @@ if (TestData .eq. 1) then
      write (*,*) 'temp Atlas file read error, probably not because semicolon delimited'
      file_idx=index(inputfile2, ".TMP")
      if (file_idx .ne. 0) then
-      call execute_command_line ('rm ' // inputfile2, exitstat=io)
+#ifdef _WIN32
+    call execute_command_line ('del ' // inputfile2, exitstat=io)
+#else
+    call execute_command_line ('rm ' // inputfile2, exitstat=io)
+#endif
       if (io > 0) write (*,*) 'system command to remove tmp file failed'
      endif
      err_janus=read_error*100
@@ -1639,7 +1682,11 @@ if (TestData .eq. 1) then
   err_janus=read_error*100
   file_idx=index(inputfile2, ".TMP")
   if (file_idx .ne. 0) then
-   call execute_command_line ('rm ' // inputfile2, exitstat=io)
+#ifdef _WIN32
+    call execute_command_line ('del ' // inputfile2, exitstat=io)
+#else
+    call execute_command_line ('rm ' // inputfile2, exitstat=io)
+#endif
    if (io > 0) write (*,*) 'system command to remove tmp file failed'
   endif
   call CPU_TIME(time_end)

@@ -275,9 +275,9 @@ void GLwidget::cleanup()
 //  std::cout << "flag in cleanup: " << flag << "\n";
   #ifdef _WIN32
 //  system("copy zernike.tmp zernike.bak");
-  system("del zernike.tmp");   //probably broken if zernike not computed, as there is no zernike.tmp file
-  #endif
-  #ifndef _WIN32
+  system("type nul >> zernike.tmp");
+  system("del zernike.tmp");
+  #else
   system("touch zernike.tmp");
 //  system("cp zernike.tmp zernike.bak");
   system("rm zernike.tmp");

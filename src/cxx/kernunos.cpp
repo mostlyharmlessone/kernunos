@@ -429,12 +429,22 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
         case QMessageBox::Yes:
            if (keratoDialogOptionsWidget->value()){
                std::cout << "Extrapolated data files" << std::endl;
+
+#ifdef _WIN32
+               ierr = system(("unzip -o " + str4 + " CORNEA_F.*").c_str());
+               ierr = ierr + system(("tar -xf " + str4 + " CURVAT_F.*" ).c_str());
+               ierr = ierr + system(("tar -xf " + str4 + " PUPIL.*" ).c_str());
+               ierr = ierr + system(("tar -xf " + str4 + " CENTER.*" ).c_str());
+               ierr = ierr + system(("tar -xf " + str4 + " PATIENT.TXT" ).c_str());
+               ierr = ierr + system(("tar -xf " + str4 + " EXAM.TXT" ).c_str());
+#else
                ierr = system(("unzip -o " + str4 + " CORNEA_F.*").c_str());
                ierr = ierr + system(("unzip -o " + str4 + " CURVAT_F.*" ).c_str());
                ierr = ierr + system(("unzip -o " + str4 + " PUPIL.*" ).c_str());
                ierr = ierr + system(("unzip -o " + str4 + " CENTER.*" ).c_str());
                ierr = ierr + system(("unzip -o " + str4 + " PATIENT.TXT" ).c_str());
                ierr = ierr + system(("unzip -o " + str4 + " EXAM.TXT" ).c_str());
+#endif
                if (ierr > 0) {
                   LogC("Error unzipping data files");
                   return;
@@ -442,12 +452,22 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
            }
            else {
                std::cout << "No extrapolation" << std::endl;
+
+#ifdef _WIN32
+               ierr = system(("unzip -o " + str4 + " CORNEA.*" ).c_str());
+               ierr = ierr + system(("tar -xf " + str4 + " CURVAT.*" ).c_str());
+               ierr = ierr + system(("tar -xf " + str4 + " PUPIL.*" ).c_str());
+               ierr = ierr + system(("tar -xf " + str4 + " CENTER.*" ).c_str());
+               ierr = ierr + system(("tar -xf " + str4 + " PATIENT.TXT" ).c_str());
+               ierr = ierr + system(("tar -xf " + str4 + " EXAM.TXT" ).c_str());
+#else
                ierr = system(("unzip -o " + str4 + " CORNEA.*" ).c_str());
                ierr = ierr + system(("unzip -o " + str4 + " CURVAT.*" ).c_str());
                ierr = ierr + system(("unzip -o " + str4 + " PUPIL.*" ).c_str());
                ierr = ierr + system(("unzip -o " + str4 + " CENTER.*" ).c_str());
                ierr = ierr + system(("unzip -o " + str4 + " PATIENT.TXT" ).c_str());
                ierr = ierr + system(("unzip -o " + str4 + " EXAM.TXT" ).c_str());
+#endif
                if (ierr > 0) {
                    LogC("Error unzipping data files");
                    return;
@@ -658,12 +678,22 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
            case QMessageBox::Yes:
                if (keratoDialogOptionsWidget->value()){
                    std::cout << "Extrapolated data files" << std::endl;
+
+#ifdef _WIN32
+                   ierr = system(("unzip -o " + str4 + " CORNEA_F.*").c_str());
+                   ierr = ierr + system(("tar -xf " + str4 + " CURVAT_F.*" ).c_str());
+                   ierr = ierr + system(("tar -xf " + str4 + " PUPIL.*" ).c_str());
+                   ierr = ierr + system(("tar -xf " + str4 + " CENTER.*" ).c_str());
+                   ierr = ierr + system(("tar -xf " + str4 + " PATIENT.TXT" ).c_str());
+                   ierr = ierr + system(("tar -xf " + str4 + " EXAM.TXT" ).c_str());
+#else
                    ierr = system(("unzip -o " + str4 + " CORNEA_F.*").c_str());
                    ierr = ierr + system(("unzip -o " + str4 + " CURVAT_F.*" ).c_str());
                    ierr = ierr + system(("unzip -o " + str4 + " PUPIL.*" ).c_str());
                    ierr = ierr + system(("unzip -o " + str4 + " CENTER.*" ).c_str());
                    ierr = ierr + system(("unzip -o " + str4 + " PATIENT.TXT" ).c_str());
                    ierr = ierr + system(("unzip -o " + str4 + " EXAM.TXT" ).c_str());
+#endif
                    if (ierr > 0) {
                        LogC("Error unzipping data files");
                        return;
@@ -671,12 +701,23 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
                }
                else {
                    std::cout << "No extrapolation" << std::endl;
+
+#ifdef _WIN32
+                   ierr = system(("unzip -o " + str4 + " CORNEA.*" ).c_str());
+                   ierr = ierr + system(("tar -xf " + str4 + " CURVAT.*" ).c_str());
+                   ierr = ierr + system(("tar -xf " + str4 + " PUPIL.*" ).c_str());
+                   ierr = ierr + system(("tar -xf " + str4 + " CENTER.*" ).c_str());
+                   ierr = ierr + system(("tar -xf " + str4 + " PATIENT.TXT" ).c_str());
+                   ierr = ierr + system(("tar -xf " + str4 + " EXAM.TXT" ).c_str());
+#else
                    ierr = system(("unzip -o " + str4 + " CORNEA.*" ).c_str());
                    ierr = ierr + system(("unzip -o " + str4 + " CURVAT.*" ).c_str());
                    ierr = ierr + system(("unzip -o " + str4 + " PUPIL.*" ).c_str());
                    ierr = ierr + system(("unzip -o " + str4 + " CENTER.*" ).c_str());
                    ierr = ierr + system(("unzip -o " + str4 + " PATIENT.TXT" ).c_str());
                    ierr = ierr + system(("unzip -o " + str4 + " EXAM.TXT" ).c_str());
+#endif
+
                    if (ierr > 0) {
                        LogC("Error unzipping data files");
                        return;
@@ -1086,13 +1127,23 @@ void MainWindow::redraw(){
 
 void MainWindow::zerncompute()
 {
+
+#ifdef _WIN32
+    if (system(NULL)) puts (" gnuplot available");
+    else exit (EXIT_FAILURE);
+    if(system("cmd -v gnuplot > NUL 2>&1") ){
+        std::cout << "'gnuplot' command is not available.\n";
+        return;
+    }
+#else
     if (system(NULL)) puts (" gnuplot available");
     else exit (EXIT_FAILURE);
     if(system("command -v gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
-        ui.infoLabel->setText(tr("gnuplot call failed!"));
         return;
     }
+#endif
+
     QTemporaryFile FILE;
     FILE.setAutoRemove(true);
     if(!FILE.open()) return;
@@ -1134,13 +1185,23 @@ void MainWindow::zerncompute()
 // shows Zernike coefficients, including computed or part of exisitng imported data
 void MainWindow::showzern()
 {
+
+#ifdef _WIN32
+    if (system(NULL)) puts (" gnuplot available");
+    else exit (EXIT_FAILURE);
+    if(system("cmd -v gnuplot > NUL 2>&1") ){
+        std::cout << "'gnuplot' command is not available.\n";
+        return;
+    }
+#else
     if (system(NULL)) puts (" gnuplot available");
     else exit (EXIT_FAILURE);
     if(system("command -v gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
-        ui.infoLabel->setText(tr("gnuplot call failed!"));
         return;
     }
+#endif
+
     QTemporaryFile FILE;
     FILE.setAutoRemove(true);
     if(!FILE.open()) return;
@@ -1520,7 +1581,11 @@ void MainWindow::LinesofCurvature() {
     int wrote=lioc(filename);
 //  dumps a copy of the temporary file
 //    std::string str(filename);
+#ifdef _WIN32
+//    system(("copy " + str + " dump" ).c_str());
+#else
 //    system(("cp " + str + " dump" ).c_str());
+#endif
    if (wrote == 0) {
        ui.infoLabel->setText(tr("gnuplot called successfully for lioc  ")); }
    else {
@@ -1528,13 +1593,23 @@ void MainWindow::LinesofCurvature() {
 }
 
 void MainWindow::gnuplotsplot() {
+
+#ifdef _WIN32
+   if (system(NULL)) puts (" gnuplot available");
+   else exit (EXIT_FAILURE);
+   if(system("cmd -v gnuplot > NUL 2>&1") ){
+       std::cout << "'gnuplot' command is not available.\n";
+       return;
+   }
+#else
    if (system(NULL)) puts (" gnuplot available");
    else exit (EXIT_FAILURE);
    if(system("command -v gnuplot > /dev/null 2>&1") ){
        std::cout << "'gnuplot' command is not available.\n";
-       ui.infoLabel->setText(tr("gnuplot call failed!"));
        return;
    }
+#endif
+
    QTemporaryFile FILE;
    FILE.setAutoRemove(true);  //does not do anything
    if(!FILE.open()) return;
@@ -1561,13 +1636,22 @@ void MainWindow::gnuplotsplot() {
 
 void MainWindow::center() {
 
+#ifdef _WIN32
+   if (system(NULL)) puts (" gnuplot available");
+   else exit (EXIT_FAILURE);
+   if(system("cmd -v gnuplot > NUL 2>&1") ){
+       std::cout << "'gnuplot' command is not available.\n";
+       return;
+   }
+#else
    if (system(NULL)) puts (" gnuplot available");
    else exit (EXIT_FAILURE);
    if(system("command -v gnuplot > /dev/null 2>&1") ){
        std::cout << "'gnuplot' command is not available.\n";
-       ui.infoLabel->setText(tr("gnuplot call failed!"));
        return;
    }
+#endif
+
    QTemporaryFile FILE;
    FILE.setAutoRemove(true);  //does not do anything
    if(!FILE.open()) return;
@@ -1633,13 +1717,22 @@ void MainWindow::center() {
 
 void MainWindow::rings() {
 
+#ifdef _WIN32
+    if (system(NULL)) puts (" gnuplot available");
+    else exit (EXIT_FAILURE);
+    if(system("cmd -v gnuplot > NUL 2>&1") ){
+        std::cout << "'gnuplot' command is not available.\n";
+        return;
+    }
+#else
     if (system(NULL)) puts (" gnuplot available");
     else exit (EXIT_FAILURE);
     if(system("command -v gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
-        ui.infoLabel->setText(tr("gnuplot call failed!"));
         return;
     }
+#endif
+
     QTemporaryFile FILE;
     FILE.setAutoRemove(true);  //does not do anything
     if(!FILE.open()) return;

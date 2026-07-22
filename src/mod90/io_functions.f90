@@ -1047,7 +1047,12 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
        file_idx1=index(semicolon1, ".TMP")
        write(*,*) 'Erasing semicolonless tmp file',semicolon1
        if (file_idx1 .ne. 0) then
+
+#ifdef _WIN32
+        call execute_command_line ('del ' // semicolon1, exitstat=io)
+#else
         call execute_command_line ('rm ' // semicolon1, exitstat=io)
+#endif
         if (io > 0) then
          write (*,*) 'failed system command to remove tmp file',semicolon1
          read_error=12
@@ -1060,7 +1065,13 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
        file_idx2=index(semicolon2, ".TMP")
        write(*,*) 'Erasing semicolonless tmp file',semicolon2
        if (file_idx2 .ne. 0) then
+
+#ifdef _WIN32
+        call execute_command_line ('del ' // semicolon2, exitstat=io)
+#else
         call execute_command_line ('rm ' // semicolon2, exitstat=io)
+#endif
+
         if (io > 0) then
          write (*,*) 'failed system command to remove tmp file',semicolon2
          read_error=12
@@ -1173,7 +1184,11 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
       file_idx2=index(semicolon2, ".TMP")
       write(*,*) 'Erasing semicolonless tmp file',semicolon2
       if (file_idx2 .ne. 0) then
-       call execute_command_line ('rm ' // semicolon2, exitstat=io)
+#ifdef _WIN32
+        call execute_command_line ('del ' // semicolon2, exitstat=io)
+#else
+        call execute_command_line ('rm ' // semicolon2, exitstat=io)
+#endif
        if (io > 0) then
         write (*,*) 'failed system command to remove tmp file',semicolon2
         read_error=12

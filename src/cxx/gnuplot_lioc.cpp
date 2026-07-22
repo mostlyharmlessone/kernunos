@@ -7,13 +7,21 @@
 #include "gnuplot-iostream/gnuplot-iostream.h"
 
 int lioc(const char *iname) {
-
+#ifdef _WIN32
+    if (system(NULL)) puts (" gnuplot available");
+    else exit (EXIT_FAILURE);
+    if(system("cmd -v gnuplot > NUL 2>&1") ){
+        std::cout << "'gnuplot' command is not available.\n";
+        return 1;
+    }
+#else
     if (system(NULL)) puts (" gnuplot available");
     else exit (EXIT_FAILURE);
     if(system("command -v gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
         return 1;
     }
+#endif
 
     Gnuplot gp;
     gp << "set term wxt 1 title 'Direction 1' \n";
