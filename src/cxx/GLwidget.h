@@ -29,9 +29,9 @@
 
 //weird path in my Windows build environment
 #if defined(_WIN32)
-#include "glm/glm/glm.hpp"
-#include "glm/glm/gtc/matrix_transform.hpp"
-#include "glm/glm/gtc/type_ptr.hpp"
+#include "../Program Files (x86)/glm/include/glm/glm.hpp"
+#include "../Program Files (x86)/glm/include/glm/gtc/matrix_transform.hpp"
+#include "../Program Files (x86)/glm/include/glm/gtc/type_ptr.hpp"
 #else
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

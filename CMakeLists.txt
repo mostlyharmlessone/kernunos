@@ -12,10 +12,10 @@ enable_language(Fortran)
 enable_language(CXX)
 enable_language(C)
 
-#set(CMAKE_HOST_NAME Windows)
-set(CMAKE_HOST_NAME Linux)
-#set(CMAKE_SYSTEM Windows)
-set(CMAKE_SYSTEM UNIX)
+set(CMAKE_HOST_NAME Windows)
+#set(CMAKE_HOST_NAME Linux)
+set(CMAKE_SYSTEM Windows)
+#set(CMAKE_SYSTEM UNIX)
 #set(CMAKE_SYSTEM APPLE)
 
 #set(CMAKE_BUILD_TYPE RELEASE) # no debug or bounds check
@@ -274,20 +274,21 @@ if (CMAKE_HOST_SYSTEM MATCHES Windows)
  find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Concurrent Pdf PdfWidgets OpenGLWidgets OpenGL LinguistTools)
  message(STATUS "Qt Windows " ${Qt6_FOUND})
  # Find the glm package
- add_subdirectory(glm/)
+# add_subdirectory(glm/)
  find_package(GLM REQUIRED)
 #set(GLM_DIR "glm/")
 #set(GLM_INCLUDE_DIR "glm/glm/")
 # Find the FreeType2 package
+# had to add the freetype project here, not just the things in C:/Program Files (x86)
 add_subdirectory(freetype/)
 find_package(Freetype REQUIRED)
-# set(FREETYPE_DIR "freetype/")
+ set(FREETYPE_DIR "C:/Program Files (x86)/freetype")
 # set(FREETYPE_INCLUDE_DIR "freetype/include/freetype2/")
 # assimp
 add_subdirectory(assimp/)
 find_package(assimp REQUIRED)
 message(STATUS "ASSIMP_INCLUDE_DIRS" ${ASSIMP_INCLUDE_DIRS})
-# had to set these in Qt/Projects cmake settings under Windows
+# had to set these in Qt/Projects cmake settings under Windows "-DASSIMP_WARNINGS_AS_ERRORS=OFF"
 set(${ASSIMP_INCLUDE_DIRS} assimp/include/assimp)
 set(${ASSIMP_WARNINGS_AS_ERRORS}=OFF)
 else()
@@ -298,6 +299,7 @@ else()
    find_package(Qt6 COMPONENTS Core Gui OpenGLWidgets OpenGL Widgets LinguistTools REQUIRED ) #Pdf PdfWidgets
    find_package(Qt6 COMPONENTS Concurrent REQUIRED)
    message(STATUS "Qt linux, cross compilation for Windows: " ${Qt6_FOUND})
+   message(STATUS "Qt6 dir: " ${Qt6_DIR})
   else()
 #   SET(Qt6_DIR "../Qt/6.8.3/gcc_64/")
    find_package(Qt6 COMPONENTS Core Gui Pdf PdfWidgets OpenGLWidgets OpenGL Widgets LinguistTools REQUIRED )
@@ -629,5 +631,5 @@ endif()
 
 endif() #temp if block
 
-
+# Under Windows after compilationrun: /c/Qt/6.8.3/mingw_64/bin/windeployqt6.exe kernunos.exe
 

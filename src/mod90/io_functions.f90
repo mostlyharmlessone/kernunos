@@ -1131,9 +1131,11 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
        READ (unitno4,*) header
        file_idx4=index(trim(header),HTNAME(index(HTNAME,"HT"):len(HTNAME)) // ";")
        if (file_idx4 > 0) then
-        call LogC('HT Nidek header matches filename: '//trim(header)//" "//HTNAME(index(HTNAME,"HT"):len(HTNAME))//c_null_char)
+        call LogC('HT Nidek header matches filename: '//trim(header)//" "&
+                     &//HTNAME(index(HTNAME,"HT"):len(HTNAME))//c_null_char)
        else
-        call LogC('Warning: HT Nidek header does not match filename: '//trim(header)//" "//HTNAME(index(HTNAME,"HT"):len(HTNAME))//c_null_char)
+        call LogC('Warning: HT Nidek header does not match filename: '//trim(header)//" "&
+                                     &//HTNAME(index(HTNAME,"HT"):len(HTNAME))//c_null_char)
        endif
        close(unitno4)
        nblines=len(trim(HTNAME))
