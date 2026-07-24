@@ -359,7 +359,7 @@ FUNCTION rgb5(x,minimum, maximum) result(rgbv)
    endif
 
    if (idx1 == 0 .OR.  idx2 == 0) then
-    write(*,*) 'x,min,max,ratio: ',x,minimum,maximum,ratio
+    write(*,*) 'Error: x,min,max,ratio: ',x,minimum,maximum,ratio
    endif
   
    rgbv(1) = int((color(1,idx2) - color(1,idx1))*fract + color(1,idx1),kind=int3d)

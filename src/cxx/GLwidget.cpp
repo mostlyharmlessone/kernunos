@@ -290,6 +290,15 @@ void GLwidget::initializeGL()
   // initialize OpenGL
   initializeOpenGLFunctions();
   // Get the GL version
+  GLint major = 0, minor = 0;
+  glGetIntegerv(GL_MAJOR_VERSION, &major);
+  glGetIntegerv(GL_MINOR_VERSION, &minor);
+  if (major*100 + minor*10 < 330) {
+      std::cout << "Kernunos needs GLSL 3.30 or greater " << std::endl;
+      cleanup();
+      QWidget::close();
+      std::exit(0);  // not the cleanest exit
+  }
   QString sglVer = "\nUsing OpenGL version: ";
   const GLubyte* GLversion = glGetString(GL_VERSION);
   const GLubyte* GLvendor =glGetString(GL_VENDOR);
@@ -317,7 +326,6 @@ void GLwidget::initializeGL()
   const QList<QOpenGLDebugMessage> messages = logger->loggedMessages();
   for (const QOpenGLDebugMessage &message : messages)
   qDebug() << message;
-  qDebug() << "You started kernunos from a commandline";  //this only shows up if starting from a commandline
 
   // During init, enable debug output
   glEnable ( GL_DEBUG_OUTPUT );
@@ -569,7 +577,7 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
           dialog.exec();
           futureWatcher.waitForFinished();
           // Query the future to check if was canceled.
-          qDebug() << "Canceled?" << futureWatcher.future().isCanceled();
+          // qDebug() << "Canceled?" << futureWatcher.future().isCanceled();
           paintme=true;
       }
     }

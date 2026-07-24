@@ -81,6 +81,7 @@
 #include "get_compiler_name.h"
 #include "counter.h"
 #include "logc.h"
+
 #include <QPdfDocument>
 #include <QPdfView>
 
@@ -428,7 +429,7 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
        switch(ret){
         case QMessageBox::Yes:
            if (keratoDialogOptionsWidget->value()){
-               std::cout << "Extrapolated data files" << std::endl;
+               LogC("Extrapolated Keratograph data files");
 
 #ifdef _WIN32
                ierr = system(("unzip -o " + str4 + " CORNEA_F.*").c_str());
@@ -446,12 +447,12 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
                ierr = ierr + system(("unzip -o " + str4 + " EXAM.TXT" ).c_str());
 #endif
                if (ierr > 0) {
-                  LogC("Error unzipping data files");
+                  std::cout << "Error unzipping Keratograph data files" << std::endl;
                   return;
                };
            }
            else {
-               std::cout << "No extrapolation" << std::endl;
+               LogC("Unextrapolated Keratograph data files");
 
 #ifdef _WIN32
                ierr = system(("unzip -o " + str4 + " CORNEA.*" ).c_str());
@@ -469,7 +470,7 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
                ierr = ierr + system(("unzip -o " + str4 + " EXAM.TXT" ).c_str());
 #endif
                if (ierr > 0) {
-                   LogC("Error unzipping data files");
+                   std::cout << "Error unzipping Keratograph data files" << std::endl;
                    return;
                };
            }
@@ -568,35 +569,36 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
             QString fileName2 = QString::fromStdString(str2);
              if(replace(str2,"_ELE.CSV","_CUR.CSV")) {
                if(FILE *file = fopen(str2.c_str(),"r")) {
-                   fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
+                   fclose(file);
+                   LogC(("Matching file found " + str2).c_str());
                    fileName2 = QString::fromStdString(str2);
                    if (!fileName2.isEmpty())
                        m_GLwidget->DataLoad(fileName2, true);
-               }else{std::cout << "Matching file not found\n" <<std::endl;}
+               }else{ LogC("Matching file not found"); }
              }else{
              if(replace(str2,"_CUR.CSV","_ELE.CSV")) {
                  if(FILE *file = fopen(str2.c_str(),"r")) {
-                   fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
+                   fclose(file); LogC(("Matching file found " + str2).c_str());
                    fileName2 = QString::fromStdString(str2);
                    if (!fileName2.isEmpty())
                        m_GLwidget->DataLoad(fileName2, true);
-                 }else{std::cout << "Matching file not found\n" <<std::endl;}
+                 }else{LogC("Matching file not found");}
              }}
              if(replace(str2,".ELE",".CUR")) {
                  if(FILE *file = fopen(str2.c_str(),"r")) {
-                   fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
+                   fclose(file); LogC(("Matching file found " + str2).c_str());
                    fileName2 = QString::fromStdString(str2);
                    if (!fileName2.isEmpty())
                        m_GLwidget->DataLoad(fileName2, true);
-                 }else{std::cout << "Matching file not found\n" <<std::endl;}
+                 }else{LogC("Matching file not found");}
              }else{
              if(replace(str2,".CUR",".ELE")) {
                  if(FILE *file = fopen(str2.c_str(),"r")) {
-                   fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
+                   fclose(file); LogC(("Matching file found " + str2).c_str());
                    fileName2 = QString::fromStdString(str2);
                    if (!fileName2.isEmpty())
                        m_GLwidget->DataLoad(fileName2, true);
-                 }else{std::cout << "Matching file not found\n" <<std::endl;}
+                 }else{LogC("Matching file not found");}
              }}
        }
    };
@@ -677,7 +679,7 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
            switch(ret){
            case QMessageBox::Yes:
                if (keratoDialogOptionsWidget->value()){
-                   std::cout << "Extrapolated data files" << std::endl;
+                   LogC("Extrapolated Keratograph data files");
 
 #ifdef _WIN32
                    ierr = system(("unzip -o " + str4 + " CORNEA_F.*").c_str());
@@ -695,12 +697,12 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
                    ierr = ierr + system(("unzip -o " + str4 + " EXAM.TXT" ).c_str());
 #endif
                    if (ierr > 0) {
-                       LogC("Error unzipping data files");
+                       std::cout << "Error unzipping Keratograph data files" << std::endl;
                        return;
                    };
                }
                else {
-                   std::cout << "No extrapolation" << std::endl;
+                   LogC("Unextrapolated Keratograph data files");
 
 #ifdef _WIN32
                    ierr = system(("unzip -o " + str4 + " CORNEA.*" ).c_str());
@@ -719,7 +721,7 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
 #endif
 
                    if (ierr > 0) {
-                       LogC("Error unzipping data files");
+                       std::cout << "Error unzipping Keratograph data files" << std::endl;
                        return;
                    };
                }
@@ -818,35 +820,35 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
            QString fileName2 = QString::fromStdString(str2);
            if(replace(str2,"_ELE.CSV","_CUR.CSV")) {
                if(FILE *file = fopen(str2.c_str(),"r")) {
-                   fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
+                   fclose(file); LogC(("Matching file found " + str2).c_str());
                    fileName2 = QString::fromStdString(str2);
                    if (!fileName2.isEmpty())
                        m_GLwidget->DataLoad(fileName2, true);
-               }else{std::cout << "Matching file not found\n" <<std::endl;}
+               }else{LogC("Matching file not found");}
            }else{
                if(replace(str2,"_CUR.CSV","_ELE.CSV")) {
                    if(FILE *file = fopen(str2.c_str(),"r")) {
-                       fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
+                       fclose(file); LogC(("Matching file found " + str2).c_str());
                        fileName2 = QString::fromStdString(str2);
                        if (!fileName2.isEmpty())
                            m_GLwidget->DataLoad(fileName2, true);
-                   }else{std::cout << "Matching file not found\n" <<std::endl;}
+                   }else{LogC("Matching file not found");}
                }}
            if(replace(str2,".ELE",".CUR")) {
                if(FILE *file = fopen(str2.c_str(),"r")) {
-                   fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
+                   fclose(file); LogC(("Matching file found " + str2).c_str());
                    fileName2 = QString::fromStdString(str2);
                    if (!fileName2.isEmpty())
                        m_GLwidget->DataLoad(fileName2, true);
-               }else{std::cout << "Matching file not found\n" <<std::endl;}
+               }else{LogC("Matching file not found");}
            }else{
                if(replace(str2,".CUR",".ELE")) {
                    if(FILE *file = fopen(str2.c_str(),"r")) {
-                       fclose(file); std::cout << "Matching file found" << str2.c_str() << "\n" <<std::endl;
+                       fclose(file); LogC(("Matching file found " + str2).c_str());
                        fileName2 = QString::fromStdString(str2);
                        if (!fileName2.isEmpty())
                            m_GLwidget->DataLoad(fileName2, true);
-                   }else{std::cout << "Matching file not found\n" <<std::endl;}
+                   }else{LogC("Matching file not found");}
                }}
        }
    };
@@ -1274,13 +1276,13 @@ void MainWindow::importexport(){
    std::string binarystl = ".stlb";
    if (extstring == binarystl) {
        //because stlb is not recognized, and neither is bin.stl as binary stl
-       std::cout << "\tReading file using ASSIMP" << std::endl;
+       LogC("Reading file using ASSIMP");
        aiscene = Importer.ReadFile(filename, aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
        if (!aiscene) {
             printf("Error parsing '%s': '%s'\n", filename, Importer.GetErrorString()); }
        format = Exporter.GetExportFormatDescription(6);
        Exporter.Export(aiscene, format->id , filenameout, 0);
-       std::cout << "Wrote " << filenameout << "\n";
+       LogC(("Wrote " + fileName.toStdString()).c_str());
        return;
    }
    // this is a special case that precedes the valid extension test
@@ -1288,13 +1290,13 @@ void MainWindow::importexport(){
    std::string binarygl = ".glb";
    if (extstring == binarygl) {
        //because glb is ambiguously recognized together with gltf
-       std::cout << "\tReading file using ASSIMP" << std::endl;
+       LogC("Reading file using ASSIMP");
        aiscene = Importer.ReadFile(filename, aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
        if (!aiscene) {
            printf("Error parsing '%s': '%s'\n", filename, Importer.GetErrorString()); }
        format = Exporter.GetExportFormatDescription(11); // 13 or 11(glb2) 13 not accepted by meshlab
        Exporter.Export(aiscene, format->id , filenameout, 0);
-       std::cout << "Wrote " << filenameout << "\n";
+       LogC(("Wrote " + fileName.toStdString()).c_str());
        return;
    }
    // this is a special case that precedes the valid extension test
@@ -1302,13 +1304,13 @@ void MainWindow::importexport(){
    std::string asciigl = ".gltf";
    if (extstring == asciigl) {
        //because glb is ambiguously recognized together with gltf
-       std::cout << "\tReading file using ASSIMP" << std::endl;
+       LogC("Reading file using ASSIMP");
        aiscene = Importer.ReadFile(filename, aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
        if (!aiscene) {
            printf("Error parsing '%s': '%s'\n", filename, Importer.GetErrorString()); }
        format = Exporter.GetExportFormatDescription(10);  // 12 or 10(gltf2) 12 not accepted by meshlab
        Exporter.Export(aiscene, format->id , filenameout, 0);
-       std::cout << "Wrote " << filenameout << "\n";
+       LogC(("Wrote " + fileName.toStdString()).c_str());
        return;
    }
    // this is a special case that precedes the valid extension test
@@ -1318,13 +1320,13 @@ void MainWindow::importexport(){
    std::string binaryply = ".plyb";
    if (extstring == binaryply) {
        //because plyb is not recognized, and neither is bin.ply as binary ply
-       std::cout << "\tReading file using ASSIMP" << std::endl;
+       LogC("Reading file using ASSIMP");
        aiscene = Importer.ReadFile(filename, aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
        if (!aiscene) {
             printf("Error parsing '%s': '%s'\n", filename, Importer.GetErrorString()); }
        format = Exporter.GetExportFormatDescription(8);
        Exporter.Export(aiscene, format->id , filenameout, 0);
-       std::cout << "Wrote " << filenameout << "\n";
+       LogC(("Wrote " + fileName.toStdString()).c_str());
        return;
    }
 */
@@ -1336,7 +1338,7 @@ void MainWindow::importexport(){
        std::cout <<"The specified model file extension is currently unsupported in Assimp\n ";
        return;
    }
-   std::cout << "\tReading file using ASSIMP" << std::endl;
+   LogC("Reading file using ASSIMP");
    aiscene =  Importer.ReadFile(filename, aiProcess_ValidateDataStructure | aiProcessPreset_TargetRealtime_MaxQuality);
    if (!aiscene) {
        printf("Error parsing '%s': '%s'\n", filename, Importer.GetErrorString());
@@ -1351,7 +1353,7 @@ void MainWindow::importexport(){
        i++;
    } while (i < countin);
    */
-   std::cout << "Import ID: "<< ID << "\n";
+   LogC(("Import ID: " + std::to_string(ID)).c_str() );
    iformat = Importer.GetImporterInfo(ID);
    uint count = Exporter.GetExportFormatCount();
 //   std::cout << "import ID count: "<< count << "\n";
@@ -1360,9 +1362,9 @@ void MainWindow::importexport(){
        format = Exporter.GetExportFormatDescription(i);
  //      std::cout << "Export id: "<< i << " " << format->id << "\n";
        if (iformat->mFileExtensions == format->id){
-            std::cout << "Export ID is " << i << "\n";
+            LogC(("Export ID: " + std::to_string(i)).c_str() );
             Exporter.Export(aiscene, format->id , filenameout, 0);
-            std::cout << "Wrote " << filenameout << "\n";
+            LogC(("Wrote " + fileName.toStdString()).c_str());
        }
        i++;
    } while (i < count);
@@ -1373,22 +1375,22 @@ void MainWindow::importexport(){
    if (ID == 26) {  // dae or collada import ID = 26
        format = Exporter.GetExportFormatDescription(0);  // export ID = 0
        Exporter.Export(aiscene, format->id , filenameout, 0);
-       std::cout << "Wrote " << filenameout << "\n";
+       LogC(("Wrote " + fileName.toStdString()).c_str());
    }
    if (ID == 45) {  //x3d import ID =45
        format = Exporter.GetExportFormatDescription(16);  //export ID = 16
        Exporter.Export(aiscene, format->id , filenameout, 0);
-       std::cout << "Wrote " << filenameout << "\n";
+       LogC(("Wrote " + fileName.toStdString()).c_str());
    }
    if (ID == 44) { //3mf import ID = 44
        format = Exporter.GetExportFormatDescription(19);  //export OD = 19
        Exporter.Export(aiscene, format->id , filenameout, 0);
-       std::cout << "Wrote " << filenameout << "\n";
+       LogC(("Wrote " + fileName.toStdString()).c_str());
    }
    if (ID == 3) { //3ds import ID =3
        format = Exporter.GetExportFormatDescription(9); //export ID = 9
        Exporter.Export(aiscene, format->id , filenameout, 0);
-       std::cout << "Wrote " << filenameout << "\n";
+       LogC(("Wrote " + fileName.toStdString()).c_str());
    }
    if (!(aiReturn_SUCCESS == 0)) {
        std::cout << "Error exporting" << filenameout << Exporter.GetErrorString() << "\n" ;
@@ -1622,6 +1624,7 @@ void MainWindow::gnuplotsplot() {
    future1.get();
    // would be better if calcs could be done here instead of in janus
    Gnuplot gp;
+   gp << "set term wxt 1 title 'GnuSplotPlot' \n";
    gp << "load \"" << filename << "\n";
 
 #ifdef _WIN32

@@ -11,7 +11,8 @@
   USE io_functions, ONLY  : get_new_fileunit
   USE special_fct, ONLY  : surface_normal,rgb2attr
   USE ISO_FORTRAN_ENV, ONLY : INT8,INT16,INT32,REAL32
-  use, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
+  USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_char,c_null_char
+  USE c_interfaces, ONLY : LogC
   IMPLICIT NONE
   CHARACTER(c_char), INTENT(INOUT), DIMENSION(4096) :: INAME,ONAME
   INTEGER(c_int), INTENT(IN) :: deftype
@@ -19,7 +20,8 @@
   CHARACTER(:), ALLOCATABLE :: file_from_C
   INTEGER ::  nblines, file_idx
   LOGICAL :: exists
-  CHARACTER(80) KH1 
+  CHARACTER(80) KH1
+  CHARACTER(32) :: integerj,integerk
   INTEGER :: i,j,unitno1,ih,io,ierr,nvertices,nedges
   INTEGER  :: header(20)   !80-byte header
   INTEGER(INT8) :: onebyte
@@ -44,7 +46,7 @@
         end if
     end do
 
-  write(*,*) 'input off file from kernunos: ',trim(new_path)
+  call LogC("input off file from kernunos: "//trim(new_path)//c_null_char)
   nblines=len(trim(new_path))
   allocate(CHARACTER(nblines) :: file_from_C)
   file_from_C=trim(new_path)
@@ -93,10 +95,13 @@
 
    close (unitno1)
    deallocate(file_from_C)
-
-   write(*,*) 'Read OFF file with',nfaces,' faces and',nvertices,' vertices'
+   write(integerj, '(i0)') nfaces
+   write(integerk, '(i0)') nvertices
+   call LogC("Read OFF file with "//integerj//" faces and"//integerk//" vertices"//c_null_char)
 !  STL format does not have connectivity and each face carries 3 vertices,leading to duplicate vertices
-   write(*,*) 'Writing STL file with',nfaces,' faces and',3*nfaces,' (duplicate) vertices'
+   write(integerk, '(i0)') 3*nfaces
+   call LogC("Writing STL file with "//integerj//" faces and"//integerk//" (duplicate) vertices"//c_null_char)
+
     new_path = " "
     do i=1, 4096
         if ( ONAME (i) == c_null_char ) then
@@ -106,7 +111,7 @@
         end if
     end do
 
-  write(*,*) 'output stl file from kernunos: ',trim(new_path)
+  call LogC("output stl file from kernunos: "//trim(new_path)//c_null_char)
   nblines=len(trim(new_path)) 
   allocate(CHARACTER(nblines) :: file_from_C)
   file_from_C=trim(new_path)

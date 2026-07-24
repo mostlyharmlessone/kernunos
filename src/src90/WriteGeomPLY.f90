@@ -7,7 +7,8 @@
        USE set_precision, ONLY : wp
        USE special_fct, ONLY  : colormap
        USE ISO_FORTRAN_ENV, ONLY : INT8,INT16,INT32,REAL32
-       USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_int64_t
+       USE, INTRINSIC :: iso_c_binding, ONLY : c_float,c_int,c_int64_t,c_null_char
+       USE c_interfaces, ONLY : LogC
        USE, INTRINSIC ::  ieee_arithmetic
        TYPE(wpJMatrix),INTENT(IN) :: b
        CHARACTER(len=*), INTENT(IN) :: PLYNAME
@@ -42,7 +43,7 @@
        open(unitno1, file=trim(PLYNAME), action="write", iostat=ierr, iomsg=message)
        
        if(ierr == 0) then
-        write(*,*) 'success opening file: ',trim(PLYNAME)
+        call LogC("success opening file: "//trim(PLYNAME)//c_null_char)
        else
         write(*,*) 'failed to open file with ierr: ',trim(PLYNAME),ierr,trim(message)
        endif

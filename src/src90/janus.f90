@@ -56,11 +56,12 @@
   LOGICAL :: lsq
   INTEGER(c_int) :: periodcount
   INTEGER(c_int64_t), parameter :: zero_int64 = 0
+  CHARACTER(32) :: floata, floatb
 
 err_janus = 0 ; error_report = 0 ;
 if (loaded_files .le. 0) loaded_files = 0
-!write(*,*) 'flag to Fortran:',flag
-write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
+! write(*,*) 'flag to Fortran:',flag
+! write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
 !! last two digits are the program function
 !! 99 = deallocate arrays for program closure
 !! 14 = save original
@@ -308,7 +309,7 @@ if (mod(flag,100) .eq. 10 .or. mod(flag,100) .eq. 12) then  ! compare with btest
 ! write(*,*) 'file from kernunos: ',trim(new_path)
  new_path=trim(new_path)
  read(new_path,*) rotationdegrees
- write(*,*) "compare rotation, pupilregister: ",rotationdegrees,btest(dat,6)
+! write(*,*) "compare rotation, pupilregister: ",rotationdegrees,btest(dat,6)
 endif
 
 ! gnuplot splot output
@@ -472,7 +473,7 @@ file_idx=index(inputfile1, ".ply")
   call selectfunction(0,JMatrix,flag,powctr,powmin,powmax,cardinal,nC)
 !  write(*,*) 'powctr,POWMIN,POWMAX',powctr,POWMIN,POWMAX
   call WriteGeomPLY(flag,JMatrix,donut,powmin,powmax,inputfile1)
-  write(*,*) 'Wrote ply file...',inputfile1
+  call LogC("Wrote ply file..."//trim(inputfile1)//c_null_char)
   return
  endif
 else
@@ -495,7 +496,7 @@ file_idx=index(inputfile1, ".off")
   call selectfunction(0,JMatrix,flag,powctr,powmin,powmax,cardinal,nC)
   write(*,*) 'powctr,POWMIN,POWMAX',powctr,POWMIN,POWMAX
   call WriteGeomOFF(flag,JMatrix,donut,powmin,powmax,inputfile1)
-  write(*,*) 'Wrote off file...',inputfile1
+  call LogC("Wrote off file..."//trim(inputfile1)//c_null_char)
   return
  endif
 else
@@ -519,7 +520,7 @@ if (mod(flag,100) == 13 .or. mod(flag,100) == 14) then
     return
    endif
   endif
-  write(*,*) 'Wrote data file...',inputfile1
+  call LogC("Wrote data file..."//trim(inputfile1)//c_null_char)
   return
  else
   write(*,*) 'Have to allocate data prior to writing a data file'
@@ -571,7 +572,9 @@ if (btest(dat,5)) then
   JMatrix3=JMatrix
   ctr_circle_x = dhoriz
   ctr_circle_y = dvert
-  write(*,*) 'Decentering by',ctr_circle_x,ctr_circle_y
+  write(floata ,'(g0)') ctr_circle_x
+  write(floatb ,'(g0)') ctr_circle_y
+  call LogC("Decentering by "//floata//" "//floatb//c_null_char)
   call PolarTranslate(ctr_circle_x,ctr_circle_y,0.0_wp,0.0_wp,JMatrix3%R0,JMatrix3%THT0)
   do i=1,M1
    do j=1,JMatrix%MV(i)
@@ -701,7 +704,9 @@ endif
   if (crop .lt. 0) crop = 0 ! initializes and is a sanity check
   crop = crop + new_crop
   if (abs(crop) .le. 10) then
-   write(*,*) 'Cropping by',crop, 'Squashing by', percent_squash
+   write(floata ,'(g0)') crop
+   write(floatb ,'(g0)') percent_squash
+   call LogC("Cropping by "//floata//" Squashing by "//floatb//c_null_char)
    if (.not. allocated(MV)) then
     allocate(MV(M1))
    else
@@ -728,7 +733,7 @@ endif
 !  reset
    JMatrix%MV(:)=MV(:)
   else
-   write(*,*) 'Crop must be greater than zero and less than six, got previous crop, new crop:', crop, new_crop
+   write(*,*) 'Warning: Crop must be greater than zero and less than six, got previous crop, new crop:', crop, new_crop
   endif
  endif
 
@@ -746,7 +751,9 @@ if (mod(flag,100) == 10 .or. mod(flag,100) == 12) then
  if (btest(dat,6)) then
   ctr_circle_x=JMatrix1%Pupil_Center(1)-JMatrix%Pupil_Center(1)
   ctr_circle_y=JMatrix1%Pupil_Center(2)-JMatrix%Pupil_Center(2)
-  write(*,*) 'Decentering by',ctr_circle_x,ctr_circle_y
+  write(floata ,'(g0)') ctr_circle_x
+  write(floatb ,'(g0)') ctr_circle_y
+  call LogC("Decentering by "//floata//" "//floatb//c_null_char)
   call PolarTranslate(ctr_circle_x,ctr_circle_y,0.0_wp,0.0_wp,JMatrix3%R0,JMatrix3%THT0)
   do i=1,M1
    do j=1,JMatrix%MV(i)
@@ -898,10 +905,10 @@ if (mod(flag,100) == 0) then
          if( file_idx == 0) then
           file_idx=index(inputfile1, ".sav")
           if (file_idx /= 0) then
-           write(*,*) "Saved file: ",inputfile1
+           call LogC("Saved file: "//inputfile1//c_null_char)
            inquire(file=trim(inputfile1), exist=exists)
            if(exists) then
-            write(*,*) "Saved file found"
+            call LogC("Saved file found"//c_null_char)
             TestData=8; MM=180; N=22 ; NP=141
            endif
           else
@@ -1016,7 +1023,7 @@ if (mod(flag,100) == 0) then
          endif !Keratograph
         else
         inputfile2=replacestr(string=inputfile1,search=".ELE",substitute=".CUR")
-        write(*,*) "PentaCam .ELE file",inputfile1
+        call LogC("PentaCam .ELE file"//inputfile1//c_null_char)
         inquire(file=trim(inputfile2), exist=exists)
         if(exists) then
          write(*,*) "Matching .CUR file found"
@@ -1026,7 +1033,7 @@ if (mod(flag,100) == 0) then
       else
        inputfile2=inputfile1
        inputfile1=replacestr(string=inputfile2,search=".CUR",substitute=".ELE")
-       write(*,*) "PentaCam .CUR file: ",inputfile2
+        call LogC("PentaCam .CUR file"//inputfile2//c_null_char)
        inquire(file=trim(inputfile1), exist=exists)
        if(exists) then
         write(*,*) "Matching .ELE file found"
@@ -1039,10 +1046,10 @@ if (mod(flag,100) == 0) then
         file_idx=index(inputfile1, "_ELE")
         if( file_idx == 0) then
          TestData=1; MM=180; N=25   ! Atlas 900 can be 25, 9000 seems to be 22
-         write(*,*) "Atlas file: ",inputfile1
+         call LogC("Atlas file: "//inputfile1//c_null_char)
         else
          inputfile2=replacestr(string=inputfile1,search="_ELE.CSV",substitute="_CUR.CSV")
-         write(*,*) "PentaCam _ELE.CSV file: ",inputfile1
+         call LogC("PentaCam _ELE.CSV file"//inputfile1//c_null_char)
          inquire(file=trim(inputfile2), exist=exists)
          if(exists) then
           write(*,*) "Matching _CUR.CSV file found"
@@ -1052,7 +1059,7 @@ if (mod(flag,100) == 0) then
         else
          inputfile2=inputfile1
          inputfile1=replacestr(string=inputfile2,search="_CUR.CSV",substitute="_ELE.CSV")
-         write(*,*) "PentaCam _CUR.CSV file: ",inputfile2
+         call LogC("PentaCam _CUR.CSV file"//inputfile2//c_null_char)
          inquire(file=trim(inputfile1), exist=exists)
          if(exists) then
           write(*,*) "Matching _ELE.CSV file found"
@@ -1066,7 +1073,7 @@ if (mod(flag,100) == 0) then
       if (file_idx /= 0) then
 !       write(*,*) 'prefix is found at index: ',file_idx,"length: ",len(inputfile1)
 !       write(*,*) 'prefix:',inputfile1(file_idx:file_idx+1)
-       write(*,*) 'EyeSys XX file: ',inputfile1
+       call LogC("EyeSys XX file: "//inputfile1//c_null_char)
        inputfile2=replacestr(string=inputfile1,search="XX",substitute="RA")
        inquire(file=trim(inputfile2), exist=exists)
        if(exists) then
@@ -1075,7 +1082,7 @@ if (mod(flag,100) == 0) then
 !        TestData=0 ; MM=256; N=24   ! Visia
 
 
-        write(*,*) "Matching EyeSys RA file",inputfile2
+        call LogC("Matching EyeSys RA file "//inputfile2//c_null_char)
        endif
        inputfile3=replacestr(string=inputfile1,search="XX",substitute="PU")
        inputfile4=replacestr(string=inputfile1,search="XX",substitute="HX")
@@ -1085,11 +1092,11 @@ if (mod(flag,100) == 0) then
        inputfile4=inputfile4(1:file_idx) // "HDR"
        inquire(file=trim(inputfile4), exist=exists)
        if(exists) then
-        write(*,*) "Matching EyeSys HX/HDR file found"
+        call LogC("Matching EyeSys HX/HDR file found"//c_null_char)
        endif
        inquire(file=trim(inputfile3), exist=exists)
        if(exists) then
-        write(*,*) "Matching EyeSys PU file found"
+        call LogC("Matching EyeSys PU file found"//c_null_char)
        endif
        inquire(file=trim(inputfile2), exist=exists)
        if(.NOT.exists) then
@@ -1100,7 +1107,7 @@ if (mod(flag,100) == 0) then
 
 !         TestData=0 ; MM=256; N=24   ! Visia
 
-         write(*,*) "Matching EyeSys RA file",inputfile2
+         call LogC("Matching EyeSys RA file"//inputfile2//c_null_char)
         endif
         inputfile3=replacestr(string=inputfile1,search="/XX",substitute="/PU")
         inputfile4=replacestr(string=inputfile1,search="/XX",substitute="/HX")
@@ -1110,11 +1117,11 @@ if (mod(flag,100) == 0) then
         inputfile4=inputfile4(1:file_idx) // "HDR"
         inquire(file=trim(inputfile4), exist=exists)
         if(exists) then
-         write(*,*) "Matching EyeSys HX/HDR file found"
+         call LogC("Matching EyeSys HX/HDR file found"//c_null_char)
         endif
         inquire(file=trim(inputfile3), exist=exists)
         if(exists) then
-         write(*,*) "Matching EyeSys PU file found"
+         call LogC("Matching EyeSys PU file found"//c_null_char)
         endif
         inquire(file=trim(inputfile2), exist=exists)
         if(.NOT.exists) then
@@ -1127,7 +1134,7 @@ if (mod(flag,100) == 0) then
       else
        file_idx=index(inputfile1, "RA") !index(inputfile1, "RA", back)
        if (file_idx /= 0) then
-        write(*,*) 'EyeSys or Nidek RA file: ',inputfile1
+        call LogC("EyeSys or Nidek RA file: "//inputfile1//c_null_char)
         inputfile2=inputfile1
         inputfile1=replacestr(string=inputfile2,search="RA",substitute="XX")
         inquire(file=trim(inputfile1), exist=exists)
@@ -1140,25 +1147,24 @@ if (mod(flag,100) == 0) then
           err_janus=-1
           return
          else
-          write(*,*) 'Matching Nidek ED file: ',inputfile1
+          call LogC("Matching Nidek ED file: "//inputfile1//c_null_char)
           TestData=6 ; MM=360   ! Nidek
           inputfile3=replacestr(string=inputfile2,search="RA",substitute="HT")
           inputfile4=replacestr(string=inputfile2,search="RA",substitute="PE")
           inquire(file=trim(inputfile3), exist=exists)
           if(exists) then
-           write(*,*) "Matching Nidek HT file found",inputfile3
+           call LogC("Matching Nidek HT file found "//inputfile3//c_null_char)
           endif
           inquire(file=trim(inputfile4), exist=exists)
           if(exists) then
-           write(*,*) "Matching Nidek PE file found ",inputfile4
+           call LogC("Matching Nidek PE file found "//inputfile4//c_null_char)
           endif
          endif
         else
          TestData=0 ; MM=360; N=16   ! EyeSys
 
 !         TestData=0 ; MM=256; N=24   ! Visia
-
-         write(*,*) 'Matching EyeSys XX file: ',inputfile1
+         call LogC("Matching EyeSys XX file: "//inputfile1//c_null_char)
          inputfile3=replacestr(string=inputfile2,search="RA",substitute="PU")
          inputfile4=replacestr(string=inputfile2,search="RA",substitute="HX")
          file_idx=index(inputfile4, ".")
@@ -1167,11 +1173,11 @@ if (mod(flag,100) == 0) then
          inputfile4=inputfile4(1:file_idx) // "HDR"
          inquire(file=trim(inputfile4), exist=exists)
          if(exists) then
-          write(*,*) "Matching EyeSys HX/HDR file found"
+          call LogC("Matching EyeSys HX/HDR file found"//c_null_char)
          endif
          inquire(file=trim(inputfile3), exist=exists)
          if(exists) then
-          write(*,*) "Matching EyeSys PU file found"
+          call LogC("Matching EyeSys PU file found"//c_null_char)
          endif
         endif
         inquire(file=trim(inputfile1), exist=exists)
@@ -1187,17 +1193,17 @@ if (mod(flag,100) == 0) then
            err_janus=-1
            return
           else
-           write(*,*) 'Matching Nidek ED file: ',inputfile1
+           call LogC("Matching Nidek ED file: "//inputfile1//c_null_char)
            TestData=6 ; MM=360    ! Nidek
            inputfile3=replacestr(string=inputfile2,search="/RA",substitute="/HT")
            inputfile4=replacestr(string=inputfile2,search="/RA",substitute="/PE")
            inquire(file=trim(inputfile3), exist=exists)
            if(exists) then
-            write(*,*) "Matching Nidek HT file found",inputfile3
+           call LogC("Matching Nidek HT file found"//inputfile3//c_null_char)
            endif
            inquire(file=trim(inputfile4), exist=exists)
            if(exists) then
-            write(*,*) "Matching Nidek PE file found ",inputfile4
+            call LogC("Matching Nidek PE file found"//inputfile4//c_null_char)
            endif
           endif
          else
@@ -1206,8 +1212,7 @@ if (mod(flag,100) == 0) then
 
 !          TestData=0 ; MM=256; N=24   ! Visia
 
-
-          write(*,*) 'Matching EyeSys XX file: ',inputfile1
+          call LogC("Matching EyeSys XX file: "//inputfile1//c_null_char)
           inputfile3=replacestr(string=inputfile2,search="/RA",substitute="/PU")
           inputfile4=replacestr(string=inputfile2,search="/RA",substitute="/HX")
           file_idx=index(inputfile4, ".")
@@ -1216,18 +1221,18 @@ if (mod(flag,100) == 0) then
           inputfile4=inputfile4(1:file_idx) // "HDR"
           inquire(file=trim(inputfile4), exist=exists)
           if(exists) then
-           write(*,*) "Matching EyeSys HX/HDR file found"
+           call LogC("Matching EyeSys HX/HDR file found"//c_null_char)
           endif
           inquire(file=trim(inputfile3), exist=exists)
           if(exists) then
-           write(*,*) "Matching EyeSys PU file found"
+           call LogC("Matching EyeSys PU file found"//c_null_char)
           endif
          endif
         endif
        else
         file_idx=index(inputfile1, "ED") !index(inputfile1, "ED", back)
         if (file_idx /= 0) then
-         write(*,*) 'Nidek ED file: ',inputfile1
+         call LogC("Nidek ED file: "//inputfile1//c_null_char)
          inputfile2=replacestr(string=inputfile1,search="ED",substitute="RA")
          inquire(file=trim(inputfile2), exist=exists)
          if(.NOT.exists) then
@@ -1236,17 +1241,17 @@ if (mod(flag,100) == 0) then
           err_janus=-1
           return
          else
-          write(*,*) 'Matching Nidek RA file: ',inputfile2
+          call LogC("Nidek RA file: "//inputfile2//c_null_char)
           TestData=6 ; MM=360   ! Nidek
           inputfile3=replacestr(string=inputfile2,search="RA",substitute="HT")
           inputfile4=replacestr(string=inputfile2,search="RA",substitute="PE")
           inquire(file=trim(inputfile3), exist=exists)
           if(exists) then
-           write(*,*) "Matching Nidek HT file found",inputfile3
+           call LogC("Matching Nidek HT file found"//inputfile3//c_null_char)
           endif
           inquire(file=trim(inputfile4), exist=exists)
           if(exists) then
-           write(*,*) "Matching Nidek PE file found ",inputfile4
+           call LogC("Matching Nidek PE file found"//inputfile4//c_null_char)
           endif
          endif
         else
@@ -1301,7 +1306,8 @@ if (TestData .eq. 0) then
     end do
    endif
    call CPU_TIME(time_end)
-   write(*,*) 'Time to read EyeSys files: ',(time_end-time_start)*1000
+   write(floata, '(g0)') (time_end-time_start)*1000
+   call LogC("Time to read EyeSys files: "//floata//c_null_char)
    if (read_error > 0) then
     err_janus=read_error*10
     return
@@ -1397,7 +1403,7 @@ if (TestData .eq. 7) then
    endif
    if (cab_inputfile1 .ne. inputfile1) then
     if(allocated(cab_inputfile1)) then
-     write(*,*) "Removing temp files"  ! do not remove ZERNIKE inputfile5
+     call LogC("Removing temp files"//c_null_char)  ! do not remove ZERNIKE inputfile5
 #ifdef _WIN32
      call execute_command_line ('del ' // inputfile1, exitstat=io)
      read_error=io
@@ -1557,7 +1563,8 @@ if (TestData .eq. 6) then
     endif
    else
     if (N .ne. 39) then
-     write(*,*) 'Mires set to ', N
+     write(floata, '(i0)') N
+     call LogC("Mires set to "//floata//c_null_char)
      EyeSys = 0
      call init_mat_EyeSys(MM,N,EyeSys) ! reallocate the EyeSys matrices
      inquire(file=trim(inputfile4), exist=exists)
@@ -1795,7 +1802,8 @@ endif ! end (TestData == 1)
 ! RadSlope_eq_Skyline puts elevation into JMatrix%Z(j,i) and possibly populates JMatrix%Z(j,i) with crap
   call RadSlope_eq_Skyline(lsq,JMatrix, RadSlope, Skyline, Penta)  !needs Penta for border check populates RadSlope with ZFCT
   call CPU_TIME(time_end)
-  write(*,*) 'Time to convert Penta: ',(time_end-time_start)*1000
+  write(floata, '(g0)') (time_end-time_start)*1000
+  call LogC("Time to convert Penta: "//floata//c_null_char)
   if (TestData.eq.2 .or. TestData.eq.4) then ! ELE or ELE.CSV PentaCam files, put elevation into Zp for splining without integration
 !   RadSlope%Zp(:,:)=0 ; JMatrix%SAGC(:,:) = 0 ; JMatrix%SAGC0(:) = 0 ! ELE should not have anything in Zp or SAGC yet
    do i=1,MM
@@ -2011,7 +2019,8 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
      endif
     end do
    end do
-   write(*,*) 'Atlas avg abs elevation percent error : ',(100*powmax2/k)/powmax
+   write(floata, '(g0)') (100*powmax2/k)/powmax
+   call LogC("Atlas avg abs elevation percent error : "//floata//c_null_char)
  endif
 
 ! NIDEK spline consistency computation of elevation by power calc by slope vs elevation in file HT
@@ -2053,9 +2062,10 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
     end do
    end do
    if (k .gt. 1) then
-    write(*,*) 'NIDEK avg abs elevation percent error : ',powmax2/k
+    write(floata, '(g0)') powmax2/k
+    call LogC("NIDEK avg abs elevation percent error :  "//floata//c_null_char)
    else
-    write(*,*) 'No NIDEK elevation data (Hint: no HT file)'
+    call LogC("No NIDEK elevation data (Hint: no HT file)"//c_null_char)
    endif
  endif
 
@@ -2097,10 +2107,12 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
      end do
     end do
     if (k .gt. 1) then
-     write(*,*) 'KERATOGRAPH avg abs elevation percent error : ',powmax2/k
-     write(*,*) 'KERATOGRAPH avg abs curvature percent error : ',powmax/k
+    write(floata, '(g0)') powmax2/k
+    write(floatb, '(g0)') powmax/k
+    call LogC("KERATOGRAPH avg abs elevation percent error: "//floata//c_null_char)
+    call LogC("KERATOGRAPH avg abs curvature percent error: "//floatb//c_null_char)
     else
-     write(*,*) 'No KERATOGRAPH elevation data (Hint: no CORNEA file)'
+     call LogC("No KERATOGRAPH elevation data (Hint: no CORNEA file)"//c_null_char)
     endif
   endif
 
@@ -2323,7 +2335,8 @@ endif
     endif
    end do
   end do
-  write(*,*) 'Penta avg abs elevation percent error : ',(100*powmax2/k)/powmax
+  write(floata, '(g0)') (100*powmax2/k)/powmax
+  call LogC("Penta avg abs elevation percent error :"//floata//c_null_char)
  endif
 
 endif !mod(flag,100) /= 9
@@ -2540,8 +2553,8 @@ do i =1,M1
  end do
 end do
 
-!write(*,*) 'center zernike values: ',EE(1:k_max,nrhs)
-write(*,*) 'center zernike values: ',zernC(1:k_max,nrhs)
+! write(*,*) 'center zernike values: ',EE(1:k_max,nrhs)
+! write(*,*) 'center zernike values: ',zernC(1:k_max,nrhs)
 call LogC("Finished zernike"//c_null_char)
 
 ! deallocate(XTX,EE,IPIV)  !if used above
@@ -2550,7 +2563,8 @@ deallocate(zernC,rlocal,thtlocal)
 
 !  call CPU_TIME(time_end)
   time_end=omp_get_wtime()
- write(*,*) 'Time to compute zernike: ',(time_end-time_start)
+  write(floata, '(g0)') (time_end-time_start)
+  call LogC("Time to compute zernike: "//floata//c_null_char)
  else
  call LogC("Have to open a file prior to computing zernike"//c_null_char)
  err_janus=9
@@ -2713,9 +2727,9 @@ endif
 !  atmp=pca(2,RadSlope)
 !  atmp=pca(3,RadSlope)
   if (mod(flag,100) == 0) loaded_files = loaded_files + 1
-  write(*,*) "Files loaded this session: ", loaded_files
-  write(*,*) "Computations run under ",trim(compiler_version())
-  call LogC("Computations run under " // trim(compiler_version()) // c_null_char)  !has to be C and declared, not cpp
+  write(floata, '(i0)') loaded_files
+  call LogC("Files loaded this session: "//floata//c_null_char)
+  call LogC("Computations run under " // trim(compiler_version()) // c_null_char)
 
   return        
 

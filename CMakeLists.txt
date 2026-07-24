@@ -14,8 +14,8 @@ enable_language(C)
 
 #set(CMAKE_HOST_NAME Windows)
 set(CMAKE_HOST_NAME Linux)
-set(CMAKE_SYSTEM Windows)
-#set(CMAKE_SYSTEM UNIX)
+#set(CMAKE_SYSTEM Windows)
+set(CMAKE_SYSTEM UNIX)
 #set(CMAKE_SYSTEM APPLE)
 
 #set(CMAKE_BUILD_TYPE RELEASE) # no debug or bounds check
@@ -197,7 +197,7 @@ else()
  if (${CMAKE_SYSTEM} MATCHES Windows)
   list(APPEND CMAKE_PREFIX_PATH "../Qt/6.8.3/mingw64/lib/cmake/")
  else()
-   list(APPEND CMAKE_PREFIX_PATH "../Qt/6.8.3/gcc_64/lib/cmake/")
+   list(APPEND CMAKE_PREFIX_PATH "../Qt/6.11.1/gcc_64/lib/cmake/")
  endif()
 endif()
 
@@ -295,12 +295,16 @@ else()
   set(QT_CREATOR_SKIP_MAINTENANCE_TOOL_PROVIDER ON)
   if (${CMAKE_SYSTEM} MATCHES Windows)
    SET(Qt6_DIR "../Qt/6.8.3/mingw64/")
+   find_package(Qt6 COMPONENTS Core Gui OpenGLWidgets OpenGL Widgets LinguistTools REQUIRED ) #Pdf PdfWidgets
+   find_package(Qt6 COMPONENTS Concurrent REQUIRED)
+   message(STATUS "Qt linux, cross compilation for Windows: " ${Qt6_FOUND})
   else()
-   SET(Qt6_DIR "../Qt/6.8.3/gcc_64/")
+#   SET(Qt6_DIR "../Qt/6.8.3/gcc_64/")
+   find_package(Qt6 COMPONENTS Core Gui Pdf PdfWidgets OpenGLWidgets OpenGL Widgets LinguistTools REQUIRED )
+   find_package(Qt6 COMPONENTS Concurrent REQUIRED)
+   message(STATUS "Qt linux, no crosscompilation: " ${Qt6_FOUND})
+   message(STATUS "Qt6 dir: " ${Qt6_DIR})
   endif()
-  find_package(Qt6 COMPONENTS Core Gui Pdf PdfWidgets OpenGLWidgets OpenGL Widgets LinguistTools REQUIRED )
-  find_package(Qt6 COMPONENTS Concurrent REQUIRED)
-  message(STATUS "Qt linux " ${Qt6_FOUND})
   # Find the FreeType2 package
   set(FREETYPE_DIR "/usr/include/freetype2")
   set(FREETYPE_INCLUDE_DIR "/usr/include/freetype2/freetype")
@@ -317,10 +321,15 @@ if (CMAKE_HOST_SYSTEM MATCHES Windows)
  find_package(SuperLU REQUIRED)
  message(STATUS "SUPERLU found at ${SUPERLU_LIBRARIES}")
 else()
-if (CMAKE_SYSTEM MATCHES Windows)
-# set(SUPERLU_LIBRARIES "/usr/x86_64-w64-mingw32/lib/libsuperlu.a")
-#  set(SUPERLU_LIBRARIES "/usr/local/lib/libsuperlu.a")
-# message(STATUS "SUPERLU found at ${SUPERLU_LIBRARIES}")
+if (CMAKE_SYSTEM MATCHES Windows AND ${CMAKE_HOST_SYSTEM} MATCHES Linux)
+  find_package(SuperLU REQUIRED)
+  if ( SUPERLU_FOUND )
+   message(STATUS "SUPERLU found at ${SUPERLU_LIBRARIES}")
+  else()
+   set(SUPERLU_LIBRARIES "/usr/x86_64-w64-mingw32/lib/libsuperlu.a")
+   set(SUPERLU_LIBRARIES "/usr/local/lib/libsuperlu.a")
+   message(STATUS "SUPERLU set to ${SUPERLU_LIBRARIES}")
+  endif()
 else()
  find_package(SuperLU REQUIRED)
  if ( SUPERLU_FOUND )
@@ -590,7 +599,7 @@ if (CMAKE_HOST_SYSTEM MATCHES Windows)
 else()
  target_link_libraries(kernunos
                 PRIVATE Qt6::Concurrent
-#                OpenMP::OpenMP_CXX # if (CMAKE_SYSTEM MATCHES Windows)
+                OpenMP::OpenMP_CXX # if (CMAKE_SYSTEM MATCHES Windows)
                 gnuplot_iostream
                 Boost::iostreams
                 Boost::filesystem
@@ -599,8 +608,9 @@ else()
                 Qt${QT_VERSION_MAJOR}::Gui
                 Qt${QT_VERSION_MAJOR}::Widgets
                 Qt${QT_VERSION_MAJOR}::OpenGL
-                Qt${QT_VERSION_MAJOR}::Pdf
-                Qt${QT_VERSION_MAJOR}::PdfWidgets
+# these work in Qt but not outside it in a terminal cmake
+                Qt${QT_VERSION_MAJOR}::Pdf         # if (CMAKE_SYSTEM MATCHES Windows)
+                Qt${QT_VERSION_MAJOR}::PdfWidgets  # if (CMAKE_SYSTEM MATCHES Windows)
                 assimp modules splia rply_includes ${LIBS} ${OpenMP_LIBRARIES}
            )
 endif()

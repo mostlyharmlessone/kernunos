@@ -263,6 +263,8 @@ SUBROUTINE rcnvrtp(TestData,filename,read_error)
  USE set_precision, ONLY : wp
  USE cornea_arrays, ONLY : Penta
  USE special_fct, ONLY : replacestr
+ USE c_interfaces, ONLY : LogC
+ USE, INTRINSIC :: iso_c_binding, ONLY : c_null_char
  IMPLICIT NONE
  CHARACTER(len=*), INTENT(IN) :: filename
  INTEGER, INTENT(IN) :: TestData
@@ -290,21 +292,21 @@ SUBROUTINE rcnvrtp(TestData,filename,read_error)
          if (readerr .eq. 0) then
           if (somecharacter.eq.'[SYSTEM]'.and.(i.eq.1)) then   !testdata 2 or 3
            if (TestData .eq. 2 .or. TestData .eq. 3) then
-             write(*,*) 'Read PentaCam CUR/ELE header'
+             call LogC("Read PentaCam CUR/ELE header"//c_null_char)
            else
              close(unitno1)
              read_error=1
-             write(*,*) 'Could not read PentaCam CUR/ELE header'
+             write(*,*) 'ERROR: Could not read PentaCam CUR/ELE header'
              return
            endif
           endif
           if (someCHARACTER(1:5).eq.'FRONT'.and.(i.eq.1)) then  !testdata 4 or 5
            if (TestData .eq. 4 .or. TestData .eq. 5) then
-            write(*,*) 'Read PentaCam _CUR.CSV/_ELE.CSV header'
+            call LogC("Read PentaCam _CUR.CSV/_ELE.CSV header"//c_null_char)
            else
            close(unitno1)
            read_error=2
-           write(*,*) 'Could not read PentaCam _CUR.CSV/_ELE.CSV header'
+           write(*,*) 'ERROR: Could not read PentaCam _CUR.CSV/_ELE.CSV header'
            return
            endif
           endif
@@ -358,7 +360,7 @@ SUBROUTINE rcnvrtp(TestData,filename,read_error)
 
           if (someCHARACTER(1:7).eq.'[PUPIL]') then
            if (TestData .ge. 4) then  ! _CUR.CSV or _ELE.CSV
-            write(*,*) 'Found pupil data in Penta _CUR.CSV or _ELE.CSV'
+            call LogC("Found pupil data in Penta _CUR.CSV or _ELE.CSV"//c_null_char)
             read(unitno1, '(A)', iostat=readerr) someline
             read(unitno1, '(A)', iostat=readerr) someline
             somecharacter=replacestr(string=someline,search=";",substitute=",")
@@ -387,7 +389,7 @@ SUBROUTINE rcnvrtp(TestData,filename,read_error)
             end do
            endif
            if (TestData .le. 3) then  ! .CUR or .ELE
-            write(*,*) 'Found pupil data in Penta .CUR or .ELE'
+            call LogC("Found pupil data in Penta .CUR or .ELE"//c_null_char)
             read(unitno1, '(A)', iostat=readerr) someline
             read(unitno1, '(A)', iostat=readerr) someline
             somecharacter=replacestr(string=someline,search="=",substitute=", ")
@@ -399,7 +401,7 @@ SUBROUTINE rcnvrtp(TestData,filename,read_error)
             somecharacter=replacestr(string=someline,search="=",substitute=", ")
             read(somecharacter,*,iostat=readerr) someline,meridians
             if (size(Penta%PU,1) .ne. meridians) then
-             write(*,*) 'Size mismatch in pupil meridians, 256 expected'
+             write(*,*) 'ERROR: Size mismatch in pupil meridians, 256 expected'
              read_error = 10
              return
             else
@@ -462,7 +464,7 @@ SUBROUTINE rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
   USE parameters
   use util_mod
   USE special_fct, ONLY : replacestr
-  USE c_interfaces, ONLY : charcount
+  USE c_interfaces, ONLY : LogC, charcount
   USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_null_char
   IMPLICIT NONE
   LOGICAL :: exists, exists2, exists3, valid, name_match, date_match
@@ -470,11 +472,12 @@ SUBROUTINE rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
   INTEGER, INTENT(OUT) :: read_error
   INTEGER :: i,j,read_front,ierr,unitno1,unitno2,unitno3,grad,file_idx
   REAL(wp) :: rsag,rtan,ytemp,xtemp
-  Character(len=1000) :: someline,somecharacter
+  CHARACTER(len=1000) :: someline,somecharacter
   INTEGER :: linecount
   CHARACTER(1000) header
   character :: ch
   CHARACTER(:), allocatable :: x, y
+  CHARACTER(32) :: integerj,integerpos
   INTEGER :: posmax
   INTEGER :: pos
   REAL (wp) :: ZX(45)
@@ -483,7 +486,7 @@ SUBROUTINE rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
     if(present(CURVNAME)) then
      inquire(file=trim(CURVNAME), exist=exists)
      if (exists) then
-      write(*,*) 'Found ',CURVNAME
+      call LogC("Found "//CURVNAME//c_null_char)
       unitno1 = get_new_fileunit()
       open(unitno1, file=trim(CURVNAME), action="read", iostat=ierr)
       if (ierr .eq. 0) then
@@ -528,14 +531,14 @@ SUBROUTINE rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
        return
       endif
      else
-      write(*,*) "No Keratograph CURVAT file ",CURVNAME
+      write(*,*) "ERROR: No Keratograph CURVAT file ",CURVNAME
      endif
     endif
 
     if(present(ELEVNAME)) then
      inquire(file=trim(ELEVNAME), exist=exists)
      if (exists) then
-      write(*,*) 'Found ',ELEVNAME
+      call LogC("Found "//ELEVNAME//c_null_char)
       unitno1 = get_new_fileunit()
       open(unitno1, file=trim(ELEVNAME), action="read", iostat=ierr)
       if (ierr .eq. 0) then
@@ -584,7 +587,7 @@ SUBROUTINE rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
     if(present(PUPILNAME)) then
      inquire(file=trim(PUPILNAME), exist=exists)
      if (exists) then
-      write(*,*) 'Found ',PUPILNAME
+      call LogC("Found "//PUPILNAME//c_null_char)
       unitno1 = get_new_fileunit()
       open(unitno1, file=trim(PUPILNAME), action="read", iostat=ierr)
       if (ierr .eq. 0) then
@@ -621,7 +624,7 @@ SUBROUTINE rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
     if(present(CENTERNAME)) then
      inquire(file=trim(CENTERNAME), exist=exists)
      if (exists) then
-      write(*,*) 'Found ',CENTERNAME
+      call LogC("Found "//CENTERNAME//c_null_char)
       unitno1 = get_new_fileunit()
       open(unitno1, file=trim(CENTERNAME), action="read", iostat=ierr)
       if (ierr .eq. 0) then
@@ -679,7 +682,7 @@ SUBROUTINE rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
      inquire(file=trim(PATIENTNAME), exist=exists2)
      inquire(file=trim(EXAMNAME), exist=exists3)
      if (exists .and. exists2 .and. exists3) then
-      write(*,*) 'Found ',ZERNIKENAME,' ',PATIENTNAME,' ',EXAMNAME
+     call LogC("Found "//ZERNIKENAME//' '//PATIENTNAME//' '//EXAMNAME//c_null_char)
       unitno1 = get_new_fileunit()
       unitno2 = get_new_fileunit()
       unitno3 = get_new_fileunit()
@@ -701,8 +704,8 @@ SUBROUTINE rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
        read_error=5
        return
       endif
-      write(*,*) 'Patient name ',trim(someline)
-      write(*,*) 'Exam date ',trim(somecharacter)
+      call LogC('Patient name '//trim(someline)//c_null_char)
+      call LogC('Exam date '//trim(somecharacter)//c_null_char)
 !     read as binary because of the semicolons
       open(unitno1, file=trim(ZERNIKENAME), status='old', ACCESS='stream', iostat=ierr)
       if (ierr .eq. 0) then
@@ -717,8 +720,8 @@ SUBROUTINE rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
               else
           !   found the 0D
                if (x(1:9) .eq. 'LastName:') then
-                write(*,*) 'Zernike header found'
-!               write(*,*) 'Zernike header ', x
+                call LogC("Zernike header found"//c_null_char)
+!               call LogC("Zernike header "//x//c_null_char)
                else
                 write(*,*) 'FATAL Error: Unexpected Zernike header found'
                 read_error = -1000
@@ -742,7 +745,10 @@ SUBROUTINE rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
               exit
              endif
             END DO
-            write(*,*) 'Zernike header length, items',pos,j
+            write(integerj, '(i0)') j
+            write(integerpos, '(i0)') pos
+            call LogC("Zernike header length, items "//integerpos//integerj//c_null_char)
+!            write(*,*) 'Zernike header length, items',pos,j
             x = ""
           ! READ the data
              pos = 0 ; i=0 ; j=0 ; linecount = 0 ; posmax = 0
@@ -802,7 +808,7 @@ SUBROUTINE rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
                  if (line(pos-i) .eq. 10 ) then ! .and. line(pos-i-1) .eq. 13  removed because edited file under linux may only have 0A
                   linecount=linecount+1
                   if (valid .and. name_match .and. date_match) then
-                    write(*,*) 'Zernike Data read with valid name, eye and date'
+                    call LogC("Zernike Data read with valid name, eye and date"//c_null_char)
                     exit
                   endif
                  endif
@@ -817,11 +823,14 @@ SUBROUTINE rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
                 close(unitno1)
                 exit
                endif
-               write(*,*) j,'data items'
-               write(*,*) linecount, ' lines read'
-               write(*,*) j/linecount, ' items per line'
-               write(*,*) posmax, ' maximum data size per item'
-               if (.not. date_match) write(*,*) 'Zernike data date does not match exam date'
+               write(integerj, '(i0)') j
+               call LogC(integerj//" data items"//c_null_char)
+               write(integerj, '(i0)') linecount
+               call LogC(integerj//" lines read"//c_null_char)
+!               write(*,*) j/linecount, ' items per line'
+               write(integerpos, '(i0)') posmax
+               call LogC(integerpos//" maximum data size per item"//c_null_char)
+               if (.not. date_match) call LogC("WARNING: Zernike data date does not match exam date"//c_null_char)
                exit
               endif
              end do
@@ -835,7 +844,7 @@ SUBROUTINE rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
       read_error=6
       return
      endif
-     write(*,*) 'Read file ', trim(ZERNIKENAME)
+     call LogC("Read file "//trim(ZERNIKENAME)//c_null_char)
      close(unitno1)
 !    only store the 4th order Zernikes at this point for display
 !    zx index vs i,j
@@ -870,7 +879,7 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
   USE set_precision, ONLY : wp
   USE cornea_arrays, ONLY : EyeSys
   USE special_fct, ONLY : replacestr
-  USE c_interfaces, ONLY : charcount, CleanSemicolons_C
+  USE c_interfaces, ONLY : LogC, charcount, CleanSemicolons_C
   USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_null_char
   IMPLICIT NONE
   LOGICAL :: exists
@@ -878,6 +887,7 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
   CHARACTER(len=*), INTENT(IN), optional :: PENAME,HTNAME
   CHARACTER(1000) header
   CHARACTER(:), ALLOCATABLE :: semicolon1,semicolon2
+  CHARACTER(32) :: integerpos
   INTEGER :: file_idx1,file_idx2,file_idx3,file_idx4,readerr,io
   INTEGER, INTENT(OUT) :: read_error
   REAL(wp), ALLOCATABLE :: ZX(:),YX(:)
@@ -899,14 +909,14 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
        READ (unitno1,*) header
        file_idx1=index(trim(header),EDNAME(index(EDNAME,"ED"):len(EDNAME)) // ";")
        if (file_idx1 > 0) then
-        write(*,*) 'ED Nidek header detected: ',trim(header)
+       call LogC("ED Nidek header detected: "//trim(header)//c_null_char)
        endif
        READ (unitno2,*) header
        file_idx2=index(trim(header),RANAME(index(RANAME,"RA"):len(RANAME)) // ";")
        if (file_idx2 > 0) then
-        write(*,*) 'RA Nidek header detected: ',trim(header)
+       call LogC("RA Nidek header detected: "//trim(header)//c_null_char)
        else
-        write(*,*) 'No RA/ED Nidek headers detected'
+        write(*,*) 'ERROR: No RA/ED Nidek headers detected'
         return
        endif
        close(unitno1)
@@ -915,7 +925,7 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
        if (allocated(semicolon1)) deallocate(semicolon1)
        allocate(CHARACTER(nblines) :: semicolon1)
        semicolon1 = trim(EDNAME)
-       write(*,*) 'Remove the semicolons because formatted Fortran reads hate them'
+       call LogC("Removing the semicolons because formatted Fortran reads hate them"//c_null_char)
        if (index(EDNAME,".DAT") > 0) then
         semicolon1=replacestr(string=semicolon1,search=".DAT",substitute=".TMP")
 !       write(*,*) 'sed "s/;/ /g" ' // EDNAME // ' > ' // semicolon1
@@ -932,7 +942,7 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
  !       call execute_command_line ('./CleanSemicolons ' // EDNAME // ' ' // semicolon1, exitstat=io)
          io = CleanSemicolons_C(trim(EDNAME) // c_null_char, semicolon1 // c_null_char)
         else
-         write(*,*) 'Yikes, no *.dat file: '
+         write(*,*) 'ERROR: Yikes, no *.dat file: '
          io = -1
         endif
        endif
@@ -980,7 +990,8 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
        endif
 !      Calculate number of mires by counting the floating point periods in the file, subtracting the header file extension, and dividing by 360
        periodcount=charcount(trim(RANAME)//c_null_char)
-       write(*,*) 'Number of Nidek mires read: ',(periodcount-1)/360
+       write(integerpos, '(i0)') (periodcount-1)/360
+       call LogC("Number of Nidek mires read: "//integerpos//c_null_char)
        N=(periodcount-1)/360
        if (N .lt. 23 )then
         WRITE (*,*) 'Error on mire count in rcnvrtn:',N
@@ -1045,7 +1056,7 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
        CLOSE (unitno1)
        CLOSE (unitno2)
        file_idx1=index(semicolon1, ".TMP")
-       write(*,*) 'Erasing semicolonless tmp file',semicolon1
+       call LogC("Erasing semicolonless tmp file "//trim(semicolon1)//c_null_char)
        if (file_idx1 .ne. 0) then
 
 #ifdef _WIN32
@@ -1063,7 +1074,7 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
         endif
        endif
        file_idx2=index(semicolon2, ".TMP")
-       write(*,*) 'Erasing semicolonless tmp file',semicolon2
+       call LogC("Erasing semicolonless tmp file "//trim(semicolon2)//c_null_char)
        if (file_idx2 .ne. 0) then
 
 #ifdef _WIN32
@@ -1120,9 +1131,9 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
        READ (unitno4,*) header
        file_idx4=index(trim(header),HTNAME(index(HTNAME,"HT"):len(HTNAME)) // ";")
        if (file_idx4 > 0) then
-        write(*,*) 'HT Nidek header matches filename: ',trim(header)," ",HTNAME(index(HTNAME,"HT"):len(HTNAME))
+        call LogC('HT Nidek header matches filename: '//trim(header)//" "//HTNAME(index(HTNAME,"HT"):len(HTNAME))//c_null_char)
        else
-        write(*,*) 'HT Nidek does not match filename:',trim(header)," ",HTNAME(index(HTNAME,"HT"):len(HTNAME))
+        call LogC('Warning: HT Nidek header does not match filename: '//trim(header)//" "//HTNAME(index(HTNAME,"HT"):len(HTNAME))//c_null_char)
        endif
        close(unitno4)
        nblines=len(trim(HTNAME))
@@ -1182,7 +1193,7 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
       endif
       CLOSE(unitno4)
       file_idx2=index(semicolon2, ".TMP")
-      write(*,*) 'Erasing semicolonless tmp file',semicolon2
+      call LogC("Erasing semicolonless tmp file"//trim(semicolon2)//c_null_char)
       if (file_idx2 .ne. 0) then
 #ifdef _WIN32
         call execute_command_line ('del ' // semicolon2, exitstat=io)
@@ -1271,7 +1282,7 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
       EyeSys%Pupil_Center(1)=CX ; EyeSys%Pupil_Center(1)=CY
       CLOSE (unitno3)
       file_idx2=index(semicolon2, ".TMP")
-      write(*,*) 'Erasing semicolonless tmp file',semicolon2
+      call LogC("Erasing semicolonless tmp file"//trim(semicolon2)//c_null_char)
       if (file_idx2 .ne. 0) then
        call execute_command_line ('rm ' // semicolon2, exitstat=io)
        if (io > 0) then
@@ -1308,7 +1319,7 @@ USE set_precision, ONLY : wp
 use util_mod
 USE cornea_arrays, ONLY : EyeSys
 USE special_fct, ONLY : replacestr
-USE c_interfaces, ONLY : charcount
+USE c_interfaces, ONLY : LogC, charcount
 USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_null_char
 IMPLICIT NONE
 CHARACTER(len=*), INTENT(IN), optional :: RANAME,EDNAME
@@ -1316,6 +1327,7 @@ CHARACTER(len=*), INTENT(IN), optional :: PENAME
 INTEGER, INTENT(OUT) :: read_error
 INTEGER, INTENT(OUT) :: mirecount
 CHARACTER(1000) header,header2
+CHARACTER(32) :: integerj,integerpos
 character :: ch, ych
 CHARACTER(len=100) :: ioerrmsg
 CHARACTER(:), allocatable :: x, y
@@ -1350,14 +1362,14 @@ integer line(200),line2(200),ix,iy
      READ (unitno1,*) header
      file_idx1=index(trim(header),EDNAME(index(EDNAME,"ED"):len(EDNAME)) // ";")
      if (file_idx1 > 0) then
-      write(*,*) 'ASCII ED Nidek header detected: ',trim(header)
+      call LogC("ASCII ED Nidek header detected: "//trim(header)//c_null_char)
      endif
      READ (unitno2,*) header
      file_idx2=index(trim(header),RANAME(index(RANAME,"RA"):len(RANAME)) // ";")
      if (file_idx2 > 0) then
-      write(*,*) 'ASCII RA Nidek header detected: ',trim(header)
+      call LogC("ASCII RA Nidek header detected: "//trim(header)//c_null_char)
      else
-      write(*,*) 'No ASCII RA/ED Nidek headers detected'
+      write(*,*) 'ERROR: No ASCII RA/ED Nidek headers detected'
       read_error = 2
      endif
     else
@@ -1388,13 +1400,13 @@ integer line(200),line2(200),ix,iy
    READ(unitno1,iostat=ierr) ch
 !  Detect if Non_ASCII
    if (ichar(ch) < 0 .or. ichar(ch) > 127 .and. read_error == 0) then
-    write(*,*) 'Non_ASCII characters detected in', trim(EDNAME)
+    call LogC("Non_ASCII characters detected in "//trim(EDNAME)//c_null_char)
     read_error = 2
     exit
    endif
  end do
  if (read_error == 0) then
-  write(*,*) 'Only ASCII characters detected in', trim(EDNAME)
+  call LogC("Only ASCII characters detected in "//trim(EDNAME)//c_null_char)
   close(unitno1)
   return
  endif
@@ -1412,7 +1424,7 @@ integer line(200),line2(200),ix,iy
      x = join(c(x,ch))
     else
 !   found the 0D
-     write(*,*) 'Nidek header ', x
+     call LogC("Nidek header "//x//c_null_char)
      exit
     endif
    else
@@ -1491,10 +1503,13 @@ integer line(200),line2(200),ix,iy
      endif
     else
   !  EOF or other read error
-     write(*,*) j,'radials'
+     write(integerj, '(i0)') j
+     call LogC(integerj//" radials"//c_null_char)
      mirecount = mirecount -1
-     write(*,*) mirecount, ' mires counted'
-     write(*,*) posmax, ' maximum data places per line'
+     write(integerj, '(i0)') mirecount
+     call LogC(integerj//" mires counted"//c_null_char)
+     write(integerpos, '(i0)') posmax
+     call LogC(integerpos//" maximum data places per line"//c_null_char)
      if (j .ne. 360) then
       read_error = -1000
       write(*,*) 'FATAL Error reading NIDEK binary', EDNAME
@@ -1518,7 +1533,7 @@ integer line(200),line2(200),ix,iy
      y = join(c(y,ych))
     else
 !   found the 0D
-     write(*,*) 'Binary header ', y
+    call LogC("Binary header"//y//c_null_char)
      exit
     endif
    else
@@ -1597,12 +1612,15 @@ integer line(200),line2(200),ix,iy
      endif
     else
   !  EOF or other read error
-     write(*,*) j,'radials'
+     write(integerj, '(i0)') j
+     call LogC(integerj//" radials"//c_null_char)
      MM = j
      mirecount = mirecount -1
-     write(*,*) mirecount, ' mires counted'
+     write(integerj, '(i0)') mirecount
+     call LogC(integerj//" mires counted"//c_null_char)
      N = mirecount
-     write(*,*) posmax, ' maximum data places per line'
+     write(integerj, '(i0)') posmax
+     call LogC(integerj//"  maximum data places per line"//c_null_char)
      exit
     endif
    end do
@@ -1629,9 +1647,9 @@ integer line(200),line2(200),ix,iy
    if (read_error /= 4) then
 ! if it is, call the ASCII version just for PE
     close(unitno3)
-    write(*,*) 'PE ASCII file'
+    call LogC("PE ASCII file"//c_null_char)
     call rcnvrtn(read_error,PENAME = trim(PENAME))
-    write(*,*) 'Read ASCII PE file associated with binary ED/RA files'
+    call LogC("Read ASCII PE file associated with binary ED/RA files"//c_null_char)
     read_error = 1
    else
    open(unitno3, file=trim(PENAME), status='old', ACCESS='stream', iostat=ierr)
@@ -1644,7 +1662,7 @@ integer line(200),line2(200),ix,iy
       y = join(c(y,ych))
      else
  !   found the 0D
-      write(*,*) 'Binary header ', y
+      call LogC("Binary header "//y//c_null_char)
       exit
      endif
     else
@@ -1735,7 +1753,8 @@ integer line(200),line2(200),ix,iy
       endif
      else
    !  EOF or other read error
-      write(*,*) j-1,'pupil radii read'
+      write(integerj, '(i0)') j-1
+      call LogC(integerj//" pupil radii read"//c_null_char)
       exit
      endif
     end do
@@ -1769,6 +1788,8 @@ SUBROUTINE rcnvrte(read_error,RANAME,XXNAME,PUNAME,HXNAME)
   USE set_precision, ONLY : wp
   USE cornea_arrays, ONLY : EyeSys
   USE special_fct, ONLY : replacestr
+  USE c_interfaces, ONLY : LogC
+  USE, INTRINSIC :: iso_c_binding, ONLY : c_null_char
   IMPLICIT NONE
   LOGICAL :: exists
   CHARACTER(len=*), INTENT(IN) :: RANAME,XXNAME
@@ -1793,12 +1814,12 @@ SUBROUTINE rcnvrte(read_error,RANAME,XXNAME,PUNAME,HXNAME)
       READ (unitno1,*) header
       file_idx1=index(trim(header),"|")
       if (file_idx1 > 0) then
-       write(*,*) 'RA EyeSys header detected: ',trim(header)       
+       call LogC("RA EyeSys header detected: "//trim(header)//c_null_char)
       endif
       READ (unitno2,*) header
       file_idx2=index(trim(header),"|")
       if (file_idx2 > 0) then
-       write(*,*) 'XX EyeSys header detected: ',trim(header)
+       call LogC("XX EyeSys header detected: "//trim(header)//c_null_char)
       else
        write(*,*) 'No XX/RA EyeSys headers detected, assuming data only'
        REWIND(unitno1)
@@ -1864,7 +1885,7 @@ SUBROUTINE rcnvrte(read_error,RANAME,XXNAME,PUNAME,HXNAME)
          READ (unitno4,*) header
          file_idx4=index(trim(header),"|")
          if (file_idx4 > 0) then
-          write(*,*) 'HX EyeSys header detected: ',trim(header)
+          call LogC("HX EyeSys header detected: "//trim(header)//c_null_char)
          endif
         endif
         CLOSE(unitno4)
@@ -1879,10 +1900,10 @@ SUBROUTINE rcnvrte(read_error,RANAME,XXNAME,PUNAME,HXNAME)
          READ (unitno3,*) header
          file_idx3=index(trim(header),"|")
          if (file_idx3 > 0) then
-          write(*,*) 'PU EyeSys header detected: ',trim(header)
+         call LogC("PU EyeSys header detected: "//trim(header)//c_null_char)
           READ (unitno3,*) CX,CY ! next line has two numbers
          else
-          write(*,*) 'No PU EyeSys header detected, assuming data only'
+          call LogC("No PU EyeSys header detected, assuming data only"//c_null_char)
 !         assuming a headerless PU file exists,it probably has two numbers to skip, no REWIND
          endif
         do I=1,MM
@@ -1951,7 +1972,7 @@ SUBROUTINE SaveFile(b,KXNAME)
  unitno1 = get_new_fileunit()
  open(unitno1, file=trim(KXNAME), action="write", iostat=ierr)
  if (ierr .ne. 0) then
-  write(*,*) 'SaveFile cannot open',KXNAME
+  write(*,*) 'ERROR: SaveFile cannot open',KXNAME
   return
  else
 ! Write the radii first (RA data)
@@ -1983,7 +2004,7 @@ SUBROUTINE ReadFile(read_error,KXNAME)
  unitno1 = get_new_fileunit()
  open(unitno1, file=trim(KXNAME), action="read", iostat=read_error)
  if (read_error .ne. 0) then
-  write(*,*) 'ReadFile cannot open',KXNAME
+  write(*,*) 'ERROR: ReadFile cannot open',KXNAME
   return
  else
 !  Read the RA first
@@ -2015,6 +2036,8 @@ SUBROUTINE rcnvrtV(read_error,RANAME,XXNAME)
   USE set_precision, ONLY : wp
   USE cornea_arrays, ONLY : EyeSys
   USE special_fct, ONLY : replacestr
+  USE c_interfaces, ONLY : LogC
+  USE, INTRINSIC :: iso_c_binding, ONLY : c_null_char
   IMPLICIT NONE
   LOGICAL :: exists
   CHARACTER(len=*), INTENT(IN) :: RANAME,XXNAME
@@ -2038,14 +2061,14 @@ SUBROUTINE rcnvrtV(read_error,RANAME,XXNAME)
       READ (unitno1,*) header
       file_idx1=index(trim(header),"|")
       if (file_idx1 > 0) then
-       write(*,*) 'RA EyeSys header detected: ',trim(header)
+       call LogC("RA EyeSys header detected: "//trim(header)//c_null_char)
       endif
       READ (unitno2,*) header
       file_idx2=index(trim(header),"|")
       if (file_idx2 > 0) then
        write(*,*) 'XX EyeSys header detected: ',trim(header)
       else
-       write(*,*) 'No XX/RA EyeSys headers detected, assuming data only'
+       call LogC("No XX/RA EyeSys headers detected, assuming data only"//c_null_char)
        REWIND(unitno1)
        REWIND(unitno2)
       endif
@@ -2127,6 +2150,8 @@ END SUBROUTINE rcnvrtV
 SUBROUTINE rcnvrta_type(KXNAME,N,read_error)
 ! determine ATLAS VERSION if 900 or 9000; N=25 or 22
  USE io_functions, ONLY  : get_new_fileunit
+ USE c_interfaces, ONLY : LogC
+ USE, INTRINSIC :: iso_c_binding, ONLY : c_null_char
  IMPLICIT NONE
  LOGICAL :: exists
  CHARACTER(80) KH1,KH2
@@ -2151,7 +2176,7 @@ SUBROUTINE rcnvrta_type(KXNAME,N,read_error)
         ENDIF
         IF (K .eq. 1) THEN
          IF (KH1.EQ.'#ATLAS')THEN
-          WRITE(*,*) 'Atlas header read in rcnvrta_type'
+          call LogC("Atlas header read in rcnvrta_type"//c_null_char)
          else
           WRITE(*,*) 'ERROR - Could not read Atlas header'
           read_error=2
@@ -2172,8 +2197,8 @@ SUBROUTINE rcnvrta_type(KXNAME,N,read_error)
            read_error=1
            GOTO 100
           ENDIF
-          if (N > 22) write(*,*) 'Atlas 900 file found'
-          if (N < 25) write(*,*) 'Atlas 9000 file found'
+          if (N > 22) call LogC("Atlas 900 file found"//c_null_char)
+          if (N < 25) call LogC("Atlas 9000 file found"//c_null_char)
           write(*,*) trim(KH1),N
          ENDIF
         ENDIF
@@ -2198,10 +2223,13 @@ SUBROUTINE rcnvrta(KXNAME,N,read_error)
  USE io_functions, ONLY  : get_new_fileunit
  USE set_precision, ONLY : wp
  USE cornea_arrays, ONLY : Atlas, JMatrix
+ USE c_interfaces, ONLY : LogC
+ USE, INTRINSIC :: iso_c_binding, ONLY : c_null_char
  IMPLICIT NONE
  LOGICAL :: exists
  CHARACTER(80) KH1,KH2,KH3
  CHARACTER(len=*), INTENT(IN) :: KXNAME
+ CHARACTER(32) :: floatf,floatg,integerj
  INTEGER, INTENT(IN) :: N
  INTEGER, INTENT(OUT) :: read_error
  INTEGER :: K,I,J,io,ITH,JTH,unitno,MM,ierr
@@ -2226,7 +2254,7 @@ SUBROUTINE rcnvrta(KXNAME,N,read_error)
 
         IF (K .eq. 1) THEN
          IF (KH1(1:6).EQ.'#ATLAS')THEN
-          WRITE(*,*) 'Atlas header read in rcnvrta'
+          call LogC("Atlas header read in rcnvrta"//c_null_char)
          else
           WRITE(*,*) 'ERROR - Could not read Atlas header'
           read_error=2
@@ -2305,10 +2333,12 @@ SUBROUTINE rcnvrta(KXNAME,N,read_error)
         IF (KH1.EQ.'#End_Table') THEN
          READ(unitno,*,END=100,IOSTAT=io) KH2,ITH
          IF (KH2 .eq. "Pupil_Data_Point") THEN
-          write(*,*) 'Found Atlas Pupil data'
+          call LogC("Found Atlas Pupil data"//c_null_char)
           READ(unitno,*,IOSTAT=io) KH1,Atlas%Pupil_Center(1)
           READ(unitno,*,IOSTAT=io) KH1,Atlas%Pupil_Center(2)
-          write(*,*) "Pupil Center",Atlas%Pupil_Center(:)
+          write(floatf, '(g0)') Atlas%Pupil_Center(1)
+          write(floatg, '(g0)') Atlas%Pupil_Center(2)
+          call LogC("Pupil Center: "//floatf//" "//floatg//c_null_char)
           READ(unitno,'(A)',END=100,IOSTAT=io) KH1
           READ(unitno,'(A)',END=100,IOSTAT=io) KH1
           READ(unitno,'(A)',END=100,IOSTAT=io) KH1
@@ -2335,7 +2365,8 @@ SUBROUTINE rcnvrta(KXNAME,N,read_error)
            read_error=9
            exit
           endif
-          WRITE(*,*) 'Zernike coefficients present, order',ITH
+          write(integerj, '(i0)') ITH
+          call LogC("Zernike coefficients present, order "//integerj//c_null_char)
           if (ITH .eq. 7) JTH=35
           if (ITH .eq. 6) JTH=27
           if (ITH .eq. 5) JTH=20
@@ -2373,7 +2404,8 @@ SUBROUTINE rcnvrta(KXNAME,N,read_error)
        
       END DO
 !      FINISHED READING ATLAS FILE
-100   write(*,*) 'Read ',K,' lines in',trim(KXNAME)
+      write(integerj, '(i0)') K
+100   call LogC("'Read "//integerj//" lines in "//trim(KXNAME)//c_null_char)
       CLOSE (unitno)
       else
        print*, "Error ", ierr ," attempting to open Atlas file ", trim(KXNAME)

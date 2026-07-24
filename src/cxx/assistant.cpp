@@ -12,6 +12,10 @@
 #include <QStandardPaths>
 #include <iostream>
 
+extern "C" {
+void LogC(const char *Message);
+}
+
 using namespace Qt::StringLiterals;
 
 Assistant::~Assistant()
@@ -29,12 +33,9 @@ void Assistant::showDocumentation(const QString &page)
         return;
 
     QByteArray ba("SetSource ");
-//    ba.append("qthelp://org.qt-project.examples.simpletextviewer/doc/");   //this corresponds to qhp/qhcp files
-    ba.append("qthelp:../../../documentation/");   //this corresponds to qhp/qhcp files
+    ba.append("qthelp:../../documentation/");   //this corresponds to qhp/qhcp files
     m_process->write(ba + page.toLocal8Bit() + '\n');
-
-    std::cout << "Qt Assistant: " << (ba + page.toLocal8Bit() + '\n').toStdString() << "\n";
-
+    LogC(("Qt Assistant: " + (ba + page.toLocal8Bit() + '\n').toStdString()).c_str());
     if (!startAssistant())
         return;
 }
@@ -48,14 +49,12 @@ static QString documentationDirectory()
     paths.append(QCoreApplication::applicationDirPath());
     paths.append(QStandardPaths::standardLocations(QStandardPaths::AppDataLocation));
     for (const auto &dir : std::as_const(paths)) {
-        const QString path = "../../documentation";
- //       const QString path = dir + "../../documentation";
+        const QString path = "../../documentation/";
+ //       const QString path = dir + "../../documentation/";
  //       const QString path = dir +"/documentation"_L1;
         const QString path2 = dir;
-
-        std::cout << "Qt Assistant path to documentation: " << path.toStdString() << "\n";
-        std::cout << "Qt Assistant locl path: " << path2.toStdString() << "\n";
-
+        LogC(("Qt Assistant path to documentation: " + path.toStdString()).c_str());
+        LogC(("Qt Assistant local path: " + path2.toStdString()).c_str());
         if (QFileInfo::exists(path))
             return path;
     }
