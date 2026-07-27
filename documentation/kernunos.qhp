@@ -17,6 +17,7 @@
                     <section title="About Menu" ref="aboutmenu.html"/>
                     <section title="README" ref="README.html"/>
                     <section title="FAQ" ref="FAQ.html"/>
+                    <section title="SUPPORTED_HARDWARE" ref="SUPPORTED_HARDWARE.html"/>
                     <section title="SECURITY" ref="SECURITY.html"/>
             </section>
         </toc>
@@ -36,6 +37,7 @@
             <file>intro.html</file>
             <file>README.html</file>
             <file>FAQ.html</file>
+            <file>SUPPORTED_HARDWARE.html</file>
             <file>SECURITY.html</file>
             <file>about.txt</file>
             <file>openfile.html</file>

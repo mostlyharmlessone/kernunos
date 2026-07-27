@@ -1,6 +1,23 @@
 --- Chapter11/fortran_double_call_SuperLU.c	2013-11-17 08:51:28.000000000 -0800
-+++ ../Janus/src/HansonHopkins/fortran_double_call_SuperLU.c	2023-10-15 15:02:37.349049861 -0700
-@@ -49,6 +49,8 @@
++++ ../../kernunos/src/HansonHopkins/fortran_double_call_SuperLU.c	2026-07-20 10:15:23.012449017 -0700
+@@ -7,12 +7,15 @@
+ * side the ISO C bindings are used at the interface.
+ */
+ 
++#include <stdint.h>  //need this for uintptr_t under linux
+ #include "slu_ddefs.h"
+ 
+ /* Kind of integer to hold a pointer.  Use 'long int'
+ so it works on 64-bit systems. On the Fortran side
+ this is declared as TYPE(C_PTR).*/
+-typedef long int fptr;  /* 64 bit */
++//typedef long int fptr;  /* 64 bit */
++/* changed for Windows build*/
++typedef uintptr_t fptr;  /* 64 bit */
+ 
+ typedef struct {
+ 	SuperMatrix *L;
+@@ -49,6 +52,8 @@
  	int *etree;  /* column elimination tree */
  	SCformat *Lstore;
  	NCformat *Ustore;
@@ -9,7 +26,7 @@
  	int      i, panel_size, permc_spec, relax;
  
  	//trans_t  trans;
-@@ -93,7 +95,7 @@
+@@ -93,7 +98,7 @@
  		relax = sp_ienv(2);
  
  		dgstrf(options, &AC, relax, panel_size, 
@@ -18,3 +35,12 @@
  
  		/*dgstrf (superlu_options_t *options, SuperMatrix *A,
  		int relax, int panel_size, int *etree, void *work, int lwork,
+@@ -104,7 +109,7 @@
+ 		Ustore = (NCformat *) U->Store;
+ 		if(options->PrintStat){				
+ 			dQuerySpace(L, U, &mem_usage);
+-			// Call to a Fortran subroutine that prints the data.
++                        // Call to a Fortran subroutine that prints the data.
+ 			// No call is made if options->PrintStat==0, the default.
+ 			fortran_print(info,n,&Lstore->nnz,&Ustore->nnz,&mem_usage);
+ 		}

@@ -1,14 +1,16 @@
 assimp
+binary-debug
 build
 cmake
 CMakeLists.txt
-data_for_test
+data
 documentation
 FREETYPE_INCLUDE_DIRS
 gnuplot-iostream
 kernunos_icon.ico
 kernunos_icon.rc
 Licenses
+OpenGL32.Lib
 rply
 src
 TODO
@@ -46,6 +48,8 @@ SECURITY.html
 SECURITY.md
 spline_notes.odt
 spline_notes.pdf
+SUPPORTED_HARDWARE.html
+SUPPORTED_HARDWARE.md
 tweaksmenu.html
 viewmenu.html
 
@@ -131,7 +135,6 @@ sparctxt.c
 src/cxx:
 assistant.cpp
 assistant.h
-freetype
 freetype2
 ft2build.h
 GLShaders.qrc

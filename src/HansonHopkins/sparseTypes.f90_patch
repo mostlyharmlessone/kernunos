@@ -1,5 +1,12 @@
 --- Chapter04/sparseTypes.f90	2023-10-15 15:02:37.342383188 -0700
-+++ ../Janus/src/HansonHopkins/sparseTypes.f90	2025-05-24 14:13:03.526165957 -0700
++++ ../../kernunos/src/HansonHopkins/sparseTypes.f90	2026-07-10 09:50:56.509844862 -0700
+@@ -1,5 +1,5 @@
+     MODULE sparseTypes
+-
++!  Modified to add CSR sparse matrices
+       USE set_precision, ONLY : dkind
+       USE iso_c_binding
+       IMPLICIT NONE
 @@ -15,7 +15,7 @@
        END TYPE dpTriplet
  
@@ -9,33 +16,35 @@
        TYPE dpTripletList
  ! Define an expansion factor to allow extra free space to 
  ! be allocated for efficiency reasons. The mutator function
-@@ -32,6 +32,31 @@
+@@ -32,6 +32,33 @@
          REAL (dkind), ALLOCATABLE :: values(:)
        END TYPE dpTripletList
  
 +! Define double precision Compressed Sparse Row format matrix as defined in sparsekit.f90
 +! and see https://en.wikipedia.org/wiki/Sparse_matrix, known as CSR or Yale format
++! for convenience, the no of columns is defined as well, though it is not part of the format
 +! It is defined using overloaded assignment:
 +! TYPE(dpCSRSparseMatrix) = TYPE(dpTripletList).  This will be used
 +! after the triplets list has been accumulated in a
 +! variable of TYPE(dpTripletList).
 +      TYPE dpCSRSparseMatrix
-+! The number of rows in the matrix, and number of values.
++! The number of rows in the matrix, number of columns in the matrix, and number of values.
 +! These values are defined, in the overloaded
 +! assignment, as the maximum indices noted for
 +! any triplet.
 +      INTEGER :: noOfRows = 0
++      INTEGER :: noOfColumns = 0
 +      INTEGER :: nnz = 0
 +! This flag is non-zero if there is any allocation error
 +! during creation of a Compressed Sparse Row matrix with overloaded
 +! assignment.
 +       INTEGER :: errFlag = 0
 +! values of the non-zero elements
-+       real ( kind = 8 ), allocatable :: a(:)
++       REAL ( kind = 8 ), allocatable :: a(:)
 +! column index
-+       integer ( kind = 4 ), allocatable :: ja(:)
++       INTEGER ( kind = 4 ), allocatable :: ja(:)
 +! row index
-+       integer ( kind = 4 ), allocatable :: ia(:)
++       INTEGER ( kind = 4 ), allocatable :: ia(:)
 +      END TYPE dpCSRSparseMatrix
 +
  ! The Harwell-Boeing column-oriented sparse format:

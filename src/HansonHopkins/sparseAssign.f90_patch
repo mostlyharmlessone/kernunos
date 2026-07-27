@@ -1,7 +1,9 @@
 --- Chapter04/sparseAssign.f90	2023-10-15 15:02:37.342383188 -0700
-+++ ../Janus/src/HansonHopkins/sparseAssign.f90	2025-05-26 12:38:44.784109740 -0700
-@@ -2,7 +2,7 @@
- 
++++ ../../kernunos/src/HansonHopkins/sparseAssign.f90	2026-07-19 18:53:42.998055991 -0700
+@@ -1,8 +1,8 @@
+     MODULE sparseAssign
+-
++!  Modified to add CSR sparse matrices
        USE set_precision, ONLY : dkind
        USE sparseTypes, ONLY: dpTriplet, dpTripletList, dpHBSparseMatrix, &
 -          slu_dpHBSparseMatrix, setExpansionFactor, getExpansionFactor
@@ -9,10 +11,11 @@
        IMPLICIT NONE
  
  !...
-@@ -12,17 +12,19 @@
+@@ -11,34 +11,73 @@
+ ! This defines the basic operations for building a list of
  ! triplets from individual triplets and for clearing a 
  ! dpTripletList variable by reclaiming all the allocated space.
- 
+-
 -! TYPE(dpTripletList) = TYPE(dpTriplet)
 + !TYPE(dpTripletList) = TYPE(dpTriplet)
          MODULE PROCEDURE a_triplet
@@ -27,35 +30,73 @@
        END INTERFACE
  
        INTERFACE ASSIGNMENT (=)
- ! Define procedure names for assignment to
+-! Define procedure names for assignment to
 -! TYPE(dpHBSparseMatrix)
-+ !TYPE(dpHBSparseMatrix)
- !
+-!
++! Define procedure names for assignment to TYPE(dpHBSparseMatrix)
  ! Convert a dpTripletList to HB sparse matrix form
  ! TYPE(dpHBSparseMatrix) = TYPE(dpTripletList)
-@@ -40,6 +42,21 @@
-         MODULE PROCEDURE list_of_triplets_eq_dhbc
+         MODULE PROCEDURE dhbc_eq_list_of_triplets
++! Convert a CSR sparse to a HB sparse
++! TYPE(dpHBSparseMatrix) = TYPE(dpCSRSparseMatrix)
++        MODULE PROCEDURE dhbc_eq_dcsr
+ ! Clear an HB sparse matrix and reclaim all allocated space
+ ! TYPE(dpHBSparseMatrix) = INTEGER (0)
+         MODULE PROCEDURE clear_dhbc
        END INTERFACE
  
-+INTERFACE ASSIGNMENT (=)
-+! Define procedure names for assignment to
-+!TYPE(dpCSRSparseMatrix)
-+! Convert a dpTripletList to CSR sparse matrix form
-+! TYPE(dpCSRSparseMatrix) = TYPE(dpTripletList)
-+  MODULE PROCEDURE dcsr_eq_list_of_triplets
-+! Clear an CSR sparse matrix and reclaim all allocated space
-+! TYPE(dpCSRSparseMatrix) = INTEGER (0)
-+  MODULE PROCEDURE clear_dcsr
-+! Define procedure name for assignment to ! TYPE(dpTriplet)(:)
+       INTERFACE ASSIGNMENT (=)
+-! Define procedure name for assignment to ! TYPE(dpTriplet)(:)
+-
++! Define procedure name for assignment to TYPE(dpTriplet)(:)
+ ! Convert a sparse matrix in HB format to a list of dpTriplest
+ ! TYPE(dpTriplet)(:) = TYPE(dpHBSparseMatrix)
+-        MODULE PROCEDURE list_of_triplets_eq_dhbc
+-      END INTERFACE
++       MODULE PROCEDURE list_of_triplets_eq_dhbc
 +! Convert a sparse matrix in CSR format to a list of dpTriplest
 +! TYPE(dpTriplet)(:) = TYPE(dpCSRSparseMatrix)
-+  MODULE PROCEDURE list_of_triplets_eq_dcsr
-+END INTERFACE
++       MODULE PROCEDURE list_of_triplets_eq_dcsr
++     END INTERFACE
 +
++     INTERFACE ASSIGNMENT (=)
++! Define procedure names for assignment to TYPE(dpCSRSparseMatrix)
++! Convert a dpTripletList to CSR sparse matrix format
++! TYPE(dpCSRSparseMatrix) = TYPE(dpTripletList)
++      MODULE PROCEDURE dcsr_eq_list_of_triplets
++! Clear an CSR sparse matrix and reclaim all allocated space
++! TYPE(dpCSRSparseMatrix) = INTEGER (0)
++      MODULE PROCEDURE clear_dcsr
++     END INTERFACE
++
++     INTERFACE ASSIGNMENT (=)
++! Convert a sparse matrix in CSR format to a dense matrix
++! REAL(:,:)=TYPE(dpCSRSparseMatrix)
++      MODULE PROCEDURE matrix_eq_dcsr
++! Convert a dense matrix to a sparse matrix in CSR format
++! TYPE(dpCSRSparseMatrix)=REAL(:,:)
++      MODULE PROCEDURE dcsr_eq_matrix
++
++     END INTERFACE
++
++    INTERFACE
++     SUBROUTINE csrcoo ( nrow, job, a, ja, ia, nnz, ao, ir, jc, ierr )
++     INTEGER ( kind = 4 ) nrow
++     INTEGER ( kind = 4 ) nnz
++     REAL ( kind = 8 ) a(*)
++     REAL ( kind = 8 ) ao(*)
++     INTEGER ( kind = 4 ) ia(*)
++     INTEGER ( kind = 4 ) ierr
++     INTEGER ( kind = 4 ) ir(*)
++     INTEGER ( kind = 4 ) ja(*)
++     INTEGER ( kind = 4 ) jc(*)
++     INTEGER ( kind = 4 ) job
++     END SUBROUTINE
++    END INTERFACE
+ 
        REAL (dkind), PRIVATE :: zero = 0.0e0_dkind
      CONTAINS
- 
-@@ -71,6 +88,25 @@
+@@ -71,6 +110,25 @@
          END IF
        END SUBROUTINE clear_dhbc
  
@@ -73,15 +114,115 @@
 +    IF (ALLOCATED(dcsr%ia)) &
 +       DEALLOCATE (dcsr%a,dcsr%ia,dcsr%ja)
 +    dcsr%noOfRows = 0
++    dcsr%noOfColumns = 0
 +    dcsr%nnz = 0
 +  END IF
 + END SUBROUTINE clear_dcsr
 +
-+
        SUBROUTINE clear_triplets(sparse,iflag)
  ! The overloaded assignment TYPE(dpTripletList) = 0 clears the contents
  ! of sparse, reclaims allocated storage and sets lastTriplet=0.   
-@@ -277,6 +313,8 @@
+@@ -91,7 +149,6 @@
+       USE sortElements, ONLY : qsort
+ ! This routine handles the overloaded assignment
+ ! TYPE(dpHBSparseMatrix)=TYPE(dpTripletList)
+-
+ ! It builds an MROWS by NCOLS sparse matrix using
+ ! the Harwell-Boeing format.  Triplets in the list
+ ! TYPES(dpTripletList) are accumulated (summed) if there are
+@@ -100,16 +157,13 @@
+         TYPE (dpHBSparseMatrix), INTENT (INOUT) :: dhbc
+         TYPE (dpTripletList), INTENT (IN), TARGET :: sparse
+         TYPE(sparseData) :: spData
+-
+ ! Local working variables:
+         INTEGER :: i, ioerr, j, last, ncols, mrows
+         INTEGER :: ii, mc, nz
+         LOGICAL :: accumulate
+-
+         INTEGER, ALLOCATABLE, TARGET :: ind(:), itemp(:)
+         INTEGER, ALLOCATABLE :: ip(:)
+         REAL (dkind), ALLOCATABLE :: column(:), values(:)
+-
+         last = sparse%lastTriplet
+ ! Take care of the empty case, LAST == 0.
+ ! This case implies that the sparse matrix is 0.
+@@ -141,13 +195,10 @@
+         spData%right = last
+         spData%colPtr => sparse%columns(1:last)
+         spData%indexPtr => ind(1:last)
+-
+         CALL qsort(spData)
+-
+ ! The matrix dimensions are determined by the largest
+ ! values of row and columns indices that appear in
+ ! the right-hand side or input list.
+-
+ ! Rearrange the row subscripts and the values.       
+         values = sparse%values(ind)
+         itemp = sparse%rows(ind)
+@@ -169,7 +220,6 @@
+ ! Count the number of elements in each column.       
+           ip(sparse%columns(ind(j))+1) = ip(sparse%columns(ind(j))+1) + 1
+         END DO
+-
+ ! Process the data in each column of the matrix.
+ ! Within each column sort the row indices.  If there
+ ! are repeats then expand the sums into a full column
+@@ -195,7 +245,6 @@
+           itemp(ii+1:ii+mc) = itemp(ii+ind(1:mc))
+ ! Move the corresponding values for those rows.          
+           values(ii+1:ii+mc) = values(ii+ind(1:mc))
+-
+           accumulate = .FALSE.
+ ! See if there are any repeats of row indices.  If there are
+ ! then add the associated values and replace the repeated 
+@@ -206,7 +255,6 @@
+             accumulate = (itemp(ii+i)==itemp(ii+i+1))
+             IF (accumulate) EXIT SCAN
+           END DO SCAN
+-
+ ! If there are repeats then get working space for 
+ ! expand/sum/contract buffer.  Then accumulate.
+           IF (accumulate) THEN
+@@ -217,13 +265,11 @@
+                 RETURN
+               END IF
+             END IF
+-
+ ! Clear out the expanded column and accumulate repeated values.
+             IF (mrows>0) column = zero
+             DO i = 1, mc
+               column(itemp(ii+i)) = column(itemp(ii+i)) + values(ii+i)
+             END DO
+-
+ ! Compress the column and move its final values.  This step
+ ! changes the value of MC (number of entries) for this column.
+             mc = 0
+@@ -243,7 +289,6 @@
+               nz = nz + mc
+             END IF
+           END IF 
+-
+ ! This is the new number of non-zero values in this column.
+           ii = ii + ip(j+1)
+           ip(j+1) = mc
+@@ -255,7 +300,6 @@
+           ip(j) = ip(j) + 1
+         END DO
+         ip(ncols+1) = ip(ncols+1) + 1
+-
+ ! Move the local allocated arrays into place so they 
+ ! become the components of the derived type.  Because of 
+ ! accumulation the sizes of components for row indices and
+@@ -270,13 +314,14 @@
+         IF (accumulate) THEN
+           DEALLOCATE(column)
+         END IF
+-
+       END SUBROUTINE dhbc_eq_list_of_triplets
+ 
+       SUBROUTINE list_of_triplets(sparse,triplets)
  ! Accumulate a list of triplets.  If space runs out, new
  ! arrays are allocated that (attempt to) hold all the data. 
  ! Non-positive subscripts are ignored.  
@@ -90,14 +231,21 @@
          IMPLICIT NONE
          TYPE (dpTripletList), INTENT (INOUT) :: sparse
          TYPE (dpTriplet), INTENT (IN) :: triplets(:)
-@@ -393,4 +431,108 @@
+@@ -377,7 +422,6 @@
+           WRITE(*,*) 'Allocation failure in assignment triplets(:)=dhbc_sparse.'
+           RETURN
+         END IF
+-
+         l = 0
+         icount = 0
+         DO j = 1, n
+@@ -393,4 +437,182 @@
  
        END SUBROUTINE list_of_triplets_eq_dhbc
  
-+
 +SUBROUTINE list_of_triplets_eq_triplets(triplets,sparse)
 +! This routine handles the overloaded assignment
-+! TYPE(dpTriplets)(:) = TYPE(dptripletList; opposite of SUBROUTINE list_of_triplets(sparse,triplets)
++! TYPE(dpTriplet)(:) = TYPE(dptripletList; opposite of SUBROUTINE list_of_triplets(sparse,triplets)
 + IMPLICIT NONE
 + TYPE (dpTriplet), INTENT (INOUT) :: triplets(:)
 + TYPE (dpTripletList), INTENT (IN) :: sparse
@@ -108,38 +256,56 @@
 + end do
 +END SUBROUTINE list_of_triplets_eq_triplets
 +
-+
-+SUBROUTINE list_of_triplets_eq_dcsr(triplets,dcsr)
++SUBROUTINE list_of_triplets_eq_dcsr(trip,dcsr)
 +USE sparsekit, ONLY: csrcoo
++use sparseUtils
 +! This routine handles the overloaded assignment
 +! TYPE(dpTriplet)(:) = TYPE(dpCSRSparseMatrix)
-+! by providing a modern interface to sparsekit.f90 CSRCOO
-+
++! by providing a modern interface/replacement to sparsekit.f90 CSRCOO
 +! It assigns an array of triplets using the contents
 +! of a Compressed Sparse Row format sparse matrix.  Zero values
 +! are not returned.
 +  IMPLICIT NONE
-+  TYPE (dpTriplet), INTENT (INOUT), ALLOCATABLE :: triplets(:)
++  TYPE (dpTriplet), INTENT (OUT), ALLOCATABLE :: trip(:)
 +  TYPE (dpCSRSparseMatrix), INTENT (IN) :: dcsr
-+  INTEGER :: nrow, nzmax, ierr, istat, job
++  INTEGER :: nrow, nnz, ierr, k, k1, k2, i
 +! Get matrix size.
-+  nrow = dcsr%noOfRows
++  nrow = dcsr%noOfRows ; ierr = 0
 +! Allocate just enough space to hold the entries
 +! of the Compressed Sparse Row format sparse matrix.
-+  nzmax = max(0,dcsr%nnz)
-+  ALLOCATE(triplets(nzmax), STAT=istat)
-+  IF(istat /= 0) THEN
++  ALLOCATE(trip(dcsr%nnz), STAT=ierr)
++  IF(ierr /= 0) THEN
 +    WRITE(*,*) 'Allocation failure in assignment triplets(:)=dcsr_sparse.'
 +    RETURN
 +  END IF
-+! different options for conversion
-+  job=3
-+  call csrcoo( nrow, job, nzmax, dcsr%a, dcsr%ja, dcsr%ia, dcsr%nnz, triplets%value, triplets%rowIndex, triplets%columnIndex, ierr )
-+  IF(ierr /= 0) THEN
-+    WRITE(*,*) 'Conversion failure in assignment triplets(:)=dcsr_sparse.'
-+    RETURN
-+  END IF
-+
++! uses sparsekit.f90 but makes array temps
++!  call csrcoo( nrow, 3, dcsr%a, dcsr%ja, dcsr%ia, dcsr%nnz, triplets%value, triplets%rowIndex, triplets%columnIndex, ierr )
++! copied from csrcoo
++  nnz = dcsr%nnz
++  if ( (nrow+1) .gt. size(dcsr%ia)) then
++   write(*,*) 'FATAL Error on input list_of_triplets_eq_dcsr/csrcoo: unexpected size',(nrow+1),size(dcsr%ia)
++   stop
++  endif
++  if ((dcsr%ia(nrow+1)-1) .ne. nnz) then
++   write(*,*) 'FATAL Error on input list_of_triplets_eq_dcsr/csrcoo: unexpected nnz',dcsr%ia(nrow+1)-1,nnz
++   stop
++  endif
++  trip(1:nnz)%value = dcsr%a(1:nnz)
++  trip(1:nnz)%columnIndex = dcsr%ja(1:nnz)
++!  Copy backward.
++  do i = nrow, 1, -1
++   k1 = dcsr%ia(i+1) - 1
++   k2 = dcsr%ia(i)
++   do k = k1, k2, -1
++    trip(k)%rowIndex = i
++   end do
++ end do
++ do i=1, dcsr%nnz
++  if (trip(i)%rowIndex .lt. 1 .or. trip(i)%rowIndex .gt. dcsr%nnz) then
++   write(*,*) 'FATAL Error on output list_of_triplets_eq_dcsr/csrcoo: bad rowIndex'
++   stop
++  endif
++ end do
 +END SUBROUTINE list_of_triplets_eq_dcsr
 +
 +
@@ -147,8 +313,7 @@
 +USE sparsekit, ONLY: coocsr
 +! This routine handles the overloaded assignment
 +! TYPE(dpCSRSparseMatrix)=TYPE(dpTripletList)
-+! by providing a modern interface to sparsekit.f90 COOCSR
-+
++! by providing an interface to sparsekit.f90 COOCSR
 +! It builds a Compressed Sparse Row matrix from a list of triplets.
 +  IMPLICIT NONE
 +  TYPE (dpCSRSparseMatrix), INTENT (INOUT) :: dcsr
@@ -156,7 +321,6 @@
 +  INTEGER :: istat, ioerr, i
 +  INTEGER, ALLOCATABLE :: ir(:)
 +  INTEGER, ALLOCATABLE, TARGET :: ind(:),itemp(:)
-+
 +! need to find nrow first for list of triplets
 +  dcsr%nnz = sparse%lastTriplet
 +! Take care of the empty case, LAST == 0.
@@ -179,23 +343,82 @@
 +   dcsr%errFlag = ioerr
 +   RETURN
 +  END IF
-+
 +! The max row index => dcsr%noOfRows.
 +  ind(1:dcsr%nnz) = [(i, i=1,dcsr%nnz)]
 +  itemp = sparse%rows(ind)
 +  dcsr%noOfRows = max(0,maxval(itemp))
-+
++! The max column index => dcsr%noOfColumns.
++  itemp = sparse%columns(ind)
++  dcsr%noOfColumns = max(0,maxval(itemp))
 +  ! Allocate just enough space to hold the entries of the CSR matrix
-+  ALLOCATE (ir(dcsr%nnz),dcsr%ia(dcsr%noOfRows+1),dcsr%a(dcsr%nnz), dcsr%ja(dcsr%nnz),STAT=istat)
++  ALLOCATE (ir(dcsr%nnz),dcsr%ia(dcsr%nnz),dcsr%a(dcsr%nnz), dcsr%ja(dcsr%nnz),STAT=istat)
 +  IF(istat /= 0) THEN
 +    WRITE(*,*) 'Allocation failure in assignment dcsr_sparse(:)=triplets.'
 +    RETURN
 +  END IF
 +! coocsr destroys ir, make working copy of triplets%rows
-+  ir=sparse%rows
-+  call coocsr( dcsr%noOfRows, dcsr%nnz, sparse%values, ir, sparse%columns, dcsr%a, dcsr%ja, dcsr%ia )
++  ir(1:dcsr%nnz)=sparse%rows(1:dcsr%nnz)
++  call coocsr( dcsr%noOfRows, dcsr%nnz, sparse%values(1:dcsr%nnz), ir(1:dcsr%nnz),&
++               &sparse%columns(1:dcsr%nnz), dcsr%a, dcsr%ja, dcsr%ia )
 +  DEALLOCATE(ind,itemp,ir)
 +
 +END SUBROUTINE dcsr_eq_list_of_triplets
++
++SUBROUTINE dhbc_eq_dcsr(dhbc,dcsr)
++! This routine handles the overloaded assignment
++! TYPE(dpHBSparseMatrix) = TYPE(dpCSRSparseMatrix)
++! using the above overloaded assignments
++  IMPLICIT NONE
++  TYPE (dpHBSparseMatrix), INTENT (INOUT) :: dhbc
++  TYPE (dpCSRSparseMatrix), INTENT (IN) :: dcsr
++  TYPE (dpTriplet), ALLOCATABLE :: triplets(:)
++  TYPE (dpTripletList) :: s
++  triplets = dcsr
++  s = triplets
++  dhbc = s
++END SUBROUTINE dhbc_eq_dcsr
++
++SUBROUTINE matrix_eq_dcsr(matrix,dcsr)
++USE sparsekit, ONLY: csrdns
++! This routine handles the overloaded assignment
++! REAL(:,:)=TYPE(dpCSRSparseMatrix)
++! by providing an interface to sparsekit.f90 CSRDNS (modified)
++  IMPLICIT NONE
++  REAL (dkind), INTENT(INOUT), ALLOCATABLE :: matrix(:,:)
++  TYPE (dpCSRSparseMatrix), INTENT (IN) :: dcsr
++  INTEGER :: ierr
++  ALLOCATE (matrix(dcsr%noOfRows,dcsr%noOfColumns))
++  call csrdns ( dcsr%noOfRows, dcsr%noOfColumns, dcsr%a, dcsr%ja, dcsr%ia, matrix, ierr )
++  IF (ierr/=0) THEN
++   write(*,*) 'Error in csrdns'
++   RETURN
++  ENDIF
++END SUBROUTINE matrix_eq_dcsr
++
++SUBROUTINE dcsr_eq_matrix(dcsr,matrix)
++USE sparsekit, ONLY: dnscsr
++! This routine handles the overloaded assignment
++! TYPE(dpCSRSparseMatrix)=REAL(:,:)
++! by providing an interface to sparsekit.f90 CSRDNS (modified)
++  IMPLICIT NONE
++  TYPE (dpCSRSparseMatrix), INTENT (INOUT) :: dcsr
++  REAL (dkind), INTENT(IN) :: matrix(:,:)
++  INTEGER :: i, j
++  dcsr%nnz = 0
++  do i=1,size(matrix,1)
++   do j=1,size(matrix,2)
++    if (abs(matrix(j,i)) > 0) dcsr%nnz=dcsr%nnz+1
++   end do
++  end do
++  ALLOCATE(dcsr%a(1:dcsr%nnz), dcsr%ja(1:dcsr%nnz), dcsr%ia(1:dcsr%nnz))
++  dcsr%noOfRows=size(matrix,1)
++  dcsr%noOfColumns=size(matrix,2)
++  call dnscsr ( size(matrix,1), size(matrix,2), dcsr%nnz, matrix, size(matrix,1),&
++       &dcsr%a(1:dcsr%nnz), dcsr%ja(1:dcsr%nnz), dcsr%ia(1:dcsr%nnz), dcsr%errFlag )
++  IF (dcsr%errFlag /= 0) THEN
++   write(*,*) 'Error in dnscsr'
++   RETURN
++  ENDIF
++END SUBROUTINE dcsr_eq_matrix
 +
      END MODULE sparseAssign
