@@ -238,7 +238,7 @@ GLwidget::GLwidget ( QWidget *parent ) : QOpenGLWidget(parent)
             fmt.setAlphaBufferSize(8);
             setFormat(fmt);
         }
-//  setFocusPolicy(Qt::StrongFocus);
+  setFocusPolicy(Qt::StrongFocus);
   timerID = startTimer(100);
 }
 
@@ -1245,8 +1245,23 @@ void GLwidget::keyPressEvent(QKeyEvent *e)
 void GLwidget::wheelEvent(QWheelEvent *e)
 {
     QPoint numPixels = e->pixelDelta();
+    QPoint numDegrees = e->angleDelta();
+    if (!numPixels.isNull()) {
+        makeCurrent();
+        if (numPixels.y() > 0) {
+            mViewMatrix.scale(QVector3D(1.0,1.0,1.0)/1.1);
+            mUnscaledViewMatrix.scale(QVector3D(1.0,1.0,1.0)/1.1);
+            update();
+        }
+        else {
+            mViewMatrix.scale(1.1*QVector3D(1.0,1.0,1.0));
+            mUnscaledViewMatrix.scale(1.1*QVector3D(1.0,1.0,1.0));
+            update();
+        }
+    }
+    else if (!numDegrees.isNull()) {
     makeCurrent();
-         if (numPixels.y() > 0) {
+        if (numDegrees.y() > 0) {
          mViewMatrix.scale(QVector3D(1.0,1.0,1.0)/1.1);
          mUnscaledViewMatrix.scale(QVector3D(1.0,1.0,1.0)/1.1);
          update();
@@ -1256,8 +1271,10 @@ void GLwidget::wheelEvent(QWheelEvent *e)
          mUnscaledViewMatrix.scale(1.1*QVector3D(1.0,1.0,1.0));
          update();
          }
+    }
     e->accept();
 }
+
 
 void GLwidget::mousePressEvent(QMouseEvent *e)
 {
