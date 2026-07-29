@@ -36,7 +36,7 @@ static QString documentationDirectory()
     paths.append(QCoreApplication::applicationDirPath());
     paths.append(QStandardPaths::standardLocations(QStandardPaths::AppDataLocation));
     for (const auto &dir : std::as_const(paths)) {
-        const QString path = dir + "/documentation";
+        const QString path = dir + "/documentation/";
         LogC(("Qt Assistant path: " + path.toStdString()).c_str());
         if (QFileInfo::exists(path))
             return path;
@@ -70,7 +70,8 @@ bool Assistant::startAssistant()
     }
 
     if (m_process->state() != QProcess::Running) {
-        QString app = QLibraryInfo::path(QLibraryInfo::BinariesPath);
+ //       QString app = QLibraryInfo::path(QLibraryInfo::BinariesPath);
+        QString app = "."; ;
 #ifndef Q_OS_DARWIN
         app += "/assistant"_L1;
 #else

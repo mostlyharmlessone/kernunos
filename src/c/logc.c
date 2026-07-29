@@ -23,7 +23,8 @@ void LogC(const char *Message) { FILE *file;
 #endif
     if ( path == NULL )
     {
-        perror("getenv() error"); return ;
+        path = ".";
+        fprintf(stdout,"getenv() failed to get user path, attempting to write to local directory\n");
     }
     size_t lenp = strlen(path);
     size_t len = strlen(LOGFILE);
