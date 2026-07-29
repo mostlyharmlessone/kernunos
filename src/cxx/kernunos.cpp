@@ -279,6 +279,18 @@ int DialogOptionsWidget::value() const
     return result;
 }
 
+static QString homeDirectory()
+{
+    QStringList paths;
+    paths.append(QStandardPaths::standardLocations(QStandardPaths::HomeLocation));
+    for (const auto &dir : std::as_const(paths)) {
+        const QString path = dir;
+//        LogC(("path to Desktop: " + path.toStdString()).c_str());
+        if (QFileInfo::exists(path))
+            return path;
+    }
+    return {};
+}
 
 MainWindow::MainWindow(QMainWindow *parent) : assistant(new Assistant)
 
@@ -3251,11 +3263,14 @@ int main(int argc, char *argv[])
 //  logs a comment to kernunos.log
     LogC("open a log file");
 //  logs the stdout
+    const QString path = homeDirectory();
+    std::string pathstring = path.toStdString();
     FILE *fpstd;
-    fpstd = freopen( "logstdout.log", "w", stdout );
+    LogC(("path for log: " +pathstring + "/logstdout.log").c_str());
+    fpstd = freopen( (pathstring + "/logstdout.log").c_str(), "w", stdout );
 //  logs the stderr
     FILE *fperr;
-    fperr = freopen( "logstderr.log", "w", stderr );
+    fperr = freopen( (pathstring + "/logstderr.log").c_str(), "w", stderr );
 
     window.resize(window.sizeHint());
     int desktopArea = QGuiApplication::primaryScreen()->size().width() *

@@ -27,19 +27,6 @@ Assistant::~Assistant()
     }
 }
 
-void Assistant::showDocumentation(const QString &page)
-{
-    if (!startAssistant())
-        return;
-
-    QByteArray ba("SetSource ");
-    ba.append("qthelp:../../documentation/");   //this corresponds to qhp/qhcp files
-    m_process->write(ba + page.toLocal8Bit() + '\n');
-    LogC(("Qt Assistant: " + (ba + page.toLocal8Bit() + '\n').toStdString()).c_str());
-    if (!startAssistant())
-        return;
-}
-
 static QString documentationDirectory()
 {
     QStringList paths;
@@ -49,17 +36,28 @@ static QString documentationDirectory()
     paths.append(QCoreApplication::applicationDirPath());
     paths.append(QStandardPaths::standardLocations(QStandardPaths::AppDataLocation));
     for (const auto &dir : std::as_const(paths)) {
-        const QString path = "../../documentation/";
- //       const QString path = dir + "../../documentation/";
- //       const QString path = dir +"/documentation"_L1;
-        const QString path2 = dir;
-        LogC(("Qt Assistant path to documentation: " + path.toStdString()).c_str());
-        LogC(("Qt Assistant local path: " + path2.toStdString()).c_str());
+        const QString path = dir + "/documentation/";
+        LogC(("Qt Assistant path: " + path.toStdString()).c_str());
         if (QFileInfo::exists(path))
             return path;
     }
     return {};
 }
+
+void Assistant::showDocumentation(const QString &page)
+{
+    if (!startAssistant())
+        return;
+    const QString collectionDirectory = documentationDirectory();
+    QByteArray ba("SetSource ");
+    ba.append("qthelp:" + collectionDirectory.toStdString());
+    m_process->write(ba + page.toLocal8Bit() + '\n');
+    LogC(("Qt Assistant: " + (ba + page.toLocal8Bit() + '\n').toStdString()).c_str());
+    if (!startAssistant())
+        return;
+}
+
+
 
 bool Assistant::startAssistant()
 {
@@ -72,7 +70,11 @@ bool Assistant::startAssistant()
     }
 
     if (m_process->state() != QProcess::Running) {
-        QString app = QLibraryInfo::path(QLibraryInfo::BinariesPath);
+#ifdef _WIN32
+      QString app = ".";
+#else
+      QString app = QLibraryInfo::path(QLibraryInfo::BinariesPath);
+#endif
 #ifndef Q_OS_DARWIN
         app += "/assistant"_L1;
 #else
