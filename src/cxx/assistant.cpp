@@ -70,8 +70,11 @@ bool Assistant::startAssistant()
     }
 
     if (m_process->state() != QProcess::Running) {
- //       QString app = QLibraryInfo::path(QLibraryInfo::BinariesPath);
-        QString app = "."; ;
+#ifdef _WIN32
+      QString app = ".";
+#else
+      QString app = QLibraryInfo::path(QLibraryInfo::BinariesPath);
+#endif
 #ifndef Q_OS_DARWIN
         app += "/assistant"_L1;
 #else
