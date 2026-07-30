@@ -88,8 +88,8 @@
 using namespace QtConcurrent;
 
 // global settings
-const unsigned int SCR_WIDTH = 1800;
-const unsigned int SCR_HEIGHT = 800;
+const unsigned int SCR_WIDTH = 1200;
+const unsigned int SCR_HEIGHT = 400;
 
 // flag xxxxxxxx dat,fct,map,action used to communicate between cpp and fortran code calculation options
 // first two digits are Placido disk data fillin and/or center-node tweaks
@@ -322,14 +322,14 @@ MainWindow::MainWindow(QMainWindow *parent) : assistant(new Assistant)
    ui.zSlider->setTickPosition(QSlider::TicksRight);
    ui.horizontalSlider->setRange(0,100);
    ui.horizontalSlider->setValue(100);
-   connect(ui.horizontalSlider, &QSlider::valueChanged, ui.openGLWidget_2, &GLwidget::settransparency);
-   connect(ui.openGLWidget_2, &GLwidget::transparencyChanged, ui.horizontalSlider, &QSlider::setValue);
-   connect(ui.xSlider, &QSlider::valueChanged, ui.openGLWidget_2, &GLwidget::setXRotation);
-   connect(ui.openGLWidget_2, &GLwidget::xRotationChanged, ui.xSlider, &QSlider::setValue);
-   connect(ui.ySlider, &QSlider::valueChanged, ui.openGLWidget_2, &GLwidget::setYRotation);
-   connect(ui.openGLWidget_2, &GLwidget::yRotationChanged, ui.ySlider, &QSlider::setValue);
-   connect(ui.zSlider, &QSlider::valueChanged, ui.openGLWidget_2, &GLwidget::setZRotation);
-   connect(ui.openGLWidget_2, &GLwidget::zRotationChanged, ui.zSlider, &QSlider::setValue);
+   connect(ui.horizontalSlider, &QSlider::valueChanged, ui.openGLWidget, &GLwidget::settransparency);
+   connect(ui.openGLWidget, &GLwidget::transparencyChanged, ui.horizontalSlider, &QSlider::setValue);
+   connect(ui.xSlider, &QSlider::valueChanged, ui.openGLWidget, &GLwidget::setXRotation);
+   connect(ui.openGLWidget, &GLwidget::xRotationChanged, ui.xSlider, &QSlider::setValue);
+   connect(ui.ySlider, &QSlider::valueChanged, ui.openGLWidget, &GLwidget::setYRotation);
+   connect(ui.openGLWidget, &GLwidget::yRotationChanged, ui.ySlider, &QSlider::setValue);
+   connect(ui.zSlider, &QSlider::valueChanged, ui.openGLWidget, &GLwidget::setZRotation);
+   connect(ui.openGLWidget, &GLwidget::zRotationChanged, ui.zSlider, &QSlider::setValue);
    ui.xSlider->setValue(0 * 16);
    ui.ySlider->setValue(180 * 16);
    ui.zSlider->setValue(180 * 16);
@@ -363,17 +363,17 @@ MainWindow::MainWindow(QMainWindow *parent) : assistant(new Assistant)
    update();
 }
 
-//    example usage
-//    errorMessageDialog->showMessage(tr("we made an error"));
-//   addComments();
-
 void MainWindow::addComments()
 {
     bool ok;
+    QByteArray ba;
     QString text = QInputDialog::getMultiLineText(this, tr("Add Comments"),
-                                                  tr("Comments:"), "Add comments here", &ok);
+                                                  tr("Comments:"), "Add comments to log here", &ok);
     if (ok && !text.isEmpty())
         multiLineTextLabel->setText(text);
+        ba = text.toUtf8();
+        const char* commentText = ba.constData();
+        LogC(commentText);
 }
 
 void MainWindow::closeEvent(QCloseEvent *)
@@ -460,6 +460,7 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
 #endif
                if (ierr > 0) {
                   std::cout << "Error unzipping Keratograph data files" << std::endl;
+                  errorMessageDialog->showMessage(tr("Error unzipping Keratograph data files"));
                   return;
                };
            }
@@ -483,6 +484,7 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
 #endif
                if (ierr > 0) {
                    std::cout << "Error unzipping Keratograph data files" << std::endl;
+                   errorMessageDialog->showMessage(tr("Error unzipping Keratograph data files"));
                    return;
                };
            }
@@ -710,6 +712,7 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
 #endif
                    if (ierr > 0) {
                        std::cout << "Error unzipping Keratograph data files" << std::endl;
+                       errorMessageDialog->showMessage(tr("Error unzipping Keratograph data files"));
                        return;
                    };
                }
@@ -734,6 +737,7 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
 
                    if (ierr > 0) {
                        std::cout << "Error unzipping Keratograph data files" << std::endl;
+                       errorMessageDialog->showMessage(tr("Error unzipping Keratograph data files"));
                        return;
                    };
                }
@@ -1147,6 +1151,7 @@ void MainWindow::zerncompute()
     else exit (EXIT_FAILURE);
     if(system("cmd -v gnuplot > NUL 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
+        errorMessageDialog->showMessage(tr("gnuplot command is not available"));
         return;
     }
 #else
@@ -1154,6 +1159,7 @@ void MainWindow::zerncompute()
     else exit (EXIT_FAILURE);
     if(system("command -v gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
+        errorMessageDialog->showMessage(tr("gnuplot command is not available"));
         return;
     }
 #endif
@@ -1205,6 +1211,7 @@ void MainWindow::showzern()
     else exit (EXIT_FAILURE);
     if(system("cmd -v gnuplot > NUL 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
+        errorMessageDialog->showMessage(tr("gnuplot command is not available"));
         return;
     }
 #else
@@ -1212,6 +1219,7 @@ void MainWindow::showzern()
     else exit (EXIT_FAILURE);
     if(system("command -v gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
+        errorMessageDialog->showMessage(tr("gnuplot command is not available"));
         return;
     }
 #endif
@@ -1406,6 +1414,7 @@ void MainWindow::importexport(){
    }
    if (!(aiReturn_SUCCESS == 0)) {
        std::cout << "Error exporting" << filenameout << Exporter.GetErrorString() << "\n" ;
+       errorMessageDialog->showMessage(tr("Error exporting in Assimp, see error log"));
    }
 //   aiDetachAllLogStreams(); //causes a segfault after the second call
    update();
@@ -1615,6 +1624,7 @@ void MainWindow::gnuplotsplot() {
    else exit (EXIT_FAILURE);
    if(system("cmd -v gnuplot > NUL 2>&1") ){
        std::cout << "'gnuplot' command is not available.\n";
+       errorMessageDialog->showMessage(tr("gnuplot command is not available"));
        return;
    }
 #else
@@ -1622,6 +1632,7 @@ void MainWindow::gnuplotsplot() {
    else exit (EXIT_FAILURE);
    if(system("command -v gnuplot > /dev/null 2>&1") ){
        std::cout << "'gnuplot' command is not available.\n";
+       errorMessageDialog->showMessage(tr("gnuplot command is not available"));
        return;
    }
 #endif
@@ -1658,6 +1669,7 @@ void MainWindow::center() {
    else exit (EXIT_FAILURE);
    if(system("cmd -v gnuplot > NUL 2>&1") ){
        std::cout << "'gnuplot' command is not available.\n";
+       errorMessageDialog->showMessage(tr("gnuplot command is not available"));
        return;
    }
 #else
@@ -1665,6 +1677,7 @@ void MainWindow::center() {
    else exit (EXIT_FAILURE);
    if(system("command -v gnuplot > /dev/null 2>&1") ){
        std::cout << "'gnuplot' command is not available.\n";
+       errorMessageDialog->showMessage(tr("gnuplot command is not available"));
        return;
    }
 #endif
@@ -1739,6 +1752,7 @@ void MainWindow::rings() {
     else exit (EXIT_FAILURE);
     if(system("cmd -v gnuplot > NUL 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
+        errorMessageDialog->showMessage(tr("gnuplot command is not available"));
         return;
     }
 #else
@@ -1746,6 +1760,7 @@ void MainWindow::rings() {
     else exit (EXIT_FAILURE);
     if(system("command -v gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
+        errorMessageDialog->showMessage(tr("gnuplot command is not available"));
         return;
     }
 #endif
@@ -2642,7 +2657,16 @@ void MainWindow::pdfopen()
 
 void MainWindow::about()
 {
-   // https://www.modernescpp.com/index.php/asynchronous-callable-wrappers
+//  https://stackoverflow.com/questions/18975734/how-can-i-find-the-screen-desktop-size-in-qt-so-i-can-display-a-desktop-notific
+   QScreen *screen = QGuiApplication::primaryScreen();
+   QRect screenGeometry = screen->geometry();
+   int width = screenGeometry.width();
+   int height = screenGeometry.height();
+   std::string w = std::to_string(width);
+   char const *w_char = w.c_str();
+   std::string h = std::to_string(height);
+   char const *h_char = h.c_str();
+    // https://www.modernescpp.com/index.php/asynchronous-callable-wrappers
    static const unsigned int hwGuess= 4;
    unsigned int hw = std::thread::hardware_concurrency();
    unsigned int hw2 = QThread::idealThreadCount();
@@ -2655,24 +2679,31 @@ void MainWindow::about()
    }
    else {
 //       ui.infoLabel->setText(tr("CPU Cores found by Kernunos: ")+n_char);
-       QString cores = "CPU Cores found by Kernunos: ";
-       cores += n_char;
-       QByteArray ba = cores.toUtf8();
-       const char* coresText = ba.constData();
-       LogC(coresText);
+//       QString cores = "CPU Cores found by Kernunos: ";
+//       cores += n_char;
+//       QByteArray ba = cores.toUtf8();
+//       const char* coresText = ba.constData();
+//       LogC(coresText);
    }
    const char *glstring;
    QByteArray gl8 = glstring_global.toLocal8Bit();
    glstring = gl8.data();
-   QString sglVer = "Kernunos runs on Qt and OpenGL.\nSee acknowledgements\n";
+   QString sglVer = "Kernunos runs on Qt and OpenGL.\nSee README\n";
    sglVer += "\nCPU Cores found: ";
    sglVer += n_char;
    sglVer += glstring;
+   sglVer += "\nScreen Size: ";
+   sglVer += w_char;
+   sglVer += " x ";
+   sglVer += h_char;
    sglVer += "\nKernunos built with ";
    get_compiler_name_(compiler_name);
    QString compiler_string = tr(compiler_name);
    sglVer=sglVer+compiler_string;
    QMessageBox::about(this, tr("About Kernunos"),sglVer);
+   QByteArray qba = sglVer.toUtf8();
+   const char* aboutText = qba.constData();
+   LogC(aboutText);
 }
 
 void MainWindow::aboutQt()
@@ -2883,6 +2914,11 @@ void MainWindow::createActions()
    aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
    connect(aboutQtAct, &QAction::triggered, qApp, &QApplication::aboutQt);
    connect(aboutQtAct, &QAction::triggered, this, &MainWindow::aboutQt);
+
+   CommentAct = new QAction(tr("&Add comments to log"), this);
+   CommentAct->setStatusTip(tr("Add comments to log"));
+   CommentAct->setEnabled(true);
+   connect(CommentAct, &QAction::triggered, this, &MainWindow::addComments);
 
    HelpAct = new QAction(tr("Help Contents"), this);
    HelpAct->setStatusTip(tr("Shows some help"));
@@ -3119,6 +3155,7 @@ void MainWindow::createMenus()
    helpMenu = menuBar()->addMenu(tr("&About"));
    helpMenu->addAction(HelpAct);
    helpMenu->addAction(DocsAct);
+   helpMenu->addAction(CommentAct);
    helpMenu->addAction(aboutAct);
    helpMenu->addAction(aboutQtAct);
 }
@@ -3278,7 +3315,7 @@ int main(int argc, char *argv[])
     const QString path = homeDirectory();
     std::string pathstring = path.toStdString();
     FILE *fpstd;
-    LogC(("path for log: " +pathstring + "/logstdout.log").c_str());
+    LogC(("path for logs: " +pathstring).c_str());
     fpstd = freopen( (pathstring + "/logstdout.log").c_str(), "w", stdout );
 //  logs the stderr
     FILE *fperr;

@@ -323,6 +323,7 @@ private:
     QAction *aboutQtAct;
     QAction *DocsAct;
     QAction *HelpAct;
+    QAction *CommentAct;
 
     QAction *redrawAct;
 

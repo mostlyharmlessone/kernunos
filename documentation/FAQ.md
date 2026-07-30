@@ -198,9 +198,10 @@ The seventh option chooses how to compute the angular derivatives, and illustrat
 	  
 About: 
 
-       Help: (shows manual, including links to this document and others)
+       Help: (shows manual, including links to this document and others) F1
+	   Documentation (small pdf reader for relevant documentation) Shift-F1
+	   Add comments to log (allows the user to add to kernunos.log)
        About (provides some information about the hardware)
-	   Documentation (small pdf reader for relevant documentation)
 	   About Qt (about the graphical widgets used to make the GUI with C++)
 
 
