@@ -11,6 +11,7 @@
 #include <windows.h>
 #else
 #include <unistd.h>
+#include <string.h>
 #endif
 
 bool LogCreated = false;
@@ -28,11 +29,12 @@ void LogC(const char *Message) { FILE *file;
     }
     size_t lenp = strlen(path);
     size_t len = strlen(LOGFILE);
-    char pathandfile[len+lenp+2];
 #ifdef _WIN32
+    char pathandfile[len+lenp+2];
     snprintf(pathandfile, sizeof(pathandfile), "%s%s%s", path, "\\", LOGFILE);
 #else
-    snprintf(pathandfile, sizeof(pathandfile), "%s%s%s", path,"/",LOGFILE);
+    char pathandfile[len+lenp+8];
+    snprintf(pathandfile, sizeof(pathandfile), "%s%s%s%s", "/home/" ,path, "/", LOGFILE);
 #endif
     if (!LogCreated) { file = fopen(pathandfile, "w");
         LogCreated = true; }
