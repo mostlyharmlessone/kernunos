@@ -397,7 +397,7 @@ bool MainWindow::replace(std::string& str,const std::string& from,const std::str
 
 void MainWindow::open()   //multiple invocations needed to make a comparison
 {
-   ui.infoLabel->setText(tr("Invoked <b>File|Open</b>"));
+//   ui.infoLabel->setText(tr("Invoked <b>File|Open</b>"));
    flag=flag-(flag%100)+0;  // last two digits of flag=0; need to reset this
    QString filter = "Topography files (*.CUR *.ELE *_CUR.CSV *_ELE.CSV RA*.* XX*.* ED*.* *OD.CSV *OS.CSV *.OD *.OS *.zip *.sav) ;; Saved Files (*.sav) ;; PentaCam (*.CUR *.ELE *_CUR.CSV *_ELE.CSV);; Keratograph (*.OS *.OD *.zip);; EyeSys (XX*.*);;Nidek (ED*.*);;Atlas (*OD.CSV *OS.CSV);;EyeSys/Nidek (RA*.* ED*.* XX*.*);;All (*)";
    QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
@@ -1192,7 +1192,7 @@ void MainWindow::zerncompute()
     Z1neg1YtiltAct->setEnabled(true);
     Z00PistonAct->setEnabled(true);
     ShowZernAct->setEnabled(true);
-    ui.infoLabel->setText(tr("Invoked <b>zernike</b>"));
+//    ui.infoLabel->setText(tr("Invoked <b>zernike</b>"));
     return;
 }
 
@@ -1233,7 +1233,7 @@ void MainWindow::showzern()
     std::cout << "Press enter to exit." << std::endl;
     std::cin.get();
 #endif
-    ui.infoLabel->setText(tr("Invoked <b>Show Zernike</b>"));
+//    ui.infoLabel->setText(tr("Invoked <b>Show Zernike</b>"));
     return;
 }
 
@@ -1601,9 +1601,11 @@ void MainWindow::LinesofCurvature() {
 //    system(("cp " + str + " dump" ).c_str());
 #endif
    if (wrote == 0) {
-       ui.infoLabel->setText(tr("gnuplot called successfully for lioc  ")); }
+//       ui.infoLabel->setText(tr("gnuplot called successfully for lioc  "));
+   }
    else {
-       ui.infoLabel->setText(tr("gnuplot call failed!"));}
+//       ui.infoLabel->setText(tr("gnuplot call failed!"));
+   }
 }
 
 void MainWindow::gnuplotsplot() {
@@ -1645,7 +1647,7 @@ void MainWindow::gnuplotsplot() {
    std::cout << "Press enter to exit." << std::endl;
    std::cin.get();
 #endif
-   ui.infoLabel->setText(tr("gnuplot called successfully  "));
+//   ui.infoLabel->setText(tr("gnuplot called successfully  "));
    return;
 }
 
@@ -1726,7 +1728,7 @@ void MainWindow::center() {
    std::cout << "Press enter to exit." << std::endl;
    std::cin.get();
 #endif
-   ui.infoLabel->setText(tr("gnuplot called successfully  "));
+//   ui.infoLabel->setText(tr("gnuplot called successfully  "));
    return;
 }
 
@@ -1775,7 +1777,7 @@ void MainWindow::rings() {
     std::cout << "Press enter to exit." << std::endl;
     std::cin.get();
 #endif
-    ui.infoLabel->setText(tr("gnuplot called successfully  "));
+//    ui.infoLabel->setText(tr("gnuplot called successfully  "));
     return;
 }
 
@@ -1822,10 +1824,10 @@ void MainWindow::consistency()
 {
     if (GLwidget::isconsistency()) {
         GLwidget::setconsistency(false);
-        ui.infoLabel->setText(tr("Set <b>View:check consistency</b>"));
+ //       //         ui.infolabel->setText(tr("Set <b>View:check consistency</b>"));
     } else {
         GLwidget::setconsistency(true);
-        ui.infoLabel->setText(tr("Set <b>View:check consistency</b>"));
+ //       //         ui.infolabel->setText(tr("Set <b>View:check consistency</b>"));
     };
 }
 
@@ -1833,10 +1835,10 @@ void MainWindow::light()
 {
    if (GLwidget::isLight()) {
         GLwidget::setLight(false);
-        ui.infoLabel->setText(tr("Set <b>View:Lighting false</b>"));
+//        //         ui.infolabel->setText(tr("Set <b>View:Lighting false</b>"));
    } else {
         GLwidget::setLight(true);
-        ui.infoLabel->setText(tr("Set <b>View:Lighting true</b>"));
+//        //         ui.infolabel->setText(tr("Set <b>View:Lighting true</b>"));
    };
 }
 
@@ -1845,10 +1847,10 @@ void MainWindow::redrawOption()
 {
     if (GLwidget::isRedraw()) {
         GLwidget::setRedraw(false);
-        ui.infoLabel->setText(tr("Set <b>View:Auto Redraw false</b>"));
+//        //         ui.infolabel->setText(tr("Set <b>View:Auto Redraw false</b>"));
     } else {
         GLwidget::setRedraw(true);
-        ui.infoLabel->setText(tr("Set <b>View:Auto Redraw true</b>"));
+//        //         ui.infolabel->setText(tr("Set <b>View:Auto Redraw true</b>"));
     };
 }
 
@@ -1856,11 +1858,11 @@ void MainWindow::normal()
 {
    if (GLwidget::isNormal()) {
         GLwidget::setNormal(false);
-        ui.infoLabel->setText(tr("Set <b>View:Normal false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Normal false</b>"));
         normalAct->setChecked(GLwidget::isNormal());
    } else {
         GLwidget::setNormal(true);
-        ui.infoLabel->setText(tr("Set <b>View:Normal true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Normal true</b>"));
         normalAct->setChecked(GLwidget::isNormal());
    };
 }
@@ -1869,10 +1871,10 @@ void MainWindow::pupil()
 {
     if (GLwidget::isPupil()) {
         GLwidget::setPupil(false);
-        ui.infoLabel->setText(tr("Set <b>View:Pupil false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Pupil false</b>"));
     } else {
         GLwidget::setPupil(true);
-        ui.infoLabel->setText(tr("Set <b>View:Pupil true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Pupil true</b>"));
     };
 }
 
@@ -1880,10 +1882,10 @@ void MainWindow::axes()
 {
     if (GLwidget::isAxes()) {
         GLwidget::setAxes(false);
-        ui.infoLabel->setText(tr("Set <b>View:Axes false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Axes false</b>"));
     } else {
         GLwidget::setAxes(true);
-        ui.infoLabel->setText(tr("Set <b>View:Axes true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Axes true</b>"));
     };
 }
 
@@ -1891,10 +1893,10 @@ void MainWindow::angles()
 {
     if (GLwidget::isAngles()) {
         GLwidget::setAngles(false);
-        ui.infoLabel->setText(tr("Set <b>View:Angles false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Angles false</b>"));
     } else {
         GLwidget::setAngles(true);
-        ui.infoLabel->setText(tr("Set <b>View:Angles true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Angles true</b>"));
     };
 }
 
@@ -1902,10 +1904,10 @@ void MainWindow::power()
 {
     if (GLwidget::isPower()) {
         GLwidget::setPower(false);
-        ui.infoLabel->setText(tr("Set <b>View:Power false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Power false</b>"));
     } else {
         GLwidget::setPower(true);
-        ui.infoLabel->setText(tr("Set <b>View:Power true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Power true</b>"));
     };
 }
 
@@ -1914,12 +1916,12 @@ void MainWindow::fctAxial()
    if (GLwidget::isAxial()) {
         GLwidget::setAxial(true);  //cannot turn off without turning something else on
         AxialAct->setChecked(GLwidget::isAxial());
-        ui.infoLabel->setText(tr("Set <b>View:Axial is default, set another to deselect</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Axial is default, set another to deselect</b>"));
    } else {
         GLwidget::setAllfctfalse();
         GLwidget::setAxial(true);
         checkfctsflags();
-        ui.infoLabel->setText(tr("Set <b>View:Axial true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Axial true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -1932,12 +1934,12 @@ void MainWindow::fctOblique()
         GLwidget::setOblique(false);
         GLwidget::setAxial(true);
         AxialAct->setChecked(GLwidget::isAxial());
-        ui.infoLabel->setText(tr("Set <b>View:Oblique false, reset to Axial</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Oblique false, reset to Axial</b>"));
     } else {
         GLwidget::setAllfctfalse();
         GLwidget::setOblique(true);
         checkfctsflags();
-        ui.infoLabel->setText(tr("Set <b>View:Oblique true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Oblique true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -1951,12 +1953,12 @@ void MainWindow::fctTangential()
         GLwidget::setTangential(false);
         GLwidget::setAxial(true);
         AxialAct->setChecked(GLwidget::isAxial());
-        ui.infoLabel->setText(tr("Set <b>View:Tangential false, reset to Axial</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Tangential false, reset to Axial</b>"));
    } else {
         GLwidget::setAllfctfalse();
         GLwidget::setTangential(true);
         checkfctsflags();
-        ui.infoLabel->setText(tr("Set <b>View:Tangential true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Tangential true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -1969,12 +1971,12 @@ void MainWindow::fctGaussian()
         GLwidget::setGaussian(false);
         GLwidget::setAxial(true);
         AxialAct->setChecked(GLwidget::isAxial());
-        ui.infoLabel->setText(tr("Set <b>View:Gaussian false, reset to Axial</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Gaussian false, reset to Axial</b>"));
    } else {
         GLwidget::setAllfctfalse();
         GLwidget::setGaussian(true);
         checkfctsflags();
-        ui.infoLabel->setText(tr("Set <b>View:Gaussian true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Gaussian true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -1987,12 +1989,12 @@ void MainWindow::fctMean()
         GLwidget::setMean(false);
         GLwidget::setAxial(true);
         AxialAct->setChecked(GLwidget::isAxial());
-        ui.infoLabel->setText(tr("Set <b>View:Mean false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Mean false</b>"));
    } else {
         GLwidget::setAllfctfalse();
         GLwidget::setMean(true);
         checkfctsflags();
-        ui.infoLabel->setText(tr("Set <b>View:Mean true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Mean true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -2005,12 +2007,12 @@ void MainWindow::fctMongeAstig()
         GLwidget::setAstig(false);
         GLwidget::setAxial(true);
         AxialAct->setChecked(GLwidget::isAxial());
-        ui.infoLabel->setText(tr("Set <b>View:Monge Astigmatism false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Monge Astigmatism false</b>"));
    } else {
         GLwidget::setAllfctfalse();
         GLwidget::setAstig(true);
         checkfctsflags();
-        ui.infoLabel->setText(tr("Set <b>View:Monge Astigmatism true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Monge Astigmatism true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -2023,12 +2025,12 @@ void MainWindow::fctElevation()
         GLwidget::setElevation(false);
         GLwidget::setAxial(true);
         AxialAct->setChecked(GLwidget::isAxial());
-        ui.infoLabel->setText(tr("Set <b>View:Elevation false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Elevation false</b>"));
    } else {
         GLwidget::setAllfctfalse();
         GLwidget::setElevation(true);
         checkfctsflags();
-        ui.infoLabel->setText(tr("Set <b>View:Elevation true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Elevation true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -2041,12 +2043,12 @@ void MainWindow::fctZ44()
         GLwidget::setZ44(false);
         GLwidget::setAxial(true);
         AxialAct->setChecked(GLwidget::isAxial());
-        ui.infoLabel->setText(tr("Set <b>View:Vertical Quatrafoil false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Vertical Quatrafoil false</b>"));
    } else {
         GLwidget::setAllfctfalse();
         GLwidget::setZ44(true);
         checkfctsflags();
-        ui.infoLabel->setText(tr("Set <b>View:Vertical Quatrafoil true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Vertical Quatrafoil true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -2059,12 +2061,12 @@ void MainWindow::fctZ42()
         GLwidget::setZ42(false);
         GLwidget::setAxial(true);
         AxialAct->setChecked(GLwidget::isAxial());
-        ui.infoLabel->setText(tr("Set <b>View:Vertical 2nd Astig false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Vertical 2nd Astig false</b>"));
    } else {
         GLwidget::setAllfctfalse();;
         GLwidget::setZ42(true);
         checkfctsflags();
-        ui.infoLabel->setText(tr("Set <b>View:Vertical 2nd Astig true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Vertical 2nd Astig true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -2077,12 +2079,12 @@ void MainWindow::fctZ40()
         GLwidget::setZ40(false);
         GLwidget::setAxial(true);
         AxialAct->setChecked(GLwidget::isAxial());
-        ui.infoLabel->setText(tr("Set <b>View:Spherical Aberration false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Spherical Aberration false</b>"));
    } else {
         GLwidget::setAllfctfalse();
         GLwidget::setZ40(true);
         checkfctsflags();
-        ui.infoLabel->setText(tr("Set <b>View:Spherical Aberration true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Spherical Aberration true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -2095,12 +2097,12 @@ void MainWindow::fctZ4neg4()
         GLwidget::setZ4neg4(false);
         GLwidget::setAxial(true);
         AxialAct->setChecked(GLwidget::isAxial());
-        ui.infoLabel->setText(tr("Set <b>View:Oblique Quatrafoil false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Oblique Quatrafoil false</b>"));
    } else {
         GLwidget::setAllfctfalse();
         GLwidget::setZ4neg4(true);
         checkfctsflags();
-        ui.infoLabel->setText(tr("Set <b>View:Oblique Quatrafoil true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Oblique Quatrafoil true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -2113,12 +2115,12 @@ void MainWindow::fctZ4neg2()
         GLwidget::setZ4neg2(false);
         GLwidget::setAxial(true);
         AxialAct->setChecked(GLwidget::isAxial());
-        ui.infoLabel->setText(tr("Set <b>View:Oblique 2nd Astig false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Oblique 2nd Astig false</b>"));
    } else {
         GLwidget::setAllfctfalse();
         GLwidget::setZ4neg2(true);
         checkfctsflags();
-        ui.infoLabel->setText(tr("Set <b>View:Oblique 2nd Astig true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Oblique 2nd Astig true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -2131,12 +2133,12 @@ void MainWindow::fctZ33()
         GLwidget::setZ33(false);
         GLwidget::setAxial(true);
         AxialAct->setChecked(GLwidget::isAxial());
-        ui.infoLabel->setText(tr("Set <b>View:Oblique Trefoil false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Oblique Trefoil false</b>"));
    } else {
         GLwidget::setAllfctfalse();
         GLwidget::setZ33(true);
         checkfctsflags();
-        ui.infoLabel->setText(tr("Set <b>View:Oblique Trefoil true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Oblique Trefoil true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -2149,12 +2151,12 @@ void MainWindow::fctZ31()
         GLwidget::setZ31(false);
         GLwidget::setAxial(true);
         AxialAct->setChecked(GLwidget::isAxial());
-        ui.infoLabel->setText(tr("Set <b>View:Horizontal Coma false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Horizontal Coma false</b>"));
    } else {
         GLwidget::setAllfctfalse();
         GLwidget::setZ31(true);
         checkfctsflags();
-        ui.infoLabel->setText(tr("Set <b>View:Horizontal Coma true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Horizontal Coma true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -2167,12 +2169,12 @@ void MainWindow::fctZ3neg1()
         GLwidget::setZ3neg1(false);
         GLwidget::setAxial(true);
         AxialAct->setChecked(GLwidget::isAxial());
-        ui.infoLabel->setText(tr("Set <b>View:Vertical Coma false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Vertical Coma false</b>"));
    } else {
         GLwidget::setAllfctfalse();
         GLwidget::setZ3neg1(true);
         checkfctsflags();
-        ui.infoLabel->setText(tr("Set <b>View:Vertical Coma true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Vertical Coma true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -2185,12 +2187,12 @@ void MainWindow::fctZ3neg3()
         GLwidget::setZ3neg3(false);
         GLwidget::setAxial(true);
         AxialAct->setChecked(GLwidget::isAxial());
-        ui.infoLabel->setText(tr("Set <b>View:Vertical Trefoil false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Vertical Trefoil false</b>"));
    } else {
         GLwidget::setAllfctfalse();
         GLwidget::setZ3neg3(true);
         checkfctsflags();
-        ui.infoLabel->setText(tr("Set <b>View:Vertical Trefoil true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Vertical Trefoil true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -2203,12 +2205,12 @@ void MainWindow::fctZ22()
         GLwidget::setZ22(false);
         GLwidget::setAxial(true);
         AxialAct->setChecked(GLwidget::isAxial());
-        ui.infoLabel->setText(tr("Set <b>View:Vertical Astig false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Vertical Astig false</b>"));
    } else {
         GLwidget::setAllfctfalse();
         GLwidget::setZ22(true);
         checkfctsflags();
-        ui.infoLabel->setText(tr("Set <b>View:Vertical Astig true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Vertical Astig true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -2221,12 +2223,12 @@ void MainWindow::fctZ20()
         GLwidget::setZ20(false);
         GLwidget::setAxial(true);
         AxialAct->setChecked(GLwidget::isAxial());
-        ui.infoLabel->setText(tr("Set <b>View:Defocus false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Defocus false</b>"));
    } else {
         GLwidget::setAllfctfalse();
         GLwidget::setZ20(true);
         checkfctsflags();
-        ui.infoLabel->setText(tr("Set <b>View:Defocus true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Defocus true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -2239,12 +2241,12 @@ void MainWindow::fctZ2neg2()
         GLwidget::setZ2neg2(false);
         GLwidget::setAxial(true);
         AxialAct->setChecked(GLwidget::isAxial());
-        ui.infoLabel->setText(tr("Set <b>View:Oblique Astig false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Oblique Astig false</b>"));
    } else {
         GLwidget::setAllfctfalse();
         GLwidget::setZ2neg2(true);
         checkfctsflags();
-        ui.infoLabel->setText(tr("Set <b>View:Oblique Astig true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Oblique Astig true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -2257,12 +2259,12 @@ void MainWindow::fctZ11()
         GLwidget::setZ11(false);
         GLwidget::setAxial(true);
         AxialAct->setChecked(GLwidget::isAxial());
-        ui.infoLabel->setText(tr("Set <b>View:X-tilt false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:X-tilt false</b>"));
    } else {
         GLwidget::setAllfctfalse();
         GLwidget::setZ11(true);
         checkfctsflags();
-        ui.infoLabel->setText(tr("Set <b>View:X-tilt true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:X-tilt true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -2275,12 +2277,12 @@ void MainWindow::fctZ1neg1()
         GLwidget::setZ1neg1(false);
         GLwidget::setAxial(true);
         AxialAct->setChecked(GLwidget::isAxial());
-        ui.infoLabel->setText(tr("Set <b>View:Y-tilt false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Y-tilt false</b>"));
    } else {
         GLwidget::setAllfctfalse();
         GLwidget::setZ1neg1(true);
         checkfctsflags();
-        ui.infoLabel->setText(tr("Set <b>View:Y-tilt true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Y-tilt true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -2293,12 +2295,12 @@ void MainWindow::fctZ00()
         GLwidget::setPiston(false);
         GLwidget::setAxial(true);
         AxialAct->setChecked(GLwidget::isAxial());
-        ui.infoLabel->setText(tr("Set <b>View:Piston false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Piston false</b>"));
    } else {
         GLwidget::setAllfctfalse();
         GLwidget::setPiston(true);
         checkfctsflags();
-        ui.infoLabel->setText(tr("Set <b>View:Piston true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Piston true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -2310,11 +2312,11 @@ void MainWindow::tweakcenterNode()
    if (GLwidget::isCenterNode()) {
         GLwidget::setCenterNode(false);
         centerAct->setChecked(GLwidget::isCenterNode());
-        ui.infoLabel->setText(tr("Set <b>Tweak:Center Node false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>Tweak:Center Node false</b>"));
    } else {
         GLwidget::setCenterNode(true);
         centerAct->setChecked(GLwidget::isCenterNode());
-        ui.infoLabel->setText(tr("Set <b>Tweak:Center Node true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>Tweak:Center Node true</b>"));
    };
    if (GLwidget::isRedraw()) {
        redraw();
@@ -2326,11 +2328,11 @@ void MainWindow::tweakadjustradii()
    if (GLwidget::isadjustradii()) {
         GLwidget::setadjustradii(false);
         adjustradiiAct->setChecked(GLwidget::isadjustradii());
-        ui.infoLabel->setText(tr("Set <b>Tweak:Adjust radii false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>Tweak:Adjust radii false</b>"));
    } else {
         GLwidget::setadjustradii(true);
         adjustradiiAct->setChecked(GLwidget::isadjustradii());
-        ui.infoLabel->setText(tr("Set <b>Tweak:Adjust radii true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>Tweak:Adjust radii true</b>"));
    };
    if (GLwidget::isRedraw()) {
        redraw();
@@ -2342,11 +2344,11 @@ void MainWindow::tweakcubic()
    if (GLwidget::iscubic()) {
         GLwidget::setcubic(false);
         cubicAct->setChecked(GLwidget::iscubic());
-        ui.infoLabel->setText(tr("Set <b>Tweak:Default Trapezoidal Integration</b>"));
+        //         ui.infolabel->setText(tr("Set <b>Tweak:Default Trapezoidal Integration</b>"));
    } else {
         GLwidget::setcubic(true);
         cubicAct->setChecked(GLwidget::iscubic());
-        ui.infoLabel->setText(tr("Set <b>Tweak:Cubic Spline Integration</b>"));
+        //         ui.infolabel->setText(tr("Set <b>Tweak:Cubic Spline Integration</b>"));
    };
    if (GLwidget::isRedraw()) {
        redraw();
@@ -2359,13 +2361,13 @@ void MainWindow::tweakLSQfill()
         GLwidget::setLSQfillin(false);
         LSQfillinAct->setChecked(GLwidget::isLSQfillin());
         SplinefillinAct->setChecked(GLwidget::isSplinefillin());
-        ui.infoLabel->setText(tr("Set <b>Tweak:LSQ fillin false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>Tweak:LSQ fillin false</b>"));
    } else {
         GLwidget::setSplinefillin(false);
         GLwidget::setLSQfillin(true);
         LSQfillinAct->setChecked(GLwidget::isLSQfillin());
         SplinefillinAct->setChecked(GLwidget::isSplinefillin());
-        ui.infoLabel->setText(tr("Set <b>Tweak:LSQ fillin true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>Tweak:LSQ fillin true</b>"));
    };
    if (GLwidget::isRedraw()) {
        redraw();
@@ -2378,13 +2380,13 @@ void MainWindow::tweakSplinefill()
         GLwidget::setSplinefillin(false);
         LSQfillinAct->setChecked(GLwidget::isLSQfillin());
         SplinefillinAct->setChecked(GLwidget::isSplinefillin());
-        ui.infoLabel->setText(tr("Set <b>Tweak:Spline fillin false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>Tweak:Spline fillin false</b>"));
    } else {
         GLwidget::setSplinefillin(true);
         GLwidget::setLSQfillin(false);
         LSQfillinAct->setChecked(GLwidget::isLSQfillin());
         SplinefillinAct->setChecked(GLwidget::isSplinefillin());
-        ui.infoLabel->setText(tr("Set <b>Tweak:Spline fillin true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>Tweak:Spline fillin true</b>"));
    };
    if (GLwidget::isRedraw()) {
        redraw();
@@ -2453,12 +2455,12 @@ void MainWindow::colorrgb2()
         GLwidget::setrgb2(false);
         GLwidget::setUSSfixed(true);
         USSfixedAct->setChecked(GLwidget::isUSSfixed());
-        ui.infoLabel->setText(tr("Set <b>View:rgb2 false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:rgb2 false</b>"));
    } else {
         GLwidget::setAllmapsfalse();
         GLwidget::setrgb2(true);
         checkmapsflags();
-        ui.infoLabel->setText(tr("Set <b>View:View:rgb2 true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:View:rgb2 true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -2471,12 +2473,12 @@ void MainWindow::colorrgb5()
         GLwidget::setrgb5(false);
         GLwidget::setUSSfixed(true);
         USSfixedAct->setChecked(GLwidget::isUSSfixed());
-        ui.infoLabel->setText(tr("Set <b>View:rgb5 false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:rgb5 false</b>"));
    } else {
         GLwidget::setAllmapsfalse();
         GLwidget::setrgb5(true);
         checkmapsflags();
-        ui.infoLabel->setText(tr("Set <b>View:View:rgb5 true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:View:rgb5 true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -2489,12 +2491,12 @@ void MainWindow::colorhsbrgb()
         GLwidget::sethsbrgb(false);
         GLwidget::setUSSfixed(true);
         USSfixedAct->setChecked(GLwidget::isUSSfixed());
-        ui.infoLabel->setText(tr("Set <b>View:Hue Sat Brightness Map false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Hue Sat Brightness Map false</b>"));
    } else {
         GLwidget::setAllmapsfalse();
         GLwidget::sethsbrgb(true);
         checkmapsflags();
-        ui.infoLabel->setText(tr("Set <b>View:View:Hue Sat Brightness Map true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:View:Hue Sat Brightness Map true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -2507,12 +2509,12 @@ void MainWindow::colorgplotpalette()
         GLwidget::setgplotpalette(false);
         GLwidget::setUSSfixed(true);
         USSfixedAct->setChecked(GLwidget::isUSSfixed());
-        ui.infoLabel->setText(tr("Set <b>View:gplot palette false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:gplot palette false</b>"));
    } else {
         GLwidget::setAllmapsfalse();
         GLwidget::setgplotpalette(true);
         checkmapsflags();
-        ui.infoLabel->setText(tr("Set <b>View:View:gplot palette true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:View:gplot palette true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -2524,12 +2526,12 @@ void MainWindow::colorUSSpalettefixed()
    if (GLwidget::isUSSfixed()) {
         GLwidget::setUSSfixed(true);    //cannot turn off without turning something else on
         USSfixedAct->setChecked(GLwidget::isUSSfixed());
-        ui.infoLabel->setText(tr("Set <b>View:USS Palette fixed range is default, deselect by setting another</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:USS Palette fixed range is default, deselect by setting another</b>"));
    } else {
         GLwidget::setAllmapsfalse();
         GLwidget::setUSSfixed(true);
         checkmapsflags();
-        ui.infoLabel->setText(tr("Set <b>View:View:USS Palette fixed range true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:View:USS Palette fixed range true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -2542,12 +2544,12 @@ void MainWindow::colorUSSpaletteNIDEK()
         GLwidget::setUSSNIDEK(false);    //cannot turn off without turning something else on
         GLwidget::setUSSfixed(true);
         USSfixedAct->setChecked(GLwidget::isUSSNIDEK());
-        ui.infoLabel->setText(tr("Set <b>View:USS Palette fixed range is default, deselect by setting another</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:USS Palette fixed range is default, deselect by setting another</b>"));
     } else {
         GLwidget::setAllmapsfalse();
         GLwidget::setUSSNIDEK(true);
         checkmapsflags();
-        ui.infoLabel->setText(tr("Set <b>View:View:USS Palette fixed range true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:View:USS Palette fixed range true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -2560,12 +2562,12 @@ void MainWindow::colorUSSpalette()
         GLwidget::setUSSpalette(false);
         GLwidget::setUSSfixed(true);
         USSfixedAct->setChecked(GLwidget::isUSSfixed());
-        ui.infoLabel->setText(tr("Set <b>View:USS Palette false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:USS Palette false</b>"));
    } else {
         GLwidget::setAllmapsfalse();
         GLwidget::setUSSpalette(true);
         checkmapsflags();
-        ui.infoLabel->setText(tr("Set <b>View:View:USS Palette true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:View:USS Palette true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -2578,12 +2580,12 @@ void MainWindow::colorPerceptualUniformfixed()
         GLwidget::setperceptualuniformfixed(false);
         GLwidget::setUSSfixed(true);
         USSfixedAct->setChecked(GLwidget::isUSSfixed());
-        ui.infoLabel->setText(tr("Set <b>View:Perceptually Uniform Palette fixed range false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Perceptually Uniform Palette fixed range false</b>"));
    } else {
         GLwidget::setAllmapsfalse();
         GLwidget::setperceptualuniformfixed(true);
         checkmapsflags();
-        ui.infoLabel->setText(tr("Set <b>View:View:Perceptually Uniform Palette fixed range true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:View:Perceptually Uniform Palette fixed range true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -2596,12 +2598,12 @@ void MainWindow::colorPerceptualUniformpalette()
         GLwidget::setperceptualuniformpalette(false);
         GLwidget::setUSSfixed(true);
         USSfixedAct->setChecked(GLwidget::isUSSfixed());
-        ui.infoLabel->setText(tr("Set <b>View:Perceptually Uniform Palette false</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:Perceptually Uniform Palette false</b>"));
    } else {
         GLwidget::setAllmapsfalse();
         GLwidget::setperceptualuniformpalette(true);
         checkmapsflags();
-        ui.infoLabel->setText(tr("Set <b>View:View:Perceptually Uniform Palette true</b>"));
+        //         ui.infolabel->setText(tr("Set <b>View:View:Perceptually Uniform Palette true</b>"));
         if (GLwidget::isRedraw()) {
             redraw();
         };
@@ -2610,7 +2612,7 @@ void MainWindow::colorPerceptualUniformpalette()
 
 void MainWindow::pdfopen()
 {
-    ui.infoLabel->setText(tr("Invoked <b>About|Documentation</b>"));
+ //   ui.infoLabel->setText(tr("Invoked <b>About|Documentation</b>"));
     QString filter = "PDF files (*.PDF *.pdf);;All (*)";
     const QString path = "../../documentation";
     QString filePath = QFileDialog::getOpenFileName(this,"Read Documentation", path, filter);
@@ -2647,8 +2649,18 @@ void MainWindow::about()
    unsigned int hwConcurr= (hw != 0)? hw : hwGuess;
    std::string t = std::to_string(hwConcurr);
    char const *n_char = t.c_str();
-   if (hw != hw2) {ui.infoLabel->setText(tr("CPU Cores found by Kernunos seems inconsistent"));}
-   else {ui.infoLabel->setText(tr("CPU Cores found by Kernunos: ")+n_char);}
+   if (hw != hw2) {
+//       ui.infoLabel->setText(tr("CPU Cores found by Kernunos seems inconsistent"));
+       std::cout << "CPU Cores found by Kernunos seems inconsistent" << std::endl;
+   }
+   else {
+//       ui.infoLabel->setText(tr("CPU Cores found by Kernunos: ")+n_char);
+       QString cores = "CPU Cores found by Kernunos: ";
+       cores += n_char;
+       QByteArray ba = cores.toUtf8();
+       const char* coresText = ba.constData();
+       LogC(coresText);
+   }
    const char *glstring;
    QByteArray gl8 = glstring_global.toLocal8Bit();
    glstring = gl8.data();
@@ -2665,7 +2677,7 @@ void MainWindow::about()
 
 void MainWindow::aboutQt()
 {
-   ui.infoLabel->setText(tr("Invoked <b>Help|About Qt</b>"));
+//   ui.infoLabel->setText(tr("Invoked <b>Help|About Qt</b>"));
 }
 
 void MainWindow::showDocumentation()
