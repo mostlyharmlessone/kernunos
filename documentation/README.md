@@ -1,88 +1,88 @@
 # Kernunos
 
-*"The purpose of computing is insight, not numbers"*
+*"The purpose of computing is insight, not numbers"*<br>
 
-Kernunos is a program for analyzing/viewing corneal topography data from different topographers, a technology which became increasingly common in ophthalmology in the 1990's.  Many data files are in an undocumented, non-ASCII/Unicode state, a trend which has unfortunately increased with newer technology. The term "enshittification" has been coined recently, which describes the larger phenomenon.  Unfortunately as well, the standard for interoperability of "data" exchange (ie. DICOM https://www.dicomstandard.org/) is image based. Unless the raw data actually is an image, DICOM is rather like sending text by fax machine (as opposed to sending an ASCII or word processing file, and yes, a fax is still the common format for exchanging data between medical offices in the USA), or publishing "data" as a picture in a scientific journal, rather than supplying the points used to make the graph. The scientific process is supposed to involve enabling reproducibility of findings by accurately presenting data and methods, a quaint 19th century notion apparently sadly out of touch with corporate intellectual property. It is recognized that the "data" provided by the manufacturers below, when supplied at all, has already been processed from the raw image data through a series of unknown proprietary algorithms with an arbitrary amount of precision being presented. As such we are not much better off than being presented with a graph in a journal, laying some graph paper over it and manually digitizing it.  
+Kernunos is a program for analyzing/viewing corneal topography data from different topographers, a technology which became increasingly common in ophthalmology in the 1990's.  Many data files are in an undocumented, non-ASCII/Unicode state, a trend which has unfortunately increased with newer technology. The term "enshittification" has been coined recently, which describes the larger phenomenon.  Unfortunately as well, the standard for interoperability of "data" exchange (ie. DICOM https://www.dicomstandard.org/) is image based. Unless the raw data actually is an image, DICOM is rather like sending text by fax machine (as opposed to sending an ASCII or word processing file). A fax is still the common format for exchanging data between medical offices in the USA. A similar phenomenon entails publishing "data" as a picture in a scientific journal, rather than supplying the points used to make the graph.  It is recognized that the "data" provided by the manufacturers below, when supplied at all, has already been processed from the raw image data through a series of unknown proprietary algorithms with an arbitrary amount of precision being presented. As such we are not much better off than being presented with a graph in a journal, laying some graph paper over it and manually digitizing it.<br>
 
-As has been noted by numerous authors in the field, it is hard to directly compare topography from different machines [Interchangeability_between_Placido_disc_and_Scheim.pdf](file:./docs/Interchangeability_between_Placido_disc_and_Scheim.pdf), making clinical studies as well as patient care more difficult.  The goal of this project is to provide a tool for doing so, (improving intraoperability) particularly to re-analyze older machines output with modern notions despite the limitations of the information we have. There are many older or discontinued models which are still in clinical use despite their technology being at this writing 30-40 years old. It is unfortunate that in only a generation later we are having to turn to software archeology. https://en.wikipedia.org/wiki/Software_archaeology 
+As has been noted by numerous authors in the field, it is hard to directly compare topography from different machines [Interchangeability_between_Placido_disc_and_Scheim.pdf](file:./docs/Interchangeability_between_Placido_disc_and_Scheim.pdf), making clinical studies as well as patient care more difficult.  The goal of this project is to provide a tool for doing so, (improving intraoperability) particularly to re-analyze older machines output with modern notions despite the limitations of the information we have. There are many older or discontinued models which are still in clinical use despite their technology being at this writing 30-40 years old. It is unfortunate that in only a generation later we are having to turn to software archeology. https://en.wikipedia.org/wiki/Software_archaeology <br>
 
 Each machine typically has and had its own internal analysis software as well as its own unique data storage.  There are newer machines which are also tomographic machines, in that they measure the thickness of the cornea, as well as machines that measure aberrometry of the whole eye. It would be lovely if the whole industry agreed on using an open data format, allowing for independent analysis, or if there were a method for importing the photographic data from one machine to another, along with the geometric data of the image cone.  Newer machines, particularly OCT machines as used in posterior segment (retina and optic nerve) images are now being seen for corneal scanning increasingly as well: e.g. Heidelberg's Anterion, or the latest Oculus Pentacam. In general, there is no publicly available description of the exact data rendered and how it is converted to the pictures we see, making it difficult to even know what to look for in the binary data files, assuming they have not been further intentionally obfuscated. https://en.wikipedia.org/wiki/Obfuscation_(software)
 
 
 ## Color scales and legends
 
-"*Des goûts et des couleurs on ne discute pas... Mais nous ne faisons que cela.*"
+"*Des goûts et des couleurs on ne discute pas... Mais nous ne faisons que cela.*"<br>
 
-A great amount of time was spent in the 1990's debating color scales.   There were numerous presentations regarding how to portray the data, which colors to use, whether red should be on top or bottom of the scale, etc., but little about the quality or nature of the data being presented.  
+A great amount of time was spent in the 1990's debating color scales.   There were numerous presentations regarding how to portray the data, which colors to use, whether red should be on top or bottom of the scale, etc., but little about the quality or nature of the data being presented.  <br>
 
-In general, we can hopefully agree on some terminology: There are absolute color scales, with colors matched to specific values, and relative scales, where a palette is spread over the range of values found in any particular data set. An absolute color scale has a fixed range and constant palette. One perceived advantage to an absolute scale for clinicians is easy identification of values inside normal or outside normal, with a characteristic color pattern for several common diseases without the need for actually looking at the values of the curvatures, or knowing anything about them.  One objective disadvantage to an absolute scale is that small differences in curvatures are lumped into common colors and become invisible.  Relative/non-fixed scales show differences in any particular surface quite well, but interpretation is dependent on reading the values on the legend and comparing them with accepted normals known by the clinician.  Strange as it may seem, there are differences in clinical acceptance and scientific knowledge.
+In general, we can hopefully agree on some terminology: There are absolute color scales, with colors matched to specific values, and relative scales, where a palette is spread over the range of values found in any particular data set. An absolute color scale has a fixed range and constant palette. One perceived advantage to an absolute scale for clinicians is easy identification of values inside normal or outside normal, with a characteristic color pattern for several common diseases without the need for actually looking at the values of the curvatures, or knowing anything about them.  One objective disadvantage to an absolute scale is that small differences in curvatures are lumped into common colors and become invisible.  Relative/non-fixed scales show differences in any particular surface quite well, but interpretation is dependent on reading the values on the legend and comparing them with accepted normals known by the clinician.  Strange as it may seem, there are differences in clinical acceptance and scientific knowledge.<br>
 
-There is an ANSI standard absolute color scale Z80.23 (which is not freely available nor does it specify an exact color palette), as well as eponymous scales from different manufacturers and authors with industry ties. 
+There is an ANSI standard absolute color scale Z80.23 (which is not freely available nor does it specify an exact color palette), as well as eponymous scales from different manufacturers and authors with industry ties. <br>
 
-A Universal Standard Scale was proposed in 2002, which is a modified ANSI scale with a freely available definition.  It is an absolute scale, sometimes referred to as the Smolek-Klyce scale after its creators. There are variations of the scale. The range of the scale was explicity designed for "Corneal Power", a slope based definition also called "Axial or Sagittal Curvature"and was adopted by at least one manufacturer, and designed to be useful for diagnosing clinical disease. See [Curvature_notes.pdf](file:Curvature_notes.pdf)
+A Universal Standard Scale was proposed in 2002, which is a modified ANSI scale with a freely available definition.  It is an absolute scale, sometimes referred to as the Smolek-Klyce scale after its creators. There are variations of the scale. The range of the scale was explicity designed for "Corneal Power", a slope based definition also called "Axial or Sagittal Curvature"and was adopted by at least one manufacturer, and designed to be useful for diagnosing clinical disease. See [Curvature_notes.pdf](file:Curvature_notes.pdf)<br>
 
-In addition, there are non-"rainbow" perceptually uniform color scales which take color vision deficiencies into account, none of which (oddly enough) seem to be in use by ophthalmological manufacturers (or are not documented as such) and are not specific to the cornea. There are two points to consider: (1) It is unknown to me whether normal color vision is still a requirement for admission into ophthalmology programs in the US, though it is certainly not usually a requirement for researchers AFAIK.  The market does not seem to have made allowances for this group. (2) When faxing records, pictures are rendered black and white: any chance of transmitting a useful image is greatly decreased with the use of a "rainbow" scale.
+In addition, there are non-"rainbow" perceptually uniform color scales which take color vision deficiencies into account, none of which (oddly enough) seem to be in use by ophthalmological manufacturers (or are not documented as such) and are not specific to the cornea. There are two points to consider: (1) It is unknown to me whether normal color vision is still a requirement for admission into ophthalmology programs in the US, though it is certainly not usually a requirement for researchers AFAIK.  The market does not seem to have made allowances for this group. (2) When faxing records, pictures are rendered black and white: any chance of transmitting a useful image is greatly decreased with the use of a "rainbow" scale.<br>
 
-To that end, the program allows the user to select a number of different color scales in order to form their own opinion about which serves them best for that particular data set and function being displayed. 
+To that end, the program allows the user to select a number of different color scales in order to form their own opinion about which serves them best for that particular data set and function being displayed.<br> 
 
 
 ## Pupils
 
- "*...a tale Told by an idiot, full of sound and fury, Signifying nothing.*"
+ "*...a tale Told by an idiot, full of sound and fury, Signifying nothing.*"<br>
 
 Most of these corneal topography machines also capture data about the size and location of the subject's pupil.  The clinical importance of the pupil position and size relative to the cornea has been the subject of much heated, sometimes scholarly, discussion and at least one notorious lawsuit in which the leading expert later recanted their testimony after the verdict (which of course did not alter the verdict, nor allow for appeal, AFAIK). Strange as it may seem, there are even greater differences between legal findings than between clinical acceptance and scientific knowledge. This program allows display of the pupil data in conjunction with the corneal data.
 
 ## Curvatures, Functions and Zernike
 
-"*You keep using that word. I do not think it means what you think it means." (‘The Princess Bride’ - 1987*) 
+"*You keep using that word. I do not think it means what you think it means." (‘The Princess Bride’ - 1987*) <br>
 
-Optical qualities of the cornea historically were the driver of the interest in curvature, using classic optical theory of lenses.   Unfortunately, what clinicians and mathematicians mean by curvature is not always the same. See also [Curvature_notes.pdf](file:Curvature_notes.pdf)
+Optical qualities of the cornea historically were the driver of the interest in curvature, using classic optical theory of lenses.   Unfortunately, what clinicians and mathematicians mean by curvature is not always the same. See also [Curvature_notes.pdf](file:Curvature_notes.pdf)<br>
 
-By convention, curvatures are converted from units of length to their inverse in corneal diopters by a constant, the keratometric index, usually agreed to be 337.50 mm/D in the United States, though 332.0 is more common in Europe, with different devices possibly using 331.5, 333, 336, 338 or 376, with an extensive literature supporting different suggestions. Considering the measurement errors because of axis misalignments, among other things, particularly in the case of Placido measurements where the assumption that reflected rays remain in their meridional planes directly contradicts axial asymmetry, it seems as though a lesson about significant digits might well have been reviewed.
+By convention, curvatures are converted from units of length to their inverse in corneal diopters by a constant, the keratometric index, usually agreed to be 337.50 mm/D in the United States, though 332.0 is more common in Europe, with different devices possibly using 331.5, 333, 336, 338 or 376, with an extensive literature supporting different suggestions. Considering the measurement errors because of axis misalignments, among other things, particularly in the case of Placido measurements where the assumption that reflected rays remain in their meridional planes directly contradicts axial asymmetry, it seems as though a lesson about significant digits might well have been reviewed.<br>
 
-In addition, more recently, interest in finer optical distinctions have driven clinicians and the manufacturers of topographers to incorporate measures of optical aberrations. Surfaces can be represented as functions on a cartesian grid z(x,y) can be represented by the approximations with the familiar Fourier series in Cartesian coordinates, or Bessel functions in polar coordinates.  There are many uses for breaking down the surface shape to (basically) its frequency space as represented by the coefficients which weigh the relative amount of each basis function.  In optics, Zernike functions have historically been popular because they are expressed in polar coordinates, like Bessel functions, but are better known in the microscopy and optics literature. The coefficients of the Zernike functions have some clinical correlates to gross optical properties, such as astigmatism, as well as wavefront optical aberrations, whereas the Bessel functions are better suited to accurately describe the geometry of a surface.  Clinicians typically look at the corneal data with several different representations depending on the situation.  For example, so-called "tangential" curvatures are felt to be better than "axial" curvatures at detecting and distinguishing prior ablation and type of ablation after myopic or hyperopic LASIK or PRK. The Zernike coefficient corresponding to optical coma is felt to be the most symptomatic so-called higher order aberration.  Modern manufacturers of clinical equipment have provided computations of Zernike coefficients (and in one case Fourier) for a given corneal surface. Typically these are based on wavefront aberrometry of the whole eye, not just the anterior corneal surface, but documentation of exactly what is computed and how is lacking. 
+In addition, more recently, interest in finer optical distinctions have driven clinicians and the manufacturers of topographers to incorporate measures of optical aberrations. Surfaces can be represented as functions on a cartesian grid z(x,y) can be represented by the approximations with the familiar Fourier series in Cartesian coordinates, or Bessel functions in polar coordinates.  There are many uses for breaking down the surface shape to (basically) its frequency space as represented by the coefficients which weigh the relative amount of each basis function.  In optics, Zernike functions have historically been popular because they are expressed in polar coordinates, like Bessel functions, but are better known in the microscopy and optics literature. The coefficients of the Zernike functions have some clinical correlates to gross optical properties, such as astigmatism, as well as wavefront optical aberrations, whereas the Bessel functions are better suited to accurately describe the geometry of a surface.  Clinicians typically look at the corneal data with several different representations depending on the situation.  For example, so-called "tangential" curvatures are felt to be better than "axial" curvatures at detecting and distinguishing prior ablation and type of ablation after myopic or hyperopic LASIK or PRK. The Zernike coefficient corresponding to optical coma is felt to be the most symptomatic so-called higher order aberration.  Modern manufacturers of clinical equipment have provided computations of Zernike coefficients (and in one case Fourier) for a given corneal surface. Typically these are based on wavefront aberrometry of the whole eye, not just the anterior corneal surface, but documentation of exactly what is computed and how is lacking. <br>
 
 It is also an increasingly common practice for manufacturers to provide several undocumented proprietary "indices" or numbers that are meant to provide a relatively simple clinical answer regarding important pathological features of the cornea or optics of the whole eye, again highlighting the difference between clinicians and ... everyone else.  No doubt soon, a diagnosis will emanate from the latest notorious oracular blackbox, an LLM.  If that is what you want, I am surprised you managed to read this far.
 
 ## Hardware
 
-"*The magnitude of this error is as yet undetermined, although it is thought to be small.*" 
+"*The magnitude of this error is as yet undetermined, although it is thought to be small.*" <br>
 
-The first, and older, class of machines are Placido disk machines, which take a photo of a reflection of rings on the surface and compute the shape based on the distortion of the image, subject to a number of assumptions, one important being an essentially 2-D simplification that along each radial mire reflected rays stay in their plane (which is not the case for non-axisymmetric or decentered axisymmetric shapes).  Machines do not actually use a flat Placido disk, but rather a cone with concentric rings to maximize the coverage area of the cornea by aiming for evenly spaced images of rings on a test sphere. 
+The first, and older, class of machines are Placido disk machines, which take a photo of a reflection of rings on the surface and compute the shape based on the distortion of the image, subject to a number of assumptions, one important being an essentially 2-D simplification that along each radial mire reflected rays stay in their plane (which is not the case for non-axisymmetric or decentered axisymmetric shapes).  Machines do not actually use a flat Placido disk, but rather a cone with concentric rings to maximize the coverage area of the cornea by aiming for evenly spaced images of rings on a test sphere. <br>
 
  [./images/Placido_cone.jpeg](file:./images/Placido_cone.jpeg)
 
 Of course it was also well recognized that any reconstruction of a 3-D reflecting surface (the cornea) by a 2-D image (particularly an image of concentric circles) is a underdetermined problem; i.e.. there is insufficent information and a number of mathematical assumptions have to made regarding the size and distance of the reflecting object. The mathematical approaches to curve reconstruction in a meridian, such as they were revealed, reflect the limitations of computation in the 1980's, and make quite a lot of simplfying assumptions in order to make the computations possible for the technology at that time.  There are also purely hardware issues regarding spacing of rings, image capture, resolution and digitization of the images. Even with optimal arrangements of rings and the givens of anatomy the surface imaged is generally limited to 60% of the total surface. It was nonetheless claimed at the time that the CMS system mentioned below was capable of 30 micron positional accuracy on the corneal surface. (Subject to the "undetermined but thought to be small" error mentioned above undercutting the entire method!) Note also that it has been calculated that a 16 micron local difference in elevation can equal 1 diopter of corneal power - a staggeringly large number by current clinical standards.  A modern machine claims a "resolution of +/- 0.01D, 1 micron
-accuracy / precision axial radius +/- 0.03mm altimetric data, +/- 2µm at 4mm".  I should also point out that manufacturer's sales teams have used the words precision and accuracy (and possibly resolution) interchangeably.   
+accuracy / precision axial radius +/- 0.03mm altimetric data, +/- 2µm at 4mm".  I should also point out that manufacturer's sales teams have used the words precision and accuracy (and possibly resolution) interchangeably.   <br>
 
-From an engineering point of view, no meaningful error analysis was ever provided by the manufacturers of this class of equipment.  Access to the raw data (in the open software/hardware sense) was never, as far as I can tell, on the table, making an independent analysis impossible.  In the best case scenario for topographers, that would mean having an image file of the corneal rings taken by the camera (the raw data), measuring the physical Placido cone in the lab (more raw data that we would have to collect), and then writing our own algorithm to determine the implied shape of the cornea by the relationship between the image and the object.  That might be easiest with some calibrated reflective target spheres (sometimes provided by the manufacturer for calibration).
+From an engineering point of view, no meaningful error analysis was ever provided by the manufacturers of this class of equipment.  Access to the raw data (in the open software/hardware sense) was never, as far as I can tell, on the table, making an independent analysis impossible.  In the best case scenario for topographers, that would mean having an image file of the corneal rings taken by the camera (the raw data), measuring the physical Placido cone in the lab (more raw data that we would have to collect), and then writing our own algorithm to determine the implied shape of the cornea by the relationship between the image and the object.  That might be easiest with some calibrated reflective target spheres (sometimes provided by the manufacturer for calibration).<br>
 
-Dry ocular surfaces or unstable tear films can produce broken or irregular mires which can generate completely spurious geometry, so much so that some contemporary sales pitches for  these machines are now focussed on dry eye detection rather than topography.
+Dry ocular surfaces or unstable tear films can produce broken or irregular mires which can generate completely spurious geometry, so much so that some contemporary sales pitches for  these machines are now focussed on dry eye detection rather than topography.<br>
 
-The other and newer class of machine uses scanning technology to measure elevation either with a scanning laser (including OCT) or Scheimpflug photography, which presumably each have their own error of measurements. There is not as much information published about the details of the technology from an engineering point of view, making an independent estimation of those errors hard to know. Organizations providing tear downs of electronics and equipment such as IFixit, IPRG and EDN have not apparently worked on any topographer.  Caveat emptor! 
+The other and newer class of machine uses scanning technology to measure elevation either with a scanning laser (including OCT) or Scheimpflug photography, which presumably each have their own error of measurements. There is not as much information published about the details of the technology from an engineering point of view, making an independent estimation of those errors hard to know. Organizations providing tear downs of electronics and equipment such as IFixit, IPRG and EDN have not apparently worked on any topographer.  Caveat emptor! <br>
 
 ###On data storage and reading files
 
-"*Do not attribute conditions to villainy that simply result from stupidity.*”
+"*Do not attribute conditions to villainy that simply result from stupidity.*”<br>
 
-It is rare for data to be written to files as IEEE-754 floating point or ASCII/Unicode, for example in the modern era, and the alternative, yet common choice, of a relatively non-intuitive data storage with questionable computational or storage advantage, (a strategy which has often been deprecated for difficulties in code maintenance), points to possible deliberate obfuscation.
+It is rare for data to be written to files as IEEE-754 floating point or ASCII/Unicode, for example in the modern era, and the alternative, yet common choice, of a relatively non-intuitive data storage with questionable computational or storage advantage, (a strategy which has often been deprecated for difficulties in code maintenance), points to possible deliberate obfuscation.<br>
 
 Quoting https://en.wikipedia.org/wiki/Raw_image_format<br>
-"Providing a detailed and concise description of the content of raw files is highly problematic. ... Several major camera manufacturers, including Nikon, Canon and Sony, encrypt portions of the file in an attempt to prevent third-party tools from accessing them."  
+"Providing a detailed and concise description of the content of raw files is highly problematic. ... Several major camera manufacturers, including Nikon, Canon and Sony, encrypt portions of the file in an attempt to prevent third-party tools from accessing them."  <br>
 
 In a different way to prevent third-party tools from accessing files, it has been implied that attempting to read proprietary file formats could be seen as IP infringement: https://cloudcompare.org/forum/viewtopic.php?t=5623  The legality of reverse engineering has been discussed, for example in the US, quoting the following: https://en.wikipedia.org/wiki/Reverse_engineering#Legality<br>
 
-"According to Section 103(f) of the Digital Millennium Copyright Act (17 U.S.C. § 1201 (f)), a person in legal possession of a program may reverse-engineer and circumvent its protection if that is necessary to achieve "interoperability", a term that broadly covers other devices and programs that can interact with it, make use of it, and to use and transfer data to and from it in useful ways. A limited exemption exists that allows the knowledge thus gained to be shared and used for interoperability purposes."
+"According to Section 103(f) of the Digital Millennium Copyright Act (17 U.S.C. § 1201 (f)), a person in legal possession of a program may reverse-engineer and circumvent its protection if that is necessary to achieve "interoperability", a term that broadly covers other devices and programs that can interact with it, make use of it, and to use and transfer data to and from it in useful ways. A limited exemption exists that allows the knowledge thus gained to be shared and used for interoperability purposes."<br>
 
 The EU has similar directives, but I am not qualified to understand the distinctions nor the jurisdictions.  Many open source programs have reverse engineered numerous proprietary formats for the purpose of intraoperability (document file formats, file sharing protocols, disk partition schemes etc.), see the wikipedia articles referenced above.
+<br>
+On more positive notes:<br>
 
-On more positive notes:
+A notable exception to obfuscation in the topography field comes from Oculus, Inc. USA (OCULUS Optikgeräte GmbH, Germany) who appears committed to exporting some human readable data and providing documentation even with their latest OCT model for both the PentaCam and Keratograph machines.<br>
 
-A notable exception to obfuscation in the topography field comes from Oculus, Inc. USA (OCULUS Optikgeräte GmbH, Germany) who appears committed to exporting some human readable data and providing documentation even with their latest OCT model for both the PentaCam and Keratograph machines.
+Carl Zeiss Meditec AG, maker of the Zeiss Atlas series topographer, also appear committed to exporting some human readable data, and in fact have improved their stance, as the later 9000 model and software not only have the capability to export data that the earlier 900 model did not, it also will import the 900 data and then export it, acting as a conversion utility.<br>
 
-Carl Zeiss Meditec AG, maker of the Zeiss Atlas series topographer, also appear committed to exporting some human readable data, and in fact have improved their stance, as the later 9000 model and software not only have the capability to export data that the earlier 900 model did not, it also will import the 900 data and then export it, acting as a conversion utility.
-
-Bausch & Lomb, maker of the Orbscan had a separately purchasable viewer software which might have allowed export, however it is apparently discontinued. There was at one point some exportable data, see https://iovs.arvojournals.org/article.aspx?articleid=2125323 
+Bausch & Lomb, maker of the Orbscan had a separately purchasable viewer software which might have allowed export, however it is apparently discontinued. There was at one point some exportable data, see https://iovs.arvojournals.org/article.aspx?articleid=2125323 <br>
 
 ##List of machines
 
@@ -102,19 +102,19 @@ It is an embarrassment to have to state the following, as it should be understoo
 ## Building
 
 ###Under Linux 
-This software was developed at various times under the Slackware, Ubuntu, Arch, Manjaro distributions of GNU/Linux. Dependencies include Qt6, assimp, lapack, rply, gnuplot, gnuplot-iostream, boost, freetype, unzip, cabextract and superlu. Some routines are adapted from other sources and included, for example excerpts from Hanson & Hopkins (see below). OpenGL is used as the primary graphics API: GLSL 3.30 is needed as a minimum.  Qt appears to be deprecating C++ support in favor of QML: you may need to make sure the proper support is present. This version was built with Qt 6.8.3. You might need to adjust some of the paths in the CMakeLists.txt to build.
+This software was developed at various times under the Slackware, Ubuntu, Arch, Manjaro distributions of GNU/Linux. Dependencies include Qt6, assimp, lapack, rply, gnuplot, gnuplot-iostream, boost, freetype, unzip, cabextract and superlu. Some routines are adapted from other sources and included, for example excerpts from Hanson & Hopkins (see below). OpenGL is used as the primary graphics API: GLSL 3.30 is needed as a minimum.  Qt appears to be deprecating C++ support in favor of QML: you may need to make sure the proper support is present. This version was built with Qt 6.8.3. You might need to adjust some of the paths in the CMakeLists.txt to build.<br>
 
-There are some patches to Hanson & Hopkins http://www.siam.org/books/ot134 chapters 2,4, & 11 to accomodate superlu versions > 4.3, for Windows compilation and to support CSR sparse matrices
+There are some patches to Hanson & Hopkins http://www.siam.org/books/ot134 chapters 2,4, & 11 to accomodate superlu versions > 4.3, for Windows compilation and to support CSR sparse matrices.<br>
 
-For some file formats, Fortran Linux system calls {call execute_command_line() } to cabextract and rm (or Expand and del under Wiindows) are used for convenience in reading compressed Windows cabinet files and cleaning up temporary files. 
+For some file formats, Fortran Linux system calls {call execute_command_line() } to cabextract and rm (or Expand and del under Wiindows) are used for convenience in reading compressed Windows cabinet files and cleaning up temporary files. <br>
 
-Linux system calls from C++  { system() } are called for starting with a command shell for gnuplot and assorted file ops such as unzip, rm, touch, cp, or Windows calls to cmd, tar, del, type and copy.  
+Linux system calls from C++  { system() } are called for starting with a command shell for gnuplot and assorted file ops such as unzip, rm, touch, cp, or Windows calls to cmd, tar, del, type and copy.<br>
 
-If you don't have access to those system calls, you'll have to extract the cabinet files to their uncompressed data files manually and clean up the temporary files manually, which has not been tested, YMMV.
+If you don't have access to those system calls, you'll have to extract the cabinet files to their uncompressed data files manually and clean up the temporary files manually, which has not been tested, YMMV.<br>
 
-After cloning the source, load submodules with git submodule update --init, then the usual:
+After cloning the source, load submodules with git submodule update --init, then the usual:<br>
 
-cmake ./ 
+cmake ./ <br>
 
 These lines need to be uncommented in CMakeLists.txt
 <br>
@@ -126,19 +126,21 @@ with these
 set(CMAKE_HOST_NAME Windows)
 set(CMAKE_SYSTEM Windows)
 <br>
-commented out.
+commented out.<br>
 
-gcc is used as the default compiler with cmake.  
+gcc is used as the default compiler with cmake.  <br>
 
-Building within QtCreator is also possible, but the default of using Ninja does not work with the Fortran dependencies. I had to edit .qtcreator/CMakeLists.txt.user directly to replace ninja in the following lines:
--DCMAKE_GENERATOR:STRING=Unix Makefiles
--DCMAKE_MAKE_PROGRAM:STRING=/usr/bin/make
+Building within QtCreator is also possible, but the default of using Ninja does not work with the Fortran dependencies. I had to manually edit .qtcreator/CMakeLists.txt.user directly to replace ninja in the following lines:<br>
+-DCMAKE_GENERATOR:STRING=Unix Makefiles<br>
+-DCMAKE_MAKE_PROGRAM:STRING=/usr/bin/make<br>
 
 ####Under Windows
 
 As an alternative, build under Windows if you have the necessary toolset.  <br>
 
-The precompiled binary was built in a Windows 10 VM. I used MingW/GCC for the C/C++/Fortran compiler and toolchain under Windows.<br> https://doc.qt.io/qt-6/windows.html; <br> I was unable to get Visual Studio and the Intel Fortran compiler to work together. In addition, the additional libraries would have to be compiled with the same toolchain.  I built assimp, superlu, glm, freetype, lapack and OpenBLAS with the same toolset using git-bash after downloading them directly from upstream. Again, you might need to adjust paths in CMakeLists.txt in order to build. These lines need to be uncommented in CMakeLists.txt
+The precompiled binary and installer were built in a Windows 10 VM. I used MingW/GCC for the C/C++/Fortran compiler and toolchain under Windows.<br> 
+https://doc.qt.io/qt-6/windows.html <br>
+I was unable to get Visual Studio and the Intel Fortran compiler to work together. In addition, the additional libraries would have to be compiled with the same toolchain.  I built assimp, superlu, glm, freetype, lapack and OpenBLAS with the same toolset using git-bash after downloading them directly from upstream. Again, you might need to adjust paths in CMakeLists.txt in order to build. These lines need to be uncommented in CMakeLists.txt:
 <br>
 set(CMAKE_HOST_NAME Windows)
 set(CMAKE_SYSTEM Windows)
@@ -150,12 +152,12 @@ set(CMAKE_SYSTEM UNIX)
 <br>
 commented out.<br>
 
-You will need to run winqtdeploy in order to generate the necessary Qt dlls and copy over the plugins. See the example in the binary release.<br>
+You will need to run winqtdeploy in order to generate the necessary Qt dlls and copy over the plugins.<br>
 
 gnuplot (https://gnuplot.sourceforge.net/) also needs to be installed for some functions.<br>
 
-As noted, OpenGL is used as the primary graphics API: it needs GLSL 3.30, which means the Windows binary will not run in a VM unless it has access to a real graphics card via passthrough or with a software renderer separately installed, eg.<br> https://github.com/pal1000/mesa-dist-win. <br>
-It will run under WINE using the Linux distro's GLSL support.<br>
+As noted, OpenGL is used as the primary graphics API: it needs GLSL 3.30, which means the Windows binary will not run in a VM unless it has access to a real graphics card via passthrough or with a software renderer separately installed, eg.<br> https://github.com/pal1000/mesa-dist-win.<br>
+If used, install the Core (option 1) and the software renderer (option 7). The program and installer will run under WINE using the Linux distro's GLSL support, although the Linux distro's gnuplot will not be available. YMMV. The binary Windows installer (built with NSIS) includes an option to install gnuplot and the Mesa3D software renderer. CrossOver(TM) works well, although you might need to manually close some cmd.exe windows manually on installation and when using gnuplot.<br>
 
 
 ####Cross-compiling for Windows under Linux
@@ -173,9 +175,9 @@ Using MXE for Qt builds:<br>
 git clone https://github.com/mxe/mxe.git<br>
 make qt6 MXE_TARGETS='x886_64-w64-mingw32.static'<br>
 
-configure Qt to use use the ming64 qmake, compiler and kit under Tools
+configure Qt to use use the ming64 qmake, compiler and kit under Tools<br>
 
-These lines need to be uncommented in CMakeLists.txt
+These lines need to be uncommented in CMakeLists.txt:<br>
 <br>
 set(CMAKE_HOST_NAME Linux)
 set(CMAKE_SYSTEM Windows)
@@ -185,9 +187,9 @@ with these
 set(CMAKE_HOST_NAME Windows)
 set(CMAKE_SYSTEM UNIX)
 <br>
-commented out.
+commented out.<br>
 
-Numerous libraries can be imported from their (mingw64) builds under Windows.
+Numerous libraries can be imported from their (mingw64) builds under Windows.<br>
 
 some other references<br>
 Qt<br>
@@ -210,23 +212,23 @@ https://stackoverflow.com/questions/4342047/compiling-a-qt-application-for-mac-o
 
 ## Contributing
 
-Requests are welcome. For major changes, please open an issue first to discuss what you would like to change. Any errors found with corrections are very welcome, but if you use an AI/LLM please take ownership of the purported issue regardless of the tools you use. Any legally obtained information on different machines and their data storage and/or better yet data files or documentation is welcome and I'll do my best to incorporate it.  If you are a clinician with an older machine and you want to send patient data please XXXX out/edit out patient information from the files or use John/Jane Doe/Test patient. Do not include any protected information.
+Requests are welcome. For major changes, please open an issue first to discuss what you would like to change. Any errors found with corrections are very welcome, but if you use an AI/LLM please take ownership of the purported issue regardless of the tools you use. Any legally obtained information on different machines and their data storage and/or better yet data files or documentation is welcome and I'll do my best to incorporate it.  If you are a clinician with an older machine and you want to send patient data please XXXX out/edit out patient information from the files or use John/Jane Doe/Test patient. Do not include any protected information.<br>
 
-If you are a manufacturer and you'd like to blow my mind by openly sharing information, I will credit you prominently here and everywhere and sing your praises to all of my colleagues, even at the risk of irritating them. 
+If you are a manufacturer and you'd like to blow my mind by openly sharing information, I will credit you prominently here and everywhere and sing your praises to all of my colleagues, even at the risk of irritating them. <br>
 
-For example:
+For example:<br>
 
-OCULUS Optikgeräte GmbH/Oculus USA, your representatives have impressed me (which is actually more difficult than it should be) by their ability to remember me from one meeting to an another years later, as well as their actual follow through and the provision of valuable data.  Your company is also outstanding in your continued committment to providing data for research via export through your software though the raw data would have been even better. Your machine's inherent software is beautiful and well designed. +50 points! Thank you.
+OCULUS Optikgeräte GmbH/Oculus USA, your representatives have impressed me (which is actually more difficult than it should be) by their ability to remember me from one meeting to an another years later, as well as their actual follow through and the provision of valuable data.  Your company is also outstanding in your continued committment to providing data for research via export through your software though the raw data would have been even better. Your machine's inherent software is beautiful and well designed. +50 points! Thank you.<br>
 
-On the other hand:
+On the other hand:<br>
 
-Any changes by a manufacturer that results in obscuring the data further and/or removing export features...well, shame on you, that is not contributing to knowledge or patient care and you are not friends of Narnia imo.  You know who you are.  
+Any changes by a manufacturer that results in obscuring the data further and/or removing export features...well, shame on you, that is not contributing to knowledge or patient care and you are not friends of Narnia imo.  You know who you are.<br>  
 
-Do let me know if you find this software useful, or at least, amusing. Any constructive criticism is welcome; bear in mind I am not a professional coder or programmer. If you find the software to be a crackpot's project, or the design and execution to be a Big Ball of Mud, or spaghetti code, or like a bird's nest, put together with internet scraps of code, well, you're not wrong.
+Do let me know if you find this software useful, or at least, amusing. Any constructive criticism is welcome; bear in mind I am not a professional coder or programmer.<br>
  
 
 ## License
-To quote or adapt without proper attribution would be bad manners, to take credit for other's works, dishonest, quite aside from legalities.  I am not a lawyer, nor can really understand, let alone agree with, their worldview despite decades of adult life, starting with "ignorantia juris non excusat". In so far as I understand from perusing the multiple versions of licenses for the software used in this project, the source code I have written/copied and adapted conforms to their respective licenses and allows for non-commercial use and redistribution with the caveat that the licenses are included and/or referenced and credit is given when known, which I have in good faith attempted. On that note, no AI/LLM was used for any part of this project, the goal of which has been to exercise my imagination, not to outsource the effort of making things up nor using the information of dubious provenance gathered by an LLM without permission or attribution.  Any use of and examination of proprietary trademarks and data has been, to my understanding for the purpose of this project, to be lawful under applicable laws.  My contributions, including the patches for superlu, and any other adaptations of existing software, are licensed as follows:<br>
+To quote or adapt without proper attribution would be bad manners, to take credit for other's works, dishonest, quite aside from legalities.  I am not a lawyer, nor can really understand, let alone agree with, their worldview despite decades of adult life, starting with "ignorantia juris non excusat". Having said that, in so far as I understand from perusing the multiple versions of licenses for the software used in this project, the source code I have written/copied and adapted conforms to their respective licenses and allows for non-commercial use and redistribution with the caveat that the licenses are included and/or referenced and credit is given when known, which I have in good faith attempted. On that note, no AI/LLM was used for any part of this project, the goal of which has been to exercise my imagination, not to outsource the effort of making things up nor using the information of dubious provenance gathered by an LLM without permission or attribution.  Any use of and examination of proprietary trademarks and data has been, to my understanding for the purpose of this project, to be lawful under applicable laws.  My contributions, including the patches for superlu, and any other adaptations of existing software, are licensed as follows:<br>
 [LICENSE](https://github.com/mostlyharmlessone/kernunos/blob/main/LICENSE)<br> if not superseded by the relevant licenses of the adapted software collected under ./licenses.  Written documentation including this README © 1999 by Anthony M de Beus is licensed under CC BY-SA 4.0. https://creativecommons.org/licenses/by-sa/4.0/ 
 
 
@@ -303,7 +305,7 @@ Corneal Topography, Measuring and Modifying the Cornea, DJ Schanzlin, JB Robin (
 
 
 ###Journal articles/downloaded class notes/documentation
-(in no particular order or format, sourced manually from the internet)
+(in no particular order or format, sourced manually from the internet)<br>
 
 Eric Albin, Ronnie Knikker, Shihe Xin, Christian Oliver Paschereit, Yves d’Angelo. Computational assessment of curvatures and principal directions of implicit surfaces from 3D scalar data. Lecture Notes in Computer Science, 2017, Mathematical Methods for Curves and Surfaces, 10521, pp.1-22. ⟨10.1007/978-3-319-67885-6_1⟩. ⟨hal-01486547⟩<br>
 
@@ -424,7 +426,7 @@ see also for c++ <br>
 https://gist.github.com/fairlight1337/4935ae72bcbcc1ba5c72#file-hsvrgb-cpp <br>
 
 ###libraries
-These are necessary for building/running, under Linux it might be easier/better to use your distro's package manager, if possible, but they can be downloaded from upstream and built as well, which might give better control over the version and ensure you have everything you need. Under Windows that is a necessity.<br>
+These are necessary for building/running, under Linux it might be easier/better to use your distro's package manager, if possible, but they can be downloaded from upstream and built as well, which might give better control over the version and ensure you have everything you need. Under Windows, obviously, you need to download and build them yourself.<br>
 https://github.com/assimp/assimp <br>
 https://github.com/xiaoyeli/superlu  superlu <br>
 https://github.com/g-truc/glm glm <br>
@@ -432,7 +434,7 @@ https://gitlab.freedesktop.org/freetype/freetype freetype <br>
 https://github.com/Reference-LAPACK/lapack lapack <br>
 https://github.com/OpenMathLib/OpenBLAS OpenBLAS <br>
 https://github.com/boostorg/boost boost <br>
-https://github.com/kyz/libmspack/tree/master/cabextract <br>
+https://github.com/kyz/libmspack/tree/master/cabextract (not needed for Windows)<br>
 Only part of this was used, and is copied into the source tree: <br>
 https://people.math.sc.edu/Burkardt/f_src/sparsekit/sparsekit.f90 <br>
 some of these were used only in development or are references <br>
@@ -453,7 +455,7 @@ GLM cmake <br>
 https://github.com/Groovounet/glm/blob/master/util/FindGLM.cmake MIT <br>
 GLFW.cmake <br>
 https://gitlab.kitware.com/vtk/vtk-m/blob/783867eeb05e0a6538f9c520af02c3615651b4ed/CMake/FindGLFW.cmake <br>
-I also tried CPM:<br>
+I also tried CPM, but couldn't figure out how to resolve dependencies such as installing BLAS before LAPACK and both before SuperLU in a single CMakeLists.txt, for example:<br>
 https://github.com/cpm-cmake/CPM.cmake CPM.cmake <br>
 
 
