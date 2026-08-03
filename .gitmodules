@@ -1,55 +1,9 @@
-[submodule "RZ/libigl"]
-	path = RZ/libigl
-	url = https://github.com/libigl/libigl.git
-[submodule "libigl-example-project"]
-	path = libigl-example-project
-	url = https://github.com/libigl/libigl-example-project
-[submodule "Janus/libigl"]
-	path = Janus/libigl
-	url = https://github.com/libigl/libigl
-[submodule "Janus/wxWidgets"]
-	path = Janus/wxWidgets
-	url = https://github.com/wxWidgets/wxWidgets
-[submodule "Janus/libigl-example-project"]
-	path = Janus/libigl-example-project
-	url = https://github.com/libigl/libigl-example-project
-[submodule "Janus/src/cxx/Janus/src/cxx/LearnOpenGL"]
-	path = Janus/src/cxx/Janus/src/cxx/LearnOpenGL
-	url = https://github.com/JoeyDeVries/LearnOpenGL
-[submodule "/home/debeus/Janus/Janus/src/cxx/LearnOpenGL"]
-	path = /home/debeus/Janus/Janus/src/cxx/LearnOpenGL
-	url = https://github.com/JoeyDeVries/LearnOpenGL
 [submodule "Janus/rplycpp"]
 	path = Janus/rplycpp
 	url = https://github.com/manlito/rplycpp
-[submodule "Janus/f90getopt"]
-	path = Janus/f90getopt
-	url = https://github.com/haniibrahim/f90getopt
 [submodule "gnuplot-iostream"]
 	path = gnuplot-iostream
 	url = https://github.com/dstahlke/gnuplot-iostream
-[submodule "Janus/gnuplot-iostream"]
-	path = Janus/gnuplot-iostream
-	url = https://github.com/dstahlke/gnuplot-iostream
-[submodule "f90getopt"]
-	path = f90getopt
-	url = https://github.com/haniibrahim/f90getopt
 [submodule "assimp"]
 	path = assimp
 	url = https://github.com/assimp/assimp.git
-[submodule "Janus/rply"]
-	path = Janus/rply
-	url = https://github.com/diegonehab/rply
-        branch = master
-[submodule "Janus/assimp"]
-	path = Janus/assimp
-	url = https://github.com/assimp/assimp
-[submodule "kernunos/assimp"]
-	path = kernunos/assimp
-	url = https://github.com/assimp/assimp
-[submodule "kernunos/gnuplot-iostream"]
-	path = kernunos/gnuplot-iostream
-	url = https://github.com/dstahlke/gnuplot-iostream
-[submodule "kernunos/rply"]
-	path = kernunos/rply
-	url = https://github.com/diegonehab/rply
