@@ -1956,6 +1956,8 @@ SUBROUTINE SaveFile(b,KXNAME)
  USE set_precision, ONLY : wp
  USE io_functions, ONLY  : get_new_fileunit
  USE cornea_arrays, ONLY : wpJMatrix
+ USE c_interfaces, ONLY : LogC
+ USE, INTRINSIC :: iso_c_binding, ONLY : c_null_char
  TYPE(wpJMatrix),INTENT(IN) :: b
  CHARACTER(len=*), INTENT(IN) :: KXNAME
  INTEGER :: N,MM,i,unitno1
@@ -1984,11 +1986,14 @@ SUBROUTINE SaveFile(b,KXNAME)
   close (unitno1)
  endif
  deallocate(rowsey)
+ call LogC("Wrote saved file: "//trim(KXNAME)//c_null_char)
 END SUBROUTINE SaveFile
 
 SUBROUTINE ReadFile(read_error,KXNAME)
  USE io_functions, ONLY  : get_new_fileunit
  USE cornea_arrays, ONLY : EyeSys
+ USE c_interfaces, ONLY : LogC
+ USE, INTRINSIC :: iso_c_binding, ONLY : c_null_char
  INTEGER, INTENT(OUT) :: read_error
  CHARACTER(len=*), INTENT(IN) :: KXNAME
  INTEGER :: N,MM,i,unitno1
@@ -2022,6 +2027,7 @@ SUBROUTINE ReadFile(read_error,KXNAME)
   end do
   close (unitno1)
  endif
+ call LogC("Read saved file: "//trim(KXNAME)//c_null_char)
 END SUBROUTINE ReadFile
 
 SUBROUTINE rcnvrta_type(KXNAME,N,read_error)

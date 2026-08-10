@@ -43,9 +43,7 @@ void LogC(const char *Message) { FILE *file;
     else {
         time_t timeStamp;
         time(&timeStamp);
-        fprintf(file, "%s", ctime(&timeStamp));
-        fprintf(file, "%s", " ");
-        fprintf(file, "%s", Message);
+        fprintf(file, "%.24s%s%s", ctime(&timeStamp)," ",Message);  //the .24sis the first 24 characters of the data and time, omitting the CR/LF etc.
         fprintf(file,"\n");
         fclose(file);
         return;

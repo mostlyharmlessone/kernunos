@@ -666,10 +666,8 @@ if (btest(dat,5)) then
     JMatrix3%GAUSSC(j,i)=RFCT*gaussian
    end do
   end do
-
 ! make new central values
   call centersJMatrix(JMatrix3,TestData,dat,iflag,cardinal,nC)
-
 ! find min and maximum
   call minmax(JMatrix3)
 ! draw
@@ -770,15 +768,15 @@ if (mod(flag,100) == 10 .or. mod(flag,100) == 12) then
     if(mod(flag,100) == 10) then
      JMatrix2%MV(i)=min(JMatrix%MV(j),JMatrix1%MV(i))
      op = -1
-     JMatrix2%Z(:,i)=ABS(JMatrix1%Z(:,i)-JMatrix3%Z(:,j))
-     JMatrix2%YPR(:,i)=JMatrix1%YPR(:,i)-JMatrix3%YPR(:,j)
-     JMatrix2%SAGC(:,i)=ABS(JMatrix1%SAGC(:,i)-JMatrix3%SAGC(:,j))
-     JMatrix2%Warp(:,i)=ABS(JMatrix1%Warp(:,i)-JMatrix3%Warp(:,j))
-     JMatrix2%INSTC(:,i)=ABS(JMatrix1%INSTC(:,i)-JMatrix3%INSTC(:,j))
-     JMatrix2%GAUSSC(:,i)=ABS(JMatrix1%GAUSSC(:,i)-JMatrix3%GAUSSC(:,j))
-     JMatrix2%MEANC(:,i)=ABS(JMatrix1%MEANC(:,i)-JMatrix3%MEANC(:,j))
-     JMatrix2%MONGEA(:,i)=ABS(JMatrix1%MONGEA(:,i)-JMatrix3%MONGEA(:,j))
-     JMatrix2%ZC(:,i,:)=ABS(JMatrix1%ZC(:,i,:)-JMatrix3%ZC(:,j,:))
+     JMatrix2%Z(:,i)=ABS(JMatrix1%Z(:,i)+op*JMatrix3%Z(:,j))
+     JMatrix2%YPR(:,i)=JMatrix1%YPR(:,i)+op*JMatrix3%YPR(:,j)
+     JMatrix2%SAGC(:,i)=ABS(JMatrix1%SAGC(:,i)+op*JMatrix3%SAGC(:,j))
+     JMatrix2%Warp(:,i)=ABS(JMatrix1%Warp(:,i)+op*JMatrix3%Warp(:,j))
+     JMatrix2%INSTC(:,i)=ABS(JMatrix1%INSTC(:,i)+op*JMatrix3%INSTC(:,j))
+     JMatrix2%GAUSSC(:,i)=ABS(JMatrix1%GAUSSC(:,i)+op*JMatrix3%GAUSSC(:,j))
+     JMatrix2%MEANC(:,i)=ABS(JMatrix1%MEANC(:,i)+op*JMatrix3%MEANC(:,j))
+     JMatrix2%MONGEA(:,i)=ABS(JMatrix1%MONGEA(:,i)+op*JMatrix3%MONGEA(:,j))
+     JMatrix2%ZC(:,i,:)=ABS(JMatrix1%ZC(:,i,:)+op*JMatrix3%ZC(:,j,:))
     else
      JMatrix2%MV(i)=max(JMatrix%MV(j),JMatrix1%MV(i))
      op = 1
@@ -1326,20 +1324,17 @@ if (TestData .eq. 8) then
    write(*,*) "Error reading saved file",inputfile1
    RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
    return
-   else
-    if (allocated(RadSlope%r)) then
-     RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
-     call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
-    else
-     call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
-    endif
- !  Generate the slope matrix
-    RadSlope=EyeSys
-    EyeSys = 0
   endif
  endif ! mod(flag,100) == 0)
+ if (allocated(RadSlope%r)) then
+  RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
+  call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
+ else
+  call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
+ endif
+!Generate the slope matrix
+  RadSlope=EyeSys
 endif ! end (TestData == 8)
-
 
 if (TestData .eq. 7) then
  if (mod(flag,100) == 0) then !read the files
@@ -1875,7 +1870,7 @@ if (TestData .eq. 1) then
  endif
 endif  !Atlas fillin
 
-! FILL IN MISSING EYESYS/NIDEK DATA, only use sple, LSQ has problem with the one broken EyeSys file I've seen
+! FILL IN MISSING EYESYS/NIDEK DATA, only use spline, LSQ has problem with the one broken EyeSys file I've seen
 ! probably because I'm making RA and XX now powers, get duplicate radii and slopes at the end points, which break nspline
 if (TestData .eq. 0 .or. TestData .eq. 6) then
  if (btest(dat, 4) .or. btest(dat, 3)) then
@@ -1937,6 +1932,7 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
  if (error_report .ne. 0) then
   write(*,*)' error at janus line number: ',__LINE__
  endif
+
  if (TestData.eq.3 .or. TestData.eq.5 ) RadSplineCenter(1,:)=0   ! pentacam data provided
  if (TestData.eq.2 .or. TestData.eq.4 ) RadSplineCenter(1,:)=0
  if (btest(dat, 0) ) then         ! use nsplineCenter to force zero slope at origin, changing spline but requiring SplineEvalCenter
@@ -1950,6 +1946,7 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
  if (error_report .ne. 0) then
   write(*,*)' error at janus line number: ',__LINE__
  endif
+
 ! Atlas spline consistency check and computation of elevation by power vs elevation in file
  if ( Testdata .eq. 1 .and. btest(dat,7) ) then
   if (btest(dat, 2)) then
@@ -2208,7 +2205,6 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
     JMatrix%SAGC(j,i)=RFCT*princ2
     JMatrix%GAUSSC(j,i)=RFCT*gaussian
 
-
 !!!!!check here for extrapolation with XX; yep still doing it; its at the edge where the data is discontinuous circumferentially
 
 if (abs(YP2THETA) .gt. 2000) then
@@ -2224,7 +2220,7 @@ else
 endif
 write(*,*) 'abs(YP2THETA) .gt. 2000'
 !write(*,*) RadSlope%r(1:N,ii)
-write(*,*) j,i,ii
+ write(*,*) j,i,ii
 !write(*,*) DiaSlope%rd(1:2*N,ii/2)
 
 endif
@@ -2283,9 +2279,11 @@ endif
   if (error_report .ne. 0) then
    write(*,*)' janus line number: ',__LINE__
   endif
+
 ! Calculate center values for everything
 ! These have MM different values of the center!
   call centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
+
 ! find min max of everything
   call minmax(JMatrix)
 ! end populating JMatrix
@@ -2665,13 +2663,9 @@ open(unitno1, file = "zernike.tmp", action="write", iostat=ierr)
  write(unitno1,*) "set offsets 0,0,0.5-myBoxWidth/2.,0.5";
  write(unitno1,*) "plot $Data using (0.5*$2):0:(0.5*$2):(myBoxWidth/2.):($3):ytic(1) with boxxy lc rgb var";
  close(unitno1)
-
-!good place to call a c program to display
  call Ccounter(100,"zernike.tmp"//c_null_char)
  if (mod(flag,100) == 9) call Ccounter(0,"zernike.tmp"//c_null_char) !zero out the progess bar if we're just displaying coefficients
-
 else
-
  call LogC("No Zernike data found"//c_null_char)
 endif
  return

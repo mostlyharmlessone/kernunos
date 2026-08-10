@@ -630,38 +630,20 @@ SUBROUTINE RadSlope_eq_JMatrix(RadSlope,JMatrix)
     MM=size(JMatrix%R,2)
     RadSlope%thta(:)=JMatrix%THT(:)
     RadSlope%MV(:)=JMatrix%MV(:)
+    RadSlope%r(:,:) = 0.0_wp
+    RadSlope%Zp(:,:) = 0.0_wp
+    RadSlope%Z(:,:) = 0.0_wp
     do i=1,MM
      do j=1,JMatrix%MV(i)
-      if (ABS(JMatrix%SAGC(j,i)) > 0) then
-       ZIX=RFCT/JMatrix%SAGC(j,i)
-       if (ZIX > ABS(JMatrix%R(j,i)) ) then
-        call ZFCT(MM,i,ABS(JMatrix%R(j,i)),ZIX,X2A1,YA3)
-       else
-        if (i > (MM/2)) then  ! > PI negative
-         RadSlope%r(j,i)=-JMatrix%R(j,i)
-        else
-         RadSlope%r(j,i)=JMatrix%R(j,i)
-        endif
-        RadSlope%Zp(j,i)=0._wp  ! sets border
-        RadSlope%Z(j,i)=JMatrix%Z(j,i)
-        RadSlope%Zp2(j,i)=1/803.0_wp ! fallback value before splining
-        cycle
-       endif
-       RadSlope%r(j,i)=X2A1
-       RadSlope%Zp(j,i)=YA3
-       RadSlope%Z(j,i)=JMatrix%Z(j,i)
-       RadSlope%Zp2(j,i)=1/803.0_wp ! fallback value before splining
-      else
-       if (i > (MM/2)) then  ! > PI negative R
+       if (i > (MM/2)) then  ! > PI negative
         RadSlope%r(j,i)=-JMatrix%R(j,i)
+        RadSlope%Zp(j,i)=-JMatrix%YPR(j,i)
        else
         RadSlope%r(j,i)=JMatrix%R(j,i)
+        RadSlope%Zp(j,i)=JMatrix%YPR(j,i)
        endif
-       RadSlope%Zp(j,i)=0._wp  ! sets border
        RadSlope%Z(j,i)=JMatrix%Z(j,i)
-       RadSlope%Zp2(j,i)=1/803.0_wp ! fallback value before splining
-       cycle      
-      endif       
+       RadSlope%Zp2(j,i)=1/803.0_wp ! fallback value before splining     
      end do
     end do
 END SUBROUTINE RadSlope_eq_JMatrix
@@ -833,7 +815,7 @@ SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
 
   !   write(*,*) 'sagc'
   !  SAGC
-  !  Reload RadSlope with SAGC & re-spline; can't compute it from surface because ill-defined &at origin
+  !  Reload RadSlope with SAGC & re-spline; can't compute it from surface because ill-defined at origin
       do i=1,M1
        do j=1,RadSlope%MV(i)
         RadSlope%Zp(j,i)=JMatrix%SAGC(j,i)
@@ -1034,6 +1016,10 @@ SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
        call SplineEval1Dx1D(iflag,JMatrix%RM,PI*(i-1)/4.0,JMatrix%MongeA0(i+3))
        cardinal(i+1)=JMatrix%MongeA0(i+3)
       end do
+
+!  Reload RadSlope & re-spline
+    RadSlope=JMatrix
+    DiaSlope=RadSlope
 
 END SUBROUTINE centersJMatrix
 

@@ -87,7 +87,7 @@
     call SplineEval(0,r,z,zr2,n,u,g,slope0)
     if (ABS(slope0) > EPS) then
 !   Using Newton's method, usually works with 2-3 iterations, very unlikely to occur
-     write(*,*) "Using Newton's method to find minimum, this is unusual"
+     write(*,*) "Using Newton's method to find minimum, this is unusual: meridian: ",jj
      j=0
      gr=(slopeh+slopel)/2.0_wp
      u=(r(high)+r(low))/2.0_wp
