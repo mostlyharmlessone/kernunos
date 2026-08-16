@@ -117,9 +117,12 @@ MODULE io_functions
      CHARACTER(len=*), INTENT(IN) :: KXNAME
     END SUBROUTINE
 
-    SUBROUTINE ReadFile(read_error,KXNAME)
+    SUBROUTINE ReadFile(read_error,KXNAME,b)
+     USE set_precision, ONLY : wp
+     USE cornea_arrays, ONLY : wpJMatrix
      INTEGER, INTENT(OUT) :: read_error
      CHARACTER(len=*), INTENT(IN) :: KXNAME
+     TYPE(wpJMatrix),INTENT(INOUT) :: b
     END SUBROUTINE
 
     SUBROUTINE WriteGeomOFF(flag,b,donut,powmin,powmax,OFFNAME)
@@ -1774,8 +1777,6 @@ integer line(200),line2(200),ix,iy
  read_error = 1                ! means success at binary
 END SUBROUTINE rcnvrtn_binary
 
-
-
 SUBROUTINE rcnvrte(read_error,RANAME,XXNAME,PUNAME,HXNAME)
 ! EYESYS VERSION
   USE io_functions, ONLY : get_new_fileunit
@@ -1815,7 +1816,7 @@ SUBROUTINE rcnvrte(read_error,RANAME,XXNAME,PUNAME,HXNAME)
       if (file_idx2 > 0) then
        call LogC("XX EyeSys header detected: "//trim(header)//c_null_char)
       else
-       write(*,*) 'No XX/RA EyeSys headers detected, assuming data only'
+       call LogC("No XX/RA EyeSys headers detected, assuming data only"//trim(header)//c_null_char)
        REWIND(unitno1)
        REWIND(unitno2)
       endif
@@ -1961,10 +1962,10 @@ SUBROUTINE SaveFile(b,KXNAME)
  TYPE(wpJMatrix),INTENT(IN) :: b
  CHARACTER(len=*), INTENT(IN) :: KXNAME
  INTEGER :: N,MM,i,unitno1
- REAL(wp), ALLOCATABLE :: rowsey(:)
+ REAL(wp), ALLOCATABLE :: RA(:)
  N=size(b%R,1)
  MM=size(b%R,2)
- allocate(rowsey(N))
+ allocate(RA(N))
  unitno1 = get_new_fileunit()
  open(unitno1, file=trim(KXNAME), action="write", iostat=ierr)
  if (ierr .ne. 0) then
@@ -1973,32 +1974,46 @@ SUBROUTINE SaveFile(b,KXNAME)
  else
 ! Write the radii first (RA data)
   do i=1,MM
-   write(unitno1,*) b%R(1:N,i)
-  end do
-  ! Write the Rowsey radii (XX data)
-  do i=1,MM
-   rowsey(1:N)=0
+   RA(1:N)=0
    do j=1,b%MV(i)
-    rowsey(j)=b%R(j,i)*sqrt(1+b%YPR(j,i)*b%YPR(j,i))/b%YPR(j,i)
+    RA(j)=b%R(j,i)
    end do
-   write(unitno1,*) rowsey(1:N)
+   write(unitno1,*) RA(1:N)
+  end do
+  do i=1,MM
+   RA(1:N)=0
+   do j=1,b%MV(i)
+    RA(j)=b%YPR(j,i)
+   end do
+   write(unitno1,*) RA(1:N)
+  end do
+  do i=1,MM
+   RA(1:N)=0
+   do j=1,b%MV(i)
+    RA(j)=b%YP2R2(j,i)
+   end do
+   write(unitno1,*) RA(1:N)
   end do
   close (unitno1)
  endif
- deallocate(rowsey)
+ deallocate(RA)
  call LogC("Wrote saved file: "//trim(KXNAME)//c_null_char)
 END SUBROUTINE SaveFile
 
-SUBROUTINE ReadFile(read_error,KXNAME)
+SUBROUTINE ReadFile(read_error,KXNAME,b)
  USE io_functions, ONLY  : get_new_fileunit
- USE cornea_arrays, ONLY : EyeSys
+ USE cornea_arrays, ONLY : wpJMatrix
+ USE parameters
  USE c_interfaces, ONLY : LogC
  USE, INTRINSIC :: iso_c_binding, ONLY : c_null_char
+ TYPE(wpJMatrix),INTENT(INOUT) :: b
  INTEGER, INTENT(OUT) :: read_error
  CHARACTER(len=*), INTENT(IN) :: KXNAME
  INTEGER :: N,MM,i,unitno1
- N=size(EyeSys%RA,2)
- MM=size(EyeSys%RA,1)
+ INTEGER, ALLOCATABLE :: imv(:)
+ N=size(b%R,1)
+ MM=size(b%R,2)
+ allocate(imv(MM))
  read_error = 0
  unitno1 = get_new_fileunit()
  open(unitno1, file=trim(KXNAME), action="read", iostat=read_error)
@@ -2006,27 +2021,47 @@ SUBROUTINE ReadFile(read_error,KXNAME)
   write(*,*) 'ERROR: ReadFile cannot open',KXNAME
   return
  else
-!  Read the RA first
+!  Read the R first
+  imv(:) = 0
   do i=1,MM
-   read(unitno1,*,iostat=read_error) EyeSys%RA(i,1:N)
-   if (read_error .ne. 0) then
-    write(*,*) 'Error reading RA values in ReadFile'
-    close (unitno1)
-    return
-   endif
-  end do
-!  Read the XX values, compute the DEG values
-  do i=1,MM
-   EyeSys%DEG(i)=(i-1)
-   read(unitno1,*,iostat=read_error) EyeSys%XX(i,1:N)
+   b%tht(i)=2*PI*(i-1)/(MM*1.0_wp)
+   read(unitno1,*,iostat=read_error) b%R(1:N,i)
    if (read_error .ne. 0) then
     write(*,*) 'Error reading values in ReadFile'
     close (unitno1)
     return
    endif
   end do
+!  Read the YPR values
+  do i=1,MM
+   read(unitno1,*,iostat=read_error) b%YPR(1:N,i)
+   if (read_error .ne. 0) then
+    write(*,*) 'Error reading values in ReadFile'
+    close (unitno1)
+    return
+   endif
+  end do
+  !  Read the YP2R2 values
+    do i=1,MM
+     read(unitno1,*,iostat=read_error) b%YP2R2(1:N,i)
+     if (read_error .ne. 0) then
+      write(*,*) 'Error reading values in ReadFile'
+      close (unitno1)
+      return
+     endif
+    end do
+!  Compute the boundary
+    do i=1,MM
+     do j=1,N
+      if (b%R(j,i) > 0) then
+       imv(i)=imv(i)+1
+      endif
+     end do
+    end do
+    b%MV(:)=imv(:)
   close (unitno1)
  endif
+ deallocate(imv)
  call LogC("Read saved file: "//trim(KXNAME)//c_null_char)
 END SUBROUTINE ReadFile
 

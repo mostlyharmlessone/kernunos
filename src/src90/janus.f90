@@ -510,9 +510,11 @@ endif
 if (mod(flag,100) == 13 .or. mod(flag,100) == 14) then
  if (allocated(JMatrix%R)) then
   if (mod(flag,100) == 13) then !save the original
+   call LogC("Writing data: "//trim(inputfile1)//c_null_char)
    call SaveFile(JMatrix,inputfile1)
   else   !save the comparison/average
    if (allocated(JMatrix2%R) .and. loaded_files .ge. 2) then
+    call LogC("Writing comparison: "//trim(inputfile1)//c_null_char)
     call SaveFile(JMatrix2,inputfile1)
    else
     write(*,*) 'Needs 2 files and a compare to save a compare...'
@@ -520,7 +522,6 @@ if (mod(flag,100) == 13 .or. mod(flag,100) == 14) then
     return
    endif
   endif
-  call LogC("Wrote data file..."//trim(inputfile1)//c_null_char)
   return
  else
   write(*,*) 'Have to allocate data prior to writing a data file'
@@ -865,6 +866,13 @@ if (mod(flag,100) == 10 .or. mod(flag,100) == 12) then
   call selectfunction(0,JMatrix2,flag,powctr,powmin,powmax,cardinal,nC)
   call Geom(flag, JMatrix2, donut, powmin, powmax, elements, vertices, nV, nE)
   call makelegend(flag, powmin, powmax, legend, nL)
+
+write(*,*) "janus",__LINE__,JMatrix2%ypr(13,1:N)
+write(*,*) "janus",__LINE__,JMatrix2%r(13,1:N)
+write(*,*) "janus",__LINE__,JMatrix2%MV(13)
+
+
+
   return
  else
   write(*,*) "Needs two scans for compare or average"
@@ -903,10 +911,9 @@ if (mod(flag,100) == 0) then
          if( file_idx == 0) then
           file_idx=index(inputfile1, ".sav")
           if (file_idx /= 0) then
-           call LogC("Saved file: "//inputfile1//c_null_char)
            inquire(file=trim(inputfile1), exist=exists)
            if(exists) then
-            call LogC("Saved file found"//c_null_char)
+            call LogC("Saved file: "//inputfile1//c_null_char)
             TestData=8; MM=180; N=22 ; NP=141
            endif
           else
@@ -1302,22 +1309,21 @@ endif
 
 if (TestData .eq. 8) then
  if (mod(flag,100) == 0) then !read the files
-! READ THE Saved DATA using EyeSys
+! READ THE Saved DATA
   call CPU_TIME(time_start)
   MM=180; N=22
   read_error=0
-  if(.not.allocated(EyeSys%RA)) then
-   call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
+  if (.not.allocated(JMatrix%R)) then
+   call init_mat_JMatrix(MM,N,JMatrix)
   else
-   EyeSys = 0
-   call init_mat_EyeSys(MM,N,EyeSys) ! allocate the EyeSys matrices
+   JMatrix = 0
+   call init_mat_JMatrix(MM,N,JMatrix)
   endif
   inquire(file=trim(inputfile1), exist=exists)
   if(exists) then
-   call ReadFile(read_error,inputfile1)
+   call ReadFile(read_error,inputfile1,JMatrix)
   else
    write(*,*) "Error finding saved file",inputfile1
-   EyeSys = 0
    return
   endif
   if (read_error /= 0) then
@@ -1333,7 +1339,12 @@ if (TestData .eq. 8) then
   call init_mat(MM,N,RadSlope,DiaSlope,RadSplineCenter)  ! allocate the common arrays
  endif
 !Generate the slope matrix
-  RadSlope=EyeSys
+  RadSlope=JMatrix
+
+write(*,*) "janus",__LINE__,JMatrix%ypr(13,1:N)
+write(*,*) "janus",__LINE__,JMatrix%r(13,1:N)
+write(*,*) "janus",__LINE__,JMatrix%MV(13)
+
 endif ! end (TestData == 8)
 
 if (TestData .eq. 7) then
@@ -2245,6 +2256,10 @@ endif
 
    end do
   end do !end JMatrix ring generation
+
+write(*,*) "janus",__LINE__,JMatrix%ypr(13,1:N)
+write(*,*) "janus",__LINE__,JMatrix%r(13,1:N)
+write(*,*) "janus",__LINE__,JMatrix%MV(13)
 
 ! spline over problematic limits at x-axis
 !  JMatrix%MEANC=splinefillintranspose(JMatrix%MEANC)

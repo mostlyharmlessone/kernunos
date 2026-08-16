@@ -241,13 +241,14 @@ SUBROUTINE destroy_Atlas(Atlas,iflag)
   ENDIF
 END SUBROUTINE destroy_Atlas
 
-SUBROUTINE destroy_JMatrix(JMatrix,iflag)
-  TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
+SUBROUTINE destroy_JMatrix(b,iflag)
+  TYPE(wpJMatrix), INTENT(INOUT) :: b
   INTEGER, INTENT (IN) :: iflag
   IF (iflag==0) THEN
-   deallocate (JMatrix%R,JMatrix%Z,JMatrix%THT,JMatrix%SAGC,JMatrix%INSTC,JMatrix%GAUSSC,&
-              JMatrix%MEANC,JMatrix%MONGEA,JMatrix%MV,JMatrix%RC,JMatrix%ZC,JMatrix%YPR,&
-              JMatrix%YP2R2,JMatrix%YPTHETA,JMatrix%YP2THETA,JMatrix%YPRTHETA)
+   deallocate (b%R,b%Z,b%THT,b%YPR,b%YPTHETA,b%SAGC,&
+           b%INSTC,b%GAUSSC,b%MEANC,b%MONGEA)
+   deallocate (b%MV,b%RC,b%Warp,b%YP2R2,b%YP2THETA,b%YPRTHETA,b%PU)
+   deallocate (b%ZC)
   ENDIF
 END SUBROUTINE destroy_JMatrix
 
@@ -625,27 +626,27 @@ SUBROUTINE RadSlope_eq_Oculus(RadSlope,Oculus)
 SUBROUTINE RadSlope_eq_JMatrix(RadSlope,JMatrix)
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
   TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
-  REAL(wp) :: ZIX,YA3,X2A1
   INTEGER :: i,j,MM
-    MM=size(JMatrix%R,2)
-    RadSlope%thta(:)=JMatrix%THT(:)
-    RadSlope%MV(:)=JMatrix%MV(:)
-    RadSlope%r(:,:) = 0.0_wp
-    RadSlope%Zp(:,:) = 0.0_wp
-    RadSlope%Z(:,:) = 0.0_wp
-    do i=1,MM
-     do j=1,JMatrix%MV(i)
-       if (i > (MM/2)) then  ! > PI negative
-        RadSlope%r(j,i)=-JMatrix%R(j,i)
-        RadSlope%Zp(j,i)=-JMatrix%YPR(j,i)
-       else
-        RadSlope%r(j,i)=JMatrix%R(j,i)
-        RadSlope%Zp(j,i)=JMatrix%YPR(j,i)
-       endif
-       RadSlope%Z(j,i)=JMatrix%Z(j,i)
-       RadSlope%Zp2(j,i)=1/803.0_wp ! fallback value before splining     
-     end do
+   MM=size(JMatrix%R,2)
+   RadSlope%thta(:)=JMatrix%THT(:)
+   RadSlope%MV(:)=JMatrix%MV(:)
+   RadSlope%r(:,:) = 0.0_wp
+   RadSlope%Zp(:,:) = 0.0_wp
+   RadSlope%Zp2(:,:) = 0.0_wp
+   RadSlope%Z(:,:) = 0.0_wp
+   do i=1,MM
+    do j=1,JMatrix%MV(i)
+      if (i > (MM/2)) then  ! > PI negative
+       RadSlope%r(j,i)=-JMatrix%R(j,i)
+       RadSlope%Zp(j,i)=-JMatrix%YPR(j,i)
+      else
+       RadSlope%r(j,i)=JMatrix%R(j,i)
+       RadSlope%Zp(j,i)=JMatrix%YPR(j,i)
+      endif
+      RadSlope%Z(j,i)=JMatrix%Z(j,i)
+      RadSlope%Zp2(j,i)=JMatrix%YP2R2(j,i)
     end do
+   end do
 END SUBROUTINE RadSlope_eq_JMatrix
 
 ! finds the minmax values of the JMatrix
