@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.30)
 cmake_policy(VERSION 3.30)
-project(kernunos LANGUAGES C CXX Fortran)
+
 set(VERSION_MAJOR "0")
 set(VERSION_MINOR "2")
 set(VERSION_BugFix "0")
@@ -8,15 +8,12 @@ set(PROJECT_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_BugFix})
 
 set(QT_FORCE_CMP0156_TO_VALUE OLD)
 set(CMAKE_MODULE_PATH cmake)
-enable_language(Fortran)
-enable_language(CXX)
-enable_language(C)
 
 #set(CMAKE_HOST_NAME Windows)
 set(CMAKE_HOST_NAME Linux)
 #set(CMAKE_SYSTEM Windows)
 set(CMAKE_SYSTEM UNIX)
-#set(CMAKE_SYSTEM APPLE)
+set(CMAKE_SYSTEM APPLE)
 
 #set(CMAKE_BUILD_TYPE RELEASE) # no debug or bounds check
 set(CMAKE_BUILD_TYPE DEBUG) #this include debugging with addition of bounds flags as specified below
@@ -30,6 +27,21 @@ if (${CMAKE_HOST_NAME} MATCHES Linux)
  set (CXX "g++")
  set (CC "gcc")
 endif()
+
+if (CMAKE_SYSTEM MATCHES APPLE)
+ set (CMAKE_Fortran_COMPILER "/opt/homebrew/bin/gfortran-16")
+ set(CMAKE_C_COMPILER "/opt/homebrew/bin/gcc-16")
+ set(CMAKE_CXX_COMPILER "/opt/homebrew/bin/g++-16")
+ # these don't override system environment, unfortunately
+ set (FC "gfortran-16")
+ set (CXX "g++-16")
+ set (CC "gcc-16")
+endif()
+
+project(kernunos LANGUAGES C CXX Fortran)
+enable_language(Fortran)
+enable_language(CXX)
+enable_language(C)
 
 set(QT_CREATOR_SKIP_MAINTENANCE_TOOL_PROVIDER on)
 set(CMAKE_CXX_STANDARD 17) # doesn't apply to win32
@@ -125,6 +137,9 @@ endif()
 if(CMAKE_SYSTEM MATCHES UNIX)
    message(STATUS "Target system is Linux")
 endif()
+if(CMAKE_SYSTEM MATCHES APPLE)
+   message(STATUS "Target system is Apple")
+endif()
 
 
 if(APPLE)
@@ -137,7 +152,16 @@ if(CMAKE_SYSTEM MATCHES Windows)
 endif()
 
 #dialect: 'f95’, ‘f2003’, ‘f2008’, ‘f2018’, ‘f2023’, ‘gnu’, or ‘legacy’.
-#if(CMAKE_Fortran_COMPILER MATCHES "gfortran")
+ if (APPLE)
+    set(FC "gfortran")
+    set(dialect "-cpp -ffree-form -std=legacy -fno-optimize-sibling-calls") #gfortran/lapack/blas bug? -fexternal-blas
+    set(bounds "-Wall -Wextra -Wimplicit-interface -fcheck=all -fbacktrace -fbounds-check -g")
+    set(omp "-Xpreprocessor -fopenmp -lomp")
+    set(NaN "-ffpe-trap=invalid,zero,overflow -finit-real=snan -finit-integer=-99999999")
+#  profiling with gprof 
+    set(profile "-pg -g -coverage")
+    set(optimize "-O3 -march=native -ffast-math -funroll-loops")
+ else()
     set(FC "gfortran")
     set(dialect "-cpp -ffree-form -std=legacy -fno-optimize-sibling-calls") #gfortran/lapack/blas bug? -fexternal-blas
     set(bounds "-Wall -Wextra -Wimplicit-interface -fcheck=all -fbacktrace -fbounds-check -g")
@@ -146,7 +170,7 @@ endif()
 #  profiling with gprof 
     set(profile "-pg -g -coverage")
     set(optimize "-O3 -march=native -ffast-math -funroll-loops")    
-#endif()
+endif()
 if(CMAKE_Fortran_COMPILER MATCHES "ifx")
     set(FC "ifx")
     set(dialect "-stand f08 -free -implicitnone")
@@ -254,6 +278,7 @@ else() #compiling for Linux dynamic libraries
   else()
    set(LAPACK_LIBRARIES "/usr/lib/liblapack.so")
   endif()
+  message(STATUS "Finding OpenMP under Linux or Apple: ")
   find_package(OpenMP)
   if (OpenMP_FOUND)
    message(STATUS "OpenMP_CXX found at ${OpenMP_CXX_LIBRARIES}")
@@ -427,6 +452,7 @@ ${HH_SOURCES}
 
 set_target_properties(driverPiecewiseLinear PROPERTIES
 MACOSX_BUNDLE_GUI_IDENTIFIER driverPiecewiseLinear.qt
+MACOSX_BUNDLE_DESTINATION ${INSTALL_EXAMPLEDIR}
 MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
 MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
 MACOSX_BUNDLE TRUE
@@ -557,6 +583,7 @@ if (TRUE)
 
 set_target_properties(kernunos PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER kernunos.qt
+    MACOSX_BUNDLE_DESTINATION ${INSTALL_EXAMPLEDIR}
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
