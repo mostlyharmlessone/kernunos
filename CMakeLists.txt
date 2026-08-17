@@ -13,7 +13,7 @@ set(CMAKE_MODULE_PATH cmake)
 set(CMAKE_HOST_NAME Linux)
 #set(CMAKE_SYSTEM Windows)
 set(CMAKE_SYSTEM UNIX)
-set(CMAKE_SYSTEM APPLE)
+#set(CMAKE_SYSTEM APPLE)
 
 #set(CMAKE_BUILD_TYPE RELEASE) # no debug or bounds check
 set(CMAKE_BUILD_TYPE DEBUG) #this include debugging with addition of bounds flags as specified below
