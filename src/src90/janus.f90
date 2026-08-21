@@ -271,7 +271,7 @@ if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3 .or. mod(
  allocate(CHARACTER(nblines) :: inputfile3)
  allocate(CHARACTER(nblines+3) :: inputfile4)
  allocate(CHARACTER(nblines+3) :: inputfile5)
-endif  ! mod(flag,100) == 0, 10, 2, 3, 13 or 14
+endif  ! mod(flag,100) == 0, 2, 3, 13 or 14
 
 !gnuplot files & calls
 if (mod(flag,100) .eq. 5 .or. mod(flag,100) .eq. 6 .or.&
@@ -404,7 +404,7 @@ DiaSlope%Zpd2 = .n. DiaSlope
  if ( Testdata .le.1 .or. TestData .eq. 6 ) then     ! only for test/Atlas/EyeSys/NIDEK at present
   call MakeRadSplineCenter(zero_int64,error_report)   ! remakes RadSplineCenter(1,:)
   if (error_report .ne. 0) then
-   write(*,*)' error at janus line number: ',__LINE__
+   write(*,*)' Error at  MakeRadSplineCenter called janus line number: ',__LINE__
   endif
  else
   RadSplineCenter(1,:)=0      ! pentacam by definition is at 0
@@ -418,7 +418,7 @@ DiaSlope%Zpd2 = .n. DiaSlope
  endif
   call MakeRadSplineCenter(dat,error_report)        ! generates spline centers with tweaks
   if (error_report .ne. 0) then
-   write(*,*)' error at janus line number: ',__LINE__
+   write(*,*)' Error at  MakeRadSplineCenter called janus line number: ',__LINE__
   endif
 ! WriteCenter shows where the spline of slopes is zero, it should be close to zero for a concave center with a unique maximum
  BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".plt")
@@ -625,7 +625,7 @@ if (btest(dat,5)) then
   if ( Testdata .le.1 .or. Testdata .eq. 6) then     ! not for Oculus PentaCam or Keratograph
    call MakeRadSplineCenter(zero_int64,error_report)   ! remakes RadSplineCenter(1,:)
    if (error_report .ne. 0) then
-    write(*,*)' janus line number: ',__LINE__
+    write(*,*)' Error at  MakeRadSplineCenter called janus line number: ',__LINE__
    endif
   else
    RadSplineCenter(1,:)=0      ! pentacam and keratograph by definition is at 0
@@ -638,7 +638,7 @@ if (btest(dat,5)) then
 
   call MakeRadSplineCenter(dat,error_report)        ! generates spline centers with tweaks
   if (error_report .ne. 0) then
-   write(*,*)' MakeRadSplineCenter janus line number: ',__LINE__
+   write(*,*)' Error at  MakeRadSplineCenter called janus line number: ',__LINE__
   endif
 
 ! Generate the surface
@@ -738,39 +738,106 @@ endif
 
 ! simple difference/subtraction with compare, addition with division by two for average
 if (mod(flag,100) == 10 .or. mod(flag,100) == 12) then
-!generate new JMatrix
- JMatrix3=JMatrix
-  if (allocated(JMatrix2%R) .and. loaded_files .ge. 2) then
-! use geometry from current JMatrix to populate
-  JMatrix2%R(:,:)=JMatrix%R(:,:) ! might have zeroes if smaller, but should be caught by MV below
-  JMatrix2%THT(:)=JMatrix%THT(:)
-  JMatrix2%R0=JMatrix%R0
-  JMatrix2%THT0=JMatrix%THT0
-! if no pupil registration and rotationdegrees is even, then there's a shortcut not requiring resplining
- if (btest(dat,6)) then
-  ctr_circle_x=JMatrix1%Pupil_Center(1)-JMatrix%Pupil_Center(1)
-  ctr_circle_y=JMatrix1%Pupil_Center(2)-JMatrix%Pupil_Center(2)
-  write(floata ,'(g0)') ctr_circle_x
-  write(floatb ,'(g0)') ctr_circle_y
-  call LogC("Decentering by "//floata//" "//floatb//c_null_char)
+ if (allocated(JMatrix2%R) .and. loaded_files .ge. 2) then
+ ! pupil registration
+  if (btest(dat,6)) then
+   ctr_circle_x=JMatrix1%Pupil_Center(1)-JMatrix%Pupil_Center(1)
+   ctr_circle_y=JMatrix1%Pupil_Center(2)-JMatrix%Pupil_Center(2)
+   write(floata ,'(g0)') ctr_circle_x
+   write(floatb ,'(g0)') ctr_circle_y
+   call LogC("Decentering by "//floata//" "//floatb//c_null_char)
+  else
+   ctr_circle_x=0.0 ; ctr_circle_y=0.0
+  endif
+ !generate new JMatrix3 with size & shape of JMatrix1
+  JMatrix3%MV(:)=JMatrix1%MV(:)
+ ! Make JMatrix3%R,THT same as JMatrix1%R,THT, subject to translation
   call PolarTranslate(ctr_circle_x,ctr_circle_y,0.0_wp,0.0_wp,JMatrix3%R0,JMatrix3%THT0)
   do i=1,M1
-   do j=1,JMatrix%MV(i)
-    call PolarTranslate(ctr_circle_x, ctr_circle_y,JMatrix%R(j,i),JMatrix%THT(i),JMatrix3%R(j,i),JMatrix3%THT(i))
+   do j=1,JMatrix3%MV(i)
+    call PolarTranslate(ctr_circle_x, ctr_circle_y,JMatrix1%R(j,i),JMatrix1%THT(i),JMatrix3%R(j,i),JMatrix3%THT(i))
    end do
   end do
-! regenerates based on new R/tht
-  call selectfunction(1,JMatrix3,flag,powctr,powmin,powmax,cardinal,nC)
- endif
+
+  ! set iflag for slope based data, integrate based on iflag with or without cubic/trapez or center point or not for values
+   if (TestData.ne.2 .and. TestData.ne.4) then   !not ELE files
+    if (btest(dat, 2)) then   ! cubic integration
+     if (btest(dat,0)) then   !centernode
+      iflag=12
+      else
+      iflag=2
+      endif
+     else         !trapezoidal integration
+      if (btest(dat,0)) then
+       iflag=11
+      else
+       iflag=1
+      endif
+     endif
+    else                      !ELE files
+     if (btest(dat,0)) then   !centernode
+      iflag=10
+     else
+      iflag=0
+     endif
+    endif
+  ! lsq instead of circumferential spline
+     if (btest(dat, 8)) then
+      iflag = iflag+100
+     endif
+! Generate the surface of current data (JMatrix, loaded into DiaSlope)
+! based on R,THT of previous data (JMatrix1) with (possible) pupil registration (JMatrix3 R,THT)
+! loads it into JMatrix3
+! make sure we've got the current data in DiaSlope
+  RadSlope=JMatrix
+  DiaSlope=RadSlope              ! move to diagonal format
+  DiaSlope%Zpd2 = .n. DiaSlope
+
+  do i=1,M1
+   do j=1,JMatrix3%MV(i) ! does not include center point
+!   generate elevations and derivatives; iflag no integration if .ELE .ELE_CSV file
+    call SplineEval1Dx1D(iflag,JMatrix3%R(j,i),JMatrix3%THT(i),JMatrix3%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
+    JMatrix3%YPR(j,i)=YPR
+    JMatrix3%YPTHETA(j,i)=YPTHETA
+    JMatrix3%YP2R2(j,i)=YP2R2
+    JMatrix3%YP2THETA(j,i)=YP2THETA
+    JMatrix3%YPRTHETA(j,i)=YPRTHETA
+!   Warp
+    call AXIALP(JMatrix3%R(j,i),YPTHETA/JMatrix3%R(j,i),YP2THETA/JMatrix3%R(j,i),JMatrix3%Warp(j,i))
+!   axisymmetric tweak
+    if (btest(dat,10)) then
+     call axisymmetric_principal(JMatrix3%R(j,i),YPR,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
+    else
+     call principal(JMatrix3%THT(i),JMatrix3%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
+    endif
+    JMatrix3%MONGEA(j,i)=RFCT*astigm
+    JMatrix3%MEANC(j,i)=RFCT*meanpower
+    JMatrix3%INSTC(j,i)=RFCT*princ1
+    JMatrix3%SAGC(j,i)=RFCT*princ2
+    JMatrix3%GAUSSC(j,i)=RFCT*gaussian
+! check here for extrapolation
+    if (abs(YP2THETA) .gt. 2000) then
+     write(*,*) 'Warning in compare: extrapolation at the edge where the data is discontinuous circumferentially: abs(YP2THETA) .gt. 2000'
+    endif
+   end do
+  end do
+
+! subtract/average based on same same radii, but with possible rotation
+  JMatrix2%THT(:)=JMatrix%THT(:)
   rotationdegrees=mod(270-rotationdegrees/2,180) ! makes 180 no rotation without risk of negative indices, odd rotation degrees get floor
   do i=1,M1
    j = mod(i + rotationdegrees,180)
    if (j .eq. 0) j = 180
     if(mod(flag,100) == 10) then
      JMatrix2%MV(i)=min(JMatrix%MV(j),JMatrix1%MV(i))
+     JMatrix2%R(:,i)=JMatrix1%R(:,i)
      op = -1
      JMatrix2%Z(:,i)=ABS(JMatrix1%Z(:,i)+op*JMatrix3%Z(:,j))
      JMatrix2%YPR(:,i)=JMatrix1%YPR(:,i)+op*JMatrix3%YPR(:,j)
+     JMatrix2%YPTHETA(:,i)=JMatrix1%YPTHETA(:,i)+op*JMatrix3%YPTHETA(:,j)
+     JMatrix2%YP2R2(:,i)=JMatrix1%YP2R2(:,i)+op*JMatrix3%YP2R2(:,j)
+     JMatrix2%YP2THETA(:,i)=JMatrix1%YP2THETA(:,i)+op*JMatrix3%YP2THETA(:,j)
+     JMatrix2%YPRTHETA(:,i)=JMatrix1%YPRTHETA(:,i)+op*JMatrix3%YPRTHETA(:,j)
      JMatrix2%SAGC(:,i)=ABS(JMatrix1%SAGC(:,i)+op*JMatrix3%SAGC(:,j))
      JMatrix2%Warp(:,i)=ABS(JMatrix1%Warp(:,i)+op*JMatrix3%Warp(:,j))
      JMatrix2%INSTC(:,i)=ABS(JMatrix1%INSTC(:,i)+op*JMatrix3%INSTC(:,j))
@@ -780,6 +847,7 @@ if (mod(flag,100) == 10 .or. mod(flag,100) == 12) then
      JMatrix2%ZC(:,i,:)=ABS(JMatrix1%ZC(:,i,:)+op*JMatrix3%ZC(:,j,:))
     else
      JMatrix2%MV(i)=max(JMatrix%MV(j),JMatrix1%MV(i))
+     JMatrix2%R(:,i)=JMatrix1%R(:,i)
      op = 1
      do k=1,JMatrix2%MV(i)
       if (JMatrix1%SAGC(k,i) > 0 .and. JMatrix3%SAGC(k,j) > 0) then
@@ -789,6 +857,10 @@ if (mod(flag,100) == 10 .or. mod(flag,100) == 12) then
       endif
       JMatrix2%Z(k,i)=(JMatrix1%Z(k,i)+JMatrix3%Z(k,j))/op2
       JMatrix2%YPR(k,i)=(JMatrix1%YPR(k,i)+JMatrix3%YPR(k,j))/op2
+      JMatrix2%YP2R2(k,i)=(JMatrix1%YP2R2(k,i)+JMatrix3%YP2R2(k,j))/op2
+      JMatrix2%YPRTHETA(k,i)=(JMatrix1%YPRTHETA(k,i)+JMatrix3%YPRTHETA(k,j))/op2
+      JMatrix2%YP2THETA(k,i)=(JMatrix1%YP2THETA(k,i)+JMatrix3%YP2THETA(k,j))/op2
+      JMatrix2%YPTHETA(k,i)=(JMatrix1%YPTHETA(k,i)+JMatrix3%YPTHETA(k,j))/op2
       JMatrix2%SAGC(k,i)=(JMatrix1%SAGC(k,i)+JMatrix3%SAGC(k,j))/op2
       JMatrix2%Warp(k,i)=(JMatrix1%Warp(k,i)+JMatrix3%Warp(k,j))/op2
       JMatrix2%INSTC(k,i)=(JMatrix1%INSTC(k,i)+JMatrix3%INSTC(k,j))/op2
@@ -800,79 +872,25 @@ if (mod(flag,100) == 10 .or. mod(flag,100) == 12) then
      op2 = 2  ! for centers below
     endif
   end do
- JMatrix2%SAGC0(:)=ABS(JMatrix1%SAGC0(:)+op*JMatrix3%SAGC0(:))/op2
- JMatrix2%Z0(:)=ABS(JMatrix1%Z0(:)+op*JMatrix3%Z0(:))/op2
- JMatrix2%Warp0(:)=ABS(JMatrix1%Warp0(:)+op*JMatrix3%Warp0(:))/op2
- JMatrix2%INSTC0(:)=ABS(JMatrix1%INSTC0(:)+op*JMatrix3%INSTC0(:))/op2
- JMatrix2%GAUSSC0(:)=ABS(JMatrix1%GAUSSC0(:)+op*JMatrix3%GAUSSC0(:))/op2
- JMatrix2%MEANC0(:)=ABS(JMatrix1%MEANC0(:)+op*JMatrix3%MEANC0(:))/op2
- JMatrix2%MONGEA0(:)=ABS(JMatrix1%MONGEA0(:)+op*JMatrix3%MONGEA0(:))/op2
- JMatrix2%ZC(:,:,:)=ABS(JMatrix1%ZC(:,:,:)+op*JMatrix3%ZC(:,:,:))/op2
- JMatrix2%ZC0(:,:)=ABS(JMatrix1%ZC0(:,:)+op*JMatrix3%ZC0(:,:))/op2
+  JMatrix2%SAGC0(:)=ABS(JMatrix1%SAGC0(:)+op*JMatrix3%SAGC0(:))/op2
+  JMatrix2%Z0(:)=ABS(JMatrix1%Z0(:)+op*JMatrix3%Z0(:))/op2
+  JMatrix2%Warp0(:)=ABS(JMatrix1%Warp0(:)+op*JMatrix3%Warp0(:))/op2
+  JMatrix2%INSTC0(:)=ABS(JMatrix1%INSTC0(:)+op*JMatrix3%INSTC0(:))/op2
+  JMatrix2%GAUSSC0(:)=ABS(JMatrix1%GAUSSC0(:)+op*JMatrix3%GAUSSC0(:))/op2
+  JMatrix2%MEANC0(:)=ABS(JMatrix1%MEANC0(:)+op*JMatrix3%MEANC0(:))/op2
+  JMatrix2%MONGEA0(:)=ABS(JMatrix1%MONGEA0(:)+op*JMatrix3%MONGEA0(:))/op2
+  JMatrix2%ZC(:,:,:)=ABS(JMatrix1%ZC(:,:,:)+op*JMatrix3%ZC(:,:,:))/op2
+  JMatrix2%ZC0(:,:)=ABS(JMatrix1%ZC0(:,:)+op*JMatrix3%ZC0(:,:))/op2
 
-
-! have to re-do min/max
- JMatrix2%SAGC0(2)=1E30   ;  JMatrix2%SAGC0(3)=-1E30
- JMatrix2%Warp0(2)=1E30   ;  JMatrix2%Warp0(3)=-1E30
- JMatrix2%Z0(2)=1E30      ;  JMatrix2%Z0(3)=-1E30
- JMatrix2%INSTC0(2)=1E30  ;  JMatrix2%INSTC0(3)=-1E30
- JMatrix2%GAUSSC0(2)=1E30 ;  JMatrix2%GAUSSC0(3)=-1E30
- JMatrix2%MEANC0(2)=1E30  ;  JMatrix2%MEANC0(3)=-1E30
- JMatrix2%MONGEA0(2)=1E30 ;  JMatrix2%MONGEA0(3)=-1E30
- JMatrix2%ZC0(2,:)=1E30   ;  JMatrix2%ZC0(3,:)=-1E30
- if (JMatrix2%INSTC0(1) <= JMatrix2%INSTC0(2)) JMatrix2%INSTC0(2)=JMatrix2%INSTC0(1)
- if (JMatrix2%INSTC0(1) >= JMatrix2%INSTC0(3)) JMatrix2%INSTC0(3)=JMatrix2%INSTC0(1)
- if (JMatrix2%GAUSSC0(1) <= JMatrix2%GAUSSC0(2)) JMatrix2%GAUSSC0(2)=JMatrix2%GAUSSC0(1)
- if (JMatrix2%GAUSSC0(1) >= JMatrix2%GAUSSC0(3)) JMatrix2%GAUSSC0(3)=JMatrix2%GAUSSC0(1)
- if (JMatrix2%Z0(1) <= JMatrix2%Z0(2)) JMatrix2%Z0(2)=JMatrix2%Z0(1)
- if (JMatrix2%Z0(1) >= JMatrix2%Z0(3)) JMatrix2%Z0(3)=JMatrix2%Z0(1)
- if (JMatrix2%SAGC0(1) <= JMatrix2%SAGC0(2)) JMatrix2%SAGC0(2)=JMatrix2%SAGC0(1)
- if (JMatrix2%SAGC0(1) >= JMatrix2%SAGC0(3)) JMatrix2%SAGC0(3)=JMatrix2%SAGC0(1)
- if (JMatrix2%Warp0(1) <= JMatrix2%Warp0(2)) JMatrix2%Warp0(2)=JMatrix2%Warp0(1)
- if (JMatrix2%Warp0(1) >= JMatrix2%Warp0(3)) JMatrix2%Warp0(3)=JMatrix2%Warp0(1)
- if (JMatrix2%MEANC0(1) <= JMatrix2%MEANC0(2)) JMatrix2%MEANC0(2)=JMatrix2%MEANC0(1)
- if (JMatrix2%MEANC0(1) >= JMatrix2%MEANC0(3)) JMatrix2%MEANC0(3)=JMatrix2%MEANC0(1)
- if (JMatrix2%MONGEA0(1) <= JMatrix2%MONGEA0(2)) JMatrix2%MONGEA0(2)=JMatrix2%MONGEA0(1)
- if (JMatrix2%MONGEA0(1) >= JMatrix2%MONGEA0(3)) JMatrix2%MONGEA0(3)=JMatrix2%MONGEA0(1)
- do k = 1,15
-  if (JMatrix2%ZC0(1,k) <= JMatrix2%ZC0(2,k)) JMatrix2%ZC0(2,k)=JMatrix2%ZC0(1,k)
-  if (JMatrix2%ZC0(1,k) >= JMatrix2%ZC0(3,k)) JMatrix2%ZC0(3,k)=JMatrix2%ZC0(1,k)
- end do
- do i=1,M1
-  do j=1,JMatrix2%MV(i)
-   if (JMatrix2%INSTC(j,i) <= JMatrix2%INSTC0(2)) JMatrix2%INSTC0(2)=JMatrix2%INSTC(j,i)
-   if (JMatrix2%INSTC(j,i) >= JMatrix2%INSTC0(3)) JMatrix2%INSTC0(3)=JMatrix2%INSTC(j,i)
-   if (JMatrix2%GAUSSC(j,i) <= JMatrix2%GAUSSC0(2)) JMatrix2%GAUSSC0(2)=JMatrix2%GAUSSC(j,i)
-   if (JMatrix2%GAUSSC(j,i) >= JMatrix2%GAUSSC0(3)) JMatrix2%GAUSSC0(3)=JMatrix2%GAUSSC(j,i)
-   if (JMatrix2%Z(j,i) <= JMatrix2%Z0(2)) JMatrix2%Z0(2)=JMatrix2%Z(j,i)
-   if (JMatrix2%Z(j,i) >= JMatrix2%Z0(3)) JMatrix2%Z0(3)=JMatrix2%Z(j,i)
-   if (JMatrix2%SAGC(j,i) <= JMatrix2%SAGC0(2)) JMatrix2%SAGC0(2)=JMatrix2%SAGC(j,i)
-   if (JMatrix2%SAGC(j,i) >= JMatrix2%SAGC0(3)) JMatrix2%SAGC0(3)=JMatrix2%SAGC(j,i)
-   if (JMatrix2%Warp(j,i) <= JMatrix2%Warp0(2)) JMatrix2%Warp0(2)=JMatrix2%Warp(j,i)
-   if (JMatrix2%Warp(j,i) >= JMatrix2%Warp0(3)) JMatrix2%Warp0(3)=JMatrix2%Warp(j,i)
-   if (JMatrix2%MEANC(j,i) <= JMatrix2%MEANC0(2)) JMatrix2%MEANC0(2)=JMatrix2%MEANC(j,i)
-   if (JMatrix2%MEANC(j,i) >= JMatrix2%MEANC0(3)) JMatrix2%MEANC0(3)=JMatrix2%MEANC(j,i)
-   if (JMatrix2%MONGEA(j,i) <= JMatrix2%MONGEA0(2)) JMatrix2%MONGEA0(2)=JMatrix2%MONGEA(j,i)
-   if (JMatrix2%MONGEA(j,i) >= JMatrix2%MONGEA0(3)) JMatrix2%MONGEA0(3)=JMatrix2%MONGEA(j,i)
-   do k = 1,15
-    if (JMatrix2%ZC(j,i,k) <= JMatrix2%ZC0(2,k)) JMatrix2%ZC0(2,k)=JMatrix2%ZC(j,i,k)
-    if (JMatrix2%ZC(j,i,k) >= JMatrix2%ZC0(3,k)) JMatrix2%ZC0(3,k)=JMatrix2%ZC(j,i,k)
-   end do
-  end do
- end do
   donut = .FALSE.
   elements(1:nE) = 0
   vertices(1:nV) = 0
+
+  call centersJMatrix(JMatrix2,TestData,dat,iflag,cardinal,nC)
+  call minmax(JMatrix2)
   call selectfunction(0,JMatrix2,flag,powctr,powmin,powmax,cardinal,nC)
   call Geom(flag, JMatrix2, donut, powmin, powmax, elements, vertices, nV, nE)
   call makelegend(flag, powmin, powmax, legend, nL)
-
-write(*,*) "janus",__LINE__,JMatrix2%ypr(13,1:N)
-write(*,*) "janus",__LINE__,JMatrix2%r(13,1:N)
-write(*,*) "janus",__LINE__,JMatrix2%MV(13)
-
-
-
   return
  else
   write(*,*) "Needs two scans for compare or average"
@@ -1340,11 +1358,6 @@ if (TestData .eq. 8) then
  endif
 !Generate the slope matrix
   RadSlope=JMatrix
-
-write(*,*) "janus",__LINE__,JMatrix%ypr(13,1:N)
-write(*,*) "janus",__LINE__,JMatrix%r(13,1:N)
-write(*,*) "janus",__LINE__,JMatrix%MV(13)
-
 endif ! end (TestData == 8)
 
 if (TestData .eq. 7) then
@@ -1941,7 +1954,7 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
  DiaSlope%Zpd2 = .n. DiaSlope
  call MakeRadSplineCenter(zero_int64,error_report)   ! remakes RadSplineCenter(1,:)
  if (error_report .ne. 0) then
-  write(*,*)' error at janus line number: ',__LINE__
+  write(*,*)' Error at  MakeRadSplineCenter called janus line number: ',__LINE__
  endif
 
  if (TestData.eq.3 .or. TestData.eq.5 ) RadSplineCenter(1,:)=0   ! pentacam data provided
@@ -1955,7 +1968,7 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
  endif
  call MakeRadSplineCenter(dat,error_report)        ! generates spline centers with tweaks
  if (error_report .ne. 0) then
-  write(*,*)' error at janus line number: ',__LINE__
+  write(*,*)' Error at  MakeRadSplineCenter called janus line number: ',__LINE__
  endif
 
 ! Atlas spline consistency check and computation of elevation by power vs elevation in file
@@ -2134,19 +2147,11 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
    j=RadSlope%MV(i)
    if (ABS(RadSlope%r(j,i)) >= rBo) rBo=ABS(RadSlope%r(j,i))
   end do
-! extrapolated keratogrpah data needs trimming at edges
+! extrapolated keratograph data needs trimming at edges
   if (index(inputfile1, "_F") .gt. 0) then
    rBo=0.80*rBo
   endif
   rBi=0.05*rBo
-!  min and max bounds
-  JMatrix%SAGC0(2)=1E30   ;  JMatrix%SAGC0(3)=-1E30
-  JMatrix%Warp0(2)=1E30   ;  JMatrix%Warp0(3)=-1E30 ; JMatrix%Warp0(1)=0
-  JMatrix%Z0(2)=1E30      ;  JMatrix%Z0(3)=-1E30
-  JMatrix%INSTC0(2)=1E30  ;  JMatrix%INSTC0(3)=-1E30 ; JMatrix%INSTC0(1)=0
-  JMatrix%GAUSSC0(2)=1E30 ;  JMatrix%GAUSSC0(3)=-1E30 ; JMatrix%GAUSSC0(1)=0
-  JMatrix%MEANC0(2)=1E30  ;  JMatrix%MEANC0(3)=-1E30 ; JMatrix%MEANC0(1)=0
-  JMatrix%MONGEA0(2)=1E30 ;  JMatrix%MONGEA0(3)=-1E30 ; JMatrix%MONGEA0(1)=0
   JMatrix%R0=0 ; JMatrix%THT0=0
 ! determine the boundary
   do i=1,M1                             ! every 2 degrees
@@ -2202,9 +2207,9 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
     JMatrix%YP2R2(j,i)=YP2R2
     JMatrix%YP2THETA(j,i)=YP2THETA
     JMatrix%YPRTHETA(j,i)=YPRTHETA
-!   powers
+!   Warp
     call AXIALP(JMatrix%R(j,i),YPTHETA/JMatrix%R(j,i),YP2THETA/JMatrix%R(j,i),JMatrix%Warp(j,i))
-!   not elevations
+!   axisymmetric tweak
     if (btest(dat,10)) then
      call axisymmetric_principal(JMatrix%R(j,i),YPR,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
     else
@@ -2215,55 +2220,12 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
     JMatrix%INSTC(j,i)=RFCT*princ1
     JMatrix%SAGC(j,i)=RFCT*princ2
     JMatrix%GAUSSC(j,i)=RFCT*gaussian
-
-!!!!!check here for extrapolation with XX; yep still doing it; its at the edge where the data is discontinuous circumferentially
-
-if (abs(YP2THETA) .gt. 2000) then
-
-write(*,*) ABS(JMatrix%R(j,i))*COS(JMatrix%THT(i)),ABS(JMatrix%R(j,i))*SIN(JMatrix%THT(i))&
-&,JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA,ABS(JMatrix%R(j,i))
-!nb only for mm=60
-! needs modification for oculus
-if (i .gt. M1/2) then
- ii=2*(i-M1/2)
-else
- ii=2*i
-endif
-write(*,*) 'abs(YP2THETA) .gt. 2000'
-!write(*,*) RadSlope%r(1:N,ii)
- write(*,*) j,i,ii
-!write(*,*) DiaSlope%rd(1:2*N,ii/2)
-
-endif
-
-!write(*,*) ' '
-!call principal(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
-!write(*,*) '2',RFCT*meanpower,RFCT*astigm,RFCT*princ1,RFCT*princ2,RFCT*gaussian
-
-!call axisymmetric_principal(JMatrix%R(j,i),YPR,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
-!write(*,*) '3',RFCT*meanpower,RFCT*astigm,RFCT*princ1,RFCT*princ2,RFCT*gaussian
-
-!    if (M1 .eq. 360) then
-!     k=8 ! skip this many problematic values at x-axis
-!    else
-!     k=4  ! fewer because every 2 degrees
-!    endif
-!    if ( (i .gt. (1+k) .and. i .lt. (M1/2-k)) .or. (i .lt. (M1-k)  .and. i .gt. (M1/2+k))) then
-!     call MONGEA(JMatrix%THT(i),JMatrix%R(j,i),ABS(YPR),YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MONGEA(j,i))
-!     call MEANP(JMatrix%THT(i),JMatrix%R(j,i),ABS(YPR),YPTHETA,YPRTHETA,YP2THETA,YP2R2,JMatrix%MEANC(j,i))
-!    endif
-
-
+! check here for extrapolation
+    if (abs(YP2THETA) .gt. 2000) then
+     write(*,*) 'Warning: extrapolation at the edge where the data is discontinuous circumferentially: abs(YP2THETA) .gt. 2000'
+    endif
    end do
   end do !end JMatrix ring generation
-
-write(*,*) "janus",__LINE__,JMatrix%ypr(13,1:N)
-write(*,*) "janus",__LINE__,JMatrix%r(13,1:N)
-write(*,*) "janus",__LINE__,JMatrix%MV(13)
-
-! spline over problematic limits at x-axis
-!  JMatrix%MEANC=splinefillintranspose(JMatrix%MEANC)
-!  JMatrix%MONGEA=splinefillintranspose(JMatrix%MONGEA)
 
 ! make RadSplineCenter
   RadSlope=0
@@ -2281,7 +2243,7 @@ write(*,*) "janus",__LINE__,JMatrix%MV(13)
   if ( Testdata .le.1 .or. Testdata .eq. 6) then     ! not for Oculus PentaCam or Keratograph
    call MakeRadSplineCenter(zero_int64,error_report)   ! remakes RadSplineCenter(1,:)
    if (error_report .ne. 0) then
-    write(*,*)' MakeRadSpline Error janus line number: ',__LINE__
+    write(*,*)' Error at  MakeRadSplineCenter called janus line number: ',__LINE__
    endif
   else
    RadSplineCenter(1,:)=0      ! pentacam and keratograph by definition is at 0
@@ -2292,7 +2254,7 @@ write(*,*) "janus",__LINE__,JMatrix%MV(13)
   endif
   call MakeRadSplineCenter(dat,error_report)        ! generates spline centers with tweaks
   if (error_report .ne. 0) then
-   write(*,*)' janus line number: ',__LINE__
+   write(*,*)' Error at  MakeRadSplineCenter called janus line number: ',__LINE__
   endif
 
 ! Calculate center values for everything
@@ -2347,7 +2309,7 @@ if (mod(flag,100) == 1) then
   if ( Testdata .le.1 .or. TestData .eq. 6 ) then ! no PentaCam/keratograph files; they have centerdefined at zero
    call MakeRadSplineCenter(zero_int64,error_report)   ! remakes RadSplineCenter(1,:)
    if (error_report .ne. 0) then
-    write(*,*)' janus line number: ',__LINE__
+    write(*,*)' Error at  MakeRadSplineCenter called janus line number: ',__LINE__
    endif
   else
    RadSplineCenter(1,:)=0      ! pentacam by definition is at 0
@@ -2360,9 +2322,8 @@ if (mod(flag,100) == 1) then
    DiaSlope%Zpd2 = .n. DiaSlope    ! re-spline, standard
   endif
   call MakeRadSplineCenter(dat,error_report)        ! generates spline centers with tweaks
-    write(*,*) dat,error_report,__LINE__
   if (error_report .ne. 0) then
-   write(*,*)' janus line number: ',__LINE__
+   write(*,*)' Error at  MakeRadSplineCenter called janus line number: ',__LINE__
   endif
 ! reset iflag for generating local elevations for computations
 if (btest(dat, 2)) then
@@ -2700,11 +2661,6 @@ endif
   call Pupil(JMatrix, dist, pupil_elements, pupil_vertices, pupil_nV, pupil_nE)
   call makelegend(flag, powmin, powmax, legend, nL)
   JMatrix%MV(:)=MV(:)
-
-
-!write(*,*) JMatrix%SAGC0
-!write(*,*) powmin,powmax,dist
-
 
 ! eigenvalues show shape of RadSlope without make_rings but with FillArray 7 elevations
 !  atmp=pca(2,RadSlope)

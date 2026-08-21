@@ -6,7 +6,7 @@ Kernunos is a program for analyzing/viewing corneal topography data from differe
 
 As has been noted by numerous authors in the field, it is hard to directly compare topography from different machines [Interchangeability_between_Placido_disc_and_Scheim.pdf](file:./docs/Interchangeability_between_Placido_disc_and_Scheim.pdf), making clinical studies as well as patient care more difficult.  The goal of this project is to provide a tool for doing so, (improving intraoperability) particularly to re-analyze older machines output with modern notions despite the limitations of the information we have. There are many older or discontinued models which are still in clinical use despite their technology being at this writing 30-40 years old. It is unfortunate that in only a generation later we are having to turn to software archeology. https://en.wikipedia.org/wiki/Software_archaeology <br>
 
-Each machine typically has and had its own internal analysis software as well as its own unique data storage.  There are newer machines which are also tomographic machines, in that they measure the thickness of the cornea, as well as machines that measure aberrometry of the whole eye. It would be lovely if the whole industry agreed on using an open data format, allowing for independent analysis, or if there were a method for importing the photographic data from one machine to another, along with the geometric data of the image cone.  Newer machines, particularly OCT machines as used in posterior segment (retina and optic nerve) images are now being seen for corneal scanning increasingly as well: e.g. Heidelberg's Anterion, or the latest Oculus Pentacam. In general, there is no publicly available description of the exact data rendered and how it is converted to the pictures we see, making it difficult to even know what to look for in the binary data files, assuming they have not been further intentionally obfuscated. https://en.wikipedia.org/wiki/Obfuscation_(software)
+Each machine typically has and had its own internal analysis software as well as its own unique data storage.  There are newer machines which are also tomographic machines, in that they measure the thickness of the cornea, as well as machines that measure aberrometry of the whole eye. It would be lovely if the whole industry agreed on using an open data format, allowing for independent analysis, or if there were a method for importing the photographic data from one machine to another, along with the geometric data of the image cone.  Newer machines, particularly OCT machines as used in posterior segment (retina and optic nerve) images are now being seen for corneal scanning increasingly as well: e.g. Heidelberg's Anterion, or the latest Oculus Pentacam. In general, there is no publicly available description of the exact data rendered and how it is converted to the pictures we see, making it difficult to even know what to look for in the binary data files, assuming they have not been further intentionally obfuscated. https://en.wikipedia.org/wiki/Obfuscation_(software)<br>
 
 
 ## Color scales and legends
@@ -30,7 +30,7 @@ To that end, the program allows the user to select a number of different color s
 
  "*...a tale Told by an idiot, full of sound and fury, Signifying nothing.*"<br>
 
-Most of these corneal topography machines also capture data about the size and location of the subject's pupil.  The clinical importance of the pupil position and size relative to the cornea has been the subject of much heated, sometimes scholarly, discussion and at least one notorious lawsuit in which the leading expert later recanted their testimony after the verdict (which of course did not alter the verdict, nor allow for appeal, AFAIK). Strange as it may seem, there are even greater differences between legal findings than between clinical acceptance and scientific knowledge. This program allows display of the pupil data in conjunction with the corneal data.
+Most of these corneal topography machines also capture data about the size and location of the subject's pupil.  The clinical importance of the pupil position and size relative to the cornea has been the subject of much heated, sometimes scholarly, discussion and at least one notorious lawsuit in which the leading expert later recanted their testimony after the verdict (which of course did not alter the verdict, nor allow for appeal, AFAIK). Strange as it may seem, there are even greater differences between legal findings than between clinical acceptance and scientific knowledge. This program allows display of the pupil data in conjunction with the corneal data.<br>
 
 ## Curvatures, Functions and Zernike
 
@@ -42,7 +42,7 @@ By convention, curvatures are converted from units of length to their inverse in
 
 In addition, more recently, interest in finer optical distinctions have driven clinicians and the manufacturers of topographers to incorporate measures of optical aberrations. Surfaces can be represented as functions on a cartesian grid z(x,y) can be represented by the approximations with the familiar Fourier series in Cartesian coordinates, or Bessel functions in polar coordinates.  There are many uses for breaking down the surface shape to (basically) its frequency space as represented by the coefficients which weigh the relative amount of each basis function.  In optics, Zernike functions have historically been popular because they are expressed in polar coordinates, like Bessel functions, but are better known in the microscopy and optics literature. The coefficients of the Zernike functions have some clinical correlates to gross optical properties, such as astigmatism, as well as wavefront optical aberrations, whereas the Bessel functions are better suited to accurately describe the geometry of a surface.  Clinicians typically look at the corneal data with several different representations depending on the situation.  For example, so-called "tangential" curvatures are felt to be better than "axial" curvatures at detecting and distinguishing prior ablation and type of ablation after myopic or hyperopic LASIK or PRK. The Zernike coefficient corresponding to optical coma is felt to be the most symptomatic so-called higher order aberration.  Modern manufacturers of clinical equipment have provided computations of Zernike coefficients (and in one case Fourier) for a given corneal surface. Typically these are based on wavefront aberrometry of the whole eye, not just the anterior corneal surface, but documentation of exactly what is computed and how is lacking. <br>
 
-It is also an increasingly common practice for manufacturers to provide several undocumented proprietary "indices" or numbers that are meant to provide a relatively simple clinical answer regarding important pathological features of the cornea or optics of the whole eye, again highlighting the difference between clinicians and ... everyone else.  No doubt soon, a diagnosis will emanate from the latest notorious oracular blackbox, an LLM.  If that is what you want, I am surprised you managed to read this far.
+It is also an increasingly common practice for manufacturers to provide several undocumented proprietary "indices" or numbers that are meant to provide a relatively simple clinical answer regarding important pathological features of the cornea or optics of the whole eye, again highlighting the difference between clinicians and ... everyone else.  No doubt soon, a diagnosis will emanate from the latest notorious oracular blackbox, an LLM.  If that is what you want, I am surprised you managed to read this far.<br>
 
 ## Hardware
 
@@ -50,7 +50,7 @@ It is also an increasingly common practice for manufacturers to provide several 
 
 The first, and older, class of machines are Placido disk machines, which take a photo of a reflection of rings on the surface and compute the shape based on the distortion of the image, subject to a number of assumptions, one important being an essentially 2-D simplification that along each radial mire reflected rays stay in their plane (which is not the case for non-axisymmetric or decentered axisymmetric shapes).  Machines do not actually use a flat Placido disk, but rather a cone with concentric rings to maximize the coverage area of the cornea by aiming for evenly spaced images of rings on a test sphere. <br>
 
- [./images/Placido_cone.jpeg](file:./images/Placido_cone.jpeg)
+ [./images/Placido_cone.jpeg](file:./images/Placido_cone.jpeg)<br>
 
 Of course it was also well recognized that any reconstruction of a 3-D reflecting surface (the cornea) by a 2-D image (particularly an image of concentric circles) is a underdetermined problem; i.e.. there is insufficent information and a number of mathematical assumptions have to made regarding the size and distance of the reflecting object. The mathematical approaches to curve reconstruction in a meridian, such as they were revealed, reflect the limitations of computation in the 1980's, and make quite a lot of simplfying assumptions in order to make the computations possible for the technology at that time.  There are also purely hardware issues regarding spacing of rings, image capture, resolution and digitization of the images. Even with optimal arrangements of rings and the givens of anatomy the surface imaged is generally limited to 60% of the total surface. It was nonetheless claimed at the time that the CMS system mentioned below was capable of 30 micron positional accuracy on the corneal surface. (Subject to the "undetermined but thought to be small" error mentioned above undercutting the entire method!) Note also that it has been calculated that a 16 micron local difference in elevation can equal 1 diopter of corneal power - a staggeringly large number by current clinical standards.  A modern machine claims a "resolution of +/- 0.01D, 1 micron
 accuracy / precision axial radius +/- 0.03mm altimetric data, +/- 2µm at 4mm".  I should also point out that manufacturer's sales teams have used the words precision and accuracy (and possibly resolution) interchangeably.   <br>
@@ -86,20 +86,21 @@ Bausch & Lomb, maker of the Orbscan had a separately purchasable viewer software
 
 ##List of machines
 
-Please see [SUPPORTED_HARDWARE.html](file:SUPPORTED_HARDWARE.html) for a list of corneal topography machines with notes on support in kernunos.
+Please see [SUPPORTED_HARDWARE.html](file:SUPPORTED_HARDWARE.html) for a list of corneal topography machines with notes on support in kernunos.<br>
 
 
 ## Disclaimer
  
-I have no commercial interest or conflict of interest regarding any of the products or technologies discussed in any of these documents, nor have I ever worked for or acted as a consultant for any of the corporations/companies mentioned here. Any opinions are my own and do not represent those of any previous or current employer.
+I have no commercial interest or conflict of interest regarding any of the products or technologies discussed in any of these documents, nor have I ever worked for or acted as a consultant for any of the corporations/companies mentioned here. Any opinions are my own and do not represent those of any previous or current employer.<br>
 
 
 ## Usage
  
 It is an embarrassment to have to state the following, as it should be understood to be the default:  No material on this site is intended to be a substitute for professional medical advice, diagnosis or treatment, nor is it meant for a corporate workplace.  If you want a secure professional piece of software, please consult a professional developer.  Speaking of which, this is NOT "vibe-coded", nor written by, nor with use of a so-called AI/LLM.  The information presented on the devices above was almost entirely gained by examining the machines externally and their files when possible, or public information on the internet when not, and its accuracy may therefore very well be limited or incorrect. No information was provided by any manufacturer other than what is available to the public and occasional chats with friendly sales reps for some of the manufacturers, with the notable exception of OCULUS Optikgeräte GmbH (Oculus USA) who were generous and kind enough to supply a sample export file and documentation for the Oculus Keratograph, as well as an export file from their latest OCT incorporating PentaCam machine.  Thank you Oculus! No warranty is made whatsoever that this software will function in the way that it is expected and that the results can be relied on to make clinical decisions. See also the LICENSE. Some example files have been included for demonstration purposes with the files redacted as needed to remove protected personal information.  The program is meant as a tool for understanding and improving intraoperability of data, limited by its design and manufacture, as well as by the user.  
- 
+<br> 
 
 ## Building
+<br>
 
 ###Under Linux 
 This software was developed at various times under the Slackware, Ubuntu, Arch, Manjaro distributions of GNU/Linux. Dependencies include Qt6, assimp, lapack, rply, gnuplot, gnuplot-iostream, boost, freetype, unzip, cabextract and superlu. Some routines are adapted from other sources and included, for example excerpts from Hanson & Hopkins (see below). OpenGL is used as the primary graphics API: GLSL 3.30 is needed as a minimum.  Qt appears to be deprecating C++ support in favor of QML: you may need to make sure the proper support is present. This version was built with Qt 6.8.3. You might need to adjust some of the paths in the CMakeLists.txt to build.<br>
@@ -152,12 +153,13 @@ set(CMAKE_SYSTEM UNIX)
 <br>
 commented out.<br>
 
-You will need to run winqtdeploy in order to generate the necessary Qt dlls and copy over the plugins.<br>
+You will need to run winqtdeploy in the build directory with the executable in order to generate the necessary Qt dlls and copy over the plugins; eg {path to Qt}Qt/6.8.3/mingw_64/bin/windeployqt6.exe kernunos.exe<br>
 
 gnuplot (https://gnuplot.sourceforge.net/) also needs to be installed for some functions.<br>
 
 As noted, OpenGL is used as the primary graphics API: it needs GLSL 3.30, which means the Windows binary will not run in a VM unless it has access to a real graphics card via passthrough or with a software renderer separately installed, eg.<br> https://github.com/pal1000/mesa-dist-win.<br>
-If used, install the Core (option 1) and the software renderer (option 7). The program and installer will run under WINE using the Linux distro's GLSL support, although the Linux distro's gnuplot will not be available. YMMV. The binary Windows installer (built with NSIS) includes an option to install gnuplot and the Mesa3D software renderer. CrossOver(TM) works well, although you might need to manually close some cmd.exe windows manually on installation and when using gnuplot.<br>
+If used, install the Core (option 1) and the software renderer (option 7). The program and installer will run under WINE using the Linux distro's GLSL support, although the Linux distro's gnuplot will not be available. YMMV.<br>
+The binary Windows installer (built with NSIS) includes an option to install gnuplot and the Mesa3D software renderer. CrossOver(TM) works well, although you might need to manually close some cmd.exe windows manually on installation and when using gnuplot.<br>
 
 
 ####Cross-compiling for Windows under Linux
@@ -204,7 +206,13 @@ https://wiki.wxwidgets.org/Cross-Compiling_Under_Linux <br>
 
 ####For MacOS
 
-Under construction.  Best advice seems to be build it on a Mac with the native toolchain.  Since the MacOS is based on BSD and has a similar toolset... possibly use the same instructions as for Linux with minimal changes. It appears the little activity in cross-compiling under Linux has largely been abandoned, possibly because of changes in Apple hardware over the last 10 years, which would not only require cross-compliling for Darwin/MacOS/Quartz, but also for the M1/M2/M3/M.. chips and other Apple only hardware. <br>
+Under construction.  Best advice seems to be build it on a Mac with the native toolchain.  Since the MacOS is based on BSD and has a similar toolset. It appears the little activity in cross-compiling under Linux has largely been abandoned, possibly because of changes in Apple hardware over the last 10 years, which would not only require cross-compliling for Darwin/MacOS/Quartz, but also for the M1/M2/M3/M.. chips and other Apple only hardware. <br>
+Built on a M3 iMac<br>
+download homebrew, for openGL use brew install glfw ; brew install vulkan-headers<br>
+brew install superlu ; brew install boost ; brew install Qt ; brew install libomp ; brew install gfortran<br>
+change FC, CC, CXX and other environment vars to use gcc.
+<br>
+References:<br>
 https://doc.qt.io/qt-6/macos.html <br>
 https://stackoverflow.com/questions/693952/how-to-compile-for-os-x-in-linux-or-windows <br>
 https://stackoverflow.com/questions/4342047/compiling-a-qt-application-for-mac-os-x-on-linux <br>
@@ -229,11 +237,11 @@ Do let me know if you find this software useful, or at least, amusing. Any const
 
 ## License
 To quote or adapt without proper attribution would be bad manners, to take credit for other's works, dishonest, quite aside from legalities.  I am not a lawyer, nor can really understand, let alone agree with, their worldview despite decades of adult life, starting with "ignorantia juris non excusat". Having said that, in so far as I understand from perusing the multiple versions of licenses for the software used in this project, the source code I have written/copied and adapted conforms to their respective licenses and allows for non-commercial use and redistribution with the caveat that the licenses are included and/or referenced and credit is given when known, which I have in good faith attempted. On that note, no AI/LLM was used for any part of this project, the goal of which has been to exercise my imagination, not to outsource the effort of making things up nor using the information of dubious provenance gathered by an LLM without permission or attribution.  Any use of and examination of proprietary trademarks and data has been, to my understanding for the purpose of this project, to be lawful under applicable laws.  My contributions, including the patches for superlu, and any other adaptations of existing software, are licensed as follows:<br>
-[LICENSE](https://github.com/mostlyharmlessone/kernunos/blob/main/LICENSE)<br> if not superseded by the relevant licenses of the adapted software collected under ./licenses.  Written documentation including this README © 1999 by Anthony M de Beus is licensed under CC BY-SA 4.0. https://creativecommons.org/licenses/by-sa/4.0/ 
+[LICENSE](https://github.com/mostlyharmlessone/kernunos/blob/main/LICENSE)<br> if not superseded by the relevant licenses of the adapted software collected under ./licenses.  Written documentation including this README © 1999 by Anthony M de Beus is licensed under CC BY-SA 4.0. https://creativecommons.org/licenses/by-sa/4.0/ <br>
 
 
 ##Web background references
-Broken links, books out of print, and any other disappointments are part of life.
+Broken links, books out of print, and any other disappointments are part of life.<br>
 
 ####Wikipedia/Mathematics
 There's nothing wrong with using the encyclopedia as a starting point, and like a dictionary used in a popular crossword word making game, at least we can choose to agree on a common reference.<br>
@@ -291,7 +299,7 @@ https://github.com/wxWidgets/wxWidgets/tree/master/samples/opengl/pyramid <br>
 update glew for wxWidget >= 3.1.5 for egl support <br>
 https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=glew-egl-glx <br>
 https://stackoverflow.com/questions/13659853/async-execution-with-wxwidgets <br>
-wxExecute(_("bash --login -i"), wxEXEC_ASYNC);
+wxExecute(_("bash --login -i"), wxEXEC_ASYNC);<br>
 
 
 ###Books

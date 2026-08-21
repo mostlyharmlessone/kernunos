@@ -3217,6 +3217,7 @@ void MainWindow::updateResult()
         legendvalues += "\n";
         legendvalues += "\n";
     }
+
     QString legendvalues2 = "";
 //  adjust so that range is greater than 5 as it may not be for differences
     float powmin =legend2[96];

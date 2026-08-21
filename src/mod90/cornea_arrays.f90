@@ -813,7 +813,6 @@ SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
       &average calculated',JMatrix%Z0(1),P_TEMP
      endif
 
-
   !   write(*,*) 'sagc'
   !  SAGC
   !  Reload RadSlope with SAGC & re-spline; can't compute it from surface because ill-defined at origin
@@ -857,7 +856,6 @@ SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
       write(*,*) 'Central Axial Power already set in RadSlope_eq_Skyline, center power supplied,&
       &average calculated',JMatrix%SAGC0(1),P_TEMP
      endif
-
 
   !   write(*,*) 'Warp'
   !  Warp

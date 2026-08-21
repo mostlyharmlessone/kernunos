@@ -40,7 +40,7 @@ REAL(wp), INTENT(OUT) ::c(M2)
 !  c=zwork(1:M2)
   call dgetrf(M2,M2,XTX,M2,ipvt,info)
   if (info .ne. 0) then
-   write(*,*) 'Error in lsqfit: dgetrf',info
+   write(*,*) 'FATAL Error in lsqfit: dgetrf',info
    write(*,*) t
    write(*,*) z
    stop
