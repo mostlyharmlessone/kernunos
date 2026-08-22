@@ -102,8 +102,7 @@ It is an embarrassment to have to state the following, as it should be understoo
 ## Building
 <br>
 
-###Under Linux 
-This software was developed at various times under the Slackware, Ubuntu, Arch, Manjaro distributions of GNU/Linux. Dependencies include Qt6, assimp, lapack, rply, gnuplot, gnuplot-iostream, boost, freetype, unzip, cabextract and superlu. Some routines are adapted from other sources and included, for example excerpts from Hanson & Hopkins (see below). OpenGL is used as the primary graphics API: GLSL 3.30 is needed as a minimum.  Qt appears to be deprecating C++ support in favor of QML: you may need to make sure the proper support is present. This version was built with Qt 6.8.3. You might need to adjust some of the paths in the CMakeLists.txt to build.<br>
+This software was developed at various times under the Slackware, Ubuntu, Arch, Manjaro distributions of GNU/Linux. Dependencies include Qt6, assimp, lapack, rply, gnuplot, gnuplot-iostream, boost, freetype, unzip, cabextract and superlu. Some routines are adapted from other sources and included, for example excerpts from Hanson & Hopkins (see below). OpenGL is used as the primary graphics API: GLSL 3.30 is needed as a minimum.  Qt appears to be deprecating C++ support in favor of QML: you may need to make sure the proper support is present. This version was built with Qt 6.8.3 with QtCreator 20. You might need to adjust some of the paths in the CMakeLists.txt to build.<br>
 
 There are some patches to Hanson & Hopkins http://www.siam.org/books/ot134 chapters 2,4, & 11 to accomodate superlu versions > 4.3, for Windows compilation and to support CSR sparse matrices.<br>
 
@@ -113,9 +112,16 @@ Linux system calls from C++  { system() } are called for starting with a command
 
 If you don't have access to those system calls, you'll have to extract the cabinet files to their uncompressed data files manually and clean up the temporary files manually, which has not been tested, YMMV.<br>
 
-After cloning the source, load submodules with git submodule update --init, then the usual:<br>
+###Under Linux 
 
-cmake ./ <br>
+After cloning the source, load submodules with git submodule update --init<br>
+Open the CmakeLists.txt as a Project in QtCreator, configure and build.
+
+Alternatively, the usual command line build should work:
+mkdir build (if not already present)
+cd build
+cmake ../ <br>
+make
 
 These lines need to be uncommented in CMakeLists.txt
 <br>
@@ -135,13 +141,12 @@ Building within QtCreator is also possible, but the default of using Ninja does 
 -DCMAKE_GENERATOR:STRING=Unix Makefiles<br>
 -DCMAKE_MAKE_PROGRAM:STRING=/usr/bin/make<br>
 
-####Under Windows
+###Under Windows
 
 As an alternative, build under Windows if you have the necessary toolset.  <br>
 
-The precompiled binary and installer were built in a Windows 10 VM. I used MingW/GCC for the C/C++/Fortran compiler and toolchain under Windows.<br> 
-https://doc.qt.io/qt-6/windows.html <br>
-I was unable to get Visual Studio and the Intel Fortran compiler to work together. In addition, the additional libraries would have to be compiled with the same toolchain.  I built assimp, superlu, glm, freetype, lapack and OpenBLAS with the same toolset using git-bash after downloading them directly from upstream. Again, you might need to adjust paths in CMakeLists.txt in order to build. These lines need to be uncommented in CMakeLists.txt:
+The precompiled binary and installer were built in a Windows 10 VM using QtCreator https://doc.qt.io/qt-6/windows.html. I could not configure command line cmake to work, no doubt owing to some complexity of overriding the default Windows toolchain. I was unable to get Visual Studio and the Intel Fortran compiler to work together even in QtCreator and used MingW/GCC for the C/C++/Fortran compiler and toolchain. The binary was built using QtCreator 19 and Qt 6.8.3, with<br> ASSIMP_WARNINGS_AS_ERRORS:UNINITIALIZED=OFF <br>
+added to the cmake options as well as making sure MingW cmake is used as the build creator and that the environmental variables point to the MingW gcc toolchain. In addition, the additional libraries were compiled with the same toolchain.  I built assimp, superlu, glm, freetype, lapack and OpenBLAS with the same toolset using git-bash after downloading them directly from upstream. Again, you might need to adjust paths in CMakeLists.txt in order to build. These lines need to be uncommented in CMakeLists.txt:
 <br>
 set(CMAKE_HOST_NAME Windows)
 set(CMAKE_SYSTEM Windows)
@@ -153,16 +158,23 @@ set(CMAKE_SYSTEM UNIX)
 <br>
 commented out.<br>
 
+change FC, CC, CXX and other environment vars to use gcc to overrride Qt defaults ie.:<br>
+export FC="/c/Qt/Tools/mingw1310_64/bin/gfortran"<br>
+export CC="/c/Qt/Tools/mingw1310_64/bin/gcc"<br>
+export CXX="/c/Qt/Tools/mingw1310_64/bin/g++"<br>
+you might need to add
+ 
+
 You will need to run winqtdeploy in the build directory with the executable in order to generate the necessary Qt dlls and copy over the plugins; eg {path to Qt}Qt/6.8.3/mingw_64/bin/windeployqt6.exe kernunos.exe<br>
 
 gnuplot (https://gnuplot.sourceforge.net/) also needs to be installed for some functions.<br>
 
 As noted, OpenGL is used as the primary graphics API: it needs GLSL 3.30, which means the Windows binary will not run in a VM unless it has access to a real graphics card via passthrough or with a software renderer separately installed, eg.<br> https://github.com/pal1000/mesa-dist-win.<br>
 If used, install the Core (option 1) and the software renderer (option 7). The program and installer will run under WINE using the Linux distro's GLSL support, although the Linux distro's gnuplot will not be available. YMMV.<br>
-The binary Windows installer (built with NSIS) includes an option to install gnuplot and the Mesa3D software renderer. CrossOver(TM) works well, although you might need to manually close some cmd.exe windows manually on installation and when using gnuplot.<br>
+The binary Windows installer (built with NSIS) includes an option to install gnuplot and the Mesa3D software renderer. If using NSIS bear in mind you alos need Qt assistant.exe copied into the binaries along with the windeploy for that app. CrossOver(TM) works well, although you might need to manually close some cmd.exe windows manually on installation and when using gnuplot.<br>
 
 
-####Cross-compiling for Windows under Linux
+###Cross-compiling for Windows under Linux
 
 Cross compiling under Linux is not as straightforward as one would like in 2026.  Perhaps it is not the ideal solution; there was a lot more activity >10 years prior, with the option of building in a VM with native tools becoming more common. As of this writing, I haven't managed a complete cross-compile build. Some notes follow:<br>
 
@@ -204,7 +216,7 @@ wxWidgets<br>
 https://wiki.wxwidgets.org/Cross-Compiling_Under_Linux <br>
 
 
-####For MacOS
+###For MacOS
 
 Under construction.  Best advice seems to be build it on a Mac with the native toolchain.  Since the MacOS is based on BSD and has a similar toolset. It appears the little activity in cross-compiling under Linux has largely been abandoned, possibly because of changes in Apple hardware over the last 10 years, which would not only require cross-compliling for Darwin/MacOS/Quartz, but also for the M1/M2/M3/M.. chips and other Apple only hardware. <br>
 Built on a M3 iMac <br>

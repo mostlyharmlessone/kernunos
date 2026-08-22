@@ -817,7 +817,8 @@ if (mod(flag,100) == 10 .or. mod(flag,100) == 12) then
     JMatrix3%GAUSSC(j,i)=RFCT*gaussian
 ! check here for extrapolation
     if (abs(YP2THETA) .gt. 2000) then
-     write(*,*) 'Warning in compare: extrapolation at the edge where the data is discontinuous circumferentially: abs(YP2THETA) .gt. 2000'
+     write(*,*) 'Warning in compare: extrapolation at the edge where the data&
+     &is discontinuous circumferentially: abs(YP2THETA) .gt. 2000'
     endif
    end do
   end do
