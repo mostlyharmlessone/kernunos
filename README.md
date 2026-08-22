@@ -207,10 +207,16 @@ https://wiki.wxwidgets.org/Cross-Compiling_Under_Linux <br>
 ####For MacOS
 
 Under construction.  Best advice seems to be build it on a Mac with the native toolchain.  Since the MacOS is based on BSD and has a similar toolset. It appears the little activity in cross-compiling under Linux has largely been abandoned, possibly because of changes in Apple hardware over the last 10 years, which would not only require cross-compliling for Darwin/MacOS/Quartz, but also for the M1/M2/M3/M.. chips and other Apple only hardware. <br>
-Built on a M3 iMac<br>
-download homebrew, for openGL use brew install glfw ; brew install vulkan-headers<br>
-brew install superlu ; brew install boost ; brew install Qt ; brew install libomp ; brew install gfortran<br>
-change FC, CC, CXX and other environment vars to use gcc.
+Built on a M3 iMac <br>
+Minimal Apple OS version Sonoma for homebrew
+download homebrew, for openGL use brew install to install the following:<br>
+glfw vulkan-headers superlu boost Qt gfortran glm<br>
+change FC, CC, CXX and other environment vars to use gcc to overrride Apple default clang ie.:<br>
+export FC="gfortran"<br>
+export CC="gcc-16"<br>
+export CXX="g++-16"<br>
+you might need to add QT_NO_DEPRECATED_WARNINGS as a cmake option
+
 <br>
 References:<br>
 https://doc.qt.io/qt-6/macos.html <br>
