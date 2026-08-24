@@ -14,6 +14,7 @@ set(CMAKE_HOST_NAME Linux)
 #set(CMAKE_SYSTEM Windows)
 set(CMAKE_SYSTEM UNIX)
 #set(CMAKE_SYSTEM APPLE)
+#set(CMAKE_SYSTEM_NAME APPLE)
 
 #set(CMAKE_BUILD_TYPE RELEASE) # no debug or bounds check
 set(CMAKE_BUILD_TYPE DEBUG) #this include debugging with addition of bounds flags as specified below
@@ -28,14 +29,22 @@ if (${CMAKE_HOST_NAME} MATCHES Linux)
  set (CC "gcc")
 endif()
 
-if (CMAKE_SYSTEM MATCHES APPLE)
+if (APPLE)
+# these are for the iMac  with M3
  set (CMAKE_Fortran_COMPILER "/opt/homebrew/bin/gfortran-16")
  set(CMAKE_C_COMPILER "/opt/homebrew/bin/gcc-16")
  set(CMAKE_CXX_COMPILER "/opt/homebrew/bin/g++-16")
+# set (CMAKE_Fortran_COMPILER "/usr/local/bin/gfortran-16")
+# set(CMAKE_C_COMPILER "/usr/local/bin/gcc-16")
+# set(CMAKE_CXX_COMPILER "/usr/local/bin/g++-16")
  # these don't override system environment, unfortunately
  set (FC "gfortran-16")
  set (CXX "g++-16")
  set (CC "gcc-16")
+ list(APPEND CMAKE_PREFIX_PATH "~/Qt/6.11.1/macos")
+ list(APPEND CMAKE_PREFIX_PATH "/usr/local/bin")
+ list(APPEND CMAKE_PREFIX_PATH "/usr/local/Cellar")
+ list(APPEND CMAKE_PREFIX_PATH "/usr/local/Cellar/openblas/0.3.34")
 endif()
 
 project(kernunos LANGUAGES C CXX Fortran)
@@ -44,7 +53,7 @@ enable_language(CXX)
 enable_language(C)
 
 set(QT_CREATOR_SKIP_MAINTENANCE_TOOL_PROVIDER on)
-set(CMAKE_CXX_STANDARD 17) # doesn't apply to win32
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 
@@ -53,7 +62,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-if (CMAKE_SYSTEM MATCHES Windows)
+if (WIN32)
 # toolchain-mingw64.cmake
   set(CMAKE_SYSTEM_NAME Windows)
   set(CMAKE_SYSTEM_PROCESSOR x86_64)
@@ -71,6 +80,7 @@ if (${CMAKE_HOST_NAME} MATCHES Windows)
 # set(CMAKE_Fortran_COMPILER "C:/Program Files (x86)/Intel/oneAPI/compiler/2026.0/bin/ifx.exe")
 # set(CMAKE_Fortran_PREPROCESS_SOURCE "<CMAKE_Fortran_COMPILER> -fpp <DEFINES> <INCLUDES> <FLAGS> -E <SOURCE> > <PREPROCESSED_SOURCE>")
 else()
+  set(CMAKE_CROSSCOMPILING true)
   set (CMAKE_Fortran_COMPILER "x86_64-w64-mingw32-gfortran")
   set(CMAKE_C_COMPILER "x86_64-w64-mingw32-gcc")
   set(CMAKE_CXX_COMPILER "x86_64-w64-mingw32-g++")
@@ -95,17 +105,17 @@ else() # in Linux
   COMMAND x86_64-w64-mingw32-windres ${CMAKE_CURRENT_SOURCE_DIR}/kernunos_icon.rc -O coff -o kernunos_icon.o
 )
 
-endif()
+endif() #end WIN32; cross-comiling probably not executed
+
+
 
 # STATIC stuff (Windows)
-if (CMAKE_SYSTEM MATCHES Windows)
+if (WIN32)
   set(BUILD_FOR_WIN TRUE)
-  set(WIN32 TRUE)
 else()
   set(BUILD_FOR_WIN FALSE)
 endif()
   option(STATIC_BUILD "Build a static binary." ${BUILD_FOR_WIN})
-
 
   if (STATIC_BUILD)
             # Force find commands to search only the target environment packages
@@ -123,7 +133,7 @@ endif()
             set(CMAKE_FIND_LIBRARY_SUFFIXES ".a" CONFIG)
             set(BUILD_SHARED_LIBS OFF)
     endif()
-    if (STATIC_BUILD AND ${CMAKE_SYSTEM} MATCHES Windows)
+    if (STATIC_BUILD AND WIN32)
             # include plugins into static build on windows
             # (we lack support for static on other platforms right now)
             set(QT_PLUGINS SvgIcon WindowsIntegration WindowsVistaStyle)
@@ -131,25 +141,23 @@ endif()
 
 endif()
 
-if(CMAKE_HOST_SYSTEM MATCHES Linux)
-   message(STATUS "Build host runs Linux")
+if(${CMAKE_HOST_NAME} MATCHES "Linux")
+   message(STATUS "Build host runs Linux/UNIX/OSX")
 endif()
-if(CMAKE_SYSTEM MATCHES UNIX)
-   message(STATUS "Target system is Linux")
+if (UNIX)
+   message(STATUS "Target system is UNIX-like")
 endif()
-if(CMAKE_SYSTEM MATCHES APPLE)
+if(APPLE)
    message(STATUS "Target system is Apple")
 endif()
-
+if(WIN32)
+   message(STATUS "Target system is Windows")
+endif()
 
 if(APPLE)
   find_package(Freetype REQUIRED)
   message(STATUS "Found Freetype in ${FREETYPE_INCLUDE_DIRS}")
 endif(APPLE)
-
-if(CMAKE_SYSTEM MATCHES Windows)
-   message(STATUS "Target system is Windows")
-endif()
 
 #dialect: 'f95’, ‘f2003’, ‘f2008’, ‘f2018’, ‘f2023’, ‘gnu’, or ‘legacy’.
  if (APPLE)
@@ -161,6 +169,7 @@ endif()
 #  profiling with gprof 
     set(profile "-pg -g -coverage")
     set(optimize "-O3 -march=native -ffast-math -funroll-loops")
+    set(apple_mach "-fno-underscoring")
  else()
     set(FC "gfortran")
     set(dialect "-cpp -ffree-form -std=legacy -fno-optimize-sibling-calls") #gfortran/lapack/blas bug? -fexternal-blas
@@ -197,6 +206,9 @@ set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${omp}")
 set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${NaN}")
 set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${type}")
 
+if(APPLE)
+ set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${apple_mach}")
+endif()
 
 #set(OpenMP_C_FLAGS "-fopenmp")
 #set(OpenMP_CXX_FLAGS "-fopenmp")
@@ -218,10 +230,19 @@ list(APPEND CMAKE_PREFIX_PATH "C:/Program Files (x86)/freetype")
 list(APPEND CMAKE_PREFIX_PATH "C:/Program Files (x86)/glm")
 else()
  set (CMAKE_PREFIX_PATH "/usr/lib/")
- if (${CMAKE_SYSTEM} MATCHES Windows)
+endif()
+
+if (WIN32)
   list(APPEND CMAKE_PREFIX_PATH "../Qt/6.8.3/mingw64/lib/cmake/")
  else()
-   list(APPEND CMAKE_PREFIX_PATH "../Qt/6.11.1/gcc_64/lib/cmake/")
+ if (APPLE)
+  set(Qt6_DIR "../Qt/6.11.1/macos/lib/cmake/Qt6/")
+  list(APPEND CMAKE_PREFIX_PATH "../Qt/6.11.1/macos/lib/cmake/Qt6/")
+  message(STATUS "Qt6 dir macOS: " ${Qt6_DIR})
+ else()
+  if (UNIX)
+   list(APPEND CMAKE_PREFIX_PATH "../Qt/6.8.3/gcc_64/lib/cmake/")
+  endif()
  endif()
 endif()
 
@@ -230,7 +251,7 @@ list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  if (${CMAKE_HOST_NAME} MATCHES "Windows") #compiling for Windows under Windows
+ if (${CMAKE_HOST_NAME} MATCHES "Windows") #compiling for Windows under Windows
     find_package(BLAS REQUIRED)
     message("BLAS found at " ${BLAS_LIBRARIES})
     find_package(LAPACK REQUIRED)
@@ -247,25 +268,25 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 #    set(OpenMP_LIBRARIES "location of openmp if not found under Windows")
     endif()
   else()  #cross-compiling for Windows under Linux
-  set(BLAS_LIBRARIES "/usr/x86_64-w64-mingw32/lib/libblas.a")
-  set(BLAS_FOUND TRUE)
-  set(LAPACK_LIBRARIES "/usr/x86_64-w64-mingw32/lib/liblapack.a")
-  set(LAPACK_FOUND TRUE)
-  set(OpenMP_LIBRARIES "/usr/x86_64-w64-mingw32/lib/libgomp.a;/usr/x86_64-w64-mingw32/lib/libpthread.a")
-  set(OpenMP_Fortran_FLAGS "-fopenmp")
-  set(OpenMP_Fortran_LIB_NAMES "/usr/x86_64-w64-mingw32/lib/libgomp.a;/usr/x86_64-w64-mingw32/lib/libpthread.a")
-  set(OpenMP_Fortran_FOUND TRUE)
+   set(BLAS_LIBRARIES "/usr/x86_64-w64-mingw32/lib/libblas.a")
+   set(BLAS_FOUND TRUE)
+   set(LAPACK_LIBRARIES "/usr/x86_64-w64-mingw32/lib/liblapack.a")
+   set(LAPACK_FOUND TRUE)
+   set(OpenMP_LIBRARIES "/usr/x86_64-w64-mingw32/lib/libgomp.a;/usr/x86_64-w64-mingw32/lib/libpthread.a")
+   set(OpenMP_Fortran_FLAGS "-fopenmp")
+   set(OpenMP_Fortran_LIB_NAMES "/usr/x86_64-w64-mingw32/lib/libgomp.a;/usr/x86_64-w64-mingw32/lib/libpthread.a")
+   set(OpenMP_Fortran_FOUND TRUE)
  # find_package(OpenMP)
-  set(OpenMP_C_FLAGS "-fopenmp")
-  set(OpenMP_C_LIB_NAMES "/usr/x86_64-w64-mingw32/lib/libgomp.a;/usr/x86_64-w64-mingw32/lib/libpthread.a")
-  set(OpenMP_C_LIBRARIES "/usr/x86_64-w64-mingw32/lib/libgomp.a;/usr/x86_64-w64-mingw32/lib/libpthread.a")
-  set(OpenMP_C_FOUND TRUE)
-  set(OpenMP_CXX_FLAGS "-fopenmp")
-  set(OpenMP_CXX_LIB_NAMES "/usr/x86_64-w64-mingw32/lib/libgomp.a;/usr/x86_64-w64-mingw32/lib/libpthread.a;/usr/x86_64-w64-mingw32/lib/libmingwthrd.a")
-  set(OpenMP_CXX_LIBRARIES "/usr/x86_64-w64-mingw32/lib/libgomp.a;/usr/x86_64-w64-mingw32/lib/libpthread.a;/usr/x86_64-w64-mingw32/lib/libmingwthrd.a")
-  set(OpenMP_CXX_FOUND TRUE)
-endif()
-else() #compiling for Linux dynamic libraries
+   set(OpenMP_C_FLAGS "-fopenmp")
+   set(OpenMP_C_LIB_NAMES "/usr/x86_64-w64-mingw32/lib/libgomp.a;/usr/x86_64-w64-mingw32/lib/libpthread.a")
+   set(OpenMP_C_LIBRARIES "/usr/x86_64-w64-mingw32/lib/libgomp.a;/usr/x86_64-w64-mingw32/lib/libpthread.a")
+   set(OpenMP_C_FOUND TRUE)
+   set(OpenMP_CXX_FLAGS "-fopenmp")
+   set(OpenMP_CXX_LIB_NAMES "/usr/x86_64-w64-mingw32/lib/libgomp.a;/usr/x86_64-w64-mingw32/lib/libpthread.a;/usr/x86_64-w64-mingw32/lib/libmingwthrd.a")
+   set(OpenMP_CXX_LIBRARIES "/usr/x86_64-w64-mingw32/lib/libgomp.a;/usr/x86_64-w64-mingw32/lib/libpthread.a;/usr/x86_64-w64-mingw32/lib/libmingwthrd.a")
+   set(OpenMP_CXX_FOUND TRUE)
+  endif()
+ else() #compiling for Linux or Apple
   find_package(BLAS)
   if (BLAS_FOUND)
    message(STATUS "BLAS found at ${BLAS_LIBRARIES}")
@@ -305,18 +326,18 @@ if (CMAKE_HOST_SYSTEM MATCHES Windows)
 #set(GLM_INCLUDE_DIR "glm/glm/")
 # Find the FreeType2 package
 # had to add the freetype project here, not just the things in C:/Program Files (x86)
-add_subdirectory(freetype/)
-find_package(Freetype REQUIRED)
+ add_subdirectory(freetype/)
+ find_package(Freetype REQUIRED)
  set(FREETYPE_DIR "C:/Program Files (x86)/freetype")
 # set(FREETYPE_INCLUDE_DIR "freetype/include/freetype2/")
 # assimp
-add_subdirectory(assimp/)
-find_package(assimp REQUIRED)
-message(STATUS "ASSIMP_INCLUDE_DIRS" ${ASSIMP_INCLUDE_DIRS})
+ add_subdirectory(assimp/)
+ find_package(assimp REQUIRED)
+ message(STATUS "ASSIMP_INCLUDE_DIRS" ${ASSIMP_INCLUDE_DIRS})
 # had to set these in Qt/Projects cmake settings under Windows "-DASSIMP_WARNINGS_AS_ERRORS=OFF"
-set(${ASSIMP_INCLUDE_DIRS} assimp/include/assimp)
-set(${ASSIMP_WARNINGS_AS_ERRORS}=OFF)
-else()
+ set(${ASSIMP_INCLUDE_DIRS} assimp/include/assimp)
+ set(${ASSIMP_WARNINGS_AS_ERRORS}=OFF)
+else() #Linux or Apple host
   #also set in QtCreator
   set(QT_CREATOR_SKIP_MAINTENANCE_TOOL_PROVIDER ON)
   if (${CMAKE_SYSTEM} MATCHES Windows)
@@ -326,56 +347,39 @@ else()
    message(STATUS "Qt linux, cross compilation for Windows: " ${Qt6_FOUND})
    message(STATUS "Qt6 dir: " ${Qt6_DIR})
   else()
-#   SET(Qt6_DIR "../Qt/6.8.3/gcc_64/")
+#  Linux or Apple no cross-compile
    find_package(Qt6 COMPONENTS Core Gui Pdf PdfWidgets OpenGLWidgets OpenGL Widgets LinguistTools REQUIRED )
    find_package(Qt6 COMPONENTS Concurrent REQUIRED)
-   message(STATUS "Qt linux, no crosscompilation: " ${Qt6_FOUND})
+   message(STATUS "Qt linux/apple, no crosscompilation: " ${Qt6_FOUND})
    message(STATUS "Qt6 dir: " ${Qt6_DIR})
   endif()
-  # Find the FreeType2 package
-  set(FREETYPE_DIR "/usr/include/freetype2")
-  set(FREETYPE_INCLUDE_DIR "/usr/include/freetype2/freetype")
+ # Find the FreeType2 package
+ #  set(FREETYPE_DIR "/usr/include/freetype2")
+ #  set(FREETYPE_INCLUDE_DIR "/usr/include/freetype2/freetype")
   find_package(Freetype REQUIRED)
-endif()
   message(STATUS "Found Freetype in ${FREETYPE_INCLUDE_DIRS}")
   message(STATUS "Found Freetype in ${FREETYPE_DIR}")
-set(TS_FILES src/cxx/kernunos_en_US.ts)
+endif()
 
-ADD_COMPILE_DEFINITIONS(ASSIMP_VERSION="${ASSIMP_VERSION}")
+if(APPLE)
+# assimp
+add_subdirectory(assimp/)
+find_package(assimp REQUIRED)
+message(STATUS "ASSIMP_INCLUDE_DIRS" ${ASSIMP_INCLUDE_DIRS})
+# had to set these in Qt/Projects cmake settings under Windows and for APPLE "-DASSIMP_WARNINGS_AS_ERRORS=OFF"
+set(${ASSIMP_INCLUDE_DIRS} assimp/include/assimp)
+set(${ASSIMP_WARNINGS_AS_ERRORS}=OFF)
+endif()
+
+ set(TS_FILES src/cxx/kernunos_en_US.ts)
+ ADD_COMPILE_DEFINITIONS(ASSIMP_VERSION="${ASSIMP_VERSION}")
 
 # superlu
-if (CMAKE_HOST_SYSTEM MATCHES Windows)
  find_package(SuperLU REQUIRED)
- message(STATUS "SUPERLU found at ${SUPERLU_LIBRARIES}")
-else()
-if (CMAKE_SYSTEM MATCHES Windows AND ${CMAKE_HOST_SYSTEM} MATCHES Linux)
-  find_package(SuperLU REQUIRED)
-  if ( SUPERLU_FOUND )
-   message(STATUS "SUPERLU found at ${SUPERLU_LIBRARIES}")
-  else()
-   set(SUPERLU_LIBRARIES "/usr/x86_64-w64-mingw32/lib/libsuperlu.a")
-   set(SUPERLU_LIBRARIES "/usr/local/lib/libsuperlu.a")
-   message(STATUS "SUPERLU set to ${SUPERLU_LIBRARIES}")
-  endif()
-else()
- find_package(SuperLU REQUIRED)
- if ( SUPERLU_FOUND )
-  message(STATUS "SUPERLU found at ${SUPERLU_LIBRARIES}")   
- else()
-  set(SUPERLU_LIBRARIES "/usr/libsuperlu.so")
-  message(STATUS "SUPERLU found at ${SUPERLU_LIBRARIES}")
- endif()
-endif()
-endif()
-
-#  boost
-if (CMAKE_HOST_SYSTEM MATCHES Windows)
- find_package(Boost REQUIRED COMPONENTS iostreams filesystem)
-message(STATUS "Boost found at ${Boost_DIR}")
-else()
+#boost
  find_package(Boost REQUIRED COMPONENTS iostreams filesystem)
  message(STATUS "Boost found at ${Boost_DIR}")
-endif()
+
 
 # Compile.
 
@@ -393,8 +397,11 @@ endif()
 
 #   rply conversion 
     file(GLOB rply_sources src/c/convertplytobin.c src/c/rply.c src/c/*.h )
-    file(GLOB interface src/c/logc.c src/c/logc.h
-                 src/c/Ccounter.c src/c/counter.h)
+ #   file(GLOB interface src/c/logc.c src/c/logc.h
+ #                src/c/Ccounter.c src/c/counter.h)
+
+#   C source
+    file(GLOB_RECURSE interface src/c/*.c src /c/*.h)
 
 #   Fortran Source
 
@@ -403,6 +410,24 @@ endif()
                                      src/HansonHopkins/set_precision.f90
                                      src/HansonHopkins/LapackInterface.f90)
 
+    set(sparse_sources
+                                     src/sparse/sparsekit.f90
+                                     src/sparse/sparsekit_test01.f90
+                                     src/HansonHopkins/sparseAssign.f90
+                                     src/HansonHopkins/sparseOps.f90
+                                     src/HansonHopkins/sparseSort.f90
+                                     src/HansonHopkins/sparseTypes.f90
+                                     src/HansonHopkins/sparseUtils.f90
+                                     src/HansonHopkins/sluInterop.f90
+                                     src/HansonHopkins/sortElements.f90
+                                     src/HansonHopkins/fortran_double_call_SuperLU.c
+                                     src/HansonHopkins/slu_Cnames.h
+                                     src/HansonHopkins/slu_ddefs.h
+                                     src/HansonHopkins/slu_util.h
+                                     src/HansonHopkins/superlu_enum_consts.h
+                                     src/HansonHopkins/supermatrix.h
+                                     )
+
 
 # external libraries
     set(LIBS ${SUPERLU_LIBRARIES} ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES} ${OPENGL_LIBRARIES} freetype ${GFORTRAN_LIBRARY})
@@ -410,6 +435,10 @@ endif()
 # need this so that GLwidget.h can be found by AUTOUIC and ui.mainwindow.h, and for rply and assimp
 include_directories(src/cxx src/c)
 
+add_library( misc_c ${interface})
+add_library( rply_includes ${rply_sources})
+add_library( modules  ${mod_sources90} ${misc_c} ${sparse_sources})
+add_library( splia ${lib_sources90} ${misc_c} )
 
 if(TRUE)
 
@@ -420,34 +449,12 @@ set(HH_SOURCES
                    src/HansonHopkins/driverPiecewiseLinear.f90
                    src/HansonHopkins/set_precision.f90
                    src/HansonHopkins/LapackInterface.f90
-                   src/sparse/sparsekit.f90
-                   src/sparse/sparsekit_test01.f90
-                   src/HansonHopkins/sparseAssign.f90
-                   src/HansonHopkins/sparseOps.f90
-                   src/HansonHopkins/sparseSort.f90
-                   src/HansonHopkins/sparseTypes.f90
-                   src/HansonHopkins/sparseUtils.f90
-                   src/HansonHopkins/sluInterop.f90
-                   src/HansonHopkins/sortElements.f90
-                   src/HansonHopkins/fortran_double_call_SuperLU.c
-                   src/HansonHopkins/slu_Cnames.h
-                   src/HansonHopkins/slu_ddefs.h
-                   src/HansonHopkins/slu_util.h
-                   src/HansonHopkins/superlu_enum_consts.h
-                   src/HansonHopkins/supermatrix.h
                    src/src90/gauss-jordan.f90
                    )
 
-# add_executable(driverPiecewiseLinear
-#         ${HH_SOURCES}
-#     )
-
-#  target_link_libraries(driverPiecewiseLinear ${LIBS2})
-
-
 qt_add_executable(driverPiecewiseLinear
 MANUAL_FINALIZATION
-${HH_SOURCES}
+${HH_SOURCES} ${sparse_sources}
 )
 
 set_target_properties(driverPiecewiseLinear PROPERTIES
@@ -465,9 +472,6 @@ if(NOT DEFINED INSTALL_EXAMPLESDIR)
     set(INSTALL_EXAMPLESDIR "../")
 endif()
 
-#install(TARGETS driverPiecewiseLinear RUNTIME DESTINATION "${INSTALL_EXAMPLEDIR}"
-#                BUNDLE DESTINATION "${INSTALL_EXAMPLEDIR}"
-#                LIBRARY DESTINATION "${INSTALL_EXAMPLEDIR}")
 install(TARGETS driverPiecewiseLinear RUNTIME DESTINATION bin ${INSTALL_EXAMPLEDIR}
                 BUNDLE DESTINATION macOS ${INSTALL_EXAMPLEDIR}
                 LIBRARY DESTINATION lib ${INSTALL_EXAMPLEDIR})
@@ -481,52 +485,15 @@ set(HH_SOURCES2
                    src/HansonHopkins/driverPiecewiseCubic.f90
                    src/HansonHopkins/set_precision.f90
                    src/HansonHopkins/LapackInterface.f90
-                   src/sparse/sparsekit.f90
-                   src/sparse/sparsekit_test01.f90
-                   src/HansonHopkins/sparseAssign.f90
-                   src/HansonHopkins/sparseOps.f90
-                   src/HansonHopkins/sparseSort.f90
-                   src/HansonHopkins/sparseTypes.f90
-                   src/HansonHopkins/sparseUtils.f90
-                   src/HansonHopkins/sluInterop.f90
-                   src/HansonHopkins/sortElements.f90
-                   src/HansonHopkins/fortran_double_call_SuperLU.c
-                   src/HansonHopkins/slu_Cnames.h
-                   src/HansonHopkins/slu_ddefs.h
-                   src/HansonHopkins/slu_util.h
-                   src/HansonHopkins/superlu_enum_consts.h
-                   src/HansonHopkins/supermatrix.h
                    )
                add_executable(driverPiecewiseCubic
-                   ${HH_SOURCES2}
+                   ${HH_SOURCES2} ${sparse_sources}
                )
 target_link_libraries(driverPiecewiseCubic ${LIBS2})
 
 endif()
 
 #kernunos Qt version
-
-set(sparse_sources
-                   src/sparse/sparsekit.f90
-                   src/sparse/sparsekit_test01.f90
-                   src/HansonHopkins/sparseAssign.f90
-                   src/HansonHopkins/sparseOps.f90
-                   src/HansonHopkins/sparseSort.f90
-                   src/HansonHopkins/sparseTypes.f90
-                   src/HansonHopkins/sparseUtils.f90
-                   src/HansonHopkins/sluInterop.f90
-                   src/HansonHopkins/sortElements.f90
-                   src/HansonHopkins/fortran_double_call_SuperLU.c
-                   src/HansonHopkins/slu_Cnames.h
-                   src/HansonHopkins/slu_ddefs.h
-                   src/HansonHopkins/slu_util.h
-                   src/HansonHopkins/superlu_enum_consts.h
-                   src/HansonHopkins/supermatrix.h
-                   )
-
-add_library( rply_includes ${rply_sources})
-add_library( modules ${mod_sources90} ${interface})
-add_library( splia ${lib_sources90} ${interface})
 
 if (CMAKE_SYSTEM MATCHES Windows)
 
@@ -607,8 +574,8 @@ if (CMAKE_HOST_SYSTEM MATCHES Windows)
  target_include_directories(kernunos PUBLIC ${FREETYPE_INCLUDE_DIRS})
  target_include_directories(kernunos PUBLIC ${FREETYPE_DIR})
 else()
-target_include_directories(kernunos PUBLIC ${FREETYPE_INCLUDE_DIRS})
-target_include_directories(kernunos PUBLIC /usr/include/freetype2)
+ target_include_directories(kernunos PUBLIC ${FREETYPE_INCLUDE_DIRS})
+ target_include_directories(kernunos PUBLIC /usr/include/freetype2)
 endif()
 
 if (CMAKE_HOST_SYSTEM MATCHES Windows)

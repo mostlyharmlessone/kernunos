@@ -94,12 +94,13 @@ On more positive notes:<br></p>
 <p>If you don&#39;t have access to those system calls, you&#39;ll have to extract the cabinet files to their uncompressed data files manually and clean up the temporary files manually, which has not been tested, YMMV.<br></p>
 <h3 id="under-linux">Under Linux</h3>
 <p>After cloning the source, load submodules with git submodule update --init<br>
-Open the CmakeLists.txt as a Project in QtCreator, configure and build.</p>
+Open the CmakeLists.txt as a Project in QtCreator, configure and build. </p>
 <p>Alternatively, the usual command line build should work:
 mkdir build (if not already present)
-cd build
+cd build<br>
 cmake ../ <br>
-make</p>
+make<br>
+Depending on your environment, you might need to run cmake ../ twice.</p>
 <p>These lines need to be uncommented in CMakeLists.txt
 <br>
 set(CMAKE_HOST_NAME Linux)
@@ -111,7 +112,7 @@ set(CMAKE_HOST_NAME Windows)
 set(CMAKE_SYSTEM Windows)
 <br>
 commented out.<br></p>
-<p>gcc is used as the default compiler with cmake.  <br></p>
+<p>gcc is used as the default compiler with cmake. Built with Qt 6.8.3 <br></p>
 <p>Building within QtCreator is also possible, but the default of using Ninja does not work with the Fortran dependencies. I had to manually edit .qtcreator/CMakeLists.txt.user directly to replace ninja in the following lines:<br>
 -DCMAKE_GENERATOR:STRING=Unix Makefiles<br>
 -DCMAKE_MAKE_PROGRAM:STRING=/usr/bin/make<br></p>
@@ -129,7 +130,7 @@ set(CMAKE_HOST_NAME Linux)
 set(CMAKE_SYSTEM UNIX)
 <br>
 commented out.<br></p>
-<p>ALternatively at the command line: (your Windows environment and path may differ)
+<p>Alternatively at the command line: (your Windows environment and path may differ)
 cmake -G &quot;MinGW Makefiles&quot; ../
 $ mingw32-make install</p>
 <p>change FC, CC, CXX and other environment vars to use gcc to overrride Qt defaults ie.:<br>

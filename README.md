@@ -115,13 +115,14 @@ If you don't have access to those system calls, you'll have to extract the cabin
 ###Under Linux 
 
 After cloning the source, load submodules with git submodule update --init<br>
-Open the CmakeLists.txt as a Project in QtCreator, configure and build.
+Open the CmakeLists.txt as a Project in QtCreator, configure and build. 
 
 Alternatively, the usual command line build should work:
 mkdir build (if not already present)
-cd build
+cd build<br>
 cmake ../ <br>
-make
+make<br>
+Depending on your environment, you might need to run cmake ../ twice.
 
 These lines need to be uncommented in CMakeLists.txt
 <br>
@@ -135,11 +136,12 @@ set(CMAKE_SYSTEM Windows)
 <br>
 commented out.<br>
 
-gcc is used as the default compiler with cmake.  <br>
+gcc is used as the default compiler with cmake. Built with Qt 6.8.3 <br>
 
 Building within QtCreator is also possible, but the default of using Ninja does not work with the Fortran dependencies. I had to manually edit .qtcreator/CMakeLists.txt.user directly to replace ninja in the following lines:<br>
 -DCMAKE_GENERATOR:STRING=Unix Makefiles<br>
 -DCMAKE_MAKE_PROGRAM:STRING=/usr/bin/make<br>
+
 
 ###Under Windows
 
@@ -158,7 +160,7 @@ set(CMAKE_SYSTEM UNIX)
 <br>
 commented out.<br>
 
-ALternatively at the command line: (your Windows environment and path may differ)
+Alternatively at the command line: (your Windows environment and path may differ)
 cmake -G "MinGW Makefiles" ../
 $ mingw32-make install
 
