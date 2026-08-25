@@ -26,7 +26,7 @@ set(CMAKE_SYSTEM UNIX)
 set(CMAKE_BUILD_TYPE DEBUG) #this include debugging with addition of bounds flags as specified below
 
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
-  message(STATUS "Build host runs Linux/UNIX/OSX")
+  message(STATUS "Build host runs Linux")
  set (CMAKE_Fortran_COMPILER "gfortran")
  set(CMAKE_C_COMPILER "gcc")
  set(CMAKE_CXX_COMPILER "g++")
@@ -157,7 +157,7 @@ endif()
 if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
   find_package(Freetype REQUIRED)
   message(STATUS "Found Freetype in ${FREETYPE_INCLUDE_DIRS}")
-endif(APPLE)
+endif()
 
 #dialect: 'f95’, ‘f2003’, ‘f2008’, ‘f2018’, ‘f2023’, ‘gnu’, or ‘legacy’.
  if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
