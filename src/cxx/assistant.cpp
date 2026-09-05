@@ -37,7 +37,12 @@ static QString documentationDirectory()
     paths.append(QStandardPaths::standardLocations(QStandardPaths::AppDataLocation));
     for (const auto &dir : std::as_const(paths)) {
         const QString path = dir + "/documentation/";
+#if defined(__APPLE__)
+        std::string str0 = path.toUtf8().constData();
+        LogC(("Qt Assistant path: " + str0).c_str());
+#else
         LogC(("Qt Assistant path: " + path.toStdString()).c_str());
+#endif
         if (QFileInfo::exists(path))
             return path;
     }
@@ -50,9 +55,20 @@ void Assistant::showDocumentation(const QString &page)
         return;
     const QString collectionDirectory = documentationDirectory();
     QByteArray ba("SetSource ");
+#if defined(__APPLE__)
+    std::string str = collectionDirectory.toUtf8().constData();
+    ba.append("qthelp:" + str);
+#else
     ba.append("qthelp:" + collectionDirectory.toStdString());
+#endif
     m_process->write(ba + page.toLocal8Bit() + '\n');
+#if defined(__APPLE__)
+    std::string str2 = QString::fromUtf8(ba + page.toLocal8Bit() + '\n').toUtf8().constData();
+    ba.append("qthelp:" + str2);
+    LogC(("Qt Assistant: " + str2).c_str());
+#else
     LogC(("Qt Assistant: " + (ba + page.toLocal8Bit() + '\n').toStdString()).c_str());
+#endif
     if (!startAssistant())
         return;
 }

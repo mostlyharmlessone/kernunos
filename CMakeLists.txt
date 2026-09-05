@@ -1,10 +1,17 @@
 cmake_minimum_required(VERSION 3.30)
 cmake_policy(VERSION 3.30)
 
+#project(kernunos LANGUAGES C CXX Fortran)
+
 set(VERSION_MAJOR "0")
 set(VERSION_MINOR "2")
 set(VERSION_BugFix "1")
 set(PROJECT_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_BugFix})
+
+# need these for Darwin
+set(PROJECT_VERSION  ${VERSION_MAJOR})
+set(PROJECT_VERSION_MAJOR ${VERSION_MAJOR})
+set(PROJECT_VERSION_MINOR  ${VERSION_MINOR})
 
 set(QT_FORCE_CMP0156_TO_VALUE OLD)
 set(CMAKE_MODULE_PATH cmake)
@@ -31,9 +38,12 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
  set(CMAKE_C_COMPILER "gcc")
  set(CMAKE_CXX_COMPILER "g++")
  # these don't override system environment, unfortunately
- set (FC "gfortran")
- set (CXX "g++")
- set (CC "gcc")
+# set (FC "gfortran")
+# set (CXX "g++")
+# set (CC "gcc")
+ set (FC ${CMAKE_Fortran_COMPILER})
+ set (CXX  ${CMAKE_CXX_COMPILER})
+ set (CC ${CMAKE_C_COMPILER})
 endif()
 
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
@@ -49,6 +59,7 @@ if(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "arm64")
  set(CMAKE_C_COMPILER "/opt/homebrew/bin/gcc-16")
  set(CMAKE_CXX_COMPILER "/opt/homebrew/bin/g++-16")
 elseif(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64")
+# fights the Qt IDE and results in an endless loop; remove if using QtCreator; have to set FC,CC,CXX environment vars
  set (CMAKE_Fortran_COMPILER "/usr/local/bin/gfortran-16")
  set(CMAKE_C_COMPILER "/usr/local/bin/gcc-16")
  set(CMAKE_CXX_COMPILER "/usr/local/bin/g++-16")
@@ -56,19 +67,27 @@ else()
  message(STATUS "Unknown architecture: ${CMAKE_HOST_SYSTEM_PROCESSOR}")
 endif()
  # these don't override system environment, unfortunately
- set (FC "gfortran-16")
- set (CXX "g++-16")
- set (CC "gcc-16")
+ set (FC ${CMAKE_Fortran_COMPILER})
+ set (CXX  ${CMAKE_CXX_COMPILER})
+ set (CC ${CMAKE_C_COMPILER})
+ list(APPEND CMAKE_PREFIX_PATH " /usr/local/opt/include/freetype2")
+ list(APPEND CMAKE_PREFIX_PATH " /usr/local/opt/freetype")
+ list(APPEND CMAKE_PREFIX_PATH " /usr/local/opt/lapack")
  list(APPEND CMAKE_PREFIX_PATH "~/Qt/6.11.1/macos")
  list(APPEND CMAKE_PREFIX_PATH "/usr/local/bin")
- list(APPEND CMAKE_PREFIX_PATH "/usr/local/Cellar")
- list(APPEND CMAKE_PREFIX_PATH "/usr/local/Cellar/openblas/0.3.34")
+# list(APPEND CMAKE_PREFIX_PATH "/usr/local/Cellar")
+#  list(APPEND CMAKE_PREFIX_PATH "/usr/local/Cellar/gcc/16.2.0")
+# list(APPEND CMAKE_PREFIX_PATH "/usr/local/Cellar/openblas/0.3.34")
 endif()
 
 project(kernunos LANGUAGES C CXX Fortran)
 enable_language(Fortran)
 enable_language(CXX)
 enable_language(C)
+
+# useful for checking if compilers support intraoperability
+include(FortranCInterface)
+FortranCInterface_VERIFY()
 
 set(QT_CREATOR_SKIP_MAINTENANCE_TOOL_PROVIDER on)
 set(CMAKE_CXX_STANDARD 17)
@@ -161,17 +180,9 @@ endif()
 
 #dialect: 'f95’, ‘f2003’, ‘f2008’, ‘f2018’, ‘f2023’, ‘gnu’, or ‘legacy’.
  if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
-    set(FC "gfortran")
-    set(dialect "-cpp -ffree-form -std=legacy -fno-optimize-sibling-calls") #gfortran/lapack/blas bug? -fexternal-blas
-    set(bounds "-Wall -Wextra -Wimplicit-interface -fcheck=all -fbacktrace -fbounds-check -g")
-    set(omp "-Xpreprocessor -fopenmp -lomp")
-    set(NaN "-ffpe-trap=invalid,zero,overflow -finit-real=snan -finit-integer=-99999999")
-#  profiling with gprof 
-    set(profile "-pg -g -coverage")
-    set(optimize "-O3 -march=native -ffast-math -funroll-loops")
-    set(apple_mach "-fno-underscoring")
+    set(CMAKE_Fortran_FLAGS_DEBUG "-cpp  -ffree-form -std=legacy -fno-optimize-sibling-calls -Wall  -Wextra -Wimplicit-interface  -fcheck=all -fbacktrace -fbounds-check -g -Xpreprocessor  -fopenmp -lomp -ffpe-trap=invalid,zero,overflow  -finit-real=snan -finit-integer=-99999999 -O3  -march=native  -ffast-math  -funroll-loops -fno-underscoring" )
+
  else()
-    set(FC "gfortran")
     set(dialect "-cpp -ffree-form -std=legacy -fno-optimize-sibling-calls") #gfortran/lapack/blas bug? -fexternal-blas
     set(bounds "-Wall -Wextra -Wimplicit-interface -fcheck=all -fbacktrace -fbounds-check -g")
     set(omp "-fopenmp")
@@ -179,22 +190,18 @@ endif()
 #  profiling with gprof 
     set(profile "-pg -g -coverage")
     set(optimize "-O3 -march=native -ffast-math -funroll-loops")    
-endif()
 
-set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} ${dialect}")
-set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} ${optimize}")
-set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} ${omp}")
+    set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} ${dialect}")
+    set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} ${optimize}")
+    set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} ${omp}")
 
-set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${bounds}")
-set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${dialect}")
-set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${omp}")
-#set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${profile}")   #doesn't work for H&H possibly not for superlu
-set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${NaN}")
-set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${type}")
-
-if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
- set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${apple_mach}")
-endif()
+    set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${bounds}")
+    set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${dialect}")
+    set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${omp}")
+   #set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${profile}")   #doesn't work for H&H possibly not for superlu
+    set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${NaN}")
+    set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${type}")
+ endif()
 
 set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_DEBUG_MODE 0) #set to 1 to show dependencies
 
@@ -293,16 +300,12 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
  find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Concurrent Pdf PdfWidgets OpenGLWidgets OpenGL LinguistTools)
  message(STATUS "Qt Windows " ${Qt6_FOUND})
  # Find the glm package
-# add_subdirectory(glm/)
  find_package(GLM REQUIRED)
-#set(GLM_DIR "glm/")
-#set(GLM_INCLUDE_DIR "glm/glm/")
 # Find the FreeType2 package
 # had to add the freetype project here, not just the things in C:/Program Files (x86)
  add_subdirectory(freetype/)
  find_package(Freetype REQUIRED)
  set(FREETYPE_DIR "C:/Program Files (x86)/freetype")
-# set(FREETYPE_INCLUDE_DIR "freetype/include/freetype2/")
 # assimp
  add_subdirectory(assimp/)
  find_package(assimp REQUIRED)
@@ -325,10 +328,19 @@ else() #Linux or Apple host
    message(STATUS "Qt linux/apple, no crosscompilation: " ${Qt6_FOUND})
    message(STATUS "Qt6 dir: " ${Qt6_DIR})
   endif()
- # Find the FreeType2 package
-  find_package(Freetype REQUIRED)
-  message(STATUS "Found Freetype in ${FREETYPE_INCLUDE_DIRS}")
-  message(STATUS "Found Freetype in ${FREETYPE_DIR}")
+# Find the FreeType2 package
+   if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
+    find_package(Freetype REQUIRED)
+    message(STATUS "Found Freetype in ${FREETYPE_INCLUDE_DIRS}")
+    message(STATUS "Found Freetype in ${FREETYPE_DIR}")
+  else()
+    pkg_check_modules(Freetype REQUIRED IMPORTED_TARGET freetype2)
+    set(${FREETYPE_INCLUDE_DIRS} "/usr/include/freetype2")
+    set(${FREETYPE_DIRS} "/usr/lib")
+#    find_package(Freetype REQUIRED) # finds mingw version over linux version
+#    message(STATUS "Found Freetype in ${FREETYPE_INCLUDE_DIRS}")
+#    message(STATUS "Found Freetype in ${FREETYPE_DIR}")
+   endif() 
 endif()
 
 if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
@@ -405,16 +417,22 @@ endif()
 # need this so that GLwidget.h can be found by AUTOUIC and ui.mainwindow.h, and for rply and assimp
 include_directories(src/cxx src/c)
 
-add_library(misc_c ${interface})
 add_library(rply_includes ${rply_sources})
+
+if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
+ # put everything below; module build seems broken on Darwin
+else()
+add_library(misc_c ${interface})
 add_library(modules  ${mod_sources90} ${misc_c} ${sparse_sources})
 add_library(splia ${lib_sources90} ${misc_c} )
+endif()
+
+set(LIBS2 ${SUPERLU_LIBRARIES} ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES} )
 
 if(TRUE)
 
 #superlu example from chapter12
 
-set(LIBS2 ${SUPERLU_LIBRARIES} ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES} )
 set(HH_SOURCES
                    src/HansonHopkins/driverPiecewiseLinear.f90
                    src/HansonHopkins/set_precision.f90
@@ -437,10 +455,6 @@ WIN32_EXECUTABLE TRUE
 )
 
 target_link_libraries(driverPiecewiseLinear PUBLIC ${LIBS2})
-
-if(NOT DEFINED INSTALL_EXAMPLESDIR)
-    set(INSTALL_EXAMPLESDIR "../")
-endif()
 
 install(TARGETS driverPiecewiseLinear RUNTIME DESTINATION bin ${INSTALL_EXAMPLEDIR}
                 BUNDLE DESTINATION macOS ${INSTALL_EXAMPLEDIR}
@@ -511,6 +525,66 @@ set(PROJECT_SOURCES
                    )
 endif()
 
+if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
+ set(PROJECT_SOURCES
+        src/HansonHopkins/set_precision.f90
+        src/HansonHopkins/LapackInterface.f90
+        src/src90/gauss-jordan.f90
+        src/src90/AdjustRadSplineCenter.f90
+        src/src90/Pupil.f90
+        src/src90/WriteGeomPLY.f90
+        src/src90/makelegend.f90
+        src/src90/ConvertOFFtoSTL_C.f90
+        src/src90/SplineCenter.f90
+        src/src90/bsearch.f90
+        src/src90/nspline.f90
+        src/src90/CubicSplineQuad.f90
+        src/src90/SplineEval.f90
+        src/src90/dctsv.f90
+        src/src90/nsplineCenter.f90
+        src/src90/Geom.f90
+        src/src90/SplineEval1Dx1D.f90
+        src/src90/printgraph.f90
+        src/src90/LSQeval.f90
+        src/src90/SplineEvalCenter.f90
+        src/src90/get_compiler_name.f90
+        src/src90/pspli.f90
+        src/src90/LSQfit.f90
+        src/src90/WriteCenter.f90
+        src/src90/rcnvrtT.f90
+        src/src90/LSQspline.f90
+        src/src90/WriteCenterJ.f90
+        src/src90/linSplineEval.f90
+        src/src90/thomas.f90
+        src/src90/MakeRadSplineCenter.f90
+        src/src90/WriteGeomOFF.f90
+        src/src90/linearspline.f90
+        src/src90/trapez.f90
+        src/mod90/M_color.f90
+        src/mod90/cornea_arrays.f90
+        src/mod90/parameters.f90
+        src/mod90/spline_interfaces.f90
+        src/mod90/c_interfaces.f90
+        src/mod90/io_functions.f90
+        src/mod90/special_fct.f90
+        src/c/logc.c src/c/logc.h
+        src/c/get_compiler_name.h
+        src/c/charcount.c src/c/charcount.h
+        src/c/Ccounter.c src/c/counter.h
+        src/c/ConvertPLYtoBIN.c
+        src/c/CleanSemicolons_C.c
+        gnuplot-iostream/gnuplot-iostream.h
+        src/cxx/kernunos.cpp src/cxx/kernunos.h
+        src/cxx/GLwidget.cpp src/cxx/GLwidget.h
+        src/cxx/assistant.cpp src/cxx/assistant.h
+        src/cxx/gnuplot_lioc.cpp
+        src/cxx/gnuplot_load.cpp
+        src/cxx/mainwindow.ui
+        src/src90/janus.f90
+         ${TS_FILES}
+)
+endif()
+
 if (TRUE)
 
 #Qt6 or greater
@@ -544,13 +618,20 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
  target_include_directories(kernunos PUBLIC ${FREETYPE_INCLUDE_DIRS})
  target_include_directories(kernunos PUBLIC ${FREETYPE_DIR})
 else()
+if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
+  target_include_directories(kernunos PUBLIC ${FREETYPE_INCLUDE_DIRS})
+  target_include_directories(kernunos PUBLIC /usr/local/include/freetype2)
+else()
  target_include_directories(kernunos PUBLIC ${FREETYPE_INCLUDE_DIRS})
  target_include_directories(kernunos PUBLIC /usr/include/freetype2)
+ endif()
 endif()
 
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
  target_link_libraries(kernunos
-                PRIVATE Qt6::Concurrent OpenMP::OpenMP_CXX
+                PRIVATE
+#                Qt6::Concurrent
+                OpenMP::OpenMP_CXX
                 gnuplot_iostream
                 Boost::iostreams
                 Boost::filesystem
@@ -565,9 +646,31 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
 # need the OpenGl library from e.g. C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\um\x64
                 OpenGL32.Lib
             )
-else()
+endif()
+
+if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
  target_link_libraries(kernunos
-                PRIVATE Qt6::Concurrent
+                PRIVATE
+#                Qt6::Concurrent
+                OpenMP::OpenMP_CXX
+                gnuplot_iostream
+                Boost::iostreams
+                Boost::filesystem
+                PUBLIC Qt${QT_VERSION_MAJOR}::Core
+                Qt${QT_VERSION_MAJOR}::OpenGLWidgets
+                Qt${QT_VERSION_MAJOR}::Gui
+                Qt${QT_VERSION_MAJOR}::Widgets
+                Qt${QT_VERSION_MAJOR}::OpenGL
+                Qt${QT_VERSION_MAJOR}::Pdf
+                Qt${QT_VERSION_MAJOR}::PdfWidgets
+                assimp rply_includes ${LIBS} ${OpenMP_LIBRARIES}
+           )
+endif()
+
+if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
+ target_link_libraries(kernunos
+                PRIVATE
+#                Qt6::Concurrent
                 OpenMP::OpenMP_CXX # if (CMAKE_SYSTEM MATCHES Windows)
                 gnuplot_iostream
                 Boost::iostreams
@@ -584,13 +687,11 @@ else()
            )
 endif()
 
-if(NOT DEFINED INSTALL_EXAMPLESDIR)
-    set(INSTALL_EXAMPLESDIR "../")
-endif()
-
-install(TARGETS kernunos RUNTIME DESTINATION bin ${INSTALL_EXAMPLEDIR}
-                BUNDLE DESTINATION macOS ${INSTALL_EXAMPLEDIR}
-                LIBRARY DESTINATION lib ${INSTALL_EXAMPLEDIR})
+install(TARGETS kernunos
+                RUNTIME DESTINATION bin
+                BUNDLE DESTINATION macOS
+                LIBRARY DESTINATION lib
+                )
 
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(kernunos)
@@ -599,4 +700,3 @@ endif()
 endif() #temp if block
 
 # Under Windows after compilationrun: /c/Qt/6.8.3/mingw_64/bin/windeployqt6.exe kernunos.exe
-

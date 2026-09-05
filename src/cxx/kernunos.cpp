@@ -56,7 +56,7 @@
 //#include "/usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include/ISO_Fortran_binding.h"
 
 #include <QtWidgets>
-#include <QtConcurrent>
+//#include <QtConcurrent>
 #include <QSlider>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -85,7 +85,7 @@
 #include <QPdfDocument>
 #include <QPdfView>
 
-using namespace QtConcurrent;
+//using namespace QtConcurrent;
 
 // global settings
 const unsigned int SCR_WIDTH = 1200;

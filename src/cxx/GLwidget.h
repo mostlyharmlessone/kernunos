@@ -2,6 +2,9 @@
 #define GLWIDGET_H
 
 // Include standard headers
+#if defined(__APPLE__)
+#include <string>
+# endif
 #include <QtWidgets>
 #include <QApplication>
 #include <QMouseEvent>

@@ -161,13 +161,18 @@
 ! Clear out space used by s_test
       s_test = 0
 
+#if defined(__APPLE__)
+! also need to pass -DCMAKE_Fortran_FLAGS="-D__APPLE__" to cmake
+! do not compile for Mac/Darwin/Apple, appears to have array issues at marked lines
+
+#else
 ! Using superlu with Gram matrix and normal equations, fastest
 ! Solve for the coefficients of the piece-wise linear spline; you don't get residuals this way
       call CPU_TIME(time_start)
 ! Convert to HB
       b= ata_csr
       d = b .ip. rhs_test
-      r = ( a_csr .p. d )  - rhs
+      r = ( a_csr .p. d )  - rhs     ! array error compiled under Darwin
       residuals = dnrm2(m,r,1)
       call CPU_TIME(time_end)
       write(*,*) 'Superlu with normal equations'
@@ -183,7 +188,7 @@
       ata = ata_csr
       d(:)=rhs_test(:)    ! d gets overwritten
       call DGESV(n, 1, ata, n, IPIV, d, n, info ) ! d is overwritten
-      r = ( a_csr .p. d ) - rhs
+      r = ( a_csr .p. d ) - rhs       ! array error compiled under Darwin
       residuals = dnrm2(m,r,1)
       call CPU_TIME(time_end)
       write(*,*) 'Lapack with dense matrix normal equations'
@@ -191,6 +196,7 @@
       WRITE (*,'(A,1PG12.5)') ' Computed Residuals (0) (Vector Norm)', residuals
       write(*,*) 'time ',time_end-time_start
       write(*,*) ' '
+#endif
 
 ! Using original H & H matrix above avoiding Gram matrix, and using superlu, intermediate in speed
 ! Use overloaded assigment to convert from a list of

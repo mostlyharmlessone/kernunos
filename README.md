@@ -122,17 +122,13 @@ mkdir build (if not already present)
 cd build<br>
 cmake ../ <br>
 make<br>
-Depending on your environment, you might need to run cmake ../ twice.
 
-These lines need to be uncommented in CMakeLists.txt
-<br>
-set(CMAKE_HOST_NAME Linux)
-set(CMAKE_SYSTEM UNIX)
-<br>
-with these
-<br>
-set(CMAKE_HOST_NAME Windows)
-set(CMAKE_SYSTEM Windows)
+These lines need to be uncommented in CMakeLists.txt<br>
+set(CMAKE_HOST_NAME Linux)<br>
+set(CMAKE_SYSTEM UNIX)<br>
+with these<br>
+set(CMAKE_HOST_NAME Windows)<br>
+set(CMAKE_SYSTEM Windows)<br>
 <br>
 commented out.<br>
 
@@ -180,7 +176,7 @@ The binary Windows installer (built with NSIS) includes an option to install gnu
 
 ###Cross-compiling for Windows under Linux
 
-Cross compiling under Linux is not as straightforward as one would like in 2026.  Perhaps it is not the ideal solution; there was a lot more activity >10 years prior, with the option of building in a VM with native tools becoming more common. As of this writing, I haven't managed a complete cross-compile build. Some notes follow:<br>
+Under construction. Cross compiling under Linux is not as straightforward as one would like in 2026.  Perhaps it is not the ideal solution; there was a lot more activity >10 years prior, with the option of building in a VM with native tools becoming more common. As of this writing, I haven't managed a complete cross-compile build. Some notes follow:<br>
 
 Under Arch Linux using AUR packages<br>
 yay -S mingw-w64-gcc <br>
@@ -222,19 +218,46 @@ https://wiki.wxwidgets.org/Cross-Compiling_Under_Linux <br>
 
 ###For MacOS
 
-Under construction.  Best advice seems to be: build it on a Mac. It appears the little activity in cross-compiling under Linux has largely been abandoned, possibly because of changes in Apple hardware over the last 10 years, which would not only require cross-compiling for Darwin/MacOS/Quartz, but also for the M1/M2/M3/M.. chips and other Apple only hardware. <br>
-Built on a M3 iMac <br>
+Under construction.  Best advice seems to be: build it on a Mac. It appears the little activity in cross-compiling under Linux has largely been abandoned, possibly because of changes in Apple hardware over the last 10 years, which would not only require cross-compiling for Darwin/MacOS/Quartz, but also for the M1/M2/M3/M.. chips and other Apple only hardware. Unfortunately, it's hard to have a robust solution that builds reliably.  Apparently the Mac native tools (Appleclang and XCode) are not particularly Fortran nor OpenMP friendly, and as with Windows and the default Visual C++/Intel Fortran/Cmake mismatch, it is difficult to overrride the native toolchain reliably with GCC versions.<br>
+Notes on attempted builds on a M3 iMac (arm64), and an Intel i3 (x86_64): <br>
+download Xcode (app store)
 Minimal Apple OS version Sonoma for homebrew
 download homebrew, for openGL use brew install to install the following:<br>
-glfw vulkan-headers superlu boost Qt gfortran glm<br>
-change FC, CC, CXX and other environment vars to use gcc to overrride Apple default clang ie.:<br>
-export FC="gfortran"<br>
+glfw vulkan-headers superlu boost Qt gfortran glm gnuplot<br>
+change FC, CC, CXX and other environment vars to use gcc to overrride Apple default clang ie.:<br> (with or without /usr/local/bin)<br>
+export FC="gfortran-16"<br>
 export CC="gcc-16"<br>
 export CXX="g++-16"<br>
-you might need to add QT_NO_DEPRECATED_WARNINGS as a cmake option
+<br>
+cmake -DASSIMP_WARNINGS_AS_ERRORS=OFF -DCMAKE_Fortran_FLAGS="-D__APPLE__" -DCMAKE_CXX_FLAGS="-D__APPLE__" ../<br>
+
+The first allows assimp to be built, the next two assure that GCC preprocessor knows it is compiling for Apple.
+
+Apparently some Darwin specific Qt code (both 6.8.3 and 6.11.1) is not processed correctly, and needs a patch to compile: 
+need to remove QT_NO_DEPRECATED pragma in qopenglcontext_platform.h
+so
+/opt/homebrew/lib/QtGui.framework/Headers/qopenglcontext_platform.h
+
+```
+struct Q_GUI_EXPORT QCocoaGLContext
+{
+    QT_DECLARE_NATIVE_INTERFACE(QCocoaGLContext, 1, QOpenGLContext)
+    static QOpenGLContext *fromNative(QT_IGNORE_DEPRECATIONS(NSOpenGLContext) *context, QOpenGLContext *shareContext = nullpt$
+    virtual QT_IGNORE_DEPRECATIONS(NSOpenGLContext) *nativeContext() const = 0;
+};
+
+struct Q_GUI_EXPORT QCocoaGLContext
+{
+    QT_DECLARE_NATIVE_INTERFACE(QCocoaGLContext, 1, QOpenGLContext)
+    static QOpenGLContext *fromNative; (NSOpenGLContext);*context, QOpenGLContext; *shareContext = nullptr;
+    virtual ::NSOpenGLContext*nativeContext() const = 0;
+};
+```
 
 <br>
 References:<br>
+https://fortran-lang.discourse.group/t/options-for-linking-fortran-on-a-mac/3739
+https://discourse.cmake.org/t/problems-with-fortran-an-xcode-generator/11112
 https://doc.qt.io/qt-6/macos.html <br>
 https://stackoverflow.com/questions/693952/how-to-compile-for-os-x-in-linux-or-windows <br>
 https://stackoverflow.com/questions/4342047/compiling-a-qt-application-for-mac-os-x-on-linux <br>

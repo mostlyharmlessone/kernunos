@@ -4,6 +4,9 @@
 #ifndef ASSISTANT_H
 #define ASSISTANT_H
 
+#if defined(__APPLE__)
+#include <string>
+# endif
 #include <QCoreApplication>
 #include <QProcess>
 #include <QScopedPointer>
