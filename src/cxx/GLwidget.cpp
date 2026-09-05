@@ -328,8 +328,12 @@ void GLwidget::initializeGL()
   qDebug() << message;
 
   // During init, enable debug output
-  glEnable ( GL_DEBUG_OUTPUT );
-//  QOpenGLExtraFunctions::glDebugMessageCallback(MessageCallback, 0 ); //cant get this work
+#if defined(__APPLE__)
+  //not for Darwin
+#else
+  glEnable(GL_DEBUG_OUTPUT );
+#endif
+  //  QOpenGLExtraFunctions::glDebugMessageCallback(MessageCallback, 0 ); //cant get this work
 
   glClearColor(0.2f, 0.3f, 0.3f, m_transparent ? 0 : 1);
   // Enable depth test; Accept fragment if it is closer to the camera than the former one

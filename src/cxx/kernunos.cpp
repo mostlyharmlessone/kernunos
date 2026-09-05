@@ -1301,8 +1301,13 @@ void MainWindow::importexport(){
        if (!aiscene) {
             printf("Error parsing '%s': '%s'\n", filename, Importer.GetErrorString()); }
        format = Exporter.GetExportFormatDescription(6);
-       Exporter.Export(aiscene, format->id , filenameout, 0);
+       Exporter.Export(aiscene, format->id , filenameout, 0);      
+#if defined(__APPLE__)
+       std::string str0 = fileName.toUtf8().constData();
+       LogC(("Wrote " + str0).c_str());
+#else
        LogC(("Wrote " + fileName.toStdString()).c_str());
+#endif
        return;
    }
    // this is a special case that precedes the valid extension test
@@ -1316,7 +1321,12 @@ void MainWindow::importexport(){
            printf("Error parsing '%s': '%s'\n", filename, Importer.GetErrorString()); }
        format = Exporter.GetExportFormatDescription(11); // 13 or 11(glb2) 13 not accepted by meshlab
        Exporter.Export(aiscene, format->id , filenameout, 0);
+#if defined(__APPLE__)
+       std::string str0 = fileName.toUtf8().constData();
+       LogC(("Wrote " + str0).c_str());
+#else
        LogC(("Wrote " + fileName.toStdString()).c_str());
+#endif
        return;
    }
    // this is a special case that precedes the valid extension test
@@ -1329,8 +1339,13 @@ void MainWindow::importexport(){
        if (!aiscene) {
            printf("Error parsing '%s': '%s'\n", filename, Importer.GetErrorString()); }
        format = Exporter.GetExportFormatDescription(10);  // 12 or 10(gltf2) 12 not accepted by meshlab
-       Exporter.Export(aiscene, format->id , filenameout, 0);
+       Exporter.Export(aiscene, format->id , filenameout, 0); 
+#if defined(__APPLE__)
+       std::string str0 = fileName.toUtf8().constData();
+       LogC(("Wrote " + str0).c_str());
+#else
        LogC(("Wrote " + fileName.toStdString()).c_str());
+#endif
        return;
    }
    // this is a special case that precedes the valid extension test
@@ -1384,7 +1399,12 @@ void MainWindow::importexport(){
        if (iformat->mFileExtensions == format->id){
             LogC(("Export ID: " + std::to_string(i)).c_str() );
             Exporter.Export(aiscene, format->id , filenameout, 0);
+#if defined(__APPLE__)
+            std::string str0 = fileName.toUtf8().constData();
+            LogC(("Wrote " + str0).c_str());
+#else
             LogC(("Wrote " + fileName.toStdString()).c_str());
+#endif
        }
        i++;
    } while (i < count);
@@ -1394,23 +1414,43 @@ void MainWindow::importexport(){
    // otherwise have to manually check the extension as with stlb/gltf/glb above prior to the extension test
    if (ID == 26) {  // dae or collada import ID = 26
        format = Exporter.GetExportFormatDescription(0);  // export ID = 0
-       Exporter.Export(aiscene, format->id , filenameout, 0);
+       Exporter.Export(aiscene, format->id , filenameout, 0); 
+#if defined(__APPLE__)
+       std::string str0 = fileName.toUtf8().constData();
+       LogC(("Wrote " + str0).c_str());
+#else
        LogC(("Wrote " + fileName.toStdString()).c_str());
+#endif
    }
    if (ID == 45) {  //x3d import ID =45
        format = Exporter.GetExportFormatDescription(16);  //export ID = 16
        Exporter.Export(aiscene, format->id , filenameout, 0);
+#if defined(__APPLE__)
+       std::string str0 = fileName.toUtf8().constData();
+       LogC(("Wrote " + str0).c_str());
+#else
        LogC(("Wrote " + fileName.toStdString()).c_str());
+#endif
    }
    if (ID == 44) { //3mf import ID = 44
        format = Exporter.GetExportFormatDescription(19);  //export OD = 19
        Exporter.Export(aiscene, format->id , filenameout, 0);
+#if defined(__APPLE__)
+       std::string str0 = fileName.toUtf8().constData();
+       LogC(("Wrote " + str0).c_str());
+#else
        LogC(("Wrote " + fileName.toStdString()).c_str());
+#endif
    }
    if (ID == 3) { //3ds import ID =3
        format = Exporter.GetExportFormatDescription(9); //export ID = 9
-       Exporter.Export(aiscene, format->id , filenameout, 0);
+       Exporter.Export(aiscene, format->id , filenameout, 0);   
+#if defined(__APPLE__)
+       std::string str0 = fileName.toUtf8().constData();
+       LogC(("Wrote " + str0).c_str());
+#else
        LogC(("Wrote " + fileName.toStdString()).c_str());
+#endif
    }
    if (!(aiReturn_SUCCESS == 0)) {
        std::cout << "Error exporting" << filenameout << Exporter.GetErrorString() << "\n" ;

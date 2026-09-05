@@ -80,7 +80,11 @@ endif()
 # list(APPEND CMAKE_PREFIX_PATH "/usr/local/Cellar/openblas/0.3.34")
 endif()
 
-project(kernunos LANGUAGES C CXX Fortran)
+if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
+else()
+ project(kernunos LANGUAGES C CXX Fortran)
+endif()
+
 enable_language(Fortran)
 enable_language(CXX)
 enable_language(C)
@@ -421,6 +425,7 @@ add_library(rply_includes ${rply_sources})
 
 if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
  # put everything below; module build seems broken on Darwin
+ set( INSTALL_EXAMPLEDIR  macOS )
 else()
 add_library(misc_c ${interface})
 add_library(modules  ${mod_sources90} ${misc_c} ${sparse_sources})
@@ -456,9 +461,9 @@ WIN32_EXECUTABLE TRUE
 
 target_link_libraries(driverPiecewiseLinear PUBLIC ${LIBS2})
 
-install(TARGETS driverPiecewiseLinear RUNTIME DESTINATION bin ${INSTALL_EXAMPLEDIR}
-                BUNDLE DESTINATION macOS ${INSTALL_EXAMPLEDIR}
-                LIBRARY DESTINATION lib ${INSTALL_EXAMPLEDIR})
+install(TARGETS driverPiecewiseLinear RUNTIME DESTINATION bin 
+                BUNDLE DESTINATION macOS 
+                LIBRARY DESTINATION lib)
 
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(driverPiecewiseLinear)
