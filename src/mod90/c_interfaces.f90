@@ -74,11 +74,12 @@ USE, INTRINSIC :: iso_c_binding, ONLY : c_char, c_int, c_null_char
  INTEGER(c_int) :: charcount
 END FUNCTION CharCount
 
-SUBROUTINE Ccounter(inc, iname) BIND(C,name='Ccounter')
-! used to show progression of calculation and print zernike result when done
-USE, INTRINSIC :: iso_c_binding, ONLY : c_int,c_char,c_null_char
+!SUBROUTINE Ccounter(inc, iname) BIND(C,name='Ccounter')
+SUBROUTINE Ccounter(inc) BIND(C,name='Ccounter')
+! used to show progression of calculation
+USE, INTRINSIC :: iso_c_binding, ONLY : c_int !,c_char,c_null_char
  INTEGER(c_int), INTENT(IN) :: inc
- CHARACTER(c_char), INTENT(IN), dimension(*) :: iname
+! CHARACTER(c_char), INTENT(IN), dimension(*) :: iname
 END SUBROUTINE Ccounter
 
 

@@ -101,7 +101,8 @@ void LogC(const char *Message);
 };
 
 extern "C" {
-void Ccounter (int *inc,const char *iname);
+//void Ccounter (int *inc,const char *iname);
+void Ccounter (int *inc);
 };
 
 // external cpp code

@@ -547,12 +547,13 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
 {
     QByteArray ba = fileName.toLocal8Bit();
     filename = ba.data();
+
     if (filepresent)
      {
+
       // Create a progress dialog.
       QProgressDialog dialog;
       dialog.setLabelText(QString("Loading the data..."));
-
       // Create a QFutureWatcher and connect signals and slots.
       QFutureWatcher<void> futureWatcher;
       QObject::connect(&futureWatcher, &QFutureWatcher<void>::finished, &dialog, &QProgressDialog::reset);
@@ -560,12 +561,16 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
       QObject::connect(&futureWatcher,  &QFutureWatcher<void>::progressRangeChanged, &dialog, &QProgressDialog::setRange);
       QObject::connect(&futureWatcher, &QFutureWatcher<void>::progressValueChanged,  &dialog, &QProgressDialog::setValue);
 
-      // blocks!
+      // blocks but allows the dialog box!
       // Start the computation.
       paintme=false;
       if ((flag%100) == 10 || (flag%100) == 12){
-          auto future1 = std::async([&]{return janus_(&flag,filename,elements3,vertices3,legend2,cardinal2,zern,&nV[2],&nE[2],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE, &err_janus);});
-          future1.get();}
+//                                          janus_(&flag,filename,elements3,vertices3,legend2,cardinal2,zern,&nV[2],&nE[2],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE, &err_janus);}
+       auto future1 = std::async([&]{return janus_(&flag,filename,elements3,vertices3,legend2,cardinal2,zern,&nV[2],&nE[2],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE, &err_janus);});
+       future1.get();
+      }
+
+
       else {
 
           nV[1]=nV[0]; nE[1]=nE[0];
@@ -576,15 +581,30 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
               elements2[i]=elements[i];
           }
 
-          auto future2 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE, &err_janus);});
-          future2.get();
-          //          futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE, &err_janus);}));
-          // Display the dialog and start the event loop.
-//          dialog.exec();
-//          futureWatcher.waitForFinished();
+
+//                                           janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE, &err_janus);
+//         auto future1 = std::async(std::launch::async,[&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE, &err_janus);});
+//       future1.get();
+
+//         std::future<int> future1 = std::async(std::launch::async, [](){
+//             janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE, &err_janus);
+//             return 1;
+//         });
+
+
+          futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE, &err_janus);}));
+
+
+//         auto future1 = std::async(std::launch::async,[&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE, &err_janus);});
+
+
+
+        // Display the dialog and start the event loop.
+         dialog.exec();
+        futureWatcher.waitForFinished();
           // Query the future to check if was canceled.
-          // qDebug() << "Canceled?" << futureWatcher.future().isCanceled();
-          paintme=true;
+        qDebug() << "Canceled?" << futureWatcher.future().isCanceled();
+        paintme=true;
       }
     }
     else

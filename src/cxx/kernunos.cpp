@@ -69,14 +69,21 @@
 #include <QTemporaryFile>
 #include <QFont>
 
+#ifdef _WIN32
 #include <assimp/include/assimp/cimport.h>
+#else
+#include <assimp/cimport.h>
+#endif
 #include <assimp/Importer.hpp>
 #include <assimp/Exporter.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
 #include "assistant.h"
-#include "gnuplot-iostream/gnuplot-iostream.h"
+//#include "gnuplot-iostream/gnuplot-iostream.h"
+#include <cstddef>
+#include <cstdlib>
+#include <iostream>
 
 #include "get_compiler_name.h"
 #include "counter.h"
@@ -911,7 +918,15 @@ void MainWindow::swap()
     QString fileName = "swap";
     QByteArray ba = fileName.toLocal8Bit();
     filename = ba.data();
-    janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
+    // Create a progress dialog.
+    QProgressDialog dialog;
+    dialog.setLabelText(QString("Swapping..."));
+
+//                                       janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
+    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE, &err_janus);});
+    future1.get();
+    // Display the dialog and start the event loop.
+    dialog.exec();
 }
 
 void MainWindow::compare()
@@ -1172,8 +1187,7 @@ void MainWindow::zerncompute()
     QByteArray ba = filenamelocal.toLocal8Bit();
     filename = ba.data();
     flag=flag-(flag%100)+1;  // last two digits of flag=1;
- //   janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
-    std::thread([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);}).detach();
+    janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
 
 #ifdef _WIN32
     // For Windows, prompt for a keystroke before the Gnuplot object goes out of scope so that
@@ -1232,8 +1246,7 @@ void MainWindow::showzern()
     QByteArray ba = filenamelocal.toLocal8Bit();
     filename = ba.data();
     flag=flag-(flag%100)+9;  // last two digits of flag=1;
-    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
-    future1.get();
+    janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
 
 #ifdef _WIN32
     // For Windows, prompt for a keystroke before the Gnuplot object goes out of scope so that
@@ -1256,8 +1269,8 @@ void MainWindow::importexport(){
     filename = ba.data();
     // generate temp ply file
     flag=flag-(flag%100)+3;  // last two digits of flag=3;
-    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
-    future1.get();
+    janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
+
     // get output file name and type
    QString filter =
        "Stanford Polygon Library ASCII .ply (*.ply) ;; "
@@ -1482,8 +1495,7 @@ void MainWindow::ply2bin(){
     ba = filenamelocal.toLocal8Bit();
     filename = ba.data();
     flag=flag-(flag%100)+3;  // last two digits of flag=3;
-    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
-    future1.get();
+    janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
     // from https://w3.impa.br/~diego/software/rply/ c program to convert ASCII PLY to binary PLY; MIT licence, included source in tree
     int wrote=ConvertPLYtoBIN(filename,filenameout);
     if (wrote == 0) {
@@ -1516,8 +1528,7 @@ void MainWindow::off2stl(){
    ba = filenamelocal.toLocal8Bit();
    filename = ba.data();
    flag=flag-(flag%100)+2;  // last two digits of flag=2;
-   auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
-   future1.get();
+   janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
    std::string str(filenameout1);
 
    QMessageBox msgBox(QMessageBox::Question, tr("Binary STL color"),
@@ -1586,8 +1597,7 @@ void MainWindow::makeoff()
    QByteArray ba = fileName.toLocal8Bit();
    filename = ba.data();
    flag=flag-(flag%100)+2;  // last two digits of flag=2;
-   auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
-   future1.get();
+   janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
    ui.infoLabel->setText(tr("Wrote  ")+tr(filename));
 }
 
@@ -1599,8 +1609,7 @@ void MainWindow::makeply(){
    QByteArray ba = fileName.toLocal8Bit();
    filename = ba.data();
    flag=flag-(flag%100)+3;  // last two digits of flag=3;
-   auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
-   future1.get();
+   janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
    ui.infoLabel->setText(tr("Wrote  ")+tr(filename));
 }
 
@@ -1612,8 +1621,7 @@ void MainWindow::makesave(){
     QByteArray ba = fileName.toLocal8Bit();
     filename = ba.data();
     flag=flag-(flag%100)+13;  // last two digits of flag=13;
-    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
-    future1.get();
+    janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
     ui.infoLabel->setText(tr("Wrote  ")+tr(filename));
 }
 
@@ -1625,8 +1633,7 @@ void MainWindow::makesave2(){
     QByteArray ba = fileName.toLocal8Bit();
     filename = ba.data();
     flag=flag-(flag%100)+14;  // last two digits of flag=14;
-    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
-    future1.get();
+    janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
     ui.infoLabel->setText(tr("Wrote  ")+tr(filename));
 }
 
@@ -1639,9 +1646,8 @@ void MainWindow::LinesofCurvature() {
     QByteArray ba = filenamelocal.toLocal8Bit();
     filename = ba.data();
     flag=flag-(flag%100)+7;  // last two digits of flag=7;
-    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
-    future1.get();
-    int wrote=lioc(filename);
+    janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
+
 //  dumps a copy of the temporary file
 //    std::string str(filename);
 #ifdef _WIN32
@@ -1649,12 +1655,7 @@ void MainWindow::LinesofCurvature() {
 #else
 //    system(("cp " + str + " dump" ).c_str());
 #endif
-   if (wrote == 0) {
-//       ui.infoLabel->setText(tr("gnuplot called successfully for lioc  "));
-   }
-   else {
-//       ui.infoLabel->setText(tr("gnuplot call failed!"));
-   }
+
 }
 
 void MainWindow::gnuplotsplot() {
@@ -1685,12 +1686,7 @@ void MainWindow::gnuplotsplot() {
    QByteArray ba = filenamelocal.toLocal8Bit();
    filename = ba.data();
    flag=flag-(flag%100)+5;  // last two digits of flag=5;
-   auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
-   future1.get();
-   // would be better if calcs could be done here instead of in janus
-   Gnuplot gp;
-   gp << "set term wxt 1 title 'GnuSplotPlot' \n";
-   gp << "load \"" << filename << "\n";
+   janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
 
 #ifdef _WIN32
    // For Windows, prompt for a keystroke before the Gnuplot object goes out of scope so that
@@ -1730,50 +1726,7 @@ void MainWindow::center() {
    QByteArray ba = filenamelocal.toLocal8Bit();
    filename = ba.data();
    flag=flag-(flag%100)+6;  // last two digits of flag=6;
-   auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
-   future1.get();
-   // would be better if calcs could be done here instead of in janus, or at least call WriteCenter?
-
-   Gnuplot gp;
-   gp << "reset\n";
-   gp << "set polar\n";
-
-   gp << "set term wxt 1 title 'MeanC' \n";
-   filenamelocal = FILE.fileName();
-   filenamelocal = filenamelocal.append(".mea");
-   ba = filenamelocal.toLocal8Bit();
-   filename = ba.data();
-   gp << "plot \"" << filename << "\" using 1:2 with lines title" <<'"'<< "MeanC" << '"' << "\n";
-
-   gp << "set term wxt 2 title 'MongeA' \n";
-   filenamelocal = FILE.fileName();
-   filenamelocal = filenamelocal.append(".mon");
-   ba = filenamelocal.toLocal8Bit();
-   filename = ba.data();
-   gp << "plot \"" << filename << "\" using 1:2 with lines title" <<'"'<< "MongeA" << '"' << "\n";
-
-   gp << "set term wxt 3 title 'IntC' \n";
-   filenamelocal = FILE.fileName();
-   filenamelocal = filenamelocal.append(".int");
-   ba = filenamelocal.toLocal8Bit();
-   filename = ba.data();
-   gp << "plot \"" << filename << "\" using 1:2 with lines title" <<'"'<< "IntC" << '"' << "\n";
-
-   gp << "set term wxt 4 title 'SagC' \n";
-   filenamelocal = FILE.fileName();
-   filenamelocal = filenamelocal.append(".sag");
-   ba = filenamelocal.toLocal8Bit();
-   filename = ba.data();
-   gp << "plot \"" << filename << "\" using 1:2 with lines title" <<'"'<< "SagC" << '"' << "\n";
-
-   if (!pentacam){
-   gp << "set term wxt 5 title 'Center' \n";
-   filenamelocal = FILE.fileName();
-   filenamelocal = filenamelocal.append(".plt");
-   ba = filenamelocal.toLocal8Bit();
-   filename = ba.data();
-   gp << "plot \"" << filename << "\" using 1:2 with lines title" <<'"'<< "Center" << '"' << "\n";
-   }
+   janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
 
 #ifdef _WIN32
    // For Windows, prompt for a keystroke before the Gnuplot object goes out of scope so that
@@ -1813,19 +1766,8 @@ void MainWindow::rings() {
     QByteArray ba = filenamelocal.toLocal8Bit();
     filename = ba.data();
     flag=flag-(flag%100)+8;  // last two digits of flag=8;
-    auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);});
-    future1.get();
-    // would be better if calcs could be done here instead of in janus, or at least call WriteCenter?
+    janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
 
-    Gnuplot gp;
-    gp << "reset\n";
-    gp << "set term wxt 1 title 'Rings' \n";
-    filenamelocal = FILE.fileName();
-    filenamelocal = filenamelocal.append(".plt");
-    ba = filenamelocal.toLocal8Bit();
-    filename = ba.data();
-    gp << "set polar \n";
-    gp << "plot \"" << filename << "\" using 1:2 title" <<'"'<< "Rings" << '"' << "\n";
 #ifdef _WIN32
     // For Windows, prompt for a keystroke before the Gnuplot object goes out of scope so that
     // the gnuplot window doesn't get closed.
@@ -2934,8 +2876,8 @@ void MainWindow::createActions()
    centerAct->setEnabled(false);
    connect(centerAct, &QAction::triggered, this, &MainWindow::center);
 
-   ringsAct = new QAction(tr("&Show circumferential ring lsqfillin/splinefillin (Atlas only)"), this);
-   ringsAct->setStatusTip(tr("Show circumferential ring lsqfillin/splinefillin (Atlas only"));
+   ringsAct = new QAction(tr("&Show circumferential ring lsqfillin/splinefillin (Atlas/EyeSys/Nidek only)"), this);
+   ringsAct->setStatusTip(tr("Show circumferential ring lsqfillin/splinefillin (Atlas/EyeSys/Nidek only"));
    ringsAct->setEnabled(false);
    connect(ringsAct, &QAction::triggered, this, &MainWindow::rings);
 
@@ -3353,8 +3295,12 @@ int main(int argc, char *argv[])
 //  logs a comment to kernunos.log
     LogC("open a log file");
 //  logs the stdout
-    const QString path = homeDirectory();
+    const QString path = homeDirectory();   
+#if defined(__APPLE__)
+    std::string pathstring = path.toUtf8().constData();
+#else
     std::string pathstring = path.toStdString();
+#endif
     FILE *fpstd;
     LogC(("path for logs: " +pathstring).c_str());
     fpstd = freopen( (pathstring + "/logstdout.log").c_str(), "w", stdout );

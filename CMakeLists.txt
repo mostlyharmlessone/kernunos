@@ -231,7 +231,7 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
   message(STATUS "Qt6 dir macOS: " ${Qt6_DIR})
  else()
   if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
-   list(APPEND CMAKE_PREFIX_PATH "../Qt/6.8.3/gcc_64/lib/cmake/")
+#   list(APPEND CMAKE_PREFIX_PATH "../Qt/6.8.3/gcc_64/lib/cmake/")
   endif()
  endif()
 endif()
@@ -333,11 +333,16 @@ else() #Linux or Apple host
    message(STATUS "Qt6 dir: " ${Qt6_DIR})
   endif()
 # Find the FreeType2 package
-   if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
-    find_package(Freetype REQUIRED)
-    message(STATUS "Found Freetype in ${FREETYPE_INCLUDE_DIRS}")
-    message(STATUS "Found Freetype in ${FREETYPE_DIR}")
+  if (CMAKE_SYSTEM STREQUAL "Darwin")
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(Freetype REQUIRED IMPORTED_TARGET freetype2)
+  set(${FREETYPE_INCLUDE_DIRS} "/usr/local/include/freetype2")
+  set(${FREETYPE_DIRS} "/usr/lib")
+#    find_package(Freetype REQUIRED) # finds mingw version over linux version
+#    message(STATUS "Found Freetype in ${FREETYPE_INCLUDE_DIRS}")
+#    message(STATUS "Found Freetype in ${FREETYPE_DIR}")
   else()
+    find_package(PkgConfig REQUIRED)
     pkg_check_modules(Freetype REQUIRED IMPORTED_TARGET freetype2)
     set(${FREETYPE_INCLUDE_DIRS} "/usr/include/freetype2")
     set(${FREETYPE_DIRS} "/usr/lib")
@@ -362,9 +367,10 @@ endif()
 
 # superlu
  find_package(SuperLU REQUIRED)
+
 #boost
- find_package(Boost REQUIRED COMPONENTS iostreams filesystem)
- message(STATUS "Boost found at ${Boost_DIR}")
+# find_package(Boost REQUIRED COMPONENTS iostreams filesystem)
+# message(STATUS "Boost found at ${Boost_DIR}")
 
 
 # Compile.
@@ -493,12 +499,12 @@ set(PROJECT_SOURCES
                    src/c/Ccounter.c src/c/counter.h
                    src/c/ConvertPLYtoBIN.c
                    src/c/CleanSemicolons_C.c
-                   gnuplot-iostream/gnuplot-iostream.h
+#                   gnuplot-iostream/gnuplot-iostream.h
                    src/cxx/kernunos.cpp src/cxx/kernunos.h
                    src/cxx/GLwidget.cpp src/cxx/GLwidget.h
                    src/cxx/assistant.cpp src/cxx/assistant.h
-                   src/cxx/gnuplot_lioc.cpp
-                   src/cxx/gnuplot_load.cpp
+#                   src/cxx/gnuplot_lioc.cpp
+#                   src/cxx/gnuplot_load.cpp
                    src/cxx/mainwindow.ui
                    src/src90/ConvertOFFtoSTL_C.f90
                    src/src90/get_compiler_name.f90
@@ -516,12 +522,12 @@ set(PROJECT_SOURCES
                    src/c/Ccounter.c src/c/counter.h
                    src/c/ConvertPLYtoBIN.c
                    src/c/CleanSemicolons_C.c
-                   gnuplot-iostream/gnuplot-iostream.h
+#                   gnuplot-iostream/gnuplot-iostream.h
                    src/cxx/kernunos.cpp src/cxx/kernunos.h
                    src/cxx/GLwidget.cpp src/cxx/GLwidget.h
                    src/cxx/assistant.cpp src/cxx/assistant.h
-                   src/cxx/gnuplot_lioc.cpp
-                   src/cxx/gnuplot_load.cpp
+#                   src/cxx/gnuplot_lioc.cpp
+#                   src/cxx/gnuplot_load.cpp
                    src/cxx/mainwindow.ui
                    src/src90/ConvertOFFtoSTL_C.f90
                    src/src90/get_compiler_name.f90
@@ -578,12 +584,12 @@ if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
         src/c/Ccounter.c src/c/counter.h
         src/c/ConvertPLYtoBIN.c
         src/c/CleanSemicolons_C.c
-        gnuplot-iostream/gnuplot-iostream.h
+#        gnuplot-iostream/gnuplot-iostream.h
         src/cxx/kernunos.cpp src/cxx/kernunos.h
         src/cxx/GLwidget.cpp src/cxx/GLwidget.h
         src/cxx/assistant.cpp src/cxx/assistant.h
-        src/cxx/gnuplot_lioc.cpp
-        src/cxx/gnuplot_load.cpp
+#        src/cxx/gnuplot_lioc.cpp
+#        src/cxx/gnuplot_load.cpp
         src/cxx/mainwindow.ui
         src/src90/janus.f90
          ${TS_FILES}
@@ -610,13 +616,13 @@ set_target_properties(kernunos PROPERTIES
 )
 
 # Target for gnuplot-iostream
-add_library(gnuplot_iostream INTERFACE)
-target_include_directories(gnuplot_iostream INTERFACE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/>
-    $<INSTALL_INTERFACE:>)
-target_link_libraries(gnuplot_iostream INTERFACE
-    Boost::iostreams
-    Boost::filesystem)
+#add_library(gnuplot_iostream INTERFACE)
+#target_include_directories(gnuplot_iostream INTERFACE
+#    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/>
+#    $<INSTALL_INTERFACE:>)
+#target_link_libraries(gnuplot_iostream INTERFACE
+#    Boost::iostreams
+#    Boost::filesystem)
 
 # Target Freetype
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
@@ -637,9 +643,9 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
                 PRIVATE
 #                Qt6::Concurrent
                 OpenMP::OpenMP_CXX
-                gnuplot_iostream
-                Boost::iostreams
-                Boost::filesystem
+#                gnuplot_iostream
+#                Boost::iostreams
+#                Boost::filesystem
                 PUBLIC Qt${QT_VERSION_MAJOR}::Core
                 Qt${QT_VERSION_MAJOR}::OpenGLWidgets
                 Qt${QT_VERSION_MAJOR}::Gui
@@ -658,9 +664,9 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
                 PRIVATE
 #                Qt6::Concurrent
                 OpenMP::OpenMP_CXX
-                gnuplot_iostream
-                Boost::iostreams
-                Boost::filesystem
+#                gnuplot_iostream
+#                Boost::iostreams
+#                Boost::filesystem
                 PUBLIC Qt${QT_VERSION_MAJOR}::Core
                 Qt${QT_VERSION_MAJOR}::OpenGLWidgets
                 Qt${QT_VERSION_MAJOR}::Gui
@@ -675,11 +681,12 @@ endif()
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
  target_link_libraries(kernunos
                 PRIVATE
-#                Qt6::Concurrent
+               # Qt6::Concurrent
+                Qt${QT_VERSION_MAJOR}::Concurrent
                 OpenMP::OpenMP_CXX # if (CMAKE_SYSTEM MATCHES Windows)
-                gnuplot_iostream
-                Boost::iostreams
-                Boost::filesystem
+#                gnuplot_iostream
+#                Boost::iostreams
+#                Boost::filesystem
                 PUBLIC Qt${QT_VERSION_MAJOR}::Core
                 Qt${QT_VERSION_MAJOR}::OpenGLWidgets
                 Qt${QT_VERSION_MAJOR}::Gui

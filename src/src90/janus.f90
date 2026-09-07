@@ -35,7 +35,7 @@
   REAL(c_double), INTENT(INOUT) :: cardinal(*)
   REAL(c_float), INTENT(INOUT) :: zern(*)
   REAL(c_float) :: dist
-  CHARACTER(len=4096) :: new_path
+  CHARACTER(len=4096) :: new_path,new_file
   CHARACTER(:),save, ALLOCATABLE :: inputfile1,inputfile2,inputfile3,inputfile4,inputfile5,inputfile6,inputfile7
   CHARACTER(:),save, ALLOCATABLE :: logfile,BigPlot,gnu_instruct,cab_inputfile1,cab_inputfile2,cab_inputfile3,cab_inputfile4
   INTEGER ::  nblines, file_idx, read_error, io, new_crop
@@ -389,8 +389,8 @@ if (mod(flag,100) .eq. 5 ) then
    WRITE(unitno1,*) 'NOYTICS = "set format y ''''; unset ylabel"'
    CALL PRINTGRAPH(unitno1,POWMIN,POWMAX,BigPlot)
    CLOSE (unitno1)
-!  return to kernunos for gp command to use gnu_instruct (BigPlot is not needed in kernunos)
-!  call execute_command_line ("gnuplot -p " gnu_instruct " &", exitstat=i)
+   write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
+   call execute_command_line(trim(new_file), exitstat=i)
    return
  endif ! end (mod(flag,100) .eq. 5)
 
@@ -426,22 +426,77 @@ DiaSlope%Zpd2 = .n. DiaSlope
                                    ! then with zero slope forced at average (r(low)+r(high))/2.0
                                    ! smallest deviation without nSplineCenter; view with set polar; plot 'Center.dat' with lines
 !plots spread of values at origin for each meridian from average
+!instruction file
+ unitno1 = get_new_fileunit()
+ open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
+ WRITE(unitno1,*) 'reset'
+ WRITE(unitno1,*) "set term wxt 5 title 'Center' "
+ WRITE(unitno1,*) 'set polar'
+ WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "Center" '
+ close(unitno1)
+ write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
+ call execute_command_line(trim(new_file), exitstat=i)
+
  BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".sag")
  call WriteCenterJ(JMatrix%SAGC0(1),JMatrix%SAGC,BigPlot)
+ !instruction file
+  unitno1 = get_new_fileunit()
+  open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
+  WRITE(unitno1,*) 'reset'
+  WRITE(unitno1,*) "set term wxt 1 title 'SagC' "
+  WRITE(unitno1,*) 'set polar'
+  WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "SagC" '
+  close(unitno1)
+  write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
+  call execute_command_line(trim(new_file), exitstat=i)
+
  BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".int")
  call WriteCenterJ(JMatrix%INSTC0(1),JMatrix%INSTC,BigPlot)
+ !instruction file
+  unitno1 = get_new_fileunit()
+  open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
+  WRITE(unitno1,*) 'reset'
+  WRITE(unitno1,*) "set term wxt 2 title 'IntC' "
+  WRITE(unitno1,*) 'set polar'
+  WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "IntC" '
+  close(unitno1)
+  write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
+  call execute_command_line(trim(new_file), exitstat=i)
+
  BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".mea")
  call WriteCenterJ(JMatrix%MEANC0(1),JMatrix%MEANC,BigPlot)
+ !instruction file
+  unitno1 = get_new_fileunit()
+  open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
+  WRITE(unitno1,*) 'reset'
+  WRITE(unitno1,*) "set term wxt 3 title 'MeanC' "
+  WRITE(unitno1,*) 'set polar'
+  WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "MeanC" '
+  close(unitno1)
+  write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
+  call execute_command_line(trim(new_file), exitstat=i)
+
  BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".mon")
  call WriteCenterJ(JMatrix%MONGEA0(1),JMatrix%MONGEA,BigPlot)
-return
+ !instruction file
+  unitno1 = get_new_fileunit()
+  open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
+  WRITE(unitno1,*) 'reset'
+  WRITE(unitno1,*) "set term wxt 4 title 'MongeA' "
+  WRITE(unitno1,*) 'set polar'
+  WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "MongeA" '
+  close(unitno1)
+  write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
+  call execute_command_line(trim(new_file), exitstat=i)
+ return
 endif !  (mod(flag,100) .eq. 6)
 
-!  Generate LIOC with vector format
+! Generate LIOC with vector format
 if (mod(flag,100) .eq. 7) then
-!  'plot ' gnu_instruct ' using 1:2:3:4 with vectors'
-unitno1 = get_new_fileunit()
-open(unitno1, file=trim(gnu_instruct), action="write", iostat=ierr)
+ BigPlot=replacestr(string=gnu_instruct,search=".car",substitute=".loc")
+ !data file
+ unitno1 = get_new_fileunit()
+ open(unitno1, file=BigPlot, action="write", iostat=ierr)
  UT=0 ; VT=0
  do i=1,M1,6
   do j=1,RadSlope%MV(i)
@@ -457,6 +512,28 @@ open(unitno1, file=trim(gnu_instruct), action="write", iostat=ierr)
   WRITE(unitno1,*) ' '
  end do
  close (unitno1)
+!instruction file
+  unitno1 = get_new_fileunit()
+  open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
+  WRITE(unitno1,*) 'reset'
+  WRITE(unitno1,*) 'set size square'
+  WRITE(unitno1,*) 'set macros'
+  WRITE(unitno1,*) 'NOXTICS = "set format x ''''; unset xlabel"'
+  WRITE(unitno1,*) 'NOYTICS = "set format y ''''; unset ylabel"'
+  WRITE(unitno1,*) '@NOXTICS ; @NOYTICS'
+
+  WRITE(unitno1,*) "set term wxt 1 title 'Direction 1' "
+  WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2:3:4 with vectors title "Direction 1" '
+
+  WRITE(unitno1,*) "set term wxt 2 title 'Direction 2' "
+  WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2:5:6 with vectors title "Direction 2" '
+
+  WRITE(unitno1,*) "set term wxt 3 title 'Both directions' "
+  WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2:3:4 with vectors title "Direction 1" ',", ","'",BigPlot,"'",' using 1:2:5:6 with vectors title "Direction 2" '
+
+  CLOSE (unitno1)
+  write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
+  call execute_command_line(trim(new_file), exitstat=i)
  return
 endif ! (mod(flag,100) .eq. 7)
 
@@ -912,8 +989,7 @@ endif
 ! TestData 7 Oculus Keratograph 5M
 ! Testdata 8 Saved file
 if (mod(flag,100) == 0) then
- call CCounter(0,inputfile1//c_null_char)
-! For EyeSys either RA?.? or XX?.?, set inputfile1 to the XX version, inputfile2 to the RA version, inputfile3 to the PU version,
+ call CCounter(0) !,inputfile1//c_null_char)! For EyeSys either RA?.? or XX?.?, set inputfile1 to the XX version, inputfile2 to the RA version, inputfile3 to the PU version,
 ! For NIDEK either RA?.? or ED?.?, set inputfile1 to the XX version, inputfile2 to the RA version, inputfile3 to the HT version, inputfile4 to PE
 ! For PentaCam set inputfile1 for _ELE.CSV or .ELE, set inputfile2 for _CUR.CSV or .CUR
 ! For CSV but not _ELE.CSV or _CUR.CSV set inputfile1 to Atlas file
@@ -1882,6 +1958,16 @@ if (TestData .eq. 1) then
      end do
     end do
     CLOSE (unitno1)
+!instruction file
+    unitno1 = get_new_fileunit()
+    open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
+    WRITE(unitno1,*) 'reset'
+    WRITE(unitno1,*) "set term wxt 1 title 'Rings' "
+    WRITE(unitno1,*) "set polar"
+    WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 title "Rings" '
+    CLOSE (unitno1)
+    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
+    call execute_command_line(trim(new_file), exitstat=i)
     if (btest(dat, 4) .or. btest(dat, 3)) then
      RadSlope=Atlas
      Atlas=AtlasSave  ! restore Atlas after using it to show rings
@@ -1927,22 +2013,30 @@ if (TestData .eq. 0 .or. TestData .eq. 6) then
    unitno1 = get_new_fileunit()
    BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".plt")
    open(unitno1, file = BigPlot, action="write", iostat=ierr)
- ! Look at these rings using gnuplot set polar
- ! gnuplot 'plot 'datafile dumped with' u 1:2'
-    do j=1,size(EyeSys%RA,2)
-     do i=1,M1
+   do j=1,size(EyeSys%RA,2)
+    do i=1,M1
      if ((EyeSys%RA(i,j) > 0) .AND. (EyeSys%XX(i,j) > 0) ) then ! Only for EyeSys with valid data /= 0
-       write(unitno1,*) PI*(i-1)/180.0_wp,EyeSys%RA(i,j)
-      endif
-     end do
+      write(unitno1,*) PI*(i-1)/90.0_wp,EyeSys%RA(i,j)
+     endif
     end do
-    CLOSE (unitno1)
-    if (btest(dat, 4) .or. btest(dat, 3)) then
-     RadSlope=EyeSys
-     EyeSys=EyeSysSave  ! restore EyeSys after using it to show rings
-    endif
-    return
-   endif ! end (mod(flag,100) .eq. 8)
+   end do
+   CLOSE (unitno1)
+!instruction file
+   unitno1 = get_new_fileunit()
+   open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
+   WRITE(unitno1,*) 'reset'
+   WRITE(unitno1,*) "set term wxt 1 title 'Rings' "
+   WRITE(unitno1,*) "set polar"
+   WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 title "Rings" '
+   CLOSE (unitno1)
+   write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
+   call execute_command_line(trim(new_file), exitstat=i)
+   if (btest(dat, 4) .or. btest(dat, 3)) then
+    RadSlope=EyeSys
+    EyeSys=EyeSysSave  ! restore EyeSys after using it to show rings
+   endif
+   return
+  endif ! end (mod(flag,100) .eq. 8)
  if (btest(dat, 4) .or. btest(dat, 3)) then
   RadSlope=EyeSys
   EyeSys=EyeSysSave  ! restore EyeSys after using it to define RadSlope
@@ -2293,7 +2387,7 @@ endif !mod(flag,100) /= 9
 
 ! calculate zernike coefficents; this could be moved to a module function
 if (mod(flag,100) == 1) then
- call Ccounter(2,"zernike.tmp"//c_null_char)
+ call Ccounter(2) !,"zernike.tmp"//c_null_char)
  call LogC("Starting zernike computation"//c_null_char)
 ! relies on saved MM,N
  nrhs=(M1*N1+1)
@@ -2306,7 +2400,7 @@ if (mod(flag,100) == 1) then
 
   DiaSlope=RadSlope              ! move to diagonal format
   DiaSlope%Zpd2 = .n. DiaSlope
-  call Ccounter(5,"zernike.tmp"//c_null_char)
+  call Ccounter(5) !,"zernike.tmp"//c_null_char)
   if ( Testdata .le.1 .or. TestData .eq. 6 ) then ! no PentaCam/keratograph files; they have centerdefined at zero
    call MakeRadSplineCenter(zero_int64,error_report)   ! remakes RadSplineCenter(1,:)
    if (error_report .ne. 0) then
@@ -2344,7 +2438,7 @@ endif
 if (btest(dat, 8)) then
  iflag =iflag+100
 endif
- call Ccounter(10,"zernike.tmp"//c_null_char)
+ call Ccounter(10) !,"zernike.tmp"//c_null_char)
 ! allocate working matrices
    kk_max=5*12
    k=0
@@ -2366,7 +2460,7 @@ endif
    zernC=0
 
    do ii=1,nrhs
-   call Ccounter(ii/40,"zernike.tmp"//c_null_char)
+   call Ccounter(ii/40) !,"zernike.tmp"//c_null_char)
 !  cycle through i1 1 to MM and j1 4 to N-3 with one point for origin at nrhs
    i1=mod(ii,M1)
    j1=int(ii/M1)+1
@@ -2560,6 +2654,7 @@ end do
 if (ABS(zern(13)-zern(14)) > EPS) then
 unitno1 = get_new_fileunit()
 open(unitno1, file = "zernike.tmp", action="write", iostat=ierr)
+ write(unitno1,*) "set term wxt 1 title 'Zernike Coefficients'"
  write(unitno1,*) "reset session"
  write(unitno1,'(A)') "$Data << EOD"                !no leading spaces or gnuplot vomits
  if (zern(1) < 0) then
@@ -2640,11 +2735,14 @@ open(unitno1, file = "zernike.tmp", action="write", iostat=ierr)
  write(unitno1,*) "set offsets 0,0,0.5-myBoxWidth/2.,0.5";
  write(unitno1,*) "plot $Data using (0.5*$2):0:(0.5*$2):(myBoxWidth/2.):($3):ytic(1) with boxxy lc rgb var";
  close(unitno1)
- call Ccounter(100,"zernike.tmp"//c_null_char)
- if (mod(flag,100) == 9) call Ccounter(0,"zernike.tmp"//c_null_char) !zero out the progess bar if we're just displaying coefficients
-else
- call LogC("No Zernike data found"//c_null_char)
-endif
+! this line clears the counter, no longer does anything with gp or the filename
+ call Ccounter(100) !,"zernike.tmp"//c_null_char)
+  write(new_file,*) "gnuplot -p zernike.tmp"
+  call execute_command_line(trim(new_file), exitstat=i)
+  if (mod(flag,100) == 9) call Ccounter(0) !,"zernike.tmp"//c_null_char) !zero out the progess bar if we're just displaying coefficients
+ else
+  call LogC("No Zernike data found"//c_null_char)
+ endif
  return
 endif
 

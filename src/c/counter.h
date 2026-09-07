@@ -1,5 +1,6 @@
 extern int counter;
-void Ccounter (int *inc,const char *iname);
+//void Ccounter (int *inc,const char *iname);
+void Ccounter (int *inc);
 void LogC(const char *Message);
 // external cpp code
-extern int gnuplot_load(const char *iname);
+//extern int gnuplot_load(const char *iname);
