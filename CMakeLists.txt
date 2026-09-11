@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.30)
 cmake_policy(VERSION 3.30)
 
 #uncomment for Darwin
-project(kernunos LANGUAGES C CXX Fortran)
+#project(kernunos LANGUAGES C CXX Fortran)
 
 set(VERSION_MAJOR "0")
 set(VERSION_MINOR "2")
@@ -17,14 +17,14 @@ set(PROJECT_VERSION_MINOR  ${VERSION_MINOR})
 set(QT_FORCE_CMP0156_TO_VALUE OLD)
 set(CMAKE_MODULE_PATH cmake)
 
-#set(CMAKE_HOST_SYSTEM_NAME Linux)
-#set(CMAKE_SYSTEM UNIX)
+set(CMAKE_HOST_SYSTEM_NAME Linux)
+set(CMAKE_SYSTEM UNIX)
 
 #set(CMAKE_HOST_SYSTEM_NAME Windows)
 #set(CMAKE_SYSTEM Windows)
 
-set(CMAKE_HOST_SYSTEM_NAME Darwin)
-set(CMAKE_SYSTEM APPLE)
+#set(CMAKE_HOST_SYSTEM_NAME Darwin)
+#set(CMAKE_SYSTEM APPLE)
 
 #set(CMAKE_HOST_SYSTEM_PROCESSOR arm64)
 set(CMAKE_HOST_SYSTEM_PROCESSOR x86_64) #host
@@ -182,12 +182,6 @@ endif()
     endif()
  endif()
 
-
-if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
-  find_package(Freetype REQUIRED)
-  message(STATUS "Found Freetype in ${FREETYPE_INCLUDE_DIRS}")
-endif()
-
 #dialect: 'f95’, ‘f2003’, ‘f2008’, ‘f2018’, ‘f2023’, ‘gnu’, or ‘legacy’.
  if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
 #    set(CMAKE_Fortran_FLAGS_DEBUG "-cpp  -ffree-form -std=legacy -fno-optimize-sibling-calls -Wall  -Wextra -Wimplicit-interface  -fcheck=all -fbacktrace -fbounds-check -g -Xpreprocessor  -fopenmp -lomp -ffpe-trap=invalid,zero,overflow  -finit-real=snan -finit-integer=-99999999 -O3  -march=native  -ffast-math  -funroll-loops -fno-underscoring" )
@@ -343,18 +337,18 @@ else() #Linux or Apple host
   endif()
 # Find the FreeType2 package
   if (CMAKE_SYSTEM STREQUAL "Darwin")
-  find_package(PkgConfig REQUIRED)
-  pkg_check_modules(Freetype REQUIRED IMPORTED_TARGET freetype2)
-  set(${FREETYPE_INCLUDE_DIRS} "/usr/local/include/freetype2")
-  set(${FREETYPE_DIRS} "/usr/lib")
-#    find_package(Freetype REQUIRED) # finds mingw version over linux version
-#    message(STATUS "Found Freetype in ${FREETYPE_INCLUDE_DIRS}")
-#    message(STATUS "Found Freetype in ${FREETYPE_DIR}")
+#  find_package(PkgConfig REQUIRED)
+#  pkg_check_modules(Freetype REQUIRED IMPORTED_TARGET freetype2)
+#  set(${FREETYPE_INCLUDE_DIRS} "/usr/local/include/freetype2")
+#  set(${FREETYPE_LIBRARIES} "/usr/local/lib")
+    find_package(Freetype REQUIRED)
+    message(STATUS "Found Freetype in ${FREETYPE_INCLUDE_DIRS}")
+    message(STATUS "Found Freetype in ${FREETYPE_LIBRARIES}")
   else()
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(Freetype REQUIRED IMPORTED_TARGET freetype2)
     set(${FREETYPE_INCLUDE_DIRS} "/usr/include/freetype2")
-    set(${FREETYPE_DIRS} "/usr/lib")
+    set(${FREETYPE_LIBRARIES} "/usr/lib")
 #    find_package(Freetype REQUIRED) # finds mingw version over linux version
 #    message(STATUS "Found Freetype in ${FREETYPE_INCLUDE_DIRS}")
 #    message(STATUS "Found Freetype in ${FREETYPE_DIR}")
@@ -363,12 +357,22 @@ endif()
 
 if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
 # assimp
-add_subdirectory(assimp/)
+#uncomment below to (try to) build assimp
+#add_subdirectory(assimp/)
 find_package(assimp REQUIRED)
 message(STATUS "ASSIMP_INCLUDE_DIRS" ${ASSIMP_INCLUDE_DIRS})
-# had to set these in Qt/Projects cmake settings under Windows and for APPLE "-DASSIMP_WARNINGS_AS_ERRORS=OFF"
-set(${ASSIMP_INCLUDE_DIRS} assimp/include/assimp)
+message(STATUS "ASSIMP_LIBRARIES" ${ASSIMP_LIBRARIES})
+# had to set these in Qt/Projects cmake settings if compiling assimpfor APPLE "-DASSIMP_WARNINGS_AS_ERRORS=OFF"
+#set(${ASSIMP_INCLUDE_DIRS} assimp/include/assimp)
 set(${ASSIMP_WARNINGS_AS_ERRORS}=OFF)
+#these are for the iMac with M3
+ if(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "arm64")
+  set(${ASSIMP_INCLUDE_DIRS} /opt/homebrew/include/assimp)
+  set(${ASSIMP_LIBRARIES} /opt/homebrew/lib)
+ else()
+  set(${ASSIMP_INCLUDE_DIRS} /usr/local/include/assimp)
+  set(${ASSIMP_LIBRARIES} /usr/local/lib)
+ endif()
 endif()
 
  set(TS_FILES src/cxx/kernunos_en_US.ts)
@@ -613,7 +617,7 @@ set_target_properties(kernunos PROPERTIES
 # Target Freetype
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
  target_include_directories(kernunos PUBLIC ${FREETYPE_INCLUDE_DIRS})
- target_include_directories(kernunos PUBLIC ${FREETYPE_DIR})
+ target_include_directories(kernunos PUBLIC ${FREETYPE_LIBRARIES})
 else()
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
   target_include_directories(kernunos PUBLIC ${FREETYPE_INCLUDE_DIRS})
@@ -654,7 +658,7 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
                 Qt${QT_VERSION_MAJOR}::OpenGL
                 Qt${QT_VERSION_MAJOR}::Pdf
                 Qt${QT_VERSION_MAJOR}::PdfWidgets
-                assimp rply_includes ${LIBS} ${OpenMP_LIBRARIES}
+                rply_includes ${LIBS} ${OpenMP_LIBRARIES} ${ASSIMP_LIBRARIES}
            )
 endif()
 

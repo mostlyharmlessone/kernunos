@@ -137,7 +137,7 @@
       if (deftype /= 1) then
        write(unitno1, iostat=io) header, nfaces ! binary STL header has no requirements if not Materials Magic
       else
-      matlmagic=(2**31-1)
+      matlmagic=huge(INT32)
 !     Materials Magic, COLOR=4 bytes RGBA,MATERIAL=12 bytes diffuse reflection,specular highlight ambient light colors
        write(unitno1, iostat=io) onebyte,'COLOR=',matlmagic,'MATERIAL=',matlmagic,matlmagic,matlmagic
        write(unitno1, iostat=io) 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'  !write 48 more bytes to bring header to 80 bytes
