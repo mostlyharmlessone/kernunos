@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.30)
 cmake_policy(VERSION 3.30)
 
-#project(kernunos LANGUAGES C CXX Fortran)
+#uncomment for Darwin
+project(kernunos LANGUAGES C CXX Fortran)
 
 set(VERSION_MAJOR "0")
 set(VERSION_MINOR "2")
@@ -16,17 +17,17 @@ set(PROJECT_VERSION_MINOR  ${VERSION_MINOR})
 set(QT_FORCE_CMP0156_TO_VALUE OLD)
 set(CMAKE_MODULE_PATH cmake)
 
-set(CMAKE_HOST_SYSTEM_NAME Linux)
-set(CMAKE_SYSTEM UNIX)
+#set(CMAKE_HOST_SYSTEM_NAME Linux)
+#set(CMAKE_SYSTEM UNIX)
 
 #set(CMAKE_HOST_SYSTEM_NAME Windows)
 #set(CMAKE_SYSTEM Windows)
 
-#set(CMAKE_HOST_SYSTEM_NAME Darwin)
-#set(CMAKE_SYSTEM APPLE)
+set(CMAKE_HOST_SYSTEM_NAME Darwin)
+set(CMAKE_SYSTEM APPLE)
 
 #set(CMAKE_HOST_SYSTEM_PROCESSOR arm64)
-#set(CMAKE_HOST_SYSTEM_PROCESSOR x86_64) #host
+set(CMAKE_HOST_SYSTEM_PROCESSOR x86_64) #host
 #set(CMAKE_SYSTEM_PROCESSOR x86_64) #target
 
 #set(CMAKE_BUILD_TYPE RELEASE) # no debug or bounds check
@@ -53,16 +54,21 @@ endif()
 
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
  message(STATUS "Target and host system is Apple/Darwin")
-# these are for the iMac with M3
+ set(CMAKE_PREFIX_PATH "/usr/local/opt/llvm")
+#these are for the iMac with M3
 if(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "arm64")
- set (CMAKE_Fortran_COMPILER "/opt/homebrew/bin/gfortran-16")
- set(CMAKE_C_COMPILER "/opt/homebrew/bin/gcc-16")
- set(CMAKE_CXX_COMPILER "/opt/homebrew/bin/g++-16")
+# set (CMAKE_Fortran_COMPILER "/opt/homebrew/bin/gfortran-16")
+# set(CMAKE_C_COMPILER "/opt/homebrew/bin/gcc-16")
+# set(CMAKE_CXX_COMPILER "/opt/homebrew/bin/g++-16")
 elseif(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64")
 # fights the Qt IDE and results in an endless loop; remove if using QtCreator; have to set FC,CC,CXX environment vars
- set (CMAKE_Fortran_COMPILER "/usr/local/bin/gfortran-16")
- set(CMAKE_C_COMPILER "/usr/local/bin/gcc-16")
- set(CMAKE_CXX_COMPILER "/usr/local/bin/g++-16")
+
+#export FC="/usr/local/bin/flang"
+#export CC="/usr/local/bin/clang"
+#export CXX="/usr/local/bin/clang++"
+# set(CMAKE_Fortran_COMPILER "/usr/local/bin/gfortran-16")
+# set(CMAKE_C_COMPILER "/usr/local/bin/gcc-16")
+# set(CMAKE_CXX_COMPILER "/usr/local/bin/g++-16")
 else()
  message(STATUS "Unknown architecture: ${CMAKE_HOST_SYSTEM_PROCESSOR}")
 endif()
@@ -73,7 +79,7 @@ endif()
  list(APPEND CMAKE_PREFIX_PATH " /usr/local/opt/include/freetype2")
  list(APPEND CMAKE_PREFIX_PATH " /usr/local/opt/freetype")
  list(APPEND CMAKE_PREFIX_PATH " /usr/local/opt/lapack")
- list(APPEND CMAKE_PREFIX_PATH "~/Qt/6.11.1/macos")
+# list(APPEND CMAKE_PREFIX_PATH "~/Qt/6.11.1/macos")
  list(APPEND CMAKE_PREFIX_PATH "/usr/local/bin")
 # list(APPEND CMAKE_PREFIX_PATH "/usr/local/Cellar")
 #  list(APPEND CMAKE_PREFIX_PATH "/usr/local/Cellar/gcc/16.2.0")
@@ -184,7 +190,8 @@ endif()
 
 #dialect: 'f95’, ‘f2003’, ‘f2008’, ‘f2018’, ‘f2023’, ‘gnu’, or ‘legacy’.
  if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
-    set(CMAKE_Fortran_FLAGS_DEBUG "-cpp  -ffree-form -std=legacy -fno-optimize-sibling-calls -Wall  -Wextra -Wimplicit-interface  -fcheck=all -fbacktrace -fbounds-check -g -Xpreprocessor  -fopenmp -lomp -ffpe-trap=invalid,zero,overflow  -finit-real=snan -finit-integer=-99999999 -O3  -march=native  -ffast-math  -funroll-loops -fno-underscoring" )
+#    set(CMAKE_Fortran_FLAGS_DEBUG "-cpp  -ffree-form -std=legacy -fno-optimize-sibling-calls -Wall  -Wextra -Wimplicit-interface  -fcheck=all -fbacktrace -fbounds-check -g -Xpreprocessor  -fopenmp -lomp -ffpe-trap=invalid,zero,overflow  -finit-real=snan -finit-integer=-99999999 -O3  -march=native  -ffast-math  -funroll-loops -fno-underscoring" )
+    set(CMAKE_Fortran_FLAGS_DEBUG "-cpp -ffree-form -O3" )
 
  else()
     set(dialect "-cpp -ffree-form -std=legacy -fno-optimize-sibling-calls") #gfortran/lapack/blas bug? -fexternal-blas
@@ -226,9 +233,9 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
   list(APPEND CMAKE_PREFIX_PATH "../Qt/6.8.3/mingw64/lib/cmake/")
  else()
  if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
-  set(Qt6_DIR "../Qt/6.11.1/macos/lib/cmake/Qt6/")
-  list(APPEND CMAKE_PREFIX_PATH "../Qt/6.11.1/macos/lib/cmake/Qt6/")
-  message(STATUS "Qt6 dir macOS: " ${Qt6_DIR})
+#  set(Qt6_DIR "../Qt/6.11.1/macos/lib/cmake/Qt6/")
+#  list(APPEND CMAKE_PREFIX_PATH "../Qt/6.11.1/macos/lib/cmake/Qt6/")
+#  message(STATUS "Qt6 dir macOS: " ${Qt6_DIR})
  else()
   if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
 #   list(APPEND CMAKE_PREFIX_PATH "../Qt/6.8.3/gcc_64/lib/cmake/")
@@ -331,6 +338,8 @@ else() #Linux or Apple host
    find_package(Qt6 COMPONENTS Concurrent REQUIRED)
    message(STATUS "Qt linux/apple, no crosscompilation: " ${Qt6_FOUND})
    message(STATUS "Qt6 dir: " ${Qt6_DIR})
+    # Find the glm package
+ find_package(GLM REQUIRED)
   endif()
 # Find the FreeType2 package
   if (CMAKE_SYSTEM STREQUAL "Darwin")
@@ -367,11 +376,6 @@ endif()
 
 # superlu
  find_package(SuperLU REQUIRED)
-
-#boost
-# find_package(Boost REQUIRED COMPONENTS iostreams filesystem)
-# message(STATUS "Boost found at ${Boost_DIR}")
-
 
 # Compile.
 
@@ -499,12 +503,9 @@ set(PROJECT_SOURCES
                    src/c/Ccounter.c src/c/counter.h
                    src/c/ConvertPLYtoBIN.c
                    src/c/CleanSemicolons_C.c
-#                   gnuplot-iostream/gnuplot-iostream.h
                    src/cxx/kernunos.cpp src/cxx/kernunos.h
                    src/cxx/GLwidget.cpp src/cxx/GLwidget.h
                    src/cxx/assistant.cpp src/cxx/assistant.h
-#                   src/cxx/gnuplot_lioc.cpp
-#                   src/cxx/gnuplot_load.cpp
                    src/cxx/mainwindow.ui
                    src/src90/ConvertOFFtoSTL_C.f90
                    src/src90/get_compiler_name.f90
@@ -522,12 +523,9 @@ set(PROJECT_SOURCES
                    src/c/Ccounter.c src/c/counter.h
                    src/c/ConvertPLYtoBIN.c
                    src/c/CleanSemicolons_C.c
-#                   gnuplot-iostream/gnuplot-iostream.h
                    src/cxx/kernunos.cpp src/cxx/kernunos.h
                    src/cxx/GLwidget.cpp src/cxx/GLwidget.h
                    src/cxx/assistant.cpp src/cxx/assistant.h
-#                   src/cxx/gnuplot_lioc.cpp
-#                   src/cxx/gnuplot_load.cpp
                    src/cxx/mainwindow.ui
                    src/src90/ConvertOFFtoSTL_C.f90
                    src/src90/get_compiler_name.f90
@@ -584,12 +582,9 @@ if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
         src/c/Ccounter.c src/c/counter.h
         src/c/ConvertPLYtoBIN.c
         src/c/CleanSemicolons_C.c
-#        gnuplot-iostream/gnuplot-iostream.h
         src/cxx/kernunos.cpp src/cxx/kernunos.h
         src/cxx/GLwidget.cpp src/cxx/GLwidget.h
         src/cxx/assistant.cpp src/cxx/assistant.h
-#        src/cxx/gnuplot_lioc.cpp
-#        src/cxx/gnuplot_load.cpp
         src/cxx/mainwindow.ui
         src/src90/janus.f90
          ${TS_FILES}
@@ -615,15 +610,6 @@ set_target_properties(kernunos PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
-# Target for gnuplot-iostream
-#add_library(gnuplot_iostream INTERFACE)
-#target_include_directories(gnuplot_iostream INTERFACE
-#    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/>
-#    $<INSTALL_INTERFACE:>)
-#target_link_libraries(gnuplot_iostream INTERFACE
-#    Boost::iostreams
-#    Boost::filesystem)
-
 # Target Freetype
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
  target_include_directories(kernunos PUBLIC ${FREETYPE_INCLUDE_DIRS})
@@ -641,11 +627,8 @@ endif()
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
  target_link_libraries(kernunos
                 PRIVATE
-#                Qt6::Concurrent
+                Qt6::Concurrent
                 OpenMP::OpenMP_CXX
-#                gnuplot_iostream
-#                Boost::iostreams
-#                Boost::filesystem
                 PUBLIC Qt${QT_VERSION_MAJOR}::Core
                 Qt${QT_VERSION_MAJOR}::OpenGLWidgets
                 Qt${QT_VERSION_MAJOR}::Gui
@@ -662,11 +645,8 @@ endif()
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
  target_link_libraries(kernunos
                 PRIVATE
-#                Qt6::Concurrent
+                Qt6::Concurrent
                 OpenMP::OpenMP_CXX
-#                gnuplot_iostream
-#                Boost::iostreams
-#                Boost::filesystem
                 PUBLIC Qt${QT_VERSION_MAJOR}::Core
                 Qt${QT_VERSION_MAJOR}::OpenGLWidgets
                 Qt${QT_VERSION_MAJOR}::Gui
@@ -681,12 +661,8 @@ endif()
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
  target_link_libraries(kernunos
                 PRIVATE
-               # Qt6::Concurrent
                 Qt${QT_VERSION_MAJOR}::Concurrent
                 OpenMP::OpenMP_CXX # if (CMAKE_SYSTEM MATCHES Windows)
-#                gnuplot_iostream
-#                Boost::iostreams
-#                Boost::filesystem
                 PUBLIC Qt${QT_VERSION_MAJOR}::Core
                 Qt${QT_VERSION_MAJOR}::OpenGLWidgets
                 Qt${QT_VERSION_MAJOR}::Gui

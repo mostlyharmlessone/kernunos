@@ -4,7 +4,7 @@ use LapackInterface, ONLY : dgetrf, dgetrs !, dgels, GaussJordan
 REAL(wp), INTENT(IN) :: t(M1),z(M1)
 INTEGER, INTENT(IN) :: M1,M2
 REAL(wp), INTENT(OUT) ::c(M2)
- INTEGER :: M1,j,k,info,ipvt(M2) !,LWORK1
+ INTEGER :: j,k,info,ipvt(M2) !,LWORK1
  REAL(wp) :: X(M2,M1),zpX(M2),XTX(M2,M2) !,zwork(M1)
 ! REAL(wp), allocatable :: WORK1(:)
  LOGICAL :: Q

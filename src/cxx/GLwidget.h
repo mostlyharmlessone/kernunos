@@ -3,7 +3,9 @@
 
 // Include standard headers
 #if defined(__APPLE__)
+#include <QtGlobal>
 #include <string>
+#include <sstream>
 # endif
 #include <QtWidgets>
 #include <QApplication>
@@ -15,7 +17,6 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QFuture>
-#include <QPromise>
 #include <QtConcurrent>
 
 #include <cmath>
@@ -38,6 +39,12 @@
 #include "../Program Files (x86)/glm/include/glm/glm.hpp"
 #include "../Program Files (x86)/glm/include/glm/gtc/matrix_transform.hpp"
 #include "../Program Files (x86)/glm/include/glm/gtc/type_ptr.hpp"
+#endif
+
+#if defined(__APPLE__)
+#include "/usr/local/include/glm/glm.hpp"
+#include "/usr/local/include/glm/gtc/matrix_transform.hpp"
+#include "/usr/local/include/glm/gtc/type_ptr.hpp"
 #else
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

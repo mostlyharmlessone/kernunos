@@ -560,8 +560,8 @@ END SUBROUTINE RadSlope_eq_Skyline
 
 ! uses ZFCT converts lhs to rhs
 SUBROUTINE RadSlope_eq_EyeSys(RadSlope,EyeSys) ! initially populates r, thta, Zp, MV
-  TYPE(wpEyeSysMatrix), INTENT(INOUT) :: EyeSys
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
+  TYPE(wpEyeSysMatrix), INTENT(IN) :: EyeSys
   INTEGER :: i,j,MM,N
   INTEGER :: imv(size(RadSlope%r,2))
   REAL(wp) :: ZIX,ZJX,YA3,X2A1
@@ -588,8 +588,8 @@ SUBROUTINE RadSlope_eq_EyeSys(RadSlope,EyeSys) ! initially populates r, thta, Zp
 END SUBROUTINE RadSlope_eq_EyeSys
 
 SUBROUTINE RadSlope_eq_Oculus(RadSlope,Oculus)
-  TYPE(wpOculusMatrix), INTENT(INOUT) :: Oculus
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
+  TYPE(wpOculusMatrix), INTENT(IN) :: Oculus
   INTEGER :: i,j,MM,N,imv(size(RadSlope%r,2))
   REAL(wp) :: ZIX,ZJX,YA3,X2A1
 ! uses SAGC not ELE or INSTC
@@ -625,7 +625,7 @@ SUBROUTINE RadSlope_eq_Oculus(RadSlope,Oculus)
 
 SUBROUTINE RadSlope_eq_JMatrix(RadSlope,JMatrix)
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
-  TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
+  TYPE(wpJMatrix), INTENT(IN) :: JMatrix
   INTEGER :: i,j,MM
    MM=size(JMatrix%R,2)
    RadSlope%thta(:)=JMatrix%THT(:)
@@ -1024,8 +1024,8 @@ END SUBROUTINE centersJMatrix
 
 ! aka SLOPE2POWER using AXIALP converts lhs to rhs
 SUBROUTINE Atlas_eq_RadSlope(Atlas,RadSlope)
-  TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
   TYPE(wpAtlasMatrix), INTENT(INOUT) :: Atlas
+  TYPE(wpRadSlopeMatrix), INTENT(IN) :: RadSlope
   INTEGER :: i,j,imv,MM,N
   REAL(wp) :: X2,YP,Y2X,POW
   imv=0
@@ -1052,7 +1052,7 @@ END SUBROUTINE Atlas_eq_RadSlope
 !aka power2slope using ZFCT converts lhs to rhs
 SUBROUTINE RadSlope_eq_Atlas(RadSlope,Atlas) ! initially populates r, thta, Zp, MV
   TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
-  TYPE(wpAtlasMatrix), INTENT(INOUT) :: Atlas
+  TYPE(wpAtlasMatrix), INTENT(IN) :: Atlas
   REAL(wp) :: ZIX,ZJX,YA3,X2A1
   REAL(wp) :: DIST,R,POW
   INTEGER :: i,j,MM,N,imv(size(RadSlope%r,2))
@@ -1088,7 +1088,7 @@ END SUBROUTINE RadSlope_eq_Atlas
 
 SUBROUTINE DiaSlope_eq_RadSlope(DiaSlope,RadSlope)
  TYPE(wpDiaSlopeMatrix), INTENT(INOUT) :: DiaSlope
- TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
+ TYPE(wpRadSlopeMatrix), INTENT(IN) :: RadSlope
  INTEGER :: i,j
  INTEGER :: M1,N1
  REAL(wp) :: rB
@@ -1134,7 +1134,7 @@ SUBROUTINE RadSlope_eq_DiaSlope(RadSlope,DiaSlope)
  INTEGER :: i,j
  INTEGER :: M1,N1
  TYPE(wpRadSlopeMatrix), INTENT(INOUT) :: RadSlope
- TYPE(wpDiaSlopeMatrix), INTENT(INOUT) :: DiaSlope
+ TYPE(wpDiaSlopeMatrix), INTENT(IN) :: DiaSlope
  ASSOCIATE(MV => RadSlope%MV) 
    M1=size(DiaSlope%rd,2) !M1=MM/2
    N1=size(DiaSlope%rd,1) !N1=2*N

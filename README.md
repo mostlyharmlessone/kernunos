@@ -224,11 +224,8 @@ download Xcode (app store)
 Minimal Apple OS version Sonoma for homebrew
 download homebrew, for openGL use brew install to install the following:<br>
 glfw vulkan-headers superlu boost Qt gfortran glm gnuplot<br>
-change FC, CC, CXX and other environment vars to use gcc to overrride Apple default clang ie.:<br> (with or without /usr/local/bin)<br>
-export FC="gfortran-16"<br>
-export CC="gcc-16"<br>
-export CXX="g++-16"<br>
-<br>
+change FC, CC, CXX and other environment vars to use flang/clang/clang++ to overrride Apple default clang <br>
+
 cmake -DASSIMP_WARNINGS_AS_ERRORS=OFF -DCMAKE_Fortran_FLAGS="-D__APPLE__" -DCMAKE_CXX_FLAGS="-D__APPLE__" ../<br>
 
 The first allows assimp to be built, the next two assure that GCC preprocessor knows it is compiling for Apple.
@@ -252,6 +249,12 @@ struct Q_GUI_EXPORT QCocoaGLContext
     static QOpenGLContext *fromNative; (NSOpenGLContext);*context, QOpenGLContext; *shareContext = nullptr;
     virtual ::NSOpenGLContext*nativeContext() const = 0;
 };
+```
+In assimp, I had a lot of difficulties compiling under LLVM, one change needed was in DDLNode.cpp, changing  
+```
+[[maybe_unused]] inline static void releaseDataType(T *ptr) { 
+from
+inline static void releaseDataType(T *ptr) { 
 ```
 
 <br>
