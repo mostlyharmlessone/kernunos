@@ -336,14 +336,15 @@ else() #Linux or Apple host
  find_package(GLM REQUIRED)
   endif()
 # Find the FreeType2 package
-  if (CMAKE_SYSTEM STREQUAL "Darwin")
+  if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
 #  find_package(PkgConfig REQUIRED)
 #  pkg_check_modules(Freetype REQUIRED IMPORTED_TARGET freetype2)
 #  set(${FREETYPE_INCLUDE_DIRS} "/usr/local/include/freetype2")
 #  set(${FREETYPE_LIBRARIES} "/usr/local/lib")
-    find_package(Freetype REQUIRED)
+    find_package(Freetype MODULE REQUIRED)
     message(STATUS "Found Freetype in ${FREETYPE_INCLUDE_DIRS}")
     message(STATUS "Found Freetype in ${FREETYPE_LIBRARIES}")
+    add_library(freetype ALIAS Freetype::Freetype)
   else()
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(Freetype REQUIRED IMPORTED_TARGET freetype2)
@@ -358,12 +359,12 @@ endif()
 if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
 # assimp
 #uncomment below to (try to) build assimp
-#add_subdirectory(assimp/)
+add_subdirectory(assimp/)
 find_package(assimp REQUIRED)
 message(STATUS "ASSIMP_INCLUDE_DIRS" ${ASSIMP_INCLUDE_DIRS})
 message(STATUS "ASSIMP_LIBRARIES" ${ASSIMP_LIBRARIES})
 # had to set these in Qt/Projects cmake settings if compiling assimpfor APPLE "-DASSIMP_WARNINGS_AS_ERRORS=OFF"
-#set(${ASSIMP_INCLUDE_DIRS} assimp/include/assimp)
+set(${ASSIMP_INCLUDE_DIRS} assimp/include/assimp)
 set(${ASSIMP_WARNINGS_AS_ERRORS}=OFF)
 #these are for the iMac with M3
  if(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "arm64")
@@ -658,7 +659,7 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
                 Qt${QT_VERSION_MAJOR}::OpenGL
                 Qt${QT_VERSION_MAJOR}::Pdf
                 Qt${QT_VERSION_MAJOR}::PdfWidgets
-                rply_includes ${LIBS} ${OpenMP_LIBRARIES} ${ASSIMP_LIBRARIES}
+                assimp rply_includes ${LIBS} ${OpenMP_LIBRARIES} #${ASSIMP_LIBRARIES} needs rebuilding for x86_64
            )
 endif()
 

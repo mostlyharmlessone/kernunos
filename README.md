@@ -102,7 +102,7 @@ It is an embarrassment to have to state the following, as it should be understoo
 ## Building
 <br>
 
-This software was developed at various times under the Slackware, Ubuntu, Arch, Manjaro distributions of GNU/Linux. Dependencies include Qt6, assimp, lapack, rply, gnuplot, gnuplot-iostream, boost, freetype, unzip, cabextract and superlu. Some routines are adapted from other sources and included, for example excerpts from Hanson & Hopkins (see below). OpenGL is used as the primary graphics API: GLSL 3.30 is needed as a minimum.  Qt appears to be deprecating C++ support in favor of QML: you may need to make sure the proper support is present. This version was built with Qt 6.8.3 with QtCreator 20. You might need to adjust some of the paths in the CMakeLists.txt to build.<br>
+This software was developed at various times under the Slackware, Ubuntu, Arch, Manjaro distributions of GNU/Linux. Dependencies include Qt6, assimp, lapack, rply, gnuplot, gnuplot-iostream, boost, freetype, unzip, cabextract and superlu. Some routines are adapted from other sources and included, for example excerpts from Hanson & Hopkins (see below). OpenGL is used as the primary graphics API: GLSL 3.30 is needed as a minimum.  Qt appears to be deprecating C++ support in favor of QML: you may need to make sure the proper support is present. This version was built with Qt 6.8.3 and 6.11.1 with QtCreator 20. You might need to adjust some of the paths in the CMakeLists.txt to build.<br>
 
 There are some patches to Hanson & Hopkins http://www.siam.org/books/ot134 chapters 2,4, & 11 to accomodate superlu versions > 4.3, for Windows compilation and to support CSR sparse matrices.<br>
 
@@ -132,7 +132,7 @@ set(CMAKE_SYSTEM Windows)<br>
 <br>
 commented out.<br>
 
-gcc is used as the default compiler with cmake. Built with Qt 6.8.3 <br>
+gcc is used as the default compiler with cmake. Built with Qt 6.8.3 and 6.11.1 <br>
 
 Building within QtCreator is also possible, but the default of using Ninja does not work with the Fortran dependencies. I had to manually edit .qtcreator/CMakeLists.txt.user directly to replace ninja in the following lines:<br>
 -DCMAKE_GENERATOR:STRING=Unix Makefiles<br>
@@ -143,7 +143,7 @@ Building within QtCreator is also possible, but the default of using Ninja does 
 
 As an alternative, build under Windows if you have the necessary toolset.  <br>
 
-The precompiled binary and installer were built in a Windows 10 VM using QtCreator https://doc.qt.io/qt-6/windows.html. I was unable to get Visual Studio and the Intel Fortran compiler to work together even in QtCreator and used MingW/GCC for the C/C++/Fortran compiler and toolchain. The binary was built using QtCreator 19 and Qt 6.8.3, with<br> ASSIMP_WARNINGS_AS_ERRORS:UNINITIALIZED=OFF <br>
+The precompiled binary and installer were built in a Windows 10 VM using QtCreator https://doc.qt.io/qt-6/windows.html. I was unable to get Visual Studio and the Intel Fortran compiler to work together even in QtCreator and used MingW/GCC for the C/C++/Fortran compiler and toolchain. The binary was built using QtCreator 19 and Qt 6.8.3, with assimp being built with<br> ASSIMP_WARNINGS_AS_ERRORS:UNINITIALIZED=OFF <br>
 added to the cmake options as well as making sure MingW cmake was used as the build creator and that the environmental variables pointed to the MingW gcc toolchain. In addition, the additional libraries were compiled with the same toolchain.  I built assimp, superlu, glm, freetype, lapack and OpenBLAS with the same toolset using git-bash after downloading them directly from upstream. Again, you might need to adjust paths in CMakeLists.txt in order to build. These lines need to be uncommented in CMakeLists.txt:
 <br>
 set(CMAKE_HOST_NAME Windows)
@@ -218,23 +218,23 @@ https://wiki.wxwidgets.org/Cross-Compiling_Under_Linux <br>
 
 ###For MacOS
 
-Under construction.  Best advice seems to be: build it on a Mac. It appears the little activity in cross-compiling under Linux has largely been abandoned, possibly because of changes in Apple hardware over the last 10 years, which would not only require cross-compiling for Darwin/MacOS/Quartz, but also for the M1/M2/M3/M.. chips and other Apple only hardware. Unfortunately, it's hard to have a robust solution that builds reliably.  Apparently the Mac native tools (Appleclang and XCode) are not particularly Fortran nor OpenMP friendly, and as with Windows and the default Visual C++/Intel Fortran/Cmake mismatch, it is difficult to overrride the native toolchain reliably with GCC versions.<br>
+Under construction.  Best advice seems to be: build it on a Mac. It appears the little activity in cross-compiling under Linux has largely been abandoned, possibly because of changes in Apple hardware over the last 10 years, which would not only require cross-compiling for Darwin/MacOS/Quartz, but also for the M1/M2/M3/M.. chips and other Apple only hardware. As of this writing Apple will discontinue support for development (ie Xcode) for intel Mac (arch x86_64) in 2027. Unfortunately, it's hard to have a robust solution that builds reliably.  Apparently the Mac native tools (Appleclang and XCode) are not particularly Fortran nor OpenMP friendly, and as with Windows and the default Visual C++/Intel Fortran/Cmake mismatch, it is difficult to overrride the native toolchain reliably with an alternate versions. Qt binaries for the MacOS are only provided for clang/llvm, so GCC is not an alternative unless you want to recompile/build Qt using GCC on your Mac. Good luck with that.<br>
 Notes on attempted builds on a M3 iMac (arm64), and an Intel i3 (x86_64): <br>
-download Xcode (app store)
-Minimal Apple OS version Sonoma for homebrew
-download homebrew, for openGL use brew install to install the following:<br>
-glfw vulkan-headers superlu boost Qt gfortran glm gnuplot<br>
-change FC, CC, CXX and other environment vars to use flang/clang/clang++ to overrride Apple default clang <br>
+Download Xcode (app store)<br>
+Minimal Apple OS version Sonoma for homebrew. I have not tried MacPorts.<br>
+Download homebrew, for openGL use brew install to install the following:<br>
+glfw vulkan-headers superlu boost Qt gfortran glm gnuplot assimp flang llvm<br>
+change FC, CC, CXX and other environment vars to use flang/clang/clang++ to overrride Apple default clang if using the command line. There are the usual CMAKE_HOST_NAME and CMAKE_SYSTEM variables to change in CMakeLists.txt if using QtCreator.<br>
+<br>
 
-cmake -DASSIMP_WARNINGS_AS_ERRORS=OFF -DCMAKE_Fortran_FLAGS="-D__APPLE__" -DCMAKE_CXX_FLAGS="-D__APPLE__" ../<br>
+cmake -DCMAKE_Fortran_FLAGS="-D__APPLE__" -DCMAKE_CXX_FLAGS="-D__APPLE__" ../<br>
 
-The first allows assimp to be built, the next two assure that GCC preprocessor knows it is compiling for Apple.
+The flags are needed o assure that the cmake preprocessor knows it is compiling for Apple. There are several other manual tweaks needed to compile under the MacOS/Darwin.<br>
 
-Apparently some Darwin specific Qt code (both 6.8.3 and 6.11.1) is not processed correctly, and needs a patch to compile: 
+Some Darwin specific Qt code (both 6.8.3 and 6.11.1) is not processed correctly, and needs a patch to compile: <br>
+
 need to remove QT_NO_DEPRECATED pragma in qopenglcontext_platform.h
-so
-/opt/homebrew/lib/QtGui.framework/Headers/qopenglcontext_platform.h
-
+so for /opt/homebrew/lib/QtGui.framework/Headers/qopenglcontext_platform.h change the following:<br>
 ```
 struct Q_GUI_EXPORT QCocoaGLContext
 {
@@ -250,12 +250,17 @@ struct Q_GUI_EXPORT QCocoaGLContext
     virtual ::NSOpenGLContext*nativeContext() const = 0;
 };
 ```
-In assimp, I had a lot of difficulties compiling under LLVM, one change needed was in DDLNode.cpp, changing  
+cmake also makes -F flags (related to Frameworks) in the fortran flags which is not ignored by gfortran nor flang.  Two have to be manually removed in (build/)CMakeFiles/kernunos.dir/flags.make.<br>
+
+If you want to build assimp, as with Windows, you need the ASSIMP_WARNINGS_AS_ERRORS=OFF flag. cmake -DASSIMP_WARNINGS_AS_ERRORS=OFF -DCMAKE_Fortran_FLAGS="-D__APPLE__" -DCMAKE_CXX_FLAGS="-D__APPLE__" ../<br>
+
+In assimp, unsuccessfully compiling under LLVM, one change needed was in DDLNode.cpp, changing:  
 ```
 [[maybe_unused]] inline static void releaseDataType(T *ptr) { 
 from
 inline static void releaseDataType(T *ptr) { 
 ```
+
 
 <br>
 References:<br>

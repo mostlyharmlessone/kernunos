@@ -161,7 +161,7 @@
 ! Clear out space used by s_test
       s_test = 0
 
-#if defined(__APPLE__)
+#if defined(__APPLE__ AND __GFORTRAN__)
 ! also need to pass -DCMAKE_Fortran_FLAGS="-D__APPLE__" to cmake
 ! do not compile for Mac/Darwin/Apple, appears to have array issues at marked lines
 
