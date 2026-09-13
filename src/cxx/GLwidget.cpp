@@ -123,6 +123,7 @@ static const GLchar* fragmentColorNormal = R"glsl(
     }
 )glsl";
 
+/*might be an issue under Apple Silicon: varying, attribute, or gl_FragColor under core declaration, which these are not*/
 
 static const GLchar* textfsrc = R"glsl(
     varying vec2 texpos;
@@ -269,6 +270,7 @@ void GLwidget::cleanup()
   shaderGeoProgram = nullptr;
   delete shaderNormalProgram;
   shaderNormalProgram = nullptr;
+  m_vao.release();
   m_vao.destroy();
   //deallocates Fortran arrays
   flag=flag-(flag%100)+99;  // last two digits of flag = 99;
@@ -289,6 +291,7 @@ void GLwidget::initializeGL()
 {
   // initialize OpenGL
   initializeOpenGLFunctions();
+
   // Get the GL version
   GLint major = 0, minor = 0;
   glGetIntegerv(GL_MAJOR_VERSION, &major);
@@ -303,21 +306,14 @@ void GLwidget::initializeGL()
   const GLubyte* GLversion = glGetString(GL_VERSION);
   const GLubyte* GLvendor =glGetString(GL_VENDOR);
   const GLubyte* GLrenderer =glGetString(GL_RENDERER);
+  const GLubyte* GLSLversion =glGetString(GL_SHADING_LANGUAGE_VERSION);
   sglVer += reinterpret_cast<const char *>(GLversion);
   sglVer += "\nVendor: ";
   sglVer += reinterpret_cast<const char *>(GLvendor);
   sglVer += "\nRenderer: ";
   sglVer += reinterpret_cast<const char *>(GLrenderer);
-
-  // all this below to track OpenGl errors
-  QSurfaceFormat format;
-  format.setMajorVersion(4);
-  format.setMinorVersion(5);
-  format.setProfile(QSurfaceFormat::CoreProfile);
-  format.setOption(QSurfaceFormat::DebugContext);
-  QOpenGLContext *context = new QOpenGLContext;
-  context->setFormat(format);
-  context->create();
+  sglVer += "\nGLSL version: ";
+  sglVer += reinterpret_cast<const char *>(GLSLversion);
 
   QOpenGLContext *ctx = QOpenGLContext::currentContext();
   QOpenGLDebugLogger *logger = new QOpenGLDebugLogger(this);
@@ -327,13 +323,23 @@ void GLwidget::initializeGL()
   for (const QOpenGLDebugMessage &message : messages)
   qDebug() << message;
 
+  LogC(("Widget OpenGl: " + std::to_string(format().majorVersion()) + "." + std::to_string(format().minorVersion())).c_str());
+  LogC(("Context valid: " + std::to_string(context()->isValid())).c_str());
+  LogC(("Really used OpenGl: " + std::to_string(context()->format().majorVersion()) + "." + std::to_string(context()->format().minorVersion())).c_str());
+#if defined(__APPLE__)
+  std::string verstring = sglVer.toUtf8().constData();
+#else
+  std::string verstring = sglVer.toStdString();
+#endif
+//  LogC(verstring.c_str());
+
   // During init, enable debug output
 #if defined(__APPLE__)
   //not for Darwin
 #else
   glEnable(GL_DEBUG_OUTPUT );
 #endif
-  //  QOpenGLExtraFunctions::glDebugMessageCallback(MessageCallback, 0 ); //cant get this work
+//  QOpenGLExtraFunctions::glDebugMessageCallback(MessageCallback, 0 ); //cant get this to work
 
   glClearColor(0.2f, 0.3f, 0.3f, m_transparent ? 0 : 1);
   // Enable depth test; Accept fragment if it is closer to the camera than the former one
@@ -451,8 +457,6 @@ void GLwidget::initializeGL()
   // Light position is fixed
   shaderGeoProgram->setUniformValue(m_lightPosLoc, QVector3D(0, 0, lightdist));
   shaderGeoProgram->release();
-
-  m_vao.release();
 }
 
 
@@ -803,6 +807,7 @@ bool GLwidget::LoadSurfaceToBuffer(int nV, int nE, GLuint vertexbuffer, GLuint e
     glBufferData(GL_ARRAY_BUFFER, data_size_in_bytes, vertices, GL_STATIC_DRAW);
     GLint size = 0;
     glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+    checkGLError(__FILE__, __LINE__);
      if(data_size_in_bytes != size)
       {
        glDeleteBuffers(1, &vertexbuffer);
@@ -823,20 +828,24 @@ bool GLwidget::LoadSurfaceToBuffer(int nV, int nE, GLuint vertexbuffer, GLuint e
         return false;
        }
      if (!glIsBuffer(elementbuffer)) return false;
-
+    checkGLError(__FILE__, __LINE__);
     // positions, colors and normals all stored as floats: 9 * sizeof(GLfloat) = 3 x 3 floats
     // vertex position
     glEnableVertexAttribArray(0);
+    checkGLError(__FILE__, __LINE__);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), nullptr);
                                                            // offset 0, 9 floats = 3 positions + 3 normals+ 3 colors per vertex
+    checkGLError(__FILE__, __LINE__);
     // vertex normals
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), reinterpret_cast<void *>(3 * sizeof(GLfloat)));
                                                            // offset 3 because normals start after 3 positions.
+        checkGLError(__FILE__, __LINE__);
     // color attribute
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), reinterpret_cast<void *>(6 * sizeof(GLfloat)));
                                                           // offset 6 because colors start after 3 positions + 3 normals
+    checkGLError(__FILE__, __LINE__);
     // Unbind buffer; do not do this per Qt https://doc.qt.io/qt-6/qopenglwidget.html
 //    glBindBuffer(vertexbuffer,0);
 //    glBindBuffer(elementbuffer,0);
@@ -993,7 +1002,6 @@ void GLwidget::paintGL(void)
     // Clear the screen    
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
     if(!m_normal) {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);   //incompatible with showing normals
@@ -1007,7 +1015,6 @@ void GLwidget::paintGL(void)
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     m_vao.bind();
-
     // do them in this order for transparency overlay
     for (int i=7; i > 0 ; i--)
     {
@@ -1026,6 +1033,7 @@ void GLwidget::paintGL(void)
         mMVP =  mViewMatrix  * m_world;
         m_alpha = QVector4D(0,0,0,m_alpha_value);
     }
+
     if (i == 2) {
         //draws last image, does not rotate. translate, scale
         if (!LoadSurfaceToBuffer(nV[i-1], nE[i-1], vertexbuffers[i], elementbuffers[i], vertices2, elements2)) return;
@@ -1034,6 +1042,7 @@ void GLwidget::paintGL(void)
         mMVP.translate(QVector3D(-1200,0,-position));
         m_alpha = QVector4D(0,0,0,1.0);
     }
+
     if (i == 3) {
         //draws comparison, does not rotate. translate, scale
         if (!LoadSurfaceToBuffer(nV[i-1], nE[i-1], vertexbuffers[i], elementbuffers[i], vertices3, elements3)) return;
@@ -1061,7 +1070,6 @@ void GLwidget::paintGL(void)
         // Unbind shader
         shaderProgram->release();
     }
-
      if (i == 5 && m_axesshow) {
         // draws a set of three cartesian axes x=red, y= green, z = blue, rotates. translates, scales
         // what a f* of a lot of trouble to assign values to a vector for passing..
@@ -1159,7 +1167,6 @@ void GLwidget::paintGL(void)
          shaderText2Program->release();
      }
 
-
 //  not pupil
     if (i > 0 && i < 4) {
         // Use shader or shaderNormal
@@ -1188,15 +1195,13 @@ void GLwidget::paintGL(void)
             glDrawArrays(GL_TRIANGLE_STRIP, 0, nE[i-1]);
             // Unbind shader
             shaderGeoProgram->release();
-        };
-
+        };     
         checkGLError(__FILE__, __LINE__);
     // Unbind buffer; do not do this per Qt https://doc.qt.io/qt-6/qopenglwidget.html
  //   glBindBuffer(vertexbuffers[i],0);
- //   glBindBuffer(elementbuffers[i],0);
+ //   glBindBuffer(elementbuffers[i],0);       
     }
-    m_vao.release();
-    }
+  }
 }
 
 // refreshes the window

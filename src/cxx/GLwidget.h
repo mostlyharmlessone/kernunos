@@ -1,12 +1,12 @@
 #ifndef GLWIDGET_H
 #define GLWIDGET_H
 
-// Include standard headers
+// Include standard header
 #if defined(__APPLE__)
 #include <QtGlobal>
 #include <string>
 #include <sstream>
-# endif
+#endif
 #include <QtWidgets>
 #include <QApplication>
 #include <QMouseEvent>
@@ -41,6 +41,12 @@
 #include "../Program Files (x86)/glm/include/glm/gtc/type_ptr.hpp"
 #endif
 
+//weird paths for apple and differ for architecture too
+#if defined(__aarch64__)
+#include "/opt/homebrew/include/glm/glm.hpp"
+#include "/opt/homebrew/include/glm/gtc/matrix_transform.hpp"
+#include "/opt/homebrew/include/glm/gtc/type_ptr.hpp"
+#else
 #if defined(__APPLE__)
 #include "/usr/local/include/glm/glm.hpp"
 #include "/usr/local/include/glm/gtc/matrix_transform.hpp"
@@ -49,6 +55,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#endif
 #endif
 
 #include <QOpenGLWidget>
@@ -130,7 +137,6 @@ void ConvertOFFtoSTL_C_(char *iname, char *oname,int *deftype);
 
 extern QString *m_GLString;
 extern QString glstring_global;
-
 
 /*
 void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *msg, const void *data)

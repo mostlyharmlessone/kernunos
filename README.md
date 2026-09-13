@@ -231,9 +231,27 @@ cmake -DCMAKE_Fortran_FLAGS="-D__APPLE__" -DCMAKE_CXX_FLAGS="-D__APPLE__" ../<br
 
 The flags are needed o assure that the cmake preprocessor knows it is compiling for Apple. There are several other manual tweaks needed to compile under the MacOS/Darwin.<br>
 
+cmake also makes -F flags (related to Frameworks) in the fortran flags which is not ignored by gfortran nor flang.  Two have to be manually removed in (build/)CMakeFiles/kernunos.dir/flags.make.<br>
+
+If you want to build assimp, as with Windows, you need the ASSIMP_WARNINGS_AS_ERRORS=OFF flag. cmake -DASSIMP_WARNINGS_AS_ERRORS=OFF -DCMAKE_Fortran_FLAGS="-D__APPLE__" -DCMAKE_CXX_FLAGS="-D__APPLE__" ../<br>
+
+In assimp, unsuccessfully compiling under LLVM, change:  
+```
+in 
+assimp/contrib/openddlparser/code/DDLNode.cpp
+
+[[maybe_unused]] inline static void releaseDataType(T *ptr) { 
+from
+inline static void releaseDataType(T *ptr) { 
+
+and add
+#include <ostream> 
+after #include "dll_symbol.h"
+```
+
 Some Darwin specific Qt code (both 6.8.3 and 6.11.1) is not processed correctly, and needs a patch to compile: <br>
 
-need to remove QT_NO_DEPRECATED pragma in qopenglcontext_platform.h
+You *might*need to remove QT_NO_DEPRECATED pragma in qopenglcontext_platform.h
 so for /opt/homebrew/lib/QtGui.framework/Headers/qopenglcontext_platform.h change the following:<br>
 ```
 struct Q_GUI_EXPORT QCocoaGLContext
@@ -250,17 +268,7 @@ struct Q_GUI_EXPORT QCocoaGLContext
     virtual ::NSOpenGLContext*nativeContext() const = 0;
 };
 ```
-cmake also makes -F flags (related to Frameworks) in the fortran flags which is not ignored by gfortran nor flang.  Two have to be manually removed in (build/)CMakeFiles/kernunos.dir/flags.make.<br>
-
-If you want to build assimp, as with Windows, you need the ASSIMP_WARNINGS_AS_ERRORS=OFF flag. cmake -DASSIMP_WARNINGS_AS_ERRORS=OFF -DCMAKE_Fortran_FLAGS="-D__APPLE__" -DCMAKE_CXX_FLAGS="-D__APPLE__" ../<br>
-
-In assimp, unsuccessfully compiling under LLVM, one change needed was in DDLNode.cpp, changing:  
-```
-[[maybe_unused]] inline static void releaseDataType(T *ptr) { 
-from
-inline static void releaseDataType(T *ptr) { 
-```
-
+on the other hand, it might not compile that way either.
 
 <br>
 References:<br>

@@ -80,7 +80,6 @@
 #include <assimp/postprocess.h>
 
 #include "assistant.h"
-//#include "gnuplot-iostream/gnuplot-iostream.h"
 #include <cstddef>
 #include <cstdlib>
 #include <iostream>
@@ -3258,12 +3257,21 @@ int main(int argc, char *argv[])
    parser.addOption(normalsOption);
 
    parser.process(app);
-
-   QSurfaceFormat fmt;
-   fmt.setDepthBufferSize(24);
+   QSurfaceFormat format;
+#if defined(__APPLE__)
+   format.setMajorVersion(4);
+   format.setMinorVersion(1);
+   format.setVersion(4,1);
+#endif
+   format.setProfile(QSurfaceFormat::CoreProfile);
+   format.setOption(QSurfaceFormat::DebugContext);
+   format.setDepthBufferSize(24);
    if (parser.isSet(multipleSampleOption))
-       fmt.setSamples(4);
-   QSurfaceFormat::setDefaultFormat(fmt);
+       format.setSamples(4);
+   QOpenGLContext *context = new QOpenGLContext;
+   context->setFormat(format);
+   context->create();
+   QSurfaceFormat::setDefaultFormat(format);
 
    QTranslator translator;
    const QStringList uiLanguages = QLocale::system().uiLanguages();

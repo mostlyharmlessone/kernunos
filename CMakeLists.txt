@@ -318,6 +318,7 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
 # had to set these in Qt/Projects cmake settings under Windows "-DASSIMP_WARNINGS_AS_ERRORS=OFF"
  set(${ASSIMP_INCLUDE_DIRS} assimp/include/assimp)
  set(${ASSIMP_WARNINGS_AS_ERRORS}=OFF)
+ set(${ASSIMP_BUILD_TESTS}=OFF)
 else() #Linux or Apple host
   #also set in QtCreator
   set(QT_CREATOR_SKIP_MAINTENANCE_TOOL_PROVIDER ON)
