@@ -3300,7 +3300,7 @@ int main(int argc, char *argv[])
         window.setAttribute(Qt::WA_NoSystemBackground, false);
     }
 
-//  logs a comment to kernunos.log
+//  logs a comment to logkernunos.log
     LogC("open a log file");
 //  logs the stdout
     const QString path = homeDirectory();   

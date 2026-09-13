@@ -126,7 +126,9 @@ static const GLchar* fragmentColorNormal = R"glsl(
 /*might be an issue under Apple Silicon: varying, attribute, or gl_FragColor under core declaration, which these are not*/
 
 static const GLchar* textfsrc = R"glsl(
-    varying vec2 texpos;
+#version 330 core
+//    varying vec2 texpos;
+    out vec2 texpos;
     uniform sampler2D tex;
     uniform vec4 color;
 
@@ -136,7 +138,9 @@ static const GLchar* textfsrc = R"glsl(
 )glsl";
 
 static const GLchar* textvsrc = R"glsl(
-    attribute vec4 coord;
+#version 330 core
+//    attribute vec4 coord;
+    in vec4 coord;
     varying vec2 texpos;
     uniform mat4 mMVP;
     uniform mat4 projection;
@@ -291,7 +295,6 @@ void GLwidget::initializeGL()
 {
   // initialize OpenGL
   initializeOpenGLFunctions();
-
   // Get the GL version
   GLint major = 0, minor = 0;
   glGetIntegerv(GL_MAJOR_VERSION, &major);
@@ -314,10 +317,11 @@ void GLwidget::initializeGL()
   sglVer += reinterpret_cast<const char *>(GLrenderer);
   sglVer += "\nGLSL version: ";
   sglVer += reinterpret_cast<const char *>(GLSLversion);
-
+//throws an error under Apple/Darwin, does nothing under others
   QOpenGLContext *ctx = QOpenGLContext::currentContext();
   QOpenGLDebugLogger *logger = new QOpenGLDebugLogger(this);
   logger->initialize();
+  logger->startLogging();
   ctx->hasExtension(QByteArrayLiteral("GL_KHR_debug"));
   const QList<QOpenGLDebugMessage> messages = logger->loggedMessages();
   for (const QOpenGLDebugMessage &message : messages)
