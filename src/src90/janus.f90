@@ -2387,7 +2387,7 @@ endif !mod(flag,100) /= 9
 
 ! calculate zernike coefficents; this could be moved to a module function
 if (mod(flag,100) == 1) then
- call Ccounter(2) !,"zernike.tmp"//c_null_char)
+ call Ccounter(2)
  call LogC("Starting zernike computation"//c_null_char)
 ! relies on saved MM,N
  nrhs=(M1*N1+1)
@@ -2400,7 +2400,7 @@ if (mod(flag,100) == 1) then
 
   DiaSlope=RadSlope              ! move to diagonal format
   DiaSlope%Zpd2 = .n. DiaSlope
-  call Ccounter(5) !,"zernike.tmp"//c_null_char)
+  call Ccounter(5)
   if ( Testdata .le.1 .or. TestData .eq. 6 ) then ! no PentaCam/keratograph files; they have centerdefined at zero
    call MakeRadSplineCenter(zero_int64,error_report)   ! remakes RadSplineCenter(1,:)
    if (error_report .ne. 0) then
@@ -2438,7 +2438,7 @@ endif
 if (btest(dat, 8)) then
  iflag =iflag+100
 endif
- call Ccounter(10) !,"zernike.tmp"//c_null_char)
+ call Ccounter(10)
 ! allocate working matrices
    kk_max=5*12
    k=0
@@ -2460,7 +2460,7 @@ endif
    zernC=0
 
    do ii=1,nrhs
-   call Ccounter(ii/40) !,"zernike.tmp"//c_null_char)
+   call Ccounter(ii/40)
 !  cycle through i1 1 to MM and j1 4 to N-3 with one point for origin at nrhs
    i1=mod(ii,M1)
    j1=int(ii/M1)+1
@@ -2736,10 +2736,10 @@ open(unitno1, file = "/tmp/zernike.tmp", action="write", iostat=ierr)
  write(unitno1,*) "plot $Data using (0.5*$2):0:(0.5*$2):(myBoxWidth/2.):($3):ytic(1) with boxxy lc rgb var";
  close(unitno1)
 ! this line clears the counter, no longer does anything with gp or the filename
- call Ccounter(100) !,"zernike.tmp"//c_null_char)
+ call Ccounter(100)
   write(new_file,*) "gnuplot -p /tmp/zernike.tmp"
   call execute_command_line(trim(new_file), exitstat=i)
-  if (mod(flag,100) == 9) call Ccounter(0) !,"zernike.tmp"//c_null_char) !zero out the progess bar if we're just displaying coefficients
+  if (mod(flag,100) == 9) call Ccounter(0)  ! zero out the progess bar if we're just displaying coefficients
  else
   call LogC("No Zernike data found"//c_null_char)
  endif
