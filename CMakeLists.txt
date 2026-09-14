@@ -14,14 +14,14 @@ set(PROJECT_VERSION  ${VERSION_MAJOR})
 set(PROJECT_VERSION_MAJOR ${VERSION_MAJOR})
 set(PROJECT_VERSION_MINOR  ${VERSION_MINOR})
 
-set(QT_FORCE_CMP0156_TO_VALUE OLD)
-set(CMAKE_MODULE_PATH cmake)
+#set(QT_FORCE_CMP0156_TO_VALUE OLD)
+#set(CMAKE_MODULE_PATH cmake)
 
-set(CMAKE_HOST_SYSTEM_NAME Linux)
-set(CMAKE_SYSTEM UNIX)
+#set(CMAKE_HOST_SYSTEM_NAME Linux)
+#set(CMAKE_SYSTEM UNIX)
 
-#set(CMAKE_HOST_SYSTEM_NAME Windows)
-#set(CMAKE_SYSTEM Windows)
+set(CMAKE_HOST_SYSTEM_NAME Windows)
+set(CMAKE_SYSTEM Windows)
 
 #set(CMAKE_HOST_SYSTEM_NAME Darwin)
 #set(CMAKE_SYSTEM APPLE)
@@ -62,7 +62,6 @@ if(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "arm64")
 # set(CMAKE_CXX_COMPILER "/opt/homebrew/bin/g++-16")
 elseif(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64")
 # fights the Qt IDE and results in an endless loop; remove if using QtCreator; have to set FC,CC,CXX environment vars
-
 #export FC="/usr/local/bin/flang"
 #export CC="/usr/local/bin/clang"
 #export CXX="/usr/local/bin/clang++"
@@ -109,7 +108,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-if (CMAKE_SYSTEM STREQUAL "Windows")
+if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
 # toolchain-mingw64.cmake
   message(STATUS "Target system is Windows")
   set(CMAKE_SYSTEM_NAME Windows)
@@ -621,7 +620,7 @@ set_target_properties(kernunos PROPERTIES
 # Target Freetype
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
  target_include_directories(kernunos PUBLIC ${FREETYPE_INCLUDE_DIRS})
- target_include_directories(kernunos PUBLIC ${FREETYPE_LIBRARIES})
+ target_include_directories(kernunos PUBLIC ${FREETYPE_DIR})
 else()
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
   target_include_directories(kernunos PUBLIC ${FREETYPE_INCLUDE_DIRS})

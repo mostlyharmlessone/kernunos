@@ -34,14 +34,7 @@
 #include <cmath>
 #include <algorithm>
 
-//weird path in my Windows build environment
-#if defined(_WIN32)
-#include "../Program Files (x86)/glm/include/glm/glm.hpp"
-#include "../Program Files (x86)/glm/include/glm/gtc/matrix_transform.hpp"
-#include "../Program Files (x86)/glm/include/glm/gtc/type_ptr.hpp"
-#endif
-
-//weird paths for apple and differ for architecture too
+//weird paths for apple/windows and differ for architecture too
 #if defined(__aarch64__)
 #include "/opt/homebrew/include/glm/glm.hpp"
 #include "/opt/homebrew/include/glm/gtc/matrix_transform.hpp"
@@ -52,9 +45,15 @@
 #include "/usr/local/include/glm/gtc/matrix_transform.hpp"
 #include "/usr/local/include/glm/gtc/type_ptr.hpp"
 #else
+#if defined(_WIN32)
+#include "C:/Program Files (x86)/glm/include/glm/glm.hpp"
+#include "C:/Program Files (x86)/glm/include/glm/gtc/matrix_transform.hpp"
+#include "C:/Program Files (x86)/glm/include/glm/gtc/type_ptr.hpp"
+#else
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#endif
 #endif
 #endif
 

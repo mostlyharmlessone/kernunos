@@ -529,7 +529,8 @@ if (mod(flag,100) .eq. 7) then
   WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2:5:6 with vectors title "Direction 2" '
 
   WRITE(unitno1,*) "set term wxt 3 title 'Both directions' "
-  WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2:3:4 with vectors title "Direction 1" ',", ","'",BigPlot,"'",' using 1:2:5:6 with vectors title "Direction 2" '
+  WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2:3:4 with vectors title "Direction 1"&
+                   &',", ","'",BigPlot,"'",' using 1:2:5:6 with vectors title "Direction 2" '
 
   CLOSE (unitno1)
   write(new_file,*) "gnuplot -p " // trim(gnu_instruct)

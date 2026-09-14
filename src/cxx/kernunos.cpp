@@ -70,7 +70,8 @@
 #include <QFont>
 
 #ifdef _WIN32
-#include <assimp/include/assimp/cimport.h>
+//#include <assimp/include/assimp/cimport.h>
+#include <assimp/cimport.h>
 #else
 #include <assimp/cimport.h>
 #endif

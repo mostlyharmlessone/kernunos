@@ -932,12 +932,14 @@ void GLwidget::render_text(GLuint vertexbuffer, const char *text, float x, float
         return;
     }
     // find path to font
-    std::string font_name = "/usr/share/fonts/liberation/LiberationMono-Regular.ttf";
-#ifdef __WIN32
-    std::string font_name = "\Windows\Fonts\LiberationMono-Regular.ttf";
-#endif
 #ifdef __APPLE__
     std::string font_name = "/System/Library/fonts/Geneva.ttf";
+#else
+#ifdef __WIN32
+    std::string font_name = "\\Windows\\Fonts\\LiberationMono-Regular.ttf";
+#else
+    std::string font_name = "/usr/share/fonts/liberation/LiberationMono-Regular.ttf";
+#endif
 #endif
     if (font_name.empty())
     {
