@@ -359,14 +359,16 @@ endif()
 
 if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
 # assimp
-#uncomment below to (try to) build assimp
+#uncomment below to build assimp
 add_subdirectory(assimp/)
 find_package(assimp REQUIRED)
 message(STATUS "ASSIMP_INCLUDE_DIRS" ${ASSIMP_INCLUDE_DIRS})
 message(STATUS "ASSIMP_LIBRARIES" ${ASSIMP_LIBRARIES})
-# had to set these in Qt/Projects cmake settings if compiling assimpfor APPLE "-DASSIMP_WARNINGS_AS_ERRORS=OFF"
+# had to set these in Qt/Projects cmake settings
 set(${ASSIMP_INCLUDE_DIRS} assimp/include/assimp)
 set(${ASSIMP_WARNINGS_AS_ERRORS}=OFF)
+set(${ASSIMP_BUILD_TESTS}=OFF)
+set(${ASSIMP_INSTALL}=OFF)
 #these are for the iMac with M3
  if(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "arm64")
   set(${ASSIMP_INCLUDE_DIRS} /opt/homebrew/include/assimp)
@@ -450,7 +452,7 @@ endif()
 
 set(LIBS2 ${SUPERLU_LIBRARIES} ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES} )
 
-if(TRUE)
+if(FALSE)
 
 #superlu example from chapter12
 

@@ -135,7 +135,7 @@ static const GLchar* textfsrc = R"glsl(
 
     void main(void) {
 //     gl_FragColor = vec4(1, 1, 1, texture2D(tex, texpos).a) * color;
-     FragColor = vec4(1, 1, 1, texture2D(tex, texpos).a) * color; //
+     FragColor = vec4(1, 1, 1, texture(tex, texpos).a) * color; //
     }
 )glsl";
 
@@ -282,14 +282,14 @@ void GLwidget::cleanup()
   //deallocates Fortran arrays
   flag=flag-(flag%100)+99;  // last two digits of flag = 99;
 //  std::cout << "flag in cleanup: " << flag << "\n";
-  #ifdef _WIN32
+  #ifdef _WIN32  //use %temp% here?
 //  system("copy zernike.tmp zernike.bak");
   system("type nul >> zernike.tmp");
   system("del zernike.tmp");
   #else
-  system("touch zernike.tmp");
-//  system("cp zernike.tmp zernike.bak");
-  system("rm zernike.tmp");
+  system("touch /tmp/zernike.tmp");
+//  system("cp /tmp/zernike.tmp /tmp/zernike.bak");
+  system("rm /tmp/zernike.tmp");
   #endif
   doneCurrent();
 }

@@ -2653,7 +2653,7 @@ end do
 ! only make a plot if there's data
 if (ABS(zern(13)-zern(14)) > EPS) then
 unitno1 = get_new_fileunit()
-open(unitno1, file = "zernike.tmp", action="write", iostat=ierr)
+open(unitno1, file = "/tmp/zernike.tmp", action="write", iostat=ierr)
  write(unitno1,*) "set term wxt 1 title 'Zernike Coefficients'"
  write(unitno1,*) "reset session"
  write(unitno1,'(A)') "$Data << EOD"                !no leading spaces or gnuplot vomits
@@ -2737,7 +2737,7 @@ open(unitno1, file = "zernike.tmp", action="write", iostat=ierr)
  close(unitno1)
 ! this line clears the counter, no longer does anything with gp or the filename
  call Ccounter(100) !,"zernike.tmp"//c_null_char)
-  write(new_file,*) "gnuplot -p zernike.tmp"
+  write(new_file,*) "gnuplot -p /tmp/zernike.tmp"
   call execute_command_line(trim(new_file), exitstat=i)
   if (mod(flag,100) == 9) call Ccounter(0) !,"zernike.tmp"//c_null_char) !zero out the progess bar if we're just displaying coefficients
  else

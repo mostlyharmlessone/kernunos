@@ -1169,6 +1169,9 @@ void MainWindow::zerncompute()
         return;
     }
 #else
+#ifdef __APPLE__
+
+#else
     if (system(NULL)) puts (" gnuplot available");
     else exit (EXIT_FAILURE);
     if(system("command -v gnuplot > /dev/null 2>&1") ){
@@ -1176,6 +1179,7 @@ void MainWindow::zerncompute()
         errorMessageDialog->showMessage(tr("gnuplot command is not available"));
         return;
     }
+#endif
 #endif
 
     QTemporaryFile FILE;
@@ -1228,6 +1232,9 @@ void MainWindow::showzern()
         return;
     }
 #else
+#ifdef __APPLE__
+
+#else
     if (system(NULL)) puts (" gnuplot available");
     else exit (EXIT_FAILURE);
     if(system("command -v gnuplot > /dev/null 2>&1") ){
@@ -1235,6 +1242,7 @@ void MainWindow::showzern()
         errorMessageDialog->showMessage(tr("gnuplot command is not available"));
         return;
     }
+#endif
 #endif
 
     QTemporaryFile FILE;
@@ -1660,21 +1668,25 @@ void MainWindow::LinesofCurvature() {
 void MainWindow::gnuplotsplot() {
 
 #ifdef _WIN32
-   if (system(NULL)) puts (" gnuplot available");
-   else exit (EXIT_FAILURE);
-   if(system("cmd -v gnuplot > NUL 2>&1") ){
-       std::cout << "'gnuplot' command is not available.\n";
-       errorMessageDialog->showMessage(tr("gnuplot command is not available"));
-       return;
-   }
+    if (system(NULL)) puts (" gnuplot available");
+    else exit (EXIT_FAILURE);
+    if(system("cmd -v gnuplot > NUL 2>&1") ){
+        std::cout << "'gnuplot' command is not available.\n";
+        errorMessageDialog->showMessage(tr("gnuplot command is not available"));
+        return;
+    }
 #else
-   if (system(NULL)) puts (" gnuplot available");
-   else exit (EXIT_FAILURE);
-   if(system("command -v gnuplot > /dev/null 2>&1") ){
-       std::cout << "'gnuplot' command is not available.\n";
-       errorMessageDialog->showMessage(tr("gnuplot command is not available"));
-       return;
-   }
+#ifdef __APPLE__
+
+#else
+    if (system(NULL)) puts (" gnuplot available");
+    else exit (EXIT_FAILURE);
+    if(system("command -v gnuplot > /dev/null 2>&1") ){
+        std::cout << "'gnuplot' command is not available.\n";
+        errorMessageDialog->showMessage(tr("gnuplot command is not available"));
+        return;
+    }
+#endif
 #endif
 
    QTemporaryFile FILE;
@@ -1700,21 +1712,25 @@ void MainWindow::gnuplotsplot() {
 void MainWindow::center() {
 
 #ifdef _WIN32
-   if (system(NULL)) puts (" gnuplot available");
-   else exit (EXIT_FAILURE);
-   if(system("cmd -v gnuplot > NUL 2>&1") ){
-       std::cout << "'gnuplot' command is not available.\n";
-       errorMessageDialog->showMessage(tr("gnuplot command is not available"));
-       return;
-   }
+    if (system(NULL)) puts (" gnuplot available");
+    else exit (EXIT_FAILURE);
+    if(system("cmd -v gnuplot > NUL 2>&1") ){
+        std::cout << "'gnuplot' command is not available.\n";
+        errorMessageDialog->showMessage(tr("gnuplot command is not available"));
+        return;
+    }
 #else
-   if (system(NULL)) puts (" gnuplot available");
-   else exit (EXIT_FAILURE);
-   if(system("command -v gnuplot > /dev/null 2>&1") ){
-       std::cout << "'gnuplot' command is not available.\n";
-       errorMessageDialog->showMessage(tr("gnuplot command is not available"));
-       return;
-   }
+#ifdef __APPLE__
+
+#else
+    if (system(NULL)) puts (" gnuplot available");
+    else exit (EXIT_FAILURE);
+    if(system("command -v gnuplot > /dev/null 2>&1") ){
+        std::cout << "'gnuplot' command is not available.\n";
+        errorMessageDialog->showMessage(tr("gnuplot command is not available"));
+        return;
+    }
+#endif
 #endif
 
    QTemporaryFile FILE;
@@ -1748,6 +1764,9 @@ void MainWindow::rings() {
         return;
     }
 #else
+#ifdef __APPLE__
+
+#else
     if (system(NULL)) puts (" gnuplot available");
     else exit (EXIT_FAILURE);
     if(system("command -v gnuplot > /dev/null 2>&1") ){
@@ -1755,6 +1774,7 @@ void MainWindow::rings() {
         errorMessageDialog->showMessage(tr("gnuplot command is not available"));
         return;
     }
+#endif
 #endif
 
     QTemporaryFile FILE;

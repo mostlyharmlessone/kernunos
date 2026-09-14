@@ -33,8 +33,13 @@ void LogC(const char *Message) { FILE *file;
     char pathandfile[len+lenp+2];
     snprintf(pathandfile, sizeof(pathandfile), "%s%s%s", path, "\\", LOGFILE);
 #else
+#ifdef __APPLE__
+    char pathandfile[len+lenp+9];
+    snprintf(pathandfile, sizeof(pathandfile), "%s%s%s%s", "/Users/" ,path, "/", LOGFILE);
+#else
     char pathandfile[len+lenp+8];
     snprintf(pathandfile, sizeof(pathandfile), "%s%s%s%s", "/home/" ,path, "/", LOGFILE);
+#endif
 #endif
     if (!LogCreated) { file = fopen(pathandfile, "w");
         LogCreated = true; }
