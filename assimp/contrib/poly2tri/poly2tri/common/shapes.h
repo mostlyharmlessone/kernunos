@@ -32,7 +32,7 @@
 #pragma once
 
 #include "dll_symbol.h"
-
+#include <ostream>
 #include <cmath>
 #include <cstddef>
 #include <stdexcept>

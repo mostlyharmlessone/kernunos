@@ -128,20 +128,23 @@ static const GLchar* fragmentColorNormal = R"glsl(
 static const GLchar* textfsrc = R"glsl(
 #version 330 core
 //    varying vec2 texpos;
-    out vec2 texpos;
+    in vec2 texpos; //
     uniform sampler2D tex;
     uniform vec4 color;
+    out vec4 FragColor;  //
 
     void main(void) {
-     gl_FragColor = vec4(1, 1, 1, texture2D(tex, texpos).a) * color;
+//     gl_FragColor = vec4(1, 1, 1, texture2D(tex, texpos).a) * color;
+     FragColor = vec4(1, 1, 1, texture2D(tex, texpos).a) * color; //
     }
 )glsl";
 
 static const GLchar* textvsrc = R"glsl(
 #version 330 core
 //    attribute vec4 coord;
-    in vec4 coord;
-    varying vec2 texpos;
+    in vec4 coord; //
+//    varying vec2 texpos;
+    out vec2 texpos; //
     uniform mat4 mMVP;
     uniform mat4 projection;
 
