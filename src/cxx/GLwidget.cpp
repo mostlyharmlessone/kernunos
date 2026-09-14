@@ -3,7 +3,6 @@
 //#include "qtconcurrentrun.h"
 
 #include <iostream>
-//#include <map>
 #include <string>
 
 #include <ft2build.h>
@@ -123,28 +122,22 @@ static const GLchar* fragmentColorNormal = R"glsl(
     }
 )glsl";
 
-/*might be an issue under Apple Silicon: varying, attribute, or gl_FragColor under core declaration, which these are not*/
-
 static const GLchar* textfsrc = R"glsl(
 #version 330 core
-//    varying vec2 texpos;
-    in vec2 texpos; //
+    in vec2 texpos;
     uniform sampler2D tex;
     uniform vec4 color;
-    out vec4 FragColor;  //
+    out vec4 FragColor;
 
     void main(void) {
-//     gl_FragColor = vec4(1, 1, 1, texture2D(tex, texpos).a) * color;
-     FragColor = vec4(1, 1, 1, texture(tex, texpos).a) * color; //
+    FragColor = vec4(1, 1, 1, texture(tex, texpos).a) * color;
     }
 )glsl";
 
 static const GLchar* textvsrc = R"glsl(
 #version 330 core
-//    attribute vec4 coord;
-    in vec4 coord; //
-//    varying vec2 texpos;
-    out vec2 texpos; //
+    in vec4 coord;
+    out vec2 texpos;
     uniform mat4 mMVP;
     uniform mat4 projection;
 
@@ -341,7 +334,7 @@ void GLwidget::initializeGL()
 //  LogC(verstring.c_str());
 
   // During init, enable debug output
-#if defined(__APPLE__)
+#if defined(__APPLE__) && defined(__x86_64)
   //not for Darwin
 #else
   glEnable(GL_DEBUG_OUTPUT );
@@ -940,6 +933,12 @@ void GLwidget::render_text(GLuint vertexbuffer, const char *text, float x, float
     }
     // find path to font
     std::string font_name = "/usr/share/fonts/liberation/LiberationMono-Regular.ttf";
+#ifdef __WIN32
+    std::string font_name = "\Windows\Fonts\LiberationMono-Regular.ttf";
+#endif
+#ifdef __APPLE__
+    std::string font_name = "/System/Library/fonts/Geneva.ttf";
+#endif
     if (font_name.empty())
     {
         std::cout << "ERROR::FREETYPE: Failed to load font_name" << std::endl;

@@ -87,7 +87,7 @@ On more positive notes:<br></p>
 <p>It is an embarrassment to have to state the following, as it should be understood to be the default:  No material on this site is intended to be a substitute for professional medical advice, diagnosis or treatment, nor is it meant for a corporate workplace.  If you want a secure professional piece of software, please consult a professional developer.  Speaking of which, this is NOT &quot;vibe-coded&quot;, nor written by, nor with use of a so-called AI/LLM.  The information presented on the devices above was almost entirely gained by examining the machines externally and their files when possible, or public information on the internet when not, and its accuracy may therefore very well be limited or incorrect. No information was provided by any manufacturer other than what is available to the public and occasional chats with friendly sales reps for some of the manufacturers, with the notable exception of OCULUS Optikgeräte GmbH (Oculus USA) who were generous and kind enough to supply a sample export file and documentation for the Oculus Keratograph, as well as an export file from their latest OCT incorporating PentaCam machine.  Thank you Oculus! No warranty is made whatsoever that this software will function in the way that it is expected and that the results can be relied on to make clinical decisions. See also the LICENSE. Some example files have been included for demonstration purposes with the files redacted as needed to remove protected personal information.  The program is meant as a tool for understanding and improving intraoperability of data, limited by its design and manufacture, as well as by the user.<br><br> </p>
 <h2 id="building">Building</h2>
 <p><br></p>
-<p>This software was developed at various times under the Slackware, Ubuntu, Arch, Manjaro distributions of GNU/Linux. Dependencies include Qt6, assimp, lapack, rply, gnuplot, gnuplot-iostream, boost, freetype, unzip, cabextract and superlu. Some routines are adapted from other sources and included, for example excerpts from Hanson &amp; Hopkins (see below). OpenGL is used as the primary graphics API: GLSL 3.30 is needed as a minimum.  Qt appears to be deprecating C++ support in favor of QML: you may need to make sure the proper support is present. This version was built with Qt 6.8.3 with QtCreator 20. You might need to adjust some of the paths in the CMakeLists.txt to build.<br></p>
+<p>This software was developed at various times under the Slackware, Ubuntu, Arch, Manjaro distributions of GNU/Linux. Dependencies include Qt6, assimp, lapack, rply, gnuplot, gnuplot-iostream, boost, freetype, unzip, cabextract and superlu. Some routines are adapted from other sources and included, for example excerpts from Hanson &amp; Hopkins (see below). OpenGL is used as the primary graphics API: GLSL 3.30 is needed as a minimum.  Qt appears to be deprecating C++ support in favor of QML: you may need to make sure the proper support is present. This version was built with Qt 6.8.3 and 6.11.1 with QtCreator 20. You might need to adjust some of the paths in the CMakeLists.txt to build.<br></p>
 <p>There are some patches to Hanson &amp; Hopkins <a href="http://www.siam.org/books/ot134">http://www.siam.org/books/ot134</a> chapters 2,4, &amp; 11 to accomodate superlu versions &gt; 4.3, for Windows compilation and to support CSR sparse matrices.<br></p>
 <p>For some file formats, Fortran Linux system calls {call execute_command_line() } to cabextract and rm (or Expand and del under Wiindows) are used for convenience in reading compressed Windows cabinet files and cleaning up temporary files. <br></p>
 <p>Linux system calls from C++  { system() } are called for starting with a command shell for gnuplot and assorted file ops such as unzip, rm, touch, cp, or Windows calls to cmd, tar, del, type and copy.<br></p>
@@ -99,26 +99,21 @@ Open the CmakeLists.txt as a Project in QtCreator, configure and build. </p>
 mkdir build (if not already present)
 cd build<br>
 cmake ../ <br>
-make<br>
-Depending on your environment, you might need to run cmake ../ twice.</p>
-<p>These lines need to be uncommented in CMakeLists.txt
-<br>
-set(CMAKE_HOST_NAME Linux)
-set(CMAKE_SYSTEM UNIX)
-<br>
-with these
-<br>
-set(CMAKE_HOST_NAME Windows)
-set(CMAKE_SYSTEM Windows)
+make<br></p>
+<p>These lines need to be uncommented in CMakeLists.txt<br>
+set(CMAKE_HOST_NAME Linux)<br>
+set(CMAKE_SYSTEM UNIX)<br>
+with these<br>
+set(CMAKE_HOST_NAME Windows)<br>
+set(CMAKE_SYSTEM Windows)<br>
 <br>
 commented out.<br></p>
-<p>gcc is used as the default compiler with cmake. Built with Qt 6.8.3 <br></p>
+<p>gcc is used as the default compiler with cmake. Built with Qt 6.8.3 and 6.11.1 <br></p>
 <p>Building within QtCreator is also possible, but the default of using Ninja does not work with the Fortran dependencies. I had to manually edit .qtcreator/CMakeLists.txt.user directly to replace ninja in the following lines:<br>
 -DCMAKE_GENERATOR:STRING=Unix Makefiles<br>
 -DCMAKE_MAKE_PROGRAM:STRING=/usr/bin/make<br></p>
 <h3 id="under-windows">Under Windows</h3>
-<p>As an alternative, build under Windows if you have the necessary toolset.  <br></p>
-<p>The precompiled binary and installer were built in a Windows 10 VM using QtCreator <a href="https://doc.qt.io/qt-6/windows.html">https://doc.qt.io/qt-6/windows.html</a>. I was unable to get Visual Studio and the Intel Fortran compiler to work together even in QtCreator and used MingW/GCC for the C/C++/Fortran compiler and toolchain. The binary was built using QtCreator 19 and Qt 6.8.3, with<br> ASSIMP_WARNINGS_AS_ERRORS:UNINITIALIZED=OFF <br>
+<p>Build under Windows. The precompiled binary and installer were built in a Windows 10 VM using QtCreator <a href="https://doc.qt.io/qt-6/windows.html">https://doc.qt.io/qt-6/windows.html</a>. I was unable to get Visual Studio and the Intel Fortran compiler to work together in QtCreator or on the commandline and used MingW/GCC for the C/C++/Fortran compiler. The binary was built using QtCreator 19 and Qt 6.8.3, with assimp being built with<br> ASSIMP_WARNINGS_AS_ERRORS:UNINITIALIZED=OFF <br>
 added to the cmake options as well as making sure MingW cmake was used as the build creator and that the environmental variables pointed to the MingW gcc toolchain. In addition, the additional libraries were compiled with the same toolchain.  I built assimp, superlu, glm, freetype, lapack and OpenBLAS with the same toolset using git-bash after downloading them directly from upstream. Again, you might need to adjust paths in CMakeLists.txt in order to build. These lines need to be uncommented in CMakeLists.txt:
 <br>
 set(CMAKE_HOST_NAME Windows)
@@ -143,7 +138,7 @@ export CXX=&quot;/c/Qt/Tools/mingw1310_64/bin/g++&quot;<br></p>
 If used, install the Core (option 1) and the software renderer (option 7). The program and installer will run under WINE using the Linux distro&#39;s GLSL support, although the Linux distro&#39;s gnuplot will not be available. YMMV.<br>
 The binary Windows installer (built with NSIS) includes an option to install gnuplot and the Mesa3D software renderer. The NSIS installer also includes Qt assistant.exe (used by the help function) copied into the binaries, with windeploy used for that executable as well. CrossOver(TM) works well, although you might need to manually close some cmd.exe windows manually on installation and when using gnuplot.<br></p>
 <h3 id="cross-compiling-for-windows-under-linux">Cross-compiling for Windows under Linux</h3>
-<p>Cross compiling under Linux is not as straightforward as one would like in 2026.  Perhaps it is not the ideal solution; there was a lot more activity &gt;10 years prior, with the option of building in a VM with native tools becoming more common. As of this writing, I haven&#39;t managed a complete cross-compile build. Some notes follow:<br></p>
+<p>Under construction. Cross compiling under Linux is not as straightforward as one would like in 2026.  Perhaps it is not the ideal solution; there was a lot more activity &gt;10 years prior, with the option of building in a VM with native tools becoming more common. As of this writing, I haven&#39;t managed a complete cross-compile build. Some notes follow:<br></p>
 <p>Under Arch Linux using AUR packages<br>
 yay -S mingw-w64-gcc <br>
 yay -S mingw-w64-qt6-base mingw-w64-qt6-tools<br>
@@ -175,19 +170,60 @@ in general<br>
 <a href="https://wiki.archlinux.org/title/MinGW_package_guidelines">https://wiki.archlinux.org/title/MinGW_package_guidelines</a> <br>
 wxWidgets<br>
 <a href="https://wiki.wxwidgets.org/Cross-Compiling_Under_Linux">https://wiki.wxwidgets.org/Cross-Compiling_Under_Linux</a> <br></p>
-<h3 id="for-macos">For MacOS</h3>
-<p>Under construction.  Best advice seems to be: build it on a Mac. It appears the little activity in cross-compiling under Linux has largely been abandoned, possibly because of changes in Apple hardware over the last 10 years, which would not only require cross-compiling for Darwin/MacOS/Quartz, but also for the M1/M2/M3/M.. chips and other Apple only hardware. <br>
-Built on a M3 iMac <br>
-Minimal Apple OS version Sonoma for homebrew
-download homebrew, for openGL use brew install to install the following:<br>
-glfw vulkan-headers superlu boost Qt gfortran glm<br>
-change FC, CC, CXX and other environment vars to use gcc to overrride Apple default clang ie.:<br>
-export FC=&quot;gfortran&quot;<br>
-export CC=&quot;gcc-16&quot;<br>
-export CXX=&quot;g++-16&quot;<br>
-you might need to add QT_NO_DEPRECATED_WARNINGS as a cmake option</p>
-<p><br>
+<h3 id="for-macos-darwin">For MacOS/Darwin</h3>
+<p>Build it on a Mac. It appears the little activity in cross-compiling under Linux has largely been abandoned, possibly because of changes in Apple hardware over the last 10 years, which would not only require cross-compiling for Darwin/MacOS/Quartz, but also for the M1/M2/M3/M.. chips and other Apple only hardware. As of this writing Apple will discontinue support for development (ie Xcode) for intel Mac (arch x86_64) in 2027. In addition, unfortunately, the Mac native tools (Appleclang and XCode) are not particularly Fortran nor OpenMP friendly, and as with Windows and the default Visual C++/Intel Fortran/Cmake mismatch, one has to replace the native toolchain with an alternate version. Qt binaries for the MacOS are only provided for clang/llvm, so GCC is not an alternative unless you want to recompile/build Qt using GCC on your Mac. OpenGL has been deprecated on the MacOS(Darwin) for quite some time, but is still supported to GLSL 4.1<br></p>
+<p>Successfully builds on a M3 iMac (arm64), but not on an Intel i3 (x86_64): <br>
+Download Xcode (app store)<br>
+Minimal Apple OS version: Sonoma for homebrew. I have not tried MacPorts.<br>
+Download homebrew, use brew install to install the following:<br>
+glfw vulkan-headers superlu boost Qt gfortran glm gnuplot assimp flang llvm<br>
+change FC, CC, CXX and other environment vars to use flang/clang/clang++ to overrride Apple default clang if using the command line. FOr example, your path should have /opt/homebrew/opt/llvm/bin, /opt/homebrew/bin, and /opt/homebrew/sbin precede /usr/local/bin. There are the usual CMAKE_HOST_NAME and CMAKE_SYSTEM variables to change in CMakeLists.txt. Also uncomment the leading &quot;project line and uncomment the architecture aarch64 variable.&quot;<br>
+<br>
+I was unable to get a successful build in QtCreator, but commandline cmake works with some tweaks:<br></p>
+<p>cmake -DCMAKE<em>Fortran<em>FLAGS=&quot;-D<strong>APPLE</strong>&quot; -DCMAKE_CXX_FLAGS=&quot;-D__APPLE</em></em>&quot; ../<br></p>
+<p>The flags are needed to assure that the cmake preprocessor knows it is compiling for Apple. There are several other manual tweaks needed to compile under the MacOS/Darwin.<br></p>
+<p>cmake also makes -F flags (related to Frameworks) in the Fortran include flags which are not ignored by gfortran nor flang .  Two have to be manually removed in (build/)CMakeFiles/kernunos.dir/flags.make. After cmake runs, edit the file, then run make.<br></p>
+<p>When building assimp, as with Windows, you need the ASSIMP<em>WARNINGS<em>AS<em>ERRORS=OFF flag. cmake -DASSIMP<em>WARNINGS_AS_ERRORS=OFF -DCMAKE_Fortran_FLAGS=&quot;-D__APPLE</em></em>&quot; -DCMAKE_CXX_FLAGS=&quot;-D__APPLE</em></em>&quot; ../<br></p>
+<p>From assimp&#39;s README:</p>
+<pre><code class="lang-bash">git clone https://github.com/assimp/assimp
+cd assimp
+cmake -G Ninja -DASSIMP_BUILD_TESTS=off -DASSIMP_INSTALL=off -S . -B build
+cd build
+ninja
+</code></pre>
+<p>In assimp, compiling under LLVM, change:  </p>
+<pre><code>in assimp/contrib/openddlparser/code/DDLNode.cpp
+change:
+inline static void releaseDataType(T *ptr) { 
+to the following:
+[[maybe_unused]] inline static void releaseDataType(T *ptr) { 
+
+in assimp/contrib/poly2tri/poly2tri/common/shapes.h
+after:
+#include &quot;dll_symbol.h&quot;
+add:
+#include &lt;ostream&gt;
+</code></pre><p>Additional notes for intel i3 MacOs:
+Some Darwin specific Qt code (both 6.8.3 and 6.11.1) is not processed correctly, and needs a patch to compile: <br></p>
+<p>You <em>might</em>need to remove QT_NO_DEPRECATED pragma in qopenglcontext_platform.h
+so for /opt/homebrew/lib/QtGui.framework/Headers/qopenglcontext_platform.h change the following:<br></p>
+<pre><code>struct Q_GUI_EXPORT QCocoaGLContext
+{
+    QT_DECLARE_NATIVE_INTERFACE(QCocoaGLContext, 1, QOpenGLContext)
+    static QOpenGLContext *fromNative(QT_IGNORE_DEPRECATIONS(NSOpenGLContext) *context, QOpenGLContext *shareContext = nullpt$
+    virtual QT_IGNORE_DEPRECATIONS(NSOpenGLContext) *nativeContext() const = 0;
+};
+
+struct Q_GUI_EXPORT QCocoaGLContext
+{
+    QT_DECLARE_NATIVE_INTERFACE(QCocoaGLContext, 1, QOpenGLContext)
+    static QOpenGLContext *fromNative; (NSOpenGLContext);*context, QOpenGLContext; *shareContext = nullptr;
+    virtual ::NSOpenGLContext*nativeContext() const = 0;
+};
+</code></pre><p><br>
 References:<br>
+<a href="https://fortran-lang.discourse.group/t/options-for-linking-fortran-on-a-mac/3739">https://fortran-lang.discourse.group/t/options-for-linking-fortran-on-a-mac/3739</a>
+<a href="https://discourse.cmake.org/t/problems-with-fortran-an-xcode-generator/11112">https://discourse.cmake.org/t/problems-with-fortran-an-xcode-generator/11112</a>
 <a href="https://doc.qt.io/qt-6/macos.html">https://doc.qt.io/qt-6/macos.html</a> <br>
 <a href="https://stackoverflow.com/questions/693952/how-to-compile-for-os-x-in-linux-or-windows">https://stackoverflow.com/questions/693952/how-to-compile-for-os-x-in-linux-or-windows</a> <br>
 <a href="https://stackoverflow.com/questions/4342047/compiling-a-qt-application-for-mac-os-x-on-linux">https://stackoverflow.com/questions/4342047/compiling-a-qt-application-for-mac-os-x-on-linux</a> <br></p>

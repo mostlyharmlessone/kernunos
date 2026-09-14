@@ -81,7 +81,6 @@
 
 //#include <qt6/QtCore/qtmetamacros.h>
 
-
 // global variables
 
 extern const unsigned int SCR_WIDTH;

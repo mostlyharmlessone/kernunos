@@ -67,7 +67,7 @@ A: You can pick the function to be plotted on the 3-D heatmap with Function, eg.
 
 Q: How do change the view?<br>
 
-A: If you want to see the surface normals or play with shadows you can pick those in View. You can also turn the Pupil depiction on or off. Rotate the object with the mouse, wheel, vertical sliders or keyboard keys A,D,W, and X for horizontal motion, Q to zoom out, S to zoom in. M and N make large jumps in magnification. A mouse scroll wheel is the easiest for zooming. The horizontal slider changes the transparency when surface normals and shadows are not being used.  The view can also be changed to show a relative elevation of the function rather than the corneal elevation.<br>
+A: If you want to see the surface normals or play with shadows you can pick those in View. You can also turn the Pupil depiction on or off. Rotate the object with the mouse, wheel, vertical sliders or keyboard keys A,D,W, and X for horizontal motion, Q to zoom out, S to zoom in. M and N make large jumps in magnification. A mouse scroll wheel is the easiest for zooming. The Apple mouse has had limited testing, as my fingers aren't clever enough to use it. The horizontal slider changes the transparency when surface normals and shadows are not being used.  The view can also be changed to show a relative elevation of the function rather than the corneal elevation.<br>
 
 Q: I can't select a function!<br>
 
@@ -85,7 +85,7 @@ Decentering simply moves intrinsic properties such as shape and principal curvat
 
 Q: What are all the Menu Options and what do they do?<br>
 
-A: Like, a manual?  Let's go through each menu item, from left to right:<br>
+A: Like, a manual?  Let's go through each menu item, from left to right: (Note that the MacOS version might vary slightly, as the About categories are placed on the left by default, and the command bar is separate from the window.)<br>
 File:
 ```
 	  Load (use to open a data file of a supported type, including saved file snapshots)
@@ -205,6 +205,11 @@ About:
        About (provides some information about the hardware)
 	   About Qt (about the graphical widgets used to make the GUI with C++)
 
+(Note that the MacOS version might vary slightly, as the About categories are placed on the left by default, and the command bar is separate from the window and always at the top of the screen.)
+
+Q: Powers and Angles don't appear, or are weird!
+
+A: Make sure your TrueType/FreeType fonts are available and in the xpected place. The Linux version expects to find  "/usr/share/fonts/liberation/LiberationMono-Regular.ttf", the Darwin version expects "/System/Library/fonts/Geneva.ttf" and the Windows 10 version expects
 
 Q: Why does the PentaCam "Check spline consistency" ELE and CUR files consistency check not correspond in the center, or why do these plots look different in the center?<br>
 
@@ -236,6 +241,8 @@ However:<br>
 ```
 
 It's unclear to me where the incompatibility between assimp output and 3D Viewer/Paint3D input lies, though Microsoft has deprecated Paint3D as of 11/04/2024.  I recommend using meshlab if you want to work with the exported 3-D data.<br>
+
+PLY files on the MacOS platform can be opened successfully with Xcode (which appears to be the default)!  I have done limited testing of opening files on the MacOS.
 
 fstl (https://github.com/fstl-app/fstl or http://www.mattkeeter.com/projects/fstl/)
 ```
@@ -288,7 +295,7 @@ But I haven't bothered to add up bytes to compare.<br>
 
 Q: Why is the coding so bad/uneven? (and other coding criticisms)<br>
 
-A: Parts of the code were written at different stages of my evolution which might make the code uneven in style. As an example, some of the file I/O is relatively straightforward, with unformatted reads of ASCII text files. However as I wrote routines for different input files, I found that the Fortran standard text file of data can unpredictably (and occasionally compiler dependent) encounter errors with data separated by semicolons or colons.  There are a number of ways to handle the situation, some of which were compiler or compiler switch dependent which I wished to avoid.  The first method I used was to call a system command to automatically replace semicolons with commas. Some are more complicated workarounds.  Later, I read some of these files as binary rather than text and reconverted the data to numerical data, avoiding the entire issue at the cost of increased complexity, or wrote a routine to replace the semicolons. Another language, such as C or C++ would have had completely different file I/O routines. Some of my code is old, either originally written in the 80's and 90's in FORTRAN 77 or K&R style C.  I've also borrowed bits and pieces of code throughout from the internet, particularly from stackoverflow. The coding therefore resembles a magpie's nest more than an organized structure with defined architecture. And... for me, C++ is like talking in my fourth language.  There are known issues, for example, opening another file, and possibly some other operations while Zernike is computing will lead to a crash. It's probably because my code isn't thread safe. I'm also pretty sure I remember valgrind saying there are memory leaks: it must be all the COBOL.<br>
+A: Parts of the code were written at different stages of my evolution which might make the code uneven in style. As an example, some of the file I/O is relatively straightforward, with unformatted reads of ASCII text files. However as I wrote routines for different input files, I found that the Fortran standard text file of data can unpredictably (and occasionally compiler dependent) encounter errors with data separated by semicolons or colons.  There are a number of ways to handle the situation, some of which were compiler or compiler switch dependent which I wished to avoid.  The first method I used was to call a system command to automatically replace semicolons with commas. Some are more complicated workarounds.  Later, I read some of these files as binary rather than text and reconverted the data to numerical data, avoiding the entire issue at the cost of increased complexity, or wrote a routine to replace the semicolons. Another language, such as C or C++ would have had completely different file I/O routines. Some of my code is old, either originally written in the 80's and 90's in FORTRAN 77 or K&R style C.  I've also borrowed bits and pieces of code throughout from the internet, particularly from stackoverflow. The coding therefore resembles a magpie's nest more than an organized structure with defined architecture. And... for me, C++ is like talking in my fourth language.  There are known issues, for example, opening another file, and possibly some other operations while Zernike is computing will lead to a crash. It's probably because my code isn't thread safe. I'm also pretty sure I remember valgrind saying there are memory leaks: it must be all the COBOL. :)<br>
 
 Q: Why OpenGL and not (insert your preference here)?<br>
 
@@ -308,11 +315,11 @@ A: You're welcome to try that approach.  However it's not for me, see the README
 
 Q: Did you really not use an "AI"/LLM for this?<br>
 
-A: Yes, though I suspect Github used Copilot to "hallucinate" the 10.6% nonexisting COBOL.<br>
+A: Yes, though I suspect Github used Copilot to "hallucinate" the 10.6% nonexisting COBOL. :)<br>
 
 Q: Do you accept "AI"/LLM contributions to your code?<br>
 
-A: I should be so lucky that even a bot would take an interest. Having said that, the LICENSE precludes incorporating any of this code into an LLM's sausage works, for everyone's benefit.  The LLM would have to incorporate it in order to contribute.  The, (ahem), unusual and unique coding style would probably poison its future coding probabilities. Since it might well be impossible for me to detect undeclared or partial "AI"/LLM contributions, at this point, if a human appearing contribution presents itself, I'll look at it.  Use what tools seem right to you, but take responsibility for the output. <br>
+A: I should be so lucky that even a bot would take an interest. Having said that, the LICENSE precludes incorporating any of this code into an LLM's sausage works, for everyone's benefit.  The LLM would have to incorporate it in order to contribute.  The, (ahem), unusual and unique coding style would probably poison its future coding probabilities. Since it might well be impossible to detect undeclared or partial "AI"/LLM contributions, at this point, if a human appearing contribution presents itself, I'll look at it.  Use what tools seem right to you, but take responsibility for the output. <br>
 
 Q: Why not just give topography images/data to an AI and have it tell you how they differ or not?<br>
 

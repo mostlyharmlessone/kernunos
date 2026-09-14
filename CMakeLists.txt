@@ -662,7 +662,7 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
                 Qt${QT_VERSION_MAJOR}::OpenGL
                 Qt${QT_VERSION_MAJOR}::Pdf
                 Qt${QT_VERSION_MAJOR}::PdfWidgets
-                assimp rply_includes ${LIBS} ${OpenMP_LIBRARIES} #${ASSIMP_LIBRARIES} needs rebuilding for x86_64
+                assimp rply_includes ${LIBS} ${OpenMP_LIBRARIES}
            )
 endif()
 
