@@ -173,25 +173,29 @@ wxWidgets<br>
 <h3 id="for-macos-darwin">For MacOS/Darwin</h3>
 <p>Build it on a Mac. It appears the little activity in cross-compiling under Linux has largely been abandoned, possibly because of changes in Apple hardware over the last 10 years, which would not only require cross-compiling for Darwin/MacOS/Quartz, but also for the M1/M2/M3/M.. chips and other Apple only hardware. As of this writing Apple will discontinue support for development (ie Xcode) for intel Mac (arch x86_64) in 2027. In addition, unfortunately, the Mac native tools (Appleclang and XCode) are not particularly Fortran nor OpenMP friendly, and as with Windows and the default Visual C++/Intel Fortran/Cmake mismatch, one has to replace the native toolchain with an alternate version. Qt binaries for the MacOS are only provided for clang/llvm, so GCC is not an alternative unless you want to recompile/build Qt using GCC on your Mac. OpenGL has been deprecated on the MacOS(Darwin) for quite some time, but is still supported to GLSL 4.1<br></p>
 <p>Successfully builds on a M3 iMac (arm64), but not on an Intel i3 (x86_64): <br>
-Download Xcode (app store)<br>
-Minimal Apple OS version: Sonoma for homebrew. I have not tried MacPorts.<br>
+Download Xcode (app store)and activate it, also:<br></p>
+<pre><code>xcode-select --switch /Applications/Xcode.app
+</code></pre><p>Minimal Apple OS version: Sonoma for homebrew. I have not tried MacPorts.<br>
 Download homebrew, use brew install to install the following:<br>
-glfw vulkan-headers superlu boost Qt gfortran glm gnuplot assimp flang llvm<br>
-change FC, CC, CXX and other environment vars to use flang/clang/clang++ to overrride Apple default clang if using the command line. FOr example, your path should have /opt/homebrew/opt/llvm/bin, /opt/homebrew/bin, and /opt/homebrew/sbin precede /usr/local/bin. There are the usual CMAKE_HOST_NAME and CMAKE_SYSTEM variables to change in CMakeLists.txt. Also uncomment the leading &quot;project line and uncomment the architecture aarch64 variable.&quot;<br>
+glfw vulkan-headers superlu boost Qt gfortran glm gnuplot assimp flang llvm cabextract<br>
+change FC, CC, CXX and other environment vars to use flang/clang/clang++ to overrride Apple default clang if using the command line. For example, your path should have /opt/homebrew/opt/llvm/bin, /opt/homebrew/bin, and /opt/homebrew/sbin precede /usr/local/bin. </p>
+<pre><code>echo &#39;export PATH=&quot;/usr/local/opt/llvm/bin:$PATH&quot;&#39; &gt;&gt; ~/.zshrc
+</code></pre><p>There are the usual CMAKE_HOST_NAME and CMAKE_SYSTEM variables to change in CMakeLists.txt. Also uncomment the leading &quot;project line and uncomment the architecture aarch64 variable.&quot;<br>
 <br>
 I was unable to get a successful build in QtCreator, but commandline cmake works with some tweaks:<br></p>
 <p>cmake -DCMAKE<em>Fortran<em>FLAGS=&quot;-D<strong>APPLE</strong>&quot; -DCMAKE_CXX_FLAGS=&quot;-D__APPLE</em></em>&quot; ../<br></p>
 <p>The flags are needed to assure that the cmake preprocessor knows it is compiling for Apple. There are several other manual tweaks needed to compile under the MacOS/Darwin.<br></p>
-<p>cmake also makes -F flags (related to Frameworks) in the Fortran include flags which are not ignored by gfortran nor flang .  Two have to be manually removed in (build/)CMakeFiles/kernunos.dir/flags.make. After cmake runs, edit the file, then run make.<br></p>
+<p>cmake also makes -F flags (related to Frameworks) in the Fortran include flags which are not ignored by gfortran nor flang .  Two have to be manually removed in</p>
+<pre><code>build/CMakeFiles/kernunos.dir/flags.make.
+</code></pre><p>After cmake runs, edit the file, then run make.<br></p>
 <p>When building assimp, as with Windows, you need the ASSIMP<em>WARNINGS<em>AS<em>ERRORS=OFF flag. cmake -DASSIMP<em>WARNINGS_AS_ERRORS=OFF -DCMAKE_Fortran_FLAGS=&quot;-D__APPLE</em></em>&quot; -DCMAKE_CXX_FLAGS=&quot;-D__APPLE</em></em>&quot; ../<br></p>
 <p>From assimp&#39;s README:</p>
-<pre><code class="lang-bash">git clone https://github.com/assimp/assimp
+<pre><code>git clone https://github.com/assimp/assimp
 cd assimp
 cmake -G Ninja -DASSIMP_BUILD_TESTS=off -DASSIMP_INSTALL=off -S . -B build
 cd build
 ninja
-</code></pre>
-<p>In assimp, compiling under LLVM, change:  </p>
+</code></pre><p>In assimp, compiling under LLVM/clang++, change:  </p>
 <pre><code>in assimp/contrib/openddlparser/code/DDLNode.cpp
 change:
 inline static void releaseDataType(T *ptr) { 

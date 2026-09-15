@@ -225,8 +225,8 @@ xcode-select --switch /Applications/Xcode.app
 ```
 Minimal Apple OS version: Sonoma for homebrew. I have not tried MacPorts.<br>
 Download homebrew, use brew install to install the following:<br>
-glfw vulkan-headers superlu boost Qt gfortran glm gnuplot assimp flang llvm<br>
-change FC, CC, CXX and other environment vars to use flang/clang/clang++ to overrride Apple default clang if using the command line. FOr example, your path should have /opt/homebrew/opt/llvm/bin, /opt/homebrew/bin, and /opt/homebrew/sbin precede /usr/local/bin. 
+glfw vulkan-headers superlu boost Qt gfortran glm gnuplot assimp flang llvm cabextract<br>
+change FC, CC, CXX and other environment vars to use flang/clang/clang++ to overrride Apple default clang if using the command line. For example, your path should have /opt/homebrew/opt/llvm/bin, /opt/homebrew/bin, and /opt/homebrew/sbin precede /usr/local/bin. 
 ```
 echo 'export PATH="/usr/local/opt/llvm/bin:$PATH"' >> ~/.zshrc
 ```

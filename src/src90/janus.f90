@@ -389,7 +389,11 @@ if (mod(flag,100) .eq. 5 ) then
    WRITE(unitno1,*) 'NOYTICS = "set format y ''''; unset ylabel"'
    CALL PRINTGRAPH(unitno1,POWMIN,POWMAX,BigPlot)
    CLOSE (unitno1)
+#ifdef (__APPLE__)
+   write(new_file,*) "zsh -l -c 'gnuplot -p'" // trim(gnu_instruct)
+#else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
+#endif
    call execute_command_line(trim(new_file), exitstat=i)
    return
  endif ! end (mod(flag,100) .eq. 5)
@@ -434,9 +438,11 @@ DiaSlope%Zpd2 = .n. DiaSlope
  WRITE(unitno1,*) 'set polar'
  WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "Center" '
  close(unitno1)
- write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
- call execute_command_line(trim(new_file), exitstat=i)
-
+#ifdef (__APPLE__)
+   write(new_file,*) "zsh -l -c 'gnuplot -p '" // trim(gnu_instruct)
+#else
+   write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
+#endif
  BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".sag")
  call WriteCenterJ(JMatrix%SAGC0(1),JMatrix%SAGC,BigPlot)
  !instruction file
@@ -447,9 +453,11 @@ DiaSlope%Zpd2 = .n. DiaSlope
   WRITE(unitno1,*) 'set polar'
   WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "SagC" '
   close(unitno1)
-  write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
-  call execute_command_line(trim(new_file), exitstat=i)
-
+#ifdef (__APPLE__)
+   write(new_file,*) "zsh -l -c 'gnuplot -p '" // trim(gnu_instruct)
+#else
+   write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
+#endif
  BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".int")
  call WriteCenterJ(JMatrix%INSTC0(1),JMatrix%INSTC,BigPlot)
  !instruction file
@@ -460,9 +468,11 @@ DiaSlope%Zpd2 = .n. DiaSlope
   WRITE(unitno1,*) 'set polar'
   WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "IntC" '
   close(unitno1)
-  write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
-  call execute_command_line(trim(new_file), exitstat=i)
-
+#ifdef (__APPLE__)
+   write(new_file,*) "zsh -l -c 'gnuplot -p '" // trim(gnu_instruct)
+#else
+   write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
+#endif
  BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".mea")
  call WriteCenterJ(JMatrix%MEANC0(1),JMatrix%MEANC,BigPlot)
  !instruction file
@@ -473,9 +483,11 @@ DiaSlope%Zpd2 = .n. DiaSlope
   WRITE(unitno1,*) 'set polar'
   WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "MeanC" '
   close(unitno1)
-  write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
-  call execute_command_line(trim(new_file), exitstat=i)
-
+#ifdef (__APPLE__)
+   write(new_file,*) "zsh -l -c 'gnuplot -p '" // trim(gnu_instruct)
+#else
+   write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
+#endif
  BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".mon")
  call WriteCenterJ(JMatrix%MONGEA0(1),JMatrix%MONGEA,BigPlot)
  !instruction file
@@ -486,8 +498,11 @@ DiaSlope%Zpd2 = .n. DiaSlope
   WRITE(unitno1,*) 'set polar'
   WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "MongeA" '
   close(unitno1)
-  write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
-  call execute_command_line(trim(new_file), exitstat=i)
+#ifdef (__APPLE__)
+   write(new_file,*) "zsh -l -c 'gnuplot -p '" // trim(gnu_instruct)
+#else
+   write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
+#endif
  return
 endif !  (mod(flag,100) .eq. 6)
 
@@ -529,12 +544,14 @@ if (mod(flag,100) .eq. 7) then
   WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2:5:6 with vectors title "Direction 2" '
 
   WRITE(unitno1,*) "set term wxt 3 title 'Both directions' "
-  WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2:3:4 with vectors title "Direction 1"&
-                   &',", ","'",BigPlot,"'",' using 1:2:5:6 with vectors title "Direction 2" '
-
+  WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2:3:4 with vectors title "Direction 1" '&
+                    &,", ","'",BigPlot,"'",' using 1:2:5:6 with vectors title "Direction 2" '
   CLOSE (unitno1)
-  write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
-  call execute_command_line(trim(new_file), exitstat=i)
+#ifdef (__APPLE__)
+   write(new_file,*) "zsh -l -c 'gnuplot -p '" // trim(gnu_instruct)
+#else
+   write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
+#endif
  return
 endif ! (mod(flag,100) .eq. 7)
 
@@ -1543,7 +1560,12 @@ if (TestData .eq. 6) then
 #ifdef _WIN32
     call execute_command_line ('Expand.exe ' // cab_inputfile1 // ' -F:*', exitstat=io)
 #else
-    call execute_command_line ('cabextract ' // cab_inputfile1, exitstat=io)
+#ifdef (__APPLE__)
+   write(new_file,*) "zsh -l -c 'cabextract '" // cab_inputfile1
+   call execute_command_line(trim(new_file), exitstat=i)
+#else
+   call execute_command_line ('cabextract ' // cab_inputfile1, exitstat=io)
+#endif
 #endif
     if (io == 0) then
      inputfile1=replacestr(string=inputfile1,search=".CAB",substitute=".DAT")
@@ -1579,7 +1601,12 @@ if (TestData .eq. 6) then
 #ifdef _WIN32
     call execute_command_line ('Expand.exe ' // cab_inputfile4 // ' -F:*', exitstat=io)
 #else
-    call execute_command_line ('cabextract ' // cab_inputfile4, exitstat=io)
+#ifdef (__APPLE__)
+   write(new_file,*) "zsh -l -c 'cabextract '" // cab_inputfile4
+   call execute_command_line(trim(new_file), exitstat=i)
+#else
+   call execute_command_line ('cabextract ' // cab_inputfile4, exitstat=io)
+#endif
 #endif
      if (io == 0) then
       inputfile4=replacestr(string=inputfile4,search=".CAB",substitute=".DAT")
@@ -1967,7 +1994,11 @@ if (TestData .eq. 1) then
     WRITE(unitno1,*) "set polar"
     WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 title "Rings" '
     CLOSE (unitno1)
-    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
+#ifdef (__APPLE__)
+   write(new_file,*) "zsh -l -c 'gnuplot -p '" // trim(gnu_instruct)
+#else
+   write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
+#endif
     call execute_command_line(trim(new_file), exitstat=i)
     if (btest(dat, 4) .or. btest(dat, 3)) then
      RadSlope=Atlas
@@ -2030,7 +2061,11 @@ if (TestData .eq. 0 .or. TestData .eq. 6) then
    WRITE(unitno1,*) "set polar"
    WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 title "Rings" '
    CLOSE (unitno1)
+#ifdef (__APPLE__)
+   write(new_file,*) "zsh -l -c 'gnuplot -p '" // trim(gnu_instruct)
+#else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
+#endif
    call execute_command_line(trim(new_file), exitstat=i)
    if (btest(dat, 4) .or. btest(dat, 3)) then
     RadSlope=EyeSys
@@ -2738,7 +2773,11 @@ open(unitno1, file = "/tmp/zernike.tmp", action="write", iostat=ierr)
  close(unitno1)
 ! this line clears the counter, no longer does anything with gp or the filename
  call Ccounter(100)
-  write(new_file,*) "gnuplot -p /tmp/zernike.tmp"
+#ifdef (__APPLE__)
+   write(new_file,*) "zsh -l -c 'gnuplot -p /tmp/zernike.tmp'"
+#else
+   write(new_file,*) "gnuplot -p /tmp/zernike.tmp"
+#endif
   call execute_command_line(trim(new_file), exitstat=i)
   if (mod(flag,100) == 9) call Ccounter(0)  ! zero out the progess bar if we're just displaying coefficients
  else
