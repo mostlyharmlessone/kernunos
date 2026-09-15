@@ -389,7 +389,7 @@ if (mod(flag,100) .eq. 5 ) then
    WRITE(unitno1,*) 'NOYTICS = "set format y ''''; unset ylabel"'
    CALL PRINTGRAPH(unitno1,POWMIN,POWMAX,BigPlot)
    CLOSE (unitno1)
-#ifdef (__APPLE__)
+#if defined  (__APPLE__)
    write(new_file,*) "zsh -l -c 'gnuplot -p'" // trim(gnu_instruct)
 #else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
@@ -438,7 +438,7 @@ DiaSlope%Zpd2 = .n. DiaSlope
  WRITE(unitno1,*) 'set polar'
  WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "Center" '
  close(unitno1)
-#ifdef (__APPLE__)
+#if defined  (__APPLE__)
    write(new_file,*) "zsh -l -c 'gnuplot -p '" // trim(gnu_instruct)
 #else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
@@ -453,7 +453,7 @@ DiaSlope%Zpd2 = .n. DiaSlope
   WRITE(unitno1,*) 'set polar'
   WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "SagC" '
   close(unitno1)
-#ifdef (__APPLE__)
+#if defined  (__APPLE__)
    write(new_file,*) "zsh -l -c 'gnuplot -p '" // trim(gnu_instruct)
 #else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
@@ -468,7 +468,7 @@ DiaSlope%Zpd2 = .n. DiaSlope
   WRITE(unitno1,*) 'set polar'
   WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "IntC" '
   close(unitno1)
-#ifdef (__APPLE__)
+#if defined  (__APPLE__)
    write(new_file,*) "zsh -l -c 'gnuplot -p '" // trim(gnu_instruct)
 #else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
@@ -483,7 +483,7 @@ DiaSlope%Zpd2 = .n. DiaSlope
   WRITE(unitno1,*) 'set polar'
   WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "MeanC" '
   close(unitno1)
-#ifdef (__APPLE__)
+#if defined  (__APPLE__)
    write(new_file,*) "zsh -l -c 'gnuplot -p '" // trim(gnu_instruct)
 #else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
@@ -498,7 +498,7 @@ DiaSlope%Zpd2 = .n. DiaSlope
   WRITE(unitno1,*) 'set polar'
   WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "MongeA" '
   close(unitno1)
-#ifdef (__APPLE__)
+#if defined  (__APPLE__)
    write(new_file,*) "zsh -l -c 'gnuplot -p '" // trim(gnu_instruct)
 #else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
@@ -547,7 +547,7 @@ if (mod(flag,100) .eq. 7) then
   WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2:3:4 with vectors title "Direction 1" '&
                     &,", ","'",BigPlot,"'",' using 1:2:5:6 with vectors title "Direction 2" '
   CLOSE (unitno1)
-#ifdef (__APPLE__)
+#if defined  (__APPLE__)
    write(new_file,*) "zsh -l -c 'gnuplot -p '" // trim(gnu_instruct)
 #else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
@@ -1560,7 +1560,7 @@ if (TestData .eq. 6) then
 #ifdef _WIN32
     call execute_command_line ('Expand.exe ' // cab_inputfile1 // ' -F:*', exitstat=io)
 #else
-#ifdef (__APPLE__)
+#if defined  (__APPLE__)
    write(new_file,*) "zsh -l -c 'cabextract '" // cab_inputfile1
    call execute_command_line(trim(new_file), exitstat=i)
 #else
@@ -1601,7 +1601,7 @@ if (TestData .eq. 6) then
 #ifdef _WIN32
     call execute_command_line ('Expand.exe ' // cab_inputfile4 // ' -F:*', exitstat=io)
 #else
-#ifdef (__APPLE__)
+#if defined  (__APPLE__)
    write(new_file,*) "zsh -l -c 'cabextract '" // cab_inputfile4
    call execute_command_line(trim(new_file), exitstat=i)
 #else
@@ -1994,7 +1994,7 @@ if (TestData .eq. 1) then
     WRITE(unitno1,*) "set polar"
     WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 title "Rings" '
     CLOSE (unitno1)
-#ifdef (__APPLE__)
+#if defined  (__APPLE__)
    write(new_file,*) "zsh -l -c 'gnuplot -p '" // trim(gnu_instruct)
 #else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
@@ -2061,7 +2061,7 @@ if (TestData .eq. 0 .or. TestData .eq. 6) then
    WRITE(unitno1,*) "set polar"
    WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 title "Rings" '
    CLOSE (unitno1)
-#ifdef (__APPLE__)
+#if defined  (__APPLE__)
    write(new_file,*) "zsh -l -c 'gnuplot -p '" // trim(gnu_instruct)
 #else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
@@ -2773,7 +2773,7 @@ open(unitno1, file = "/tmp/zernike.tmp", action="write", iostat=ierr)
  close(unitno1)
 ! this line clears the counter, no longer does anything with gp or the filename
  call Ccounter(100)
-#ifdef (__APPLE__)
+#if defined  (__APPLE__)
    write(new_file,*) "zsh -l -c 'gnuplot -p /tmp/zernike.tmp'"
 #else
    write(new_file,*) "gnuplot -p /tmp/zernike.tmp"
