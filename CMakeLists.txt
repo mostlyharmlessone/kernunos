@@ -594,6 +594,7 @@ if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
         src/cxx/assistant.cpp src/cxx/assistant.h
         src/cxx/mainwindow.ui
         src/src90/janus.f90
+         ${APP_ICON_MACOS}
          ${TS_FILES}
 )
 endif()
@@ -607,6 +608,9 @@ if (TRUE)
   )
     qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 
+set(MACOSX_BUNDLE_ICON_FILE kernunos.icns)
+set(APP_ICON_MACOS "{CMAKE_CURRENT_SOURCE_DIR}/kernunos.icns")
+set_source_files_properties(${APP_ICON_MACOS} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
 
 set_target_properties(kernunos PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER kernunos.qt
