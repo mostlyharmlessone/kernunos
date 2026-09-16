@@ -390,7 +390,9 @@ if (mod(flag,100) .eq. 5 ) then
    CALL PRINTGRAPH(unitno1,POWMIN,POWMAX,BigPlot)
    CLOSE (unitno1)
 #if defined  (__APPLE__)
-   write(new_file,*) "zsh -l -c 'gnuplot -p'" // trim(gnu_instruct)
+   write(new_file,*) "zsh -l -c 'gnuplot -p' " // trim(gnu_instruct)
+   write(*,*) "Command not found error code 127: ", trim(new_file)
+   write(new_file,*) "/opt/homebrew/gnuplot -p " // trim(gnu_instruct)
 #else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
 #endif

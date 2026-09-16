@@ -334,7 +334,7 @@ void GLwidget::initializeGL()
 //  LogC(verstring.c_str());
 
   // During init, enable debug output
-#if defined(__APPLE__) && defined(__x86_64)
+#if defined(__APPLE__)
   //not for Darwin
 #else
   glEnable(GL_DEBUG_OUTPUT );
@@ -906,10 +906,13 @@ void GLwidget::render_text(GLuint vertexbuffer, const char *text, float x, float
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
      /* Create a texture that will be used to hold one "glyph" */
     GLuint tex;
-    glActiveTexture(GL_TEXTURE0);
+//__APPLE__
+//    glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE1);
     glGenTextures(1, &tex);
     glBindTexture(GL_TEXTURE_2D, tex);
-    glUniform1i(uniform_tex, 0);
+//    glUniform1i(uniform_tex, 0);
+    glUniform1i(uniform_tex, 1);
     /* We require 1 byte alignment when uploading texture data */
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     /* Clamping to edges is important to prevent artifacts when scaling */
