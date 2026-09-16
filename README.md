@@ -130,7 +130,7 @@ with these<br>
 set(CMAKE_HOST_NAME Windows)<br>
 set(CMAKE_SYSTEM Windows)<br>
 <br>
-commented out.<br>
+ and the corresponding Darwin variables commented out.<br>
 
 gcc is used as the default compiler with cmake. Built with Qt 6.8.3 and 6.11.1 <br>
 
@@ -141,7 +141,7 @@ Building within QtCreator is also possible, but the default of using Ninja does 
 
 ###Under Windows
 
-Build under Windows. The precompiled binary and installer were built in a Windows 10 VM using QtCreator https://doc.qt.io/qt-6/windows.html. I was unable to get Visual Studio and the Intel Fortran compiler to work together in QtCreator or on the commandline and used MingW/GCC for the C/C++/Fortran compiler. The binary was built using QtCreator 19 and Qt 6.8.3, with assimp being built with<br> ASSIMP_WARNINGS_AS_ERRORS:UNINITIALIZED=OFF <br>
+Build under Windows. The precompiled binary and installer were built in a Windows 10 VM using QtCreator https://doc.qt.io/qt-6/windows.html. I used MingW/GCC for the C/C++/Fortran compiler. The binary was built using QtCreator 19 and Qt 6.8.3, with assimp being built with<br> ASSIMP_WARNINGS_AS_ERRORS:UNINITIALIZED=OFF <br>
 added to the cmake options as well as making sure MingW cmake was used as the build creator and that the environmental variables pointed to the MingW gcc toolchain. In addition, the additional libraries were compiled with the same toolchain.  I built assimp, superlu, glm, freetype, lapack and OpenBLAS with the same toolset using git-bash after downloading them directly from upstream. Again, you might need to adjust paths in CMakeLists.txt in order to build. These lines need to be uncommented in CMakeLists.txt:
 <br>
 set(CMAKE_HOST_NAME Windows)
@@ -152,13 +152,13 @@ with these
 set(CMAKE_HOST_NAME Linux)
 set(CMAKE_SYSTEM UNIX)
 <br>
-commented out.<br>
+and the corresponding Darwin variables commented out.<br>
 
 Alternatively at the command line: (your Windows environment and path may differ)
 cmake -G "MinGW Makefiles" ../
 $ mingw32-make install
 
-change FC, CC, CXX and other environment vars to use gcc to overrride Qt defaults ie.:<br>
+change FC, CC, CXX and other environment vars to use gcc to overrride Qt/OS defaults ie.:<br>
 export FC="/c/Qt/Tools/mingw1310_64/bin/gfortran"<br>
 export CC="/c/Qt/Tools/mingw1310_64/bin/gcc"<br>
 export CXX="/c/Qt/Tools/mingw1310_64/bin/g++"<br>
@@ -199,7 +199,7 @@ with these
 set(CMAKE_HOST_NAME Windows)
 set(CMAKE_SYSTEM UNIX)
 <br>
-commented out.<br>
+and the corresponding Darwin variables commented out.<br>
 
 Numerous libraries can be imported from their (mingw64) builds under Windows.<br>
 
@@ -216,9 +216,9 @@ https://wiki.wxwidgets.org/Cross-Compiling_Under_Linux <br>
 
 ###For MacOS/Darwin
 
-Build it on a Mac. It appears the little activity in cross-compiling under Linux has largely been abandoned, possibly because of changes in Apple hardware over the last 10 years, which would not only require cross-compiling for Darwin/MacOS/Quartz, but also for the M1/M2/M3/M.. chips and other Apple only hardware. As of this writing Apple will discontinue support for development (ie Xcode) for intel Mac (arch x86_64) in 2027. In addition, unfortunately, the Mac native tools (Appleclang and XCode) are not particularly Fortran nor OpenMP friendly, and as with Windows and the default Visual C++/Intel Fortran/Cmake mismatch, one has to replace the native toolchain with an alternate version. Qt binaries for the MacOS are only provided for clang/llvm, so GCC is not an alternative unless you want to recompile/build Qt using GCC on your Mac. OpenGL has been deprecated on the MacOS(Darwin) for quite some time, but is still supported to GLSL 4.1<br>
+Build it on a Mac. It appears the little activity in cross-compiling under Linux has largely been abandoned, possibly because of changes in Apple hardware over the last 10 years, which would not only require cross-compiling for Darwin/MacOS/Quartz, but also for the M1/M2/M3/M.. chips and other Apple only hardware. As of this writing Apple will discontinue support for development (ie Xcode) for intel Mac (arch x86_64) in 2027. In addition, unfortunately, the Mac native tools (Appleclang and XCode) are not particularly Fortran friendly and do not support OpenMP, and as with Windows and the default Visual C++/Intel Fortran/Cmake mismatch, one has to replace the native toolchain with an alternate version. Qt binaries for the MacOS are only provided for clang/llvm, so GCC is not an alternative unless you want to recompile/build Qt using GCC on your Mac. OpenGL has also been deprecated on the MacOS (Darwin) for quite some time, but is still supported to GLSL 4.1<br>
 
-Successfully builds on a M3 iMac (arm64), but not on an Intel i3 (x86_64): <br>
+Successfully builds on a M3 iMac (arm64) and intel i3 (x86_64): <br>
 Download Xcode (app store)and activate it, also:<br>
 ```
 xcode-select --switch /Applications/Xcode.app
@@ -230,12 +230,12 @@ change FC, CC, CXX and other environment vars to use flang/clang/clang++ to over
 ```
 echo 'export PATH="/usr/local/opt/llvm/bin:$PATH"' >> ~/.zshrc
 ```
-There are the usual CMAKE_HOST_NAME and CMAKE_SYSTEM variables to change in CMakeLists.txt. Also uncomment the leading "project line and uncomment the architecture aarch64 variable."<br>
+There are the usual CMAKE_HOST_NAME and CMAKE_SYSTEM variables to change in CMakeLists.txt. Also uncomment the leading "project" line and uncomment the architecture aarch64 or x86_64 variable."<br>
 <br>
-I was unable to get a successful build in QtCreator, but commandline cmake works with some tweaks:<br>
-
-cmake -DCMAKE_Fortran_FLAGS="-D__APPLE__" -DCMAKE_CXX_FLAGS="-D__APPLE__" ../<br>
-
+I was unable to get a successful build in QtCreator, but command line cmake works with some tweaks on the M3 (aarch64):<br>
+```
+cmake -DASSIMP_WARNINGS_AS_ERRORS=OFF -DASSIMP_BUILD_TESTS=off -DCMAKE_Fortran_FLAGS="-D__APPLE__" -DCMAKE_CXX_FLAGS="-D__APPLE__" ../<br>
+```
 The flags are needed to assure that the cmake preprocessor knows it is compiling for Apple. There are several other manual tweaks needed to compile under the MacOS/Darwin.<br>
 
 cmake also makes -F flags (related to Frameworks) in the Fortran include flags which are not ignored by gfortran nor flang .  Two have to be manually removed in
@@ -244,17 +244,7 @@ build/CMakeFiles/kernunos.dir/flags.make.
 ```
 After cmake runs, edit the file, then run make.<br>
 
-When building assimp, as with Windows, you need the ASSIMP_WARNINGS_AS_ERRORS=OFF flag. cmake -DASSIMP_WARNINGS_AS_ERRORS=OFF -DCMAKE_Fortran_FLAGS="-D__APPLE__" -DCMAKE_CXX_FLAGS="-D__APPLE__" ../<br>
-
-From assimp's README:
-```
-git clone https://github.com/assimp/assimp
-cd assimp
-cmake -G Ninja -DASSIMP_BUILD_TESTS=off -DASSIMP_INSTALL=off -S . -B build
-cd build
-ninja
-```
-In assimp, compiling under LLVM/clang++, change:  
+In assimp, you will need  to make some edits compiling under LLVM/clang++, change:  
 ```
 in assimp/contrib/openddlparser/code/DDLNode.cpp
 change:
@@ -269,8 +259,18 @@ add:
 #include <ostream> 
 ```
 
-Additional notes for intel i3 MacOs:
-Some Darwin specific Qt code (both 6.8.3 and 6.11.1) is not processed correctly, and needs a patch to compile: <br>
+Additional notes for intel i3 MacOS (Darwin):<br>
+
+change FC, CC, CXX and other environment vars to use LLVM:<br>
+export FC=/usr/local/bin/flang<br>
+export CC=/usr/local/opt/llvm/bin/clang<br>
+export CXX=/usr/local/opt/llvm/bin/clang++<br>
+
+cmake command line:<br>
+```
+cmake-DASSIMP_WARNINGS_AS_ERRORS=OFF -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_OSX_SYSROOT=$(xcrun --show-sdk-path) -DASSIMP_BUILD_TESTS=off -DCMAKE_Fortran_FLAGS="-D__APPLE__" -DCMAKE_CXX_FLAGS="-D__APPLE__" ../
+```
+Some Darwin specific Qt code (both 6.8.3 and 6.11.1) is not processed correctly, and needs a patch to compile. I only experienced this probalem under Sonoma on the intel i3. <br>
 
 You *might*need to remove QT_NO_DEPRECATED pragma in qopenglcontext_platform.h
 so for /opt/homebrew/lib/QtGui.framework/Headers/qopenglcontext_platform.h change the following:<br>
@@ -290,7 +290,6 @@ struct Q_GUI_EXPORT QCocoaGLContext
 };
 ```
 
-<br>
 References:<br>
 https://fortran-lang.discourse.group/t/options-for-linking-fortran-on-a-mac/3739
 https://discourse.cmake.org/t/problems-with-fortran-an-xcode-generator/11112
