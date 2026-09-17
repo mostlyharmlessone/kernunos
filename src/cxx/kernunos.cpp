@@ -3340,6 +3340,9 @@ void MainWindow::updateResult()
 
 int main(int argc, char *argv[])
 {
+#if defined(__APPLE__)
+    setenv("KMP_DUPLICATE_LIB_OK", "TRUE", 1);
+#endif
    QApplication::setStyle(QStyleFactory::create("fusion"));
    QApplication app(argc, argv);
    QCoreApplication::setOrganizationName("QtProject");
