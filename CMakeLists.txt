@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.30)
 cmake_policy(VERSION 3.30)
 
 #uncomment for Darwin
-#project(kernunos LANGUAGES C CXX Fortran)
+project(kernunos LANGUAGES C CXX Fortran)
 
 set(VERSION_MAJOR "0")
 set(VERSION_MINOR "2")
@@ -17,16 +17,16 @@ set(PROJECT_VERSION_MINOR  ${VERSION_MINOR})
 #set(QT_FORCE_CMP0156_TO_VALUE OLD)
 #set(CMAKE_MODULE_PATH cmake)
 
-set(CMAKE_HOST_SYSTEM_NAME Linux)
-set(CMAKE_SYSTEM UNIX)
+#set(CMAKE_HOST_SYSTEM_NAME Linux)
+#set(CMAKE_SYSTEM UNIX)
 
 #set(CMAKE_HOST_SYSTEM_NAME Windows)
 #set(CMAKE_SYSTEM Windows)
 
-#set(CMAKE_HOST_SYSTEM_NAME Darwin)
-#set(CMAKE_SYSTEM APPLE)
+set(CMAKE_HOST_SYSTEM_NAME Darwin)
+set(CMAKE_SYSTEM APPLE)
 
-#set(CMAKE_HOST_SYSTEM_PROCESSOR arm64)
+#set(CMAKE_HOST_SYSTEM_PROCESSOR aarch64)
 set(CMAKE_HOST_SYSTEM_PROCESSOR x86_64) #host
 #set(CMAKE_SYSTEM_PROCESSOR x86_64) #target
 
@@ -594,7 +594,7 @@ if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
         src/cxx/assistant.cpp src/cxx/assistant.h
         src/cxx/mainwindow.ui
         src/src90/janus.f90
-         ${APP_ICON_MACOS}
+        resources/kernunos.icns
          ${TS_FILES}
 )
 endif()
@@ -608,18 +608,20 @@ if (TRUE)
   )
     qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 
-set(MACOSX_BUNDLE_ICON_FILE kernunos.icns)
-set(APP_ICON_MACOS "{CMAKE_CURRENT_SOURCE_DIR}/kernunos.icns")
-set_source_files_properties(${APP_ICON_MACOS} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+set(${KMP_DUPLICATE_LIB_OK}=TRUE)
 
 set_target_properties(kernunos PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER kernunos.qt
     MACOSX_BUNDLE_DESTINATION ${INSTALL_EXAMPLEDIR}
+    MACOSX_BUNDLE_ICON_FILE kernunos.icns
+    MACOSX_PACKAGE_LOCATION "Resources"
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
 )
+
+set_source_files_properties(resources/kernunos.icns PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
 
 # Target Freetype
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
@@ -647,7 +649,7 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
                 Qt${QT_VERSION_MAJOR}::OpenGL
                 Qt${QT_VERSION_MAJOR}::Pdf
                 Qt${QT_VERSION_MAJOR}::PdfWidgets
-                assimp modules splia rply_includes ${LIBS} ${OpenMP_LIBRARIES}
+                assimp modules splia rply_includes ${LIBS} #${OpenMP_LIBRARIES}
 # need the OpenGl library from e.g. C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\um\x64
                 OpenGL32.Lib
             )
@@ -665,7 +667,7 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
                 Qt${QT_VERSION_MAJOR}::OpenGL
                 Qt${QT_VERSION_MAJOR}::Pdf
                 Qt${QT_VERSION_MAJOR}::PdfWidgets
-                assimp rply_includes ${LIBS} ${OpenMP_LIBRARIES}
+                assimp rply_includes ${LIBS} #${OpenMP_LIBRARIES}
            )
 endif()
 

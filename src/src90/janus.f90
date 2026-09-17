@@ -390,9 +390,11 @@ if (mod(flag,100) .eq. 5 ) then
    CALL PRINTGRAPH(unitno1,POWMIN,POWMAX,BigPlot)
    CLOSE (unitno1)
 #if defined  (__APPLE__)
-   write(new_file,*) "zsh -l -c 'gnuplot -p' " // trim(gnu_instruct)
-   write(*,*) "Command not found error code 127: ", trim(new_file)
-   write(new_file,*) "/opt/homebrew/gnuplot -p " // trim(gnu_instruct)
+#if defined(__aarch64__)
+   write(new_file,*) "/opt/homebrew/bin/gnuplot -p " // trim(gnu_instruct)
+#else
+   write(new_file,*) "/usr/local/bin/gnuplot -p " // trim(gnu_instruct)
+# endif
 #else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
 #endif
@@ -436,7 +438,7 @@ DiaSlope%Zpd2 = .n. DiaSlope
  unitno1 = get_new_fileunit()
  open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
  WRITE(unitno1,*) 'reset'
- WRITE(unitno1,*) "set term wxt 5 title 'Center' "
+ WRITE(unitno1,*) "set term qt 5 title 'Center' "
  WRITE(unitno1,*) 'set polar'
  WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "Center" '
  close(unitno1)
@@ -451,7 +453,7 @@ DiaSlope%Zpd2 = .n. DiaSlope
   unitno1 = get_new_fileunit()
   open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
   WRITE(unitno1,*) 'reset'
-  WRITE(unitno1,*) "set term wxt 1 title 'SagC' "
+  WRITE(unitno1,*) "set term qt 1 title 'SagC' "
   WRITE(unitno1,*) 'set polar'
   WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "SagC" '
   close(unitno1)
@@ -466,7 +468,7 @@ DiaSlope%Zpd2 = .n. DiaSlope
   unitno1 = get_new_fileunit()
   open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
   WRITE(unitno1,*) 'reset'
-  WRITE(unitno1,*) "set term wxt 2 title 'IntC' "
+  WRITE(unitno1,*) "set term qt 2 title 'IntC' "
   WRITE(unitno1,*) 'set polar'
   WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "IntC" '
   close(unitno1)
@@ -481,7 +483,7 @@ DiaSlope%Zpd2 = .n. DiaSlope
   unitno1 = get_new_fileunit()
   open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
   WRITE(unitno1,*) 'reset'
-  WRITE(unitno1,*) "set term wxt 3 title 'MeanC' "
+  WRITE(unitno1,*) "set term qt 3 title 'MeanC' "
   WRITE(unitno1,*) 'set polar'
   WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "MeanC" '
   close(unitno1)
@@ -496,7 +498,7 @@ DiaSlope%Zpd2 = .n. DiaSlope
   unitno1 = get_new_fileunit()
   open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
   WRITE(unitno1,*) 'reset'
-  WRITE(unitno1,*) "set term wxt 4 title 'MongeA' "
+  WRITE(unitno1,*) "set term qt 4 title 'MongeA' "
   WRITE(unitno1,*) 'set polar'
   WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "MongeA" '
   close(unitno1)
@@ -539,13 +541,13 @@ if (mod(flag,100) .eq. 7) then
   WRITE(unitno1,*) 'NOYTICS = "set format y ''''; unset ylabel"'
   WRITE(unitno1,*) '@NOXTICS ; @NOYTICS'
 
-  WRITE(unitno1,*) "set term wxt 1 title 'Direction 1' "
+  WRITE(unitno1,*) "set term qt 1 title 'Direction 1' "
   WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2:3:4 with vectors title "Direction 1" '
 
-  WRITE(unitno1,*) "set term wxt 2 title 'Direction 2' "
+  WRITE(unitno1,*) "set term qt 2 title 'Direction 2' "
   WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2:5:6 with vectors title "Direction 2" '
 
-  WRITE(unitno1,*) "set term wxt 3 title 'Both directions' "
+  WRITE(unitno1,*) "set term qt 3 title 'Both directions' "
   WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2:3:4 with vectors title "Direction 1" '&
                     &,", ","'",BigPlot,"'",' using 1:2:5:6 with vectors title "Direction 2" '
   CLOSE (unitno1)
@@ -1992,7 +1994,7 @@ if (TestData .eq. 1) then
     unitno1 = get_new_fileunit()
     open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
     WRITE(unitno1,*) 'reset'
-    WRITE(unitno1,*) "set term wxt 1 title 'Rings' "
+    WRITE(unitno1,*) "set term qt 1 title 'Rings' "
     WRITE(unitno1,*) "set polar"
     WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 title "Rings" '
     CLOSE (unitno1)
@@ -2059,7 +2061,7 @@ if (TestData .eq. 0 .or. TestData .eq. 6) then
    unitno1 = get_new_fileunit()
    open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
    WRITE(unitno1,*) 'reset'
-   WRITE(unitno1,*) "set term wxt 1 title 'Rings' "
+   WRITE(unitno1,*) "set term qt 1 title 'Rings' "
    WRITE(unitno1,*) "set polar"
    WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 title "Rings" '
    CLOSE (unitno1)
@@ -2692,7 +2694,7 @@ end do
 if (ABS(zern(13)-zern(14)) > EPS) then
 unitno1 = get_new_fileunit()
 open(unitno1, file = "/tmp/zernike.tmp", action="write", iostat=ierr)
- write(unitno1,*) "set term wxt 1 title 'Zernike Coefficients'"
+ write(unitno1,*) "set term qt 1 title 'Zernike Coefficients'"
  write(unitno1,*) "reset session"
  write(unitno1,'(A)') "$Data << EOD"                !no leading spaces or gnuplot vomits
  if (zern(1) < 0) then

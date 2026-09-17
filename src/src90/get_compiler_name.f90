@@ -7,6 +7,10 @@
   CHARACTER(80) f
   f = compiler_version()
   inc= len(trim(f))
+  ! prevent buffer overflow
+  if (inc .gt. 255) then
+   inc = 255
+  endif
   do i = 1, inc
    c_f(i) = f(i:i)
   end do

@@ -175,7 +175,7 @@ int64_t flag=500;
 int counter=0;
 char *filename;
 char *filenameout;
-char compiler_name[80];
+char compiler_name[256];
 bool success=false;
 bool paintme = false;
 int err_janus = 0;
@@ -1162,7 +1162,7 @@ void MainWindow::zerncompute()
 {
 
 #ifdef _WIN32
-    if (system(NULL)) puts (" gnuplot available");
+    if (system(NULL)) puts (" shell available");
     else exit (EXIT_FAILURE);
     if(system("cmd -v gnuplot > NUL 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
@@ -1171,9 +1171,25 @@ void MainWindow::zerncompute()
     }
 #else
 #ifdef __APPLE__
-
+#ifdef __aarch64__
+    if (system(NULL)) puts (" shell available");
+    else exit (EXIT_FAILURE);
+    if(system("command -v /opt/homebrew/bin/gnuplot > /dev/null 2>&1") ){
+        std::cout << "'gnuplot' command is not available.\n";
+        errorMessageDialog->showMessage(tr("homebrew gnuplot command is not available"));
+        return;
+    }
 #else
-    if (system(NULL)) puts (" gnuplot available");
+    if (system(NULL)) puts (" shell available");
+    else exit (EXIT_FAILURE);
+    if(system("command -v /usr/local/bin/gnuplot > /dev/null 2>&1") ){
+        std::cout << "'gnuplot' command is not available.\n";
+        errorMessageDialog->showMessage(tr("local gnuplot command is not available"));
+        return;
+    }
+#endif
+#else
+    if (system(NULL)) puts (" shell available");
     else exit (EXIT_FAILURE);
     if(system("command -v gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
@@ -1225,7 +1241,7 @@ void MainWindow::showzern()
 {
 
 #ifdef _WIN32
-    if (system(NULL)) puts (" gnuplot available");
+    if (system(NULL)) puts (" shell available");
     else exit (EXIT_FAILURE);
     if(system("cmd -v gnuplot > NUL 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
@@ -1234,9 +1250,25 @@ void MainWindow::showzern()
     }
 #else
 #ifdef __APPLE__
-
+#ifdef __aarch64__
+    if (system(NULL)) puts (" shell available");
+    else exit (EXIT_FAILURE);
+    if(system("command -v /opt/homebrew/bin/gnuplot > /dev/null 2>&1") ){
+        std::cout << "'gnuplot' command is not available.\n";
+        errorMessageDialog->showMessage(tr("homebrew gnuplot command is not available"));
+        return;
+    }
 #else
-    if (system(NULL)) puts (" gnuplot available");
+    if (system(NULL)) puts (" shell available");
+    else exit (EXIT_FAILURE);
+    if(system("command -v /usr/local/bin/gnuplot > /dev/null 2>&1") ){
+        std::cout << "'gnuplot' command is not available.\n";
+        errorMessageDialog->showMessage(tr("local gnuplot command is not available"));
+        return;
+    }
+#endif
+#else
+    if (system(NULL)) puts (" shell available");
     else exit (EXIT_FAILURE);
     if(system("command -v gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
@@ -1669,7 +1701,7 @@ void MainWindow::LinesofCurvature() {
 void MainWindow::gnuplotsplot() {
 
 #ifdef _WIN32
-    if (system(NULL)) puts (" gnuplot available");
+    if (system(NULL)) puts (" shell available");
     else exit (EXIT_FAILURE);
     if(system("cmd -v gnuplot > NUL 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
@@ -1678,9 +1710,25 @@ void MainWindow::gnuplotsplot() {
     }
 #else
 #ifdef __APPLE__
-
+#ifdef __aarch64__
+    if (system(NULL)) puts (" shell available");
+    else exit (EXIT_FAILURE);
+    if(system("command -v /opt/homebrew/bin/gnuplot > /dev/null 2>&1") ){
+        std::cout << "'gnuplot' command is not available.\n";
+        errorMessageDialog->showMessage(tr("homebrew gnuplot command is not available"));
+        return;
+    }
 #else
-    if (system(NULL)) puts (" gnuplot available");
+    if (system(NULL)) puts (" shell available");
+    else exit (EXIT_FAILURE);
+    if(system("command -v /usr/local/bin/gnuplot > /dev/null 2>&1") ){
+        std::cout << "'gnuplot' command is not available.\n";
+        errorMessageDialog->showMessage(tr("local gnuplot command is not available"));
+        return;
+    }
+#endif
+#else
+    if (system(NULL)) puts (" shell available");
     else exit (EXIT_FAILURE);
     if(system("command -v gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
@@ -1713,7 +1761,7 @@ void MainWindow::gnuplotsplot() {
 void MainWindow::center() {
 
 #ifdef _WIN32
-    if (system(NULL)) puts (" gnuplot available");
+    if (system(NULL)) puts (" shell available");
     else exit (EXIT_FAILURE);
     if(system("cmd -v gnuplot > NUL 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
@@ -1722,9 +1770,25 @@ void MainWindow::center() {
     }
 #else
 #ifdef __APPLE__
-
+#ifdef __aarch64__
+    if (system(NULL)) puts (" shell available");
+    else exit (EXIT_FAILURE);
+    if(system("command -v /opt/homebrew/bin/gnuplot > /dev/null 2>&1") ){
+        std::cout << "'gnuplot' command is not available.\n";
+        errorMessageDialog->showMessage(tr("homebrew gnuplot command is not available"));
+        return;
+    }
 #else
-    if (system(NULL)) puts (" gnuplot available");
+    if (system(NULL)) puts (" shell available");
+    else exit (EXIT_FAILURE);
+    if(system("command -v /usr/local/bin/gnuplot > /dev/null 2>&1") ){
+        std::cout << "'gnuplot' command is not available.\n";
+        errorMessageDialog->showMessage(tr("local gnuplot command is not available"));
+        return;
+    }
+#endif
+#else
+    if (system(NULL)) puts (" shell available");
     else exit (EXIT_FAILURE);
     if(system("command -v gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
@@ -1757,7 +1821,7 @@ void MainWindow::center() {
 void MainWindow::rings() {
 
 #ifdef _WIN32
-    if (system(NULL)) puts (" gnuplot available");
+    if (system(NULL)) puts (" shell available");
     else exit (EXIT_FAILURE);
     if(system("cmd -v gnuplot > NUL 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
@@ -1766,9 +1830,25 @@ void MainWindow::rings() {
     }
 #else
 #ifdef __APPLE__
-
+#ifdef __aarch64__
+    if (system(NULL)) puts (" shell available");
+    else exit (EXIT_FAILURE);
+    if(system("command -v /opt/homebrew/bin/gnuplot > /dev/null 2>&1") ){
+        std::cout << "'gnuplot' command is not available.\n";
+        errorMessageDialog->showMessage(tr("homebrew gnuplot command is not available"));
+        return;
+    }
 #else
-    if (system(NULL)) puts (" gnuplot available");
+    if (system(NULL)) puts (" shell available");
+    else exit (EXIT_FAILURE);
+    if(system("command -v /usr/local/bin/gnuplot > /dev/null 2>&1") ){
+        std::cout << "'gnuplot' command is not available.\n";
+        errorMessageDialog->showMessage(tr("local gnuplot command is not available"));
+        return;
+    }
+#endif
+#else
+    if (system(NULL)) puts (" shell available");
     else exit (EXIT_FAILURE);
     if(system("command -v gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
@@ -2660,6 +2740,7 @@ void MainWindow::pdfopen()
 void MainWindow::about()
 {
 //  https://stackoverflow.com/questions/18975734/how-can-i-find-the-screen-desktop-size-in-qt-so-i-can-display-a-desktop-notific
+
    QScreen *screen = QGuiApplication::primaryScreen();
    QRect screenGeometry = screen->geometry();
    int width = screenGeometry.width();

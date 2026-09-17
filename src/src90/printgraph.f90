@@ -22,7 +22,7 @@
        col(9)=0.72*(col(12)-col(1))+col(1)
        col(10)=0.81*(col(12)-col(1))+col(1)
        col(11)=0.90*(col(12)-col(1))+col(1)
-       WRITE(unitno1,*) "set term wxt 1 title 'GnuSplotPlot'"
+       WRITE(unitno1,*) "set term qt 1 title 'GnuSplotPlot'"
        WRITE(unitno1,*) 'set pm3d map impl'
        WRITE(unitno1,800) 'set cbrange[',col(1),':',col(11),']'
        WRITE(unitno1,900) 'set palette defined (',col(1),"'",'purple',&
@@ -33,7 +33,9 @@
      "',",col(10),"'",'light-red',&
      "',",col(11),"'",'red',"',",col(12),"'",'dark-red',"')"
        WRITE(unitno1,*) '@NOXTICS ; @NOYTICS'
-       WRITE(unitno1,*) 'splot ',"'",FILENAME,"'",'notitle'
+       WRITE(unitno1,*) 'splot \'
+       WRITE(unitno1,*) "'",FILENAME,"'\"
+       WRITE(unitno1,*) ' notitle'
 
        RETURN
        END
