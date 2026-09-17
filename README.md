@@ -177,17 +177,20 @@ The binary Windows installer (built with NSIS) includes an option to install gnu
 
 Under construction. Cross compiling under Linux is not as straightforward as one would like in 2026.  Perhaps it is not the ideal solution; there was a lot more activity >10 years prior, with the option of building in a VM with native tools becoming more common. As of this writing, I haven't managed a complete cross-compile build. Some notes follow:<br>
 
-Under Arch Linux using AUR packages<br>
-yay -S mingw-w64-gcc <br>
-yay -S mingw-w64-qt6-base mingw-w64-qt6-tools<br>
+Under Arch Linux using AUR packages
+```
+yay -S mingw-w64-gcc 
+yay -S mingw-w64-qt6-base mingw-w64-qt6-tools
+```
 https://aur.archlinux.org/packages/mingw-w64-qt6-base<br>
 https://github.com/Martchus/PKGBUILDs<br>
 
 or<br>
-Using MXE for Qt builds:<br>
-git clone https://github.com/mxe/mxe.git<br>
-make qt6 MXE_TARGETS='x886_64-w64-mingw32.static'<br>
-
+Using MXE for Qt builds:
+```
+git clone https://github.com/mxe/mxe.git
+make qt6 MXE_TARGETS='x886_64-w64-mingw32.static'
+```
 configure Qt to use use the ming64 qmake, compiler and kit under Tools<br>
 
 These lines need to be uncommented in CMakeLists.txt:<br>
