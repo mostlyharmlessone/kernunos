@@ -100,7 +100,6 @@ It is an embarrassment to have to state the following, as it should be understoo
 <br> 
 
 ## Building
-<br>
 
 This software was developed at various times under the Slackware, Ubuntu, Arch, Manjaro distributions of GNU/Linux. Dependencies include Qt6, assimp, lapack, rply, gnuplot, gnuplot-iostream, boost, freetype, unzip, cabextract and superlu. Some routines are adapted from other sources and included, for example excerpts from Hanson & Hopkins (see below). OpenGL is used as the primary graphics API: GLSL 3.30 is needed as a minimum.  Qt appears to be deprecating C++ support in favor of QML: you may need to make sure the proper support is present. This version was built with Qt 6.8.3 and 6.11.1 with QtCreator 20. You might need to adjust some of the paths in the CMakeLists.txt to build.<br>
 
@@ -118,18 +117,20 @@ After cloning the source, load submodules with git submodule update --init<br>
 Open the CmakeLists.txt as a Project in QtCreator, configure and build. 
 
 Alternatively, the usual command line build should work:
+```
 mkdir build (if not already present)
-cd build<br>
-cmake ../ <br>
-make<br>
-
-These lines need to be uncommented in CMakeLists.txt<br>
-set(CMAKE_HOST_NAME Linux)<br>
-set(CMAKE_SYSTEM UNIX)<br>
-with these<br>
-set(CMAKE_HOST_NAME Windows)<br>
-set(CMAKE_SYSTEM Windows)<br>
-<br>
+cd build
+cmake ../
+make
+```
+These lines need to be uncommented in CMakeLists.txt
+```
+set(CMAKE_HOST_NAME Linux)
+set(CMAKE_SYSTEM UNIX)
+with these
+set(CMAKE_HOST_NAME Windows)
+set(CMAKE_SYSTEM Windows)
+```
  and the corresponding Darwin variables commented out.<br>
 
 gcc is used as the default compiler with cmake. Built with Qt 6.8.3 and 6.11.1 <br>
@@ -143,26 +144,26 @@ Building within QtCreator is also possible, but the default of using Ninja does 
 
 Build under Windows. The precompiled binary and installer were built in a Windows 10 VM using QtCreator https://doc.qt.io/qt-6/windows.html. I used MingW/GCC for the C/C++/Fortran compiler. The binary was built using QtCreator 19 and Qt 6.8.3, with assimp being built with<br> ASSIMP_WARNINGS_AS_ERRORS:UNINITIALIZED=OFF <br>
 added to the cmake options as well as making sure MingW cmake was used as the build creator and that the environmental variables pointed to the MingW gcc toolchain. In addition, the additional libraries were compiled with the same toolchain.  I built assimp, superlu, glm, freetype, lapack and OpenBLAS with the same toolset using git-bash after downloading them directly from upstream. Again, you might need to adjust paths in CMakeLists.txt in order to build. These lines need to be uncommented in CMakeLists.txt:
-<br>
+```
 set(CMAKE_HOST_NAME Windows)
 set(CMAKE_SYSTEM Windows)
-<br>
 with these
-<br>
 set(CMAKE_HOST_NAME Linux)
 set(CMAKE_SYSTEM UNIX)
-<br>
+```
 and the corresponding Darwin variables commented out.<br>
 
 Alternatively at the command line: (your Windows environment and path may differ)
+```
 cmake -G "MinGW Makefiles" ../
-$ mingw32-make install
-
-change FC, CC, CXX and other environment vars to use gcc to overrride Qt/OS defaults ie.:<br>
+mingw32-make install
+```
+change FC, CC, CXX and other environment vars to use gcc to overrride Qt/OS defaults ie.:
+```
 export FC="/c/Qt/Tools/mingw1310_64/bin/gfortran"<br>
 export CC="/c/Qt/Tools/mingw1310_64/bin/gcc"<br>
 export CXX="/c/Qt/Tools/mingw1310_64/bin/g++"<br>
- 
+ ```
 You will need to run winqtdeploy in the build directory with the executable in order to generate the necessary Qt dlls and copy over the plugins; eg {path to Qt}Qt/6.8.3/mingw_64/bin/windeployqt6.exe kernunos.exe<br>
 
 gnuplot (https://gnuplot.sourceforge.net/) also needs to be installed for some functions.<br>
@@ -190,15 +191,13 @@ make qt6 MXE_TARGETS='x886_64-w64-mingw32.static'<br>
 configure Qt to use use the ming64 qmake, compiler and kit under Tools<br>
 
 These lines need to be uncommented in CMakeLists.txt:<br>
-<br>
+```
 set(CMAKE_HOST_NAME Linux)
 set(CMAKE_SYSTEM Windows)
-<br>
 with these
-<br>
 set(CMAKE_HOST_NAME Windows)
 set(CMAKE_SYSTEM UNIX)
-<br>
+```
 and the corresponding Darwin variables commented out.<br>
 
 Numerous libraries can be imported from their (mingw64) builds under Windows.<br>
@@ -260,19 +259,19 @@ add:
 ```
 
 Additional notes for intel i3 MacOS (Darwin):<br>
-
+```
 change FC, CC, CXX and other environment vars to use LLVM:<br>
 export FC=/usr/local/bin/flang<br>
 export CC=/usr/local/opt/llvm/bin/clang<br>
 export CXX=/usr/local/opt/llvm/bin/clang++<br>
-
+```
 cmake command line:<br>
 ```
 cmake -DASSIMP_WARNINGS_AS_ERRORS=OFF -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_OSX_SYSROOT=$(xcrun --show-sdk-path) -DASSIMP_BUILD_TESTS=off -DCMAKE_Fortran_FLAGS="-D__APPLE__" -DCMAKE_CXX_FLAGS="-D__APPLE__" ../
 ```
 Some Darwin specific Qt code (both 6.8.3 and 6.11.1) is not processed correctly, and needs a patch to compile. I only experienced this probalem under Sonoma on the intel i3. <br>
 
-You *might*need to remove QT_NO_DEPRECATED pragma in qopenglcontext_platform.h
+You *might* need to remove QT_NO_DEPRECATED pragma in qopenglcontext_platform.h
 so for /opt/homebrew/lib/QtGui.framework/Headers/qopenglcontext_platform.h change the following:<br>
 ```
 struct Q_GUI_EXPORT QCocoaGLContext
