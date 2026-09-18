@@ -274,8 +274,8 @@ if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3 .or. mod(
 endif  ! mod(flag,100) == 0, 2, 3, 13 or 14
 
 !gnuplot files & calls
-if (mod(flag,100) .eq. 5 .or. mod(flag,100) .eq. 6 .or.&
-    mod(flag,100) .eq. 7 .or. mod(flag,100) .eq. 8 ) then
+if (mod(flag,100) == 5 .or. mod(flag,100) == 6 .or.&
+    mod(flag,100) == 7 .or. mod(flag,100) == 8 ) then
  new_path = " "
  do i=1, 4096
     if ( file_from_C (i) == c_null_char ) then
@@ -297,7 +297,7 @@ if (mod(flag,100) .eq. 5 .or. mod(flag,100) .eq. 6 .or.&
 endif
 
 ! get rotation degrees and pupilregister from name with compare with btest(dat,6) = .true. or .false.
-if (mod(flag,100) .eq. 10 .or. mod(flag,100) .eq. 12) then  ! compare with btest(dat,6) = .true. or .false.
+if (mod(flag,100) == 10 .or. mod(flag,100) == 12) then  ! compare with btest(dat,6) = .true. or .false.
  new_path = " "
  do i=1, 4096
     if ( file_from_C (i) == c_null_char ) then
@@ -313,7 +313,7 @@ if (mod(flag,100) .eq. 10 .or. mod(flag,100) .eq. 12) then  ! compare with btest
 endif
 
 ! gnuplot splot output
-if (mod(flag,100) .eq. 5 ) then
+if (mod(flag,100) == 5 ) then
 ! needs powmin & powmax
  if (allocated(JMatrix%R)) then
   donut = .FALSE.
@@ -394,16 +394,16 @@ if (mod(flag,100) .eq. 5 ) then
    write(new_file,*) "/opt/homebrew/bin/gnuplot -p " // trim(gnu_instruct)
 #else
    write(new_file,*) "/usr/local/bin/gnuplot -p " // trim(gnu_instruct)
-# endif
+#endif
 #else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
 #endif
    call execute_command_line(trim(new_file), exitstat=i)
    return
- endif ! end (mod(flag,100) .eq. 5)
+ endif ! end (mod(flag,100) == 5)
 
 
-if (mod(flag,100) .eq. 6) then
+if (mod(flag,100) == 6) then
 ! WriteCenter
 ! need RadSlope for WriteCenter
 RadSlope=JMatrix
@@ -438,80 +438,105 @@ DiaSlope%Zpd2 = .n. DiaSlope
  unitno1 = get_new_fileunit()
  open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
  WRITE(unitno1,*) 'reset'
- WRITE(unitno1,*) "set term qt 5 title 'Center' "
+ WRITE(unitno1,*) "set term qt 5 font 'Arial' title 'Center' "
  WRITE(unitno1,*) 'set polar'
  WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "Center" '
  close(unitno1)
 #if defined  (__APPLE__)
-   write(new_file,*) "zsh -l -c 'gnuplot -p '" // trim(gnu_instruct)
+#if defined(__aarch64__)
+   write(new_file,*) "/opt/homebrew/bin/gnuplot -p " // trim(gnu_instruct)
+#else
+   write(new_file,*) "/usr/local/bin/gnuplot -p " // trim(gnu_instruct)
+#endif
 #else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
 #endif
+ call execute_command_line(trim(new_file), exitstat=i)
  BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".sag")
  call WriteCenterJ(JMatrix%SAGC0(1),JMatrix%SAGC,BigPlot)
  !instruction file
   unitno1 = get_new_fileunit()
   open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
   WRITE(unitno1,*) 'reset'
-  WRITE(unitno1,*) "set term qt 1 title 'SagC' "
+  WRITE(unitno1,*) "set term qt 1 font 'Arial' title 'SagC' "
   WRITE(unitno1,*) 'set polar'
   WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "SagC" '
   close(unitno1)
 #if defined  (__APPLE__)
-   write(new_file,*) "zsh -l -c 'gnuplot -p '" // trim(gnu_instruct)
+#if defined(__aarch64__)
+   write(new_file,*) "/opt/homebrew/bin/gnuplot -p " // trim(gnu_instruct)
+#else
+   write(new_file,*) "/usr/local/bin/gnuplot -p " // trim(gnu_instruct)
+#endif
 #else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
 #endif
+ call execute_command_line(trim(new_file), exitstat=i)
  BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".int")
  call WriteCenterJ(JMatrix%INSTC0(1),JMatrix%INSTC,BigPlot)
  !instruction file
   unitno1 = get_new_fileunit()
   open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
   WRITE(unitno1,*) 'reset'
-  WRITE(unitno1,*) "set term qt 2 title 'IntC' "
+  WRITE(unitno1,*) "set term qt 2 font 'Arial' title 'IntC' "
   WRITE(unitno1,*) 'set polar'
   WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "IntC" '
   close(unitno1)
 #if defined  (__APPLE__)
-   write(new_file,*) "zsh -l -c 'gnuplot -p '" // trim(gnu_instruct)
+#if defined(__aarch64__)
+   write(new_file,*) "/opt/homebrew/bin/gnuplot -p " // trim(gnu_instruct)
+#else
+   write(new_file,*) "/usr/local/bin/gnuplot -p " // trim(gnu_instruct)
+#endif
 #else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
 #endif
+ call execute_command_line(trim(new_file), exitstat=i)
  BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".mea")
  call WriteCenterJ(JMatrix%MEANC0(1),JMatrix%MEANC,BigPlot)
  !instruction file
   unitno1 = get_new_fileunit()
   open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
   WRITE(unitno1,*) 'reset'
-  WRITE(unitno1,*) "set term qt 3 title 'MeanC' "
+  WRITE(unitno1,*) "set term qt 3 font 'Arial' title 'MeanC' "
   WRITE(unitno1,*) 'set polar'
   WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "MeanC" '
-  close(unitno1)
+  close(unitno1)  
 #if defined  (__APPLE__)
-   write(new_file,*) "zsh -l -c 'gnuplot -p '" // trim(gnu_instruct)
+#if defined(__aarch64__)
+   write(new_file,*) "/opt/homebrew/bin/gnuplot -p " // trim(gnu_instruct)
+#else
+   write(new_file,*) "/usr/local/bin/gnuplot -p " // trim(gnu_instruct)
+#endif
 #else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
 #endif
+ call execute_command_line(trim(new_file), exitstat=i)
  BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".mon")
  call WriteCenterJ(JMatrix%MONGEA0(1),JMatrix%MONGEA,BigPlot)
  !instruction file
   unitno1 = get_new_fileunit()
   open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
   WRITE(unitno1,*) 'reset'
-  WRITE(unitno1,*) "set term qt 4 title 'MongeA' "
+  WRITE(unitno1,*) "set term qt 4 font 'Arial' title 'MongeA' "
   WRITE(unitno1,*) 'set polar'
   WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "MongeA" '
   close(unitno1)
 #if defined  (__APPLE__)
-   write(new_file,*) "zsh -l -c 'gnuplot -p '" // trim(gnu_instruct)
+#if defined(__aarch64__)
+   write(new_file,*) "/opt/homebrew/bin/gnuplot -p " // trim(gnu_instruct)
+#else
+   write(new_file,*) "/usr/local/bin/gnuplot -p " // trim(gnu_instruct)
+#endif
 #else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
 #endif
+ call execute_command_line(trim(new_file), exitstat=i)
  return
-endif !  (mod(flag,100) .eq. 6)
+endif !  (mod(flag,100) == 6)
 
 ! Generate LIOC with vector format
-if (mod(flag,100) .eq. 7) then
+if (mod(flag,100) == 7) then
  BigPlot=replacestr(string=gnu_instruct,search=".car",substitute=".loc")
  !data file
  unitno1 = get_new_fileunit()
@@ -552,12 +577,17 @@ if (mod(flag,100) .eq. 7) then
                     &,", ","'",BigPlot,"'",' using 1:2:5:6 with vectors title "Direction 2" '
   CLOSE (unitno1)
 #if defined  (__APPLE__)
-   write(new_file,*) "zsh -l -c 'gnuplot -p '" // trim(gnu_instruct)
+#if defined(__aarch64__)
+   write(new_file,*) "/opt/homebrew/bin/gnuplot -p " // trim(gnu_instruct)
+#else
+   write(new_file,*) "/usr/local/bin/gnuplot -p " // trim(gnu_instruct)
+#endif
 #else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
 #endif
+ call execute_command_line(trim(new_file), exitstat=i)
  return
-endif ! (mod(flag,100) .eq. 7)
+endif ! (mod(flag,100) == 7)
 
 ! Writes ASCII PLY file
 if (mod(flag,100) == 3) then
@@ -1560,15 +1590,18 @@ if (TestData .eq. 6) then
    file_idx=index(inputfile1, ".CAB")
    if ( file_idx .ne. 0 )  then
     allocate(CHARACTER(nblines) :: cab_inputfile1)
-    cab_inputfile1=inputfile1
+    cab_inputfile1=inputfile1   
 #ifdef _WIN32
     call execute_command_line ('Expand.exe ' // cab_inputfile1 // ' -F:*', exitstat=io)
 #else
 #if defined  (__APPLE__)
-   write(new_file,*) "zsh -l -c 'cabextract '" // cab_inputfile1
-   call execute_command_line(trim(new_file), exitstat=i)
+#if defined(__aarch64__)
+   call execute_command_line ( "/opt/homebrew/bin/cabextract " // cab_inputfile1 // ' -F:*', exitstat=io)
 #else
-   call execute_command_line ('cabextract ' // cab_inputfile1, exitstat=io)
+   call execute_command_line ( "/usr/local/bin/cabextract " // cab_inputfile1 // ' -F:*', exitstat=io)
+#endif
+#else
+   call execute_command_line ( "cabextract " // cab_inputfile1 // ' -F:*', exitstat=io)
 #endif
 #endif
     if (io == 0) then
@@ -1586,7 +1619,15 @@ if (TestData .eq. 6) then
 #ifdef _WIN32
     call execute_command_line ('Expand.exe ' // cab_inputfile2 // ' -F:*', exitstat=io)
 #else
-    call execute_command_line ('cabextract ' // cab_inputfile2, exitstat=io)
+#if defined  (__APPLE__)
+#if defined(__aarch64__)
+   call execute_command_line ( "/opt/homebrew/bin/cabextract " // cab_inputfile2 // ' -F:*', exitstat=io)
+#else
+   call execute_command_line ( "/usr/local/bin/cabextract " // cab_inputfile2 // ' -F:*', exitstat=io)
+#endif
+#else
+   call execute_command_line ( "cabextract " // cab_inputfile2 // ' -F:*', exitstat=io)
+#endif
 #endif
     if (io == 0) then
      inputfile2=replacestr(string=inputfile2,search=".CAB",substitute=".DAT")
@@ -1601,15 +1642,18 @@ if (TestData .eq. 6) then
     inquire(file=trim(inputfile4), exist=exists)
     if (exists) then
      allocate(CHARACTER(nblines) :: cab_inputfile4)
-     cab_inputfile4=inputfile4
+     cab_inputfile4=inputfile4     
 #ifdef _WIN32
     call execute_command_line ('Expand.exe ' // cab_inputfile4 // ' -F:*', exitstat=io)
 #else
 #if defined  (__APPLE__)
-   write(new_file,*) "zsh -l -c 'cabextract '" // cab_inputfile4
-   call execute_command_line(trim(new_file), exitstat=i)
+#if defined(__aarch64__)
+   call execute_command_line ( "/opt/homebrew/bin/cabextract " // cab_inputfile4 // ' -F:*', exitstat=io)
 #else
-   call execute_command_line ('cabextract ' // cab_inputfile4, exitstat=io)
+   call execute_command_line ( "/usr/local/bin/cabextract " // cab_inputfile4 // ' -F:*', exitstat=io)
+#endif
+#else
+   call execute_command_line ( "cabextract " // cab_inputfile4 // ' -F:*', exitstat=io)
 #endif
 #endif
      if (io == 0) then
@@ -1975,7 +2019,7 @@ if (TestData .eq. 1) then
  endif
 
  ! gnuplot rings output and exit
-  if (mod(flag,100) .eq. 8 ) then
+  if (mod(flag,100) == 8 ) then
  ! generate data file
    unitno1 = get_new_fileunit()
    BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".plt")
@@ -1994,12 +2038,16 @@ if (TestData .eq. 1) then
     unitno1 = get_new_fileunit()
     open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
     WRITE(unitno1,*) 'reset'
-    WRITE(unitno1,*) "set term qt 1 title 'Rings' "
+    WRITE(unitno1,*) "set term qt 1 font 'Arial' title 'Rings' "
     WRITE(unitno1,*) "set polar"
     WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 title "Rings" '
-    CLOSE (unitno1)
+    CLOSE (unitno1)    
 #if defined  (__APPLE__)
-   write(new_file,*) "zsh -l -c 'gnuplot -p '" // trim(gnu_instruct)
+#if defined(__aarch64__)
+   write(new_file,*) "/opt/homebrew/bin/gnuplot -p " // trim(gnu_instruct)
+#else
+   write(new_file,*) "/usr/local/bin/gnuplot -p " // trim(gnu_instruct)
+#endif
 #else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
 #endif
@@ -2009,7 +2057,7 @@ if (TestData .eq. 1) then
      Atlas=AtlasSave  ! restore Atlas after using it to show rings
     endif
     return
-   endif ! end (mod(flag,100) .eq. 8)
+   endif ! end (mod(flag,100) == 8)
 
  if (btest(dat, 4) .or. btest(dat, 3)) then
   RadSlope=Atlas
@@ -2044,7 +2092,7 @@ if (TestData .eq. 0 .or. TestData .eq. 6) then
   endif
 
  ! gnuplot rings output and exit
-  if (mod(flag,100) .eq. 8 ) then
+  if (mod(flag,100) == 8 ) then
  ! generate data file
    unitno1 = get_new_fileunit()
    BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".plt")
@@ -2061,12 +2109,16 @@ if (TestData .eq. 0 .or. TestData .eq. 6) then
    unitno1 = get_new_fileunit()
    open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
    WRITE(unitno1,*) 'reset'
-   WRITE(unitno1,*) "set term qt 1 title 'Rings' "
+   WRITE(unitno1,*) "set term qt 1 font 'Arial' title 'Rings' "
    WRITE(unitno1,*) "set polar"
    WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 title "Rings" '
    CLOSE (unitno1)
 #if defined  (__APPLE__)
-   write(new_file,*) "zsh -l -c 'gnuplot -p '" // trim(gnu_instruct)
+#if defined(__aarch64__)
+   write(new_file,*) "/opt/homebrew/bin/gnuplot -p " // trim(gnu_instruct)
+#else
+   write(new_file,*) "/usr/local/bin/gnuplot -p " // trim(gnu_instruct)
+#endif
 #else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
 #endif
@@ -2076,7 +2128,7 @@ if (TestData .eq. 0 .or. TestData .eq. 6) then
     EyeSys=EyeSysSave  ! restore EyeSys after using it to show rings
    endif
    return
-  endif ! end (mod(flag,100) .eq. 8)
+  endif ! end (mod(flag,100) == 8)
  if (btest(dat, 4) .or. btest(dat, 3)) then
   RadSlope=EyeSys
   EyeSys=EyeSysSave  ! restore EyeSys after using it to define RadSlope
@@ -2694,7 +2746,7 @@ end do
 if (ABS(zern(13)-zern(14)) > EPS) then
 unitno1 = get_new_fileunit()
 open(unitno1, file = "/tmp/zernike.tmp", action="write", iostat=ierr)
- write(unitno1,*) "set term qt 1 title 'Zernike Coefficients'"
+ write(unitno1,*) "set term qt 1 font 'Arial' title 'Zernike Coefficients'"
  write(unitno1,*) "reset session"
  write(unitno1,'(A)') "$Data << EOD"                !no leading spaces or gnuplot vomits
  if (zern(1) < 0) then
@@ -2778,9 +2830,13 @@ open(unitno1, file = "/tmp/zernike.tmp", action="write", iostat=ierr)
 ! this line clears the counter, no longer does anything with gp or the filename
  call Ccounter(100)
 #if defined  (__APPLE__)
-   write(new_file,*) "zsh -l -c 'gnuplot -p /tmp/zernike.tmp'"
+#if defined(__aarch64__)
+   write(new_file,*) "/opt/homebrew/bin/gnuplot -p " // "/tmp/zernike.tmp"
 #else
-   write(new_file,*) "gnuplot -p /tmp/zernike.tmp"
+   write(new_file,*) "/usr/local/bin/gnuplot -p " // "/tmp/zernike.tmp"
+#endif
+#else
+   write(new_file,*) "gnuplot -p " // "/tmp/zernike.tmp"
 #endif
   call execute_command_line(trim(new_file), exitstat=i)
   if (mod(flag,100) == 9) call Ccounter(0)  ! zero out the progess bar if we're just displaying coefficients
