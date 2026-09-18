@@ -31,7 +31,7 @@ BEGIN_ODDLPARSER_NS
 DDLNode::DllNodeList DDLNode::s_allocatedNodes;
 
 template <class T>
-inline static void releaseDataType(T *ptr) {
+[[maybe_unused]] inline static void releaseDataType(T *ptr) {
     if (nullptr == ptr) {
         return;
     }
