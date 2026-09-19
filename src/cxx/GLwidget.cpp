@@ -279,10 +279,12 @@ void GLwidget::cleanup()
 //  system("copy zernike.tmp zernike.bak");
   system("type nul >> zernike.tmp");
   system("del zernike.tmp");
+  system("del /tmp/kernunos_temp.XXXXX.*");
   #else
   system("touch /tmp/zernike.tmp");
 //  system("cp /tmp/zernike.tmp /tmp/zernike.bak");
   system("rm /tmp/zernike.tmp");
+  system("rm /tmp/kernunos_temp.XXXXX.*");
   #endif
   doneCurrent();
 }

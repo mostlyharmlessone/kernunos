@@ -2,8 +2,10 @@ cmake_minimum_required(VERSION 3.30)
 cmake_policy(VERSION 3.30)
 
 #uncomment for Darwin
-#set(CMAKE_Fortran_INCLUDE_FLAG "-I")
+#set(CMAKE_Fortran_INCLUDES_FLAG "-I")
+#set(CMAKE_FIND_FRAMEWORK LAST)
 #project(kernunos LANGUAGES C CXX Fortran)
+#set(CMAKE_Fortran_INCLUDE_FLAG "-I" CACHE STRING "Force -I instead of -F" FORCE)
 
 set(VERSION_MAJOR "0")
 set(VERSION_MINOR "2")
