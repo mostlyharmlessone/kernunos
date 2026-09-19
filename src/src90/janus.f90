@@ -606,6 +606,8 @@ CLOSE (unitno1)
 #endif
 call execute_command_line(trim(new_file), exitstat=i)
 
+call execute_command_line("cp " // BigPlot // " BigPlot.tmp ", exitstat=i)
+
 unitno1 = get_new_fileunit()
 open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
 WRITE(unitno1,*) 'reset'
@@ -2884,7 +2886,7 @@ open(unitno1, file = "/tmp/zernike.tmp", action="write", iostat=ierr)
    write(new_file,*) "gnuplot -p " // "/tmp/zernike.tmp"
 #endif
 
- call execute_command_line("cp '/tmp/zernike.tmp' zern.tmp ", exitstat=i)
+ call execute_command_line("cp /tmp/zernike.tmp zern.tmp", exitstat=i)
 
  call execute_command_line(trim(new_file), exitstat=i)
   if (mod(flag,100) == 9) call Ccounter(0)  ! zero out the progess bar if we're just displaying coefficients
