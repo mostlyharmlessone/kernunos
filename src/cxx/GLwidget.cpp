@@ -573,8 +573,6 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
        auto future1 = std::async([&]{return janus_(&flag,filename,elements3,vertices3,legend2,cardinal2,zern,&nV[2],&nE[2],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE, &err_janus);});
        future1.get();
       }
-
-
       else {
 
           nV[1]=nV[0]; nE[1]=nE[0];
@@ -585,7 +583,6 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
               elements2[i]=elements[i];
           }
 
-
 //                                           janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE, &err_janus);
 //         auto future1 = std::async(std::launch::async,[&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE, &err_janus);});
 //       future1.get();
@@ -594,14 +591,9 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
 //             janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE, &err_janus);
 //             return 1;
 //         });
-
-
           futureWatcher.setFuture(QtConcurrent::run([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE, &err_janus);}));
 
-
 //         auto future1 = std::async(std::launch::async,[&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE, &err_janus);});
-
-
 
         // Display the dialog and start the event loop.
          dialog.exec();

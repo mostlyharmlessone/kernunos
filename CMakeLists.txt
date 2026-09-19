@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.30)
 cmake_policy(VERSION 3.30)
 
 #uncomment for Darwin
+#set(CMAKE_Fortran_INCLUDE_FLAG "-I")
 #project(kernunos LANGUAGES C CXX Fortran)
 
 set(VERSION_MAJOR "0")

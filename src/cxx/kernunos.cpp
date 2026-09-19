@@ -918,15 +918,9 @@ void MainWindow::swap()
     QString fileName = "swap";
     QByteArray ba = fileName.toLocal8Bit();
     filename = ba.data();
-    // Create a progress dialog.
-    QProgressDialog dialog;
-    dialog.setLabelText(QString("Swapping..."));
-
-//                                       janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
+//    janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
     auto future1 = std::async([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE, &err_janus);});
     future1.get();
-    // Display the dialog and start the event loop.
-    dialog.exec();
 }
 
 void MainWindow::compare()
@@ -1199,7 +1193,7 @@ void MainWindow::zerncompute()
 #endif
 #endif
 
-    QTemporaryFile FILE;
+    QTemporaryFile FILE(QDir::tempPath() + "/kernunos_temp.XXXXX");
     FILE.setAutoRemove(true);
     if(!FILE.open()) return;
     QString filenamelocal = FILE.fileName();
@@ -1207,7 +1201,17 @@ void MainWindow::zerncompute()
     QByteArray ba = filenamelocal.toLocal8Bit();
     filename = ba.data();
     flag=flag-(flag%100)+1;  // last two digits of flag=1;
-    janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
+
+    // Create a dialog.
+    QProgressDialog *dialog = new QProgressDialog(this);
+    dialog->setLabelText(QString("Computing Zernike..."));
+//    janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
+    std::thread([&]{return janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);}).detach();
+    // Display the dialog, illusion of waiting
+    dialog->setRange(0,100);
+    dialog->setValue(20);
+    QTimer::singleShot(7000, dialog, &QProgressDialog::close);
+    dialog->exec();
 
 #ifdef _WIN32
     // For Windows, prompt for a keystroke before the Gnuplot object goes out of scope so that
@@ -1278,7 +1282,7 @@ void MainWindow::showzern()
 #endif
 #endif
 
-    QTemporaryFile FILE;
+    QTemporaryFile FILE(QDir::tempPath() + "/kernunos_temp.XXXXX");
     FILE.setAutoRemove(true);
     if(!FILE.open()) return;
     QString filenamelocal = FILE.fileName();
@@ -1300,7 +1304,7 @@ void MainWindow::showzern()
 
 void MainWindow::importexport(){
     //make temporary PLY file name
-    QTemporaryFile FILE;
+    QTemporaryFile FILE(QDir::tempPath() + "/kernunos_temp.XXXXX");
     FILE.setAutoRemove(true);
     if(!FILE.open()) return;
     QString filenamelocal = FILE.fileName();
@@ -1527,7 +1531,7 @@ void MainWindow::ply2bin(){
     std::cout << "temporary file name: " << filenamelocal << '\n';
     const char *filename = filenamelocal.c_str();
     */
-    QTemporaryFile FILE;
+    QTemporaryFile FILE(QDir::tempPath() + "/kernunos_temp.XXXXX");
     FILE.setAutoRemove(true);
     if(!FILE.open()) return;
     QString filenamelocal = FILE.fileName();
@@ -1560,7 +1564,7 @@ void MainWindow::off2stl(){
     std::cout << "temporary file name: " << filenamelocal << '\n';
     const char *filename = filenamelocal.c_str();
     */
-   QTemporaryFile FILE;
+   QTemporaryFile FILE(QDir::tempPath() + "/kernunos_temp.XXXXX");
    FILE.setAutoRemove(true);  //doesnt do anything that I can see
    if(!FILE.open()) return;
    QString filenamelocal = FILE.fileName();
@@ -1678,7 +1682,7 @@ void MainWindow::makesave2(){
 }
 
 void MainWindow::LinesofCurvature() {
-    QTemporaryFile FILE;
+    QTemporaryFile FILE(QDir::tempPath() + "/kernunos_temp.XXXXX");
     FILE.setAutoRemove(true);  //does not do anything
     if(!FILE.open()) return;
     QString filenamelocal = FILE.fileName();
@@ -1738,7 +1742,7 @@ void MainWindow::gnuplotsplot() {
 #endif
 #endif
 
-   QTemporaryFile FILE;
+   QTemporaryFile FILE(QDir::tempPath() + "/kernunos_temp.XXXXX");
    FILE.setAutoRemove(true);  //does not do anything
    if(!FILE.open()) return;
    QString filenamelocal = FILE.fileName();
@@ -1798,7 +1802,7 @@ void MainWindow::center() {
 #endif
 #endif
 
-   QTemporaryFile FILE;
+   QTemporaryFile FILE(QDir::tempPath() + "/kernunos_temp.XXXXX");
    FILE.setAutoRemove(true);  //does not do anything
    if(!FILE.open()) return;
    QString filenamelocal = FILE.fileName();
@@ -1858,7 +1862,7 @@ void MainWindow::rings() {
 #endif
 #endif
 
-    QTemporaryFile FILE;
+    QTemporaryFile FILE(QDir::tempPath() + "/kernunos_temp.XXXXX");
     FILE.setAutoRemove(true);  //does not do anything
     if(!FILE.open()) return;
     QString filenamelocal = FILE.fileName();
@@ -3345,6 +3349,7 @@ int main(int argc, char *argv[])
 #endif
    QApplication::setStyle(QStyleFactory::create("fusion"));
    QApplication app(argc, argv);
+   app.setApplicationName("kernunos");
    QCoreApplication::setOrganizationName("QtProject");
    QCoreApplication::setApplicationName("kernunos");
    QCoreApplication::setApplicationVersion(QT_VERSION_STR);

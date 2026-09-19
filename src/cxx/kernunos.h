@@ -339,6 +339,7 @@ private:
     DialogOptionsWidget *makeoffDialogOptionsWidget;
     DialogOptionsWidget *croppingDialogOptionsWidget;
     DialogOptionsWidget *keratoDialogOptionsWidget;
+
 };
 
 QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)
