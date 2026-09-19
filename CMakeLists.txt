@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.30)
 cmake_policy(VERSION 3.30)
 
 #UNCOMMENT for Darwin or cmake commandline in Linux
+set(CMAKE_Fortran_INCLUDES_FLAG "-I")
 project(kernunos LANGUAGES C CXX Fortran)
 #UNCOMMENT for Darwin, but don't prevent -F issue
 set(CMAKE_Fortran_INCLUDES_FLAG "-I")
