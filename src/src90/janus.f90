@@ -582,7 +582,7 @@ if (mod(flag,100) == 7) then
 #else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
 #endif
- call execute_command_line(trim(new_file), exitstat=i)
+! call execute_command_line(trim(new_file), exitstat=i)
 
 unitno1 = get_new_fileunit()
 open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
@@ -627,7 +627,7 @@ CLOSE (unitno1)
 #else
  write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
 #endif
-call execute_command_line(trim(new_file), exitstat=i)
+! call execute_command_line(trim(new_file), exitstat=i)
 
  return
 endif ! (mod(flag,100) == 7)
