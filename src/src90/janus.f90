@@ -570,16 +570,8 @@ if (mod(flag,100) == 7) then
   WRITE(unitno1,*) 'NOXTICS = "set format x ''''; unset xlabel"'
   WRITE(unitno1,*) 'NOYTICS = "set format y ''''; unset ylabel"'
   WRITE(unitno1,*) '@NOXTICS ; @NOYTICS'
-
-  WRITE(unitno1,*) "set term qt 1 title 'Direction 1' "
+  WRITE(unitno1,*) "set term qt 1 font 'Arial' title 'Direction 1' "
   WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2:3:4 with vectors title "Direction 1" '
-
-  WRITE(unitno1,*) "set term qt 2 title 'Direction 2' "
-  WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2:5:6 with vectors title "Direction 2" '
-
-  WRITE(unitno1,*) "set term qt 3 title 'Both directions' "
-  WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2:3:4 with vectors title "Direction 1" '&
-                    &,", ","'",BigPlot,"'",' using 1:2:5:6 with vectors title "Direction 2" '
   CLOSE (unitno1)
 #if defined  (__APPLE__)
 #if defined(__aarch64__)
@@ -591,6 +583,52 @@ if (mod(flag,100) == 7) then
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
 #endif
  call execute_command_line(trim(new_file), exitstat=i)
+
+unitno1 = get_new_fileunit()
+open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
+WRITE(unitno1,*) 'reset'
+WRITE(unitno1,*) 'set size square'
+WRITE(unitno1,*) 'set macros'
+WRITE(unitno1,*) 'NOXTICS = "set format x ''''; unset xlabel"'
+WRITE(unitno1,*) 'NOYTICS = "set format y ''''; unset ylabel"'
+WRITE(unitno1,*) '@NOXTICS ; @NOYTICS'
+WRITE(unitno1,*) "set term qt 2 font 'Arial' title 'Direction 2' "
+WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2:5:6 with vectors title "Direction 2" '
+CLOSE (unitno1)
+#if defined  (__APPLE__)
+#if defined(__aarch64__)
+ write(new_file,*) "/opt/homebrew/bin/gnuplot -p " // trim(gnu_instruct)
+#else
+ write(new_file,*) "/usr/local/bin/gnuplot -p " // trim(gnu_instruct)
+#endif
+#else
+ write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
+#endif
+call execute_command_line(trim(new_file), exitstat=i)
+
+unitno1 = get_new_fileunit()
+open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
+WRITE(unitno1,*) 'reset'
+WRITE(unitno1,*) 'set size square'
+WRITE(unitno1,*) 'set macros'
+WRITE(unitno1,*) 'NOXTICS = "set format x ''''; unset xlabel"'
+WRITE(unitno1,*) 'NOYTICS = "set format y ''''; unset ylabel"'
+WRITE(unitno1,*) '@NOXTICS ; @NOYTICS'
+WRITE(unitno1,*) "set term qt 3 font 'Arial' title 'Both directions' "
+WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2:3:4 with vectors title "Direction 1" '&
+                  &,", ","'",BigPlot,"'",' using 1:2:5:6 with vectors title "Direction 2" '
+CLOSE (unitno1)
+#if defined  (__APPLE__)
+#if defined(__aarch64__)
+ write(new_file,*) "/opt/homebrew/bin/gnuplot -p " // trim(gnu_instruct)
+#else
+ write(new_file,*) "/usr/local/bin/gnuplot -p " // trim(gnu_instruct)
+#endif
+#else
+ write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
+#endif
+call execute_command_line(trim(new_file), exitstat=i)
+
  return
 endif ! (mod(flag,100) == 7)
 
@@ -2845,7 +2883,10 @@ open(unitno1, file = "/tmp/zernike.tmp", action="write", iostat=ierr)
 #else
    write(new_file,*) "gnuplot -p " // "/tmp/zernike.tmp"
 #endif
-  call execute_command_line(trim(new_file), exitstat=i)
+
+ call execute_command_line("cp '/tmp/zernike.tmp' zern.tmp ", exitstat=i)
+
+ call execute_command_line(trim(new_file), exitstat=i)
   if (mod(flag,100) == 9) call Ccounter(0)  ! zero out the progess bar if we're just displaying coefficients
  else
   call LogC("No Zernike data found"//c_null_char)
