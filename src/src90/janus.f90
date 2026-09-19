@@ -440,7 +440,8 @@ DiaSlope%Zpd2 = .n. DiaSlope
  WRITE(unitno1,*) 'reset'
  WRITE(unitno1,*) "set term qt 5 font 'Arial' title 'Center' "
  WRITE(unitno1,*) 'set polar'
- WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "Center" '
+ WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",&
+                  &' using 1:2 with lines title "Center" '
  close(unitno1)
 #if defined  (__APPLE__)
 #if defined(__aarch64__)
@@ -460,7 +461,8 @@ DiaSlope%Zpd2 = .n. DiaSlope
   WRITE(unitno1,*) 'reset'
   WRITE(unitno1,*) "set term qt 1 font 'Arial' title 'SagC' "
   WRITE(unitno1,*) 'set polar'
-  WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "SagC" '
+  WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",&
+                 &' using 1:2 with lines title "SagC" '
   close(unitno1)
 #if defined  (__APPLE__)
 #if defined(__aarch64__)
@@ -480,7 +482,8 @@ DiaSlope%Zpd2 = .n. DiaSlope
   WRITE(unitno1,*) 'reset'
   WRITE(unitno1,*) "set term qt 2 font 'Arial' title 'IntC' "
   WRITE(unitno1,*) 'set polar'
-  WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "IntC" '
+  WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",&
+                 &' using 1:2 with lines title "IntC" '
   close(unitno1)
 #if defined  (__APPLE__)
 #if defined(__aarch64__)
@@ -500,7 +503,8 @@ DiaSlope%Zpd2 = .n. DiaSlope
   WRITE(unitno1,*) 'reset'
   WRITE(unitno1,*) "set term qt 3 font 'Arial' title 'MeanC' "
   WRITE(unitno1,*) 'set polar'
-  WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "MeanC" '
+  WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",&
+                 &' using 1:2 with lines title "MeanC" '
   close(unitno1)  
 #if defined  (__APPLE__)
 #if defined(__aarch64__)
@@ -520,7 +524,8 @@ DiaSlope%Zpd2 = .n. DiaSlope
   WRITE(unitno1,*) 'reset'
   WRITE(unitno1,*) "set term qt 4 font 'Arial' title 'MongeA' "
   WRITE(unitno1,*) 'set polar'
-  WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 with lines title "MongeA" '
+  WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",&
+  &' using 1:2 with lines title "MongeA" '
   close(unitno1)
 #if defined  (__APPLE__)
 #if defined(__aarch64__)
@@ -2040,7 +2045,8 @@ if (TestData .eq. 1) then
     WRITE(unitno1,*) 'reset'
     WRITE(unitno1,*) "set term qt 1 font 'Arial' title 'Rings' "
     WRITE(unitno1,*) "set polar"
-    WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 title "Rings" '
+    WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",&
+                   &' using 1:2 title "Rings" '
     CLOSE (unitno1)    
 #if defined  (__APPLE__)
 #if defined(__aarch64__)
@@ -2111,7 +2117,8 @@ if (TestData .eq. 0 .or. TestData .eq. 6) then
    WRITE(unitno1,*) 'reset'
    WRITE(unitno1,*) "set term qt 1 font 'Arial' title 'Rings' "
    WRITE(unitno1,*) "set polar"
-   WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",' using 1:2 title "Rings" '
+   WRITE(unitno1,*) 'plot ',"'",BigPlot,"'",&
+   &' using 1:2 title "Rings" '
    CLOSE (unitno1)
 #if defined  (__APPLE__)
 #if defined(__aarch64__)
