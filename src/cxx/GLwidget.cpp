@@ -276,13 +276,13 @@ void GLwidget::cleanup()
   flag=flag-(flag%100)+99;  // last two digits of flag = 99;
 //  std::cout << "flag in cleanup: " << flag << "\n";
   #ifdef _WIN32  //use %temp% here?
-//  system("copy zernike.tmp zernike.bak");
-  system("type nul >> zernike.tmp");
-  system("del zernike.tmp");
+  system("type nul >> /tmp/zernike.tmp");
+  system("type nul >> /tmp/gnu_tmp.tmp");
+  system("del /tmp/zernike.tmp");
   system("del /tmp/gnu_tmp.*");
   #else
   system("touch /tmp/zernike.tmp");
-//  system("cp /tmp/zernike.tmp /tmp/zernike.bak");
+  system("touch /tmp/gnu_tmp.tmp");
   system("rm /tmp/zernike.tmp");
   system("rm /tmp/gnu_tmp.*");
   #endif
@@ -1128,6 +1128,7 @@ void GLwidget::paintGL(void)
          m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
          m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
          m_world.rotate(m_zRot / 16.0f, 0, 0, 1);
+         resize(SCR_WIDTH, SCR_HEIGHT);
          glm::mat4 projection = glm::ortho(-static_cast<float>(SCR_WIDTH)/SCR_HEIGHT, static_cast<float>(SCR_WIDTH)/SCR_HEIGHT, -1.0f, 1.0f);
          mMVP = mUnscaledViewMatrix * m_world;
          shaderText2Program->bind();
@@ -1153,6 +1154,7 @@ void GLwidget::paintGL(void)
          m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
          m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
          m_world.rotate(m_zRot / 16.0f, 0, 0, 1);
+         resize(SCR_WIDTH, SCR_HEIGHT);
          glm::mat4 projection = glm::ortho(-static_cast<float>(SCR_WIDTH)/SCR_HEIGHT, static_cast<float>(SCR_WIDTH)/SCR_HEIGHT, -1.0f, 1.0f);
          mMVP = mUnscaledViewMatrix * m_world;
          shaderText2Program->bind();
