@@ -322,7 +322,7 @@ if (mod(flag,100) == 5 ) then
  endif
 ! generate data file
   unitno1 = get_new_fileunit()
-  open(unitno1, file = BigPlot, action="write", iostat=ierr)
+  open(unitno1, file = BigPlot, action="write", iostat=ierr, RECL=1024)
   do i=1,M1
    do j=1,JMatrix%MV(i)
     X1=JMatrix%tht(i)
@@ -381,7 +381,7 @@ if (mod(flag,100) == 5 ) then
   CLOSE (unitno1)
 ! instruction file
    unitno1 = get_new_fileunit()
-   open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
+   open(unitno1, file = gnu_instruct, action="write", iostat=ierr, RECL=1024)
    WRITE(unitno1,*) 'reset'
    WRITE(unitno1,*) 'set size square'
    WRITE(unitno1,*) 'set macros'
@@ -436,7 +436,7 @@ DiaSlope%Zpd2 = .n. DiaSlope
 !plots spread of values at origin for each meridian from average
 !instruction file
  unitno1 = get_new_fileunit()
- open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
+ open(unitno1, file = gnu_instruct, action="write", iostat=ierr, RECL=1024)
  WRITE(unitno1,*) 'reset'
  WRITE(unitno1,*) "set term qt 5 font 'Arial' title 'Center' "
  WRITE(unitno1,*) 'set polar'
@@ -457,7 +457,7 @@ DiaSlope%Zpd2 = .n. DiaSlope
  call WriteCenterJ(JMatrix%SAGC0(1),JMatrix%SAGC,BigPlot)
  !instruction file
   unitno1 = get_new_fileunit()
-  open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
+  open(unitno1, file = gnu_instruct, action="write", iostat=ierr, RECL=1024)
   WRITE(unitno1,*) 'reset'
   WRITE(unitno1,*) "set term qt 1 font 'Arial' title 'SagC' "
   WRITE(unitno1,*) 'set polar'
@@ -478,7 +478,7 @@ DiaSlope%Zpd2 = .n. DiaSlope
  call WriteCenterJ(JMatrix%INSTC0(1),JMatrix%INSTC,BigPlot)
  !instruction file
   unitno1 = get_new_fileunit()
-  open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
+  open(unitno1, file = gnu_instruct, action="write", iostat=ierr, RECL=1024)
   WRITE(unitno1,*) 'reset'
   WRITE(unitno1,*) "set term qt 2 font 'Arial' title 'IntC' "
   WRITE(unitno1,*) 'set polar'
@@ -499,7 +499,7 @@ DiaSlope%Zpd2 = .n. DiaSlope
  call WriteCenterJ(JMatrix%MEANC0(1),JMatrix%MEANC,BigPlot)
  !instruction file
   unitno1 = get_new_fileunit()
-  open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
+  open(unitno1, file = gnu_instruct, action="write", iostat=ierr, RECL=1024)
   WRITE(unitno1,*) 'reset'
   WRITE(unitno1,*) "set term qt 3 font 'Arial' title 'MeanC' "
   WRITE(unitno1,*) 'set polar'
@@ -520,7 +520,7 @@ DiaSlope%Zpd2 = .n. DiaSlope
  call WriteCenterJ(JMatrix%MONGEA0(1),JMatrix%MONGEA,BigPlot)
  !instruction file
   unitno1 = get_new_fileunit()
-  open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
+  open(unitno1, file = gnu_instruct, action="write", iostat=ierr, RECL=1024)
   WRITE(unitno1,*) 'reset'
   WRITE(unitno1,*) "set term qt 4 font 'Arial' title 'MongeA' "
   WRITE(unitno1,*) 'set polar'
@@ -545,7 +545,7 @@ if (mod(flag,100) == 7) then
  BigPlot=replacestr(string=gnu_instruct,search=".car",substitute=".loc")
  !data file
  unitno1 = get_new_fileunit()
- open(unitno1, file=BigPlot, action="write", iostat=ierr)
+ open(unitno1, file=BigPlot, action="write", iostat=ierr, RECL=1024)
  UT=0 ; VT=0
  do i=1,M1,6
   do j=1,RadSlope%MV(i)
@@ -563,7 +563,7 @@ if (mod(flag,100) == 7) then
  close (unitno1)
 !instruction file
   unitno1 = get_new_fileunit()
-  open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
+  open(unitno1, file = gnu_instruct, action="write", iostat=ierr, RECL=1024)
   WRITE(unitno1,*) 'reset'
   WRITE(unitno1,*) 'set size square'
   WRITE(unitno1,*) 'set macros'
@@ -582,10 +582,10 @@ if (mod(flag,100) == 7) then
 #else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
 #endif
-! call execute_command_line(trim(new_file), exitstat=i)
+ call execute_command_line(trim(new_file), exitstat=i)
 
 unitno1 = get_new_fileunit()
-open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
+open(unitno1, file = gnu_instruct, action="write", iostat=ierr, RECL=1024)
 WRITE(unitno1,*) 'reset'
 WRITE(unitno1,*) 'set size square'
 WRITE(unitno1,*) 'set macros'
@@ -605,11 +605,10 @@ CLOSE (unitno1)
  write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
 #endif
 call execute_command_line(trim(new_file), exitstat=i)
-
-call execute_command_line("cp " // BigPlot // " BigPlot.tmp ", exitstat=i)
-
+! dumps a local copy
+!call execute_command_line("cp " // BigPlot // " BigPlot.tmp ", exitstat=i)
 unitno1 = get_new_fileunit()
-open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
+open(unitno1, file = gnu_instruct, action="write", iostat=ierr, RECL=1024)
 WRITE(unitno1,*) 'reset'
 WRITE(unitno1,*) 'set size square'
 WRITE(unitno1,*) 'set macros'
@@ -629,7 +628,7 @@ CLOSE (unitno1)
 #else
  write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
 #endif
-! call execute_command_line(trim(new_file), exitstat=i)
+ call execute_command_line(trim(new_file), exitstat=i)
 
  return
 endif ! (mod(flag,100) == 7)
@@ -2068,7 +2067,7 @@ if (TestData .eq. 1) then
  ! generate data file
    unitno1 = get_new_fileunit()
    BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".plt")
-   open(unitno1, file = BigPlot, action="write", iostat=ierr)
+   open(unitno1, file = BigPlot, action="write", iostat=ierr, RECL=1024)
  ! Look at these rings using gnuplot set polar
  ! gnuplot 'plot 'datafile dumped with' u 1:2'
     do j=1,size(Atlas%AP,2)
@@ -2081,7 +2080,7 @@ if (TestData .eq. 1) then
     CLOSE (unitno1)
 !instruction file
     unitno1 = get_new_fileunit()
-    open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
+    open(unitno1, file = gnu_instruct, action="write", iostat=ierr, RECL=1024)
     WRITE(unitno1,*) 'reset'
     WRITE(unitno1,*) "set term qt 1 font 'Arial' title 'Rings' "
     WRITE(unitno1,*) "set polar"
@@ -2142,7 +2141,7 @@ if (TestData .eq. 0 .or. TestData .eq. 6) then
  ! generate data file
    unitno1 = get_new_fileunit()
    BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".plt")
-   open(unitno1, file = BigPlot, action="write", iostat=ierr)
+   open(unitno1, file = BigPlot, action="write", iostat=ierr, RECL=1024)
    do j=1,size(EyeSys%RA,2)
     do i=1,M1
      if ((EyeSys%RA(i,j) > 0) .AND. (EyeSys%XX(i,j) > 0) ) then ! Only for EyeSys with valid data /= 0
@@ -2153,7 +2152,7 @@ if (TestData .eq. 0 .or. TestData .eq. 6) then
    CLOSE (unitno1)
 !instruction file
    unitno1 = get_new_fileunit()
-   open(unitno1, file = gnu_instruct, action="write", iostat=ierr)
+   open(unitno1, file = gnu_instruct, action="write", iostat=ierr, RECL=1024)
    WRITE(unitno1,*) 'reset'
    WRITE(unitno1,*) "set term qt 1 font 'Arial' title 'Rings' "
    WRITE(unitno1,*) "set polar"
@@ -2792,7 +2791,7 @@ end do
 ! only make a plot if there's data
 if (ABS(zern(13)-zern(14)) > EPS) then
 unitno1 = get_new_fileunit()
-open(unitno1, file = "/tmp/zernike.tmp", action="write", iostat=ierr)
+open(unitno1, file = "/tmp/zernike.tmp", action="write", iostat=ierr, RECL=1024)
  write(unitno1,*) "set term qt 1 font 'Arial' title 'Zernike Coefficients'"
  write(unitno1,*) "reset session"
  write(unitno1,'(A)') "$Data << EOD"                !no leading spaces or gnuplot vomits
@@ -2873,7 +2872,8 @@ open(unitno1, file = "/tmp/zernike.tmp", action="write", iostat=ierr)
  write(unitno1,*) "myBoxWidth = 0.8";
  write(unitno1,*) "set offsets 0,0,0.5-myBoxWidth/2.,0.5";
 ! write(unitno1,*) "plot $Data using (0.5*$2):0:(0.5*$2):(myBoxWidth/2.):($3):ytic(1) with boxxy lc rgb var";
- write(unitno1,*) "plot $Data using (0):($0):(0):($2):($0-myBoxWidth/2.):($0+myBoxWidth/2.):($3):ytic(1) with boxxy lc rgb var"
+ write(unitno1,*) "plot $Data using (0):($0):(0):($2):($0-myBoxWidth/2.):&
+                   &($0+myBoxWidth/2.):($3):ytic(1) with boxxy lc rgb var";
  close(unitno1)
 ! this line clears the counter, no longer does anything with gp or the filename
  call Ccounter(100)
@@ -2886,9 +2886,8 @@ open(unitno1, file = "/tmp/zernike.tmp", action="write", iostat=ierr)
 #else
    write(new_file,*) "gnuplot -p " // "/tmp/zernike.tmp"
 #endif
-
- call execute_command_line("cp /tmp/zernike.tmp zern.tmp", exitstat=i)
-
+! dumps a local copy
+! call execute_command_line("cp /tmp/zernike.tmp zern.tmp", exitstat=i)
  call execute_command_line(trim(new_file), exitstat=i)
   if (mod(flag,100) == 9) call Ccounter(0)  ! zero out the progess bar if we're just displaying coefficients
  else

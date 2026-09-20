@@ -1967,7 +1967,7 @@ SUBROUTINE SaveFile(b,KXNAME)
  MM=size(b%R,2)
  allocate(RA(N))
  unitno1 = get_new_fileunit()
- open(unitno1, file=trim(KXNAME), action="write", iostat=ierr)
+ open(unitno1, file=trim(KXNAME), action="write", iostat=ierr, RECL=1024)
  if (ierr .ne. 0) then
   write(*,*) 'ERROR: SaveFile cannot open',KXNAME
   return

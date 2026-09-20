@@ -37,7 +37,7 @@
        N1=size(b%r,1)
        M1=size(b%r,2)
        unitno3 = get_new_fileunit()
-       open(unitno3, file=trim(OFFNAME), action="write", iostat=ierr)
+       open(unitno3, file=trim(OFFNAME), action="write", iostat=ierr, RECL=1024)
        
 !     if no missing faces
       if (donut) then

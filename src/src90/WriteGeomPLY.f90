@@ -40,7 +40,7 @@
        N1=size(b%r,1)
        M1=size(b%r,2)
        unitno1 = get_new_fileunit()
-       open(unitno1, file=trim(PLYNAME), action="write", iostat=ierr, iomsg=message)
+       open(unitno1, file=trim(PLYNAME), action="write", iostat=ierr, iomsg=message, RECL=1024)
        
        if(ierr == 0) then
         call LogC("success opening file: "//trim(PLYNAME)//c_null_char)

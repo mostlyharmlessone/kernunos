@@ -8,7 +8,7 @@
        N=size(b,1)-1
        MM=size(b,2)
        unitno1 = get_new_fileunit()
-       open(unitno1, file=trim(KXNAME), action="write", iostat=ierr)
+       open(unitno1, file=trim(KXNAME), action="write", iostat=ierr, RECL=1024)
        if (ierr .ne. 0) then
         write(*,*) 'WriteCenterJ cannot open',KXNAME
         return

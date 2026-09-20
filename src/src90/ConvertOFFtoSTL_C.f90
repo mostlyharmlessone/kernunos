@@ -122,7 +122,7 @@
 !  Convert to ASCII or binary STL
    unitno1 = get_new_fileunit()
    if( file_idx == 0) then  ! not binary, must be ASCII
-    open(unitno1, file=file_from_C, action="write", iostat=ierr)
+    open(unitno1, file=file_from_C, action="write", iostat=ierr, RECL=1024)
    else
     if (index(file_from_C, ".stl") == 0) file_from_C = file_from_C // ".stl"  ! convert .bin to .bin.stl
     open(unitno1, file=file_from_C, access='stream', status='replace', &
