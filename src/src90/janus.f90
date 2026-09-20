@@ -399,7 +399,7 @@ if (mod(flag,100) == 5 ) then
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
 #endif
    call execute_command_line(trim(new_file), exitstat=i)
-   return
+  return
  endif ! end (mod(flag,100) == 5)
 
 
@@ -2867,13 +2867,13 @@ open(unitno1, file = "/tmp/zernike.tmp", action="write", iostat=ierr, RECL=1024)
   write(unitno1,*) "Z(2,-2)ObliqueAstigmatism ", zern(12), " 0x0000ff"
  endif
  write(unitno1,'(A)') "EOD"
- write(unitno1,*) "set style fill solid";
- write(unitno1,*) "unset key";
- write(unitno1,*) "myBoxWidth = 0.8";
- write(unitno1,*) "set offsets 0,0,0.5-myBoxWidth/2.,0.5";
-! write(unitno1,*) "plot $Data using (0.5*$2):0:(0.5*$2):(myBoxWidth/2.):($3):ytic(1) with boxxy lc rgb var";
+ write(unitno1,*) "set style fill solid"
+ write(unitno1,*) "unset key"
+ write(unitno1,*) "myBoxWidth = 0.8"
+ write(unitno1,*) "set offsets 0,0,0.5-myBoxWidth/2.,0.5"
+! write(unitno1,*) "plot $Data using (0.5*$2):0:(0.5*$2):(myBoxWidth/2.):($3):ytic(1) with boxxy lc rgb var"
  write(unitno1,*) "plot $Data using (0):($0):(0):($2):($0-myBoxWidth/2.):&
-                   &($0+myBoxWidth/2.):($3):ytic(1) with boxxy lc rgb var";
+                   &($0+myBoxWidth/2.):($3):ytic(1) with boxxy lc rgb var"
  close(unitno1)
 ! this line clears the counter, no longer does anything with gp or the filename
  call Ccounter(100)

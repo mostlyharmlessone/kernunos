@@ -3290,7 +3290,8 @@ void MainWindow::updateResult()
     ui.legendpix_2->setPixmap(pm2);
     QString legendvalues = "";
     for (int i = 1; i <= 13; ++i) {
-        float j = floor(legend[(i-1)*8]+0.5);
+        float j = legend[(i-1)*8];
+//        float j = floor(legend[(i-1)*8]+0.5);
         std::string t = std::to_string(j);  //stuck with 6 digits output
         char const *n_char = t.c_str();
         legendvalues += "\n";

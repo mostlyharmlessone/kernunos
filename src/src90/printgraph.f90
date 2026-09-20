@@ -10,8 +10,10 @@
      F6.1,A,A,A,F6.1,A,A,A,F6.1,A,A,A,F6.1,A,A,A,F6.1,A,A,A,&
      F6.1,A,A,A,F6.1,A,A,A,F6.1,A,A,A) 
 
-       col(1)=FLOOR(POWMIN+0.5)
-       col(12)=FLOOR(POWMAX+0.5)
+!       col(1)=FLOOR(POWMIN+0.5)
+!       col(12)=CEILING(POWMAX+0.5)
+       col(1)=POWMIN
+       col(12)=POWMAX
        col(2)=0.09*(col(12)-col(1))+col(1)
        col(3)=0.18*(col(12)-col(1))+col(1)
        col(4)=0.27*(col(12)-col(1))+col(1)
