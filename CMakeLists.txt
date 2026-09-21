@@ -407,14 +407,8 @@ endif()
  #                src/c/Ccounter.c src/c/counter.h)
 
 #   C source
-    file(GLOB_RECURSE interface src/c/*.c src /c/*.h)
 
 #   Fortran Source
-
-    file(GLOB_RECURSE lib_sources90  src/src90/*.f90 src/src90/*.f90*.for)
-    file(GLOB_RECURSE mod_sources90  src/mod90/*.f90
-                                     src/HansonHopkins/set_precision.f90
-                                     src/HansonHopkins/LapackInterface.f90)
 
     set(sparse_sources
                                      src/sparse/sparsekit.f90
@@ -446,10 +440,6 @@ add_library(rply_includes ${rply_sources})
 if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
  # put everything below; module build seems broken on Darwin
  set( INSTALL_EXAMPLEDIR  macOS )
-else()
-add_library(misc_c ${interface})
-add_library(modules  ${mod_sources90} ${misc_c} ${sparse_sources})
-add_library(splia ${lib_sources90} ${misc_c} )
 endif()
 
 set(LIBS2 ${SUPERLU_LIBRARIES} ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES} )
@@ -504,47 +494,6 @@ endif()
 
 #kernunos Qt version
 
-if (CMAKE_SYSTEM STREQUAL "Windows")
-
-set(PROJECT_SOURCES
-                   src/c/logc.c src/c/logc.h
-                   src/c/get_compiler_name.h
-                   src/c/charcount.c src/c/charcount.h
-                   src/c/Ccounter.c src/c/counter.h
-                   src/c/ConvertPLYtoBIN.c
-                   src/c/CleanSemicolons_C.c
-                   src/cxx/kernunos.cpp src/cxx/kernunos.h
-                   src/cxx/GLwidget.cpp src/cxx/GLwidget.h
-                   src/cxx/assistant.cpp src/cxx/assistant.h
-                   src/cxx/mainwindow.ui
-                   src/src90/ConvertOFFtoSTL_C.f90
-                   src/src90/get_compiler_name.f90
-                   src/src90/janus.f90
-                   kernunos_icon.o
-#can try kernunos.rc and no custom command
-                   ${TS_FILES}
-                   )
-else()
-
-set(PROJECT_SOURCES
-                   src/c/logc.c src/c/logc.h
-                   src/c/get_compiler_name.h
-                   src/c/charcount.c src/c/charcount.h
-                   src/c/Ccounter.c src/c/counter.h
-                   src/c/ConvertPLYtoBIN.c
-                   src/c/CleanSemicolons_C.c
-                   src/cxx/kernunos.cpp src/cxx/kernunos.h
-                   src/cxx/GLwidget.cpp src/cxx/GLwidget.h
-                   src/cxx/assistant.cpp src/cxx/assistant.h
-                   src/cxx/mainwindow.ui
-                   src/src90/ConvertOFFtoSTL_C.f90
-                   src/src90/get_compiler_name.f90
-                   src/src90/janus.f90
-                   ${TS_FILES}
-                   )
-endif()
-
-if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
  set(PROJECT_SOURCES
         src/HansonHopkins/set_precision.f90
         src/HansonHopkins/LapackInterface.f90
@@ -597,18 +546,35 @@ if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
         src/cxx/assistant.cpp src/cxx/assistant.h
         src/cxx/mainwindow.ui
         src/src90/janus.f90
-        resources/kernunos.icns
          ${TS_FILES}
 )
-endif()
 
 if (TRUE)
 
 #Qt6 or greater
+
+if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
+    qt_add_executable(kernunos
+    MANUAL_FINALIZATION
+    ${PROJECT_SOURCES} ${sparse_sources} resources/kernunos.icns
+  )
+endif()
+
+if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+    qt_add_executable(kernunos
+    MANUAL_FINALIZATION
+    ${PROJECT_SOURCES} ${sparse_sources} kernunos_icon.o
+    #can try kernunos.rc and no custom command
+  )
+endif()
+
+if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
     qt_add_executable(kernunos
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES} ${sparse_sources}
   )
+endif()
+
     qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 
 set(${KMP_DUPLICATE_LIB_OK}=TRUE)
@@ -652,7 +618,7 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
                 Qt${QT_VERSION_MAJOR}::OpenGL
                 Qt${QT_VERSION_MAJOR}::Pdf
                 Qt${QT_VERSION_MAJOR}::PdfWidgets
-                assimp modules splia rply_includes ${LIBS} #${OpenMP_LIBRARIES}
+                assimp rply_includes ${LIBS}
 # need the OpenGl library from e.g. C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\um\x64
                 OpenGL32.Lib
             )
@@ -670,7 +636,7 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
                 Qt${QT_VERSION_MAJOR}::OpenGL
                 Qt${QT_VERSION_MAJOR}::Pdf
                 Qt${QT_VERSION_MAJOR}::PdfWidgets
-                assimp rply_includes ${LIBS} #${OpenMP_LIBRARIES}
+                assimp rply_includes ${LIBS}
            )
 endif()
 
@@ -687,7 +653,7 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
 # these work in Qt but not outside it in a terminal cmake
                 Qt${QT_VERSION_MAJOR}::Pdf         # if (CMAKE_SYSTEM MATCHES Windows)
                 Qt${QT_VERSION_MAJOR}::PdfWidgets  # if (CMAKE_SYSTEM MATCHES Windows)
-                assimp modules splia rply_includes ${LIBS} ${OpenMP_LIBRARIES}
+                assimp rply_includes ${LIBS}
            )
 endif()
 

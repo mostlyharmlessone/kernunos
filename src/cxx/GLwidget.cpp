@@ -1127,8 +1127,12 @@ void GLwidget::paintGL(void)
          m_world.setToIdentity();
          m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
          m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
-         m_world.rotate(m_zRot / 16.0f, 0, 0, 1);
-         resize(SCR_WIDTH, SCR_HEIGHT);
+         m_world.rotate(m_zRot / 16.0f, 0, 0, 1);      
+#if defined (__WIN32)
+//       resize(SCR_WIDTH, SCR_HEIGHT);
+#else
+//         resize(SCR_WIDTH, SCR_HEIGHT);
+#endif
          glm::mat4 projection = glm::ortho(-static_cast<float>(SCR_WIDTH)/SCR_HEIGHT, static_cast<float>(SCR_WIDTH)/SCR_HEIGHT, -1.0f, 1.0f);
          mMVP = mUnscaledViewMatrix * m_world;
          shaderText2Program->bind();
@@ -1154,7 +1158,11 @@ void GLwidget::paintGL(void)
          m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
          m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
          m_world.rotate(m_zRot / 16.0f, 0, 0, 1);
-         resize(SCR_WIDTH, SCR_HEIGHT);
+#if defined (__WIN32)
+//       resize(SCR_WIDTH, SCR_HEIGHT);
+#else
+//         resize(SCR_WIDTH, SCR_HEIGHT);
+#endif
          glm::mat4 projection = glm::ortho(-static_cast<float>(SCR_WIDTH)/SCR_HEIGHT, static_cast<float>(SCR_WIDTH)/SCR_HEIGHT, -1.0f, 1.0f);
          mMVP = mUnscaledViewMatrix * m_world;
          shaderText2Program->bind();
