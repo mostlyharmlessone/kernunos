@@ -2925,6 +2925,12 @@ void MainWindow::createActions()
    connect(powerAct, &QAction::triggered, this, &MainWindow::power);
    powerAct->setCheckable(true);
 
+// pending an ability to fix the issues with resize() and rendertext
+#if defined (__APPLE__)
+   anglesAct->setEnabled(false);
+   powerAct->setEnabled(false);
+#endif
+
    centernodeAct=new QAction(tr("&Create center node to force MinMax at origin"), this);
    centernodeAct->setCheckable(true);
    connect(centernodeAct, &QAction::triggered, this, &MainWindow::tweakcenterNode);
