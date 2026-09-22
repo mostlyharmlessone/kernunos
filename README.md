@@ -155,8 +155,8 @@ and the corresponding Darwin variables commented out.<br>
 
 Alternatively at the command line: (your Windows environment and path may differ)
 ```
-cmake -G "MinGW Makefiles" ../
-mingw32-make install
+cmake -DASSIMP_WARNINGS_AS_ERRORS=OFF -DASSIMP_BUILD_TESTS=off -G "MinGW Makefiles" ../
+mingw32-make 
 ```
 change FC, CC, CXX and other environment vars to use gcc to overrride Qt/OS defaults ie.:
 ```
@@ -220,7 +220,8 @@ https://wiki.wxwidgets.org/Cross-Compiling_Under_Linux <br>
 
 Build it on a Mac. It appears the little activity in cross-compiling under Linux has largely been abandoned, possibly because of changes in Apple hardware over the last 10 years, which would not only require cross-compiling for Darwin/MacOS/Quartz, but also for the M1/M2/M3/M.. chips and other Apple only hardware. As of this writing Apple will discontinue support for development (ie Xcode) for intel Mac (arch x86_64) in 2027. In addition, unfortunately, the Mac native tools (Appleclang and XCode) are not particularly Fortran friendly and do not support OpenMP, and as with Windows and the default Visual C++/Intel Fortran/Cmake mismatch, one has to replace the native toolchain with an alternate version. Qt binaries for the MacOS are only provided for clang/llvm, so GCC is not an alternative unless you want to recompile/build Qt using GCC on your Mac. OpenGL has also been deprecated on the MacOS (Darwin) for quite some time, but is still supported to GLSL 4.1<br>
 
-Successfully builds on a M3 iMac (arm64) and intel i3 (x86_64): <br>
+Successfully builds on a M3 iMac (arm64) and intel i3 (x86_64), however View|Angles and View|Powers are disabled as I could not at this time get openGL to display Freetype fonts under the version of openGL (max 4.1) on Darwin. Documentation/Assistant may not works as well, though the underlying HTML files can always be seen directly. <br>
+
 Download Xcode (app store)and activate it, also:<br>
 ```
 xcode-select --switch /Applications/Xcode.app

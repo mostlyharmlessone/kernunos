@@ -3441,8 +3441,8 @@ int main(int argc, char *argv[])
     window.grabGesture(Qt::PanGesture);
     window.grabGesture(Qt::PinchGesture);
     }
-    return app.exec();
     fclose(fpstd);
     fclose(fperr);
+    return app.exec();
 }
 

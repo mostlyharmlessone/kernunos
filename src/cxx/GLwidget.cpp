@@ -1128,12 +1128,7 @@ void GLwidget::paintGL(void)
          m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
          m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
          m_world.rotate(m_zRot / 16.0f, 0, 0, 1);      
-#if defined (__WIN32)
-//       resize(SCR_WIDTH, SCR_HEIGHT);
-#else
-//         resize(SCR_WIDTH, SCR_HEIGHT);
-#endif
-         glm::mat4 projection = glm::ortho(-static_cast<float>(SCR_WIDTH)/SCR_HEIGHT, static_cast<float>(SCR_WIDTH)/SCR_HEIGHT, -1.0f, 1.0f);
+         glm::mat4 projection = glm::ortho(-static_cast<float>(width())/height(), static_cast<float>(width())/height(), -1.0f, 1.0f);
          mMVP = mUnscaledViewMatrix * m_world;
          shaderText2Program->bind();
          shaderText2Program->setUniformValue(m_viewMatrix2Loc, mMVP);
@@ -1158,18 +1153,15 @@ void GLwidget::paintGL(void)
          m_world.rotate(180.0f - (m_xRot / 16.0f), 1, 0, 0);
          m_world.rotate(m_yRot / 16.0f, 0, 1, 0);
          m_world.rotate(m_zRot / 16.0f, 0, 0, 1);
-#if defined (__WIN32)
-//       resize(SCR_WIDTH, SCR_HEIGHT);
-#else
-//         resize(SCR_WIDTH, SCR_HEIGHT);
-#endif
-         glm::mat4 projection = glm::ortho(-static_cast<float>(SCR_WIDTH)/SCR_HEIGHT, static_cast<float>(SCR_WIDTH)/SCR_HEIGHT, -1.0f, 1.0f);
+         //viewport[2] or viewport.2 is width, 3 is height, avoids using qt functions width() and height()
+         GLint viewport[4];
+         glGetIntegerv(GL_VIEWPORT, viewport);
+         glm::mat4 projection = glm::ortho(-static_cast<float>(viewport[2])/viewport[3], static_cast<float>(viewport[2])/viewport[3], -1.0f, 1.0f);
          mMVP = mUnscaledViewMatrix * m_world;
          shaderText2Program->bind();
          shaderText2Program->setUniformValue(m_viewMatrix2Loc, mMVP);
          glUniformMatrix4fv(glGetUniformLocation(shaderText2Program->programId(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
          glUniform4fv(uniform_color, 1, white);
-
          // central value
          std::string degrees  = std::to_string(int(cardinal[0]));
          render_text(vertexbuffers[i],degrees.c_str(), 0.0, 0.0, sx, sy);
