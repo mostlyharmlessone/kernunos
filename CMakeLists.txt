@@ -21,13 +21,13 @@ set(PROJECT_VERSION_MINOR  ${VERSION_MINOR})
 #set(CMAKE_MODULE_PATH cmake)
 
 set(CMAKE_HOST_SYSTEM_NAME Linux)
-set(CMAKE_SYSTEM UNIX)
+set(CMAKE_SYSTEM_NAME UNIX)
 
 #set(CMAKE_HOST_SYSTEM_NAME Windows)
-#set(CMAKE_SYSTEM Windows)
+#set(CMAKE_SYSTEM_NAME Windows)
 
 #set(CMAKE_HOST_SYSTEM_NAME Darwin)
-#set(CMAKE_SYSTEM APPLE)
+#set(CMAKE_SYSTEM_NAME APPLE)
 
 #set(CMAKE_HOST_SYSTEM_PROCESSOR arm64)
 set(CMAKE_HOST_SYSTEM_PROCESSOR x86_64) #host
@@ -113,7 +113,6 @@ set(CMAKE_AUTOUIC ON)
 
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
 # toolchain-mingw64.cmake
-  message(STATUS "Target system is Windows")
   set(CMAKE_SYSTEM_NAME Windows)
   set(CMAKE_SYSTEM_PROCESSOR x86_64)
   set(CMAKE_CROSSCOMPILING true)
@@ -155,8 +154,9 @@ elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux") # in Linux
 endif()
 
 # STATIC stuff (Windows)
- if (CMAKE_SYSTEM STREQUAL "Windows")
+ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
   set(BUILD_FOR_WIN TRUE)
+  message(STATUS "Target system is Windows")
  else()
   set(BUILD_FOR_WIN FALSE)
  endif()
@@ -164,6 +164,7 @@ endif()
  option(STATIC_BUILD "Build a static binary." ${BUILD_FOR_WIN})
 
   if (STATIC_BUILD)
+    message(STATUS "Static Build")
             # Force find commands to search only the target environment packages
 #            set(CMAKE_FIND_ROOT_PATH /usr/x86_64-w64-mingw32) # Standard MinGW sysroot directory
 #            set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
@@ -243,7 +244,7 @@ list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 
-if (${CMAKE_SYSTEM} MATCHES "Windows")
+if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
  if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows") #compiling for Windows under Windows
     find_package(BLAS REQUIRED)
     message("BLAS found at " ${BLAS_LIBRARIES})
@@ -324,7 +325,7 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
 else() #Linux or Apple host
   #also set in QtCreator
   set(QT_CREATOR_SKIP_MAINTENANCE_TOOL_PROVIDER ON)
-  if (CMAKE_SYSTEM STREQUAL "Windows")
+  if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
    find_package(Qt6 COMPONENTS Core Gui OpenGLWidgets OpenGL Widgets LinguistTools REQUIRED ) #Pdf PdfWidgets
    find_package(Qt6 COMPONENTS Concurrent REQUIRED)
    message(STATUS "Qt linux, cross compilation for Windows: " ${Qt6_FOUND})
@@ -403,10 +404,6 @@ endif()
 
 #   rply conversion 
     file(GLOB rply_sources src/c/convertplytobin.c src/c/rply.c src/c/*.h )
- #   file(GLOB interface src/c/logc.c src/c/logc.h
- #                src/c/Ccounter.c src/c/counter.h)
-
-#   C source
 
 #   Fortran Source
 
@@ -442,11 +439,9 @@ if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
  set( INSTALL_EXAMPLEDIR  macOS )
 endif()
 
+if(FALSE)  #superlu example from chapter12
+
 set(LIBS2 ${SUPERLU_LIBRARIES} ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES} )
-
-if(FALSE)
-
-#superlu example from chapter12
 
 set(HH_SOURCES
                    src/HansonHopkins/driverPiecewiseLinear.f90
@@ -644,15 +639,15 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
  target_link_libraries(kernunos
                 PRIVATE
                 Qt${QT_VERSION_MAJOR}::Concurrent
-                OpenMP::OpenMP_CXX # if (CMAKE_SYSTEM MATCHES Windows)
+                OpenMP::OpenMP_CXX # if (CMAKE_SYSTEM_NAME MATCHES Windows)
                 PUBLIC Qt${QT_VERSION_MAJOR}::Core
                 Qt${QT_VERSION_MAJOR}::OpenGLWidgets
                 Qt${QT_VERSION_MAJOR}::Gui
                 Qt${QT_VERSION_MAJOR}::Widgets
                 Qt${QT_VERSION_MAJOR}::OpenGL
 # these work in Qt but not outside it in a terminal cmake
-                Qt${QT_VERSION_MAJOR}::Pdf         # if (CMAKE_SYSTEM MATCHES Windows)
-                Qt${QT_VERSION_MAJOR}::PdfWidgets  # if (CMAKE_SYSTEM MATCHES Windows)
+                Qt${QT_VERSION_MAJOR}::Pdf         # if (CMAKE_SYSTEM_NAME MATCHES Windows)
+                Qt${QT_VERSION_MAJOR}::PdfWidgets  # if (CMAKE_SYSTEM_NAME MATCHES Windows)
                 assimp rply_includes ${LIBS}
            )
 endif()
