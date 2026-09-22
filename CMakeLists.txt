@@ -37,7 +37,7 @@ set(CMAKE_HOST_SYSTEM_PROCESSOR x86_64) #host
 set(CMAKE_BUILD_TYPE DEBUG) #this include debugging with addition of bounds flags as specified below
 
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
-  message(STATUS "Build host runs Linux")
+  message(STATUS "Host system is Linux")
  set (CMAKE_Fortran_COMPILER "gfortran")
  set(CMAKE_C_COMPILER "gcc")
  set(CMAKE_CXX_COMPILER "g++")
@@ -111,7 +111,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 # toolchain-mingw64.cmake
   set(CMAKE_SYSTEM_NAME Windows)
   set(CMAKE_SYSTEM_PROCESSOR x86_64)
@@ -154,17 +154,8 @@ elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux") # in Linux
 endif()
 
 # STATIC stuff (Windows)
- if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-  set(BUILD_FOR_WIN TRUE)
   message(STATUS "Target system is Windows")
- else()
-  set(BUILD_FOR_WIN FALSE)
- endif()
-
- option(STATIC_BUILD "Build a static binary." ${BUILD_FOR_WIN})
-
-  if (STATIC_BUILD)
-    message(STATUS "Static Build")
+  message(STATUS "Static Build")
             # Force find commands to search only the target environment packages
 #            set(CMAKE_FIND_ROOT_PATH /usr/x86_64-w64-mingw32) # Standard MinGW sysroot directory
 #            set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
@@ -182,7 +173,6 @@ endif()
             # include plugins into static build on windows
             # (we lack support for static on other platforms right now)
             set(QT_PLUGINS SvgIcon WindowsIntegration WindowsVistaStyle)
-    endif()
  endif()
 
 #dialect: 'f95’, ‘f2003’, ‘f2008’, ‘f2018’, ‘f2023’, ‘gnu’, or ‘legacy’.
