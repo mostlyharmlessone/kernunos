@@ -693,5 +693,18 @@ END FUNCTION Rzern
  endif
 END FUNCTION zernfct
 
+!https://community.intel.com/t5/Intel-Fortran-Compiler/integer-to-character-string/m-p/1322578
+function integerTOcharacter(num) result(charnum)
+implicit none
+integer num, i, num2,k
+character*1 charnum(5), dummy
+num2 = num
+do i=1,5
+ k = mod(num2,10)
+ charnum(6-i) = char(48+k)
+ num2 = (num2-k)/10
+end do
+end function integerTOcharacter
+
 END MODULE special_fct
 

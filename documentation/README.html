@@ -97,7 +97,7 @@ Open the CmakeLists.txt as a Project in QtCreator, configure and build. </p>
 <p>Alternatively, the usual command line build should work:</p>
 <pre><code>mkdir build (if not already present)
 cd build
-cmake ../
+cmake ../ (optionally cmake -DCMAKE_Fortran_FLAGS=&quot;-D__UNIX__&quot; ../)
 make
 </code></pre><p>These lines need to be uncommented in CMakeLists.txt</p>
 <pre><code>set(CMAKE_HOST_NAME Linux)
@@ -120,7 +120,7 @@ set(CMAKE_HOST_NAME Linux)
 set(CMAKE_SYSTEM UNIX)
 </code></pre><p>and the corresponding Darwin variables commented out.<br></p>
 <p>Alternatively at the command line: (your Windows environment and path may differ)</p>
-<pre><code>cmake -DASSIMP_WARNINGS_AS_ERRORS=OFF -DASSIMP_BUILD_TESTS=off -G &quot;MinGW Makefiles&quot; ../
+<pre><code>cmake -DCMAKE_Fortran_FLAGS=&quot;-D__WIN32__&quot; -DASSIMP_WARNINGS_AS_ERRORS=OFF -DASSIMP_BUILD_TESTS=off -G &quot;MinGW Makefiles&quot; ../
 mingw32-make
 </code></pre><p>change FC, CC, CXX and other environment vars to use gcc to overrride Qt/OS defaults ie.:</p>
 <pre><code>export FC=&quot;/c/Qt/Tools/mingw1310_64/bin/gfortran&quot;&lt;br&gt;

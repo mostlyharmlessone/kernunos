@@ -2147,7 +2147,7 @@ SUBROUTINE rcnvrta(KXNAME,N,read_error)
  LOGICAL :: exists
  CHARACTER(80) KH1,KH2,KH3
  CHARACTER(len=*), INTENT(IN) :: KXNAME
- CHARACTER(128) :: floatf,floatg,integerj
+ CHARACTER(len=32) :: floatf,floatg,integerj
  INTEGER, INTENT(IN) :: N
  INTEGER, INTENT(OUT) :: read_error
  INTEGER :: K,I,J,io,ITH,JTH,unitno,MM,ierr
@@ -2298,7 +2298,7 @@ SUBROUTINE rcnvrta(KXNAME,N,read_error)
           READ(unitno,*,END=100,IOSTAT=io) KH1,KH2
           READ(unitno,*,END=100,IOSTAT=io) KH1,I,Z
           JMatrix%ZC0(1,7)=Z
-          DO K=1,JTH
+          DO ITH=1,JTH
            READ(unitno,*,END=100,IOSTAT=io) KH1,I,J,Z
 !          only store the 4th order Zernikes at this point for display, uncomment to write all to log
 !          WRITE(*,*) trim(KH1),I,J,Z
@@ -2322,13 +2322,8 @@ SUBROUTINE rcnvrta(KXNAME,N,read_error)
        
       END DO
 !      FINISHED READING ATLAS FILE
-      write(integerj, '(i0)') K
-100   call LogC("Read " // trim(integerj) // " lines in " // trim(KXNAME) // c_null_char)
-
-write(*,*) 'Read G',K,"io_functions ",__LINE__
-write(*,*) "integerj",integerj
-write(*,*) "trim(integerj)",trim(integerj)
-
+100   write(integerj, '(I0)') K
+      call LogC("Read " // integerj // " lines in " // trim(KXNAME) // c_null_char)
       CLOSE (unitno)
       else
        print*, "Error ", ierr ," attempting to open Atlas file ", trim(KXNAME)

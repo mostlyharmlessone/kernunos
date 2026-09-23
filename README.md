@@ -120,7 +120,7 @@ Alternatively, the usual command line build should work:
 ```
 mkdir build (if not already present)
 cd build
-cmake ../
+cmake ../ (optionally cmake -DCMAKE_Fortran_FLAGS="-D__UNIX__" ../)
 make
 ```
 These lines need to be uncommented in CMakeLists.txt
@@ -155,7 +155,7 @@ and the corresponding Darwin variables commented out.<br>
 
 Alternatively at the command line: (your Windows environment and path may differ)
 ```
-cmake -DASSIMP_WARNINGS_AS_ERRORS=OFF -DASSIMP_BUILD_TESTS=off -G "MinGW Makefiles" ../
+cmake -DCMAKE_Fortran_FLAGS="-D__WIN32__" -DASSIMP_WARNINGS_AS_ERRORS=OFF -DASSIMP_BUILD_TESTS=off -G "MinGW Makefiles" ../
 mingw32-make 
 ```
 change FC, CC, CXX and other environment vars to use gcc to overrride Qt/OS defaults ie.:

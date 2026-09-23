@@ -405,9 +405,9 @@ write(*,*) "gnusplot plot"
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
 #endif
 #endif
-!   call execute_command_line(trim(new_file), exitstat=i)
+   call execute_command_line(trim(new_file), exitstat=i)
 write(*,*) "trying  a  pause"
-      call execute_command_line("pause", exitstat=i)
+!      call execute_command_line("pause", exitstat=i)
   return
  endif ! end (mod(flag,100) == 5)
 
@@ -1891,10 +1891,10 @@ if (TestData .eq. 1) then
   if (file_idx .ne. 0) then
 #if defined (__WIN32__)
     call execute_command_line ('del ' // inputfile2, exitstat=io)
-    write (*,*) 'wtf ? macros not respected',__LINE__
+    write (*,*) 'wtf ? if NOT Windows-> or macros not respected',__LINE__
 #else
     call execute_command_line ('rm ' // inputfile2, exitstat=io)
-       if (io > 0) write (*,*) 'wtf _WIN32',__LINE__
+    write (*,*) 'wtf ? if Windows -> macros not respected',__LINE__
 #endif
    if (io > 0) write (*,*) 'system command to remove tmp file failed',__LINE__
   endif
