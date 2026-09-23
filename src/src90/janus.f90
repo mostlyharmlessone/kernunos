@@ -314,6 +314,9 @@ endif
 
 ! gnuplot splot output
 if (mod(flag,100) == 5 ) then
+
+write(*,*) "gnusplot plot"
+
 ! needs powmin & powmax
  if (allocated(JMatrix%R)) then
   donut = .FALSE.
@@ -389,16 +392,22 @@ if (mod(flag,100) == 5 ) then
    WRITE(unitno1,*) 'NOYTICS = "set format y ''''; unset ylabel"'
    CALL PRINTGRAPH(unitno1,POWMIN,POWMAX,BigPlot)
    CLOSE (unitno1)
-#if defined  (__APPLE__)
+#if defined (__APPLE__)
 #if defined(__aarch64__)
    write(new_file,*) "/opt/homebrew/bin/gnuplot -p " // trim(gnu_instruct)
 #else
    write(new_file,*) "/usr/local/bin/gnuplot -p " // trim(gnu_instruct)
 #endif
 #else
+#if defined (__WIN32__)
+   write(new_file,*) "c:/Program Files/gnuplot/bin/gnuplot -p" // trim(gnu_instruct)
+#else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
 #endif
-   call execute_command_line(trim(new_file), exitstat=i)
+#endif
+!   call execute_command_line(trim(new_file), exitstat=i)
+write(*,*) "trying  a  pause"
+      call execute_command_line("pause", exitstat=i)
   return
  endif ! end (mod(flag,100) == 5)
 
@@ -1855,12 +1864,13 @@ if (TestData .eq. 1) then
      write (*,*) 'temp Atlas file read error, probably not because semicolon delimited'
      file_idx=index(inputfile2, ".TMP")
      if (file_idx .ne. 0) then
-#ifdef _WIN32
+#if defined (__WIN32__)
     call execute_command_line ('del ' // inputfile2, exitstat=io)
 #else
     call execute_command_line ('rm ' // inputfile2, exitstat=io)
+
 #endif
-      if (io > 0) write (*,*) 'system command to remove tmp file failed'
+      if (io > 0) write (*,*) 'system command to remove tmp file failed',__LINE__
      endif
      err_janus=read_error*100
      return
@@ -1879,12 +1889,14 @@ if (TestData .eq. 1) then
   err_janus=read_error*100
   file_idx=index(inputfile2, ".TMP")
   if (file_idx .ne. 0) then
-#ifdef _WIN32
+#if defined (__WIN32__)
     call execute_command_line ('del ' // inputfile2, exitstat=io)
+    write (*,*) 'wtf ? macros not respected',__LINE__
 #else
     call execute_command_line ('rm ' // inputfile2, exitstat=io)
+       if (io > 0) write (*,*) 'wtf _WIN32',__LINE__
 #endif
-   if (io > 0) write (*,*) 'system command to remove tmp file failed'
+   if (io > 0) write (*,*) 'system command to remove tmp file failed',__LINE__
   endif
   call CPU_TIME(time_end)
   write(*,*) 'Time to read Atlas CSV file: ',(time_end-time_start)*1000
@@ -2791,7 +2803,11 @@ end do
 ! only make a plot if there's data
 if (ABS(zern(13)-zern(14)) > EPS) then
 unitno1 = get_new_fileunit()
-open(unitno1, file = "/tmp/zernike.tmp", action="write", iostat=ierr, RECL=1024)
+#if defined (__WIN32__)
+ open(unitno1, file = "%TEMP%/zernike.tmp", action="write", iostat=ierr, RECL=1024)
+#else
+ open(unitno1, file = "/tmp/zernike.tmp", action="write", iostat=ierr, RECL=1024)
+#endif
  write(unitno1,*) "set term qt 1 font 'Arial' title 'Zernike Coefficients'"
  write(unitno1,*) "reset session"
  write(unitno1,'(A)') "$Data << EOD"                !no leading spaces or gnuplot vomits
@@ -2884,7 +2900,11 @@ open(unitno1, file = "/tmp/zernike.tmp", action="write", iostat=ierr, RECL=1024)
    write(new_file,*) "/usr/local/bin/gnuplot -p " // "/tmp/zernike.tmp"
 #endif
 #else
+#if defined (__WIN32__)
+   write(new_file,*) "gnuplot -p " // "%TEMP%/zernike.tmp"
+#else
    write(new_file,*) "gnuplot -p " // "/tmp/zernike.tmp"
+#endif
 #endif
 ! dumps a local copy
 ! call execute_command_line("cp /tmp/zernike.tmp zern.tmp", exitstat=i)

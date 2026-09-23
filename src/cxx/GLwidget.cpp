@@ -275,17 +275,17 @@ void GLwidget::cleanup()
   //deallocates Fortran arrays
   flag=flag-(flag%100)+99;  // last two digits of flag = 99;
 //  std::cout << "flag in cleanup: " << flag << "\n";
-  #ifdef _WIN32  //use %temp% here?
-  system("type nul >> /tmp/zernike.tmp");
-  system("type nul >> /tmp/gnu_tmp.tmp");
-  system("del /tmp/zernike.tmp");
-  system("del /tmp/gnu_tmp.*");
-  #else
+#ifdef _WIN32
+  system("type nul >> %TEMP%zernike.tmp");
+  system("type nul >> %TEMP%gnu_tmp.tmp");
+  system("del %TEMP%/zernike.tmp");
+  system("del %TEMP%/gnu_tmp.*");
+#else
   system("touch /tmp/zernike.tmp");
   system("touch /tmp/gnu_tmp.tmp");
   system("rm /tmp/zernike.tmp");
   system("rm /tmp/gnu_tmp.*");
-  #endif
+#endif
   doneCurrent();
 }
 

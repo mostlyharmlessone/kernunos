@@ -1158,7 +1158,7 @@ void MainWindow::zerncompute()
 #ifdef _WIN32
     if (system(NULL)) puts (" shell available");
     else exit (EXIT_FAILURE);
-    if(system("cmd -v gnuplot > NUL 2>&1") ){
+    if(system("cmd -v \"c:/Program Files/gnuplot/bin/gnuplot\" > NUL 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
         errorMessageDialog->showMessage(tr("gnuplot command is not available"));
         return;
@@ -1193,7 +1193,11 @@ void MainWindow::zerncompute()
 #endif
 #endif
 
+#ifdef _WIN32
+    QTemporaryFile FILE("%TEMP%/gnu_tmp");
+#else
     QTemporaryFile FILE("/tmp/gnu_tmp");
+#endif
     if(!FILE.open()) return;
     QString filenamelocal = FILE.fileName();
     filenamelocal = filenamelocal.append(".gnu");
@@ -1246,7 +1250,7 @@ void MainWindow::showzern()
 #ifdef _WIN32
     if (system(NULL)) puts (" shell available");
     else exit (EXIT_FAILURE);
-    if(system("cmd -v gnuplot > NUL 2>&1") ){
+    if(system("cmd -v \"c:/Program Files/gnuplot/bin/gnuplot\" > NUL 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
         errorMessageDialog->showMessage(tr("gnuplot command is not available"));
         return;
@@ -1281,7 +1285,11 @@ void MainWindow::showzern()
 #endif
 #endif
 
+#ifdef _WIN32
+    QTemporaryFile FILE("%TEMP%/gnu_tmp");
+#else
     QTemporaryFile FILE("/tmp/gnu_tmp");
+#endif
     if(!FILE.open()) return;
     QString filenamelocal = FILE.fileName();
     filenamelocal = filenamelocal.append(".gnu");
@@ -1302,7 +1310,12 @@ void MainWindow::showzern()
 
 void MainWindow::importexport(){
     //make temporary PLY file name
+
+#ifdef _WIN32
+    QTemporaryFile FILE("%TEMP%/gnu_tmp");
+#else
     QTemporaryFile FILE("/tmp/gnu_tmp");
+#endif
     if(!FILE.open()) return;
     QString filenamelocal = FILE.fileName();
     filenamelocal = filenamelocal.append(".ply");
@@ -1528,7 +1541,12 @@ void MainWindow::ply2bin(){
     std::cout << "temporary file name: " << filenamelocal << '\n';
     const char *filename = filenamelocal.c_str();
     */
+
+#ifdef _WIN32
+    QTemporaryFile FILE("%TEMP%/gnu_tmp");
+#else
     QTemporaryFile FILE("/tmp/gnu_tmp");
+#endif
     if(!FILE.open()) return;
     QString filenamelocal = FILE.fileName();
     filenamelocal = filenamelocal.append(".ply");
@@ -1560,7 +1578,12 @@ void MainWindow::off2stl(){
     std::cout << "temporary file name: " << filenamelocal << '\n';
     const char *filename = filenamelocal.c_str();
     */
-   QTemporaryFile FILE("/tmp/gnu_tmp");
+
+#ifdef _WIN32
+    QTemporaryFile FILE("%TEMP%/gnu_tmp");
+#else
+    QTemporaryFile FILE("/tmp/gnu_tmp");
+#endif
    FILE.setAutoRemove(true);  //doesnt do anything that I can see
    if(!FILE.open()) return;
    QString filenamelocal = FILE.fileName();
@@ -1678,7 +1701,12 @@ void MainWindow::makesave2(){
 }
 
 void MainWindow::LinesofCurvature() {
+
+#ifdef _WIN32
+    QTemporaryFile FILE("%TEMP%/gnu_tmp");
+#else
     QTemporaryFile FILE("/tmp/gnu_tmp");
+#endif
     if(!FILE.open()) return;
     QString filenamelocal = FILE.fileName();
     filenamelocal = filenamelocal.append(".car");
@@ -1702,7 +1730,7 @@ void MainWindow::gnuplotsplot() {
 #ifdef _WIN32
     if (system(NULL)) puts (" shell available");
     else exit (EXIT_FAILURE);
-    if(system("cmd -v gnuplot > NUL 2>&1") ){
+    if(system("where gnuplot > NUL 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
         errorMessageDialog->showMessage(tr("gnuplot command is not available"));
         return;
@@ -1737,7 +1765,11 @@ void MainWindow::gnuplotsplot() {
 #endif
 #endif
 
-   QTemporaryFile FILE("/tmp/gnu_tmp");
+#ifdef _WIN32
+    QTemporaryFile FILE("%TEMP%/gnu_tmp");
+#else
+    QTemporaryFile FILE("/tmp/gnu_tmp");
+#endif
    FILE.setAutoRemove(true);  //does not do anything
    if(!FILE.open()) return;
    QString filenamelocal = FILE.fileName();
@@ -1762,7 +1794,7 @@ void MainWindow::center() {
 #ifdef _WIN32
     if (system(NULL)) puts (" shell available");
     else exit (EXIT_FAILURE);
-    if(system("cmd -v gnuplot > NUL 2>&1") ){
+    if(system("cmd -v \"c:/Program Files/gnuplot/bin/gnuplot\" > NUL 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
         errorMessageDialog->showMessage(tr("gnuplot command is not available"));
         return;
@@ -1797,7 +1829,11 @@ void MainWindow::center() {
 #endif
 #endif
 
-   QTemporaryFile FILE("/tmp/gnu_tmp");
+#ifdef _WIN32
+    QTemporaryFile FILE("%TEMP%/gnu_tmp");
+#else
+    QTemporaryFile FILE("/tmp/gnu_tmp");
+#endif
    FILE.setAutoRemove(true);  //does not do anything
    if(!FILE.open()) return;
    QString filenamelocal = FILE.fileName();
@@ -1822,7 +1858,7 @@ void MainWindow::rings() {
 #ifdef _WIN32
     if (system(NULL)) puts (" shell available");
     else exit (EXIT_FAILURE);
-    if(system("cmd -v gnuplot > NUL 2>&1") ){
+    if(system("cmd -v \"c:/Program Files/gnuplot/bin/gnuplot\" > NUL 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
         errorMessageDialog->showMessage(tr("gnuplot command is not available"));
         return;
@@ -1857,7 +1893,11 @@ void MainWindow::rings() {
 #endif
 #endif
 
+#ifdef _WIN32
+    QTemporaryFile FILE("%TEMP%/gnu_tmp");
+#else
     QTemporaryFile FILE("/tmp/gnu_tmp");
+#endif
     if(!FILE.open()) return;
     QString filenamelocal = FILE.fileName();
     filenamelocal = filenamelocal.append(".gnu");
@@ -3441,8 +3481,9 @@ int main(int argc, char *argv[])
     window.grabGesture(Qt::PanGesture);
     window.grabGesture(Qt::PinchGesture);
     }
+    return app.exec();
     fclose(fpstd);
     fclose(fperr);
-    return app.exec();
+    return 0;
 }
 

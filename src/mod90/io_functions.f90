@@ -2147,7 +2147,7 @@ SUBROUTINE rcnvrta(KXNAME,N,read_error)
  LOGICAL :: exists
  CHARACTER(80) KH1,KH2,KH3
  CHARACTER(len=*), INTENT(IN) :: KXNAME
- CHARACTER(32) :: floatf,floatg,integerj
+ CHARACTER(128) :: floatf,floatg,integerj
  INTEGER, INTENT(IN) :: N
  INTEGER, INTENT(OUT) :: read_error
  INTEGER :: K,I,J,io,ITH,JTH,unitno,MM,ierr
@@ -2256,7 +2256,7 @@ SUBROUTINE rcnvrta(KXNAME,N,read_error)
           READ(unitno,*,IOSTAT=io) KH1,Atlas%Pupil_Center(2)
           write(floatf, '(g0)') Atlas%Pupil_Center(1)
           write(floatg, '(g0)') Atlas%Pupil_Center(2)
-          call LogC("Pupil Center: "//floatf//" "//floatg//c_null_char)
+          call LogC("Pupil Center: "// trim(floatf) //" "// trim(floatg) //c_null_char)
           READ(unitno,'(A)',END=100,IOSTAT=io) KH1
           READ(unitno,'(A)',END=100,IOSTAT=io) KH1
           READ(unitno,'(A)',END=100,IOSTAT=io) KH1
@@ -2323,7 +2323,12 @@ SUBROUTINE rcnvrta(KXNAME,N,read_error)
       END DO
 !      FINISHED READING ATLAS FILE
       write(integerj, '(i0)') K
-100   call LogC("'Read "//integerj//" lines in "//trim(KXNAME)//c_null_char)
+100   call LogC("Read " // trim(integerj) // " lines in " // trim(KXNAME) // c_null_char)
+
+write(*,*) 'Read G',K,"io_functions ",__LINE__
+write(*,*) "integerj",integerj
+write(*,*) "trim(integerj)",trim(integerj)
+
       CLOSE (unitno)
       else
        print*, "Error ", ierr ," attempting to open Atlas file ", trim(KXNAME)
