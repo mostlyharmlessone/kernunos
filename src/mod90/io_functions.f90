@@ -1053,38 +1053,43 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
        file_idx1=index(semicolon1, ".TMP")
        call LogC("Erasing semicolonless tmp file "//trim(semicolon1)//c_null_char)
        if (file_idx1 .ne. 0) then
-
+        inquire(file=trim(semicolon1), exist=exists)
+        if(exists) then
 #ifdef _WIN32
-        call execute_command_line ('del ' // semicolon1, exitstat=io)
+         semicolon1=replacestr(string=semicolon1,search="/",substitute="\")
+         call execute_command_line ('del ' // '"' // trim(semicolon1) // '"', exitstat=io)
 #else
-        call execute_command_line ('rm ' // semicolon1, exitstat=io)
+         call execute_command_line ('rm ' // semicolon1, exitstat=io)
 #endif
-        if (io > 0) then
-         write (*,*) 'failed system command to remove tmp file',semicolon1
-         read_error=12
-         if (allocated(ZX)) deallocate(ZX,YX)
-         if (allocated(semicolon1)) deallocate(semicolon1)
-         if (allocated(semicolon2)) deallocate(semicolon2)
-         return
+         if (io > 0) then
+          write (*,*) 'failed system command to remove tmp file',semicolon1
+          read_error=12
+          if (allocated(ZX)) deallocate(ZX,YX)
+          if (allocated(semicolon1)) deallocate(semicolon1)
+          if (allocated(semicolon2)) deallocate(semicolon2)
+          return
+         endif
         endif
        endif
        file_idx2=index(semicolon2, ".TMP")
        call LogC("Erasing semicolonless tmp file "//trim(semicolon2)//c_null_char)
        if (file_idx2 .ne. 0) then
-
+       inquire(file=trim(semicolon2), exist=exists)
+        if(exists) then
 #ifdef _WIN32
-        call execute_command_line ('del ' // semicolon2, exitstat=io)
+         semicolon2=replacestr(string=semicolon2,search="/",substitute="\")
+         call execute_command_line ('del ' // '"' // trim(semicolon2) // '"', exitstat=io)
 #else
-        call execute_command_line ('rm ' // semicolon2, exitstat=io)
+         call execute_command_line ('rm ' // semicolon2, exitstat=io)
 #endif
-
-        if (io > 0) then
-         write (*,*) 'failed system command to remove tmp file',semicolon2
-         read_error=12
-         if (allocated(ZX)) deallocate(ZX,YX)
-         if (allocated(semicolon1)) deallocate(semicolon1)
-         if (allocated(semicolon2)) deallocate(semicolon2)
-         return
+         if (io > 0) then
+          write (*,*) 'failed system command to remove tmp file',semicolon2
+          read_error=12
+          if (allocated(ZX)) deallocate(ZX,YX)
+          if (allocated(semicolon1)) deallocate(semicolon1)
+          if (allocated(semicolon2)) deallocate(semicolon2)
+          return
+         endif
         endif
        endif
       else
@@ -1192,17 +1197,21 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
       file_idx2=index(semicolon2, ".TMP")
       call LogC("Erasing semicolonless tmp file"//trim(semicolon2)//c_null_char)
       if (file_idx2 .ne. 0) then
+       inquire(file=trim(semicolon2), exist=exists)
+       if(exists) then
 #ifdef _WIN32
-        call execute_command_line ('del ' // semicolon2, exitstat=io)
+        semicolon2=replacestr(string=semicolon2,search="/",substitute="\")
+        call execute_command_line ('del ' // '"' // trim(semicolon2) // '"', exitstat=io)
 #else
-        call execute_command_line ('rm ' // semicolon2, exitstat=io)
+        call execute_command_line ('rm ' // trim(semicolon2), exitstat=io)
 #endif
-       if (io > 0) then
-        write (*,*) 'failed system command to remove tmp file',semicolon2
-        read_error=12
-        if (allocated(semicolon1)) deallocate(semicolon1)
-        if (allocated(semicolon2)) deallocate(semicolon2)
-        return
+        if (io > 0) then
+         write (*,*) 'failed system command to remove tmp file',semicolon2
+         read_error=12
+         if (allocated(semicolon1)) deallocate(semicolon1)
+         if (allocated(semicolon2)) deallocate(semicolon2)
+         return
+        endif
        endif
       endif
     else

@@ -276,10 +276,21 @@ void GLwidget::cleanup()
   flag=flag-(flag%100)+99;  // last two digits of flag = 99;
 //  std::cout << "flag in cleanup: " << flag << "\n";
 #ifdef _WIN32
-  system("type nul >> %TEMP%zernike.tmp");
-  system("type nul >> %TEMP%gnu_tmp.tmp");
-  system("del %TEMP%/zernike.tmp");
-  system("del %TEMP%/gnu_tmp.*");
+  QString temp_path = QDir::tempPath();
+  QString command = "type nul >> " + temp_path + "\\zernike.tmp";
+  int io = system(command.toStdString().c_str());
+  if (io > 0) std::cout << "Error GLwidget line:" << __LINE__ << std::endl;
+  command = "type nul >> " + temp_path + "\\gnu_tmp.tmp";
+  io = system(command.toStdString().c_str());
+  if (io > 0) std::cout << "Error GLwidget line:" << __LINE__ << std::endl;
+  command = "del \"" + temp_path + "\\zernike.tmp\" ";
+  io = system(command.toStdString().c_str());
+  if (io > 0) {std::cout << "Error GLwidget line:" << __LINE__ << std::endl;
+               std::cout <<   command.toStdString().c_str() <<std::endl; }
+  command = "del \"" + temp_path + "\\gnu_tmp.*\" ";
+  io = system(command.toStdString().c_str());
+  if (io > 0) {std::cout << "Error GLwidget line:" << __LINE__ << std::endl;
+               std::cout <<   command.toStdString().c_str() <<std::endl; }
 #else
   system("touch /tmp/zernike.tmp");
   system("touch /tmp/gnu_tmp.tmp");
@@ -297,8 +308,8 @@ void GLwidget::initializeGL()
   GLint major = 0, minor = 0;
   glGetIntegerv(GL_MAJOR_VERSION, &major);
   glGetIntegerv(GL_MINOR_VERSION, &minor);
-  if (major*100 + minor*10 < 330) {
-      std::cout << "Kernunos needs GLSL 3.30 or greater " << std::endl;
+  if (major*100 + minor*10 < 410) {
+      std::cout << "Kernunos needs GLSL 4.10 or greater " << std::endl;
       cleanup();
       QWidget::close();
       std::exit(0);  // not the cleanest exit

@@ -1156,9 +1156,9 @@ void MainWindow::zerncompute()
 {
 
 #ifdef _WIN32
-    if (system(NULL)) puts (" shell available");
+    if (system(NULL)) puts ("command shell available");
     else exit (EXIT_FAILURE);
-    if(system("cmd -v \"c:/Program Files/gnuplot/bin/gnuplot\" > NUL 2>&1") ){
+    if(system("where gnuplot > NUL 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
         errorMessageDialog->showMessage(tr("gnuplot command is not available"));
         return;
@@ -1166,7 +1166,7 @@ void MainWindow::zerncompute()
 #else
 #ifdef __APPLE__
 #ifdef __aarch64__
-    if (system(NULL)) puts (" shell available");
+    if (system(NULL)) puts ("command shell available");
     else exit (EXIT_FAILURE);
     if(system("command -v /opt/homebrew/bin/gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
@@ -1174,7 +1174,7 @@ void MainWindow::zerncompute()
         return;
     }
 #else
-    if (system(NULL)) puts (" shell available");
+    if (system(NULL)) puts ("command shell available");
     else exit (EXIT_FAILURE);
     if(system("command -v /usr/local/bin/gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
@@ -1183,7 +1183,7 @@ void MainWindow::zerncompute()
     }
 #endif
 #else
-    if (system(NULL)) puts (" shell available");
+    if (system(NULL)) puts ("command shell available");
     else exit (EXIT_FAILURE);
     if(system("command -v gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
@@ -1194,7 +1194,9 @@ void MainWindow::zerncompute()
 #endif
 
 #ifdef _WIN32
-    QTemporaryFile FILE("%TEMP%/gnu_tmp");
+    QString temp_path = QDir::tempPath();
+    temp_path = temp_path + "/gnu_tmp";
+    QTemporaryFile FILE(temp_path);
 #else
     QTemporaryFile FILE("/tmp/gnu_tmp");
 #endif
@@ -1219,8 +1221,8 @@ void MainWindow::zerncompute()
 #ifdef _WIN32
     // For Windows, prompt for a keystroke before the Gnuplot object goes out of scope so that
     // the gnuplot window doesn't get closed.
-    std::cout << "Press enter to exit." << std::endl;
-    std::cin.get();
+//    std::cout << "Press enter to exit." << std::endl;
+//    std::cin.get();
 #endif
 
     Z44VerticalQuatrafoilAct->setEnabled(true);
@@ -1248,9 +1250,9 @@ void MainWindow::showzern()
 {
 
 #ifdef _WIN32
-    if (system(NULL)) puts (" shell available");
+    if (system(NULL)) puts ("command shell available");
     else exit (EXIT_FAILURE);
-    if(system("cmd -v \"c:/Program Files/gnuplot/bin/gnuplot\" > NUL 2>&1") ){
+    if(system("where gnuplot > NUL 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
         errorMessageDialog->showMessage(tr("gnuplot command is not available"));
         return;
@@ -1258,7 +1260,7 @@ void MainWindow::showzern()
 #else
 #ifdef __APPLE__
 #ifdef __aarch64__
-    if (system(NULL)) puts (" shell available");
+    if (system(NULL)) puts ("command shell available");
     else exit (EXIT_FAILURE);
     if(system("command -v /opt/homebrew/bin/gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
@@ -1266,7 +1268,7 @@ void MainWindow::showzern()
         return;
     }
 #else
-    if (system(NULL)) puts (" shell available");
+    if (system(NULL)) puts ("command shell available");
     else exit (EXIT_FAILURE);
     if(system("command -v /usr/local/bin/gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
@@ -1275,7 +1277,7 @@ void MainWindow::showzern()
     }
 #endif
 #else
-    if (system(NULL)) puts (" shell available");
+    if (system(NULL)) puts ("command shell available");
     else exit (EXIT_FAILURE);
     if(system("command -v gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
@@ -1286,7 +1288,9 @@ void MainWindow::showzern()
 #endif
 
 #ifdef _WIN32
-    QTemporaryFile FILE("%TEMP%/gnu_tmp");
+    QString temp_path = QDir::tempPath();
+    temp_path = temp_path + "/gnu_tmp";
+    QTemporaryFile FILE(temp_path);
 #else
     QTemporaryFile FILE("/tmp/gnu_tmp");
 #endif
@@ -1301,8 +1305,8 @@ void MainWindow::showzern()
 #ifdef _WIN32
     // For Windows, prompt for a keystroke before the Gnuplot object goes out of scope so that
     // the gnuplot window doesn't get closed.
-    std::cout << "Press enter to exit." << std::endl;
-    std::cin.get();
+//    std::cout << "Press enter to exit." << std::endl;
+//    std::cin.get();
 #endif
 //    ui.infoLabel->setText(tr("Invoked <b>Show Zernike</b>"));
     return;
@@ -1312,7 +1316,9 @@ void MainWindow::importexport(){
     //make temporary PLY file name
 
 #ifdef _WIN32
-    QTemporaryFile FILE("%TEMP%/gnu_tmp");
+    QString temp_path = QDir::tempPath();
+    temp_path = temp_path + "/gnu_tmp";
+    QTemporaryFile FILE(temp_path);
 #else
     QTemporaryFile FILE("/tmp/gnu_tmp");
 #endif
@@ -1543,7 +1549,9 @@ void MainWindow::ply2bin(){
     */
 
 #ifdef _WIN32
-    QTemporaryFile FILE("%TEMP%/gnu_tmp");
+    QString temp_path = QDir::tempPath();
+    temp_path = temp_path + "/gnu_tmp";
+    QTemporaryFile FILE(temp_path);
 #else
     QTemporaryFile FILE("/tmp/gnu_tmp");
 #endif
@@ -1580,7 +1588,9 @@ void MainWindow::off2stl(){
     */
 
 #ifdef _WIN32
-    QTemporaryFile FILE("%TEMP%/gnu_tmp");
+      QString temp_path = QDir::tempPath();
+      temp_path = temp_path + "/gnu_tmp";
+      QTemporaryFile FILE(temp_path);
 #else
     QTemporaryFile FILE("/tmp/gnu_tmp");
 #endif
@@ -1703,7 +1713,9 @@ void MainWindow::makesave2(){
 void MainWindow::LinesofCurvature() {
 
 #ifdef _WIN32
-    QTemporaryFile FILE("%TEMP%/gnu_tmp");
+    QString temp_path = QDir::tempPath();
+    temp_path = temp_path + "/gnu_tmp";
+    QTemporaryFile FILE(temp_path);
 #else
     QTemporaryFile FILE("/tmp/gnu_tmp");
 #endif
@@ -1728,7 +1740,7 @@ void MainWindow::LinesofCurvature() {
 void MainWindow::gnuplotsplot() {
 
 #ifdef _WIN32
-    if (system(NULL)) puts (" shell available");
+    if (system(NULL)) puts ("command shell available");
     else exit (EXIT_FAILURE);
     if(system("where gnuplot > NUL 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
@@ -1738,7 +1750,7 @@ void MainWindow::gnuplotsplot() {
 #else
 #ifdef __APPLE__
 #ifdef __aarch64__
-    if (system(NULL)) puts (" shell available");
+    if (system(NULL)) puts ("command shell available");
     else exit (EXIT_FAILURE);
     if(system("command -v /opt/homebrew/bin/gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
@@ -1746,7 +1758,7 @@ void MainWindow::gnuplotsplot() {
         return;
     }
 #else
-    if (system(NULL)) puts (" shell available");
+    if (system(NULL)) puts ("command shell available");
     else exit (EXIT_FAILURE);
     if(system("command -v /usr/local/bin/gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
@@ -1755,7 +1767,7 @@ void MainWindow::gnuplotsplot() {
     }
 #endif
 #else
-    if (system(NULL)) puts (" shell available");
+    if (system(NULL)) puts ("command shell available");
     else exit (EXIT_FAILURE);
     if(system("command -v gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
@@ -1766,7 +1778,9 @@ void MainWindow::gnuplotsplot() {
 #endif
 
 #ifdef _WIN32
-    QTemporaryFile FILE("%TEMP%/gnu_tmp");
+    QString temp_path = QDir::tempPath();
+    temp_path = temp_path + "/gnu_tmp";
+    QTemporaryFile FILE(temp_path);
 #else
     QTemporaryFile FILE("/tmp/gnu_tmp");
 #endif
@@ -1782,8 +1796,8 @@ void MainWindow::gnuplotsplot() {
 #ifdef _WIN32
    // For Windows, prompt for a keystroke before the Gnuplot object goes out of scope so that
    // the gnuplot window doesn't get closed.
-   std::cout << "Press enter to exit." << std::endl;
-   std::cin.get();
+//   std::cout << "Press enter to exit." << std::endl;
+//   std::cin.get();
 #endif
 //   ui.infoLabel->setText(tr("gnuplot called successfully  "));
    return;
@@ -1792,9 +1806,9 @@ void MainWindow::gnuplotsplot() {
 void MainWindow::center() {
 
 #ifdef _WIN32
-    if (system(NULL)) puts (" shell available");
+    if (system(NULL)) puts ("command shell available");
     else exit (EXIT_FAILURE);
-    if(system("cmd -v \"c:/Program Files/gnuplot/bin/gnuplot\" > NUL 2>&1") ){
+    if(system("where gnuplot > NUL 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
         errorMessageDialog->showMessage(tr("gnuplot command is not available"));
         return;
@@ -1802,7 +1816,7 @@ void MainWindow::center() {
 #else
 #ifdef __APPLE__
 #ifdef __aarch64__
-    if (system(NULL)) puts (" shell available");
+    if (system(NULL)) puts ("command shell available");
     else exit (EXIT_FAILURE);
     if(system("command -v /opt/homebrew/bin/gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
@@ -1810,7 +1824,7 @@ void MainWindow::center() {
         return;
     }
 #else
-    if (system(NULL)) puts (" shell available");
+    if (system(NULL)) puts ("command shell available");
     else exit (EXIT_FAILURE);
     if(system("command -v /usr/local/bin/gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
@@ -1819,7 +1833,7 @@ void MainWindow::center() {
     }
 #endif
 #else
-    if (system(NULL)) puts (" shell available");
+    if (system(NULL)) puts ("command shell available");
     else exit (EXIT_FAILURE);
     if(system("command -v gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
@@ -1830,7 +1844,9 @@ void MainWindow::center() {
 #endif
 
 #ifdef _WIN32
-    QTemporaryFile FILE("%TEMP%/gnu_tmp");
+    QString temp_path = QDir::tempPath();
+    temp_path = temp_path + "/gnu_tmp";
+    QTemporaryFile FILE(temp_path);
 #else
     QTemporaryFile FILE("/tmp/gnu_tmp");
 #endif
@@ -1846,8 +1862,8 @@ void MainWindow::center() {
 #ifdef _WIN32
    // For Windows, prompt for a keystroke before the Gnuplot object goes out of scope so that
    // the gnuplot window doesn't get closed.
-   std::cout << "Press enter to exit." << std::endl;
-   std::cin.get();
+//   std::cout << "Press enter to exit." << std::endl;
+//   std::cin.get();
 #endif
 //   ui.infoLabel->setText(tr("gnuplot called successfully  "));
    return;
@@ -1856,9 +1872,9 @@ void MainWindow::center() {
 void MainWindow::rings() {
 
 #ifdef _WIN32
-    if (system(NULL)) puts (" shell available");
+    if (system(NULL)) puts ("command shell available");
     else exit (EXIT_FAILURE);
-    if(system("cmd -v \"c:/Program Files/gnuplot/bin/gnuplot\" > NUL 2>&1") ){
+    if(system("where gnuplot > NUL 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
         errorMessageDialog->showMessage(tr("gnuplot command is not available"));
         return;
@@ -1866,7 +1882,7 @@ void MainWindow::rings() {
 #else
 #ifdef __APPLE__
 #ifdef __aarch64__
-    if (system(NULL)) puts (" shell available");
+    if (system(NULL)) puts ("command shell available");
     else exit (EXIT_FAILURE);
     if(system("command -v /opt/homebrew/bin/gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
@@ -1874,7 +1890,7 @@ void MainWindow::rings() {
         return;
     }
 #else
-    if (system(NULL)) puts (" shell available");
+    if (system(NULL)) puts ("command shell available");
     else exit (EXIT_FAILURE);
     if(system("command -v /usr/local/bin/gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
@@ -1883,7 +1899,7 @@ void MainWindow::rings() {
     }
 #endif
 #else
-    if (system(NULL)) puts (" shell available");
+    if (system(NULL)) puts ("command shell available");
     else exit (EXIT_FAILURE);
     if(system("command -v gnuplot > /dev/null 2>&1") ){
         std::cout << "'gnuplot' command is not available.\n";
@@ -1894,7 +1910,9 @@ void MainWindow::rings() {
 #endif
 
 #ifdef _WIN32
-    QTemporaryFile FILE("%TEMP%/gnu_tmp");
+    QString temp_path = QDir::tempPath();
+    temp_path = temp_path + "/gnu_tmp";
+    QTemporaryFile FILE(temp_path);
 #else
     QTemporaryFile FILE("/tmp/gnu_tmp");
 #endif
@@ -1909,8 +1927,8 @@ void MainWindow::rings() {
 #ifdef _WIN32
     // For Windows, prompt for a keystroke before the Gnuplot object goes out of scope so that
     // the gnuplot window doesn't get closed.
-    std::cout << "Press enter to exit." << std::endl;
-    std::cin.get();
+//    std::cout << "Press enter to exit." << std::endl;
+//    std::cin.get();
 #endif
 //    ui.infoLabel->setText(tr("gnuplot called successfully  "));
     return;

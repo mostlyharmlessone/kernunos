@@ -57,6 +57,15 @@
   INTEGER(c_int) :: periodcount
   INTEGER(c_int64_t), parameter :: zero_int64 = 0
   CHARACTER(32) :: floata, floatb
+  CHARACTER(1024) :: temp_path
+  INTEGER :: path_length, path_status
+
+  call get_environment_variable("temp", temp_path, path_length, path_status)
+
+  if (path_status .ne. 0) then
+   write(*,*) "Couldn't get temp environment, trying current path..."
+   temp_path="./"
+  end if
 
 err_janus = 0 ; error_report = 0 ;
 if (loaded_files .le. 0) loaded_files = 0
@@ -115,6 +124,24 @@ map=mod((flag-mod(flag,100))/100,100)  ! last two digits color map functions
 ! iflag =100 ! no integration, no centernode, LSQ, so then 10 or 0 or 100 or 110
 ! iflag =110 ! no integration, centernode, LSQ, so then 10 or 0 or 100 or 110
 ! iflag =111 ! integration, centernode, LSQ, so then 10 or 0 or 100 or 110
+
+! Just check once
+if (loaded_files .le. 1 .and. mod(flag,100) == 0) then
+   call LogC("Verifying the Fortran preprocessor macros are correct: " // c_null_char)
+#if defined (__APPLE__)
+#if defined(__aarch64__)
+   call LogC("APPLE M (arch64) preprocessor macros" // c_null_char)
+#else
+   call LogC("APPLE Intel (x86_64) preprocessor macros" // c_null_char)
+#endif
+#else
+#if defined (__WIN32__)
+   call LogC("Windows preprocessor macros" // c_null_char)
+#else
+   call LogC("Default (Linux) preprocessor macros" // c_null_char)
+#endif
+#endif
+endif
 
 ! mod(flag,100) == 99 Deallocate
 if (mod(flag,100) == 99) then
@@ -314,9 +341,6 @@ endif
 
 ! gnuplot splot output
 if (mod(flag,100) == 5 ) then
-
-write(*,*) "gnusplot plot"
-
 ! needs powmin & powmax
  if (allocated(JMatrix%R)) then
   donut = .FALSE.
@@ -400,14 +424,13 @@ write(*,*) "gnusplot plot"
 #endif
 #else
 #if defined (__WIN32__)
-   write(new_file,*) "c:/Program Files/gnuplot/bin/gnuplot -p" // trim(gnu_instruct)
+   write(new_file,*) " ""C:\Program Files\gnuplot\bin\gnuplot.exe "" "// "-p " // trim(gnu_instruct)
 #else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
 #endif
 #endif
-   call execute_command_line(trim(new_file), exitstat=i)
-write(*,*) "trying  a  pause"
-!      call execute_command_line("pause", exitstat=i)
+  call execute_command_line(trim(new_file), exitstat=i)
+  if (i > 0) write(*,*) "Error, janus line:",__LINE__
   return
  endif ! end (mod(flag,100) == 5)
 
@@ -459,9 +482,14 @@ DiaSlope%Zpd2 = .n. DiaSlope
    write(new_file,*) "/usr/local/bin/gnuplot -p " // trim(gnu_instruct)
 #endif
 #else
+#if defined (__WIN32__)
+   write(new_file,*) " ""C:\Program Files\gnuplot\bin\gnuplot.exe "" "// "-p " // trim(gnu_instruct)
+#else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
 #endif
+#endif
  call execute_command_line(trim(new_file), exitstat=i)
+ if (i > 0) write(*,*) "Error, janus line:",__LINE__
  BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".sag")
  call WriteCenterJ(JMatrix%SAGC0(1),JMatrix%SAGC,BigPlot)
  !instruction file
@@ -480,9 +508,14 @@ DiaSlope%Zpd2 = .n. DiaSlope
    write(new_file,*) "/usr/local/bin/gnuplot -p " // trim(gnu_instruct)
 #endif
 #else
+#if defined (__WIN32__)
+   write(new_file,*) " ""C:\Program Files\gnuplot\bin\gnuplot.exe "" "// "-p " // trim(gnu_instruct)
+#else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
 #endif
+#endif
  call execute_command_line(trim(new_file), exitstat=i)
+ if (i > 0) write(*,*) "Error, janus line:",__LINE__
  BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".int")
  call WriteCenterJ(JMatrix%INSTC0(1),JMatrix%INSTC,BigPlot)
  !instruction file
@@ -501,9 +534,14 @@ DiaSlope%Zpd2 = .n. DiaSlope
    write(new_file,*) "/usr/local/bin/gnuplot -p " // trim(gnu_instruct)
 #endif
 #else
+#if defined (__WIN32__)
+   write(new_file,*) " ""C:\Program Files\gnuplot\bin\gnuplot.exe "" "// "-p " // trim(gnu_instruct)
+#else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
+#endif)
 #endif
  call execute_command_line(trim(new_file), exitstat=i)
+ if (i > 0) write(*,*) "Error, janus line:",__LINE__
  BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".mea")
  call WriteCenterJ(JMatrix%MEANC0(1),JMatrix%MEANC,BigPlot)
  !instruction file
@@ -522,9 +560,14 @@ DiaSlope%Zpd2 = .n. DiaSlope
    write(new_file,*) "/usr/local/bin/gnuplot -p " // trim(gnu_instruct)
 #endif
 #else
+#if defined (__WIN32__)
+   write(new_file,*) " ""C:\Program Files\gnuplot\bin\gnuplot.exe "" "// "-p " // trim(gnu_instruct)
+#else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
 #endif
+#endif
  call execute_command_line(trim(new_file), exitstat=i)
+ if (i > 0) write(*,*) "Error, janus line:",__LINE__
  BigPlot=replacestr(string=gnu_instruct,search=".gnu",substitute=".mon")
  call WriteCenterJ(JMatrix%MONGEA0(1),JMatrix%MONGEA,BigPlot)
  !instruction file
@@ -543,9 +586,14 @@ DiaSlope%Zpd2 = .n. DiaSlope
    write(new_file,*) "/usr/local/bin/gnuplot -p " // trim(gnu_instruct)
 #endif
 #else
+#if defined (__WIN32__)
+   write(new_file,*) " ""C:\Program Files\gnuplot\bin\gnuplot.exe "" "// "-p " // trim(gnu_instruct)
+#else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
 #endif
+#endif
  call execute_command_line(trim(new_file), exitstat=i)
+ if (i > 0) write(*,*) "Error, janus line:",__LINE__
  return
 endif !  (mod(flag,100) == 6)
 
@@ -589,10 +637,14 @@ if (mod(flag,100) == 7) then
    write(new_file,*) "/usr/local/bin/gnuplot -p " // trim(gnu_instruct)
 #endif
 #else
+#if defined (__WIN32__)
+   write(new_file,*) " ""C:\Program Files\gnuplot\bin\gnuplot.exe "" "// "-p " // trim(gnu_instruct)
+#else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
 #endif
+#endif
  call execute_command_line(trim(new_file), exitstat=i)
-
+ if (i > 0) write(*,*) "Error, janus line:",__LINE__
 unitno1 = get_new_fileunit()
 open(unitno1, file = gnu_instruct, action="write", iostat=ierr, RECL=1024)
 WRITE(unitno1,*) 'reset'
@@ -611,9 +663,14 @@ CLOSE (unitno1)
  write(new_file,*) "/usr/local/bin/gnuplot -p " // trim(gnu_instruct)
 #endif
 #else
- write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
+#if defined (__WIN32__)
+   write(new_file,*) " ""C:\Program Files\gnuplot\bin\gnuplot.exe "" "// "-p " // trim(gnu_instruct)
+#else
+   write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
+#endif
 #endif
 call execute_command_line(trim(new_file), exitstat=i)
+if (i > 0) write(*,*) "Error, janus line:",__LINE__
 ! dumps a local copy
 !call execute_command_line("cp " // BigPlot // " BigPlot.tmp ", exitstat=i)
 unitno1 = get_new_fileunit()
@@ -635,10 +692,14 @@ CLOSE (unitno1)
  write(new_file,*) "/usr/local/bin/gnuplot -p " // trim(gnu_instruct)
 #endif
 #else
- write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
+#if defined (__WIN32__)
+   write(new_file,*) " ""C:\Program Files\gnuplot\bin\gnuplot.exe "" "// "-p " // trim(gnu_instruct)
+#else
+   write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
+#endif
 #endif
  call execute_command_line(trim(new_file), exitstat=i)
-
+ if (i > 0) write(*,*) "Error, janus line:",__LINE__
  return
 endif ! (mod(flag,100) == 7)
 
@@ -1579,18 +1640,24 @@ if (TestData .eq. 7) then
    if (cab_inputfile1 .ne. inputfile1) then
     if(allocated(cab_inputfile1)) then
      call LogC("Removing temp files"//c_null_char)  ! do not remove ZERNIKE inputfile5
-#ifdef _WIN32
-     call execute_command_line ('del ' // inputfile1, exitstat=io)
+#if defined (__WIN32__)
+     inputfile1=replacestr(string=inputfile1,search="/",substitute="\")
+     inputfile2=replacestr(string=inputfile2,search="/",substitute="\")
+     inputfile3=replacestr(string=inputfile3,search="/",substitute="\")
+     inputfile4=replacestr(string=inputfile4,search="/",substitute="\")
+     inputfile6=replacestr(string=inputfile6,search="/",substitute="\")
+     inputfile7=replacestr(string=inputfile7,search="/",substitute="\")
+     call execute_command_line ('del ' // '"' // inputfile1 // '"', exitstat=io)
      read_error=io
-     call execute_command_line ('del ' // inputfile2, exitstat=io)
+     call execute_command_line ('del ' // '"' // inputfile2 // '"', exitstat=io)
      read_error=read_error+io
-     call execute_command_line ('del ' // inputfile3, exitstat=io)
+     call execute_command_line ('del ' // '"' // inputfile3 // '"', exitstat=io)
      read_error=read_error+io
-     call execute_command_line ('del ' // inputfile4, exitstat=io)
+     call execute_command_line ('del ' // '"' // inputfile4 // '"', exitstat=io)
      read_error=read_error+io
-     call execute_command_line ('del ' // inputfile6, exitstat=io)
+     call execute_command_line ('del ' // '"' // inputfile6 // '"', exitstat=io)
      read_error=read_error+io
-     call execute_command_line ('del ' // inputfile7, exitstat=io)
+     call execute_command_line ('del ' // '"' // inputfile7 // '"', exitstat=io)
      read_error=read_error+io
 #else
      call execute_command_line ('rm ' // inputfile1, exitstat=io)
@@ -1644,7 +1711,7 @@ if (TestData .eq. 6) then
    if ( file_idx .ne. 0 )  then
     allocate(CHARACTER(nblines) :: cab_inputfile1)
     cab_inputfile1=inputfile1   
-#ifdef _WIN32
+#if defined (__WIN32__)
     call execute_command_line ('Expand.exe ' // cab_inputfile1 // ' -F:*', exitstat=io)
 #else
 #if defined  (__APPLE__)
@@ -1669,7 +1736,7 @@ if (TestData .eq. 6) then
     endif
     allocate(CHARACTER(nblines) :: cab_inputfile2)
     cab_inputfile2=inputfile2   
-#ifdef _WIN32
+#if defined (__WIN32__)
     call execute_command_line ('Expand.exe ' // cab_inputfile2 // ' -F:*', exitstat=io)
 #else
 #if defined  (__APPLE__)
@@ -1696,7 +1763,7 @@ if (TestData .eq. 6) then
     if (exists) then
      allocate(CHARACTER(nblines) :: cab_inputfile4)
      cab_inputfile4=inputfile4     
-#ifdef _WIN32
+#if defined (__WIN32__)
     call execute_command_line ('Expand.exe ' // cab_inputfile4 // ' -F:*', exitstat=io)
 #else
 #if defined  (__APPLE__)
@@ -1780,8 +1847,9 @@ if (TestData .eq. 6) then
     JMatrix%PU(i)=(EyeSys%PU(2*i-1)+EyeSys%PU(2*i))*50.
    end do
    if(allocated(cab_inputfile1)) then
-#ifdef _WIN32
-    call execute_command_line ('del ' // inputfile1, exitstat=io)
+#if defined (__WIN32__)
+     inputfile1=replacestr(string=inputfile1,search="/",substitute="\")
+     call execute_command_line ('del ' // '"' // inputfile1 // '"', exitstat=io)
 #else
     call execute_command_line ('rm ' // inputfile1, exitstat=io)
 #endif
@@ -1792,8 +1860,9 @@ if (TestData .eq. 6) then
     deallocate(cab_inputfile1)
    endif
    if(allocated(cab_inputfile2)) then
-#ifdef _WIN32
-    call execute_command_line ('del ' // inputfile2, exitstat=io)
+#if defined (__WIN32__)
+     inputfile2=replacestr(string=inputfile2,search="/",substitute="\")
+     call execute_command_line ('del ' // '"' // inputfile2 // '"', exitstat=io)
 #else
     call execute_command_line ('rm ' // inputfile2, exitstat=io)
 #endif
@@ -1804,8 +1873,9 @@ if (TestData .eq. 6) then
     deallocate(cab_inputfile2)
    endif
    if(allocated(cab_inputfile4)) then
-#ifdef _WIN32
-    call execute_command_line ('del ' // inputfile4, exitstat=io)
+#if defined (__WIN32__)
+     inputfile4=replacestr(string=inputfile4,search="/",substitute="\")
+     call execute_command_line ('del ' // '"' // inputfile4 // '"', exitstat=io)
 #else
     call execute_command_line ('rm ' // inputfile4, exitstat=io)
 #endif
@@ -1865,12 +1935,13 @@ if (TestData .eq. 1) then
      file_idx=index(inputfile2, ".TMP")
      if (file_idx .ne. 0) then
 #if defined (__WIN32__)
-    call execute_command_line ('del ' // inputfile2, exitstat=io)
+     inputfile2=replacestr(string=inputfile2,search="/",substitute="\")
+     call execute_command_line ('del ' // '"' // inputfile2 // '"', exitstat=io)
 #else
     call execute_command_line ('rm ' // inputfile2, exitstat=io)
-
 #endif
-      if (io > 0) write (*,*) 'system command to remove tmp file failed',__LINE__
+      if (io > 0) write (*,*) 'system command to remove tmp file failed: ',inputfile2
+      if (io > 0) write (*,*) 'janus',__LINE__
      endif
      err_janus=read_error*100
      return
@@ -1888,15 +1959,18 @@ if (TestData .eq. 1) then
   call RCNVRTA(inputfile2,N,read_error)
   err_janus=read_error*100
   file_idx=index(inputfile2, ".TMP")
-  if (file_idx .ne. 0) then
+  if (file_idx .ne. 0 ) then
+   inquire(file=trim(inputfile2), exist=exists)
+   if(exists) then
 #if defined (__WIN32__)
-    call execute_command_line ('del ' // inputfile2, exitstat=io)
-    write (*,*) 'wtf ? if NOT Windows-> or macros not respected',__LINE__
+    inputfile2=replacestr(string=inputfile2,search="/",substitute="\")
+    call execute_command_line ('del ' // '"' // inputfile2 // '"', exitstat=io)
 #else
     call execute_command_line ('rm ' // inputfile2, exitstat=io)
-    write (*,*) 'wtf ? if Windows -> macros not respected',__LINE__
 #endif
-   if (io > 0) write (*,*) 'system command to remove tmp file failed',__LINE__
+   if (io > 0) write (*,*) 'system command to remove tmp file failed: ',trim(inputfile2)
+   if (io > 0) write (*,*) 'janus',__LINE__
+   endif
   endif
   call CPU_TIME(time_end)
   write(*,*) 'Time to read Atlas CSV file: ',(time_end-time_start)*1000
@@ -2106,9 +2180,14 @@ if (TestData .eq. 1) then
    write(new_file,*) "/usr/local/bin/gnuplot -p " // trim(gnu_instruct)
 #endif
 #else
+#if defined (__WIN32__)
+   write(new_file,*) " ""C:\Program Files\gnuplot\bin\gnuplot.exe "" "// "-p " // trim(gnu_instruct)
+#else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
 #endif
+#endif
     call execute_command_line(trim(new_file), exitstat=i)
+    if (i > 0) write(*,*) "Error, janus line:",__LINE__
     if (btest(dat, 4) .or. btest(dat, 3)) then
      RadSlope=Atlas
      Atlas=AtlasSave  ! restore Atlas after using it to show rings
@@ -2178,9 +2257,14 @@ if (TestData .eq. 0 .or. TestData .eq. 6) then
    write(new_file,*) "/usr/local/bin/gnuplot -p " // trim(gnu_instruct)
 #endif
 #else
+#if defined (__WIN32__)
+   write(new_file,*) " ""C:\Program Files\gnuplot\bin\gnuplot.exe "" "// "-p " // trim(gnu_instruct)
+#else
    write(new_file,*) "gnuplot -p " // trim(gnu_instruct)
 #endif
+#endif
    call execute_command_line(trim(new_file), exitstat=i)
+   if (i > 0) write(*,*) "Error, janus line:",__LINE__
    if (btest(dat, 4) .or. btest(dat, 3)) then
     RadSlope=EyeSys
     EyeSys=EyeSysSave  ! restore EyeSys after using it to show rings
@@ -2804,7 +2888,8 @@ end do
 if (ABS(zern(13)-zern(14)) > EPS) then
 unitno1 = get_new_fileunit()
 #if defined (__WIN32__)
- open(unitno1, file = "%TEMP%/zernike.tmp", action="write", iostat=ierr, RECL=1024)
+new_file = trim(temp_path) // "\zernike.tmp"
+ open(unitno1, file = trim(new_file), action="write", iostat=ierr, RECL=1024)
 #else
  open(unitno1, file = "/tmp/zernike.tmp", action="write", iostat=ierr, RECL=1024)
 #endif
@@ -2901,7 +2986,8 @@ unitno1 = get_new_fileunit()
 #endif
 #else
 #if defined (__WIN32__)
-   write(new_file,*) "gnuplot -p " // "%TEMP%/zernike.tmp"
+new_file = trim(temp_path) // "\zernike.tmp"
+write(new_file,*) " ""C:\Program Files\gnuplot\bin\gnuplot.exe "" "// "-p " // trim(new_file)
 #else
    write(new_file,*) "gnuplot -p " // "/tmp/zernike.tmp"
 #endif
@@ -2909,6 +2995,7 @@ unitno1 = get_new_fileunit()
 ! dumps a local copy
 ! call execute_command_line("cp /tmp/zernike.tmp zern.tmp", exitstat=i)
  call execute_command_line(trim(new_file), exitstat=i)
+ if (i > 0) write(*,*) "Error, janus line:",__LINE__
   if (mod(flag,100) == 9) call Ccounter(0)  ! zero out the progess bar if we're just displaying coefficients
  else
   call LogC("No Zernike data found"//c_null_char)
