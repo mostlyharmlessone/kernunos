@@ -451,7 +451,7 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
                LogC("Extrapolated Keratograph data files");
 
 #ifdef _WIN32
-               ierr = system(("unzip -o " + str4 + " CORNEA_F.*").c_str());
+               ierr = system(("tar -xf " + str4 + " CORNEA_F.*").c_str());
                ierr = ierr + system(("tar -xf " + str4 + " CURVAT_F.*" ).c_str());
                ierr = ierr + system(("tar -xf " + str4 + " PUPIL.*" ).c_str());
                ierr = ierr + system(("tar -xf " + str4 + " CENTER.*" ).c_str());
@@ -475,7 +475,7 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
                LogC("Unextrapolated Keratograph data files");
 
 #ifdef _WIN32
-               ierr = system(("unzip -o " + str4 + " CORNEA.*" ).c_str());
+               ierr = system(("tar -xf " + str4 + " CORNEA.*" ).c_str());
                ierr = ierr + system(("tar -xf " + str4 + " CURVAT.*" ).c_str());
                ierr = ierr + system(("tar -xf " + str4 + " PUPIL.*" ).c_str());
                ierr = ierr + system(("tar -xf " + str4 + " CENTER.*" ).c_str());

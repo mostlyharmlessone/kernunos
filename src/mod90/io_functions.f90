@@ -1375,7 +1375,7 @@ integer line(200),line2(200),ix,iy
      if (file_idx2 > 0) then
       call LogC("ASCII RA Nidek header detected: "//trim(header)//c_null_char)
      else
-      write(*,*) 'ERROR: No ASCII RA/ED Nidek headers detected'
+      write(*,*) 'No ASCII RA/ED Nidek headers detected'
       read_error = 2
      endif
     else
@@ -1539,7 +1539,7 @@ integer line(200),line2(200),ix,iy
      y = join(c(y,ych))
     else
 !   found the 0D
-    call LogC("Binary header"//y//c_null_char)
+    call LogC("Binary header "//y//c_null_char)
      exit
     endif
    else

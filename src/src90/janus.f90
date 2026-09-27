@@ -1713,7 +1713,9 @@ if (TestData .eq. 6) then
     allocate(CHARACTER(nblines) :: cab_inputfile1)
     cab_inputfile1=inputfile1   
 #if defined (__WIN32__)
-    call execute_command_line ('Expand.exe ' // cab_inputfile1 // ' -F:* ' // temp_path, exitstat=io)
+ cab_inputfile1='"' // trim(cab_inputfile1) // '"'
+write(*,*) '1: Expand.exe -r ' // cab_inputfile1 // ' -F:* ' // '"' // trim(temp_path) // '"'
+    call execute_command_line ('Expand.exe -r ' // cab_inputfile1 // ' -F:* ' // '"' // trim(temp_path) // '"', exitstat=io)
 #else
 #if defined  (__APPLE__)
 #if defined(__aarch64__)
@@ -1730,9 +1732,9 @@ if (TestData .eq. 6) then
      file_idx=1+index(inputfile1, "/ED")
      inputfile1=inputfile1(file_idx:len(inputfile1))
 #if defined (__WIN32__)
-     inputfile2=temp_path // "\" // inputfile1
+     inputfile1=trim(temp_path) // "\" // inputfile1
 #else
-     inputfile2="/tmp/" // inputfile1
+     inputfile1="/tmp/" // inputfile1
 #endif
     else
      write(*,*) 'Error opening cabinet file',inputfile1
@@ -1743,7 +1745,9 @@ if (TestData .eq. 6) then
     allocate(CHARACTER(nblines) :: cab_inputfile2)
     cab_inputfile2=inputfile2   
 #if defined (__WIN32__)
-    call execute_command_line ('Expand.exe ' // cab_inputfile2 // ' -F:* ' // temp_path, exitstat=io)
+ cab_inputfile2='"' // trim(cab_inputfile2) // '"'
+write(*,*) '2: Expand.exe -r ' // cab_inputfile2 // ' -F:* ' // '"' // trim(temp_path) // '"'
+    call execute_command_line ('Expand.exe -r ' // cab_inputfile2 // ' -F:* ' // '"' // trim(temp_path) // '"', exitstat=io)
 #else
 #if defined  (__APPLE__)
 #if defined(__aarch64__)
@@ -1760,7 +1764,7 @@ if (TestData .eq. 6) then
      file_idx=1+index(inputfile2, "/RA")
      inputfile2=inputfile2(file_idx:len(inputfile2))
 #if defined (__WIN32__)
-     inputfile2=temp_path // "\" // inputfile2
+     inputfile2=trim(temp_path) // "\" // inputfile2
 #else
      inputfile2="/tmp/" // inputfile2
 #endif
@@ -1775,7 +1779,9 @@ if (TestData .eq. 6) then
      allocate(CHARACTER(nblines) :: cab_inputfile4)
      cab_inputfile4=inputfile4     
 #if defined (__WIN32__)
-    call execute_command_line ('Expand.exe ' // cab_inputfile4 // ' -F:* ' // temp_path, exitstat=io)
+ cab_inputfile4='"' // trim(cab_inputfile4) // '"'
+write(*,*) '3: Expand.exe -r ' // cab_inputfile4 // ' -F:* ' // '"' // trim(temp_path) // '"'
+    call execute_command_line ('Expand.exe -r ' // cab_inputfile4 // ' -F:* ' // '"' // trim(temp_path) // '"', exitstat=io)
 #else
 #if defined  (__APPLE__)
 #if defined(__aarch64__)
@@ -1792,9 +1798,9 @@ if (TestData .eq. 6) then
       file_idx=1+index(inputfile4, "/PE")
       inputfile4=inputfile4(file_idx:len(inputfile4))
 #if defined (__WIN32__)
-     inputfile2=temp_path // "\" // inputfile4
+     inputfile4=trim(temp_path) // "\" // inputfile4
 #else
-     inputfile2="/tmp/" // inputfile4
+     inputfile4="/tmp/" // inputfile4
 #endif
      else
       write(*,*) 'Error opening cabinet file',inputfile4
