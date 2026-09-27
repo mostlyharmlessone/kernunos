@@ -1729,7 +1729,11 @@ if (TestData .eq. 6) then
      inputfile1=replacestr(string=inputfile1,search=".CAB",substitute=".DAT")
      file_idx=1+index(inputfile1, "/ED")
      inputfile1=inputfile1(file_idx:len(inputfile1))
-     inputfile1="/tmp/" // inputfile1
+#if defined (__WIN32__)
+     inputfile2=temp_path // "\" // inputfile1
+#else
+     inputfile2="/tmp/" // inputfile1
+#endif
     else
      write(*,*) 'Error opening cabinet file',inputfile1
      write(*,*) 'Make sure you have cab_extract installed and/or manually check/decompress the CAB file(s).'
@@ -1755,7 +1759,11 @@ if (TestData .eq. 6) then
      inputfile2=replacestr(string=inputfile2,search=".CAB",substitute=".DAT")
      file_idx=1+index(inputfile2, "/RA")
      inputfile2=inputfile2(file_idx:len(inputfile2))
+#if defined (__WIN32__)
+     inputfile2=temp_path // "\" // inputfile2
+#else
      inputfile2="/tmp/" // inputfile2
+#endif
     else
      write(*,*) 'Error opening cabinet file',inputfile2
      write(*,*) 'Make sure you have cab_extract installed and/or manually check/decompress the CAB file(s).'
@@ -1783,7 +1791,11 @@ if (TestData .eq. 6) then
       inputfile4=replacestr(string=inputfile4,search=".CAB",substitute=".DAT")
       file_idx=1+index(inputfile4, "/PE")
       inputfile4=inputfile4(file_idx:len(inputfile4))
-      inputfile4="/tmp/" // inputfile4
+#if defined (__WIN32__)
+     inputfile2=temp_path // "\" // inputfile4
+#else
+     inputfile2="/tmp/" // inputfile4
+#endif
      else
       write(*,*) 'Error opening cabinet file',inputfile4
       write(*,*) 'Make sure you have cab_extract installed and/or manually check/decompress the CAB file(s).'
