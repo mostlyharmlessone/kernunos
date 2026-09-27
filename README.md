@@ -123,7 +123,7 @@ cd build
 cmake ../ (optionally cmake -DCMAKE_Fortran_FLAGS="-D__UNIX__" ../)
 make
 ```
-These lines need to be uncommented in CMakeLists.txt
+see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=42954#c48 for why gfortran needs the cmake flag.  These lines need to be uncommented in CMakeLists.txt
 ```
 set(CMAKE_HOST_NAME Linux)
 set(CMAKE_SYSTEM UNIX)
@@ -204,6 +204,14 @@ set(CMAKE_SYSTEM UNIX)
 and the corresponding Darwin variables commented out.<br>
 
 Numerous libraries can be imported from their (mingw64) builds under Windows.<br>
+
+NOTES:<br>
+after copying qt6 static Windows libs from Windows Qt install into Qt/6.8.3/mingw<br>
+two WINE windows pop up, but appear to configure correctly after clicking "OK"<br>
+However qt builds a spurious -lc, go to <build/MingW_Debug/CMakeFiles/driverPiecewiseLinear.dir/link.txt, remove it<br>
+then in terminal (in qt) go to build/MingW_Debug, and run 'make'<br>
+terminal cmake doesn't find Qt:Pdf<br>
+Nonetheless both Qt and terminal cmake get stuck after that at linking the superlu library; might need to to use Windows superlu library<br>
 
 some other references<br>
 Qt<br>

@@ -99,7 +99,7 @@ Open the CmakeLists.txt as a Project in QtCreator, configure and build. </p>
 cd build
 cmake ../ (optionally cmake -DCMAKE_Fortran_FLAGS=&quot;-D__UNIX__&quot; ../)
 make
-</code></pre><p>These lines need to be uncommented in CMakeLists.txt</p>
+</code></pre><p>see <a href="https://gcc.gnu.org/bugzilla/show_bug.cgi?id=42954#c48">https://gcc.gnu.org/bugzilla/show_bug.cgi?id=42954#c48</a> for why gfortran needs the cmake flag.  These lines need to be uncommented in CMakeLists.txt</p>
 <pre><code>set(CMAKE_HOST_NAME Linux)
 set(CMAKE_SYSTEM UNIX)
 with these
@@ -151,6 +151,13 @@ set(CMAKE_HOST_NAME Windows)
 set(CMAKE_SYSTEM UNIX)
 </code></pre><p>and the corresponding Darwin variables commented out.<br></p>
 <p>Numerous libraries can be imported from their (mingw64) builds under Windows.<br></p>
+<p>NOTES:<br>
+after copying qt6 static Windows libs from Windows Qt install into Qt/6.8.3/mingw<br>
+two WINE windows pop up, but appear to configure correctly after clicking &quot;OK&quot;<br>
+However qt builds a spurious -lc, go to <build/MingW_Debug/CMakeFiles/driverPiecewiseLinear.dir/link.txt, remove it<br>
+then in terminal (in qt) go to build/MingW_Debug, and run &#39;make&#39;<br>
+terminal cmake doesn&#39;t find Qt:Pdf<br>
+Nonetheless both Qt and terminal cmake get stuck after that at linking the superlu library; might need to to use Windows superlu library<br></p>
 <p>some other references<br>
 Qt<br>
 <a href="https://doc.qt.io/qt-6/cross-compiling-qt.html">https://doc.qt.io/qt-6/cross-compiling-qt.html</a> <br>

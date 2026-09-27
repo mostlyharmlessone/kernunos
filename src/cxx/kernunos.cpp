@@ -1218,13 +1218,6 @@ void MainWindow::zerncompute()
     QTimer::singleShot(5000, dialog, &QProgressDialog::close);
     dialog->exec();
 
-#ifdef _WIN32
-    // For Windows, prompt for a keystroke before the Gnuplot object goes out of scope so that
-    // the gnuplot window doesn't get closed.
-//    std::cout << "Press enter to exit." << std::endl;
-//    std::cin.get();
-#endif
-
     Z44VerticalQuatrafoilAct->setEnabled(true);
     Z42Vertical2ndAstigAct->setEnabled(true);
     Z40SphericalAberrationAct->setEnabled(true);
@@ -1302,12 +1295,6 @@ void MainWindow::showzern()
     flag=flag-(flag%100)+9;  // last two digits of flag=1;
     janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
 
-#ifdef _WIN32
-    // For Windows, prompt for a keystroke before the Gnuplot object goes out of scope so that
-    // the gnuplot window doesn't get closed.
-//    std::cout << "Press enter to exit." << std::endl;
-//    std::cin.get();
-#endif
 //    ui.infoLabel->setText(tr("Invoked <b>Show Zernike</b>"));
     return;
 }
@@ -1793,12 +1780,6 @@ void MainWindow::gnuplotsplot() {
    flag=flag-(flag%100)+5;  // last two digits of flag=5;
    janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
 
-#ifdef _WIN32
-   // For Windows, prompt for a keystroke before the Gnuplot object goes out of scope so that
-   // the gnuplot window doesn't get closed.
-//   std::cout << "Press enter to exit." << std::endl;
-//   std::cin.get();
-#endif
 //   ui.infoLabel->setText(tr("gnuplot called successfully  "));
    return;
 }
@@ -1859,12 +1840,6 @@ void MainWindow::center() {
    flag=flag-(flag%100)+6;  // last two digits of flag=6;
    janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
 
-#ifdef _WIN32
-   // For Windows, prompt for a keystroke before the Gnuplot object goes out of scope so that
-   // the gnuplot window doesn't get closed.
-//   std::cout << "Press enter to exit." << std::endl;
-//   std::cin.get();
-#endif
 //   ui.infoLabel->setText(tr("gnuplot called successfully  "));
    return;
 }
@@ -1924,12 +1899,6 @@ void MainWindow::rings() {
     flag=flag-(flag%100)+8;  // last two digits of flag=8;
     janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
 
-#ifdef _WIN32
-    // For Windows, prompt for a keystroke before the Gnuplot object goes out of scope so that
-    // the gnuplot window doesn't get closed.
-//    std::cout << "Press enter to exit." << std::endl;
-//    std::cin.get();
-#endif
 //    ui.infoLabel->setText(tr("gnuplot called successfully  "));
     return;
 }

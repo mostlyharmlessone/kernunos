@@ -57,15 +57,16 @@
   INTEGER(c_int) :: periodcount
   INTEGER(c_int64_t), parameter :: zero_int64 = 0
   CHARACTER(32) :: floata, floatb
+
+#if defined (__WIN32__)
   CHARACTER(1024) :: temp_path
   INTEGER :: path_length, path_status
-
   call get_environment_variable("temp", temp_path, path_length, path_status)
-
   if (path_status .ne. 0) then
-   write(*,*) "Couldn't get temp environment, trying current path..."
+   write(*,*) "Couldn't get temp environment, trying current path...",path_status
    temp_path="./"
   end if
+#endif
 
 err_janus = 0 ; error_report = 0 ;
 if (loaded_files .le. 0) loaded_files = 0
@@ -918,7 +919,7 @@ if (btest(dat,5)) then
   donut = .FALSE.
   elements(1:nE) = 0
   vertices(1:nV) = 0
-  call selectfunction(0,JMatrix3,flag,powctr,powmin,powmax,cardinal,nC)  !with 0 only loads powctr, powmin, powmax, cardinals
+  call selectfunction(0,JMatrix3,flag,powctr,powmin,powmax,cardinal,nC)  !with 0 only loads powctr, powmin, powmax, cardinal
   call Geom(flag, JMatrix3, donut, powmin, powmax, elements, vertices, nV, nE)
   call makelegend(flag, powmin, powmax, legend, nL)
  !reset
@@ -968,7 +969,7 @@ endif
    donut = .FALSE.
    elements(1:nE) = 0
    vertices(1:nV) = 0
-   call selectfunction(0,JMatrix3,flag,powctr,powmin,powmax,cardinal,nC)  !with 0 only loads powctr, powmin, powmax, cardinals
+   call selectfunction(0,JMatrix3,flag,powctr,powmin,powmax,cardinal,nC)  !with 0 only loads powctr, powmin, powmax, cardinal
    call Geom(flag, JMatrix3, donut, powmin, powmax, elements, vertices, nV, nE)
    call makelegend(flag, powmin, powmax, legend, nL)
    return
@@ -1712,22 +1713,23 @@ if (TestData .eq. 6) then
     allocate(CHARACTER(nblines) :: cab_inputfile1)
     cab_inputfile1=inputfile1   
 #if defined (__WIN32__)
-    call execute_command_line ('Expand.exe ' // cab_inputfile1 // ' -F:*', exitstat=io)
+    call execute_command_line ('Expand.exe ' // cab_inputfile1 // ' -F:* ' // temp_path, exitstat=io)
 #else
 #if defined  (__APPLE__)
 #if defined(__aarch64__)
-   call execute_command_line ( "/opt/homebrew/bin/cabextract " // cab_inputfile1 // ' -F:*', exitstat=io)
+   call execute_command_line ( "/opt/homebrew/bin/cabextract " // cab_inputfile1 // " -d /tmp -F '*.DAT' ", exitstat=io)
 #else
-   call execute_command_line ( "/usr/local/bin/cabextract " // cab_inputfile1 // ' -F:*', exitstat=io)
+   call execute_command_line ( "/usr/local/bin/cabextract " // cab_inputfile1 // " -d /tmp -F '*.DAT' ", exitstat=io)
 #endif
 #else
-   call execute_command_line ( "cabextract " // cab_inputfile1 // ' -F:*', exitstat=io)
+   call execute_command_line ( "cabextract " // cab_inputfile1 // " -d /tmp -F '*.DAT' ", exitstat=io)
 #endif
 #endif
     if (io == 0) then
      inputfile1=replacestr(string=inputfile1,search=".CAB",substitute=".DAT")
      file_idx=1+index(inputfile1, "/ED")
      inputfile1=inputfile1(file_idx:len(inputfile1))
+     inputfile1="/tmp/" // inputfile1
     else
      write(*,*) 'Error opening cabinet file',inputfile1
      write(*,*) 'Make sure you have cab_extract installed and/or manually check/decompress the CAB file(s).'
@@ -1737,22 +1739,23 @@ if (TestData .eq. 6) then
     allocate(CHARACTER(nblines) :: cab_inputfile2)
     cab_inputfile2=inputfile2   
 #if defined (__WIN32__)
-    call execute_command_line ('Expand.exe ' // cab_inputfile2 // ' -F:*', exitstat=io)
+    call execute_command_line ('Expand.exe ' // cab_inputfile2 // ' -F:* ' // temp_path, exitstat=io)
 #else
 #if defined  (__APPLE__)
 #if defined(__aarch64__)
-   call execute_command_line ( "/opt/homebrew/bin/cabextract " // cab_inputfile2 // ' -F:*', exitstat=io)
+   call execute_command_line ( "/opt/homebrew/bin/cabextract " // cab_inputfile2 // " -d /tmp -F '*.DAT' ", exitstat=io)
 #else
-   call execute_command_line ( "/usr/local/bin/cabextract " // cab_inputfile2 // ' -F:*', exitstat=io)
+   call execute_command_line ( "/usr/local/bin/cabextract " // cab_inputfile2 // " -d /tmp -F '*.DAT' ", exitstat=io)
 #endif
 #else
-   call execute_command_line ( "cabextract " // cab_inputfile2 // ' -F:*', exitstat=io)
+   call execute_command_line ( "cabextract " // cab_inputfile2 // " -d /tmp -F '*.DAT' " , exitstat=io)
 #endif
 #endif
     if (io == 0) then
      inputfile2=replacestr(string=inputfile2,search=".CAB",substitute=".DAT")
      file_idx=1+index(inputfile2, "/RA")
      inputfile2=inputfile2(file_idx:len(inputfile2))
+     inputfile2="/tmp/" // inputfile2
     else
      write(*,*) 'Error opening cabinet file',inputfile2
      write(*,*) 'Make sure you have cab_extract installed and/or manually check/decompress the CAB file(s).'
@@ -1764,22 +1767,23 @@ if (TestData .eq. 6) then
      allocate(CHARACTER(nblines) :: cab_inputfile4)
      cab_inputfile4=inputfile4     
 #if defined (__WIN32__)
-    call execute_command_line ('Expand.exe ' // cab_inputfile4 // ' -F:*', exitstat=io)
+    call execute_command_line ('Expand.exe ' // cab_inputfile4 // ' -F:* ' // temp_path, exitstat=io)
 #else
 #if defined  (__APPLE__)
 #if defined(__aarch64__)
-   call execute_command_line ( "/opt/homebrew/bin/cabextract " // cab_inputfile4 // ' -F:*', exitstat=io)
+   call execute_command_line ( "/opt/homebrew/bin/cabextract " // cab_inputfile4 // " -d /tmp -F '*.DAT' ", exitstat=io)
 #else
-   call execute_command_line ( "/usr/local/bin/cabextract " // cab_inputfile4 // ' -F:*', exitstat=io)
+   call execute_command_line ( "/usr/local/bin/cabextract " // cab_inputfile4 // " -d /tmp -F '*.DAT' ", exitstat=io)
 #endif
 #else
-   call execute_command_line ( "cabextract " // cab_inputfile4 // ' -F:*', exitstat=io)
+   call execute_command_line ( "cabextract " // cab_inputfile4 // " -d /tmp -F '*.DAT' ", exitstat=io)
 #endif
 #endif
      if (io == 0) then
       inputfile4=replacestr(string=inputfile4,search=".CAB",substitute=".DAT")
       file_idx=1+index(inputfile4, "/PE")
       inputfile4=inputfile4(file_idx:len(inputfile4))
+      inputfile4="/tmp/" // inputfile4
      else
       write(*,*) 'Error opening cabinet file',inputfile4
       write(*,*) 'Make sure you have cab_extract installed and/or manually check/decompress the CAB file(s).'
@@ -1854,7 +1858,7 @@ if (TestData .eq. 6) then
     call execute_command_line ('rm ' // inputfile1, exitstat=io)
 #endif
     if (io > 0) then
-     write (*,*) 'failed system command to remove tmp file',inputfile1
+     write (*,*) 'failed system command to remove tmp file ',inputfile1
      read_error=12
     endif
     deallocate(cab_inputfile1)
@@ -1867,7 +1871,7 @@ if (TestData .eq. 6) then
     call execute_command_line ('rm ' // inputfile2, exitstat=io)
 #endif
     if (io > 0) then
-     write (*,*) 'failed system command to remove tmp file',inputfile2
+     write (*,*) 'failed system command to remove tmp file ',inputfile2
      read_error=12
     endif
     deallocate(cab_inputfile2)
@@ -1880,7 +1884,7 @@ if (TestData .eq. 6) then
     call execute_command_line ('rm ' // inputfile4, exitstat=io)
 #endif
     if (io > 0) then
-     write (*,*) 'failed system command to remove tmp file',inputfile4
+     write (*,*) 'failed system command to remove tmp file ',inputfile4
      read_error=12
     endif
     deallocate(cab_inputfile4)
@@ -2277,8 +2281,8 @@ if (TestData .eq. 0 .or. TestData .eq. 6) then
  endif
 endif  ! EyeSys fillin
 
-! skip all this if we're just displaying zernike coefficients again
-if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
+! skip all this if we're displaying zernike coefficients
+if (mod(flag,100) .ne. 9) then  ! Spline RadSlope
  DiaSlope=RadSlope              ! move to diagonal format
  DiaSlope%Zpd2 = .n. DiaSlope
  call MakeRadSplineCenter(zero_int64,error_report)   ! remakes RadSplineCenter(1,:)
@@ -2586,6 +2590,8 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
    write(*,*)' Error at  MakeRadSplineCenter called janus line number: ',__LINE__
   endif
 
+if (mod(flag,100) .ne. 1) then ! don't do this if computing zernike
+
 ! Calculate center values for everything
 ! These have MM different values of the center!
   call centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
@@ -2593,6 +2599,8 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
 ! find min max of everything
   call minmax(JMatrix)
 ! end populating JMatrix
+
+endif
 
 ! Penta file(s) consistency check ELE vs. matching CUR
 ! simple difference/subtraction with compare for elevation consistency
@@ -2617,7 +2625,7 @@ if (mod(flag,100) .ne. 9 ) then  ! Spline RadSlope
   call LogC("Penta avg abs elevation percent error :"//floata//c_null_char)
  endif
 
-endif !mod(flag,100) /= 9
+endif !mod(flag,100) /= 9 or 1
 
 ! calculate zernike coefficents; this could be moved to a module function
 if (mod(flag,100) == 1) then
@@ -2976,7 +2984,7 @@ new_file = trim(temp_path) // "\zernike.tmp"
  write(unitno1,*) "plot $Data using (0):($0):(0):($2):($0-myBoxWidth/2.):&
                    &($0+myBoxWidth/2.):($3):ytic(1) with boxxy lc rgb var"
  close(unitno1)
-! this line clears the counter, no longer does anything with gp or the filename
+! this line clears the counter
  call Ccounter(100)
 #if defined  (__APPLE__)
 #if defined(__aarch64__)

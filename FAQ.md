@@ -4,7 +4,7 @@ Frequently Asked Questions, starting with the most traditional:<br>
 
 Q: Has anyone actually asked any of these questions?<br>
 
-A: No, though they're modeled on questions asked by people who actually use other (understandably more popular and useful) programs. Some are questions I asked along the way. They are in no particular order, but I've tentatively sorted them into General/How-to/and Coding questions.  There's also an in-program Help, which references this file as well as the README and other documentation.  <br>
+A: No, though they're modeled on questions asked by people who actually use other (understandably more popular and useful) programs. Some are questions I asked along the way. They are in no particular order, but I've tentatively sorted them into General, How-to, Known Issues and Coding questions.  There's also an in-program Help, which references this file as well as the README and other documentation. If the in-program Help is the problem, look in the documentation folder, the files are in HTML and can be opened with any browser.<br>
 
 ###General questions
 
@@ -23,13 +23,24 @@ A: With as few errors as possible, hopefully.  The data is imported and a smooth
 Q: The program crashes, or doesn't run!<br>
 
 A: Check the log files. There are three different log files:
-logstd.log: program error messages, for example, you don't have GLSL 3.30 support.
-logerr.log: system error msgs/crashes
-kernunos.log: non-error messages, for example, data on files opened and saved.<br>
+logstd.log: program error messages, for example: you don't have GLSL 3.30 support.
+logerr.log: system error msgs/crashes, kernunos.log: non-error messages, for example, data on files opened and saved.<br>
 
 Q: I found a mistake with your computations! (or a bug in your program, or it crashes etc.) How do I report it?<br>
 
 A: Congratulations and thank you for finding it and being engaged enough to want to provide valuable input. See Contributing in the README: basically, contact me through github. If you think I'm fundamentally wrong in my whole approach or have completely misinterpreted the data, I'll be delighted to fix it if possible. The I/O routines for opening files are not particularly robust and may have had limited testing with real world data: if you find a valid file that breaks, please let me know so I can find out why.<br>
+
+Q: Are you DICOM compliant?<br>
+
+A: No. There's a whole lot to DICOM compliance. As far as data export is concerned, in a typical "DICOM Conformance statement" for a topographer (which this is not), the following categories are sufficient for transfer: Multiframe True Color Secondary Capture Image Storage and Encapsulated PDF Storage.  As such, as far as DICOM for export, no, though you could always export the data or the image in a supported format and then convert it to a PNG or TIFF and thence to EPS with some other easily obtainable software.<br>
+
+Q: Are you HIPAA/HI-TECH etc. compliant?<br>
+
+A: No. It would be your responsibility to redact protected health information and run this program in a secure manner.<br>
+
+Q: Are there any Easter Eggs?<br>
+
+A: Well, not really, but if you start the program from the command line, you can use the help option, as in ./kernunos -h  There are some commandline options not available from the program menu. You can use "--transparent" to make the window transparent. You can use "--reverse" (found under --help-all for generic Qt options) to reverse the program so the menus are on the right hand side and kind of backwards...<br>
 
 Q: Can you add the data files for my topography machine?<br>
 
@@ -113,7 +124,6 @@ File:
 	         Exit
 ```
 		
-
 The LSQ spline instead of linear spline for PentaCam conversion option is an attempt to compensate for the noise in PentaCam (ELE) elevation data wherein several points have, within the limits of digits supplied, identical values, leading to local flat areas.  Note that adjacent identical curvatures are not an issue, but are a feature of a smooth surface.<br>
 
 Average of two maps can be used as noise reduction or data augmentation if you have multiple scan of the same eye in the same clinical scenario, i.e. on the same day, or on different days when there is no anticipated significant change. As with any other data acquisition, multiple remeasurements can be used to improve precision. Averages of multiple files can be achieved by averaging maps two at a time, saving the results and averaging the averages.  Both Compare(difference) and Average maps are shown in the right hand frame with a dedicated legend.<br>
@@ -205,22 +215,38 @@ About:
        About (provides some information about the hardware)
 	   About Qt (about the graphical widgets used to make the GUI with C++)
 
-(Note that the MacOS version might vary slightly, as the About categories are placed on the left by default, and the command bar is separate from the window and always at the top of the screen.)
-
-Q: Powers and Angles don't appear, or are weird!
-
-A: Make sure your TrueType/FreeType fonts are available and in the xpected place. The Linux version expects to find  "/usr/share/fonts/liberation/LiberationMono-Regular.ttf", the Darwin version expects "/System/Library/fonts/Geneva.ttf" and the Windows 10 version expects
+(Note that the MacOS version might vary slightly, as the About categories are placed on the left by default, and the command bar is separate from the window and always at the top of the screen.)<br>
 
 Q: Why does the PentaCam "Check spline consistency" ELE and CUR files consistency check not correspond in the center, or why do these plots look different in the center?<br>
 
 A: It should be pointed out that the elevation data is supposedly primary with this machine and that the central elevations shown in the data can frequently have equal (zero) measurements at the center and other areas, with an effective flat center or other area with infinite curvature which can produce artifacts in the center and elsewhere depending on how the data is used.  When the program detects multiple zeroes in an ELE/ELE.CSV file, the number of multiple zeroes is logged. Adjacent local values for curvatures can integrate to a smooth surface, but adjacent local values for slopes or elevations can lead to locally flat areas. When doing a spline interpolation of a flat area, artifacts of curvature can be generated. Some of the central artifacts in the elevation ELE file can be minimized by decentering the image. A subsequent comparison with the corresponding CUR file will show better agreement.<br>
 
+
+###Known issues
+
+Q: Documentation directory is not found! F1/Help doesn't work.<br>
+
+A: There should be a folder called "documentation" in the same directory as the executable kernunos, and there should be a path to the executable "assistant" available.  The Windows binary installer attempts to arrange these matters. You may be on your own with Linux or the Mac.<br>
+
+Q:  gnuplot command is not available<br>
+
+A:  You need to have gnuplot installed.<br>
+
+Q:  I have a DirectX error!<br>
+
+A: Under Windows 10 VM with mesa3d-26.1.3-release-mingw you may see the following error:
+```
+D3D Error 887e0003: (alphanumeric) at (hex_address) - D3D12SDKVersion from D3D12Core != requested D3D12SDKVersion 
+```
+It appears to be harmless.<br>
+
+Q: View|Powers and View|Angles don't appear, or are weird!<br>
+
+A: Make sure your TrueType/FreeType fonts are available and in the expected place. The Linux version expects to find  "/usr/share/fonts/liberation/LiberationMono-Regular.ttf", the Darwin version expects "/System/Library/fonts/Geneva.ttf" and the Windows 10 version expects \Windows\Fonts\LiberationMono-Regular.ttf  The Darwin/Apple version is currently under construction and the option is disabled.<br>
+
 Q: Why are the File Exports for format .{XXX} not read properly by program YYY?<br>
 
 A:  Well, most of the exports are handled by assimp https://assimp-docs.readthedocs.io/en/v5.3.0/exports. For assimp exports, first, (internally) an ASCII PLY file is generated (with unreferenced vertices) and then imported by assimp, which then exports to another format (including ASCII PLY!). Assimp might be limited in its output; it is, after all, designed primarily for imports, hence the name. (Hint: it's not called assexp).. Colors are not always exported correctly, with the common message: Failed to compute tangents; need UV data in channel0. Perhaps that is because the data coming from the internal PLY file are assigned specifically to a vertex (as opposed to a face as in an OFF file), not with a texture or a material, which is more common in most applications. Perhaps assimp expects textures. If you skip assimp, Export|PLY and Export|OFF make readable files but with extra unreferenced vertices. These are harmless and can be cleaned by (e.g.) meshlab, or you can export a PLY or an STL file using assimp, which does not generate unreferenced vertices, if that's important to you. Bear in mind though that assimp is not used for binary PLY exports, as it appears to generate output not read by meshlab and while binary STL is available from assimp, it does not include the nonstandard color options. So, there are known issues, which may improve if upstream addresses them.  <br>
-
-Known issues at this time:<br>
-
 meshlab https://www.meshlab.net/ can open a large number of formats. However a few assimp exports are not readable or give errors even though meshlab supports the format, as follows:
 ```
 .obj  files the following error appears: .OBJ Error details: Some materials definitions were not found, a default white material is used where no material was available  (file opens normally however)
@@ -252,21 +278,11 @@ fstl (https://github.com/fstl-app/fstl or http://www.mattkeeter.com/projects/fst
 cloudcompare (https://www.cloudcompare.org/) apparently only reads geometric information, not colors, so not very useful for this purpose. (not a criticism of cloudcompare)<br>
 ```
 Verified to read PLY, OFF, STL, FBX without color, fails on assimp generated ASCII stl file.
-
 ```
 
 Q: I manually tweaked/edited my topography machine files. Why won't they Load? (this is an actual question from the author)<br>
 
 A: Bear in mind that topography machine files typically have line terminations with Line Feed 0x0A character (aka \n) and a Carriage Return character 0x0D (aka \r).  If you manually edit a file on a Mac or Linux system, your editor may remove the Carriage Return character 0x0D (aka \r) and may cause the file to not be readable.  Files generated by the software will have the line termination determined by the OS. It is easy to write a utility to convert between the two types, which I have included as "sparctxt" and "dostxt" programs.<br>
-
-
-Q: Speaking of files formats, are you DICOM compliant?<br>
-
-A: No. There's a whole lot to DICOM compliance. As far as data export is concerned, in a typical "DICOM Conformance statement" for a topographer (which this is not), the following categories are sufficient for transfer: Multiframe True Color Secondary Capture Image Storage and Encapsulated PDF Storage.  As such, as far as DICOM for export, no, though you could always export the data or the image in a supported format and then convert it to a PNG or TIFF and thence to EPS with some other easily obtainable software.<br>
-
-Q: Are there any Easter Eggs?<br>
-
-A: Well, not really, but if you start the program from the command line, you can use the help option, as in ./kernunos -h  There are some commandline options not available from the program menu. You can use "--transparent" to make the window transparent. You can use "--reverse" (found under --help-all for generic Qt options) to reverse the program so the menus are on the right hand side and kind of backwards...<br>
 
 
 ###Mostly coding questions:
@@ -275,7 +291,7 @@ Q: Why is so much of the code in Fortran instead of (insert your favorite langua
 
 A:  I've made certain choices.  Yours could be different. Back end computations are done in mostly modern Fortran, mostly using features of Fortran 90, 03 or 08, though a few 2018 features may have crept in. It's not FORTRAN 66; at least I try not to have it be. Hanson & Hopkins 2013 text is (IMHO) a good reference. The back end is written in "modern" Fortran, a language designed for computation, with the front end written in C++ with Qt, more appropriate for graphics (and in my case use of OpenGL) and user interaction, at least at the time of this writing.  Kernunos isn't meant to run in the cloud, or any network not transparently handled by the underlying OS, or in a VM, or have multiple instances, or share resources. It is not thread safe. Some file operations are done in C++ and some in Fortran, with a few C routines as noncombatants or because I didn't know how to otherwise or because it was easier.  For those who are interested in issues with C in scientific programming (some of which still apply to C++), Press et al.'s (listed earlier) editorial comments are, to my mind, quite insightful, though some improvements anticipated at the time have been achieved. One such comment is pertinent here:  "One of the cultural barriers that separates computer scientists from "regular" scientists and engineers *(and physicians)* is a differing point of view on whether a 30% or 50% loss of speed is worth worrying about. In many real-time or state-of-the-art scientific applications, such a loss is catastrophic. The practical scientist is trying to solve tomorrow's problems with yesterday's computer; the computer scientist, we think, often has it the other way around."  Besides, I'm comfortable programming in Fortran, rather than whatever is the language du jour.<br>
 
-Amusingly, when I uploaded this project to Github, whichever (defective) algorithm determines what the project is written in, determined this: <br>
+Amusingly, when I uploaded this project to Github, whichever (clearly suboptimal) algorithm determines what the project is written in, determined this: <br>
 C++ 65.9%<br>
 C 10.7%<br>
 COBOL 10.3%<br>
@@ -315,15 +331,15 @@ A: You're welcome to try that approach.  However it's not for me, see the README
 
 Q: Did you really not use an "AI"/LLM for this?<br>
 
-A: Yes, though I suspect Github used Copilot to "hallucinate" the 10.6% nonexisting COBOL. :)<br>
+A: Yes, though I suspect Github used Copilot(R) to "hallucinate" the 10.6% nonexisting COBOL. :)<br>
 
 Q: Do you accept "AI"/LLM contributions to your code?<br>
 
-A: I should be so lucky that even a bot would take an interest. Having said that, the LICENSE precludes incorporating any of this code into an LLM's sausage works, for everyone's benefit.  The LLM would have to incorporate it in order to contribute.  The, (ahem), unusual and unique coding style would probably poison its future coding probabilities. Since it might well be impossible to detect undeclared or partial "AI"/LLM contributions, at this point, if a human appearing contribution presents itself, I'll look at it.  Use what tools seem right to you, but take responsibility for the output. <br>
+A: I should be so lucky that even a bot would take an interest. Having said that, the LICENSE precludes incorporating any of this code into an LLM's sausage works, for everyone's benefit. Since it might well be impossible to detect undeclared or partial "AI"/LLM contributions, at this point, if a human appearing contribution presents itself, I'll look at it.  Use what tools seem right to you, but take responsibility for the output. <br>
 
 Q: Why not just give topography images/data to an AI and have it tell you how they differ or not?<br>
 
-A: Part of the purpose of this exercise of the imagination is not to just have an answer, an oracle, or an authority, but to understand the data and learn somethng about it and its limitations. If you just want an opinion other than your own, ask any other human being that you trust.  Perhaps one day a real AI will be able to look at two images or data sets, perhaps encrypted proprietary ones, do all the computations done here and give you an answer with detailed data and an explanation **that you can believe** and explain to someone else, (presumably boring them to tears in the process). Today is not that day.<br>
+A: Part of the purpose of this exercise of the imagination is not to just have an answer, an oracle, or an authority, but to understand the data and learn something about it and its limitations. If you just want an opinion other than your own, ask any other human being that you trust.  Perhaps one day a real AI will be able to look at two images or data sets, perhaps encrypted proprietary ones, do all the computations done here and give you an answer with detailed data and an explanation **that you can believe** and explain to someone else, (presumably boring them to tears in the process). Today is not that day.<br>
 
 
 

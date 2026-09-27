@@ -1062,7 +1062,7 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
          call execute_command_line ('rm ' // semicolon1, exitstat=io)
 #endif
          if (io > 0) then
-          write (*,*) 'failed system command to remove tmp file',semicolon1
+          write (*,*) 'failed system command to remove tmp file ',semicolon1
           read_error=12
           if (allocated(ZX)) deallocate(ZX,YX)
           if (allocated(semicolon1)) deallocate(semicolon1)
@@ -1083,7 +1083,7 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
          call execute_command_line ('rm ' // semicolon2, exitstat=io)
 #endif
          if (io > 0) then
-          write (*,*) 'failed system command to remove tmp file',semicolon2
+          write (*,*) 'failed system command to remove tmp file ',semicolon2
           read_error=12
           if (allocated(ZX)) deallocate(ZX,YX)
           if (allocated(semicolon1)) deallocate(semicolon1)
@@ -1206,7 +1206,7 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
         call execute_command_line ('rm ' // trim(semicolon2), exitstat=io)
 #endif
         if (io > 0) then
-         write (*,*) 'failed system command to remove tmp file',semicolon2
+         write (*,*) 'failed system command to remove tmp file ',semicolon2
          read_error=12
          if (allocated(semicolon1)) deallocate(semicolon1)
          if (allocated(semicolon2)) deallocate(semicolon2)
@@ -1292,7 +1292,7 @@ SUBROUTINE rcnvrtn(read_error,RANAME,EDNAME,HTNAME,PENAME)
       if (file_idx2 .ne. 0) then
        call execute_command_line ('rm ' // semicolon2, exitstat=io)
        if (io > 0) then
-        write (*,*) 'failed system command to remove tmp file',semicolon2
+        write (*,*) 'failed system command to remove tmp file ',semicolon2
         if(allocated(ZX)) deallocate(ZX,YX)
         if (allocated(semicolon1)) deallocate(semicolon1)
         if (allocated(semicolon2)) deallocate(semicolon2)
