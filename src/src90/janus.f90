@@ -1191,36 +1191,44 @@ if (mod(flag,100) == 0) then
            endif
            allocate(CHARACTER(nblines) :: cab_inputfile1)
            cab_inputfile1=inputfile1
-           file_idx=index(inputfile1, "_OS.")
-           if (file_idx == 0 ) then  !OD
-            inquire(file="CURVAT_F.OD", exist=exists)
-            if (exists) then
-             inputfile2="CURVAT_F.OD"
-             inputfile1="CORNEA_F.OD"
-            else
-             inputfile2="CURVAT.OD"
-             inputfile1="CORNEA.OD"
-            endif
-            inputfile3="PUPIL.OD"
-            inputfile4="CENTER.OD"
-            inputfile5=replacestr(string=cab_inputfile1,search="EXP_Topo_OD.zip",substitute="ZERNIKE.CSV")
-            inputfile6="PATIENT.TXT"
-            inputfile7="EXAM.TXT"
-           else  !OS
-           inquire(file="CURVAT_F.OS", exist=exists)
-            if (exists) then
-             inputfile2="CURVAT_F.OS"
-             inputfile1="CORNEA_F.OS"
-            else
-             inputfile2="CURVAT.OS"
-             inputfile1="CORNEA.OS"
-            endif
-            inputfile3="PUPIL.OS"
-            inputfile4="CENTER.OS"
-            inputfile5=replacestr(string=cab_inputfile1,search="EXP_Topo_OS.zip",substitute="ZERNIKE.CSV")
-            inputfile6="PATIENT.TXT"
-            inputfile7="EXAM.TXT"
+           file_idx=index(cab_inputfile1, "EXP_Topo")
+           if (file_idx == 0 ) then
+            write(*,*) "Error in Keratograph file name: ",__LINE__
+            return
+           else
+!          get path
+           inputfile5=inputfile1(1:(file_idx-2))
            endif
+           file_idx=index(cab_inputfile1, "_OS.")
+           if (file_idx == 0 ) then  !OD
+            inquire(file=trim(inputfile5) // "\CURVAT_F.OD", exist=exists)
+            if (exists) then
+             inputfile2=trim(inputfile5) // "\CURVAT_F.OD"
+             inputfile1=trim(inputfile5) // "\CORNEA_F.OD"
+            else
+             inputfile2=trim(inputfile5) // "\CURVAT.OD"
+             inputfile1=trim(inputfile5) // "\CORNEA.OD"
+            endif
+            inputfile3=trim(inputfile5) // "\PUPIL.OD"
+            inputfile4=trim(inputfile5) // "\CENTER.OD"
+            inputfile6=trim(inputfile5) // "\PATIENT.TXT"
+            inputfile7=trim(inputfile5) // "\EXAM.TXT"
+            inputfile5=replacestr(string=cab_inputfile1,search="EXP_Topo_OD.zip",substitute="ZERNIKE.CSV")
+           else  !OS
+           inquire(file=trim(inputfile5) // "\CURVAT_F.OS", exist=exists)
+           if (exists) then
+            inputfile2=trim(inputfile5) // "\CURVAT_F.OS"
+            inputfile1=trim(inputfile5) // "\CORNEA_F.OS"
+           else
+            inputfile2=trim(inputfile5) // "\CURVAT.OS"
+            inputfile1=trim(inputfile5) // "\CORNEA.OS"
+           endif
+           inputfile3=trim(inputfile5) // "\PUPIL.OS"
+           inputfile4=trim(inputfile5) // "\CENTER.OS"
+           inputfile6=trim(inputfile5) // "\PATIENT.TXT"
+           inputfile7=trim(inputfile5) // "\EXAM.TXT"
+           inputfile5=replacestr(string=cab_inputfile1,search="EXP_Topo_OS.zip",substitute="ZERNIKE.CSV")
+         endif
           else   !not compressed
           file_idx=index(inputfile1, "CURVAT")
           if( file_idx == 0) then ! a CORNEA file
@@ -1519,8 +1527,6 @@ if (mod(flag,100) == 0) then
 !    write(*,*)  "TestData,MM,N",TestData,MM,N
  endif ! (mod(flag,100) == 0) parsing the file name,assigning TestData type and MM,N
 
-
-
 if (TestData .eq. 0) then
  MM=360 ; N=16 ! EyeSys if file not read; should not be necessary as should agree with previous value.
  if (mod(flag,100) == 0) then !read the files
@@ -1714,7 +1720,6 @@ if (TestData .eq. 6) then
     cab_inputfile1=inputfile1   
 #if defined (__WIN32__)
  cab_inputfile1='"' // trim(cab_inputfile1) // '"'
-write(*,*) '1: Expand.exe -r ' // cab_inputfile1 // ' -F:* ' // '"' // trim(temp_path) // '"'
     call execute_command_line ('Expand.exe -r ' // cab_inputfile1 // ' -F:* ' // '"' // trim(temp_path) // '"', exitstat=io)
 #else
 #if defined  (__APPLE__)
@@ -1746,7 +1751,6 @@ write(*,*) '1: Expand.exe -r ' // cab_inputfile1 // ' -F:* ' // '"' // trim(temp
     cab_inputfile2=inputfile2   
 #if defined (__WIN32__)
  cab_inputfile2='"' // trim(cab_inputfile2) // '"'
-write(*,*) '2: Expand.exe -r ' // cab_inputfile2 // ' -F:* ' // '"' // trim(temp_path) // '"'
     call execute_command_line ('Expand.exe -r ' // cab_inputfile2 // ' -F:* ' // '"' // trim(temp_path) // '"', exitstat=io)
 #else
 #if defined  (__APPLE__)
@@ -1780,7 +1784,6 @@ write(*,*) '2: Expand.exe -r ' // cab_inputfile2 // ' -F:* ' // '"' // trim(temp
      cab_inputfile4=inputfile4     
 #if defined (__WIN32__)
  cab_inputfile4='"' // trim(cab_inputfile4) // '"'
-write(*,*) '3: Expand.exe -r ' // cab_inputfile4 // ' -F:* ' // '"' // trim(temp_path) // '"'
     call execute_command_line ('Expand.exe -r ' // cab_inputfile4 // ' -F:* ' // '"' // trim(temp_path) // '"', exitstat=io)
 #else
 #if defined  (__APPLE__)
