@@ -454,7 +454,7 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
        int ret = msgBox.exec();
        switch(ret){
         case QMessageBox::Yes:
-// clean out any old files
+// clean out any old files (untested, and need to check they exist first)
 /*
 #ifdef _WIN32
             ierr = system(("del \"" + temp_path_str + " CORNEA_F.*\"").c_str());
@@ -487,12 +487,12 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
     ierr = ierr + system(("C:\\Windows\\System32\\tar -xf " + str4 + " -C " + temp_path_str + " PATIENT.TXT").c_str());
     ierr = ierr + system(("C:\\Windows\\System32\\tar -xf " + str4 + " -C " + temp_path_str + " EXAM.TXT").c_str());
 #else
-               ierr = system(("unzip -o " + str4 + " CORNEA_F.*").c_str());
-               ierr = ierr + system(("unzip -o " + str4 + " " + temp_path_str + "/CURVAT_F.*" ).c_str());
-               ierr = ierr + system(("unzip -o " + str4 + " " + temp_path_str + "/PUPIL.*" ).c_str());
-               ierr = ierr + system(("unzip -o " + str4 + " " + temp_path_str + "/CENTER.*" ).c_str());
-               ierr = ierr + system(("unzip -o " + str4 + " " + temp_path_str + "/PATIENT.TXT" ).c_str());
-               ierr = ierr + system(("unzip -o " + str4 + " " + temp_path_str + "/EXAM.TXT" ).c_str());
+               ierr = ierr + system(("unzip -o " + str4 + " -d " + temp_path_str + " CORNEA_F.*").c_str());
+               ierr = ierr + system(("unzip -o " + str4 + " -d " + temp_path_str + " CURVAT_F.*" ).c_str());
+               ierr = ierr + system(("unzip -o " + str4 + " -d " + temp_path_str + " PUPIL.*" ).c_str());
+               ierr = ierr + system(("unzip -o " + str4 + " -d " + temp_path_str + " CENTER.*" ).c_str());
+               ierr = ierr + system(("unzip -o " + str4 + " -d " + temp_path_str + " PATIENT.TXT" ).c_str());
+               ierr = ierr + system(("unzip -o " + str4 + " -d " + temp_path_str + " EXAM.TXT" ).c_str());
 #endif
                if (ierr > 0) {
                   std::cout << "Error unzipping Keratograph data files " << __LINE__ << std::endl;
@@ -511,12 +511,12 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
     ierr = ierr + system(("C:\\Windows\\System32\\tar -xf " + str4 + " -C " + temp_path_str + " PATIENT.TXT").c_str());
     ierr = ierr + system(("C:\\Windows\\System32\\tar -xf " + str4 + " -C " + temp_path_str + " EXAM.TXT").c_str());
 #else
-               ierr = ier  + system(("unzip -o " + str4 + " " + temp_path_str + "/CORNEA.*" ).c_str());
-               ierr = ierr + system(("unzip -o " + str4 + " " + temp_path_str + "/CURVAT.*" ).c_str());
-               ierr = ierr + system(("unzip -o " + str4 + " " + temp_path_str + "/PUPIL.*" ).c_str());
-               ierr = ierr + system(("unzip -o " + str4 + " " + temp_path_str + "/CENTER.*" ).c_str());
-               ierr = ierr + system(("unzip -o " + str4 + " " + temp_path_str + "/PATIENT.TXT" ).c_str());
-               ierr = ierr + system(("unzip -o " + str4 + " " + temp_path_str + "/EXAM.TXT" ).c_str());
+               ierr = ierr + system(("unzip -o " + str4 + " -d " + temp_path_str + " CORNEA.*" ).c_str());
+               ierr = ierr + system(("unzip -o " + str4 + " -d " + temp_path_str + " CURVAT.*" ).c_str());
+               ierr = ierr + system(("unzip -o " + str4 + " -d " + temp_path_str + " PUPIL.*" ).c_str());
+               ierr = ierr + system(("unzip -o " + str4 + " -d " + temp_path_str + " CENTER.*" ).c_str());
+               ierr = ierr + system(("unzip -o " + str4 + " -d " + temp_path_str + " PATIENT.TXT" ).c_str());
+               ierr = ierr + system(("unzip -o " + str4 + " -d " + temp_path_str + " EXAM.TXT" ).c_str());
 #endif
                if (ierr > 0) {
                    std::cout << "Error unzipping Keratograph data files " << __LINE__ << std::endl;

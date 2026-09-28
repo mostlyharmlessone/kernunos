@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.30)
 cmake_policy(VERSION 3.30)
 
-#uncomment for Darwin
+#UNCOMMENT for Darwin or cmake commandline in Linux
+#project(kernunos LANGUAGES C CXX Fortran)
+#UNCOMMENT for Darwin, but don't prevent -F issue
 #set(CMAKE_Fortran_INCLUDES_FLAG "-I")
 #set(CMAKE_FIND_FRAMEWORK LAST)
-#project(kernunos LANGUAGES C CXX Fortran)
 #set(CMAKE_Fortran_INCLUDE_FLAG "-I" CACHE STRING "Force -I instead of -F" FORCE)
 
 set(VERSION_MAJOR "0")
@@ -20,11 +21,11 @@ set(PROJECT_VERSION_MINOR  ${VERSION_MINOR})
 #set(QT_FORCE_CMP0156_TO_VALUE OLD)
 #set(CMAKE_MODULE_PATH cmake)
 
-#set(CMAKE_HOST_SYSTEM_NAME Linux)
-#set(CMAKE_SYSTEM_NAME UNIX)
+set(CMAKE_HOST_SYSTEM_NAME Linux)
+set(CMAKE_SYSTEM_NAME UNIX)
 
-set(CMAKE_HOST_SYSTEM_NAME Windows)
-set(CMAKE_SYSTEM_NAME Windows)
+#set(CMAKE_HOST_SYSTEM_NAME Windows)
+#set(CMAKE_SYSTEM_NAME Windows)
 
 #set(CMAKE_HOST_SYSTEM_NAME Darwin)
 #set(CMAKE_SYSTEM_NAME APPLE)
@@ -37,10 +38,13 @@ set(CMAKE_HOST_SYSTEM_PROCESSOR x86_64) #host
 set(CMAKE_BUILD_TYPE DEBUG) #this include debugging with addition of bounds flags as specified below
 
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
-  message(STATUS "Host system is Linux")
- set (CMAKE_Fortran_COMPILER "gfortran")
- set(CMAKE_C_COMPILER "gcc")
- set(CMAKE_CXX_COMPILER "g++")
+ message(STATUS "Host system is Linux")
+
+#UNCOMMENT for command-line cmake
+# set (CMAKE_Fortran_COMPILER "/usr/bin/gfortran")
+# set(CMAKE_C_COMPILER "/usr/bin/cc")
+# set(CMAKE_CXX_COMPILER "/usr/bin/c++")
+
  # these don't override system environment, unfortunately
 # set (FC "gfortran")
 # set (CXX "g++")
@@ -425,7 +429,6 @@ include_directories(src/cxx src/c)
 add_library(rply_includes ${rply_sources})
 
 if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
- # put everything below; module build seems broken on Darwin
  set( INSTALL_EXAMPLEDIR  macOS )
 endif()
 

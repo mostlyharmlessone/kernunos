@@ -93,8 +93,8 @@ On more positive notes:<br></p>
 <p>If you don&#39;t have access to those system calls, you&#39;ll have to extract the cabinet files to their uncompressed data files manually and clean up the temporary files manually, which has not been tested, YMMV.<br></p>
 <h3 id="under-linux">Under Linux</h3>
 <p>After cloning the source, load submodules with git submodule update --init<br>
-Open the CmakeLists.txt as a Project in QtCreator, configure and build. </p>
-<p>Alternatively, the usual command line build should work:</p>
+Open the CMakeLists.txt as a Project in QtCreator, configure and build. </p>
+<p>Alternatively, the usual command line build should work. There are a few edits that need to be made in CMakeLists.txt depending on command-line cmake, QtCreator and your particular tool-chain setup. Check FC, CC, CXX and other environment vars to make sure cmake/Qt and the environment are in agreement.</p>
 <pre><code>mkdir build (if not already present)
 cd build
 cmake ../ (optionally cmake -DCMAKE_Fortran_FLAGS=&quot;-D__UNIX__&quot; ../)
@@ -102,10 +102,7 @@ make
 </code></pre><p>see <a href="https://gcc.gnu.org/bugzilla/show_bug.cgi?id=42954#c48">https://gcc.gnu.org/bugzilla/show_bug.cgi?id=42954#c48</a> for why gfortran needs the cmake flag.  These lines need to be uncommented in CMakeLists.txt</p>
 <pre><code>set(CMAKE_HOST_NAME Linux)
 set(CMAKE_SYSTEM UNIX)
-with these
-set(CMAKE_HOST_NAME Windows)
-set(CMAKE_SYSTEM Windows)
-</code></pre><p> and the corresponding Darwin variables commented out.<br></p>
+</code></pre><p> and the corresponding Darwin and Windws variables commented out.<br></p>
 <p>gcc is used as the default compiler with cmake. Built with Qt 6.8.3 and 6.11.1 <br></p>
 <p>Building within QtCreator is also possible, but the default of using Ninja does not work with the Fortran dependencies. I had to manually edit .qtcreator/CMakeLists.txt.user directly to replace ninja in the following lines:<br>
 -DCMAKE_GENERATOR:STRING=Unix Makefiles<br>
@@ -115,10 +112,7 @@ set(CMAKE_SYSTEM Windows)
 added to the cmake options as well as making sure MingW cmake was used as the build creator and that the environmental variables pointed to the MingW gcc toolchain. In addition, the additional libraries were compiled with the same toolchain.  I built assimp, superlu, glm, freetype, lapack and OpenBLAS with the same toolset using git-bash after downloading them directly from upstream. Again, you might need to adjust paths in CMakeLists.txt in order to build. These lines need to be uncommented in CMakeLists.txt:</p>
 <pre><code>set(CMAKE_HOST_NAME Windows)
 set(CMAKE_SYSTEM Windows)
-with these
-set(CMAKE_HOST_NAME Linux)
-set(CMAKE_SYSTEM UNIX)
-</code></pre><p>and the corresponding Darwin variables commented out.<br></p>
+</code></pre><p>and the corresponding Darwin and Linux variables commented out.<br></p>
 <p>Alternatively at the command line: (your Windows environment and path may differ)</p>
 <pre><code>cmake -DCMAKE_Fortran_FLAGS=&quot;-D__WIN32__&quot; -DASSIMP_WARNINGS_AS_ERRORS=OFF -DASSIMP_BUILD_TESTS=off -G &quot;MinGW Makefiles&quot; ../
 mingw32-make
@@ -146,10 +140,10 @@ make qt6 MXE_TARGETS=&#39;x886_64-w64-mingw32.static&#39;
 <p>These lines need to be uncommented in CMakeLists.txt:<br></p>
 <pre><code>set(CMAKE_HOST_NAME Linux)
 set(CMAKE_SYSTEM Windows)
-with these
+with these commented out:
 set(CMAKE_HOST_NAME Windows)
 set(CMAKE_SYSTEM UNIX)
-</code></pre><p>and the corresponding Darwin variables commented out.<br></p>
+</code></pre><p>and the corresponding Darwin variables also commented out.<br></p>
 <p>Numerous libraries can be imported from their (mingw64) builds under Windows.<br></p>
 <p>NOTES:<br>
 after copying qt6 static Windows libs from Windows Qt install into Qt/6.8.3/mingw<br>

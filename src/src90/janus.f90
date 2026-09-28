@@ -1201,32 +1201,32 @@ if (mod(flag,100) == 0) then
            endif
            file_idx=index(cab_inputfile1, "_OS.")
            if (file_idx == 0 ) then  !OD
-            inquire(file=trim(inputfile5) // "\CURVAT_F.OD", exist=exists)
+            inquire(file=trim(inputfile5) // "/CURVAT_F.OD", exist=exists)
             if (exists) then
-             inputfile2=trim(inputfile5) // "\CURVAT_F.OD"
-             inputfile1=trim(inputfile5) // "\CORNEA_F.OD"
+             inputfile2=trim(inputfile5) // "/CURVAT_F.OD"
+             inputfile1=trim(inputfile5) // "/CORNEA_F.OD"
             else
-             inputfile2=trim(inputfile5) // "\CURVAT.OD"
-             inputfile1=trim(inputfile5) // "\CORNEA.OD"
+             inputfile2=trim(inputfile5) // "/CURVAT.OD"
+             inputfile1=trim(inputfile5) // "/CORNEA.OD"
             endif
-            inputfile3=trim(inputfile5) // "\PUPIL.OD"
-            inputfile4=trim(inputfile5) // "\CENTER.OD"
-            inputfile6=trim(inputfile5) // "\PATIENT.TXT"
-            inputfile7=trim(inputfile5) // "\EXAM.TXT"
+            inputfile3=trim(inputfile5) // "/PUPIL.OD"
+            inputfile4=trim(inputfile5) // "/CENTER.OD"
+            inputfile6=trim(inputfile5) // "/PATIENT.TXT"
+            inputfile7=trim(inputfile5) // "/EXAM.TXT"
             inputfile5=replacestr(string=cab_inputfile1,search="EXP_Topo_OD.zip",substitute="ZERNIKE.CSV")
            else  !OS
-           inquire(file=trim(inputfile5) // "\CURVAT_F.OS", exist=exists)
+           inquire(file=trim(inputfile5) // "/CURVAT_F.OS", exist=exists)
            if (exists) then
-            inputfile2=trim(inputfile5) // "\CURVAT_F.OS"
-            inputfile1=trim(inputfile5) // "\CORNEA_F.OS"
+            inputfile2=trim(inputfile5) // "/CURVAT_F.OS"
+            inputfile1=trim(inputfile5) // "/CORNEA_F.OS"
            else
-            inputfile2=trim(inputfile5) // "\CURVAT.OS"
-            inputfile1=trim(inputfile5) // "\CORNEA.OS"
+            inputfile2=trim(inputfile5) // "/CURVAT.OS"
+            inputfile1=trim(inputfile5) // "/CORNEA.OS"
            endif
-           inputfile3=trim(inputfile5) // "\PUPIL.OS"
-           inputfile4=trim(inputfile5) // "\CENTER.OS"
-           inputfile6=trim(inputfile5) // "\PATIENT.TXT"
-           inputfile7=trim(inputfile5) // "\EXAM.TXT"
+           inputfile3=trim(inputfile5) // "/PUPIL.OS"
+           inputfile4=trim(inputfile5) // "/CENTER.OS"
+           inputfile6=trim(inputfile5) // "/PATIENT.TXT"
+           inputfile7=trim(inputfile5) // "/EXAM.TXT"
            inputfile5=replacestr(string=cab_inputfile1,search="EXP_Topo_OS.zip",substitute="ZERNIKE.CSV")
          endif
           else   !not compressed

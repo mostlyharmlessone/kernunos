@@ -238,7 +238,7 @@ A: Under Windows 10 VM with mesa3d-26.1.3-release-mingw you may see the followin
 ```
 D3D Error 887e0003: (alphanumeric) at (hex_address) - D3D12SDKVersion from D3D12Core != requested D3D12SDKVersion 
 ```
-It appears to be harmless.<br>
+It appears to be harmless, though usually indicates there is another problem. Check the logs.<br>
 
 Q: View|Powers and View|Angles don't appear, or are weird!<br>
 

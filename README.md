@@ -114,9 +114,9 @@ If you don't have access to those system calls, you'll have to extract the cabin
 ###Under Linux 
 
 After cloning the source, load submodules with git submodule update --init<br>
-Open the CmakeLists.txt as a Project in QtCreator, configure and build. 
+Open the CMakeLists.txt as a Project in QtCreator, configure and build. 
 
-Alternatively, the usual command line build should work:
+Alternatively, the usual command line build should work. There are a few edits that need to be made in CMakeLists.txt depending on command-line cmake, QtCreator and your particular tool-chain setup. Check FC, CC, CXX and other environment vars to make sure cmake/Qt and the environment are in agreement.
 ```
 mkdir build (if not already present)
 cd build
@@ -127,11 +127,8 @@ see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=42954#c48 for why gfortran need
 ```
 set(CMAKE_HOST_NAME Linux)
 set(CMAKE_SYSTEM UNIX)
-with these
-set(CMAKE_HOST_NAME Windows)
-set(CMAKE_SYSTEM Windows)
 ```
- and the corresponding Darwin variables commented out.<br>
+ and the corresponding Darwin and Windws variables commented out.<br>
 
 gcc is used as the default compiler with cmake. Built with Qt 6.8.3 and 6.11.1 <br>
 
@@ -147,11 +144,8 @@ added to the cmake options as well as making sure MingW cmake was used as the bu
 ```
 set(CMAKE_HOST_NAME Windows)
 set(CMAKE_SYSTEM Windows)
-with these
-set(CMAKE_HOST_NAME Linux)
-set(CMAKE_SYSTEM UNIX)
 ```
-and the corresponding Darwin variables commented out.<br>
+and the corresponding Darwin and Linux variables commented out.<br>
 
 Alternatively at the command line: (your Windows environment and path may differ)
 ```
@@ -197,11 +191,11 @@ These lines need to be uncommented in CMakeLists.txt:<br>
 ```
 set(CMAKE_HOST_NAME Linux)
 set(CMAKE_SYSTEM Windows)
-with these
+with these commented out:
 set(CMAKE_HOST_NAME Windows)
 set(CMAKE_SYSTEM UNIX)
 ```
-and the corresponding Darwin variables commented out.<br>
+and the corresponding Darwin variables also commented out.<br>
 
 Numerous libraries can be imported from their (mingw64) builds under Windows.<br>
 
