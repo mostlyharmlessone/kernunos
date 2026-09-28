@@ -677,7 +677,9 @@ SUBROUTINE rcnvrtk(read_error,ELEVNAME,CURVNAME,PUPILNAME,CENTERNAME,ZERNIKENAME
      inquire(file=trim(PATIENTNAME), exist=exists2)
      inquire(file=trim(EXAMNAME), exist=exists3)
      if (exists .and. exists2 .and. exists3) then
-     call LogC("Found "//ZERNIKENAME//' '//PATIENTNAME//' '//EXAMNAME//c_null_char)
+      call LogC("Found "//ZERNIKENAME//c_null_char)
+      call LogC("Found "//PATIENTNAME//c_null_char)
+      call LogC("Found "//EXAMNAME//c_null_char)
       unitno1 = get_new_fileunit()
       unitno2 = get_new_fileunit()
       unitno3 = get_new_fileunit()

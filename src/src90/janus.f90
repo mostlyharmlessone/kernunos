@@ -1719,8 +1719,9 @@ if (TestData .eq. 6) then
     allocate(CHARACTER(nblines) :: cab_inputfile1)
     cab_inputfile1=inputfile1   
 #if defined (__WIN32__)
- cab_inputfile1='"' // trim(cab_inputfile1) // '"'
-    call execute_command_line ('Expand.exe -r ' // cab_inputfile1 // ' -F:* ' // '"' // trim(temp_path) // '"', exitstat=io)
+    cab_inputfile1='"' // trim(cab_inputfile1) // '"'
+    call execute_command_line ("C:\Windows\system32\Expand.exe -r "&
+    &// cab_inputfile1 // ' -F:* ' // '"' // trim(temp_path) // '"', exitstat=io)
 #else
 #if defined  (__APPLE__)
 #if defined(__aarch64__)
@@ -1742,16 +1743,17 @@ if (TestData .eq. 6) then
      inputfile1="/tmp/" // inputfile1
 #endif
     else
-     write(*,*) 'Error opening cabinet file',inputfile1
-     write(*,*) 'Make sure you have cab_extract installed and/or manually check/decompress the CAB file(s).'
+     write(*,*) 'Error opening cabinet file ',inputfile1
+     write(*,*) 'Make sure you have cab_extract (Linux or Darwin) installed and/or manually check/decompress the CAB file(s).'
      deallocate(cab_inputfile1)
      return
     endif
     allocate(CHARACTER(nblines) :: cab_inputfile2)
     cab_inputfile2=inputfile2   
 #if defined (__WIN32__)
- cab_inputfile2='"' // trim(cab_inputfile2) // '"'
-    call execute_command_line ('Expand.exe -r ' // cab_inputfile2 // ' -F:* ' // '"' // trim(temp_path) // '"', exitstat=io)
+     cab_inputfile2='"' // trim(cab_inputfile2) // '"'
+     call execute_command_line ("C:\Windows\system32\Expand.exe -r "&
+     &// cab_inputfile2 // ' -F:* ' // '"' // trim(temp_path) // '"', exitstat=io)
 #else
 #if defined  (__APPLE__)
 #if defined(__aarch64__)
@@ -1773,7 +1775,7 @@ if (TestData .eq. 6) then
      inputfile2="/tmp/" // inputfile2
 #endif
     else
-     write(*,*) 'Error opening cabinet file',inputfile2
+     write(*,*) 'Error opening cabinet file ',inputfile2
      write(*,*) 'Make sure you have cab_extract installed and/or manually check/decompress the CAB file(s).'
      deallocate(cab_inputfile2)
      return
@@ -1783,8 +1785,9 @@ if (TestData .eq. 6) then
      allocate(CHARACTER(nblines) :: cab_inputfile4)
      cab_inputfile4=inputfile4     
 #if defined (__WIN32__)
- cab_inputfile4='"' // trim(cab_inputfile4) // '"'
-    call execute_command_line ('Expand.exe -r ' // cab_inputfile4 // ' -F:* ' // '"' // trim(temp_path) // '"', exitstat=io)
+     cab_inputfile4='"' // trim(cab_inputfile4) // '"'
+     call execute_command_line ("C:\Windows\system32\Expand.exe -r "&
+     &// cab_inputfile4 // ' -F:* ' // '"' // trim(temp_path) // '"', exitstat=io)
 #else
 #if defined  (__APPLE__)
 #if defined(__aarch64__)
@@ -1806,7 +1809,7 @@ if (TestData .eq. 6) then
      inputfile4="/tmp/" // inputfile4
 #endif
      else
-      write(*,*) 'Error opening cabinet file',inputfile4
+      write(*,*) 'Error opening cabinet file ',inputfile4
       write(*,*) 'Make sure you have cab_extract installed and/or manually check/decompress the CAB file(s).'
       deallocate(cab_inputfile4)
       return

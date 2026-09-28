@@ -480,12 +480,12 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
                LogC("Extrapolated Keratograph data files");
 
 #ifdef _WIN32
-               ierr = ierr + system(("tar -xf " + str4 + " -C " + temp_path_str + " CORNEA_F.*").c_str());
-               ierr = ierr + system(("tar -xf " + str4 + " -C " + temp_path_str + " CURVAT_F.*").c_str());
-               ierr = ierr + system(("tar -xf " + str4 + " -C " + temp_path_str + " PUPIL.*").c_str());
-               ierr = ierr + system(("tar -xf " + str4 + " -C " + temp_path_str + " CENTER.*").c_str());
-               ierr = ierr + system(("tar -xf " + str4 + " -C " + temp_path_str + " PATIENT.TXT").c_str());
-               ierr = ierr + system(("tar -xf " + str4 + " -C " + temp_path_str + " EXAM.TXT").c_str());
+    ierr = ierr + system(("C:\\Windows\\System32\\tar -xf " + str4 + " -C " + temp_path_str + " CORNEA_F.*").c_str());
+    ierr = ierr + system(("C:\\Windows\\System32\\tar -xf " + str4 + " -C " + temp_path_str + " CURVAT_F.*").c_str());
+    ierr = ierr + system(("C:\\Windows\\System32\\tar -xf " + str4 + " -C " + temp_path_str + " PUPIL.*").c_str());
+    ierr = ierr + system(("C:\\Windows\\System32\\tar -xf " + str4 + " -C " + temp_path_str + " CENTER.*").c_str());
+    ierr = ierr + system(("C:\\Windows\\System32\\tar -xf " + str4 + " -C " + temp_path_str + " PATIENT.TXT").c_str());
+    ierr = ierr + system(("C:\\Windows\\System32\\tar -xf " + str4 + " -C " + temp_path_str + " EXAM.TXT").c_str());
 #else
                ierr = system(("unzip -o " + str4 + " CORNEA_F.*").c_str());
                ierr = ierr + system(("unzip -o " + str4 + " " + temp_path_str + "/CURVAT_F.*" ).c_str());
@@ -504,12 +504,12 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
                LogC("Unextrapolated Keratograph data files");
 
 #ifdef _WIN32
-               ierr = ierr + system(("tar -xf " + str4 + " -C " + temp_path_str + " CORNEA.*").c_str());
-               ierr = ierr + system(("tar -xf " + str4 + " -C " + temp_path_str + " CURVAT.*").c_str());
-               ierr = ierr + system(("tar -xf " + str4 + " -C " + temp_path_str + " PUPIL.*").c_str());
-               ierr = ierr + system(("tar -xf " + str4 + " -C " + temp_path_str + " CENTER.*").c_str());
-               ierr = ierr + system(("tar -xf " + str4 + " -C " + temp_path_str + " PATIENT.TXT").c_str());
-               ierr = ierr + system(("tar -xf " + str4 + " -C " + temp_path_str + " EXAM.TXT").c_str());
+    ierr = ierr + system(("C:\\Windows\\System32\\tar -xf " + str4 + " -C " + temp_path_str + " CORNEA.*").c_str());
+    ierr = ierr + system(("C:\\Windows\\System32\\tar -xf " + str4 + " -C " + temp_path_str + " CURVAT.*").c_str());
+    ierr = ierr + system(("C:\\Windows\\System32\\tar -xf " + str4 + " -C " + temp_path_str + " PUPIL.*").c_str());
+    ierr = ierr + system(("C:\\Windows\\System32\\tar -xf " + str4 + " -C " + temp_path_str + " CENTER.*").c_str());
+    ierr = ierr + system(("C:\\Windows\\System32\\tar -xf " + str4 + " -C " + temp_path_str + " PATIENT.TXT").c_str());
+    ierr = ierr + system(("C:\\Windows\\System32\\tar -xf " + str4 + " -C " + temp_path_str + " EXAM.TXT").c_str());
 #else
                ierr = ier  + system(("unzip -o " + str4 + " " + temp_path_str + "/CORNEA.*" ).c_str());
                ierr = ierr + system(("unzip -o " + str4 + " " + temp_path_str + "/CURVAT.*" ).c_str());
@@ -755,13 +755,13 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
 #endif
                if (keratoDialogOptionsWidget->value()){
                    LogC("Extrapolated Keratograph data files");
-#ifdef _WIN32       
-                   ierr = ierr + system(("tar -xf " + str4 + " -C " + temp_path_str + " CORNEA_F.*").c_str());
-                   ierr = ierr + system(("tar -xf " + str4 + " -C " + temp_path_str + " CURVAT_F.*").c_str());
-                   ierr = ierr + system(("tar -xf " + str4 + " -C " + temp_path_str + " PUPIL.*").c_str());
-                   ierr = ierr + system(("tar -xf " + str4 + " -C " + temp_path_str + " CENTER.*").c_str());
-                   ierr = ierr + system(("tar -xf " + str4 + " -C " + temp_path_str + " PATIENT.TXT").c_str());
-                   ierr = ierr + system(("tar -xf " + str4 + " -C " + temp_path_str + " EXAM.TXT").c_str());
+#ifdef _WIN32
+    ierr = ierr + system(("C:\\Windows\\System32\\tar -xf " + str4 + " -C " + temp_path_str + " CORNEA_F.*").c_str());
+    ierr = ierr + system(("C:\\Windows\\System32\\tar -xf " + str4 + " -C " + temp_path_str + " CURVAT_F.*").c_str());
+    ierr = ierr + system(("C:\\Windows\\System32\\tar -xf " + str4 + " -C " + temp_path_str + " PUPIL.*").c_str());
+    ierr = ierr + system(("C:\\Windows\\System32\\tar -xf " + str4 + " -C " + temp_path_str + " CENTER.*").c_str());
+    ierr = ierr + system(("C:\\Windows\\System32\\tar -xf " + str4 + " -C " + temp_path_str + " PATIENT.TXT").c_str());
+    ierr = ierr + system(("C:\\Windows\\System32\\tar -xf " + str4 + " -C " + temp_path_str + " EXAM.TXT").c_str());
                    #else
                    ierr = ierr + system(("unzip -o " + str4 + temp_path_str + "/CORNEA_F.*").c_str());
                    ierr = ierr + system(("unzip -o " + str4 + temp_path_str + "CURVAT_F.*" ).c_str());
@@ -780,12 +780,12 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
                    LogC("Unextrapolated Keratograph data files");
 
 #ifdef _WIN32
-                   ierr = ierr + system(("tar -xf " + str4 + " -C " + temp_path_str + " CORNEA.*").c_str());
-                   ierr = ierr + system(("tar -xf " + str4 + " -C " + temp_path_str + " CURVAT.*").c_str());
-                   ierr = ierr + system(("tar -xf " + str4 + " -C " + temp_path_str + " PUPIL.*").c_str());
-                   ierr = ierr + system(("tar -xf " + str4 + " -C " + temp_path_str + " CENTER.*").c_str());
-                   ierr = ierr + system(("tar -xf " + str4 + " -C " + temp_path_str + " PATIENT.TXT").c_str());
-                   ierr = ierr + system(("tar -xf " + str4 + " -C " + temp_path_str + " EXAM.TXT").c_str());
+    ierr = ierr + system(("C:\\Windows\\System32\\tar -xf " + str4 + " -C " + temp_path_str + " CORNEA.*").c_str());
+    ierr = ierr + system(("C:\\Windows\\System32\\tar -xf " + str4 + " -C " + temp_path_str + " CURVAT.*").c_str());
+    ierr = ierr + system(("C:\\Windows\\System32\\tar -xf " + str4 + " -C " + temp_path_str + " PUPIL.*").c_str());
+    ierr = ierr + system(("C:\\Windows\\System32\\tar -xf " + str4 + " -C " + temp_path_str + " CENTER.*").c_str());
+    ierr = ierr + system(("C:\\Windows\\System32\\tar -xf " + str4 + " -C " + temp_path_str + " PATIENT.TXT").c_str());
+    ierr = ierr + system(("C:\\Windows\\System32\\tar -xf " + str4 + " -C " + temp_path_str + " EXAM.TXT").c_str());
 #else
                    ierr = ierr + system(("unzip -o " + str4 + "/CORNEA.*" ).c_str());
                    ierr = ierr + system(("unzip -o " + str4 + "/CURVAT.*" ).c_str());
