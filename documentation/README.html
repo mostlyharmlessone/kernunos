@@ -66,7 +66,7 @@ accuracy / precision axial radius +/- 0.03mm altimetric data, +/- 2µm at 4mm&qu
 <p>From an engineering point of view, no meaningful error analysis was ever provided by the manufacturers of this class of equipment.  Access to the raw data (in the open software/hardware sense) was never, as far as I can tell, on the table, making an independent analysis impossible.  In the best case scenario for topographers, that would mean having an image file of the corneal rings taken by the camera (the raw data), measuring the physical Placido cone in the lab (more raw data that we would have to collect), and then writing our own algorithm to determine the implied shape of the cornea by the relationship between the image and the object.  That might be easiest with some calibrated reflective target spheres (sometimes provided by the manufacturer for calibration).<br></p>
 <p>Dry ocular surfaces or unstable tear films can produce broken or irregular mires which can generate completely spurious geometry, so much so that some contemporary sales pitches for  these machines are now focussed on dry eye detection rather than topography.<br></p>
 <p>The other and newer class of machine uses scanning technology to measure elevation either with a scanning laser (including OCT) or Scheimpflug photography, which presumably each have their own error of measurements. There is not as much information published about the details of the technology from an engineering point of view, making an independent estimation of those errors hard to know. Organizations providing tear downs of electronics and equipment such as IFixit, IPRG and EDN have not apparently worked on any topographer.  Caveat emptor! <br></p>
-<h3 id="on-data-storage-and-reading-files">On data storage and reading files</h3>
+<h2 id="on-data-storage-and-reading-files">On data storage and reading files</h2>
 <p>&quot;<em>Do not attribute conditions to villainy that simply result from stupidity.</em>”<br></p>
 <p>It is rare for data to be written to files as IEEE-754 floating point or ASCII/Unicode, for example in the modern era, and the alternative, yet common choice, of a relatively non-intuitive data storage with questionable computational or storage advantage, (a strategy which has often been deprecated for difficulties in code maintenance), points to possible deliberate obfuscation.<br></p>
 <p>Quoting <a href="https://en.wikipedia.org/wiki/Raw_image_format">https://en.wikipedia.org/wiki/Raw_image_format</a><br>
@@ -86,12 +86,12 @@ On more positive notes:<br></p>
 <h2 id="usage">Usage</h2>
 <p>It is an embarrassment to have to state the following, as it should be understood to be the default:  No material on this site is intended to be a substitute for professional medical advice, diagnosis or treatment, nor is it meant for a corporate workplace.  If you want a secure professional piece of software, please consult a professional developer.  Speaking of which, this is NOT &quot;vibe-coded&quot;, nor written by, nor with use of a so-called AI/LLM.  The information presented on the devices above was almost entirely gained by examining the machines externally and their files when possible, or public information on the internet when not, and its accuracy may therefore very well be limited or incorrect. No information was provided by any manufacturer other than what is available to the public and occasional chats with friendly sales reps for some of the manufacturers, with the notable exception of OCULUS Optikgeräte GmbH (Oculus USA) who were generous and kind enough to supply a sample export file and documentation for the Oculus Keratograph, as well as an export file from their latest OCT incorporating PentaCam machine.  Thank you Oculus! No warranty is made whatsoever that this software will function in the way that it is expected and that the results can be relied on to make clinical decisions. See also the LICENSE. Some example files have been included for demonstration purposes with the files redacted as needed to remove protected personal information.  The program is meant as a tool for understanding and improving intraoperability of data, limited by its design and manufacture, as well as by the user.<br><br> </p>
 <h2 id="building">Building</h2>
-<p>This software was developed at various times under the Slackware, Ubuntu, Arch, Manjaro distributions of GNU/Linux. Dependencies include Qt6, assimp, lapack, rply, gnuplot, gnuplot-iostream, boost, freetype, unzip, cabextract and superlu. Some routines are adapted from other sources and included, for example excerpts from Hanson &amp; Hopkins (see below). OpenGL is used as the primary graphics API: GLSL 3.30 is needed as a minimum.  Qt appears to be deprecating C++ support in favor of QML: you may need to make sure the proper support is present. This version was built with Qt 6.8.3 and 6.11.1 with QtCreator 20. You might need to adjust some of the paths in the CMakeLists.txt to build.<br></p>
+<p>This software was developed at various times under the Slackware, Ubuntu, Arch, Manjaro distributions of GNU/Linux. Dependencies include Qt6, assimp, lapack, rply, gnuplot, freetype, unzip, cabextract and superlu. Some routines are adapted from other sources and included, for example excerpts from Hanson &amp; Hopkins (see below). OpenGL is used as the primary graphics API: GLSL 3.30 is needed as a minimum.  Qt appears to be deprecating C++ support in favor of QML: you may need to make sure the proper support is present. This version was built with Qt 6.8.3 and 6.11.1 with QtCreator 20. You might need to adjust some of the paths in the CMakeLists.txt to build.<br></p>
 <p>There are some patches to Hanson &amp; Hopkins <a href="http://www.siam.org/books/ot134">http://www.siam.org/books/ot134</a> chapters 2,4, &amp; 11 to accomodate superlu versions &gt; 4.3, for Windows compilation and to support CSR sparse matrices.<br></p>
 <p>For some file formats, Fortran Linux system calls {call execute_command_line() } to cabextract and rm (or Expand and del under Wiindows) are used for convenience in reading compressed Windows cabinet files and cleaning up temporary files. <br></p>
 <p>Linux system calls from C++  { system() } are called for starting with a command shell for gnuplot and assorted file ops such as unzip, rm, touch, cp, or Windows calls to cmd, tar, del, type and copy.<br></p>
 <p>If you don&#39;t have access to those system calls, you&#39;ll have to extract the cabinet files to their uncompressed data files manually and clean up the temporary files manually, which has not been tested, YMMV.<br></p>
-<h3 id="under-linux">Under Linux</h3>
+<h2 id="under-linux">Under Linux</h2>
 <p>After cloning the source, load submodules with git submodule update --init<br>
 Open the CMakeLists.txt as a Project in QtCreator, configure and build. </p>
 <p>Alternatively, the usual command line build should work. There are a few edits that need to be made in CMakeLists.txt depending on command-line cmake, QtCreator and your particular tool-chain setup. Check FC, CC, CXX and other environment vars to make sure cmake/Qt and the environment are in agreement.</p>
@@ -107,7 +107,7 @@ set(CMAKE_SYSTEM UNIX)
 <p>Building within QtCreator is also possible, but the default of using Ninja does not work with the Fortran dependencies. I had to manually edit .qtcreator/CMakeLists.txt.user directly to replace ninja in the following lines:<br>
 -DCMAKE_GENERATOR:STRING=Unix Makefiles<br>
 -DCMAKE_MAKE_PROGRAM:STRING=/usr/bin/make<br></p>
-<h3 id="under-windows">Under Windows</h3>
+<h2 id="under-windows">Under Windows</h2>
 <p>Build under Windows. The precompiled binary and installer were built in a Windows 10 VM using QtCreator <a href="https://doc.qt.io/qt-6/windows.html">https://doc.qt.io/qt-6/windows.html</a>. I used MingW/GCC for the C/C++/Fortran compiler. The binary was built using QtCreator 19 and Qt 6.8.3, with assimp being built with<br> ASSIMP_WARNINGS_AS_ERRORS:UNINITIALIZED=OFF <br>
 added to the cmake options as well as making sure MingW cmake was used as the build creator and that the environmental variables pointed to the MingW gcc toolchain. In addition, the additional libraries were compiled with the same toolchain.  I built assimp, superlu, glm, freetype, lapack and OpenBLAS with the same toolset using git-bash after downloading them directly from upstream. Again, you might need to adjust paths in CMakeLists.txt in order to build. These lines need to be uncommented in CMakeLists.txt:</p>
 <pre><code>set(CMAKE_HOST_NAME Windows)
@@ -125,7 +125,7 @@ export CXX=&quot;/c/Qt/Tools/mingw1310_64/bin/g++&quot;&lt;br&gt;
 <p>As noted, OpenGL is used as the primary graphics API: it needs GLSL 3.30, which means the Windows binary will not run in a VM unless it has access to a real graphics card via passthrough or with a software renderer separately installed, eg.<br> <a href="https://github.com/pal1000/mesa-dist-win">https://github.com/pal1000/mesa-dist-win</a>.<br>
 If used, install the Core (option 1) and the software renderer (option 7). The program and installer will run under WINE using the Linux distro&#39;s GLSL support, although the Linux distro&#39;s gnuplot will not be available. YMMV.<br>
 The binary Windows installer (built with NSIS) includes an option to install gnuplot and the Mesa3D software renderer. The NSIS installer also includes Qt assistant.exe (used by the help function) copied into the binaries, with windeploy used for that executable as well. CrossOver(TM) works well, although you might need to manually close some cmd.exe windows manually on installation and when using gnuplot.<br></p>
-<h3 id="cross-compiling-for-windows-under-linux">Cross-compiling for Windows under Linux</h3>
+<h2 id="cross-compiling-for-windows-under-linux">Cross-compiling for Windows under Linux</h2>
 <p>Under construction. Cross compiling under Linux is not as straightforward as one would like in 2026.  Perhaps it is not the ideal solution; there was a lot more activity &gt;10 years prior, with the option of building in a VM with native tools becoming more common. As of this writing, I haven&#39;t managed a complete cross-compile build. Some notes follow:<br></p>
 <p>Under Arch Linux using AUR packages</p>
 <pre><code>yay -S mingw-w64-gcc 
@@ -161,14 +161,14 @@ in general<br>
 <a href="https://wiki.archlinux.org/title/MinGW_package_guidelines">https://wiki.archlinux.org/title/MinGW_package_guidelines</a> <br>
 wxWidgets<br>
 <a href="https://wiki.wxwidgets.org/Cross-Compiling_Under_Linux">https://wiki.wxwidgets.org/Cross-Compiling_Under_Linux</a> <br></p>
-<h3 id="for-macos-darwin">For MacOS/Darwin</h3>
+<h2 id="for-macos-darwin">For MacOS/Darwin</h2>
 <p>Build it on a Mac. It appears the little activity in cross-compiling under Linux has largely been abandoned, possibly because of changes in Apple hardware over the last 10 years, which would not only require cross-compiling for Darwin/MacOS/Quartz, but also for the M1/M2/M3/M.. chips and other Apple only hardware. As of this writing Apple will discontinue support for development (ie Xcode) for intel Mac (arch x86_64) in 2027. In addition, unfortunately, the Mac native tools (Appleclang and XCode) are not particularly Fortran friendly and do not support OpenMP, and as with Windows and the default Visual C++/Intel Fortran/Cmake mismatch, one has to replace the native toolchain with an alternate version. Qt binaries for the MacOS are only provided for clang/llvm, so GCC is not an alternative unless you want to recompile/build Qt using GCC on your Mac. OpenGL has also been deprecated on the MacOS (Darwin) for quite some time, but is still supported to GLSL 4.1<br></p>
 <p>Successfully builds on a M3 iMac (arm64) and intel i3 (x86_64), however View|Angles and View|Powers are disabled as I could not at this time get openGL to display Freetype fonts under the version of openGL (max 4.1) on Darwin. Documentation/Assistant may not works as well, though the underlying HTML files can always be seen directly. <br></p>
 <p>Download Xcode (app store)and activate it, also:<br></p>
 <pre><code>xcode-select --switch /Applications/Xcode.app
 </code></pre><p>Minimal Apple OS version: Sonoma for homebrew. I have not tried MacPorts.<br>
 Download homebrew, use brew install to install the following:<br>
-glfw vulkan-headers superlu boost Qt gfortran glm gnuplot assimp flang llvm cabextract<br>
+glfw vulkan-headers superlu Qt gfortran glm gnuplot assimp flang llvm cabextract<br>
 change FC, CC, CXX and other environment vars to use flang/clang/clang++ to overrride Apple default clang if using the command line. For example, your path should have /opt/homebrew/opt/llvm/bin, /opt/homebrew/bin, and /opt/homebrew/sbin precede /usr/local/bin. </p>
 <pre><code>echo &#39;export PATH=&quot;/usr/local/opt/llvm/bin:$PATH&quot;&#39; &gt;&gt; ~/.zshrc
 </code></pre><p>There are the usual CMAKE_HOST_NAME and CMAKE_SYSTEM variables to change in CMakeLists.txt. Also uncomment the leading &quot;project&quot; line and uncomment the architecture aarch64 or x86_64 variable.&quot;<br>
@@ -233,7 +233,7 @@ struct Q_GUI_EXPORT QCocoaGLContext
 <a href="https://github.com/mostlyharmlessone/kernunos/blob/main/LICENSE">LICENSE</a><br> if not superseded by the relevant licenses of the adapted software collected under ./licenses.  Written documentation including this README © 1999 by Anthony M de Beus is licensed under CC BY-SA 4.0. <a href="https://creativecommons.org/licenses/by-sa/4.0/">https://creativecommons.org/licenses/by-sa/4.0/</a> <br></p>
 <h2 id="web-background-references">Web background references</h2>
 <p>Broken links, books out of print, and any other disappointments are part of life.<br></p>
-<h4 id="wikipedia-mathematics">Wikipedia/Mathematics</h4>
+<h2 id="wikipedia-mathematics">Wikipedia/Mathematics</h2>
 <p>There&#39;s nothing wrong with using the encyclopedia as a starting point, and like a dictionary used in a popular crossword word making game, at least we can choose to agree on a common reference.<br>
 <a href="https://en.wikipedia.org/wiki/Bicubic_interpolation">https://en.wikipedia.org/wiki/Bicubic_interpolation</a> <br>
 <a href="https://en.wikipedia.org/wiki/Differential_geometry_of_surfaces">https://en.wikipedia.org/wiki/Differential_geometry_of_surfaces</a> <br>
@@ -247,7 +247,7 @@ struct Q_GUI_EXPORT QCocoaGLContext
 <a href="https://en.wikipedia.org/wiki/Scheimpflug_principle">https://en.wikipedia.org/wiki/Scheimpflug_principle</a> <br>
 <a href="https://en.wikipedia.org/wiki/Sparse_matrix">https://en.wikipedia.org/wiki/Sparse_matrix</a> <br>
 <a href="https://en.wikipedia.org/wiki/Tensor">https://en.wikipedia.org/wiki/Tensor</a> <br></p>
-<h4 id="opengl-copied-from-adapted-referenced">openGL copied from/adapted/referenced</h4>
+<h2 id="opengl-copied-from-adapted-referenced">openGL copied from/adapted/referenced</h2>
 <p>Yeah, well, it was popular when I started the project, and is still widely supported, like C, C++ and Fortran.. which were also still popular when I started. <br>
 <a href="https://www.khronos.org/opengl/wiki/Getting_Started#Writing_an_OpenGL_Application">https://www.khronos.org/opengl/wiki/Getting_Started#Writing_an_OpenGL_Application</a> <br>
 <a href="https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal">https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal</a> <br>
@@ -270,14 +270,14 @@ struct Q_GUI_EXPORT QCocoaGLContext
 <a href="https://github.com/capnramses/antons_opengl_tutorials_book">https://github.com/capnramses/antons_opengl_tutorials_book</a> <br>
 <a href="https://en.wikibooks.org/wiki/Category:Book:OpenGL_Programming">https://en.wikibooks.org/wiki/Category:Book:OpenGL_Programming</a> <br>
 <a href="https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal">https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal</a> <br></p>
-<h4 id="qt-copied-adapted-from">Qt copied/adapted from</h4>
+<h2 id="qt-copied-adapted-from">Qt copied/adapted from</h2>
 <p>I did some asking around about a good environment for building a program that could conceivably be compiled for multiple OS/architectures..Qt kept coming up.<br>
 <a href="https://www.qt.io">https://www.qt.io</a> <br>
 qt6/examples <br>
 <a href="https://github.com/QtOpenGL/qgl_tutorials">https://github.com/QtOpenGL/qgl_tutorials</a> <br> <a href="https://bogotobogo.com/Qt/Qt5_OpenGL_QGLWidget.php">https://bogotobogo.com/Qt/Qt5_OpenGL_QGLWidget.php</a> <br>
 <a href="https://www.qt.io/">https://www.qt.io/</a> particularly assistant &amp; opengl examples <br>
 <a href="https://doc.qt.io/qt-6/qopenglwidget.html">https://doc.qt.io/qt-6/qopenglwidget.html</a> <br></p>
-<h3 id="wxwidgets">wxWidgets</h3>
+<h2 id="wxwidgets">wxWidgets</h2>
 <p>used in development, abandoned for Qt at this point <br>
 <a href="https://www.wxwidgets.org">https://www.wxwidgets.org</a> <br>
 <a href="https://github.com/wxWidgets/wxWidgets/tree/master/samples/opengl">https://github.com/wxWidgets/wxWidgets/tree/master/samples/opengl</a> <br>
@@ -286,14 +286,14 @@ update glew for wxWidget &gt;= 3.1.5 for egl support <br>
 <a href="https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=glew-egl-glx">https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=glew-egl-glx</a> <br>
 <a href="https://stackoverflow.com/questions/13659853/async-execution-with-wxwidgets">https://stackoverflow.com/questions/13659853/async-execution-with-wxwidgets</a> <br>
 wxExecute(_(&quot;bash --login -i&quot;), wxEXEC_ASYNC);<br></p>
-<h3 id="books">Books</h3>
+<h2 id="books">Books</h2>
 <p>Splines and Variational Methods 1975 PM Prenter, Dover Publications <br>
 Numerical recipes in C 1988 WH Press, BP Flannery, SA Teukolsky, WT Vetterling Cambridge University Press. <br>
 Introduction to Applied Mathematics 1986 G Strang, Wellesley-Cambridge Press <br>
 Computer Methods for Mathematical Computations 1977 GE Forsythe,MA Malcolm, CB Moler., Prentice-Hall  <br>
 Numerical Computing with Modern Fortran 2013 Richard J.Hanson and Tim Hopkins SIAM. <br>
 Corneal Topography, Measuring and Modifying the Cornea, DJ Schanzlin, JB Robin (editors) 1992 Springer-Verlag <br></p>
-<h3 id="journal-articles-downloaded-class-notes-documentation">Journal articles/downloaded class notes/documentation</h3>
+<h2 id="journal-articles-downloaded-class-notes-documentation">Journal articles/downloaded class notes/documentation</h2>
 <p>(in no particular order or format, sourced manually from the internet)<br></p>
 <p>Eric Albin, Ronnie Knikker, Shihe Xin, Christian Oliver Paschereit, Yves d’Angelo. Computational assessment of curvatures and principal directions of implicit surfaces from 3D scalar data. Lecture Notes in Computer Science, 2017, Mathematical Methods for Curves and Surfaces, 10521, pp.1-22. ⟨10.1007/978-3-319-67885-6_1⟩. ⟨hal-01486547⟩<br></p>
 <p>Interchangeability between Placido disc and Scheimpflug system:
@@ -341,25 +341,26 @@ Fateme Esmaeili *, AliReza Amiri-Simkooei, Vahab Nafisi, Amin Alizadeh Naeini Th
 <a href="https://amytabb.com/tips/2022/02/27/least-squares-with-equality-constraints/">https://amytabb.com/tips/2022/02/27/least-squares-with-equality-constraints/</a> <br>
 <a href="https://web.stanford.edu/class/me200c/tutorial_90/08_subprograms.html">https://web.stanford.edu/class/me200c/tutorial_90/08_subprograms.html</a> factorial (copyright Stanford University) <br>
 <a href="https://www.mathworks.com/company/newsletters/articles/analyzing-lasik-optical-data-using-zernike-functions.html">https://www.mathworks.com/company/newsletters/articles/analyzing-lasik-optical-data-using-zernike-functions.html</a> <br></p>
-<h3 id="enshittification">enshittification</h3>
+<h2 id="enshittification">enshittification</h2>
 <p>trying to avoid it, I have downloaded the PDF of the forbrukerradet (fuggedaboutit?)report for your reading pleasure in case the link gets broken in the future <br>
 <a href="https://www.theregister.com/2026/03/06/forbrukerradet_aim_enshittification/">https://www.theregister.com/2026/03/06/forbrukerradet_aim_enshittification/</a> <br>
 related: <a href="https://en.wikipedia.org/wiki/Software_archaeology">https://en.wikipedia.org/wiki/Software_archaeology</a> <br>
 <a href="https://en.wikipedia.org/wiki/Reverse_engineering#Legality">https://en.wikipedia.org/wiki/Reverse_engineering#Legality</a> <br></p>
-<h3 id="gnuplot-incorporation-stuff">gnuplot incorporation stuff</h3>
+<h2 id="gnuplot-incorporation-stuff">gnuplot incorporation stuff</h2>
 <p><a href="https://stackoverflow.com/questions/28892434/how-to-plot-a-graph-using-gnuplot-from-c-program">https://stackoverflow.com/questions/28892434/how-to-plot-a-graph-using-gnuplot-from-c-program</a> <br>
 <a href="https://code.google.com/p/gnuplot-cpp/source/browse/trunk/gnuplot_i.hpp">https://code.google.com/p/gnuplot-cpp/source/browse/trunk/gnuplot_i.hpp</a> <br>
-<a href="https://github.com/dstahlke/gnuplot-iostream">https://github.com/dstahlke/gnuplot-iostream</a> <br>
-<a href="http://stahlke.org/dan/gnuplot-iostream/">http://stahlke.org/dan/gnuplot-iostream/</a> <br>
-<a href="https://stackoverflow.com/questions/62848395/horizontal-bar-chart-in-gnuplot">https://stackoverflow.com/questions/62848395/horizontal-bar-chart-in-gnuplot</a> <br></p>
-<h3 id="graphics-tools-used-in-development">graphics tools used in development</h3>
+<a href="https://github.com/dstahlke/gnuplot-iostream">https://github.com/dstahlke/gnuplot-iostream</a> (used in initial version)<br>
+<a href="http://stahlke.org/dan/gnuplot-iostream/">http://stahlke.org/dan/gnuplot-iostream/</a> (used in initial version)<br>
+<a href="https://stackoverflow.com/questions/62848395/horizontal-bar-chart-in-gnuplot">https://stackoverflow.com/questions/62848395/horizontal-bar-chart-in-gnuplot</a> <br>
+<a href="https://github.com/boostorg/boost">https://github.com/boostorg/boost</a> boost (used in initial version)<br></p>
+<h2 id="graphics-tools-used-in-development">graphics tools used in development</h2>
 <p><a href="https://www.meshlab.net/">https://www.meshlab.net/</a> <br>
 P. Cignoni, M. Callieri, M. Corsini, M. Dellepiane, F. Ganovelli, G. Ranzuglia
 MeshLab: an Open-Source Mesh Processing Tool, Sixth Eurographics Italian Chapter Conference, page 129-136, 2008 <br>
 <a href="http://www.gnuplot.info">http://www.gnuplot.info</a>  <br>
 GnuPlot in Action, Understanding Data with Graphs, Phillip K Janert, Manning Publications 2010 <br>
 libigl: <a href="https://libigl.github.io/">https://libigl.github.io/</a> <br></p>
-<h3 id="programming-bits-pieces-copied-adapted-from">programming bits &amp; pieces copied/adapted from</h3>
+<h2 id="programming-bits-pieces-copied-adapted-from">programming bits &amp; pieces copied/adapted from</h2>
 <p><a href="https://stackoverflow.com/questions/72566680/count-occurrences-of-character-in-file-c">https://stackoverflow.com/questions/72566680/count-occurrences-of-character-in-file-c</a> <br>
 <a href="https://stackoverflow.com/questions/2125880/convert-float-to-stdstring-in-c">https://stackoverflow.com/questions/2125880/convert-float-to-stdstring-in-c</a> <br>
 <a href="https://stackoverflow.com/questions/10750057/how-do-i-print-out-the-contents-of-a-vector">https://stackoverflow.com/questions/10750057/how-do-i-print-out-the-contents-of-a-vector</a> <br>
@@ -375,16 +376,16 @@ libigl: <a href="https://libigl.github.io/">https://libigl.github.io/</a> <br></
 <a href="https://stackoverflow.com/questions/58938347/how-do-i-replace-a-character-in-the-string-with-another-charater-in-fortran">https://stackoverflow.com/questions/58938347/how-do-i-replace-a-character-in-the-string-with-another-charater-in-fortran</a> <br>
 <a href="https://fortran-lang.discourse.group/t/how-to-write-bytes-in-a-binary-file/763/7">https://fortran-lang.discourse.group/t/how-to-write-bytes-in-a-binary-file/763/7</a> <br>
 <a href="https://stackoverflow.com/questions/41254019/reading-variable-length-data-in-fortran">https://stackoverflow.com/questions/41254019/reading-variable-length-data-in-fortran</a> <br></p>
-<h3 id="io-f90-copied-adapted-from">io.f90 copied/adapted from</h3>
+<h2 id="io-f90-copied-adapted-from">io.f90 copied/adapted from</h2>
 <p><a href="https://riptutorial.com/ebook/fortran">https://riptutorial.com/ebook/fortran</a> in particular I/O routine from Chapter 7 I/O:  AL-P, Ed Smith, francescalus, Kyle Kanos, TTT</p>
-<h3 id="color-f90-modified-from">color.f90 modified from</h3>
+<h2 id="color-f90-modified-from">color.f90 modified from</h2>
 <p><a href="https://fortranwiki.org/fortran/show/M_color">https://fortranwiki.org/fortran/show/M_color</a> <br>
 <a href="http://www.urbanjost.altervista.org/LIBRARY/libGPF/Color/srcf/M_color.HTML">http://www.urbanjost.altervista.org/LIBRARY/libGPF/Color/srcf/M_color.HTML</a> <br>
 <a href="https://colorbrewer2.org">https://colorbrewer2.org</a> <br>
 <a href="http://www.andrewnoske.com/wiki/Code_-_heatmaps_and_color_gradients">http://www.andrewnoske.com/wiki/Code_-_heatmaps_and_color_gradients</a> <br>
 see also for c++ <br>
 <a href="https://gist.github.com/fairlight1337/4935ae72bcbcc1ba5c72#file-hsvrgb-cpp">https://gist.github.com/fairlight1337/4935ae72bcbcc1ba5c72#file-hsvrgb-cpp</a> <br></p>
-<h3 id="libraries">libraries</h3>
+<h2 id="libraries">libraries</h2>
 <p>These are necessary for building/running, under Linux it might be easier/better to use your distro&#39;s package manager, if possible, but they can be downloaded from upstream and built as well, which might give better control over the version and ensure you have everything you need. Under Windows, obviously, you need to download and build them yourself.<br>
 <a href="https://github.com/assimp/assimp">https://github.com/assimp/assimp</a> <br>
 <a href="https://github.com/xiaoyeli/superlu">https://github.com/xiaoyeli/superlu</a>  superlu <br>
@@ -392,7 +393,6 @@ see also for c++ <br>
 <a href="https://gitlab.freedesktop.org/freetype/freetype">https://gitlab.freedesktop.org/freetype/freetype</a> freetype <br>
 <a href="https://github.com/Reference-LAPACK/lapack">https://github.com/Reference-LAPACK/lapack</a> lapack <br>
 <a href="https://github.com/OpenMathLib/OpenBLAS">https://github.com/OpenMathLib/OpenBLAS</a> OpenBLAS <br>
-<a href="https://github.com/boostorg/boost">https://github.com/boostorg/boost</a> boost <br>
 <a href="https://github.com/kyz/libmspack/tree/master/cabextract">https://github.com/kyz/libmspack/tree/master/cabextract</a> (not needed for Windows)<br>
 Only part of this was used, and is copied into the source tree: <br>
 <a href="https://people.math.sc.edu/Burkardt/f_src/sparsekit/sparsekit.f90">https://people.math.sc.edu/Burkardt/f_src/sparsekit/sparsekit.f90</a> <br>
@@ -404,7 +404,7 @@ some of these were used only in development or are references <br>
 <a href="https://portal.nersc.gov/project/sparse/strumpack/master/">https://portal.nersc.gov/project/sparse/strumpack/master/</a> <br>
 <a href="https://stdlib.fortran-lang.org/index.html">https://stdlib.fortran-lang.org/index.html</a> COO/CSR types   MIT<br>
 <a href="https://stdlib.fortran-lang.org/module/stdlib_sparse_kinds.html">https://stdlib.fortran-lang.org/module/stdlib_sparse_kinds.html</a>   MIT<br></p>
-<h3 id="cmake">cmake</h3>
+<h2 id="cmake">cmake</h2>
 <p>Some of the find_package() scripts in cmake have been downloaded from here and there, for example:<br>
 SuperLU cmake copied from Eigen/libigl <br>
 <a href="https://github.com/libigl/eigen/blob/master/cmake/FindSuperLU.cmake">https://github.com/libigl/eigen/blob/master/cmake/FindSuperLU.cmake</a>  MPL2/LPGL <br>
@@ -414,10 +414,10 @@ GLFW.cmake <br>
 <a href="https://gitlab.kitware.com/vtk/vtk-m/blob/783867eeb05e0a6538f9c520af02c3615651b4ed/CMake/FindGLFW.cmake">https://gitlab.kitware.com/vtk/vtk-m/blob/783867eeb05e0a6538f9c520af02c3615651b4ed/CMake/FindGLFW.cmake</a> <br>
 I also tried CPM, but couldn&#39;t figure out how to resolve dependencies such as installing BLAS before LAPACK and both before SuperLU in a single CMakeLists.txt, for example:<br>
 <a href="https://github.com/cpm-cmake/CPM.cmake">https://github.com/cpm-cmake/CPM.cmake</a> CPM.cmake <br></p>
-<h3 id="viennacl">viennaCL</h3>
+<h2 id="viennacl">viennaCL</h2>
 <p>not currently used, but with an eye towards possible OpenCL in the future<br>
 <a href="http://sourceforge.net/projects/viennacl/files/1.7.x/ViennaCL-1.7.1.tar.gz/download">http://sourceforge.net/projects/viennacl/files/1.7.x/ViennaCL-1.7.1.tar.gz/download</a>  MIT</p>
-<h3 id="rplycpp">rplycpp</h3>
+<h2 id="rplycpp">rplycpp</h2>
 <p>Convert ASCII PLY to binary PLY; MIT licence <br>
 <a href="https://w3.impa.br/~diego/software/rply/">https://w3.impa.br/~diego/software/rply/</a> <br>
 <a href="https://github.com/diegonehab/rply">https://github.com/diegonehab/rply</a> <br></p>
