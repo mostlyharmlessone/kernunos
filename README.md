@@ -2,11 +2,13 @@
 
 *"The purpose of computing is insight, not numbers"*<br>
 
-Kernunos is a program for analyzing/viewing corneal topography data from different topographers, a technology which became increasingly common in ophthalmology in the 1990's.  Many data files are in an undocumented, non-ASCII/Unicode state, a trend which has unfortunately increased with newer technology. The term "enshittification" has been coined recently, which describes the larger phenomenon.  Unfortunately as well, the standard for interoperability of "data" exchange (ie. DICOM https://www.dicomstandard.org/) is image based. Unless the raw data actually is an image, DICOM is rather like sending text by fax machine (as opposed to sending an ASCII or word processing file). A fax is still the common format for exchanging data between medical offices in the USA. A similar phenomenon entails publishing "data" as a picture in a scientific journal, rather than supplying the points used to make the graph.  It is recognized that the "data" provided by the manufacturers below, when supplied at all, has already been processed from the raw image data through a series of unknown proprietary algorithms with an arbitrary amount of precision being presented. As such we are not much better off than being presented with a graph in a journal, laying some graph paper over it and manually digitizing it.<br>
+Kernunos is a program for analyzing/viewing corneal topography data from different topographers, a technology which became increasingly common in ophthalmology in the 1990's.<br>  
 
 As has been noted by numerous authors in the field, it is hard to directly compare topography from different machines [Interchangeability_between_Placido_disc_and_Scheim.pdf](file:./docs/Interchangeability_between_Placido_disc_and_Scheim.pdf), making clinical studies as well as patient care more difficult.  The goal of this project is to provide a tool for doing so, (improving intraoperability) particularly to re-analyze older machines output with modern notions despite the limitations of the information we have. There are many older or discontinued models which are still in clinical use despite their technology being at this writing 30-40 years old. It is unfortunate that in only a generation later we are having to turn to software archeology. https://en.wikipedia.org/wiki/Software_archaeology <br>
 
-Each machine typically has and had its own internal analysis software as well as its own unique data storage.  There are newer machines which are also tomographic machines, in that they measure the thickness of the cornea, as well as machines that measure aberrometry of the whole eye. It would be lovely if the whole industry agreed on using an open data format, allowing for independent analysis, or if there were a method for importing the photographic data from one machine to another, along with the geometric data of the image cone.  Newer machines, particularly OCT machines as used in posterior segment (retina and optic nerve) images are now being seen for corneal scanning increasingly as well: e.g. Heidelberg's Anterion, or the latest Oculus Pentacam. In general, there is no publicly available description of the exact data rendered and how it is converted to the pictures we see, making it difficult to even know what to look for in the binary data files, assuming they have not been further intentionally obfuscated. https://en.wikipedia.org/wiki/Obfuscation_(software)<br>
+Each machine typically has and had its own internal analysis software as well as its own unique data storage.  Many data files are in an undocumented, non-ASCII/Unicode state, a trend which has unfortunately increased with newer technology.  There are newer machines which are also tomographic machines, in that they measure the thickness of the cornea, as well as machines that measure aberrometry of the whole eye. It would be lovely if the whole industry agreed on using an open data format, allowing for independent analysis, or if there were a method for importing the photographic data from one machine to another, along with the geometric data of the image cone.  Newer machines, particularly OCT machines as used in posterior segment (retina and optic nerve) images are now being seen for corneal scanning increasingly as well: e.g. Heidelberg's Anterion, or the latest Oculus Pentacam. In general, there is no publicly available description of the exact data rendered and how it is converted to the pictures we see, making it difficult to even know what to look for in the binary data files, assuming they have not been further intentionally obfuscated. https://en.wikipedia.org/wiki/Obfuscation_(software)<br>
+
+ The term "enshittification" has been coined recently, which describes the larger phenomenon.  Unfortunately as well, the standard for interoperability of "data" exchange (ie. DICOM https://www.dicomstandard.org/) is image based. Unless the raw data actually is an image, DICOM is rather like sending text by fax machine (as opposed to sending an ASCII or word processing file). A fax is still the common format for exchanging data between medical offices in the USA. A similar phenomenon entails publishing "data" as a picture in a scientific journal, rather than supplying the points used to make the graph.  It is recognized that the "data" provided by the manufacturers below, when supplied at all, has already been processed from the raw image data through a series of unknown proprietary algorithms with an arbitrary amount of precision being presented. As such we are not much better off than being presented with a graph in a journal, laying some graph paper over it and manually digitizing it.<br>
 
 
 ## Color scales and legends
@@ -57,11 +59,11 @@ accuracy / precision axial radius +/- 0.03mm altimetric data, +/- 2µm at 4mm". 
 
 From an engineering point of view, no meaningful error analysis was ever provided by the manufacturers of this class of equipment.  Access to the raw data (in the open software/hardware sense) was never, as far as I can tell, on the table, making an independent analysis impossible.  In the best case scenario for topographers, that would mean having an image file of the corneal rings taken by the camera (the raw data), measuring the physical Placido cone in the lab (more raw data that we would have to collect), and then writing our own algorithm to determine the implied shape of the cornea by the relationship between the image and the object.  That might be easiest with some calibrated reflective target spheres (sometimes provided by the manufacturer for calibration).<br>
 
-Dry ocular surfaces or unstable tear films can produce broken or irregular mires which can generate completely spurious geometry, so much so that some contemporary sales pitches for  these machines are now focussed on dry eye detection rather than topography.<br>
+Dry ocular surfaces or unstable tear films can produce broken or irregular mires which can generate completely spurious geometry, so much so that some contemporary sales pitches for  these machines are now focused on dry eye detection rather than topography.<br>
 
 The other and newer class of machine uses scanning technology to measure elevation either with a scanning laser (including OCT) or Scheimpflug photography, which presumably each have their own error of measurements. There is not as much information published about the details of the technology from an engineering point of view, making an independent estimation of those errors hard to know. Organizations providing tear downs of electronics and equipment such as IFixit, IPRG and EDN have not apparently worked on any topographer.  Caveat emptor! <br>
 
-##On data storage and reading files
+## On data storage and reading files
 
 "*Do not attribute conditions to villainy that simply result from stupidity.*”<br>
 
@@ -84,7 +86,7 @@ Carl Zeiss Meditec AG, maker of the Zeiss Atlas series topographer, also appear 
 
 Bausch & Lomb, maker of the Orbscan had a separately purchasable viewer software which might have allowed export, however it is apparently discontinued. There was at one point some exportable data, see https://iovs.arvojournals.org/article.aspx?articleid=2125323 <br>
 
-##List of machines
+## List of machines
 
 Please see [SUPPORTED_HARDWARE.html](file:SUPPORTED_HARDWARE.html) for a list of corneal topography machines with notes on support in kernunos.<br>
 
@@ -111,7 +113,7 @@ Linux system calls from C++  { system() } are called for starting with a command
 
 If you don't have access to those system calls, you'll have to extract the cabinet files to their uncompressed data files manually and clean up the temporary files manually, which has not been tested, YMMV.<br>
 
-##Under Linux 
+### Under Linux 
 
 After cloning the source, load submodules with git submodule update --init<br>
 Open the CMakeLists.txt as a Project in QtCreator, configure and build. 
@@ -137,7 +139,7 @@ Building within QtCreator is also possible, but the default of using Ninja does 
 -DCMAKE_MAKE_PROGRAM:STRING=/usr/bin/make<br>
 
 
-##Under Windows
+### Under Windows
 
 Build under Windows. The precompiled binary and installer were built in a Windows 10 VM using QtCreator https://doc.qt.io/qt-6/windows.html. I used MingW/GCC for the C/C++/Fortran compiler. The binary was built using QtCreator 19 and Qt 6.8.3, with assimp being built with<br> ASSIMP_WARNINGS_AS_ERRORS:UNINITIALIZED=OFF <br>
 added to the cmake options as well as making sure MingW cmake was used as the build creator and that the environmental variables pointed to the MingW gcc toolchain. In addition, the additional libraries were compiled with the same toolchain.  I built assimp, superlu, glm, freetype, lapack and OpenBLAS with the same toolset using git-bash after downloading them directly from upstream. Again, you might need to adjust paths in CMakeLists.txt in order to build. These lines need to be uncommented in CMakeLists.txt:
@@ -167,7 +169,7 @@ If used, install the Core (option 1) and the software renderer (option 7). The p
 The binary Windows installer (built with NSIS) includes an option to install gnuplot and the Mesa3D software renderer. The NSIS installer also includes Qt assistant.exe (used by the help function) copied into the binaries, with windeploy used for that executable as well. CrossOver(TM) works well, although you might need to manually close some cmd.exe windows manually on installation and when using gnuplot.<br>
 
 
-##Cross-compiling for Windows under Linux
+### Cross-compiling for Windows under Linux
 
 Under construction. Cross compiling under Linux is not as straightforward as one would like in 2026.  Perhaps it is not the ideal solution; there was a lot more activity >10 years prior, with the option of building in a VM with native tools becoming more common. As of this writing, I haven't managed a complete cross-compile build. Some notes follow:<br>
 
@@ -218,7 +220,7 @@ wxWidgets<br>
 https://wiki.wxwidgets.org/Cross-Compiling_Under_Linux <br>
 
 
-##For MacOS/Darwin
+### For MacOS/Darwin
 
 Build it on a Mac. It appears the little activity in cross-compiling under Linux has largely been abandoned, possibly because of changes in Apple hardware over the last 10 years, which would not only require cross-compiling for Darwin/MacOS/Quartz, but also for the M1/M2/M3/M.. chips and other Apple only hardware. As of this writing Apple will discontinue support for development (ie Xcode) for intel Mac (arch x86_64) in 2027. In addition, unfortunately, the Mac native tools (Appleclang and XCode) are not particularly Fortran friendly and do not support OpenMP, and as with Windows and the default Visual C++/Intel Fortran/Cmake mismatch, one has to replace the native toolchain with an alternate version. Qt binaries for the MacOS are only provided for clang/llvm, so GCC is not an alternative unless you want to recompile/build Qt using GCC on your Mac. OpenGL has also been deprecated on the MacOS (Darwin) for quite some time, but is still supported to GLSL 4.1<br>
 
@@ -325,10 +327,10 @@ To quote or adapt without proper attribution would be bad manners, to take credi
 [LICENSE](https://github.com/mostlyharmlessone/kernunos/blob/main/LICENSE)<br> if not superseded by the relevant licenses of the adapted software collected under ./licenses.  Written documentation including this README © 1999 by Anthony M de Beus is licensed under CC BY-SA 4.0. https://creativecommons.org/licenses/by-sa/4.0/ <br>
 
 
-##Web background references
+### Web background references
 Broken links, books out of print, and any other disappointments are part of life.<br>
 
-##Wikipedia/Mathematics
+### Wikipedia/Mathematics
 There's nothing wrong with using the encyclopedia as a starting point, and like a dictionary used in a popular crossword word making game, at least we can choose to agree on a common reference.<br>
 https://en.wikipedia.org/wiki/Bicubic_interpolation <br>
 https://en.wikipedia.org/wiki/Differential_geometry_of_surfaces <br>
@@ -343,7 +345,7 @@ https://en.wikipedia.org/wiki/Scheimpflug_principle <br>
 https://en.wikipedia.org/wiki/Sparse_matrix <br>
 https://en.wikipedia.org/wiki/Tensor <br>
 
-## openGL copied from/adapted/referenced 
+### openGL copied from/adapted/referenced 
 Yeah, well, it was popular when I started the project, and is still widely supported, like C, C++ and Fortran.. which were also still popular when I started. <br>
 https://www.khronos.org/opengl/wiki/Getting_Started#Writing_an_OpenGL_Application <br>
 https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal <br>
@@ -368,7 +370,7 @@ https://github.com/capnramses/antons_opengl_tutorials_book <br>
 https://en.wikibooks.org/wiki/Category:Book:OpenGL_Programming <br>
 https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal <br>
 
-##Qt copied/adapted from
+### Qt copied/adapted from
 I did some asking around about a good environment for building a program that could conceivably be compiled for multiple OS/architectures..Qt kept coming up.<br>
 https://www.qt.io <br>
 qt6/examples <br>
@@ -376,7 +378,7 @@ https://github.com/QtOpenGL/qgl_tutorials <br> https://bogotobogo.com/Qt/Qt5_Ope
 https://www.qt.io/ particularly assistant & opengl examples <br>
 https://doc.qt.io/qt-6/qopenglwidget.html <br>
 
-##wxWidgets
+### wxWidgets
 used in development, abandoned for Qt at this point <br>
 https://www.wxwidgets.org <br>
 https://github.com/wxWidgets/wxWidgets/tree/master/samples/opengl <br>
@@ -387,7 +389,7 @@ https://stackoverflow.com/questions/13659853/async-execution-with-wxwidgets <br>
 wxExecute(_("bash --login -i"), wxEXEC_ASYNC);<br>
 
 
-##Books
+### Books
 
 Splines and Variational Methods 1975 PM Prenter, Dover Publications <br>
 Numerical recipes in C 1988 WH Press, BP Flannery, SA Teukolsky, WT Vetterling Cambridge University Press. <br>
@@ -397,7 +399,7 @@ Numerical Computing with Modern Fortran 2013 Richard J.Hanson and Tim Hopkins SI
 Corneal Topography, Measuring and Modifying the Cornea, DJ Schanzlin, JB Robin (editors) 1992 Springer-Verlag <br>
 
 
-##Journal articles/downloaded class notes/documentation
+### Journal articles/downloaded class notes/documentation
 (in no particular order or format, sourced manually from the internet)<br>
 
 Eric Albin, Ronnie Knikker, Shihe Xin, Christian Oliver Paschereit, Yves d’Angelo. Computational assessment of curvatures and principal directions of implicit surfaces from 3D scalar data. Lecture Notes in Computer Science, 2017, Mathematical Methods for Curves and Surfaces, 10521, pp.1-22. ⟨10.1007/978-3-319-67885-6_1⟩. ⟨hal-01486547⟩<br>
@@ -459,7 +461,7 @@ APPLICATION OF B-SPLINE METHOD IN SURFACE FITTING PROBLEM
 Fateme Esmaeili *, AliReza Amiri-Simkooei, Vahab Nafisi, Amin Alizadeh Naeini The International Archives of the Photogrammetry, Remote Sensing and Spatial Information Sciences, Volume XLII-4/W18, 2019 GeoSpatial Conference 2019 – Joint Conferences of SMPR and GI Research, 12–14 October 2019, Karaj, Iran<br>
 
 
-##resources/tutorials
+### resources/tutorials
 https://github.com/scivision/fortran2018-examples                       MIT <br>
 http://www.netlib.org/lapack-dev/lapack-coding/program-style.html <br>
 http://www.pdas.com/fmmdownload.html Fortran 90 versions of Computer Methods for Mathematical Computations Forsythe et al. 1977 subroutines (Public Domain) <br>
@@ -469,13 +471,13 @@ https://amytabb.com/tips/2022/02/27/least-squares-with-equality-constraints/ <br
 https://web.stanford.edu/class/me200c/tutorial_90/08_subprograms.html factorial (copyright Stanford University) <br>
 https://www.mathworks.com/company/newsletters/articles/analyzing-lasik-optical-data-using-zernike-functions.html <br>
 
-##enshittification
+### enshittification
 trying to avoid it, I have downloaded the PDF of the forbrukerradet (fuggedaboutit?)report for your reading pleasure in case the link gets broken in the future <br>
 https://www.theregister.com/2026/03/06/forbrukerradet_aim_enshittification/ <br>
 related: https://en.wikipedia.org/wiki/Software_archaeology <br>
 https://en.wikipedia.org/wiki/Reverse_engineering#Legality <br>
 
-##gnuplot incorporation stuff
+### gnuplot incorporation stuff
 https://stackoverflow.com/questions/28892434/how-to-plot-a-graph-using-gnuplot-from-c-program <br>
 https://code.google.com/p/gnuplot-cpp/source/browse/trunk/gnuplot_i.hpp <br>
 https://github.com/dstahlke/gnuplot-iostream (used in initial version)<br>
@@ -483,7 +485,7 @@ http://stahlke.org/dan/gnuplot-iostream/ (used in initial version)<br>
 https://stackoverflow.com/questions/62848395/horizontal-bar-chart-in-gnuplot <br>
 https://github.com/boostorg/boost boost (used in initial version)<br>
 
-##graphics tools used in development
+### graphics tools used in development
 https://www.meshlab.net/ <br>
 P. Cignoni, M. Callieri, M. Corsini, M. Dellepiane, F. Ganovelli, G. Ranzuglia
 MeshLab: an Open-Source Mesh Processing Tool, Sixth Eurographics Italian Chapter Conference, page 129-136, 2008 <br>
@@ -491,7 +493,7 @@ http://www.gnuplot.info  <br>
 GnuPlot in Action, Understanding Data with Graphs, Phillip K Janert, Manning Publications 2010 <br>
 libigl: https://libigl.github.io/ <br>
 
-##programming bits & pieces copied/adapted from
+### programming bits & pieces copied/adapted from
 https://stackoverflow.com/questions/72566680/count-occurrences-of-character-in-file-c <br>
 https://stackoverflow.com/questions/2125880/convert-float-to-stdstring-in-c <br>
 https://stackoverflow.com/questions/10750057/how-do-i-print-out-the-contents-of-a-vector <br>
@@ -508,10 +510,10 @@ https://stackoverflow.com/questions/58938347/how-do-i-replace-a-character-in-the
 https://fortran-lang.discourse.group/t/how-to-write-bytes-in-a-binary-file/763/7 <br>
 https://stackoverflow.com/questions/41254019/reading-variable-length-data-in-fortran <br>
 
-##io.f90 copied/adapted from
+### io.f90 copied/adapted from
 https://riptutorial.com/ebook/fortran in particular I/O routine from Chapter 7 I/O:  AL-P, Ed Smith, francescalus, Kyle Kanos, TTT
 
-## color.f90 modified from
+### color.f90 modified from
 https://fortranwiki.org/fortran/show/M_color <br>
 http://www.urbanjost.altervista.org/LIBRARY/libGPF/Color/srcf/M_color.HTML <br>
 https://colorbrewer2.org <br>
@@ -519,7 +521,7 @@ http://www.andrewnoske.com/wiki/Code_-_heatmaps_and_color_gradients <br>
 see also for c++ <br>
 https://gist.github.com/fairlight1337/4935ae72bcbcc1ba5c72#file-hsvrgb-cpp <br>
 
-##libraries
+### libraries
 These are necessary for building/running, under Linux it might be easier/better to use your distro's package manager, if possible, but they can be downloaded from upstream and built as well, which might give better control over the version and ensure you have everything you need. Under Windows, obviously, you need to download and build them yourself.<br>
 https://github.com/assimp/assimp <br>
 https://github.com/xiaoyeli/superlu  superlu <br>
@@ -530,7 +532,8 @@ https://github.com/OpenMathLib/OpenBLAS OpenBLAS <br>
 https://github.com/kyz/libmspack/tree/master/cabextract (not needed for Windows)<br>
 Only part of this was used, and is copied into the source tree: <br>
 https://people.math.sc.edu/Burkardt/f_src/sparsekit/sparsekit.f90 <br>
-some of these were used only in development or are references <br>
+<br>
+Some of these were used only in development or are references <br>
 http://www.netlib.org/lapack/      BSD <br>
 http://www.netlib.org/blas/        BSD <br>
 https://github.com/jacobwilliams/math77 CalTech license <br>
@@ -540,7 +543,7 @@ https://stdlib.fortran-lang.org/index.html COO/CSR types   MIT<br>
 https://stdlib.fortran-lang.org/module/stdlib_sparse_kinds.html   MIT<br>
 
 
-##cmake 
+### cmake 
 Some of the find_package() scripts in cmake have been downloaded from here and there, for example:<br>
 SuperLU cmake copied from Eigen/libigl <br>
 https://github.com/libigl/eigen/blob/master/cmake/FindSuperLU.cmake  MPL2/LPGL <br>
@@ -552,16 +555,16 @@ I also tried CPM, but couldn't figure out how to resolve dependencies such as in
 https://github.com/cpm-cmake/CPM.cmake CPM.cmake <br>
 
 
-##viennaCL
+### viennaCL
 not currently used, but with an eye towards possible OpenCL in the future<br>
 http://sourceforge.net/projects/viennacl/files/1.7.x/ViennaCL-1.7.1.tar.gz/download  MIT
 
-##rplycpp 
+### rplycpp 
 Convert ASCII PLY to binary PLY; MIT licence <br>
 https://w3.impa.br/~diego/software/rply/ <br>
 https://github.com/diegonehab/rply <br>
 
-##licenses
+### licenses
 Sources cited above which have no explicit licenses such as sparsekit.f90 are assumed to be public domain. Credit is preserved in the source code and here to the original authors when known. The following licenses apply to the respective software that utilizes them:
 https://github.com/non-ai-licenses/non-ai-licenses/blob/main/NON-AI-MIT <br>
 GPL.v3 https://github.com/libigl/libigl/blob/main/LICENSE.GPL <br>
@@ -578,7 +581,7 @@ patches to sparsekit.90 and sparsekit_test01.f90, see above under [LICENSE] orig
 wxWidgets https://github.com/wxWidgets/wxWidgets/blob/master/docs/licence.txt <br>
 Qt https://doc.qt.io/qt-6/licensing.html (LGPL & GPL) <br>
 
-##file formats
+### file formats
 here's that encyclopedia again <br>
 https://en.wikipedia.org/wiki/STL_(file_format) <br>
 https://en.wikipedia.org/wiki/OFF_(file_format) <br>
@@ -586,12 +589,12 @@ https://en.wikipedia.org/wiki/PLY_(file_format) <br>
 https://en.wikipedia.org/wiki/Truevision_TGA <br>
 https://en.wikipedia.org/wiki/TIFF <br>
 
-##assimp
+### assimp
 https://assimp-docs.readthedocs.io/en/v5.3.0/ <br>
 https://github.com/assimp/assimp <br>
 https://github.com/assimp/assimp/issues/3827 <br>
 
-##trademarks
+### trademarks
 No proprietary information was provided by any of the holders of the following trademarks, other than as previously noted. Trademarks are presented by way of explanation and education only and remain the property of their holders, a list follows but may not be so much exhaustive as exhausting..<br>
 EyeSys technologies CAS Corneal Analysis System undocumented file format in ASCII RA*.* and XX*., PU*., EY*., PA*., HX*.<br>
 Atlas Zeiss undocumented proprietary format in binary: embedded Embarcadero database .ib;  undocumented file format ASCII .CSV "Export for Research"<br>
