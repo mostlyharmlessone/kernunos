@@ -57,14 +57,14 @@ void Assistant::showDocumentation(const QString &page)
     QByteArray ba("SetSource ");
 #if defined(__APPLE__)
     std::string str = collectionDirectory.toUtf8().constData();
-    ba.append("qthelp:" + str);
+    ba.append("qthelp: " + str);
 #else
-    ba.append("qthelp:" + collectionDirectory.toStdString());
+    ba.append("qthelp: " + collectionDirectory.toStdString());
 #endif
     m_process->write(ba + page.toLocal8Bit() + '\n');
 #if defined(__APPLE__)
     std::string str2 = QString::fromUtf8(ba + page.toLocal8Bit() + '\n').toUtf8().constData();
-    ba.append("qthelp:" + str2);
+    ba.append("qthelp: " + str2);
     LogC(("Qt Assistant: " + str2).c_str());
 #else
     LogC(("Qt Assistant: " + (ba + page.toLocal8Bit() + '\n').toStdString()).c_str());

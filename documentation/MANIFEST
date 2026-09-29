@@ -1,18 +1,22 @@
 assimp
-binary-debug
 build
 cmake
 CMakeLists.txt
 data
 documentation
-FREETYPE_INCLUDE_DIRS
-gnuplot-iostream
+FAQ.md
 kernunos_icon.ico
 kernunos_icon.rc
+kernunos.iconset
 Licenses
 OpenGL32.Lib
+README.md
+resources
 rply
+SAUNA.GRP
+SECURITY.md
 src
+SUPPORTED_HARDWARE.md
 TODO
 documentation:
 aboutmenu.html
@@ -27,7 +31,7 @@ Curvature_notes.pdf
 docs
 exportmenu.html
 FAQ.html
-FAQ.md
+FAQ.html_files
 filemenu.html
 functionmenu.html
 images
@@ -43,13 +47,11 @@ Notes on OPD-III Nidek files
 openfile.html
 README
 README.html
-README.md
+README.html_files
 SECURITY.html
-SECURITY.md
 spline_notes.odt
 spline_notes.pdf
 SUPPORTED_HARDWARE.html
-SUPPORTED_HARDWARE.md
 tweaksmenu.html
 viewmenu.html
 
@@ -85,6 +87,12 @@ Thomas.pdf
 tr20.pdf
 univerasl_standard_scale.pdf
 
+documentation/FAQ.html_files:
+github-markdown.css
+images
+
+documentation/FAQ.html_files/images:
+
 documentation/images:
 aboutmenu.png
 analyzemenu.png
@@ -99,13 +107,19 @@ filemenu1.png
 filemenu2.png
 filemenu.png
 functionmenu.png
-handbook.png
 icon.ico
+icon.png
 mainwindow.png
 openfile.png
 Placido_cone.jpeg
 tweaksmenu.png
 viewmenu.png
+
+documentation/README.html_files:
+github-markdown.css
+images
+
+documentation/README.html_files/images:
 src:
 c
 cxx
@@ -140,14 +154,11 @@ ft2build.h
 GLShaders.qrc
 GLwidget.cpp
 GLwidget.h
-gnuplot_lioc.cpp
-gnuplot_load.cpp
 kernunos.cpp
 kernunos_en_US.ts
 kernunos.h
 kernunos.pro
 Lib.ttf
-lioc2.cpp
 mainwindow.ui
 
 src/HansonHopkins:
@@ -174,6 +185,7 @@ sparseSort.f90
 sparseTypes.f90
 sparseTypes.f90_patch
 sparseUtils.f90
+sparseUtils.f90_patch
 superlu_enum_consts.h
 supermatrix.h
 

@@ -10,7 +10,7 @@
         </aboutMenuText>
         <aboutDialog>
             <file>about.txt</file>
-            <icon>images/handbook.png</icon>
+            <icon>images/icon.png</icon>
         </aboutDialog>
         <enableDocumentationManager>true</enableDocumentationManager>
         <enableAddressBar>true</enableAddressBar>

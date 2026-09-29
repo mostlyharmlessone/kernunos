@@ -10,5 +10,6 @@ use qhelpgenerator kernunos.qhcp kernunos.qhc after making the appropriate chang
 have to regenerate in directory as dir info is coded in sql files, also make sure 
 source names in qhc/qhcp files match those in assistant.cpp
 
+in the documentation directory run:
 qhelpgenerator kernunos.qhcp -o kernunos.qhc
 qhelpgenerator kernunos.qhp -o kernunos.qch
