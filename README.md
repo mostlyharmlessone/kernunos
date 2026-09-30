@@ -160,13 +160,19 @@ export FC="/c/Qt/Tools/mingw1310_64/bin/gfortran"<br>
 export CC="/c/Qt/Tools/mingw1310_64/bin/gcc"<br>
 export CXX="/c/Qt/Tools/mingw1310_64/bin/g++"<br>
  ```
-You will need to run winqtdeploy in the build directory with the executable in order to generate the necessary Qt dlls and copy over the plugins; eg {path to Qt}Qt/6.8.3/mingw_64/bin/windeployqt6.exe kernunos.exe<br>
-
+You will need to run winqtdeploy in the build directory with the executable in order to generate the necessary Qt dlls and copy over the plugins; 
+ ```
+{path to Qt}Qt/6.8.3/mingw_64/bin/windeployqt6.exe kernunos.exe
+ ```
 gnuplot (https://gnuplot.sourceforge.net/) also needs to be installed for some functions.<br>
 
 As noted, OpenGL is used as the primary graphics API: it needs GLSL 3.30, which means the Windows binary will not run in a VM unless it has access to a real graphics card via passthrough or with a software renderer separately installed, eg.<br> https://github.com/pal1000/mesa-dist-win.<br>
 If used, install the Core (option 1) and the software renderer (option 7). The program and installer will run under WINE using the Linux distro's GLSL support, although the Linux distro's gnuplot will not be available. YMMV.<br>
-The binary Windows installer (built with NSIS) includes an option to install gnuplot and the Mesa3D software renderer. The NSIS installer also includes Qt assistant.exe (used by the help function) copied into the binaries, with windeploy used for that executable as well. CrossOver(TM) works well, although you might need to manually close some cmd.exe windows manually on installation and when using gnuplot.<br>
+The binary Windows installer (built with NSIS) includes an option to install gnuplot and the Mesa3D software renderer. The NSIS installer also includes Qt assistant.exe (used by the help function) copied into the binaries, with windeploy used for that executable as well: 
+ ```
+{path to Qt}Qt/6.8.3/mingw_64/bin/windeployqt6.exe assistant.exe
+ ```
+CrossOver(TM) works well, although you might need to manually close some cmd.exe windows manually on installation and when using gnuplot.<br>
 
 
 ### Cross-compiling for Windows under Linux
@@ -222,42 +228,52 @@ https://wiki.wxwidgets.org/Cross-Compiling_Under_Linux <br>
 
 ### For MacOS/Darwin
 
-Build it on a Mac. It appears the little activity in cross-compiling under Linux has largely been abandoned, possibly because of changes in Apple hardware over the last 10 years, which would not only require cross-compiling for Darwin/MacOS/Quartz, but also for the M1/M2/M3/M.. chips and other Apple only hardware. As of this writing Apple will discontinue support for development (ie Xcode) for intel Mac (arch x86_64) in 2027. In addition, unfortunately, the Mac native tools (Appleclang and XCode) are not particularly Fortran friendly and do not support OpenMP, and as with Windows and the default Visual C++/Intel Fortran/Cmake mismatch, one has to replace the native toolchain with an alternate version. Qt binaries for the MacOS are only provided for clang/llvm, so GCC is not an alternative unless you want to recompile/build Qt using GCC on your Mac. OpenGL has also been deprecated on the MacOS (Darwin) for quite some time, but is still supported to GLSL 4.1<br>
+Build it on a Mac. It appears the little activity in cross-compiling under Linux has largely been abandoned, possibly because of changes in Apple hardware over the last 10 years, which would not only require cross-compiling for Darwin/MacOS/Quartz, but also for the M1/M2/M3/M.. chips and other Apple only hardware. As of this writing Apple will discontinue support for development (ie Xcode) for intel Mac (arch x86_64) in 2027. In addition, unfortunately, the Mac native tools (Appleclang and XCode) are not particularly Fortran friendly and do not support OpenMP, and as with Windows and the default Visual C++/Intel Fortran/Cmake mismatch, one has to replace the native toolchain with an alternate version. Qt binaries for the MacOS are only provided for clang/llvm, so GCC is not an alternative unless you want to recompile/build Qt using GCC on your Mac. 
 
-Successfully builds on a M3 iMac (arm64) and intel i3 (x86_64), however View|Angles, View|Powers and View|Normals are disabled at this time due to openGL compatibility problems.  Documentation/Assistant may not works as well, though the underlying HTML files can always be seen directly. <br>
+OpenGL has also been deprecated on the MacOS (Darwin) for quite some time, but is still (kindof) supported to GLSL 4.1, although geometry shaders (used to display surface normals in kernunos) are not supported.<br>
+
+Successfully builds on a M3 iMac (aarch64/arm64) and intel i3 (x86_64), however View|Angles, View|Powers and View|Normals are disabled at this time due to openGL compatibility problems, and GLSL rendering is a bit weird.<br>
+
+Instructions:<br>
 
 Download Xcode (app store)and activate it, also:<br>
 ```
 xcode-select --switch /Applications/Xcode.app
 ```
-Minimal Apple OS version: Sonoma for homebrew. I have not tried MacPorts.<br>
+Minimal Apple OS version: Sonoma (14), minimum Xcode 16.1. Note that homebrew no longer supports Sonoma as of this writing, though it is available. I have not tried MacPorts.<br>
+
 Download homebrew, use brew install to install the following:<br>
 glfw vulkan-headers superlu Qt gfortran glm gnuplot assimp flang llvm cabextract<br>
-change FC, CC, CXX and other environment vars to use flang/clang/clang++ to overrride Apple default clang if using the command line. For example, your path should have /opt/homebrew/opt/llvm/bin, /opt/homebrew/bin, and /opt/homebrew/sbin precede /usr/local/bin. 
+
+Change FC, CC, CXX and other environment vars to use flang/clang/clang++ to overrride Apple default clang if using the command line. For example, your path should have /opt/homebrew/opt/llvm/bin, /opt/homebrew/bin, and /opt/homebrew/sbin precede /usr/local/bin. 
 ```
 echo 'export PATH="/usr/local/opt/llvm/bin:$PATH"' >> ~/.zshrc
 ```
 There are the usual CMAKE_HOST_NAME and CMAKE_SYSTEM variables to change in CMakeLists.txt. Also uncomment the leading "project" line and uncomment the architecture aarch64 or x86_64 variable."<br>
 <br>
-I was unable to get a successful build in QtCreator, but command line cmake works with some tweaks on the M3 (aarch64):<br>
+I was unable to get a successful build in QtCreator, but command line cmake works with some tweaks, for example on the M3 (aarch64):<br>
 ```
 cmake -DASSIMP_WARNINGS_AS_ERRORS=OFF -DASSIMP_BUILD_TESTS=off -DCMAKE_Fortran_FLAGS="-D__APPLE__" -DCMAKE_CXX_FLAGS="-D__APPLE__" ../<br>
 ```
-The flags are needed to assure that the cmake preprocessor knows it is compiling for Apple. There are several other manual tweaks needed to compile under the MacOS/Darwin.<br>
+The flags are needed to assure that the cmake preprocessor processes macros in the Fortran code, else only the C and C++ macros get processed.<br>
 
 cmake also makes -F flags (related to Frameworks) in the Fortran include flags which are not ignored by flang (or gfortran).  Two have to be manually removed (or changed to -I) in
 ```
 build/CMakeFiles/kernunos.dir/flags.make. 
 ```
-After cmake runs, edit the file, then run make. You will need to move a copy of "documentation" into the kernunos.app/Contents/MacOS folder, as well as a copy of the assistant program.<br> 
+After cmake runs, edit the file, then run make. You will need to move a copy of "documentation" into the kernunos.app/Contents/MacOS folder, as well as a copy of Assistant.app.<br> 
 
+In the build directory for Apple Intel i3 (x86_64), run<br>
+```
+install_name_tool -add_rpath /usr/local/opt/qt/lib kernunos.app/Contents/MacOS/Assistant.app/Contents/MacOS/assistant 
+macdeployqt kernunos.app/Contents/MacOS/Assistant.app 
+install_name_tool -add_rpath /usr/local/opt/qt/lib kernunos.app/Contents/MacOS/kernunos
+macdeployqt kernunos.app 
+macdeployqt kernunos.app -dmg (to make a dmg)
+```
+Change "/usr/local" to "/opt/homebrew" for Apple Silicon M3 iMac (aarch64/arm64).<br>
 
-In the build directory for Apple Silicon (M3), run<br>
-```
-install_name_tool -add_rpath /opt/homebrew/opt/qt/lib kernunos.app/Contents/MacOS/kernunos
-macdeployqt kernunos.app
-```
-Change ""/usr/local" to /usr/local" for Apple Intel (i3).<br>
+There are a few other manual tweaks needed to compile under the MacOS/Darwin.<br>
 
 In assimp, you will need  to make some edits compiling under LLVM/clang++, change:  
 ```
@@ -306,8 +322,8 @@ struct Q_GUI_EXPORT QCocoaGLContext
 ```
 
 References:<br>
-https://fortran-lang.discourse.group/t/options-for-linking-fortran-on-a-mac/3739
-https://discourse.cmake.org/t/problems-with-fortran-an-xcode-generator/11112
+https://fortran-lang.discourse.group/t/options-for-linking-fortran-on-a-mac/3739<br>
+https://discourse.cmake.org/t/problems-with-fortran-an-xcode-generator/11112<br>
 https://doc.qt.io/qt-6/macos.html <br>
 https://stackoverflow.com/questions/693952/how-to-compile-for-os-x-in-linux-or-windows <br>
 https://stackoverflow.com/questions/4342047/compiling-a-qt-application-for-mac-os-x-on-linux <br>
@@ -354,7 +370,7 @@ https://en.wikipedia.org/wiki/Sparse_matrix <br>
 https://en.wikipedia.org/wiki/Tensor <br>
 
 ### openGL copied from/adapted/referenced 
-Yeah, well, it was popular when I started the project, and is still widely supported, like C, C++ and Fortran.. which were also still popular when I started. <br>
+Yeah, well, it was popular when I started the project, and is still widely supported, like C, C++ and Fortran.. which were also still popular when I started.<br>
 https://www.khronos.org/opengl/wiki/Getting_Started#Writing_an_OpenGL_Application <br>
 https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal <br>
 https://open.gl/ <br>
@@ -377,6 +393,7 @@ https://computingonplains.wordpress.com/opengl-graphics-and-cpp/ <br>
 https://github.com/capnramses/antons_opengl_tutorials_book <br>
 https://en.wikibooks.org/wiki/Category:Book:OpenGL_Programming <br>
 https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal <br>
+https://discussions.unity.com/t/geometry-shader-on-mac/828498<br>
 
 ### Qt copied/adapted from
 I did some asking around about a good environment for building a program that could conceivably be compiled for multiple OS/architectures..Qt kept coming up.<br>

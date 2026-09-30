@@ -3004,7 +3004,7 @@ void MainWindow::createActions()
    connect(powerAct, &QAction::triggered, this, &MainWindow::power);
    powerAct->setCheckable(true);
 
-// pending an ability to fix the issues with resize() and rendertext
+// pending an ability to fix the issues with rendertext and GLSL
 #if defined (__APPLE__)
    anglesAct->setEnabled(false);
    powerAct->setEnabled(false);
