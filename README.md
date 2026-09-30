@@ -224,7 +224,7 @@ https://wiki.wxwidgets.org/Cross-Compiling_Under_Linux <br>
 
 Build it on a Mac. It appears the little activity in cross-compiling under Linux has largely been abandoned, possibly because of changes in Apple hardware over the last 10 years, which would not only require cross-compiling for Darwin/MacOS/Quartz, but also for the M1/M2/M3/M.. chips and other Apple only hardware. As of this writing Apple will discontinue support for development (ie Xcode) for intel Mac (arch x86_64) in 2027. In addition, unfortunately, the Mac native tools (Appleclang and XCode) are not particularly Fortran friendly and do not support OpenMP, and as with Windows and the default Visual C++/Intel Fortran/Cmake mismatch, one has to replace the native toolchain with an alternate version. Qt binaries for the MacOS are only provided for clang/llvm, so GCC is not an alternative unless you want to recompile/build Qt using GCC on your Mac. OpenGL has also been deprecated on the MacOS (Darwin) for quite some time, but is still supported to GLSL 4.1<br>
 
-Successfully builds on a M3 iMac (arm64) and intel i3 (x86_64), however View|Angles and View|Powers are disabled as I could not at this time get openGL to display Freetype fonts under the version of openGL (max 4.1) on Darwin. Documentation/Assistant may not works as well, though the underlying HTML files can always be seen directly. <br>
+Successfully builds on a M3 iMac (arm64) and intel i3 (x86_64), however View|Angles, View|Powers and View|Normals are disabled at this time due to openGL compatibility problems.  Documentation/Assistant may not works as well, though the underlying HTML files can always be seen directly. <br>
 
 Download Xcode (app store)and activate it, also:<br>
 ```
@@ -245,11 +245,19 @@ cmake -DASSIMP_WARNINGS_AS_ERRORS=OFF -DASSIMP_BUILD_TESTS=off -DCMAKE_Fortran_F
 ```
 The flags are needed to assure that the cmake preprocessor knows it is compiling for Apple. There are several other manual tweaks needed to compile under the MacOS/Darwin.<br>
 
-cmake also makes -F flags (related to Frameworks) in the Fortran include flags which are not ignored by gfortran nor flang .  Two have to be manually removed in
+cmake also makes -F flags (related to Frameworks) in the Fortran include flags which are not ignored by flang (or gfortran).  Two have to be manually removed (or changed to -I) in
 ```
 build/CMakeFiles/kernunos.dir/flags.make. 
 ```
-After cmake runs, edit the file, then run make.<br>
+After cmake runs, edit the file, then run make. You will need to move a copy of "documentation" into the kernunos.app/Contents/MacOS folder, as well as a copy of the assistant program.<br> 
+
+
+In the build directory for Apple Silicon (M3), run<br>
+```
+install_name_tool -add_rpath /opt/homebrew/opt/qt/lib kernunos.app/Contents/MacOS/kernunos
+macdeployqt kernunos.app
+```
+Change ""/usr/local" to /usr/local" for Apple Intel (i3).<br>
 
 In assimp, you will need  to make some edits compiling under LLVM/clang++, change:  
 ```
@@ -277,7 +285,7 @@ cmake command line:<br>
 ```
 cmake -DASSIMP_WARNINGS_AS_ERRORS=OFF -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_OSX_SYSROOT=$(xcrun --show-sdk-path) -DASSIMP_BUILD_TESTS=off -DCMAKE_Fortran_FLAGS="-D__APPLE__" -DCMAKE_CXX_FLAGS="-D__APPLE__" ../
 ```
-Some Darwin specific Qt code (both 6.8.3 and 6.11.1) is not processed correctly, and needs a patch to compile. I only experienced this probalem under Sonoma on the intel i3. <br>
+Some Darwin specific Qt code (both 6.8.3 and 6.11.1) is not processed correctly, and needs a patch to compile. I only experienced this problem under Sonoma on the intel i3. <br>
 
 You *might* need to remove QT_NO_DEPRECATED pragma in qopenglcontext_platform.h
 so for /opt/homebrew/lib/QtGui.framework/Headers/qopenglcontext_platform.h change the following:<br>

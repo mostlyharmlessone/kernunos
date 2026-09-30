@@ -74,6 +74,7 @@ void Assistant::showDocumentation(const QString &page)
 }
 
 
+
 bool Assistant::startAssistant()
 {
     if (m_process.isNull()) {
@@ -93,18 +94,20 @@ bool Assistant::startAssistant()
 #ifndef __APPLE__
         app += "/assistant"_L1;
 #else
-          app = documentationDirectory();
-          app += "../Assistant.app/Contents/MacOS/Assistant";
-
+        app += "/Assistant.app/Contents/MacOS/Assistant"_L1;
 #endif
+
         const QString collectionDirectory = documentationDirectory();
         if (collectionDirectory.isEmpty()) {
             showError(tr("The documentation directory cannot be found"));
             return false;
         }
+
         const QStringList args{"-collectionFile",
                                collectionDirectory + "/kernunos.qhc",
                                "-enableRemoteControl"};
+
+
         m_process->start(app, args);
 
         if (!m_process->waitForStarted(3000)) {
