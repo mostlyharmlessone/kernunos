@@ -3008,6 +3008,7 @@ void MainWindow::createActions()
 #if defined (__APPLE__)
    anglesAct->setEnabled(false);
    powerAct->setEnabled(false);
+   normalAct->setenabled(false);
 #endif
 
    centernodeAct=new QAction(tr("&Create center node to force MinMax at origin"), this);

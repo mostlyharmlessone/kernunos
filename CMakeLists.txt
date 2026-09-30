@@ -658,4 +658,11 @@ endif()
 
 endif() #temp if block
 
-# Under Windows after compilationrun: /c/Qt/6.8.3/mingw_64/bin/windeployqt6.exe kernunos.exe
+# Under Windows after compilation run: /c/Qt/6.8.3/mingw_64/bin/windeployqt6.exe kernunos.exe
+
+# Under MacOS after compilation on intel i3 run:
+#install_name_tool -add_rpath /usr/local/opt/qt/lib kernunos.app/Contents/MacOS/Assistant.app/Contents/MacOS/assistant
+#macdeployqt kernunos.app/Contents/MacOS/Assistant.app 
+#install_name_tool -add_rpath /usr/local/opt/qt/lib kernunos.app/Contents/MacOS/kernunos
+#macdeployqt kernunos.app 
+#macdeployqt kernunos.app -dmg
