@@ -105,18 +105,21 @@ It is an embarrassment to have to state the following, as it should be understoo
 
 This software was developed at various times under the Slackware, Ubuntu, Arch, Manjaro distributions of GNU/Linux. Dependencies include Qt6, assimp, lapack, rply, gnuplot, freetype, unzip, cabextract and superlu. Some routines are adapted from other sources and included, for example excerpts from Hanson & Hopkins (see below). OpenGL is used as the primary graphics API: GLSL 3.30 is needed as a minimum.  Qt appears to be deprecating C++ support in favor of QML: you may need to make sure the proper support is present. This version was built with Qt 6.8.3 and 6.11.1 with QtCreator 20. You might need to adjust some of the paths in the CMakeLists.txt to build.<br>
 
+I have not built a PKGBUILD, nor configured any other Linux package manager installer, or Flatpak etc, nor have I tried it under BSD.<br>
+
 There are some patches to Hanson & Hopkins http://www.siam.org/books/ot134 chapters 2,4, & 11 to accomodate superlu versions > 4.3, for Windows compilation and to support CSR sparse matrices.<br>
 
 For some file formats, Fortran Linux system calls {call execute_command_line() } to cabextract and rm (or Expand and del under Wiindows) are used for convenience in reading compressed Windows cabinet files and cleaning up temporary files. <br>
 
 Linux system calls from C++  { system() } are called for starting with a command shell for gnuplot and assorted file ops such as unzip, rm, touch, cp, or Windows calls to cmd, tar, del, type and copy.<br>
 
-If you don't have access to those system calls, you'll have to extract the cabinet files to their uncompressed data files manually and clean up the temporary files manually, which has not been tested, YMMV.<br>
+If you don't have access to those system calls, you'll have to extract the cabinet files to their uncompressed data files manually and clean up the temporary files manually, which has been minimally tested, YMMV.<br>
 
 ### Under Linux 
 
-After cloning the source, load submodules with git submodule update --init<br>
-Open the CMakeLists.txt as a Project in QtCreator, configure and build. 
+Built under Manjaro/Arch. After cloning the source:<br>
+load submodules with git submodule update --init<br>
+Open the CMakeLists.txt as a Project in QtCreator, configure and build.<br>
 
 Alternatively, the usual command line build should work. There are a few edits that need to be made in CMakeLists.txt depending on command-line cmake, QtCreator and your particular tool-chain setup. Check FC, CC, CXX and other environment vars to make sure cmake/Qt and the environment are in agreement.
 ```
@@ -141,8 +144,8 @@ Building within QtCreator is also possible, but the default of using Ninja does 
 
 ### Under Windows
 
-Build under Windows. The precompiled binary and installer were built in a Windows 10 VM using QtCreator https://doc.qt.io/qt-6/windows.html. I used MingW/GCC for the C/C++/Fortran compiler. The binary was built using QtCreator 19 and Qt 6.8.3, with assimp being built with<br> ASSIMP_WARNINGS_AS_ERRORS:UNINITIALIZED=OFF <br>
-added to the cmake options as well as making sure MingW cmake was used as the build creator and that the environmental variables pointed to the MingW gcc toolchain. In addition, the additional libraries were compiled with the same toolchain.  I built assimp, superlu, glm, freetype, lapack and OpenBLAS with the same toolset using git-bash after downloading them directly from upstream. Again, you might need to adjust paths in CMakeLists.txt in order to build. These lines need to be uncommented in CMakeLists.txt:
+Build under Windows. The precompiled binary and installer were built in a Windows 10 VM using QtCreator https://doc.qt.io/qt-6/windows.html. The binary Windows installer (built with NSIS) includes an option to install gnuplot and the Mesa3D software renderer. I used MingW/GCC for the C/C++/Fortran compiler. The binary was built using QtCreator 19 and Qt 6.8.3, with assimp being built with<br> ASSIMP_WARNINGS_AS_ERRORS:UNINITIALIZED=OFF <br>
+added to the cmake options as well as making sure MingW cmake was used as the build creator and that the environmental variables pointed to the MingW gcc toolchain. In addition, the additional libraries were compiled with the same toolchain.  I built assimp, superlu, glm, freetype, lapack and OpenBLAS with the same toolset using git-bash after downloading them directly from upstream. Again, you might need to adjust paths in CMakeLists.txt in order to build.  These lines need to be uncommented in CMakeLists.txt:
 ```
 set(CMAKE_HOST_NAME Windows)
 set(CMAKE_SYSTEM Windows)
@@ -166,9 +169,11 @@ You will need to run winqtdeploy in the build directory with the executable in o
  ```
 gnuplot (https://gnuplot.sourceforge.net/) also needs to be installed for some functions.<br>
 
-As noted, OpenGL is used as the primary graphics API: it needs GLSL 3.30, which means the Windows binary will not run in a VM unless it has access to a real graphics card via passthrough or with a software renderer separately installed, eg.<br> https://github.com/pal1000/mesa-dist-win.<br>
-If used, install the Core (option 1) and the software renderer (option 7). The program and installer will run under WINE using the Linux distro's GLSL support, although the Linux distro's gnuplot will not be available. YMMV.<br>
-The binary Windows installer (built with NSIS) includes an option to install gnuplot and the Mesa3D software renderer. The NSIS installer also includes Qt assistant.exe (used by the help function) copied into the binaries, with windeploy used for that executable as well: 
+As noted, OpenGL is used as the primary graphics API: it needs GLSL 3.30, which means the Windows binary will not typically run in a VM unless it has access to a real graphics card via passthrough or with a software renderer separately installed, eg.<br> https://github.com/pal1000/mesa-dist-win.<br>
+
+If using the Mesa 3D software renderer, install the Core (option 1) and the software renderer (option 7). The program and installer will run under WINE using the Linux distro's GLSL support, although the Linux distro's gnuplot will not be available. YMMV.<br>
+
+The binary installer built by NSIS also includes Qt assistant.exe (used by the help function) copied into the binaries, with windeploy used for that executable as well: 
  ```
 {path to Qt}Qt/6.8.3/mingw_64/bin/windeployqt6.exe assistant.exe
  ```
@@ -230,9 +235,9 @@ https://wiki.wxwidgets.org/Cross-Compiling_Under_Linux <br>
 
 Build it on a Mac. It appears the little activity in cross-compiling under Linux has largely been abandoned, possibly because of changes in Apple hardware over the last 10 years, which would not only require cross-compiling for Darwin/MacOS/Quartz, but also for the M1/M2/M3/M.. chips and other Apple only hardware. As of this writing Apple will discontinue support for development (ie Xcode) for intel Mac (arch x86_64) in 2027. In addition, unfortunately, the Mac native tools (Appleclang and XCode) are not particularly Fortran friendly and do not support OpenMP, and as with Windows and the default Visual C++/Intel Fortran/Cmake mismatch, one has to replace the native toolchain with an alternate version. Qt binaries for the MacOS are only provided for clang/llvm, so GCC is not an alternative unless you want to recompile/build Qt using GCC on your Mac. 
 
-OpenGL has also been deprecated on the MacOS (Darwin) for quite some time, but is still (kindof) supported to GLSL 4.1, although geometry shaders (used to display surface normals in kernunos) are not supported.<br>
+OpenGL has also been deprecated on the MacOS (Darwin) for quite some time, but is still (kindof) supported to GLSL 4.1, although geometry shaders (used to display surface normals in kernunos) are not supported.  I have been unsuccessful at forcing the program to use Mesa 3D drivers with software emulation only (as on a Windows VM) on the MacOS, so cannot report if that improves the situation. <br>
 
-Successfully builds on a M3 iMac (aarch64/arm64) and intel i3 (x86_64), however View|Angles, View|Powers and View|Normals are disabled at this time due to openGL compatibility problems, and GLSL rendering is a bit weird.<br>
+As of this writing, it successfully builds on a M3 iMac (aarch64/arm64) and intel i3 (x86_64), however View|Angles, View|Powers and View|Normals are disabled at this time due to openGL compatibility problems, and GLSL rendering is a bit weird.<br>
 
 Instructions:<br>
 
@@ -321,13 +326,6 @@ struct Q_GUI_EXPORT QCocoaGLContext
 };
 ```
 
-References:<br>
-https://fortran-lang.discourse.group/t/options-for-linking-fortran-on-a-mac/3739<br>
-https://discourse.cmake.org/t/problems-with-fortran-an-xcode-generator/11112<br>
-https://doc.qt.io/qt-6/macos.html <br>
-https://stackoverflow.com/questions/693952/how-to-compile-for-os-x-in-linux-or-windows <br>
-https://stackoverflow.com/questions/4342047/compiling-a-qt-application-for-mac-os-x-on-linux <br>
-
 
 ## Contributing
 
@@ -350,69 +348,8 @@ Do let me know if you find this software useful, or at least, amusing. Any const
 To quote or adapt without proper attribution would be bad manners, to take credit for other's works, dishonest, quite aside from legalities.  I am not a lawyer, nor can really understand, let alone agree with, their worldview despite decades of adult life, starting with "ignorantia juris non excusat". Having said that, in so far as I understand from perusing the multiple versions of licenses for the software used in this project, the source code I have written/copied and adapted conforms to their respective licenses and allows for non-commercial use and redistribution with the caveat that the licenses are included and/or referenced and credit is given when known, which I have in good faith attempted. On that note, no AI/LLM was used for any part of this project, the goal of which has been to exercise my imagination, not to outsource the effort of making things up nor using the information of dubious provenance gathered by an LLM without permission or attribution.  Any use of and examination of proprietary trademarks and data has been, to my understanding for the purpose of this project, to be lawful under applicable laws.  My contributions, including the patches for superlu, and any other adaptations of existing software, are licensed as follows:<br>
 [LICENSE](https://github.com/mostlyharmlessone/kernunos/blob/main/LICENSE)<br> if not superseded by the relevant licenses of the adapted software collected under ./licenses.  Written documentation including this README © 1999 by Anthony M de Beus is licensed under CC BY-SA 4.0. https://creativecommons.org/licenses/by-sa/4.0/ <br>
 
-
-### Web background references
+### References
 Broken links, books out of print, and any other disappointments are part of life.<br>
-
-### Wikipedia/Mathematics
-There's nothing wrong with using the encyclopedia as a starting point, and like a dictionary used in a popular crossword word making game, at least we can choose to agree on a common reference.<br>
-https://en.wikipedia.org/wiki/Bicubic_interpolation <br>
-https://en.wikipedia.org/wiki/Differential_geometry_of_surfaces <br>
-https://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm <br>
-https://en.wikipedia.org/wiki/Newton%27s_method <br>
-https://en.wikipedia.org/wiki/Gradient <br>
-https://en.wikipedia.org/wiki/Polyharmonic_spline <br>
-https://en.wikipedia.org/wiki/Zernike_polynomials <br>
-https://en.wikipedia.org/wiki/HSL_and_HSV#Color_conversion_formulae <br>
-https://en.wikipedia.org/wiki/X11_color_names <br>
-https://en.wikipedia.org/wiki/Scheimpflug_principle <br>
-https://en.wikipedia.org/wiki/Sparse_matrix <br>
-https://en.wikipedia.org/wiki/Tensor <br>
-
-### openGL copied from/adapted/referenced 
-Yeah, well, it was popular when I started the project, and is still widely supported, like C, C++ and Fortran.. which were also still popular when I started.<br>
-https://www.khronos.org/opengl/wiki/Getting_Started#Writing_an_OpenGL_Application <br>
-https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal <br>
-https://open.gl/ <br>
-https://openglbook.com <br>
-https://www.khronos.org/opengl/wiki/Geometry_Shader <br>
-https://www.khronos.org/opengl/wiki/Geometry_Shader_Examples <br>
-https://stackoverflow.com/questions/18510701/glsl-how-to-show-normals-with-geometry-shader?rq=3 <br>
-https://en.wikibooks.org/wiki/Category:Book:OpenGL_Programming <br>
-https://learnopengl.com/ <br>
-https://github.com/JoeyDeVries/LearnOpenGL    CCBY-NC-4.0 <br>
-https://learnopengl.com                       CCBY-NC-4.0  <br>                           
-http://www.opengl-tutorial.org/               CC-BY-NC-ND  / WTF <br> 
-https://open.gl/content/code/c2_triangle_elements.txt from https://open.gl/drawing <br>
-https://learnopengl.com/Getting-started/Shaders <br>
-https://learnopengl.com/In-Practice/Text-Rendering <br>
-https://github.com/openglbook/openglbook-samples  MIT <br> 
-https://gitlab.com/wikibooks-opengl/modern-tutorials/-/blob/master/text01_intro/text.cpp?ref_type=heads <br>
-https://ogldev.org/www/tutorial22/tutorial22.html       ?BSD <br>
-https://computingonplains.wordpress.com/opengl-graphics-and-cpp/ <br>
-https://github.com/capnramses/antons_opengl_tutorials_book <br>
-https://en.wikibooks.org/wiki/Category:Book:OpenGL_Programming <br>
-https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal <br>
-https://discussions.unity.com/t/geometry-shader-on-mac/828498<br>
-
-### Qt copied/adapted from
-I did some asking around about a good environment for building a program that could conceivably be compiled for multiple OS/architectures..Qt kept coming up.<br>
-https://www.qt.io <br>
-qt6/examples <br>
-https://github.com/QtOpenGL/qgl_tutorials <br> https://bogotobogo.com/Qt/Qt5_OpenGL_QGLWidget.php <br>
-https://www.qt.io/ particularly assistant & opengl examples <br>
-https://doc.qt.io/qt-6/qopenglwidget.html <br>
-
-### wxWidgets
-used in development, abandoned for Qt at this point <br>
-https://www.wxwidgets.org <br>
-https://github.com/wxWidgets/wxWidgets/tree/master/samples/opengl <br>
-https://github.com/wxWidgets/wxWidgets/tree/master/samples/opengl/pyramid <br>
-update glew for wxWidget >= 3.1.5 for egl support <br>
-https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=glew-egl-glx <br>
-https://stackoverflow.com/questions/13659853/async-execution-with-wxwidgets <br>
-wxExecute(_("bash --login -i"), wxEXEC_ASYNC);<br>
-
 
 ### Books
 
@@ -486,7 +423,75 @@ APPLICATION OF B-SPLINE METHOD IN SURFACE FITTING PROBLEM
 Fateme Esmaeili *, AliReza Amiri-Simkooei, Vahab Nafisi, Amin Alizadeh Naeini The International Archives of the Photogrammetry, Remote Sensing and Spatial Information Sciences, Volume XLII-4/W18, 2019 GeoSpatial Conference 2019 – Joint Conferences of SMPR and GI Research, 12–14 October 2019, Karaj, Iran<br>
 
 
-### resources/tutorials
+### Wikipedia/Mathematics
+There's nothing wrong with using the encyclopedia as a starting point, and like a dictionary used in a popular crossword word making game, at least we can choose to agree on a common reference.<br>
+https://en.wikipedia.org/wiki/Bicubic_interpolation <br>
+https://en.wikipedia.org/wiki/Differential_geometry_of_surfaces <br>
+https://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm <br>
+https://en.wikipedia.org/wiki/Newton%27s_method <br>
+https://en.wikipedia.org/wiki/Gradient <br>
+https://en.wikipedia.org/wiki/Polyharmonic_spline <br>
+https://en.wikipedia.org/wiki/Zernike_polynomials <br>
+https://en.wikipedia.org/wiki/HSL_and_HSV#Color_conversion_formulae <br>
+https://en.wikipedia.org/wiki/X11_color_names <br>
+https://en.wikipedia.org/wiki/Scheimpflug_principle <br>
+https://en.wikipedia.org/wiki/Sparse_matrix <br>
+https://en.wikipedia.org/wiki/Tensor <br>
+
+### openGL copied from/adapted/referenced 
+Yeah, well, it was popular when I started the project, and is still widely supported, like C, C++ and Fortran.. which were also still popular when I started.<br>
+https://www.khronos.org/opengl/wiki/Getting_Started#Writing_an_OpenGL_Application <br>
+https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal <br>
+https://open.gl/ <br>
+https://openglbook.com <br>
+https://www.khronos.org/opengl/wiki/Geometry_Shader <br>
+https://www.khronos.org/opengl/wiki/Geometry_Shader_Examples <br>
+https://stackoverflow.com/questions/18510701/glsl-how-to-show-normals-with-geometry-shader?rq=3 <br>
+https://en.wikibooks.org/wiki/Category:Book:OpenGL_Programming <br>
+https://learnopengl.com/ <br>
+https://github.com/JoeyDeVries/LearnOpenGL    CCBY-NC-4.0 <br>
+https://learnopengl.com                       CCBY-NC-4.0  <br>                           
+http://www.opengl-tutorial.org/               CC-BY-NC-ND  / WTF <br> 
+https://open.gl/content/code/c2_triangle_elements.txt from https://open.gl/drawing <br>
+https://learnopengl.com/Getting-started/Shaders <br>
+https://learnopengl.com/In-Practice/Text-Rendering <br>
+https://github.com/openglbook/openglbook-samples  MIT <br> 
+https://gitlab.com/wikibooks-opengl/modern-tutorials/-/blob/master/text01_intro/text.cpp?ref_type=heads <br>
+https://ogldev.org/www/tutorial22/tutorial22.html       ?BSD <br>
+https://computingonplains.wordpress.com/opengl-graphics-and-cpp/ <br>
+https://github.com/capnramses/antons_opengl_tutorials_book <br>
+https://en.wikibooks.org/wiki/Category:Book:OpenGL_Programming <br>
+https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal <br>
+https://discussions.unity.com/t/geometry-shader-on-mac/828498<br>
+
+### Qt copied/adapted from
+I did some asking around about a good environment for building a program that could conceivably be compiled for multiple OS/architectures..Qt kept coming up.<br>
+https://www.qt.io <br>
+qt6/examples <br>
+https://github.com/QtOpenGL/qgl_tutorials <br> https://bogotobogo.com/Qt/Qt5_OpenGL_QGLWidget.php <br>
+https://www.qt.io/ particularly assistant & opengl examples <br>
+https://doc.qt.io/qt-6/qopenglwidget.html <br>
+
+### MacOS/Darwin specific references
+https://fortran-lang.discourse.group/t/options-for-linking-fortran-on-a-mac/3739<br>
+https://discourse.cmake.org/t/problems-with-fortran-an-xcode-generator/11112<br>
+https://doc.qt.io/qt-6/macos.html <br>
+https://stackoverflow.com/questions/693952/how-to-compile-for-os-x-in-linux-or-windows <br>
+https://stackoverflow.com/questions/4342047/compiling-a-qt-application-for-mac-os-x-on-linux <br>
+https://community.khronos.org/t/failing-to-load-mesa3d-on-macos-instead-of-macos-provided-opengl-library/108408/17<br>
+https://docs.mesa3d.org/macos.html<br>
+
+### wxWidgets
+used in development, abandoned for Qt at this point <br>
+https://www.wxwidgets.org <br>
+https://github.com/wxWidgets/wxWidgets/tree/master/samples/opengl <br>
+https://github.com/wxWidgets/wxWidgets/tree/master/samples/opengl/pyramid <br>
+update glew for wxWidget >= 3.1.5 for egl support <br>
+https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=glew-egl-glx <br>
+https://stackoverflow.com/questions/13659853/async-execution-with-wxwidgets <br>
+wxExecute(_("bash --login -i"), wxEXEC_ASYNC);<br>
+
+### Miscellaneous resources/tutorials
 https://github.com/scivision/fortran2018-examples                       MIT <br>
 http://www.netlib.org/lapack-dev/lapack-coding/program-style.html <br>
 http://www.pdas.com/fmmdownload.html Fortran 90 versions of Computer Methods for Mathematical Computations Forsythe et al. 1977 subroutines (Public Domain) <br>
@@ -567,7 +572,6 @@ https://portal.nersc.gov/project/sparse/strumpack/master/ <br>
 https://stdlib.fortran-lang.org/index.html COO/CSR types   MIT<br>
 https://stdlib.fortran-lang.org/module/stdlib_sparse_kinds.html   MIT<br>
 
-
 ### cmake 
 Some of the find_package() scripts in cmake have been downloaded from here and there, for example:<br>
 SuperLU cmake copied from Eigen/libigl <br>
@@ -579,10 +583,22 @@ https://gitlab.kitware.com/vtk/vtk-m/blob/783867eeb05e0a6538f9c520af02c3615651b4
 I also tried CPM, but couldn't figure out how to resolve dependencies such as installing BLAS before LAPACK and both before SuperLU in a single CMakeLists.txt, for example:<br>
 https://github.com/cpm-cmake/CPM.cmake CPM.cmake <br>
 
-
 ### viennaCL
 not currently used, but with an eye towards possible OpenCL in the future<br>
 http://sourceforge.net/projects/viennacl/files/1.7.x/ViennaCL-1.7.1.tar.gz/download  MIT
+
+### file formats
+here's that encyclopedia again <br>
+https://en.wikipedia.org/wiki/STL_(file_format) <br>
+https://en.wikipedia.org/wiki/OFF_(file_format) <br>
+https://en.wikipedia.org/wiki/PLY_(file_format) <br>
+https://en.wikipedia.org/wiki/Truevision_TGA <br>
+https://en.wikipedia.org/wiki/TIFF <br>
+
+### assimp
+https://assimp-docs.readthedocs.io/en/v5.3.0/ <br>
+https://github.com/assimp/assimp <br>
+https://github.com/assimp/assimp/issues/3827 <br>
 
 ### rplycpp 
 Convert ASCII PLY to binary PLY; MIT licence <br>
@@ -606,21 +622,8 @@ patches to sparsekit.90 and sparsekit_test01.f90, see above under [LICENSE] orig
 wxWidgets https://github.com/wxWidgets/wxWidgets/blob/master/docs/licence.txt <br>
 Qt https://doc.qt.io/qt-6/licensing.html (LGPL & GPL) <br>
 
-### file formats
-here's that encyclopedia again <br>
-https://en.wikipedia.org/wiki/STL_(file_format) <br>
-https://en.wikipedia.org/wiki/OFF_(file_format) <br>
-https://en.wikipedia.org/wiki/PLY_(file_format) <br>
-https://en.wikipedia.org/wiki/Truevision_TGA <br>
-https://en.wikipedia.org/wiki/TIFF <br>
-
-### assimp
-https://assimp-docs.readthedocs.io/en/v5.3.0/ <br>
-https://github.com/assimp/assimp <br>
-https://github.com/assimp/assimp/issues/3827 <br>
-
 ### trademarks
-No proprietary information was provided by any of the holders of the following trademarks, other than as previously noted. Trademarks are presented by way of explanation and education only and remain the property of their holders, a list follows but may not be so much exhaustive as exhausting..<br>
+No proprietary information was provided by any of the holders of the following trademarks, other than as previously noted. Trademarks are presented by way of explanation and education only and remain the property of their holders, a list follows but may not be so much exhaustive as exhausting.. Anyone left out unintentionally is free to contact me.<br>
 EyeSys technologies CAS Corneal Analysis System undocumented file format in ASCII RA*.* and XX*., PU*., EY*., PA*., HX*.<br>
 Atlas Zeiss undocumented proprietary format in binary: embedded Embarcadero database .ib;  undocumented file format ASCII .CSV "Export for Research"<br>
 Oculus PentaCam undocumented binary .U12; file format for export in ASCII .ELE and .CUR <br>
