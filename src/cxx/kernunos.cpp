@@ -1020,8 +1020,8 @@ void MainWindow::compare()
     ui.zSlider->setValue(degrees * 16);
     flag=flag-(flag%100)+select;  // last two digits of flag=10 is the code for compare flag=12 for average
 
-    if (select == 10){
-//  for now set compare to hsbrgb
+    if (select == 10 || select == 12){
+//  for now set to hsbrgb
     map=(flag-(flag%100))/100%100 ; //save the current selection
     GLwidget::setAllmapsfalse();
     GLwidget::sethsbrgb(true);
@@ -1035,7 +1035,7 @@ void MainWindow::compare()
     m_GLwidget->DataLoad(fileName,true);
     makesave2Act->setEnabled(true);
 
-    if(select == 10){
+    if(select == 10 || select == 12){
 //  for now restore FROM hsbrgb
     flag=flag+100*(map-3);
     GLwidget::sethsbrgb(false);
