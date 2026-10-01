@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.30)
 cmake_policy(VERSION 3.30)
 
 #UNCOMMENT for Darwin or cmake commandline in Linux
-set(CMAKE_Fortran_INCLUDES_FLAG "-I")
-project(kernunos LANGUAGES C CXX Fortran)
+#set(CMAKE_Fortran_INCLUDES_FLAG "-I")
+#project(kernunos LANGUAGES C CXX Fortran)
 #UNCOMMENT for Darwin, but don't prevent -F issue
 set(CMAKE_Fortran_INCLUDES_FLAG "-I")
 set(CMAKE_FIND_FRAMEWORK LAST)
@@ -22,14 +22,14 @@ set(PROJECT_VERSION_MINOR  ${VERSION_MINOR})
 #set(QT_FORCE_CMP0156_TO_VALUE OLD)
 #set(CMAKE_MODULE_PATH cmake)
 
-#set(CMAKE_HOST_SYSTEM_NAME Linux)
-#set(CMAKE_SYSTEM UNIX)
+set(CMAKE_HOST_SYSTEM_NAME Linux)
+set(CMAKE_SYSTEM UNIX)
 
 #set(CMAKE_HOST_SYSTEM_NAME Windows)
 #set(CMAKE_SYSTEM_NAME Windows)
 
-set(CMAKE_HOST_SYSTEM_NAME Darwin)
-set(CMAKE_SYSTEM APPLE)
+#set(CMAKE_HOST_SYSTEM_NAME Darwin)
+#set(CMAKE_SYSTEM APPLE)
 
 #set(CMAKE_HOST_SYSTEM_PROCESSOR arm64)
 set(CMAKE_HOST_SYSTEM_PROCESSOR x86_64) #host
