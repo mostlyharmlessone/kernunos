@@ -129,7 +129,7 @@
         call pspli(thta,fTmp,MM,fttTmp,err_report)
         call SplineEval(1,thta,fTmp,fttTmp,MM,v,f,ft,ftt) !first parameter = 1 periodic
        else   ! LSQ  
-        call lsqfit(thta,fTmp,MM,M2,c)
+        call lsqfit(thta,fTmp,MM,M2,c,err_report)
         call LSQEval(M2,c,v,f,ft,ftt)
        endif
       else
@@ -138,7 +138,7 @@
          call pspli(thta,fTmp,MM,fttTmp,err_report)
          call SplineEval(1,thta,fTmp,fttTmp,MM,v,f,ft)
         else ! LSQ
-         call lsqfit(thta,fTmp,MM,M2,c)
+         call lsqfit(thta,fTmp,MM,M2,c,err_report)
          call LSQEval(M2,c,v,f,ft)
         endif
        else
@@ -153,7 +153,7 @@
            call pspli(thta,fTmp,MM,fttTmp,err_report)
            call SplineEval(1,thta,fTmp,fttTmp,MM,v,f)
           else ! LSQ
-           call lsqfit(thta,fTmp,MM,M2,c)
+           call lsqfit(thta,fTmp,MM,M2,c,err_report)
            call LSQEval(M2,c,v,f)
           endif
          endif
@@ -166,7 +166,7 @@
         call pspli(thta,frTmp,MM,frttTmp,err_report)
         call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr,frt)
        else
-        call lsqfit(thta,frTmp,MM,M2,c)
+        call lsqfit(thta,frTmp,MM,M2,c,err_report)
         call LSQEval(M2,c,v,fr,frt)
        endif
       else
@@ -181,7 +181,7 @@
           call pspli(thta,frTmp,MM,frttTmp,err_report)
           call SplineEval(1,thta,frTmp,frttTmp,MM,v,fr)
          else
-          call lsqfit(thta,frTmp,MM,M2,c)
+          call lsqfit(thta,frTmp,MM,M2,c,err_report)
           call LSQEval(M2,c,v,fr)
          endif
         endif
@@ -199,10 +199,17 @@
          call pspli(thta,frrTmp,MM,frrttTmp,err_report)
          call SplineEval(1,thta,frrTmp,frrttTmp,MM,v,frr)
         else
-         call lsqfit(thta,frrTmp,MM,M2,c)
+         call lsqfit(thta,frrTmp,MM,M2,c,err_report)
+
+
+if(err_report .ne. 0) then
+ write(*,*) 'frr',frrTmp .p. frrTmp
+endif
+
+
          call LSQEval(M2,c,v,frr)
         endif
        endif
       endif
-      RETURN
-      END
+     RETURN
+    END

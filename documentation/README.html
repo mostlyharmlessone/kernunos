@@ -69,7 +69,7 @@ accuracy / precision axial radius +/- 0.03mm altimetric data, +/- 2µm at 4mm&qu
 <p>The other and newer class of machine uses scanning technology to measure elevation either with a scanning laser (including OCT) or Scheimpflug photography, which presumably each have their own error of measurements. There is not as much information published about the details of the technology from an engineering point of view, making an independent estimation of those errors hard to know. Organizations providing tear downs of electronics and equipment such as IFixit, IPRG and EDN have not apparently worked on any topographer.  Caveat emptor! <br></p>
 <h2 id="on-data-storage-and-reading-files">On data storage and reading files</h2>
 <p>&quot;<em>Do not attribute conditions to villainy that simply result from stupidity.</em>”<br></p>
-<p>It is rare for data to be written to files as IEEE-754 floating point or ASCII/Unicode, for example in the modern era, and the alternative, yet common choice, of a relatively non-intuitive data storage with questionable computational or storage advantage, (a strategy which has often been deprecated for difficulties in code maintenance), points to possible deliberate obfuscation.<br></p>
+<p>It is rare for data to be written to files as IEEE-754 floating point or ASCII/Unicode in the modern era, and the alternative, yet common choice, of a relatively non-intuitive data storage with questionable computational or storage advantage, (a strategy which has often been deprecated for difficulties in code maintenance), points to possible deliberate obfuscation.<br></p>
 <p>Quoting <a href="https://en.wikipedia.org/wiki/Raw_image_format">https://en.wikipedia.org/wiki/Raw_image_format</a><br>
 &quot;Providing a detailed and concise description of the content of raw files is highly problematic. ... Several major camera manufacturers, including Nikon, Canon and Sony, encrypt portions of the file in an attempt to prevent third-party tools from accessing them.&quot;  <br></p>
 <p>In a different way to prevent third-party tools from accessing files, it has been implied that attempting to read proprietary file formats could be seen as IP infringement: <a href="https://cloudcompare.org/forum/viewtopic.php?t=5623">https://cloudcompare.org/forum/viewtopic.php?t=5623</a>  The legality of reverse engineering has been discussed, for example in the US, quoting the following: <a href="https://en.wikipedia.org/wiki/Reverse_engineering#Legality">https://en.wikipedia.org/wiki/Reverse_engineering#Legality</a><br></p>
@@ -105,7 +105,7 @@ make
 </code></pre><p>see <a href="https://gcc.gnu.org/bugzilla/show_bug.cgi?id=42954#c48">https://gcc.gnu.org/bugzilla/show_bug.cgi?id=42954#c48</a> for why gfortran needs the cmake flag.  These lines need to be uncommented in CMakeLists.txt</p>
 <pre><code>set(CMAKE_HOST_NAME Linux)
 set(CMAKE_SYSTEM UNIX)
-</code></pre><p> and the corresponding Darwin and Windws variables commented out.<br></p>
+</code></pre><p> and the corresponding Darwin and Windows variables commented out.<br></p>
 <p>gcc is used as the default compiler with cmake. Built with Qt 6.8.3 and 6.11.1 <br></p>
 <p>Building within QtCreator is also possible, but the default of using Ninja does not work with the Fortran dependencies. I had to manually edit .qtcreator/CMakeLists.txt.user directly to replace ninja in the following lines:<br>
 -DCMAKE_GENERATOR:STRING=Unix Makefiles<br>
@@ -176,9 +176,11 @@ wxWidgets<br>
 <pre><code>xcode-select --switch /Applications/Xcode.app
 </code></pre><p>Minimal Apple OS version: Sonoma (14), minimum Xcode 16.1. Note that homebrew no longer supports Sonoma as of this writing, though it is available. I have not tried MacPorts.<br></p>
 <p>Download homebrew, use brew install to install the following:<br>
-glfw vulkan-headers superlu Qt gfortran glm gnuplot assimp flang llvm cabextract<br></p>
+glfw vulkan-headers libomp superlu Qt gfortran glm gnuplot assimp flang llvm cabextract<br></p>
 <p>Change FC, CC, CXX and other environment vars to use flang/clang/clang++ to overrride Apple default clang if using the command line. For example, your path should have /opt/homebrew/opt/llvm/bin, /opt/homebrew/bin, and /opt/homebrew/sbin precede /usr/local/bin. </p>
 <pre><code>echo &#39;export PATH=&quot;/usr/local/opt/llvm/bin:$PATH&quot;&#39; &gt;&gt; ~/.zshrc
+export CC=/usr/local/opt/llvm/bin/clang
+export CXX=/usr/local/opt/llvm/bin/clang++
 </code></pre><p>There are the usual CMAKE_HOST_NAME and CMAKE_SYSTEM variables to change in CMakeLists.txt. Also uncomment the leading &quot;project&quot; line and uncomment the architecture aarch64 or x86_64 variable.&quot;<br>
 <br>
 I was unable to get a successful build in QtCreator, but command line cmake works with some tweaks, for example on the M3 (aarch64):<br></p>

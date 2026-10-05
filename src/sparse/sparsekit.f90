@@ -3351,7 +3351,7 @@ SUBROUTINE bsten ( nx, ny, nz, kx, ky, kz, nfree, stencil, h )
     write ( *, '(a)' ) ' '
     write ( *, '(a)' ) 'BSTEN  - FATAL ERROR'
     write ( *, '(a)' ) '  Input value of NFREE is greater than 15.'
-    stop
+    return
   end if
 
   nfree2 = nfree * nfree
@@ -9252,7 +9252,7 @@ SUBROUTINE expprod ( n, m, eps, tn, u, w, x, y, a, ioff, ndiag )
 !
 !  missing routine
   write(*,*) 'STOP: oped function not found in this version of sparsekit.f90, unsupported'
-  stop
+  return
 !!    call oped ( n, x, y, a, ioff, ndiag )
 
   end do

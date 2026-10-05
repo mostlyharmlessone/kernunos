@@ -478,11 +478,11 @@ use sparseUtils
   nnz = dcsr%nnz
   if ( (nrow+1) .gt. size(dcsr%ia)) then
    write(*,*) 'FATAL Error on input list_of_triplets_eq_dcsr/csrcoo: unexpected size',(nrow+1),size(dcsr%ia)
-   stop
+   return
   endif
   if ((dcsr%ia(nrow+1)-1) .ne. nnz) then
    write(*,*) 'FATAL Error on input list_of_triplets_eq_dcsr/csrcoo: unexpected nnz',dcsr%ia(nrow+1)-1,nnz
-   stop
+   return
   endif
   trip(1:nnz)%value = dcsr%a(1:nnz)
   trip(1:nnz)%columnIndex = dcsr%ja(1:nnz)
@@ -497,7 +497,7 @@ use sparseUtils
  do i=1, dcsr%nnz
   if (trip(i)%rowIndex .lt. 1 .or. trip(i)%rowIndex .gt. dcsr%nnz) then
    write(*,*) 'FATAL Error on output list_of_triplets_eq_dcsr/csrcoo: bad rowIndex'
-   stop
+   return
   endif
  end do
 END SUBROUTINE list_of_triplets_eq_dcsr

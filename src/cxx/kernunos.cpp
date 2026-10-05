@@ -454,28 +454,6 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
        int ret = msgBox.exec();
        switch(ret){
         case QMessageBox::Yes:
-// clean out any old files (untested, and need to check they exist first)
-/*
-#ifdef _WIN32
-            ierr = system(("del \"" + temp_path_str + " CORNEA_F.*\"").c_str());
-            ierr = ierr + system(("del \"" + temp_path_str + "\\CORNEA.*\"").c_str());
-            ierr = ierr + system(("del \"" + temp_path_str + "\\CURVAT.*\"").c_str());
-            ierr = ierr + system(("del \"" + temp_path_str + "\\CURVAT_F.*\"").c_str());
-            ierr = ierr + system(("del \"" + temp_path_str + "\\PUPIL.*\"").c_str());
-            ierr = ierr + system(("del \"" + temp_path_str + "\\CENTER.*\"").c_str());
-            ierr = ierr + system(("del \"" + temp_path_str + "\\PATIENT.TXT\"").c_str());
-            ierr = ierr + system(("del \"" + temp_path_str + "\\EXAM.TXT\"").c_str());
-#else
-            ierr = system(("rm " + temp_path_str + "/CORNEA_F.*").c_str());
-            ierr = ierr + system(("rm " + temp_path_str + "/CORNEA.*" ).c_str());
-            ierr = ierr + system(("rm " + temp_path_str + "/CURVAT_F.*").c_str());
-            ierr = ierr + system(("rm " + temp_path_str + "/CURVAT.*" ).c_str());
-            ierr = ierr + system(("rm " + temp_path_str + "/PUPIL.*" ).c_str());
-            ierr = ierr + system(("rm " + temp_path_str + "/CENTER.*" ).c_str());
-            ierr = ierr + system(("rm " + temp_path_str + "/PATIENT.TXT" ).c_str());
-            ierr = ierr + system(("rm " + temp_path_str + "/EXAM.TXT" ).c_str());
-#endif
-*/
            if (keratoDialogOptionsWidget->value()){
                LogC("Extrapolated Keratograph data files");
 
@@ -542,7 +520,12 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
            if(FILE *file = fopen(str3.c_str(),"r")) {
                fclose(file); nidek = true;
            }}};
-   if (!pentacam && !atlas && !eyesys && !nidek && !kerato && !saved) return;   //no supported file format
+
+   if (!pentacam && !atlas && !eyesys && !nidek && !kerato && !saved) {
+       std::cout << "Unsupported file format " << __LINE__ << std::endl;
+       errorMessageDialog->showMessage(tr("Unsupported file format"));
+       return;}   //no supported file format
+
    if (pentacam) {
        centerAct->setEnabled(true);
        ShowZernAct->setEnabled(false);
@@ -818,7 +801,10 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
                if(FILE *file = fopen(str3.c_str(),"r")) {
                    fclose(file); nidek = true;
                }}};
-       if (!pentacam && !atlas && !eyesys && !nidek && !kerato && !saved) {m_GLwidget->DataLoad(fileName, false); return;}  //cube   //no supported file format
+       if (!pentacam && !atlas && !eyesys && !nidek && !kerato && !saved) {
+           m_GLwidget->DataLoad(fileName, false);
+           std::cout << "No supported file format on command line, displaying cube " << __LINE__ << std::endl;
+           return;}  //cube   //no supported file format
        if (pentacam){
            centerAct->setEnabled(true);  //change to false to not allow for pentacam, center deviations only for Placido
            ShowZernAct->setEnabled(false);
@@ -1021,7 +1007,7 @@ void MainWindow::compare()
     flag=flag-(flag%100)+select;  // last two digits of flag=10 is the code for compare flag=12 for average
 
     if (select == 10 || select == 12){
-//  for now set to hsbrgb
+//  set to hsbrgb for compare/average
     map=(flag-(flag%100))/100%100 ; //save the current selection
     GLwidget::setAllmapsfalse();
     GLwidget::sethsbrgb(true);

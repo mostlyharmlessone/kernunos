@@ -291,7 +291,7 @@ Q: Why is so much of the code in Fortran instead of (insert your favorite langua
 
 A:  I've made certain choices.  Yours could be different. Back end computations are done in mostly modern Fortran, mostly using features of Fortran 90, 03 or 08, though a few 2018 features may have crept in. It's not FORTRAN 66; at least I try not to have it be. Hanson & Hopkins 2013 text is (IMHO) a good reference. The back end is written in "modern" Fortran, a language designed for computation, with the front end written in C++ with Qt, more appropriate for graphics (and in my case use of OpenGL) and user interaction, at least at the time of this writing.  Kernunos isn't meant to run in the cloud, or any network not transparently handled by the underlying OS, or in a VM, or have multiple instances, or share resources. It is not thread safe. Some file operations are done in C++ and some in Fortran, with a few C routines as noncombatants or because I didn't know how to otherwise or because it was easier.  For those who are interested in issues with C in scientific programming (some of which still apply to C++), Press et al.'s (listed earlier) editorial comments are, to my mind, quite insightful, though some improvements anticipated at the time have been achieved. One such comment is pertinent here:  "One of the cultural barriers that separates computer scientists from "regular" scientists and engineers *(and physicians)* is a differing point of view on whether a 30% or 50% loss of speed is worth worrying about. In many real-time or state-of-the-art scientific applications, such a loss is catastrophic. The practical scientist is trying to solve tomorrow's problems with yesterday's computer; the computer scientist, we think, often has it the other way around."  Besides, I'm comfortable programming in Fortran, rather than whatever is the language du jour.<br>
 
-Amusingly, when I uploaded this project to Github, whichever (clearly suboptimal) algorithm determines what the project is written in, determined this: <br>
+Amusingly, when I uploaded this project to Github, whichever (clearly incorrect) algorithm determines what the project is written in, determined this: <br>
 C++ 65.9%<br>
 C 10.7%<br>
 COBOL 10.3%<br>
@@ -300,13 +300,13 @@ CMake 2%<br>
 Python 2%<br>
 Other 5.5%<br>
 
-There is no COBOL or Python in this project. I'm pretty sure I don't even have a COBOL compiler.  If "Other" means example data files and documentation, perhaps the percentages are close, when including the outside submodules which are written in C++, C and Fortran, and if you assume that the "COBOL" is actually Fortran.<br>
+There is no COBOL or Python in this project. I'm pretty sure I don't even have a COBOL compiler.  If "Other" means example data files and documentation, perhaps the percentages are close, when including the outside submodules which are written in C++, C and Fortran, and if you assume that the "COBOL" and/or "Python" is actually Fortran.<br>
 As a guess, I'd have said:<br>
 Fortran 45%<br>
 C++ 40%<br>
-C 5%<br>
-CMake 2%<br>
-Data (text/html/images/pdf) 8%<br>
+C 2%<br>
+CMake 3%<br>
+Data (text/html/images/pdf) 10%<br>
 But I haven't bothered to add up bytes to compare.<br>
 
 Q: Why is the coding so bad/uneven? (and other coding criticisms)<br>
@@ -315,11 +315,11 @@ A: Parts of the code were written at different stages of my evolution which migh
 
 Q: Why OpenGL and not (insert your preference here)?<br>
 
-A: OpenGL, while relatively easy for an amateur, is now, alas, being deprecated, with no clear long term successor, imo. Please don't suggest any.  For the last 50 years it's been one hot mess after another coding graphics. It'd be great if graphics were completely supported within C++ or any other general purpose compiled language, with whatever new API (Vulkan, Metal etc.) transparently supported by the compiler writers. Come on guys, it's not as though I have to have a new API every time I want to write to storage, or memory, or add numbers.  Well, maybe when it comes to adding numbers:  GPU and parallel computing.  At least modern Fortran is making some efforts to support parallel operations in the language proper, as opposed to using OpenCL or CUDA or MPI, OpenMPI, OpenMP, TBB, and some compilers are making high level matrix operations supported by e.g. LAPACK under the hood as needed.  On that note, vendor specific extensions are avoided with the intent of trying to make the code able to be compiled on any operating system with freely available tools. <br>
+A: OpenGL, while relatively easy for an amateur, is now, alas, being deprecated, with no clear long term (multiplatform) successor, imo. Please don't suggest any.  For the last 50 years it's been one hot mess after another coding graphics. It'd be great if graphics were completely supported within C++ or any other general purpose compiled language, with whatever new API (Vulkan, Metal etc.) transparently supported by the compiler writers. Come on guys, it's not as though I have to have a new API every time I want to write to storage, or memory, or add numbers.  Well, maybe when it comes to adding numbers:  GPU and parallel computing.  At least modern Fortran is making some efforts to support parallel operations in the language proper, as opposed to using OpenCL or CUDA or MPI, OpenMPI, OpenMP, TBB, and some compilers are making high level matrix operations supported by e.g. LAPACK under the hood as needed. In the Fortran world, though, compiler support of language features seems to lag by a decade... On that note, vendor specific extensions are avoided with the intent of trying to make the code able to be compiled on any operating system with freely available tools. <br>
 
 Q: Why didn't you develop this with (insert programming environment or toolbox here)?<br>
 
-A: So for example, why not boost? why not cgal/jet-3? or libigl? Why Qt and not wxWidgets?  With any project there is a trade-off between reusability of code, documentation, language  available code is written in, licensing etc. One doesn't want to reinvent code that has already been written well and done correctly.  One also doesn't want to incorporate a very large general purpose code base with a complicated API to solve a simple problem.  At this time, the old unsupported and deprecated sparsekit.f90 is used rather than the more modern and in active development Fortran "stdlib" https://stdlib.fortran-lang.org/index.html for COO/CSR types. There are trade-offs to everything. Compiled languages are used, not interpreted languages like Python (Be thankful it isn't in BASIC, or APL) because the goal was to have a standalone executable. The project's trade-offs reflect the sophistication or lack thereof of the author. <br>
+A: So for example, why not boost? why not cgal/jet-3? or libigl? Why Qt and not wxWidgets?  With any project there is a trade-off between reusability of code, documentation, language  available code is written in, licensing etc. One doesn't want to reinvent code that has already been written well and done correctly.  One also doesn't want to incorporate a very large general purpose code base with a complicated API to solve a simple problem.  At this time, the old unsupported and deprecated sparsekit.f90 is used rather than the more modern and in active development Fortran "stdlib" https://stdlib.fortran-lang.org/index.html for COO/CSR types. There are trade-offs to everything. Compiled languages are used, not interpreted languages like Python ;) (Be thankful it isn't in BASIC, or APL) because the goal was to have a standalone executable. The project's trade-offs reflect the sophistication or lack thereof of the author. <br>
 
 Q: Is this program secure and safe, written using best software practices?<br>
 
@@ -331,7 +331,7 @@ A: You're welcome to try that approach.  However it's not for me, see the README
 
 Q: Did you really not use an "AI"/LLM for this?<br>
 
-A: Yes, though I suspect Github used Copilot(R) to "hallucinate" the 10.6% nonexisting COBOL. :)<br>
+A: Yes, though I suspect Github used Copilot(R) to "hallucinate" the nonexisting 10.6% COBOL and 2% Python. :)<br>
 
 Q: Do you accept "AI"/LLM contributions to your code?<br>
 

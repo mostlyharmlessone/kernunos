@@ -11,7 +11,7 @@ SUBROUTINE bsearch(r,rv,n,high,low)
  REAL(wp) :: rmin
  if ( n < 1 ) then
   write(*,*) 'FATAL Error in bsearch, n < 1',n
-  stop
+  return
  endif
  ! degenerate case
  if (n .eq. 1) then
@@ -140,7 +140,7 @@ SUBROUTINE bsearch(r,rv,n,high,low)
   write(*,*) 'FATAL index error in bsearch',low,high,n,m
   write(*,*) r
   write(*,*) rv
-  stop
+  return
  endif
 
 ! high and low are one apart unless they are at a periodic jump
@@ -148,7 +148,7 @@ SUBROUTINE bsearch(r,rv,n,high,low)
   write(*,*) 'FATAL directional error in bsearch',direction,low,high,n,m
   write(*,*) r
   write(*,*) rv
-  stop
+  return
  endif
 
 ! check if r .eq. a knot, then not in an interval, set low = high
@@ -166,7 +166,7 @@ SUBROUTINE bsearch(r,rv,n,high,low)
   write(*,*) 'FATAL possible index error in bsearch: low,high,rv(low),r,abs(2*PI-r),rv(high),direction>0,m,n,i0'
   write(*,*) low,high,rv(low),r,abs(2*PI-r),rv(high),direction>0,m,n,i0
   write(*,*) rv
-  stop
+  return
  endif
 
 return

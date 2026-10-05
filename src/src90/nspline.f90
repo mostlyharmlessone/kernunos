@@ -74,7 +74,7 @@
      write(*,*) r(i-1),z(i-1),z2(i-1),a(i-1),b(i-1),c(i-1),d(i-1)
     end do
     err_report=1
-    stop
+    return
    endif
  
    deallocate (a,b,c,d,zz2)

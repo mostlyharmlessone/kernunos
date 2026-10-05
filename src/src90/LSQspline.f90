@@ -191,7 +191,7 @@
      END DO
 
      if (err_report .ne. 0) then
-      write(*,*) 'Errors in findInterval', err_report
+      write(*,*) 'Errors in findInterval in LSQSpline', err_report
       err_report = 0
      endif
 
@@ -202,20 +202,20 @@
         a_csr = s
         if (a_csr%errFlag .ne. 0) then
          write(*,*) 'FATAL Error in CSRCOO in LSQspline',a_csr%errFlag
-         stop
+         return
         endif
         s = 0
 ! Create A^TA by multiplication of CSR sparse matrices
         ata_csr = (.t. a_csr) .p. a_csr
         if (ata_csr%errFlag .ne. 0) then
          write(*,*) 'FATAL Error in AMUB in LSQSpline',ata_csr%errFlag
-         stop
+         return
         endif
 ! Make triplets from ata_csr
         triplets = ata_csr
         if (ata_csr%errFlag .ne. 0) then
          write(*,*) 'FATAL Error in CSRCOO in LSQspline',a_csr%errFlag
-         stop
+         return
         endif
         s = triplets
 ! Create A^T*y

@@ -234,8 +234,8 @@
            vertnum=3
            rgbv=colormap(pow_face3_1,powmin,powmax,map)
           else
-           write(*,*) 'WriteGeom: Error in central values'
-           stop
+           write(*,*) 'FATAL: WriteGeom error in central values'
+           return
           endif
           write(unitno3,*) vertnum,ivert1,ivert2,ivert3,rgbv
          end do

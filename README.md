@@ -67,7 +67,7 @@ The other and newer class of machine uses scanning technology to measure elevati
 
 "*Do not attribute conditions to villainy that simply result from stupidity.*”<br>
 
-It is rare for data to be written to files as IEEE-754 floating point or ASCII/Unicode, for example in the modern era, and the alternative, yet common choice, of a relatively non-intuitive data storage with questionable computational or storage advantage, (a strategy which has often been deprecated for difficulties in code maintenance), points to possible deliberate obfuscation.<br>
+It is rare for data to be written to files as IEEE-754 floating point or ASCII/Unicode in the modern era, and the alternative, yet common choice, of a relatively non-intuitive data storage with questionable computational or storage advantage, (a strategy which has often been deprecated for difficulties in code maintenance), points to possible deliberate obfuscation.<br>
 
 Quoting https://en.wikipedia.org/wiki/Raw_image_format<br>
 "Providing a detailed and concise description of the content of raw files is highly problematic. ... Several major camera manufacturers, including Nikon, Canon and Sony, encrypt portions of the file in an attempt to prevent third-party tools from accessing them."  <br>
@@ -133,7 +133,7 @@ see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=42954#c48 for why gfortran need
 set(CMAKE_HOST_NAME Linux)
 set(CMAKE_SYSTEM UNIX)
 ```
- and the corresponding Darwin and Windws variables commented out.<br>
+ and the corresponding Darwin and Windows variables commented out.<br>
 
 gcc is used as the default compiler with cmake. Built with Qt 6.8.3 and 6.11.1 <br>
 
@@ -248,11 +248,13 @@ xcode-select --switch /Applications/Xcode.app
 Minimal Apple OS version: Sonoma (14), minimum Xcode 16.1. Note that homebrew no longer supports Sonoma as of this writing, though it is available. I have not tried MacPorts.<br>
 
 Download homebrew, use brew install to install the following:<br>
-glfw vulkan-headers superlu Qt gfortran glm gnuplot assimp flang llvm cabextract<br>
+glfw vulkan-headers libomp superlu Qt gfortran glm gnuplot assimp flang llvm cabextract<br>
 
 Change FC, CC, CXX and other environment vars to use flang/clang/clang++ to overrride Apple default clang if using the command line. For example, your path should have /opt/homebrew/opt/llvm/bin, /opt/homebrew/bin, and /opt/homebrew/sbin precede /usr/local/bin. 
 ```
 echo 'export PATH="/usr/local/opt/llvm/bin:$PATH"' >> ~/.zshrc
+export CC=/usr/local/opt/llvm/bin/clang
+export CXX=/usr/local/opt/llvm/bin/clang++
 ```
 There are the usual CMAKE_HOST_NAME and CMAKE_SYSTEM variables to change in CMakeLists.txt. Also uncomment the leading "project" line and uncomment the architecture aarch64 or x86_64 variable."<br>
 <br>

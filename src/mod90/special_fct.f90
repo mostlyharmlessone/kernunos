@@ -502,12 +502,12 @@ END FUNCTION eps2
  INTEGER :: f
  INTEGER, INTENT(IN) :: n
  if (n < 0) then
-  write(*,*) 'No negative n in fact(n): ',n
-  stop
+  write(*,*) 'FATAL: No negative n in fact(n): ',n
+  return
  endif
   if (ABS(n) > 100) then
-  write(*,*) 'too large factorial: ',n
-  stop
+  write(*,*) 'FATAL: too large factorial: ',n
+  return
  endif
  if (n == 0) then
    f = 1
@@ -531,16 +531,16 @@ END FUNCTION binomial
  INTEGER :: f,i
  INTEGER, INTENT(IN) :: n,k
  if (n < 0 .OR. k < 0) then
-  write(*,*) 'No n < 0 or k < 0 in pfact(n): ',n
-  stop
+  write(*,*) 'FATAL: No n < 0 or k < 0 in pfact(n): ',n
+  return
  endif
  if (n < k) then
-  write(*,*) 'n < k in pfact(n): ',n,k
-  stop
+  write(*,*) 'FATAL: n < k in pfact(n): ',n,k
+  return
  endif
   if (ABS(n) > 100) then
-  write(*,*) 'too large factorial in pfact: ',n
-  stop
+  write(*,*) 'FATAL: too large factorial in pfact: ',n
+  return
  endif
  if ((n-k) == 0) then
   f = 1
@@ -656,8 +656,8 @@ END FUNCTION R66
  INTEGER, INTENT(IN) :: n,m
  REAL(wp),INTENT(IN) :: p
  if (n < m .OR. m < 0 .OR. mod(n-m,2) /= 0) then
-  write(*,*) 'Illegal indices in zernike',n,m
-  stop
+  write(*,*) 'FATAL: Illegal indices in zernike',n,m
+  return
  endif
  if ( n == m) then
   f=p**n

@@ -127,7 +127,7 @@ map=mod((flag-mod(flag,100))/100,100)  ! last two digits color map functions
 ! iflag =111 ! integration, centernode, LSQ, so then 10 or 0 or 100 or 110
 
 ! Just check once
-if (loaded_files .le. 1 .and. mod(flag,100) == 0) then
+if (loaded_files .lt. 1 .and. mod(flag,100) == 0) then
    call LogC("Verifying the Fortran preprocessor macros are correct: " // c_null_char)
 #if defined (__APPLE__)
 #if defined(__aarch64__)
@@ -1037,8 +1037,9 @@ if (mod(flag,100) == 10 .or. mod(flag,100) == 12) then
   DiaSlope=RadSlope              ! move to diagonal format
   DiaSlope%Zpd2 = .n. DiaSlope
 
-  do i=1,M1
-   do j=1,JMatrix3%MV(i) ! does not include center point
+  new_crop = 0
+  outer_loop:  do i=1,M1
+   inner_loop: do j=1,JMatrix3%MV(i) ! does not include center point
 !   generate elevations and derivatives; iflag no integration if .ELE .ELE_CSV file
     call SplineEval1Dx1D(iflag,JMatrix3%R(j,i),JMatrix3%THT(i),JMatrix3%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
     JMatrix3%YPR(j,i)=YPR
@@ -1060,12 +1061,23 @@ if (mod(flag,100) == 10 .or. mod(flag,100) == 12) then
     JMatrix3%SAGC(j,i)=RFCT*princ2
     JMatrix3%GAUSSC(j,i)=RFCT*gaussian
 ! check here for extrapolation
-    if (abs(YP2THETA) .gt. 2000) then
-     write(*,*) 'Warning in compare: extrapolation at the edge where the data&
-     &is discontinuous circumferentially: abs(YP2THETA) .gt. 2000'
+    if (abs(YP2THETA) .gt. 200) then
+     write(*,*) 'Warning in compare: too much extrapolation at the edge where the data &
+     &is discontinuous circumferentially: abs(YP2THETA) .gt. 2000, meridian: ',i
+     JMatrix3%MV(i) = JMatrix3%MV(i) - 1
+     new_crop = new_crop + 1
+     cycle outer_loop
     endif
-   end do
-  end do
+   end do inner_loop
+  end do outer_loop
+
+  if (new_crop .gt. 0) then
+   write (*,*) "automatic cropping in compare, iterations: ", new_crop
+   if (new_crop .gt. 2000) then
+    write(*,*) 'FATAL error in compare'
+    return
+   endif
+  endif
 
 ! subtract/average based on same same radii, but with possible rotation
   JMatrix2%THT(:)=JMatrix%THT(:)

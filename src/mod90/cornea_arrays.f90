@@ -1174,7 +1174,7 @@ END SUBROUTINE RadSlope_eq_DiaSlope
     write(*,*) 'zpd', b%Zpd(:,i)
     write(*,*) 'L2', b%L2(i)
     write(*,*) 'a',a(:,i)
-    stop
+    return
    endif
   end do
 END FUNCTION DiaSpline
@@ -1342,6 +1342,7 @@ SUBROUTINE Atlas_LSQfillin(Atlas,b,a)
  TYPE(wpAtlasMatrix), INTENT(IN) :: Atlas
  REAL(wp),INTENT(IN) :: b(:,:)
  REAL(wp), INTENT(OUT) :: a(size(b,1),size(b,2))
+ INTEGER :: err_report
  INTEGER :: M1,N1,i,j,k,mvjr(size(b,2))
  REAL(wp) ::t(size(b,1)),z(size(b,1))
  REAL(wp) :: c(M2)
@@ -1362,7 +1363,7 @@ SUBROUTINE Atlas_LSQfillin(Atlas,b,a)
   end do
   if (mvjr(i) > M1/2) then ! only do LSQ if at least half the points are there
 ! generate lsq fillin values; uses cosines and sines, not splines
-   call lsqfit(t,z,M1,M2,c)
+   call lsqfit(t,z,M1,M2,c,err_report)
    do k=1,M1
 !    changed this to a smoothing routine with relatively low M2 (10), as LSQ is terrible at discontinuities.
 !    if (ABS(b(k,i)) .gt. 0) then ! means it is  =/ 0
@@ -1379,6 +1380,7 @@ SUBROUTINE EyeSys_LSQfillin(EyeSys,b,a)
  TYPE(wpEyeSysMatrix), INTENT(INOUT) :: EyeSys
  REAL(wp),INTENT(IN) :: b(:,:)
  REAL(wp), INTENT(OUT) :: a(size(b,1),size(b,2))
+ INTEGER :: err_report
  INTEGER :: M1,N1,i,j,k,mvjr(size(b,2))
  REAL(wp) ::t(size(b,1)),z(size(b,1))
  REAL(wp) :: c(M2)
@@ -1399,7 +1401,7 @@ SUBROUTINE EyeSys_LSQfillin(EyeSys,b,a)
   end do
   if (mvjr(i) > M1/2) then ! only do LSQ if at least half the points are there
 !  generate lsq fillin values; uses cosines and sines, not splines
-   call lsqfit(t,z,M1,M2,c)
+   call lsqfit(t,z,M1,M2,c,err_report)
    do k=1,M1
 !   changed this to a smoothing routine with relatively low M2 (10), as LSQ is terrible at discontinuities.
 !    if (ABS(b(k,i)) .gt. 0) then ! means it is  =/ 0
@@ -1552,7 +1554,7 @@ END SUBROUTINE EyeSys_LSQfillin
     K=(huu*hvv-huv*huv)/(g*g)
     H=((1+hv**2)*huu-2*hu*hv*huv+(1+hu**2)*hvv)/(2*(sqrt(g)**3))
     if (H**2-K < 0) write(*,*) 'FATAL error in principal,H,K,H^2-K',H,K,H**2-K
-    if (H**2-K < 0) stop
+    if (H**2-K < 0) return
 !    if ((huu*hvv-huv*huv) < 0) write(*,*) 'Hessian negative in principal: t,gaussian,K',t,K,RFCT*sqrt(abs(K))
      k1=H+sign(sqrt(abs(H**2-K)),H)  ! better way to compute quadratic roots without cancellation
      k2=K/k1
@@ -1594,7 +1596,7 @@ END SUBROUTINE EyeSys_LSQfillin
    K=(huu*hvv-huv*huv)/(g*g)
    H=((1+hv**2)*huu-2*hu*hv*huv+(1+hu**2)*hvv)/(2*(sqrt(g)**3))
 !   if (H**2-K < 0) write(*,*) 'FATAL error in principal_directions,H,K,H^2-K',H,K,H**2-K
-!   if (H**2-K < 0) stop
+!   if (H**2-K < 0) return
    u=r*cos(t)
    v=r*sin(t)
    k1 = H + sqrt(abs(H*H-K))
@@ -1647,7 +1649,7 @@ END SUBROUTINE EyeSys_LSQfillin
   K=(huu*hvv-huv*huv)/(g*g)
   H=((1+hv**2)*huu-2*hu*hv*huv+(1+hu**2)*hvv)/(2*(sqrt(g)**3))
  ! if (H**2-K < 0) write(*,*) 'FATAL error in principal_directions,H,K,H^2-K',H,K,H**2-K
- ! if (H**2-K < 0) stop
+ ! if (H**2-K < 0) return
   u=r*cos(t)
   v=r*sin(t)
   k1 = H + sqrt(abs(H*H-K))

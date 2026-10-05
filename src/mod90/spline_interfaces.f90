@@ -21,12 +21,13 @@ MODULE spline_interfaces
   REAL(wp),INTENT(OUT),OPTIONAL :: f,ft,ftt,fttt
  END SUBROUTINE
 
- SUBROUTINE lsqfit(t,z,M1,M2,c)
+ SUBROUTINE lsqfit(t,z,M1,M2,c,err_)
   USE set_precision, ONLY  :  wp
   use LapackInterface, ONLY : dgetrf, dgetrs !, dgels, GaussJordan
   REAL(wp), INTENT(IN) :: t(M1),z(M1)
   INTEGER, INTENT(IN) :: M1,M2
   REAL(wp), INTENT(OUT) ::c(M2)
+  INTEGER, INTENT(OUT) :: err_
  END SUBROUTINE
 
  SUBROUTINE LSQspline(t, y, m, a, z, z2, n, err_report, periodic, csr , sparse)

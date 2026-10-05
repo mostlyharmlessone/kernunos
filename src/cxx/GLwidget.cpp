@@ -122,7 +122,7 @@ static const GLchar* fragmentColorNormal = R"glsl(
     }
 )glsl";
 
-static const GLchar* textfsrc = R"glsl(
+static const GLchar* textfsrc0 = R"glsl(
 #version 330 core
     in vec2 texpos;
     uniform sampler2D tex;
@@ -132,6 +132,20 @@ static const GLchar* textfsrc = R"glsl(
     void main(void) {
     FragColor = vec4(1, 1, 1, texture(tex, texpos).a) * color;
     }
+)glsl";
+
+static const GLchar* textfsrc = R"glsl(
+#version 330 core
+    in vec2 texpos;
+    out vec4 FragColor;
+    uniform sampler2D tex;
+    uniform vec3 color;
+
+void main() {
+    float alpha = texture(tex, texpos).r;
+    FragColor = vec4(color, alpha);
+    FragColor = vec4(1, 1, 1, alpha);
+}
 )glsl";
 
 static const GLchar* textvsrc = R"glsl(
@@ -326,6 +340,7 @@ void GLwidget::initializeGL()
   sglVer += reinterpret_cast<const char *>(GLrenderer);
   sglVer += "\nGLSL version: ";
   sglVer += reinterpret_cast<const char *>(GLSLversion);
+
 //throws an error under Apple/Darwin, does nothing under others
   QOpenGLContext *ctx = QOpenGLContext::currentContext();
   QOpenGLDebugLogger *logger = new QOpenGLDebugLogger(this);
@@ -348,7 +363,7 @@ void GLwidget::initializeGL()
 
   // During init, enable debug output
 #if defined(__APPLE__)
-  //not for Darwin
+  //not supported by Apple
 #else
   glEnable(GL_DEBUG_OUTPUT );
 #endif
@@ -432,7 +447,6 @@ void GLwidget::initializeGL()
   shaderProgram->setUniformValue(m_lightPosLoc, QVector3D(0, 0, lightdist));
   shaderProgram->setUniformValue(m_alphaLoc, QVector4D(0,0,0,1.0));
   shaderProgram->release();
-
 
   // set up Text shader program
   shaderText2Program->bind();
@@ -833,24 +847,19 @@ bool GLwidget::LoadSurfaceToBuffer(int nV, int nE, GLuint vertexbuffer, GLuint e
         return false;
        }
      if (!glIsBuffer(elementbuffer)) return false;
-    checkGLError(__FILE__, __LINE__);
     // positions, colors and normals all stored as floats: 9 * sizeof(GLfloat) = 3 x 3 floats
     // vertex position
     glEnableVertexAttribArray(0);
-    checkGLError(__FILE__, __LINE__);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), nullptr);
                                                            // offset 0, 9 floats = 3 positions + 3 normals+ 3 colors per vertex
-    checkGLError(__FILE__, __LINE__);
     // vertex normals
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), reinterpret_cast<void *>(3 * sizeof(GLfloat)));
                                                            // offset 3 because normals start after 3 positions.
-        checkGLError(__FILE__, __LINE__);
     // color attribute
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), reinterpret_cast<void *>(6 * sizeof(GLfloat)));
                                                           // offset 6 because colors start after 3 positions + 3 normals
-    checkGLError(__FILE__, __LINE__);
     // Unbind buffer; do not do this per Qt https://doc.qt.io/qt-6/qopenglwidget.html
 //    glBindBuffer(vertexbuffer,0);
 //    glBindBuffer(elementbuffer,0);
@@ -902,7 +911,7 @@ bool GLwidget::LoadLinesToBuffer(int nV, int nE, GLuint vertexbuffer, GLuint ele
  * Rendering starts at coordinates (x, y), z is always 0.
  * The pixel coordinates that the FreeType2 library uses are scaled by (sx, sy).
  */
- // doen't handle rotation around z very well.
+ // doesn't handle rotation around z very well.
 void GLwidget::render_text(GLuint vertexbuffer, const char *text, float x, float y, float sx, float sy) {
     makeCurrent();
     glUseProgram(shaderText2Program->programId());
@@ -963,8 +972,6 @@ void GLwidget::render_text(GLuint vertexbuffer, const char *text, float x, float
     else {
         // set size to load glyphs as
         FT_Set_Pixel_Sizes(face, 0, 48);
-        // disable byte-alignment restriction
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         // Load character glyph
         const char *p;
         FT_GlyphSlot g = face->glyph;
@@ -976,8 +983,20 @@ void GLwidget::render_text(GLuint vertexbuffer, const char *text, float x, float
                std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
                continue;
              }
-            /* Upload the "bitmap", which contains an 8-bit grayscale image, as an alpha texture */
-             glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, g->bitmap.width, g->bitmap.rows, 0, GL_ALPHA, GL_UNSIGNED_BYTE, g->bitmap.buffer);
+
+            /* Upload the "bitmap", which contains an 8-bit grayscale image, as an alpha or as a red texture */
+//             glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, g->bitmap.width, g->bitmap.rows, 0, GL_ALPHA, GL_UNSIGNED_BYTE, g->bitmap.buffer);
+
+             glTexImage2D(
+                 GL_TEXTURE_2D, 0, GL_R8,
+                 face->glyph->bitmap.width,
+                 face->glyph->bitmap.rows,
+                 0, GL_RED, GL_UNSIGNED_BYTE,
+                 face->glyph->bitmap.buffer
+                 );
+
+             checkGLError(__FILE__, __LINE__);
+
              /* Calculate the vertex and texture coordinates */
              float x2 = x + g->bitmap_left * sx;
              float y2 = -y - g->bitmap_top * sy;
