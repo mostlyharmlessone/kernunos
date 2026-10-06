@@ -45,15 +45,22 @@ inner_loop_2:   do j=M2/2+1,M2
 !  if (info .ne. 0) write(*,*) 'Error in lsqfit: dgels',info
 !  c=zwork(1:M2)
 
+  if ((z .p. z) .eq. 0) then
+  write(*,*) 'Warning degenerate LSQ, zero input'
+   c=0
+   return
+  endif
+
   call dgetrf(M2,M2,XTX,M2,ipvt,info)
   if (info .ne. 0) then
    write(*,*) 'FATAL Error in lsqfit: dgetrf',info
    err_ = info
    write(*,*) t
    write(*,*) z
-   write(*,*) z .p. z
+   c = 0
    return
   endif
+
   call dgetrs('N',M2,1,XTX,M2,ipvt,zpX,M2,info)
   if (info .ne. 0) write(*,*) 'Error in lsqfit: dgetrs',info
 ! deallocate(WORK1)

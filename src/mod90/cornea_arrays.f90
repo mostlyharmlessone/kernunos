@@ -779,8 +779,8 @@ end do
 END SUBROUTINE squash
 
 ! make new central values for JMatrix by loading each into RadSlope/DiaSlope and splining
-SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
-  TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix
+SUBROUTINE centersJMatrix(JMatrix0,TestData,dat,iflag,cardinal,nC)
+  TYPE(wpJMatrix), INTENT(INOUT) :: JMatrix0
   INTEGER, INTENT(IN) :: TestData
   INTEGER, INTENT(INOUT) :: iflag
   INTEGER(c_int64_t), INTENT(IN) :: dat
@@ -788,29 +788,34 @@ SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
   INTEGER(c_int), INTENT(INOUT) :: nC
   INTEGER :: i,j,M1,N1
   REAL (wp) :: P_TEMP
-  N1=size(JMatrix%R,1)
-  M1=size(JMatrix%R,2)
+  N1=size(JMatrix0%R,1)
+  M1=size(JMatrix0%R,2)
   JMatrix%RM = 150.0
+
+!  Reload RadSlope & re-spline
+     RadSlope=JMatrix0
+     DiaSlope=RadSlope
+
   !  Z
   !   notice that we didn't load Z into Zp and then use iflag=10, and 0, though it should be the same
       do i=1,M1
-       call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%Z(N1+1,i))  !center value of elevation; needs integration from slopes
+       call SplineEval1Dx1D(iflag,JMatrix0%R0,JMatrix0%THT(i),JMatrix0%Z(N1+1,i))  !center value of elevation; needs integration from slopes
        if (i .eq. 1) then
-        P_TEMP=JMatrix%Z(N1+1,1)
+        P_TEMP=JMatrix0%Z(N1+1,1)
        else
-        P_TEMP=(i*P_TEMP+JMatrix%Z(N1+1,i))/(i+1)      ! cumulative average
+        P_TEMP=(i*P_TEMP+JMatrix0%Z(N1+1,i))/(i+1)      ! cumulative average
        endif
       end do
 !     cardinal values
       do i=1,nC-1
-       call SplineEval1Dx1D(iflag,JMatrix%RM,PI*(i-1)/4.0,JMatrix%Z0(i+3))
-       cardinal(i+1)=JMatrix%Z0(i+3)
+       call SplineEval1Dx1D(iflag,JMatrix0%RM,PI*(i-1)/4.0,JMatrix0%Z0(i+3))
+       cardinal(i+1)=JMatrix0%Z0(i+3)
       end do
      if (TestData.ne.2 .and. TestData.ne.4) then
-      JMatrix%Z0(1)=P_TEMP
+      JMatrix0%Z0(1)=P_TEMP
      else
       write(*,*) 'Central elevation already set in RadSlope_eq_Skyline: center elevation supplied,&
-      &average calculated',JMatrix%Z0(1),P_TEMP
+      &average calculated',JMatrix0%Z0(1),P_TEMP
      endif
 
   !   write(*,*) 'sagc'
@@ -818,7 +823,7 @@ SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
   !  Reload RadSlope with SAGC & re-spline; can't compute it from surface because ill-defined at origin
       do i=1,M1
        do j=1,RadSlope%MV(i)
-        RadSlope%Zp(j,i)=JMatrix%SAGC(j,i)
+        RadSlope%Zp(j,i)=JMatrix0%SAGC(j,i)
        end do
       end do
       DiaSlope=RadSlope              ! move to diagonal format
@@ -837,24 +842,24 @@ SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
        iflag = iflag+100
       endif
       do i=1,M1
-       call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%SAGC(N1+1,i))  ! center value
+       call SplineEval1Dx1D(iflag,JMatrix0%R0,JMatrix0%THT(i),JMatrix0%SAGC(N1+1,i))  ! center value
        if (i .eq. 1) then
-        P_TEMP=JMatrix%SAGC(N1+1,1)
+        P_TEMP=JMatrix0%SAGC(N1+1,1)
        else
-        P_TEMP=(i*P_TEMP+JMatrix%SAGC(N1+1,i))/(i+1)      ! cumulative average
+        P_TEMP=(i*P_TEMP+JMatrix0%SAGC(N1+1,i))/(i+1)      ! cumulative average
        endif
       end do
 !     cardinal values
       do i=1,nC-1
-       call SplineEval1Dx1D(iflag,JMatrix%RM,PI*(i-1)/4.0,JMatrix%SAGC0(i+3))
-       cardinal(i+1)=JMatrix%SAGC0(i+3)
+       call SplineEval1Dx1D(iflag,JMatrix0%RM,PI*(i-1)/4.0,JMatrix0%SAGC0(i+3))
+       cardinal(i+1)=JMatrix0%SAGC0(i+3)
       end do
 
      if (TestData.ne.3 .and. TestData.ne.5) then
-      JMatrix%SAGC0(1)=P_TEMP
+      JMatrix0%SAGC0(1)=P_TEMP
      else
       write(*,*) 'Central Axial Power already set in RadSlope_eq_Skyline, center power supplied,&
-      &average calculated',JMatrix%SAGC0(1),P_TEMP
+      &average calculated',JMatrix0%SAGC0(1),P_TEMP
      endif
 
   !   write(*,*) 'Warp'
@@ -862,7 +867,7 @@ SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
   !  Reload RadSlope & re-spline; can't compute it from surface because ill-defined at origin
       do i=1,M1
        do j=1,RadSlope%MV(i)
-        RadSlope%Zp(j,i)=JMatrix%Warp(j,i)
+        RadSlope%Zp(j,i)=JMatrix0%Warp(j,i)
        end do
       end do
       DiaSlope=RadSlope              ! move to diagonal format
@@ -875,18 +880,18 @@ SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
       endif
 
       do i=1,M1
-       call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%Warp(N1+1,i))  ! center value
+       call SplineEval1Dx1D(iflag,JMatrix0%R0,JMatrix0%THT(i),JMatrix0%Warp(N1+1,i))  ! center value
        if (i .eq. 1) then
-        JMatrix%Warp0(1)=JMatrix%Warp(N1+1,1)
+        JMatrix0%Warp0(1)=JMatrix0%Warp(N1+1,1)
        else
-       JMatrix%Warp0(1)=(i*JMatrix%Warp0(1)+JMatrix%Warp(N1+1,i))/(i+1)      ! cumulative average
+       JMatrix0%Warp0(1)=(i*JMatrix0%Warp0(1)+JMatrix0%Warp(N1+1,i))/(i+1)      ! cumulative average
        endif
       end do
 
 !     cardinal values
       do i=1,nC-1
-       call SplineEval1Dx1D(iflag,JMatrix%RM,PI*(i-1)/4.0,JMatrix%Warp0(i+3))
-       cardinal(i+1)=JMatrix%Warp0(i+3)
+       call SplineEval1Dx1D(iflag,JMatrix0%RM,PI*(i-1)/4.0,JMatrix0%Warp0(i+3))
+       cardinal(i+1)=JMatrix0%Warp0(i+3)
       end do
 
   !  write(*,*) 'INSTC'
@@ -894,7 +899,7 @@ SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
   !  Reload RadSlope & respline
      do i=1,M1
       do j=1,RadSlope%MV(i)
-       RadSlope%Zp(j,i)=JMatrix%INSTC(j,i)
+       RadSlope%Zp(j,i)=JMatrix0%INSTC(j,i)
       end do
      end do
      DiaSlope=RadSlope              ! move to diagonal format
@@ -907,18 +912,18 @@ SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
      endif
 
      do i=1,M1
-      call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%INSTC(N1+1,i))  ! center value
+      call SplineEval1Dx1D(iflag,JMatrix0%R0,JMatrix0%THT(i),JMatrix0%INSTC(N1+1,i))  ! center value
      if (i .eq. 1) then
-      JMatrix%INSTC0(1)=JMatrix%INSTC(N1+1,1)
+      JMatrix0%INSTC0(1)=JMatrix0%INSTC(N1+1,1)
      else
-      JMatrix%INSTC0(1)=(i*JMatrix%INSTC0(1)+JMatrix%INSTC(N1+1,i))/(i+1)      ! cumulative average
+      JMatrix0%INSTC0(1)=(i*JMatrix0%INSTC0(1)+JMatrix0%INSTC(N1+1,i))/(i+1)      ! cumulative average
      endif
     end do
 
 !     cardinal values
       do i=1,nC-1
-       call SplineEval1Dx1D(iflag,JMatrix%RM,PI*(i-1)/4.0,JMatrix%INSTC0(i+3))
-       cardinal(i+1)=JMatrix%INSTC0(i+3)
+       call SplineEval1Dx1D(iflag,JMatrix0%RM,PI*(i-1)/4.0,JMatrix0%INSTC0(i+3))
+       cardinal(i+1)=JMatrix0%INSTC0(i+3)
       end do
 
   !   write(*,*) 'GAUSSC'
@@ -926,7 +931,7 @@ SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
   ! Reload RadSlope & respline
     do i=1,M1
      do j=1,RadSlope%MV(i)
-      RadSlope%Zp(j,i)=JMatrix%GAUSSC(j,i)
+      RadSlope%Zp(j,i)=JMatrix0%GAUSSC(j,i)
      end do
     end do
     DiaSlope=RadSlope              ! move to diagonal format
@@ -939,25 +944,25 @@ SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
     endif
 
     do i=1,M1
-     call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%GAUSSC(N1+1,i))  ! center value
+     call SplineEval1Dx1D(iflag,JMatrix0%R0,JMatrix0%THT(i),JMatrix0%GAUSSC(N1+1,i))  ! center value
      if (i .eq. 1) then
-      JMatrix%GAUSSC0(1)=JMatrix%GAUSSC(N1+1,1)
+      JMatrix0%GAUSSC0(1)=JMatrix0%GAUSSC(N1+1,1)
      else
-      JMatrix%GAUSSC0(1)=(i*JMatrix%GAUSSC0(1)+JMatrix%GAUSSC(N1+1,i))/(i+1)      ! cumulative average
+      JMatrix0%GAUSSC0(1)=(i*JMatrix0%GAUSSC0(1)+JMatrix0%GAUSSC(N1+1,i))/(i+1)      ! cumulative average
      endif
     end do
 
 !     cardinal values
       do i=1,nC-1
-       call SplineEval1Dx1D(iflag,JMatrix%RM,PI*(i-1)/4.0,JMatrix%GAUSSC0(i+3))
-       cardinal(i+1)=JMatrix%GAUSSC0(i+3)
+       call SplineEval1Dx1D(iflag,JMatrix0%RM,PI*(i-1)/4.0,JMatrix0%GAUSSC0(i+3))
+       cardinal(i+1)=JMatrix0%GAUSSC0(i+3)
       end do
 
   ! MEANC
   ! Reload RadSlope & respline
     do i=1,M1
      do j=1,RadSlope%MV(i)
-      RadSlope%Zp(j,i)=JMatrix%MEANC(j,i)
+      RadSlope%Zp(j,i)=JMatrix0%MEANC(j,i)
      end do
     end do
     DiaSlope=RadSlope              ! move to diagonal format
@@ -970,18 +975,18 @@ SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
     endif
 
     do i=1,M1
-     call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%MEANC(N1+1,i))  ! center value
+     call SplineEval1Dx1D(iflag,JMatrix0%R0,JMatrix0%THT(i),JMatrix0%MEANC(N1+1,i))  ! center value
      if (i .eq. 1) then
-      JMatrix%MEANC0(1)=JMatrix%MEANC(N1+1,1)
+      JMatrix0%MEANC0(1)=JMatrix0%MEANC(N1+1,1)
      else
-      JMatrix%MEANC0(1)=(i*JMatrix%MEANC0(1)+JMatrix%MEANC(N1+1,i))/(i+1)      ! cumulative average
+      JMatrix0%MEANC0(1)=(i*JMatrix0%MEANC0(1)+JMatrix0%MEANC(N1+1,i))/(i+1)      ! cumulative average
      endif
     end do
 
 !     cardinal values
       do i=1,nC-1
-       call SplineEval1Dx1D(iflag,JMatrix%RM,PI*(i-1)/4.0,JMatrix%MEANC0(i+3))
-       cardinal(i+1)=JMatrix%MEANC0(i+3)
+       call SplineEval1Dx1D(iflag,JMatrix0%RM,PI*(i-1)/4.0,JMatrix0%MEANC0(i+3))
+       cardinal(i+1)=JMatrix0%MEANC0(i+3)
       end do
 
   !  write(*,*) 'MONGEA'
@@ -989,7 +994,7 @@ SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
   ! Reload RadSlope & respline
     do i=1,M1
      do j=1,RadSlope%MV(i)
-      RadSlope%Zp(j,i)=JMatrix%MONGEA(j,i)
+      RadSlope%Zp(j,i)=JMatrix0%MONGEA(j,i)
      end do
     end do
     DiaSlope=RadSlope              ! move to diagonal format
@@ -1002,22 +1007,22 @@ SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
     endif
 
     do i=1,M1
-     call SplineEval1Dx1D(iflag,JMatrix%R0,JMatrix%THT(i),JMatrix%MONGEA(N1+1,i))  ! center value
+     call SplineEval1Dx1D(iflag,JMatrix0%R0,JMatrix0%THT(i),JMatrix0%MONGEA(N1+1,i))  ! center value
     if (i .eq. 1) then
-     JMatrix%MONGEA0(1)=JMatrix%MONGEA(N1+1,1)
+     JMatrix0%MONGEA0(1)=JMatrix0%MONGEA(N1+1,1)
     else
-     JMatrix%MONGEA0(1)=(i*JMatrix%MONGEA0(1)+JMatrix%MONGEA(N1+1,i))/(i+1)      ! cumulative average
+     JMatrix0%MONGEA0(1)=(i*JMatrix0%MONGEA0(1)+JMatrix0%MONGEA(N1+1,i))/(i+1)      ! cumulative average
     endif
    end do
 
 !     cardinal values
       do i=1,nC-1
-       call SplineEval1Dx1D(iflag,JMatrix%RM,PI*(i-1)/4.0,JMatrix%MongeA0(i+3))
-       cardinal(i+1)=JMatrix%MongeA0(i+3)
+       call SplineEval1Dx1D(iflag,JMatrix0%RM,PI*(i-1)/4.0,JMatrix0%MongeA0(i+3))
+       cardinal(i+1)=JMatrix0%MongeA0(i+3)
       end do
 
 !  Reload RadSlope & re-spline
-    RadSlope=JMatrix
+    RadSlope=JMatrix0
     DiaSlope=RadSlope
 
 END SUBROUTINE centersJMatrix
@@ -2156,6 +2161,7 @@ SELECT CASE (fct)
   endif
 END SELECT
 endif
+
 ! always do Z to display the geometry
 if (iflag == 1 .or. iflag ==2) then ! iflag == 1 iflag ==2 just elevation remake JMatrix (b) including center
  do i=1,M1

@@ -84,6 +84,7 @@
          INFO = -7
        END IF
        IF( INFO.NE.0 ) THEN
+         write(*,*) 'Whoa, XERBLA error ',INFO,' at dctsv line',__LINE__
          CALL XERBLA( 'DCTSV ', INFO )
          RETURN
        END IF
@@ -114,6 +115,7 @@
                 DU(1-j+N)*(B(j,1:NRHS)-DL(j)*ue(1,-1+j,1:NRHS))*ud(2,1,-1+j))/DET          
         ELSE
          INFO=j
+         write(*,*) 'Whoa, XERBLA error ',INFO,' at dctsv line',__LINE__
          CALL XERBLA( 'DCTSV ', INFO )
          RETURN
         ENDIF                                                                                              
@@ -136,6 +138,7 @@
          B(j+1,1:NRHS)=ue(2,j,1:NRHS)                                                                        
         ELSE
          INFO=j
+         write(*,*) 'Whoa, XERBLA error ',INFO,' at dctsv line',__LINE__
          CALL XERBLA( 'DCTSV ', INFO )
          RETURN
         ENDIF       
@@ -163,6 +166,7 @@
          B(j+2,1:NRHS)=Y(1:NRHS)                                                                       
         ELSE
          INFO=j
+         write(*,*) 'Whoa, XERBLA error ',INFO,' at dctsv line',__LINE__
          CALL XERBLA( 'DCTSV ', INFO )
          RETURN
         ENDIF                        

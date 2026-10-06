@@ -122,18 +122,6 @@ static const GLchar* fragmentColorNormal = R"glsl(
     }
 )glsl";
 
-static const GLchar* textfsrc0 = R"glsl(
-#version 330 core
-    in vec2 texpos;
-    uniform sampler2D tex;
-    uniform vec4 color;
-    out vec4 FragColor;
-
-    void main(void) {
-    FragColor = vec4(1, 1, 1, texture(tex, texpos).a) * color;
-    }
-)glsl";
-
 static const GLchar* textfsrc = R"glsl(
 #version 330 core
     in vec2 texpos;
@@ -983,10 +971,6 @@ void GLwidget::render_text(GLuint vertexbuffer, const char *text, float x, float
                std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
                continue;
              }
-
-            /* Upload the "bitmap", which contains an 8-bit grayscale image, as an alpha or as a red texture */
-//             glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, g->bitmap.width, g->bitmap.rows, 0, GL_ALPHA, GL_UNSIGNED_BYTE, g->bitmap.buffer);
-
              glTexImage2D(
                  GL_TEXTURE_2D, 0, GL_R8,
                  face->glyph->bitmap.width,
@@ -994,9 +978,6 @@ void GLwidget::render_text(GLuint vertexbuffer, const char *text, float x, float
                  0, GL_RED, GL_UNSIGNED_BYTE,
                  face->glyph->bitmap.buffer
                  );
-
-             checkGLError(__FILE__, __LINE__);
-
              /* Calculate the vertex and texture coordinates */
              float x2 = x + g->bitmap_left * sx;
              float y2 = -y - g->bitmap_top * sy;

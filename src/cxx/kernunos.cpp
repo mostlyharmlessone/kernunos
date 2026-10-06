@@ -963,6 +963,7 @@ void MainWindow::swap()
 
 void MainWindow::compare()
 {
+    GLwidget::setpupilregister(false);
     QMessageBox msgBox(QMessageBox::Question, tr("Compare(Yes)/Average(No)/Cancel = Do nothing"),
                        tr("Compare = Yes  Average = No  Cancel = Do nothing"), { }, this);
     msgBox.setInformativeText(tr("The comparison/average is made with or without pupil alignment/registration " \
@@ -973,13 +974,11 @@ void MainWindow::compare()
     msgBox.setDefaultButton(QMessageBox::Cancel);
     int pupilvalue = 1;
     int select;
-
     QSpacerItem *horizontalspacer = new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
     QGridLayout *layout =(QGridLayout*)msgBox.layout();
     layout->addItem(horizontalspacer,layout->rowCount(),0,1,layout->columnCount());
     compareDialogOptionsWidget = new DialogOptionsWidget;
     compareDialogOptionsWidget->addCheckBox(tr("Pupil Registration"), pupilvalue);
-
     layout->addWidget(compareDialogOptionsWidget);
     int reply = msgBox.exec();
     int degrees;
@@ -1015,8 +1014,6 @@ void MainWindow::compare()
 
 //  pupil register is sent through changing dat
     if (compareDialogOptionsWidget->value()){GLwidget::setpupilregister(true);}
-    else {GLwidget::setpupilregister(false);}
-
     QString fileName=QString("%1").arg(degrees);  //pass the degrees with the filename
     m_GLwidget->DataLoad(fileName,true);
     makesave2Act->setEnabled(true);
@@ -2504,11 +2501,17 @@ void MainWindow::tweakcubic()
    if (GLwidget::iscubic()) {
         GLwidget::setcubic(false);
         cubicAct->setChecked(GLwidget::iscubic());
-        //         ui.infolabel->setText(tr("Set <b>Tweak:Default Trapezoidal Integration</b>"));
+        //         ui.infoLabel->setText(tr("Set <b>Tweak:Default Trapezoidal Integration</b>"));
    } else {
+       if(GLwidget::islsqvsspline()){
+           ui.infoLabel->setText(tr("<b>Cubic Spline Integration not allowed with LSQ</b>"));
+           GLwidget::setcubic(false);
+           cubicAct->setChecked(GLwidget::iscubic());
+       }
+       else {
         GLwidget::setcubic(true);
-        cubicAct->setChecked(GLwidget::iscubic());
-        //         ui.infolabel->setText(tr("Set <b>Tweak:Cubic Spline Integration</b>"));
+           cubicAct->setChecked(GLwidget::iscubic());}
+        //         ui.infoLabel->setText(tr("Set <b>Tweak:Cubic Spline Integration</b>"));
    };
    if (GLwidget::isRedraw()) {
        redraw();
@@ -2560,6 +2563,8 @@ void MainWindow::tweaklsqvsspline()
         lsqvssplineAct->setChecked(GLwidget::islsqvsspline());
     } else {
         GLwidget::setlsqvsspline(true);
+        GLwidget::setcubic(false);
+        cubicAct->setChecked(GLwidget::iscubic());
         lsqvssplineAct->setChecked(GLwidget::islsqvsspline());
     };
     if (GLwidget::isRedraw()) {
@@ -2990,10 +2995,8 @@ void MainWindow::createActions()
    connect(powerAct, &QAction::triggered, this, &MainWindow::power);
    powerAct->setCheckable(true);
 
-// pending an ability to fix the issues with rendertext and GLSL
+// pending a geometry shader fix in GLSL on APPLE
 #if defined (__APPLE__)
-   anglesAct->setEnabled(false);
-   powerAct->setEnabled(false);
    normalAct->setEnabled(false);
 #endif
 
@@ -3005,7 +3008,7 @@ void MainWindow::createActions()
    adjustradiiAct->setCheckable(true);
    connect(adjustradiiAct, &QAction::triggered, this, &MainWindow::tweakadjustradii);
 
-   cubicAct=new QAction(tr("&Use cubic integration instead of trapezoidal"), this);
+   cubicAct=new QAction(tr("&Use cubic spline integration instead of trapezoidal"), this);
    cubicAct->setCheckable(true);
    connect(cubicAct, &QAction::triggered, this, &MainWindow::tweakcubic);
 

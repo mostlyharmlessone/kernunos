@@ -70,8 +70,8 @@
 
 err_janus = 0 ; error_report = 0 ;
 if (loaded_files .le. 0) loaded_files = 0
-! write(*,*) 'flag to Fortran:',flag
-! write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
+ write(*,*) 'flag to Fortran:',flag
+ write(*,*) 'flag(action) last digits to Fortran:',mod(flag,100)
 !! last two digits are the program function
 !! 99 = deallocate arrays for program closure
 !! 14 = save original
@@ -90,11 +90,13 @@ if (loaded_files .le. 0) loaded_files = 0
 !! 1 = compute zernike coefficients/maps
 !! 0 = open a file, display
 dat=(flag-mod(flag,1000000))/1000000 ! first two digits are tweaks
-!write(*,*) 'dat to Fortran:',dat,btest(dat,0),btest(dat,1),btest(dat,2),btest(dat,3),btest(dat,4),btest(dat,5),btest(dat,6),btest(dat,7),btest(dat,8),btest(dat,9),btest(dat,10),btest(dat,11)
+write(*,*) 'dat to Fortran:',dat
+write(*,*) btest(dat,0),btest(dat,1),btest(dat,2),btest(dat,3),btest(dat,4),btest(dat,5)&
+         &,btest(dat,6),btest(dat,7),btest(dat,8),btest(dat,9),btest(dat,10),btest(dat,11)
 fct=mod(((flag-mod(flag,10000))/10000),100) ! second two digits, fct to be plotted
-!write(*,*) 'fct to Fortran:',fct
+write(*,*) 'fct to Fortran:',fct
 map=mod((flag-mod(flag,100))/100,100)  ! last two digits color map functions
-!write(*,*) 'color(map) to Fortran:',map
+write(*,*) 'color(map) to Fortran:',map
 ! dat = first binary bit 0/1 centernode tweak ie btest(dat,0) = .true.
 ! dat = second binary bit 0/1 shift r-values tweak ie btest(dat,1) = .true.
 ! integration of slopes for elevation:
@@ -114,11 +116,16 @@ map=mod((flag-mod(flag,100))/100,100)  ! last two digits color map functions
 ! first mod((iflag-mod(iflag,100))/100,100)
 ! second digit mod((iflag-mod(iflag,10))/10,10)
 ! third digit mod(iflag,10)
-!btest(dat, 2)     T   F
+!btest(dat, 2)     T   F    spline integration cubic or trapezoidal
 !
-!              T  X12  X11
-!btest(dat,0)
-!              F  X02  X01
+!              T  X11  X10
+!btest(dat,0)               centernode or not
+!              F  X01  X00
+
+!btest(dat,8)  T  111  110  spline or LSQ cannot use cubic integration
+!                 101  100
+!              F   11   10
+!                   1    0
 ! iflag =0 ! no integration, no centernode, circumferential spline, so then 10 or 0 or 100 or 110
 ! iflag =10 ! no integration, centernode, circumferential spline, so then 10 or 0 or 100 or 110
 ! iflag =110 ! no integration, centernode, LSQ, so then 10 or 0 or 100 or 110
@@ -126,7 +133,7 @@ map=mod((flag-mod(flag,100))/100,100)  ! last two digits color map functions
 ! iflag =110 ! no integration, centernode, LSQ, so then 10 or 0 or 100 or 110
 ! iflag =111 ! integration, centernode, LSQ, so then 10 or 0 or 100 or 110
 
-! Just check once
+! Check once that the proper preprocessor macros were respected
 if (loaded_files .lt. 1 .and. mod(flag,100) == 0) then
    call LogC("Verifying the Fortran preprocessor macros are correct: " // c_null_char)
 #if defined (__APPLE__)
@@ -777,8 +784,14 @@ endif
 ! simple swap
 if (mod(flag,100) == 11) then
  if (allocated(JMatrix2%R) .and. loaded_files .ge. 2) then
+  JMatrix2 = 0
+  call init_mat_JMatrix(M1,N1,JMatrix2)
   JMatrix2=JMatrix
+  JMatrix = 0
+  call init_mat_JMatrix(M1,N1,JMatrix)
   JMatrix=JMatrix1
+  JMatrix1 = 0
+  call init_mat_JMatrix(M1,N1,JMatrix1)
   JMatrix1=JMatrix2
   donut = .FALSE.
   call selectfunction(0,JMatrix,flag,powctr,powmin,powmax,cardinal,nC)
@@ -812,8 +825,12 @@ if (btest(dat,5)) then
 ! write(*,*) 'file from kernunos: ',trim(new_path)
   new_path=trim(new_path)
   read(new_path,*) dhoriz, dvert
- if (.true.) then  ! in case I can check need for valid data prior to running
-!generate new JMatrix
+ if (.true.) then  ! in case I want to check for valid data prior to running
+! generate new JMatrix3
+  if (allocated(JMatrix3%R)) then
+   JMatrix3 = 0
+  endif
+  call init_mat_JMatrix(M1,N1,JMatrix3)
   JMatrix3=JMatrix
   ctr_circle_x = dhoriz
   ctr_circle_y = dvert
@@ -827,16 +844,6 @@ if (btest(dat,5)) then
    end do
   end do
 ! regenerates based on new R/tht
-
-  if (btest(dat,0)) then   !centernode
-   iflag=10
-  else
-   iflag=0
-  endif
-! lsq instead of circumferential spline
-  if (btest(dat, 8)) then
-   iflag = iflag+100
-  endif
 
 ! make the elevation based on the rings above and the original RadSlope for Z
   call selectfunction(2,JMatrix3,flag,powctr,powmin,powmax,cardinal,nC)
@@ -866,6 +873,11 @@ if (btest(dat,5)) then
    DiaSlope%Zpd2 = .n. DiaSlope
   endif
 
+ ! lsq instead of circumferential spline
+  if (btest(dat, 8)) then
+   iflag = iflag+100
+  endif
+
   if ( Testdata .le.1 .or. Testdata .eq. 6) then     ! not for Oculus PentaCam or Keratograph
    call MakeRadSplineCenter(zero_int64,error_report)   ! remakes RadSplineCenter(1,:)
    if (error_report .ne. 0) then
@@ -886,21 +898,21 @@ if (btest(dat,5)) then
   endif
 
 ! Generate the surface
-  do i=1,M1
-   do j=1,JMatrix3%MV(i) ! does not include center point
+  new_crop = 0
+  outer_loop_decenter:  do i=1,M1
+   inner_loop_decenter: do j=1,JMatrix3%MV(i) ! does not include center point
 !   generate elevations and derivatives; iflag no integration
     call SplineEval1Dx1D(iflag,JMatrix3%R(j,i),JMatrix3%THT(i),JMatrix3%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
-!   save for vertex normals and for LIOC
     JMatrix3%YPR(j,i)=YPR
     JMatrix3%YPTHETA(j,i)=YPTHETA
     JMatrix3%YP2R2(j,i)=YP2R2
     JMatrix3%YP2THETA(j,i)=YP2THETA
     JMatrix3%YPRTHETA(j,i)=YPRTHETA
-!   powers
+!   Warp
     call AXIALP(JMatrix3%R(j,i),YPTHETA/JMatrix3%R(j,i),YP2THETA/JMatrix3%R(j,i),JMatrix3%Warp(j,i))
-!   not elevations
+!   axisymmetric tweak
     if (btest(dat,10)) then
-     call axisymmetric_principal(JMatrix%R(j,i),YPR,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
+     call axisymmetric_principal(JMatrix3%R(j,i),YPR,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
     else
      call principal(JMatrix3%THT(i),JMatrix3%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
     endif
@@ -909,8 +921,27 @@ if (btest(dat,5)) then
     JMatrix3%INSTC(j,i)=RFCT*princ1
     JMatrix3%SAGC(j,i)=RFCT*princ2
     JMatrix3%GAUSSC(j,i)=RFCT*gaussian
-   end do
-  end do
+! check here for extrapolation
+    if (abs(YP2THETA) .gt. 200) then
+!     write(*,*) 'Warning in decenter: too much extrapolation at the edge where the data &
+!     &is discontinuous circumferentially: abs(YP2THETA) .gt. 200, meridian: ',i
+     JMatrix3%MV(i) = JMatrix3%MV(i) - 1
+     new_crop = new_crop + 1
+     cycle outer_loop_decenter
+    endif
+   end do inner_loop_decenter
+  end do outer_loop_decenter
+
+  if (new_crop .gt. 0) then
+  write(*,*) 'Warning in decenter: too much extrapolation at the edge where the data &
+              &is discontinuous circumferentially: abs(YP2THETA) .gt. 200'
+   write (*,*) "automatic cropping in decenter, iterations: ", new_crop
+   if (new_crop .gt. 2000) then
+    write(*,*) 'FATAL error in decenter'
+    return
+   endif
+  endif
+
 ! make new central values
   call centersJMatrix(JMatrix3,TestData,dat,iflag,cardinal,nC)
 ! find min and maximum
@@ -930,8 +961,12 @@ endif
 
 ! cropping removes borders from JMatrix
  if (btest(dat,12)) then
- !generate new JMatrix
-   JMatrix3=JMatrix
+ !generate new JMatrix3
+  if (allocated(JMatrix3%R)) then
+   JMatrix3 = 0
+  endif
+  call init_mat_JMatrix(M1,N1,JMatrix3)
+  JMatrix3=JMatrix
   new_path = " "
   do i=1, 4096
    if ( file_from_C (i) == c_null_char ) then
@@ -983,7 +1018,7 @@ endif
 ! simple difference/subtraction with compare, addition with division by two for average
 if (mod(flag,100) == 10 .or. mod(flag,100) == 12) then
  if (allocated(JMatrix2%R) .and. loaded_files .ge. 2) then
- ! pupil registration
+ ! pupil registration 
   if (btest(dat,6)) then
    ctr_circle_x=JMatrix1%Pupil_Center(1)-JMatrix%Pupil_Center(1)
    ctr_circle_y=JMatrix1%Pupil_Center(2)-JMatrix%Pupil_Center(2)
@@ -993,100 +1028,135 @@ if (mod(flag,100) == 10 .or. mod(flag,100) == 12) then
   else
    ctr_circle_x=0.0 ; ctr_circle_y=0.0
   endif
- !generate new JMatrix3 with size & shape of JMatrix1
-  JMatrix3%MV(:)=JMatrix1%MV(:)
- ! Make JMatrix3%R,THT same as JMatrix1%R,THT, subject to translation
-  call PolarTranslate(ctr_circle_x,ctr_circle_y,0.0_wp,0.0_wp,JMatrix3%R0,JMatrix3%THT0)
-  do i=1,M1
-   do j=1,JMatrix3%MV(i)
-    call PolarTranslate(ctr_circle_x, ctr_circle_y,JMatrix1%R(j,i),JMatrix1%THT(i),JMatrix3%R(j,i),JMatrix3%THT(i))
-   end do
-  end do
 
-  ! set iflag for slope based data, integrate based on iflag with or without cubic/trapez or center point or not for values
-   if (TestData.ne.2 .and. TestData.ne.4) then   !not ELE files
-    if (btest(dat, 2)) then   ! cubic integration
-     if (btest(dat,0)) then   !centernode
-      iflag=12
-      else
-      iflag=2
-      endif
-     else         !trapezoidal integration
-      if (btest(dat,0)) then
-       iflag=11
-      else
-       iflag=1
-      endif
-     endif
-    else                      !ELE files
-     if (btest(dat,0)) then   !centernode
-      iflag=10
-     else
-      iflag=0
-     endif
+! This is nearly identical to decenter above
+! generate new JMatrix3 based on JMatrix elevation
+!   first generate
+    if (allocated(JMatrix3%R)) then
+     JMatrix3 = 0
     endif
-  ! lsq instead of circumferential spline
-     if (btest(dat, 8)) then
-      iflag = iflag+100
-     endif
-! Generate the surface of current data (JMatrix, loaded into DiaSlope)
-! based on R,THT of previous data (JMatrix1) with (possible) pupil registration (JMatrix3 R,THT)
-! loads it into JMatrix3
-! make sure we've got the current data in DiaSlope
-  RadSlope=JMatrix
-  DiaSlope=RadSlope              ! move to diagonal format
-  DiaSlope%Zpd2 = .n. DiaSlope
+    call init_mat_JMatrix(M1,N1,JMatrix3)
+    JMatrix3=JMatrix
+    call PolarTranslate(ctr_circle_x,ctr_circle_y,0.0_wp,0.0_wp,JMatrix3%R0,JMatrix3%THT0)
+    do i=1,M1
+     do j=1,JMatrix%MV(i)
+      call PolarTranslate(ctr_circle_x, ctr_circle_y,JMatrix%R(j,i),JMatrix%THT(i),JMatrix3%R(j,i),JMatrix3%THT(i))
+     end do
+    end do
+    JMatrix3%Pupil_Center(:) = 0
+  ! regenerates based on new R/tht
 
-  new_crop = 0
-  outer_loop:  do i=1,M1
-   inner_loop: do j=1,JMatrix3%MV(i) ! does not include center point
-!   generate elevations and derivatives; iflag no integration if .ELE .ELE_CSV file
-    call SplineEval1Dx1D(iflag,JMatrix3%R(j,i),JMatrix3%THT(i),JMatrix3%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
-    JMatrix3%YPR(j,i)=YPR
-    JMatrix3%YPTHETA(j,i)=YPTHETA
-    JMatrix3%YP2R2(j,i)=YP2R2
-    JMatrix3%YP2THETA(j,i)=YP2THETA
-    JMatrix3%YPRTHETA(j,i)=YPRTHETA
-!   Warp
-    call AXIALP(JMatrix3%R(j,i),YPTHETA/JMatrix3%R(j,i),YP2THETA/JMatrix3%R(j,i),JMatrix3%Warp(j,i))
-!   axisymmetric tweak
-    if (btest(dat,10)) then
-     call axisymmetric_principal(JMatrix3%R(j,i),YPR,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
+  ! make the elevation based on the rings above and the original RadSlope(which should reflect JMatrix) for Z
+    call selectfunction(2,JMatrix3,flag,powctr,powmin,powmax,cardinal,nC)
+
+  ! remake Radslope/DiaSlope based on new JMatrix only on elevations, just like ELE or ELE_CSV
+    RadSlope=0
+    DiaSlope=0
+    deallocate(RadSplineCenter)
+  ! reinitialize with M1 and N1
+    call init_mat(M1,N1,RadSlope,DiaSlope,RadSplineCenter)
+
+  ! put elevation into Zp for splining without integration
+    RadSlope = JMatrix3
+  ! RadSlope%Zp(:,:)=0 ; JMatrix%SAGC(:,:) = 0 ; JMatrix%SAGC0(:) = 0 ! should not have anything in Zp or SAGC yet
+    do i=1,M1
+     do j=1,RadSlope%MV(i)
+       RadSlope%Zp(j,i)=JMatrix3%Z(j,i) ! = RadSlope%Z(j,i) ! at this point
+     end do
+    end do
+    DiaSlope = RadSlope
+  ! use elevations, no integration
+    if (btest(dat,0)) then
+     iflag=10
+     DiaSlope%Zpd2 = .nc. DiaSlope ! re-spline, with center node
     else
-     call principal(JMatrix3%THT(i),JMatrix3%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
+     iflag=0
+     DiaSlope%Zpd2 = .n. DiaSlope
     endif
-    JMatrix3%MONGEA(j,i)=RFCT*astigm
-    JMatrix3%MEANC(j,i)=RFCT*meanpower
-    JMatrix3%INSTC(j,i)=RFCT*princ1
-    JMatrix3%SAGC(j,i)=RFCT*princ2
-    JMatrix3%GAUSSC(j,i)=RFCT*gaussian
-! check here for extrapolation
-    if (abs(YP2THETA) .gt. 200) then
+
+! lsq instead of circumferential spline
+    if (btest(dat, 8)) then
+     iflag = iflag+100
+    endif
+
+    if ( Testdata .le.1 .or. Testdata .eq. 6) then     ! not for Oculus PentaCam or Keratograph
+     call MakeRadSplineCenter(zero_int64,error_report)   ! remakes RadSplineCenter(1,:)
+     if (error_report .ne. 0) then
+      write(*,*)' Error at  MakeRadSplineCenter called janus line number: ',__LINE__
+     endif
+    else
+     RadSplineCenter(1,:)=0      ! pentacam and keratograph by definition is at 0
+    endif
+
+    if (btest(dat, 1)) then          ! moving each meridian to align curves
+     call AdjustRadSplineCenter     ! changes r only
+     DiaSlope%Zpd2 = .n. DiaSlope    ! re-spline, standard
+    endif
+
+    call MakeRadSplineCenter(dat,error_report)        ! generates spline centers with tweaks
+    if (error_report .ne. 0) then
+     write(*,*)' Error at  MakeRadSplineCenter called janus line number: ',__LINE__
+    endif
+
+  ! Generate the surface, based on JMatrix1 shape
+    new_crop = 0
+    outer_loop_compare:  do i=1,M1
+     inner_loop_compare: do j=1,JMatrix1%MV(i) ! does not include center point
+  !   generate elevations and derivatives; iflag no integration
+      call SplineEval1Dx1D(iflag,JMatrix1%R(j,i),JMatrix1%THT(i),JMatrix3%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
+      JMatrix3%YPR(j,i)=YPR
+      JMatrix3%YPTHETA(j,i)=YPTHETA
+      JMatrix3%YP2R2(j,i)=YP2R2
+      JMatrix3%YP2THETA(j,i)=YP2THETA
+      JMatrix3%YPRTHETA(j,i)=YPRTHETA
+  !   Warp
+      call AXIALP(JMatrix3%R(j,i),YPTHETA/JMatrix3%R(j,i),YP2THETA/JMatrix3%R(j,i),JMatrix3%Warp(j,i))
+  !   axisymmetric tweak
+      if (btest(dat,10)) then
+       call axisymmetric_principal(JMatrix3%R(j,i),YPR,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
+      else
+       call principal(JMatrix3%THT(i),JMatrix3%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
+      endif
+      JMatrix3%MONGEA(j,i)=RFCT*astigm
+      JMatrix3%MEANC(j,i)=RFCT*meanpower
+      JMatrix3%INSTC(j,i)=RFCT*princ1
+      JMatrix3%SAGC(j,i)=RFCT*princ2
+      JMatrix3%GAUSSC(j,i)=RFCT*gaussian
+  ! check here for extrapolation
+      if (abs(YP2THETA) .gt. 200) then
+!       write(*,*) 'Warning in compare: too much extrapolation at the edge where the data &
+!       &is discontinuous circumferentially: abs(YP2THETA) .gt. 200, meridian: ',i
+       JMatrix1%MV(i) = JMatrix1%MV(i) - 1
+       new_crop = new_crop + 1
+       cycle outer_loop_compare
+      endif
+     end do inner_loop_compare
+    end do outer_loop_compare
+
+    if (new_crop .gt. 0) then
      write(*,*) 'Warning in compare: too much extrapolation at the edge where the data &
-     &is discontinuous circumferentially: abs(YP2THETA) .gt. 2000, meridian: ',i
-     JMatrix3%MV(i) = JMatrix3%MV(i) - 1
-     new_crop = new_crop + 1
-     cycle outer_loop
+                &is discontinuous circumferentially: abs(YP2THETA) .gt. 200'
+     write (*,*) "automatic cropping in compare, iterations: ", new_crop
+     if (new_crop .gt. 2000) then
+      write(*,*) 'FATAL error in compare'
+      return
+     endif
     endif
-   end do inner_loop
-  end do outer_loop
 
-  if (new_crop .gt. 0) then
-   write (*,*) "automatic cropping in compare, iterations: ", new_crop
-   if (new_crop .gt. 2000) then
-    write(*,*) 'FATAL error in compare'
-    return
-   endif
+! generate new JMatrix2
+  if (allocated(JMatrix2%R)) then
+   JMatrix2 = 0
   endif
-
+  call init_mat_JMatrix(M1,N1,JMatrix2)
+  JMatrix2%Pupil_Center(:) = 0
 ! subtract/average based on same same radii, but with possible rotation
-  JMatrix2%THT(:)=JMatrix%THT(:)
+  JMatrix2%THT(:)=JMatrix1%THT(:)
   rotationdegrees=mod(270-rotationdegrees/2,180) ! makes 180 no rotation without risk of negative indices, odd rotation degrees get floor
   do i=1,M1
    j = mod(i + rotationdegrees,180)
    if (j .eq. 0) j = 180
     if(mod(flag,100) == 10) then
-     JMatrix2%MV(i)=min(JMatrix%MV(j),JMatrix1%MV(i))
+     JMatrix2%MV(i)=min(JMatrix3%MV(j),JMatrix1%MV(i))
      JMatrix2%R(:,i)=JMatrix1%R(:,i)
      op = -1
      JMatrix2%Z(:,i)=ABS(JMatrix1%Z(:,i)+op*JMatrix3%Z(:,j))
@@ -1103,7 +1173,7 @@ if (mod(flag,100) == 10 .or. mod(flag,100) == 12) then
      JMatrix2%MONGEA(:,i)=ABS(JMatrix1%MONGEA(:,i)+op*JMatrix3%MONGEA(:,j))
      JMatrix2%ZC(:,i,:)=ABS(JMatrix1%ZC(:,i,:)+op*JMatrix3%ZC(:,j,:))
     else
-     JMatrix2%MV(i)=max(JMatrix%MV(j),JMatrix1%MV(i))
+     JMatrix2%MV(i)=max(JMatrix3%MV(j),JMatrix1%MV(i))
      JMatrix2%R(:,i)=JMatrix1%R(:,i)
      op = 1
      do k=1,JMatrix2%MV(i)
@@ -1129,22 +1199,14 @@ if (mod(flag,100) == 10 .or. mod(flag,100) == 12) then
      op2 = 2  ! for centers below
     endif
   end do
-  JMatrix2%SAGC0(:)=ABS(JMatrix1%SAGC0(:)+op*JMatrix3%SAGC0(:))/op2
-  JMatrix2%Z0(:)=ABS(JMatrix1%Z0(:)+op*JMatrix3%Z0(:))/op2
-  JMatrix2%Warp0(:)=ABS(JMatrix1%Warp0(:)+op*JMatrix3%Warp0(:))/op2
-  JMatrix2%INSTC0(:)=ABS(JMatrix1%INSTC0(:)+op*JMatrix3%INSTC0(:))/op2
-  JMatrix2%GAUSSC0(:)=ABS(JMatrix1%GAUSSC0(:)+op*JMatrix3%GAUSSC0(:))/op2
-  JMatrix2%MEANC0(:)=ABS(JMatrix1%MEANC0(:)+op*JMatrix3%MEANC0(:))/op2
-  JMatrix2%MONGEA0(:)=ABS(JMatrix1%MONGEA0(:)+op*JMatrix3%MONGEA0(:))/op2
-  JMatrix2%ZC(:,:,:)=ABS(JMatrix1%ZC(:,:,:)+op*JMatrix3%ZC(:,:,:))/op2
-  JMatrix2%ZC0(:,:)=ABS(JMatrix1%ZC0(:,:)+op*JMatrix3%ZC0(:,:))/op2
+
+  call centersJMatrix(JMatrix2,TestData,dat,iflag,cardinal,nC)
+  call minmax(JMatrix2)
 
   donut = .FALSE.
   elements(1:nE) = 0
   vertices(1:nV) = 0
 
-  call centersJMatrix(JMatrix2,TestData,dat,iflag,cardinal,nC)
-  call minmax(JMatrix2)
   call selectfunction(0,JMatrix2,flag,powctr,powmin,powmax,cardinal,nC)
   call Geom(flag, JMatrix2, donut, powmin, powmax, elements, vertices, nV, nE)
   call makelegend(flag, powmin, powmax, legend, nL)
@@ -2061,7 +2123,7 @@ endif ! end (TestData == 1)
     return
    endif
    ! pupil conversion, could do whole circular spline here
-    JMatrix%Pupil_Center=Penta%Pupil_Center/10.
+    JMatrix%Pupil_Center=Penta%Pupil_Center/100.
     do i=1,MM
      j=floor(1.+(i-1)*255/179.0)
      X1=Penta%PU(j,1)-Penta%Pupil_Center(1)
@@ -2565,12 +2627,12 @@ if (mod(flag,100) .ne. 9) then  ! Spline RadSlope
   JMatrix%MV(:)=min(JMatrix%MV(:)-crop,MV(:))
 
 ! Generate the surface
-  do i=1,M1
-   do j=1,JMatrix%MV(i) ! does not include center point
-    JMatrix%R(j,i)=(rBi+(j-1)*(rBo-rBi)/(N1-1))
+  new_crop = 0
+  outer_loop_main:  do i=1,M1
+   inner_loop_main: do j=1,JMatrix%MV(i) ! does not include center point
+   JMatrix%R(j,i)=(rBi+(j-1)*(rBo-rBi)/(N1-1))
 !   generate elevations and derivatives; iflag no integration if .ELE .ELE_CSV file
     call SplineEval1Dx1D(iflag,JMatrix%R(j,i),JMatrix%THT(i),JMatrix%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
-!   save for vertex normals and for LIOC
     JMatrix%YPR(j,i)=YPR
     JMatrix%YPTHETA(j,i)=YPTHETA
     JMatrix%YP2R2(j,i)=YP2R2
@@ -2590,11 +2652,25 @@ if (mod(flag,100) .ne. 9) then  ! Spline RadSlope
     JMatrix%SAGC(j,i)=RFCT*princ2
     JMatrix%GAUSSC(j,i)=RFCT*gaussian
 ! check here for extrapolation
-    if (abs(YP2THETA) .gt. 2000) then
-     write(*,*) 'Warning: extrapolation at the edge where the data is discontinuous circumferentially: abs(YP2THETA) .gt. 2000'
+    if (abs(YP2THETA) .gt. 200) then
+!     write(*,*) 'Warning in main: too much extrapolation at the edge where the data &
+!     &is discontinuous circumferentially: abs(YP2THETA) .gt. 200, meridian: ',i
+     JMatrix%MV(i) = JMatrix%MV(i) - 1
+     new_crop = new_crop + 1
+     cycle outer_loop_main
     endif
-   end do
-  end do !end JMatrix ring generation
+   end do inner_loop_main
+  end do outer_loop_main
+
+  if (new_crop .gt. 0) then
+  write(*,*) 'Warning in main: too much extrapolation at the edge where the data &
+              &is discontinuous circumferentially: abs(YP2THETA) .gt. 200'
+   write (*,*) "automatic cropping in main, iterations: ", new_crop
+   if (new_crop .gt. 2000) then
+    write(*,*) 'FATAL error in main'
+    return
+   endif
+  endif
 
 ! make RadSplineCenter
   RadSlope=0

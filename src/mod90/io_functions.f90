@@ -270,6 +270,7 @@ SUBROUTINE rcnvrtp(TestData,filename,read_error)
  CHARACTER(len=1) :: iter1,equal
  CHARACTER(len=2) :: iter2
  CHARACTER(len=3) :: iter3
+ CHARACTER(len=32) :: floatf,floatg
  CHARACTER(len=1000) :: somecharacter,someline
  REAL(wp) :: temp(141,141)
  NP=141
@@ -413,7 +414,10 @@ SUBROUTINE rcnvrtp(TestData,filename,read_error)
          else
            exit  !EOF this doesn't work if you never leave k do loop above
          endif
-      end do  
+      end do
+      write(floatf, '(g0)') Penta%Pupil_Center(1)
+      write(floatg, '(g0)') Penta%Pupil_Center(2)
+      call LogC("Pupil Center: "// trim(floatf) //" "// trim(floatg) //c_null_char)
       close(unitno1) 
 !     First column is invalid for _CUR.CSV and _ELE.CSV files, does no harm for .ELE and .CUR
       Penta%DAT(:,1)=0

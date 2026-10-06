@@ -200,13 +200,6 @@
          call SplineEval(1,thta,frrTmp,frrttTmp,MM,v,frr)
         else
          call lsqfit(thta,frrTmp,MM,M2,c,err_report)
-
-
-if(err_report .ne. 0) then
- write(*,*) 'frr',frrTmp .p. frrTmp
-endif
-
-
          call LSQEval(M2,c,v,frr)
         endif
        endif

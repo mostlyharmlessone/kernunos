@@ -14,7 +14,14 @@
        REAL(wp) :: PERD,error
        REAL(wp) :: d(n),a(n),b(n),c(n) !,AA(n,n)
        INTEGER :: m,j,info !,ipiv(n)
-       LOGICAL :: IsInf 
+       LOGICAL :: IsInf
+
+!      degenerate case
+       if ((z .p. z) .eq. 0) then
+        write(*,*) 'Warning degenerate pspli, zero input'
+        zt2 = 0
+        return
+       endif
 
        INFO=0   ; err_report = 0
        PERD=2*PI

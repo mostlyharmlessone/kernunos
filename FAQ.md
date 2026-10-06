@@ -23,7 +23,7 @@ A: With as few errors as possible, hopefully.  The data is imported and a smooth
 Q: The program crashes, or doesn't run!<br>
 
 A: Check the log files. There are three different log files:
-logstd.log: program error messages, for example: you don't have GLSL 3.30 support.
+logstd.log: program error messages, for example: you don't have GLSL 4.10 support.
 logerr.log: system error msgs/crashes, kernunos.log: non-error messages, for example, data on files opened and saved.<br>
 
 Q: I found a mistake with your computations! (or a bug in your program, or it crashes etc.) How do I report it?<br>
@@ -226,7 +226,7 @@ A: It should be pointed out that the elevation data is supposedly primary with t
 
 Q: Documentation directory is not found! F1/Help doesn't work.<br>
 
-A: There should be a folder called "documentation" in the same directory as the executable kernunos, and there should be a path to the executable "assistant" available.  The Windows binary installer attempts to arrange these matters. You may be on your own with Linux or the Mac.<br>
+A: There should be a folder called "documentation" in the same directory as the executable kernunos, and there should be a path to the executable "assistant" available.  The Windows binary installer attempts to arrange these matters. The Mac dmg should have these included. You may be on your own with Linux.<br>
 
 Q:  gnuplot command is not available<br>
 
@@ -242,7 +242,7 @@ It appears to be harmless, though usually indicates there is another problem. Ch
 
 Q: View|Powers and View|Angles don't appear, or are weird!<br>
 
-A: Make sure your TrueType/FreeType fonts are available and in the expected place. The Linux version expects to find  "/usr/share/fonts/liberation/LiberationMono-Regular.ttf", the Darwin version expects "/System/Library/fonts/Geneva.ttf" and the Windows 10 version expects \Windows\Fonts\LiberationMono-Regular.ttf  The Darwin/Apple version is currently under construction and the option is disabled.<br>
+A: Make sure your TrueType/FreeType fonts are available and in the expected place. The Linux version expects to find  "/usr/share/fonts/liberation/LiberationMono-Regular.ttf", the Darwin version expects "/System/Library/fonts/Geneva.ttf" and the Windows 10 version expects \Windows\Fonts\LiberationMono-Regular.ttf<br>
 
 Q: Why are the File Exports for format .{XXX} not read properly by program YYY?<br>
 
