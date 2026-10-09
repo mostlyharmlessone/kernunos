@@ -11,7 +11,7 @@ SUBROUTINE bsearch(r,rv,n,high,low)
  REAL(wp) :: rmin
  if ( n < 1 ) then
   write(*,*) 'FATAL Error in bsearch, n < 1',n
-  return
+  stop
  endif
  ! degenerate case
  if (n .eq. 1) then

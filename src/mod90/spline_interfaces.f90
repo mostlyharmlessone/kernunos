@@ -23,7 +23,8 @@ MODULE spline_interfaces
 
  SUBROUTINE lsqfit(t,z,M1,M2,c,err_)
   USE set_precision, ONLY  :  wp
-  use LapackInterface, ONLY : dgetrf, dgetrs !, dgels, GaussJordan
+  USE parameters, ONLY : eps
+  USE LapackInterface, ONLY : dgetrf, dgetrs !, dgels, GaussJordan
   REAL(wp), INTENT(IN) :: t(M1),z(M1)
   INTEGER, INTENT(IN) :: M1,M2
   REAL(wp), INTENT(OUT) ::c(M2)

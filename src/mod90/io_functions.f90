@@ -415,8 +415,8 @@ SUBROUTINE rcnvrtp(TestData,filename,read_error)
            exit  !EOF this doesn't work if you never leave k do loop above
          endif
       end do
-      write(floatf, '(g0)') Penta%Pupil_Center(1)
-      write(floatg, '(g0)') Penta%Pupil_Center(2)
+      write(floatf, '(g0)') Penta%Pupil_Center(1)/10.0
+      write(floatg, '(g0)') Penta%Pupil_Center(2)/10.0
       call LogC("Pupil Center: "// trim(floatf) //" "// trim(floatg) //c_null_char)
       close(unitno1) 
 !     First column is invalid for _CUR.CSV and _ELE.CSV files, does no harm for .ELE and .CUR

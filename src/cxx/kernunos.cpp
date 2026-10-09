@@ -2503,15 +2503,9 @@ void MainWindow::tweakcubic()
         cubicAct->setChecked(GLwidget::iscubic());
         //         ui.infoLabel->setText(tr("Set <b>Tweak:Default Trapezoidal Integration</b>"));
    } else {
-       if(GLwidget::islsqvsspline()){
-           ui.infoLabel->setText(tr("<b>Cubic Spline Integration not allowed with LSQ</b>"));
-           GLwidget::setcubic(false);
-           cubicAct->setChecked(GLwidget::iscubic());
-       }
-       else {
         GLwidget::setcubic(true);
-           cubicAct->setChecked(GLwidget::iscubic());}
-        //         ui.infoLabel->setText(tr("Set <b>Tweak:Cubic Spline Integration</b>"));
+        cubicAct->setChecked(GLwidget::iscubic());
+ //         ui.infoLabel->setText(tr("Set <b>Tweak:Cubic Spline Integration</b>"));
    };
    if (GLwidget::isRedraw()) {
        redraw();
@@ -2563,8 +2557,6 @@ void MainWindow::tweaklsqvsspline()
         lsqvssplineAct->setChecked(GLwidget::islsqvsspline());
     } else {
         GLwidget::setlsqvsspline(true);
-        GLwidget::setcubic(false);
-        cubicAct->setChecked(GLwidget::iscubic());
         lsqvssplineAct->setChecked(GLwidget::islsqvsspline());
     };
     if (GLwidget::isRedraw()) {

@@ -283,15 +283,11 @@ class GLwidget : public QOpenGLWidget, protected QOpenGLFunctions
         if(t) {dat |= 1UL << 12;} else { dat &= ~(1UL << 12);}  //set/unset 11th ie. twelfth bit
         flag=1000000*dat+(flag%1000000);}
 
-//  LSQ rather than spline being true implies trapezoidal integration, not cubic(spline) integration
     static bool islsqvsspline() { return m_lsqvsspline; }
     static void setlsqvsspline(bool t) { m_lsqvsspline = t;
         int64_t dat=(flag-(flag%1000000))/1000000;
         if(t) {dat |= 1UL << 8;
-            m_lsqvsspline = true;
-            dat &= ~(1UL << 2);
-            m_cubic = false;}
-        else { dat &= ~(1UL << 8);
+            m_lsqvsspline = true;} else { dat &= ~(1UL << 8);
             m_lsqvsspline = false;}  //set/unset 8th ie. ninth bit
         flag=1000000*dat+(flag%1000000);}
 
