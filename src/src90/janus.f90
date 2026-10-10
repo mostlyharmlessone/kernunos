@@ -90,13 +90,13 @@ if (loaded_files .le. 0) loaded_files = 0
 !! 1 = compute zernike coefficients/maps
 !! 0 = open a file, display
 dat=(flag-mod(flag,1000000))/1000000 ! first two digits are tweaks
-!write(*,*) 'dat to Fortran:',dat
-!write(*,*) btest(dat,0),btest(dat,1),btest(dat,2),btest(dat,3),btest(dat,4),btest(dat,5)&
-         &,btest(dat,6),btest(dat,7),btest(dat,8),btest(dat,9),btest(dat,10),btest(dat,11)
+! write(*,*) 'dat to Fortran:',dat
+! write(*,*) btest(dat,0),btest(dat,1),btest(dat,2),btest(dat,3),btest(dat,4),btest(dat,5)&
+!         &,btest(dat,6),btest(dat,7),btest(dat,8),btest(dat,9),btest(dat,10),btest(dat,11)
 fct=mod(((flag-mod(flag,10000))/10000),100) ! second two digits, fct to be plotted
-!write(*,*) 'fct to Fortran:',fct
+! write(*,*) 'fct to Fortran:',fct
 map=mod((flag-mod(flag,100))/100,100)  ! last two digits color map functions
-!write(*,*) 'color(map) to Fortran:',map
+! write(*,*) 'color(map) to Fortran:',map
 ! dat = first binary bit 0/1 centernode tweak ie btest(dat,0) = .true.
 ! dat = second binary bit 0/1 shift r-values tweak ie btest(dat,1) = .true.
 ! integration of slopes for elevation:
@@ -150,6 +150,9 @@ if (loaded_files .lt. 1 .and. mod(flag,100) == 0) then
 #endif
 #endif
 endif
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ! mod(flag,100) == 99 Deallocate
 if (mod(flag,100) == 99) then
@@ -226,6 +229,9 @@ if (mod(flag,100) == 99) then
     return
 endif
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 ! allocate JMatrix needed for file import
 !  JMatrix was picked to be 180x22 to make importing from Atlas easier.
 !  M1,N1 avoid overwriting MM,N at this point
@@ -273,6 +279,9 @@ if (mod(flag,100) == 0 ) then  !store last JMatrix when reading in new
  JMatrix1%ZC(:,:,:)=JMatrix%ZC(:,:,:)
 endif
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3 .or. mod(flag,100) == 13 .or. mod(flag,100) == 14) then
 !  need new file name if opening a file, printing, saving, or compare for degree information and
 !  local save of inputfile1,inputfile2,logfile
@@ -307,6 +316,9 @@ if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3 .or. mod(
  allocate(CHARACTER(nblines+3) :: inputfile4)
  allocate(CHARACTER(nblines+3) :: inputfile5)
 endif  ! mod(flag,100) == 0, 2, 3, 13 or 14
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !gnuplot files & calls
 if (mod(flag,100) == 5 .or. mod(flag,100) == 6 .or.&
@@ -346,6 +358,9 @@ if (mod(flag,100) == 10 .or. mod(flag,100) == 12) then  ! compare with btest(dat
  read(new_path,*) rotationdegrees
 ! write(*,*) "compare rotation, pupilregister: ",rotationdegrees,btest(dat,6)
 endif
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ! gnuplot splot output
 if (mod(flag,100) == 5 ) then
@@ -442,10 +457,17 @@ if (mod(flag,100) == 5 ) then
   return
  endif ! end (mod(flag,100) == 5)
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 if (mod(flag,100) == 6) then
 ! WriteCenter
 ! need RadSlope for WriteCenter
+RadSlope=0
+DiaSlope=0
+deallocate(RadSplineCenter)
+! reinitialize with M1 and N1
+call init_mat(M1,N1,RadSlope,DiaSlope,RadSplineCenter)
 RadSlope=JMatrix
 DiaSlope=RadSlope              ! move to diagonal format
 DiaSlope%Zpd2 = .n. DiaSlope
@@ -605,6 +627,9 @@ DiaSlope%Zpd2 = .n. DiaSlope
  return
 endif !  (mod(flag,100) == 6)
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 ! Generate LIOC with vector format
 if (mod(flag,100) == 7) then
  BigPlot=replacestr(string=gnu_instruct,search=".car",substitute=".loc")
@@ -711,6 +736,9 @@ CLOSE (unitno1)
  return
 endif ! (mod(flag,100) == 7)
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 ! Writes ASCII PLY file
 if (mod(flag,100) == 3) then
 if (allocated(JMatrix%R)) then
@@ -733,6 +761,9 @@ else
  return ! if flag==3 and not allocated do nothing
 endif
 endif
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ! Writes OFF file
 if (mod(flag,100) == 2) then
@@ -757,6 +788,9 @@ else
 endif
 endif
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 ! Saves an ASCII data file
 if (mod(flag,100) == 13 .or. mod(flag,100) == 14) then
  if (allocated(JMatrix%R)) then
@@ -780,6 +814,9 @@ if (mod(flag,100) == 13 .or. mod(flag,100) == 14) then
   return
  endif
 endif
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ! simple swap
 if (mod(flag,100) == 11) then
@@ -812,7 +849,10 @@ if (mod(flag,100) == 11) then
  endif
 endif
 
-! decenter is compare without a second scan
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+! decenter is similar to compare without a second scan
 if (btest(dat,5)) then
   new_path = " "
   do i=1, 4096
@@ -955,6 +995,9 @@ if (btest(dat,5)) then
  endif
 endif
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 ! cropping removes borders from JMatrix
  if (btest(dat,12)) then
  !generate new JMatrix3
@@ -1011,11 +1054,15 @@ endif
   endif
  endif
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 ! simple difference/subtraction with compare, addition with division by two for average
 if (mod(flag,100) == 10 .or. mod(flag,100) == 12) then
  if (allocated(JMatrix2%R) .and. loaded_files .ge. 2) then 
   if (mod(flag,100) == 10) call LogC("Comparing last 2 scans..." // c_null_char)
   if (mod(flag,100) == 12) call LogC("Averaging last 2 scans..." // c_null_char)
+
 ! pupil registration
   if (btest(dat,6)) then
    ctr_circle_x=JMatrix1%Pupil_Center(1)-JMatrix%Pupil_Center(1)
@@ -1225,10 +1272,14 @@ if (mod(flag,100) == 10 .or. mod(flag,100) == 12) then
   return
  else
   write(*,*) "Needs two scans for compare or average"
-  err_janus=mod(flag,100)
+  err_janus=int(mod(flag,100),kind=int32) ! explicitly cast to be compatible with c_int
   return
  endif
 endif
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! SECTION BELOW PARSES FILENAMES WHEN OPENING OR LOADING A FILE
 
 ! last two digits of flag == 0 parse file name, assign TestData type and MM,N
 ! TestData -1  Test, no data file
@@ -1413,7 +1464,7 @@ if (mod(flag,100) == 0) then
          call LogC("PentaCam _ELE.CSV file"//inputfile1//c_null_char)
          inquire(file=trim(inputfile2), exist=exists)
          if(exists) then
-          write(*,*) "Matching _CUR.CSV file found"
+          call LogC("Matching _CUR.CSV file found" //c_null_char)
          endif
          TestData=4; MM=180; N=22; NP=141 ! PentaCam _ELE.CSV
         endif
@@ -1423,7 +1474,7 @@ if (mod(flag,100) == 0) then
          call LogC("PentaCam _CUR.CSV file"//inputfile2//c_null_char)
          inquire(file=trim(inputfile1), exist=exists)
          if(exists) then
-          write(*,*) "Matching _ELE.CSV file found"
+          call LogC("Matching _ELE.CSV file found" //c_null_char)
          endif
          TestData=5; MM=180; N=22; NP=141 ! PentaCam _CUR.CSV
        endif
@@ -1613,6 +1664,11 @@ if (mod(flag,100) == 0) then
 !    write(*,*)  "TestData,MM,N",TestData,MM,N
  endif ! (mod(flag,100) == 0) parsing the file name,assigning TestData type and MM,N
 
+!!!FINISHED SECTION PARSE NAME!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!START SECTION READ FILES!!!!!
+
 if (TestData .eq. 0) then
  MM=360 ; N=16 ! EyeSys if file not read; should not be necessary as should agree with previous value.
  if (mod(flag,100) == 0) then !read the files
@@ -1661,6 +1717,9 @@ if (TestData .eq. 0) then
   RadSlope=EyeSys
 endif
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 if (TestData .eq. 8) then
  if (mod(flag,100) == 0) then !read the files
 ! READ THE Saved DATA
@@ -1695,6 +1754,9 @@ if (TestData .eq. 8) then
 !Generate the slope matrix
   RadSlope=JMatrix
 endif ! end (TestData == 8)
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 if (TestData .eq. 7) then
  if (mod(flag,100) == 0) then !read the files
@@ -1785,6 +1847,9 @@ if (TestData .eq. 7) then
 ! Generate the slope matrix
  RadSlope=Oculus
 endif
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 if (TestData .eq. 6) then
  if (mod(flag,100) == 0) then !read the files
@@ -2017,6 +2082,9 @@ if (TestData .eq. 6) then
   RadSlope=EyeSys
  endif
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 ! READ THE ATLAS DATA
 if (TestData .eq. 1) then
  MM=180
@@ -2061,7 +2129,6 @@ if (TestData .eq. 1) then
      return
     endif
    endif
-
   N=Power_Rings_Count
   if(.not.allocated(Atlas%AR)) then
    call init_mat_Atlas(MM,N,Atlas)
@@ -2087,7 +2154,9 @@ if (TestData .eq. 1) then
    endif
   endif
   call CPU_TIME(time_end)
-  write(*,*) 'Time to read Atlas CSV file: ',(time_end-time_start)*1000
+  write(floata, '(g0)') (time_end-time_start)*1000
+  call LogC("Time to read Atlas CSV file: "//floata//c_null_char)
+!  write(*,*) 'Time to read Atlas CSV file: ',(time_end-time_start)*1000
   if (read_error > 0) then
    err_janus=read_error*100
    return
@@ -2110,6 +2179,9 @@ if (TestData .eq. 1) then
  endif
  RadSlope=Atlas
 endif ! end (TestData == 1)
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ! READ THE PENTACAM DATA
  if (TestData .ge. 2 .AND. TestData .le. 5) then
@@ -2205,6 +2277,9 @@ endif ! end (TestData == 1)
 !  JMatrix%Z(:,:) = 0
  endif
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 ! OR GENERATE Fake EyeSys data
 if (TestData .lt. 0) then
  MM=360; N=16   ! fake EyeSys
@@ -2231,6 +2306,11 @@ if (TestData .lt. 0) then
 ! Generate the slope matrix
   RadSlope=EyeSys
  endif
+
+!!!FINISHED SECTION READ FILES!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 
 ! fillin tweaks
 !  FILL IN MISSING ATLAS DATA
@@ -2315,6 +2395,9 @@ if (TestData .eq. 1) then
  endif
 endif  !Atlas fillin
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 ! FILL IN MISSING EYESYS/NIDEK DATA, only use spline, LSQ has problem with the one broken EyeSys file I've seen
 ! probably because I'm making RA and XX now powers, get duplicate radii and slopes at the end points, which break nspline
 if (TestData .eq. 0 .or. TestData .eq. 6) then
@@ -2340,6 +2423,9 @@ if (TestData .eq. 0 .or. TestData .eq. 6) then
    inquire(file=trim(inputfile3), exist=exists)
    if(exists .and. TestData .eq. 6) call EyeSys_LSQFillin(EyeSysSave,EyeSysSave%HT,EyeSys%HT)
   endif
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
  ! gnuplot rings output and exit
   if (mod(flag,100) == 8 ) then
@@ -2391,8 +2477,12 @@ if (TestData .eq. 0 .or. TestData .eq. 6) then
  endif
 endif  ! EyeSys fillin
 
-! skip all this if we're displaying zernike coefficients
-if (mod(flag,100) .ne. 9) then  ! Spline RadSlope
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!START LOAD & GENERATE SURFACE!
+
+! skip all this if we're displaying or computing zernike coefficients
+if (mod(flag,100) .ne. 9 .and. mod(flag,100) .ne. 1) then  ! Spline RadSlope
  DiaSlope=RadSlope              ! move to diagonal format
  DiaSlope%Zpd2 = .n. DiaSlope
  call MakeRadSplineCenter(zero_int64,error_report)   ! remakes RadSplineCenter(1,:)
@@ -2461,6 +2551,7 @@ if (mod(flag,100) .ne. 9) then  ! Spline RadSlope
    call LogC("Atlas avg abs elevation percent error : "//floata//c_null_char)
  endif
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! NIDEK spline consistency computation of elevation by power calc by slope vs elevation in file HT
  if ( Testdata .eq. 6 .and. btest(dat,7) ) then
  if (btest(dat, 2)) then
@@ -2506,7 +2597,9 @@ if (mod(flag,100) .ne. 9) then  ! Spline RadSlope
     call LogC("No NIDEK elevation data (Hint: no HT file)"//c_null_char)
    endif
  endif
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Keratograph spline consistency computation of elevation by power calc by Power in file CURVAT vs elevation in file CORNEA
 ! also can check INSTC calculated vs supplied, SAGC is regarded as primary given placido disk technology
   if ( Testdata .eq. 7 .and. btest(dat,7) ) then
@@ -2553,9 +2646,9 @@ if (mod(flag,100) .ne. 9) then  ! Spline RadSlope
      call LogC("No KERATOGRAPH elevation data (Hint: no CORNEA file)"//c_null_char)
     endif
   endif
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ! Make JMatrix
-
 ! set iflag for slope based data, integrate based on iflag with or without cubic/trapez or center point or not for values
  if (TestData.ne.2 .and. TestData.ne.4) then   !not ELE files
   if (btest(dat, 2)) then   ! cubic integration
@@ -2638,6 +2731,7 @@ if (mod(flag,100) .ne. 9) then  ! Spline RadSlope
   MV(:)=JMatrix%MV(:)
   JMatrix%MV(:)=min(JMatrix%MV(:)-crop,MV(:))
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Generate the surface
   new_crop = 0
   outer_loop_main:  do i=1,M1
@@ -2714,18 +2808,14 @@ if (mod(flag,100) .ne. 9) then  ! Spline RadSlope
    write(*,*)' Error at  MakeRadSplineCenter called janus line number: ',__LINE__
   endif
 
-if (mod(flag,100) .ne. 1) then ! don't do this if computing zernike
-
 ! Calculate center values for everything
 ! These have MM different values of the center!
   call centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
-
 ! find min max of everything
   call minmax(JMatrix)
 ! end populating JMatrix
 
-endif
-
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Penta file(s) consistency check ELE vs. matching CUR
 ! simple difference/subtraction with compare for elevation consistency
  if (TestData .ge. 2 .AND. TestData .le. 5 .and. btest(dat,7) .and. exists) then
@@ -2748,8 +2838,16 @@ endif
   write(floata, '(g0)') (100*powmax2/k)/powmax
   call LogC("Penta avg abs elevation percent error :"//floata//c_null_char)
  endif
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-endif !mod(flag,100) /= 9 or 1
+endif !mod(flag,100) /= 9 and /= 1
+
+!FINISH LOAD & GENERATE SURFACE!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!START ZERNIKE COMPUTATION!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ! calculate zernike coefficents; this could be moved to a module function
 if (mod(flag,100) == 1) then
@@ -2762,6 +2860,11 @@ if (mod(flag,100) == 1) then
 ! Try to generate zernike coefficients based on central elevations & lsq to zernike polynomials
 !  call CPU_TIME(time_start)
   time_start=omp_get_wtime()
+  RadSlope=0
+  DiaSlope=0
+  deallocate(RadSplineCenter)
+! reinitialize with M1 and N1
+  call init_mat(M1,N1,RadSlope,DiaSlope,RadSplineCenter)
   RadSlope=JMatrix
 
   DiaSlope=RadSlope              ! move to diagonal format
@@ -2981,6 +3084,10 @@ deallocate(zernC,rlocal,thtlocal)
  endif
 endif  ! end of flag=1
 
+!!!FINISH ZERNIKE COMPUTATION!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 ! plot Zernike central coefficients with gnuplot
 if (mod(flag,100) == 1 .or. mod(flag,100) == 9) then
 ! transfer to C++ for plot
@@ -3134,6 +3241,10 @@ write(new_file,*) " ""C:\Program Files\gnuplot\bin\gnuplot.exe "" "// "-p " // t
  endif
  return
 endif
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!WRITE DATA FOR PROGRAM RETURN!
 
 ! writes values in openGL friendly format to matrices for passing to C/C++
 ! flag/fct determines what to write for elevation and color, just like in flag=2,3 output versions above

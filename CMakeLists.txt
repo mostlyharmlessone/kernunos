@@ -1,26 +1,23 @@
 cmake_minimum_required(VERSION 3.30)
 cmake_policy(VERSION 3.30)
 
-#UNCOMMENT for Darwin or cmake commandline in Linux
-#set(CMAKE_Fortran_INCLUDES_FLAG "-I")
-#project(kernunos LANGUAGES C CXX Fortran)
-#UNCOMMENT for Darwin, but don't prevent -F issue
-set(CMAKE_Fortran_INCLUDES_FLAG "-I")
-set(CMAKE_FIND_FRAMEWORK LAST)
-set(CMAKE_Fortran_INCLUDE_FLAG "-I" CACHE STRING "Force -I instead of -F" FORCE)
-
 set(VERSION_MAJOR "0")
 set(VERSION_MINOR "2")
-set(VERSION_BugFix "1")
-set(PROJECT_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_BugFix})
+set(VERSION_PATCH "3")
+set(PROJECT_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 # need these for Darwin
-set(PROJECT_VERSION  ${VERSION_MAJOR})
 set(PROJECT_VERSION_MAJOR ${VERSION_MAJOR})
 set(PROJECT_VERSION_MINOR  ${VERSION_MINOR})
+set(PROJECT_VERSION_PATCH  ${VERSION_PATCH})
 
-#set(QT_FORCE_CMP0156_TO_VALUE OLD)
-#set(CMAKE_MODULE_PATH cmake)
+#UNCOMMENT for Darwin or cmake commandline in Linux
+
+#set(CMAKE_Fortran_INCLUDES_FLAG "-I")
+#project(kernunos VERSION ${PROJECT_VERSION} LANGUAGES C CXX Fortran)
+
+#SELECT YOUR OS BELOW
+########################
 
 set(CMAKE_HOST_SYSTEM_NAME Linux)
 set(CMAKE_SYSTEM UNIX)
@@ -34,6 +31,8 @@ set(CMAKE_SYSTEM UNIX)
 #set(CMAKE_HOST_SYSTEM_PROCESSOR arm64)
 set(CMAKE_HOST_SYSTEM_PROCESSOR x86_64) #host
 #set(CMAKE_SYSTEM_PROCESSOR x86_64) #target
+
+########################
 
 #set(CMAKE_BUILD_TYPE RELEASE) # no debug or bounds check
 set(CMAKE_BUILD_TYPE DEBUG) #this include debugging with addition of bounds flags as specified below
@@ -94,8 +93,9 @@ endif()
 endif()
 
 if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
+ message(STATUS "project should be uncommented at beginning of file")
 else()
- project(kernunos LANGUAGES C CXX Fortran)
+ project(kernunos VERSION ${PROJECT_VERSION} LANGUAGES C CXX Fortran)
 endif()
 
 enable_language(Fortran)
@@ -425,13 +425,10 @@ endif()
     set(LIBS ${SUPERLU_LIBRARIES} ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES} ${OPENGL_LIBRARIES} freetype ${GFORTRAN_LIBRARY})
 
 # need this so that GLwidget.h can be found by AUTOUIC and ui.mainwindow.h, and for rply and assimp
-include_directories(src/cxx src/c)
+include_directories(src/cxx src/c "${CMAKE_CURRENT_BINARY_DIR}")
 
 add_library(rply_includes ${rply_sources})
-
-if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
- set( INSTALL_EXAMPLEDIR  macOS )
-endif()
+set( INSTALL_EXAMPLEDIR  macOS )
 
 if(FALSE)  #superlu example from chapter12
 
@@ -542,6 +539,8 @@ if (TRUE)
 
 #Qt6 or greater
 
+configure_file(src/cxx/version.h.in version.h)
+
 if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
     qt_add_executable(kernunos
     MANUAL_FINALIZATION
@@ -574,9 +573,10 @@ set_target_properties(kernunos PROPERTIES
     MACOSX_BUNDLE_ICON_FILE kernunos.icns
     MACOSX_PACKAGE_LOCATION "Resources"
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
+    OUTPUT_NAME "kernunos-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}." #needs the trailing dot to avoid MIME
 )
 
 set_source_files_properties(resources/kernunos.icns PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
@@ -639,7 +639,7 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
                 Qt${QT_VERSION_MAJOR}::Gui
                 Qt${QT_VERSION_MAJOR}::Widgets
                 Qt${QT_VERSION_MAJOR}::OpenGL
-# these work in Qt but not outside it in a terminal cmake
+# these work in Qt but not outside it in a terminal cmake during cross-compiling
                 Qt${QT_VERSION_MAJOR}::Pdf         # if (CMAKE_SYSTEM_NAME MATCHES Windows)
                 Qt${QT_VERSION_MAJOR}::PdfWidgets  # if (CMAKE_SYSTEM_NAME MATCHES Windows)
                 assimp rply_includes ${LIBS}

@@ -195,6 +195,13 @@
        if (abs(thta(i)-v) .le. eps) then  ! if on a theta knot, skip the spline
         frr=frrTmp(i)
        else
+!      degenerate case, occurs with decenter or compare with pupil registration
+        if ((frrTmp .p. frrTmp) .le. eps) then
+         frr = 0
+!         can use to plot where the edge cases are
+!         write(*,*) u*cos(v),u*sin(v)
+         return
+        endif
         if (mod((iflag-mod(iflag,100))/100,100) == 0) then ! spline vs lsq
          call pspli(thta,frrTmp,MM,frrttTmp,err_report)
          call SplineEval(1,thta,frrTmp,frrttTmp,MM,v,frr)

@@ -17,8 +17,8 @@
        LOGICAL :: IsInf
 
 !      degenerate case
-       if ((z .p. z) .eq. 0) then
-        write(*,*) 'Warning degenerate pspli, zero input'
+       if ((z .p. z) .le. eps) then
+        write(*,*) 'Warning degenerate pspli, near zero input'
         zt2 = 0
         return
        endif

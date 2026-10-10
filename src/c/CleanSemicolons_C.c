@@ -17,7 +17,7 @@ int CleanSemicolons_C(const char *iname, const char *oname)
 	};
 	fclose(fptr1);
 	fclose(fptr2);
-        printf("Wrote file %s \n",oname);
+//        printf("Wrote file %s \n",oname);
         return(0);
 	
 }

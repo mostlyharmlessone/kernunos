@@ -49,6 +49,7 @@
 ****************************************************************************/
 
 #include "kernunos.h"
+#include "version.h"
 
 //https://community.intel.com/t5/Intel-Fortran-Compiler/How-to-access-ALLOCATABLE-4-D-Fortran-array-from-C/m-p/1478884/highlight/true
 // seems like common blocks were much easier
@@ -56,7 +57,7 @@
 //#include "/usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include/ISO_Fortran_binding.h"
 
 #include <QtWidgets>
-//#include <QtConcurrent>
+#include <QtConcurrent>
 #include <QSlider>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -406,7 +407,8 @@ bool MainWindow::replace(std::string& str,const std::string& from,const std::str
 
 void MainWindow::open()   //multiple invocations needed to make a comparison
 {
-//   ui.infoLabel->setText(tr("Invoked <b>File|Open</b>"));
+ //  ui.infoLabel->setText(tr("Invoked <b>File|Open</b>"));
+   LogC("Invoked File|Open");
    flag=flag-(flag%100)+0;  // last two digits of flag=0; need to reset this
    QString filter = "Topography files (*.CUR *.ELE *_CUR.CSV *_ELE.CSV RA*.* XX*.* ED*.* *OD.CSV *OS.CSV *.OD *.OS *.zip *.sav) ;; Saved Files (*.sav) ;; PentaCam (*.CUR *.ELE *_CUR.CSV *_ELE.CSV);; Keratograph (*.OS *.OD *.zip);; EyeSys (XX*.*);;Nidek (ED*.*);;Atlas (*OD.CSV *OS.CSV);;EyeSys/Nidek (RA*.* ED*.* XX*.*);;All (*)";
    QString fileName = QFileDialog::getOpenFileName(this,"Open a file", "", filter);
@@ -963,6 +965,7 @@ void MainWindow::swap()
 
 void MainWindow::compare()
 {
+    LogC("Invoked File|Compare");
     GLwidget::setpupilregister(false);
     QMessageBox msgBox(QMessageBox::Question, tr("Compare(Yes)/Average(No)/Cancel = Do nothing"),
                        tr("Compare = Yes  Average = No  Cancel = Do nothing"), { }, this);
@@ -1036,6 +1039,7 @@ void MainWindow::compare()
     update();}
     else {
 //        ui.infoLabel->setText(tr("Cancel"));
+        LogC("Cancelled File|Compare");
         return;
     }
 }
@@ -1270,6 +1274,7 @@ void MainWindow::zerncompute()
     Z00PistonAct->setEnabled(true);
     ShowZernAct->setEnabled(true);
 //    ui.infoLabel->setText(tr("Invoked <b>zernike</b>"));
+    LogC("Invoked Zernike (Compute))");
     return;
 }
 
@@ -1329,8 +1334,8 @@ void MainWindow::showzern()
     filename = ba.data();
     flag=flag-(flag%100)+9;  // last two digits of flag=1;
     janus_(&flag,filename,elements,vertices,legend,cardinal,zern,&nV[0],&nE[0],&nL,&nC,pupil_elements,pupil_vertices,&pupil_nV,&pupil_nE,&err_janus);
-
 //    ui.infoLabel->setText(tr("Invoked <b>Show Zernike</b>"));
+    LogC("Invoked Show Zernike");
     return;
 }
 
@@ -2839,7 +2844,9 @@ void MainWindow::about()
    sglVer += w_char;
    sglVer += " x ";
    sglVer += h_char;
-   sglVer += "\nKernunos built with ";
+   sglVer += "\nKernunos version ";
+   sglVer += VERSION_STRING;
+   sglVer += " built with ";
    get_compiler_name_(compiler_name);
    QString compiler_string = tr(compiler_name);
    sglVer=sglVer+compiler_string;

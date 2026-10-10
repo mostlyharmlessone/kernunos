@@ -2132,7 +2132,7 @@ SUBROUTINE rcnvrta_type(KXNAME,N,read_error)
           ENDIF
           if (N > 22) call LogC("Atlas 900 file found"//c_null_char)
           if (N < 25) call LogC("Atlas 9000 file found"//c_null_char)
-          write(*,*) trim(KH1),N
+!          write(*,*) trim(KH1),N
          ENDIF
         ENDIF
       END DO

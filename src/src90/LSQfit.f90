@@ -39,6 +39,7 @@ inner_loop_2:   do j=M2/2+1,M2
 
   if ((z .p. z) .le. eps) then
    write(*,*) 'Warning degenerate LSQ, near zero input',z .p. z
+   c = 0
    return
   endif
 
@@ -58,7 +59,6 @@ inner_loop_2:   do j=M2/2+1,M2
    err_ = info
    write(*,*) t
    write(*,*) z
-   write(*,*) z .p. z
    c = 0
    return
   endif

@@ -834,8 +834,8 @@ SUBROUTINE centersJMatrix(JMatrix,TestData,dat,iflag,cardinal,nC)
      if (TestData.ne.2 .and. TestData.ne.4) then
       JMatrix%Z0(1)=P_TEMP
      else
-      write(*,*) 'Central elevation already set in RadSlope_eq_Skyline: center elevation supplied,&
-      &average calculated',JMatrix%Z0(1),P_TEMP
+!      write(*,*) 'Central elevation already set in RadSlope_eq_Skyline: center elevation supplied,&
+!      &average calculated',JMatrix%Z0(1),P_TEMP
      endif
 
   !   write(*,*) 'sagc'
