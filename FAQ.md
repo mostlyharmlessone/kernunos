@@ -70,7 +70,7 @@ A: Exactly like Compare.<br>
 
 Q: Where's the pupil?<br>
 
-A: When the teacher is ready, the pupil will appear. Or... you can go to View|Pupil. Pupil data is read from any file that has it. PentaCam CUR or ELE files may have incomplete pupil data leading to incomplete and/or noncircular pupils. NIDEK files may be interpreted incorrectly,leading to weirdly distorted pupils. Pupils are depicted as black pie shapes at an arbitrary distance behind the corneal depiction.  Their center position can be used for correction of decentration/registration and comparison.<br>
+A: When the teacher is ready, the pupil will appear. Or... you can go to View|Pupil. Pupil data is read from any file that has it. PentaCam CUR or ELE files may have incomplete pupil data leading to incomplete and/or noncircular pupils. NIDEK files may be interpreted incorrectly,leading to weirdly distorted pupils. Pupils are depicted as black pie shapes at an arbitrary distance behind the corneal depiction.  Their center position can be used for correction of decentration/registration and comparison. The transparency slider under the image can be used to see the position of the pupil through the overlying corneal topography.<br>
 
 Q: What can I plot? What is shown on the plot?<br>
 
@@ -187,7 +187,7 @@ View:
 	  Show Powers (shows some representative central powers, not compatible with Normals)
 	  Scaled power instead of elevation makes a scaled elevation map of the plotted power instead of mapping the corneal elevation (requires a Redraw command) These are sometimes called potato chip graphs/plots.
 	  
-These seem self explanatory.  <br>
+These seem self explanatory. The transparency slider below the image window allows one to see the pupil, but cannot be used with View|Normals. View|Normals is not avaialble on the MacOS. <br>
 
 Placido Disk Tweaks:
 
@@ -291,7 +291,7 @@ Q: Why is so much of the code in Fortran instead of (insert your favorite langua
 
 A:  I've made certain choices.  Yours could be different. Back end computations are done in mostly modern Fortran, mostly using features of Fortran 90, 03 or 08, though a few 2018 features may have crept in. It's not FORTRAN 66; at least I try not to have it be. Hanson & Hopkins 2013 text is (IMHO) a good reference. The back end is written in "modern" Fortran, a language designed for computation, with the front end written in C++ with Qt, more appropriate for graphics (and in my case use of OpenGL) and user interaction, at least at the time of this writing.  Kernunos isn't meant to run in the cloud, or any network not transparently handled by the underlying OS, or in a VM, or have multiple instances, or share resources. It is not thread safe. Some file operations are done in C++ and some in Fortran, with a few C routines as noncombatants or because I didn't know how to otherwise or because it was easier.  For those who are interested in issues with C in scientific programming (some of which still apply to C++), Press et al.'s (listed earlier) editorial comments are, to my mind, quite insightful, though some improvements anticipated at the time have been achieved. One such comment is pertinent here:  "One of the cultural barriers that separates computer scientists from "regular" scientists and engineers *(and physicians)* is a differing point of view on whether a 30% or 50% loss of speed is worth worrying about. In many real-time or state-of-the-art scientific applications, such a loss is catastrophic. The practical scientist is trying to solve tomorrow's problems with yesterday's computer; the computer scientist, we think, often has it the other way around."  Besides, I'm comfortable programming in Fortran, rather than whatever is the language du jour.<br>
 
-Amusingly, when I uploaded this project to Github, whichever (clearly incorrect) algorithm determines what the project is written in, determined this: <br>
+Amusingly, when I uploaded this project to Github, whichever algorithm determines what the project is written in, determined this: <br>
 C++ 65.9%<br>
 C 10.7%<br>
 COBOL 10.3%<br>
@@ -300,7 +300,7 @@ CMake 2%<br>
 Python 2%<br>
 Other 5.5%<br>
 
-There is no COBOL or Python in this project. I'm pretty sure I don't even have a COBOL compiler.  If "Other" means example data files and documentation, perhaps the percentages are close, when including the outside submodules which are written in C++, C and Fortran, and if you assume that the "COBOL" and/or "Python" is actually Fortran.<br>
+There is no COBOL or Python in this project. I'm pretty sure I don't even have a COBOL compiler. Some of the NIDEK data files apparently use a packed BCD format https://en.wikipedia.org/wiki/Binary-coded_decimal which was part of the 1985 COBOL standard) data type. If "Other" means example data files and documentation, perhaps the percentages are close, when including the outside submodules which are written in C++, C and Fortran, and if you assume that the "COBOL" and/or "Python" is actually Fortran or NIDEK data files.<br>
 As a guess, I'd have said:<br>
 Fortran 45%<br>
 C++ 40%<br>

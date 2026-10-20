@@ -161,7 +161,7 @@ Conclusions:
 
  Packed BCD
   subtraction, maybe with 2c 22 22 is a registration zero based on an actual measurement, then interpret as BCD ignoring the C which is for "positive", haha! that seems insane but it seems to work
-  https://en.wikipedia.org/wiki/Binary-coded_decimal; the C is "Signed leading separate" (COBOL)
+  https://en.wikipedia.org/wiki/Binary-coded_decimal; the C is "Signed leading separate" (part of the 1985 COBOL standard data type)
 
 So, the conversion is along the lines of  
 !   Assumes "2C2222" is the baseline for zero for all PackedBCD codes, converts ASCII to hex subtract and leave as decimal digit
@@ -174,6 +174,9 @@ So, the conversion is along the lines of
   0xC is positive in Packed BCD but nothing else fits that format
   the other digits do not exceed "B", as "A" corresponds with a two digit "10" in decimal, numbers over 10 need two digits in front of "C" for an 4 byte version
   no CDEF, apparently these are control characters/separators (need this for this insane BCD subtraction scheme)
+
+Interestingly, not only does this guess lead to plausible data, but upon uploading some of these (anonymized) data files as part of the sample data set for the program to Github,
+some 10% of the code was identified as "COBOL", presumably verifying that the AI/LLM/algorithm for classification classified *something* (no doubt these numbers) in the entire project as COBOL.
 
   2C 45 99
   2c 22 22
@@ -205,3 +208,5 @@ in PE files, the prefix of D or B means the float is negative
 
   D 2C 27 43  E 3C 49 53
 (negative), (positive)
+
+

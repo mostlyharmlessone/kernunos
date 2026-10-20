@@ -14,7 +14,7 @@
        REAL(wp) :: vert1,vert2,vert3,nrm1,nrm2,nrm3,normal
        REAL(c_float) :: c_vert(3),c_rgbv(3),c_norm(3)
        REAL(wp) :: pow
-       INTEGER :: i,j,k,kk,M1,N1,verts,faces,edges
+       INTEGER :: i,j,k,M1,N1,verts,faces,edges
        INTEGER(c_int64_t) :: map,fct,dat
        INTEGER(c_int) :: ivert1,ivert2,ivert3,ivert4
        INTEGER(c_int), INTENT(INOUT) :: elements(*)                          ! faces x 3   
@@ -23,7 +23,6 @@
        INTEGER(c_int), INTENT(INOUT) :: nE, nV
        LOGICAL, INTENT(IN) :: donut
        LOGICAL :: quad
-
        N1=size(b%r,1)
        M1=size(b%r,2)
        map=mod((flag-mod(flag,100))/100,100)
@@ -97,7 +96,6 @@
 !      Unreferenced vertices, but much easier numbering this way
 !      vertices        
        k=1
-       kk=1
        if (donut .eqv. .FALSE.) then ! add one last vertex at origin
          vert1 = 0      
          vert2 = 0
@@ -141,17 +139,17 @@
          c_vert=real((/vert1,vert2,vert3/),kind=4)  ! explicitly cast to kind=4 for consistent with c_float
          vertices(k:k+8)=(/c_vert,c_norm,c_rgbv/)
          k=k+9      ! matrix index        
-       endif
+       endif        ! donut .eqv. .FALSE.
 
        do i=1,M1
         do j=1,N1  !b%MV(i) can't be used because it leads to unpredictable geometry given node placement
          X1=b%THT(i)         ! in radians
          X2=b%R(j,i)
          if  ( j <= b%MV(i)) then
-         if (fct .lt. 16 .and. fct .gt. 0) then
+          if (fct .lt. 16 .and. fct .gt. 0) then
               pow=b%ZC(j,i,fct)
-         else
-         SELECT CASE (fct)
+          else
+          SELECT CASE (fct)
            CASE (0)
               pow=b%SAGC(j,i)
            CASE (16)
@@ -168,9 +166,9 @@
               pow=b%Warp(j,i)
            CASE DEFAULT
               pow=b%SAGC(j,i)
-        END SELECT
-        endif
-        else
+          END SELECT
+          endif
+         else
            pow = powmax  ! outside range
          endif
          X3=-b%Z(j,i)         ! flip it
@@ -271,7 +269,7 @@
            k=k+6     ! matrix index
          endif
         end do 
-       
+
         nE=k-1
 
        END SUBROUTINE Geom

@@ -72,7 +72,7 @@ logerr.log: system error msgs/crashes, kernunos.log: non-error messages, for exa
 <p>Q: How does File|Average of two Maps work?<br></p>
 <p>A: Exactly like Compare.<br></p>
 <p>Q: Where&#39;s the pupil?<br></p>
-<p>A: When the teacher is ready, the pupil will appear. Or... you can go to View|Pupil. Pupil data is read from any file that has it. PentaCam CUR or ELE files may have incomplete pupil data leading to incomplete and/or noncircular pupils. NIDEK files may be interpreted incorrectly,leading to weirdly distorted pupils. Pupils are depicted as black pie shapes at an arbitrary distance behind the corneal depiction.  Their center position can be used for correction of decentration/registration and comparison.<br></p>
+<p>A: When the teacher is ready, the pupil will appear. Or... you can go to View|Pupil. Pupil data is read from any file that has it. PentaCam CUR or ELE files may have incomplete pupil data leading to incomplete and/or noncircular pupils. NIDEK files may be interpreted incorrectly,leading to weirdly distorted pupils. Pupils are depicted as black pie shapes at an arbitrary distance behind the corneal depiction.  Their center position can be used for correction of decentration/registration and comparison. The transparency slider under the image can be used to see the position of the pupil through the overlying corneal topography.<br></p>
 <p>Q: What can I plot? What is shown on the plot?<br></p>
 <p>A: You can pick the function to be plotted on the 3-D heatmap with Function, eg. Function|Axial or Sagittal Power, and pick your heatmap color scale with Color, eg. Color|Uniform Standard Scale... If you want Zernike coefficients and maps, you can then select Analyze|Compute Zernike Coefficients. After that completes, the Zernike maps can be selected as well. The graph of the surface can be exported to a number of 3-D file formats with File|Export. Some graphs, such as Principal directions, or center deviations can be plotted by GnuPlot, if present on your system.<br></p>
 <p>Q: How do change the view?<br></p>
@@ -153,7 +153,7 @@ Perceptually Uniform 9 shade palette discrete map with linear interpolation
   Show Angles (shows a circle with degrees at each clock hour, not compatible with Normals)
   Show Powers (shows some representative central powers, not compatible with Normals)
   Scaled power instead of elevation makes a scaled elevation map of the plotted power instead of mapping the corneal elevation (requires a Redraw command) These are sometimes called potato chip graphs/plots.
-</code></pre><p>These seem self explanatory.  <br></p>
+</code></pre><p>These seem self explanatory. The transparency slider below the image window allows one to see the pupil, but cannot be used with View|Normals. View|Normals is not avaialble on the MacOS. <br></p>
 <p>Placido Disk Tweaks:</p>
 <pre><code>  Impose axisymmetry assumptions in calculations
   Create center node (forces meridians to have a common center at zero)
@@ -211,7 +211,7 @@ meshlab <a href="https://www.meshlab.net/">https://www.meshlab.net/</a> can open
 <h3 id="mostly-coding-questions">Mostly coding questions:</h3>
 <p>Q: Why is so much of the code in Fortran instead of (insert your favorite language here)...?  (This is almost actually a real question from a real person!)<br></p>
 <p>A:  I&#39;ve made certain choices.  Yours could be different. Back end computations are done in mostly modern Fortran, mostly using features of Fortran 90, 03 or 08, though a few 2018 features may have crept in. It&#39;s not FORTRAN 66; at least I try not to have it be. Hanson &amp; Hopkins 2013 text is (IMHO) a good reference. The back end is written in &quot;modern&quot; Fortran, a language designed for computation, with the front end written in C++ with Qt, more appropriate for graphics (and in my case use of OpenGL) and user interaction, at least at the time of this writing.  Kernunos isn&#39;t meant to run in the cloud, or any network not transparently handled by the underlying OS, or in a VM, or have multiple instances, or share resources. It is not thread safe. Some file operations are done in C++ and some in Fortran, with a few C routines as noncombatants or because I didn&#39;t know how to otherwise or because it was easier.  For those who are interested in issues with C in scientific programming (some of which still apply to C++), Press et al.&#39;s (listed earlier) editorial comments are, to my mind, quite insightful, though some improvements anticipated at the time have been achieved. One such comment is pertinent here:  &quot;One of the cultural barriers that separates computer scientists from &quot;regular&quot; scientists and engineers <em>(and physicians)</em> is a differing point of view on whether a 30% or 50% loss of speed is worth worrying about. In many real-time or state-of-the-art scientific applications, such a loss is catastrophic. The practical scientist is trying to solve tomorrow&#39;s problems with yesterday&#39;s computer; the computer scientist, we think, often has it the other way around.&quot;  Besides, I&#39;m comfortable programming in Fortran, rather than whatever is the language du jour.<br></p>
-<p>Amusingly, when I uploaded this project to Github, whichever (clearly incorrect) algorithm determines what the project is written in, determined this: <br>
+<p>Amusingly, when I uploaded this project to Github, whichever algorithm determines what the project is written in, determined this: <br>
 C++ 65.9%<br>
 C 10.7%<br>
 COBOL 10.3%<br>
@@ -219,7 +219,7 @@ Fortran 3.6%<br>
 CMake 2%<br>
 Python 2%<br>
 Other 5.5%<br></p>
-<p>There is no COBOL or Python in this project. I&#39;m pretty sure I don&#39;t even have a COBOL compiler.  If &quot;Other&quot; means example data files and documentation, perhaps the percentages are close, when including the outside submodules which are written in C++, C and Fortran, and if you assume that the &quot;COBOL&quot; and/or &quot;Python&quot; is actually Fortran.<br>
+<p>There is no COBOL or Python in this project. I&#39;m pretty sure I don&#39;t even have a COBOL compiler. Some of the NIDEK data files apparently use a packed BCD format <a href="https://en.wikipedia.org/wiki/Binary-coded_decimal">https://en.wikipedia.org/wiki/Binary-coded_decimal</a> which was part of the 1985 COBOL standard) data type. If &quot;Other&quot; means example data files and documentation, perhaps the percentages are close, when including the outside submodules which are written in C++, C and Fortran, and if you assume that the &quot;COBOL&quot; and/or &quot;Python&quot; is actually Fortran or NIDEK data files.<br>
 As a guess, I&#39;d have said:<br>
 Fortran 45%<br>
 C++ 40%<br>

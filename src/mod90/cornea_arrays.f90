@@ -702,6 +702,7 @@ SUBROUTINE minmax(JMatrix)
    end do
   end do
   end do
+
 END SUBROUTINE minmax
 
 ! primitive noise reduction based on percentage of deviation from the arithmetic average
@@ -1580,26 +1581,30 @@ END SUBROUTINE EyeSys_LSQfillin
     H=((1+hv**2)*huu-2*hu*hv*huv+(1+hu**2)*hvv)/(2*(sqrt(g)**3))
     if (H**2-K < 0) write(*,*) 'FATAL error in principal,H,K,H^2-K',H,K,H**2-K
     if (H**2-K < 0) return
-!    if ((huu*hvv-huv*huv) < 0) write(*,*) 'Hessian negative in principal: t,gaussian,K',t,K,RFCT*sqrt(abs(K))
-     k1=H+sign(sqrt(abs(H**2-K)),H)  ! better way to compute quadratic roots without cancellation
-     k2=K/k1
+    k1=H+sign(sqrt(abs(H**2-K)),H)  ! better way to compute quadratic roots without cancellation
+    k2=K/k1
+    if ((huu*hvv-huv*huv) < 0) then
+!     write(*,*) 'Negative Hessian: theta,gaussian,K,k1,k2,H',t,K,RFCT*sqrt(abs(K)),RFCT*k1,RFCT*k2,RFCT*H
+!   Axisymmetric formula as approximation if negative Hessian
+     call axisymmetric_principal(r,hr,hrr,K,H,k1,k2,A)
+!     write(*,*) 'Axisymmetric: theta,gaussian,K,k1,k2,H',t,K,RFCT*sqrt(abs(K)),RFCT*k1,RFCT*k2,RFCT*H
+!    could just throw out the negative one
+!     k1 = max(k1,k2)  !
+!     k2 = k1
+!     A = 0
+!     H = k1
+!     K = k1
+    else
      A=2*sqrt(abs(H**2-K))
      K=sqrt(abs(K))  ! use sqrt of gaussian curvature for output->geometric mean power in same units ; absolute power for saddle points
-     if(.not.ieee_is_finite(A)) then
-      write(*,*) 'Error in principal'
-      write(*,*) hu,hv,huu,hvv,huv
-     endif
-   else
-!   AT ORIGIN r = 0, things get weird at the limit
-    if ( ABS(ht) > EPS ) then  ! but really it depends on ht/r and htt/r^2
-     K=(htt/ht)**2
-    else ! axisymmetric answer
-     K=hrr
     endif
-    H=hrr
-    k1=hrr
-    k2=hrr
-    A=0
+    if(.not.ieee_is_finite(A)) then
+     write(*,*) 'Error in principal'
+     write(*,*) hu,hv,huu,hvv,huv
+    endif
+   else
+!   AT ORIGIN r -> 0, things get weird at the limit, use axisymmetric
+    call axisymmetric_principal(r,hr,hrr,K,H,k1,k2,A)
    endif
  END SUBROUTINE principal
 
@@ -1768,10 +1773,11 @@ REAL (wp), INTENT(OUT) :: powctr,powmin,powmax
 REAL(c_double), INTENT(INOUT) :: cardinal(*)
 INTEGER(c_int), INTENT(INOUT) :: nC
 INTEGER(c_int64_t) :: dat,fct
-INTEGER :: i,j,M1
+INTEGER :: i,M1
 dat=(flag-mod(flag,1000000))/1000000 ! first two digits
 fct=mod(((flag-mod(flag,10000))/10000),100) ! second two digits, color map functions
 M1=size(b%r,2)
+
 if (fct .lt. 16 .and. fct .gt. 0) then
    powctr=b%ZC0(1,fct)
    powmin=b%ZC0(2,fct)
@@ -1850,6 +1856,7 @@ if (fct .lt. 16 .and. fct .gt. 0) then
 endif
 ! always
 cardinal(1)=powctr
+
 endsubroutine selectfunction
 
 END MODULE cornea_arrays

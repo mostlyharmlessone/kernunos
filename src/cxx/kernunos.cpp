@@ -1009,10 +1009,10 @@ void MainWindow::compare()
     flag=flag-(flag%100)+select;  // last two digits of flag=10 is the code for compare flag=12 for average
 
     if (select == 10 || select == 12){
-//  set to hsbrgb for compare/average
+//  set to a perceptual scale for compare/average
     map=(flag-(flag%100))/100%100 ; //save the current selection
     GLwidget::setAllmapsfalse();
-    GLwidget::sethsbrgb(true);
+    GLwidget::setperceptualuniformpalette(true);
     checkmapsflags();}
 
 //  pupil register is sent through changing dat
@@ -1022,8 +1022,8 @@ void MainWindow::compare()
     makesave2Act->setEnabled(true);
 
     if(select == 10 || select == 12){
-//  for now restore FROM hsbrgb
-    flag=flag+100*(map-3);
+//  restore map
+    flag=flag+100*(map-8);
     GLwidget::sethsbrgb(false);
     if (map == 1) GLwidget::setrgb2(true);
     if (map == 2) GLwidget::setrgb5(true);
@@ -3320,7 +3320,7 @@ void MainWindow::updateResult()
    ui.progressBar->setValue(counter);
 
  // Legend colorscale and numbers, updated
-    int scale = 680;
+    int scale = 480;
     int scale2 = 30;
     QLinearGradient grBtoY(0, 0, 1, scale);
     QLinearGradient grBtoY2(0, 0, 1, scale);
@@ -3333,28 +3333,20 @@ void MainWindow::updateResult()
                                           legend2[(i-1)*4+2],
                                           legend2[(i-1)*4+3],
                                           255);
-    // write the values
-/*
-        float powmin =legend2[96];
-        float powmax =legend2[0];
-        std::cout << "legend[" << (i-1)*4+1 << "]=" <<
-                legend2[(i-1)*4+1] << ";\n" << "legend[" << (i-1)*4+2 << "]=" <<
-            legend2[(i-1)*4+2] << ";\n" << "legend[" << (i-1)*4+3 << "]=" <<
-            legend2[(i-1)*4+3] << ";\n" << "legend[" <<(i-1)*4+0 << "]=" <<
-            floor(legend2[(i-1)*4]+0.5) << ";\n" << powmin << "\n" << powmax << "\n" <<
-            std::endl;
-*/
+
         grBtoY.setColorAt((i-1)/26.0, rgbcolor);
         grBtoY2.setColorAt((i-1)/26.0, rgbcolor2);
     }
     QPixmap pm(scale2, scale);
+    QRect rect1(0, 0, scale2, scale);
+
     QPainter pmp(&pm);
     pmp.setBrush(QBrush(grBtoY));
     pmp.setPen(Qt::NoPen);
     pmp.setRenderHint(QPainter::Antialiasing, true);
-    QRect rect1(0, 0, scale2, scale);
     pmp.drawRect(rect1);
     ui.legendpix->setPixmap(pm);
+
     QPixmap pm2(scale2, scale);
     QPainter pmp2(&pm2);
     pmp2.setBrush(QBrush(grBtoY2));
@@ -3363,34 +3355,32 @@ void MainWindow::updateResult()
     pmp2.drawRect(rect1);
     ui.legendpix_2->setPixmap(pm2);
     QString legendvalues = "";
-    for (int i = 1; i <= 13; ++i) {
-        float j = legend[(i-1)*8];
-//        float j = floor(legend[(i-1)*8]+0.5);
+    for (int i = 0; i < nL/4; ++i) {
+        float j = legend[i*4];  // float j = floor(legend[i*4]+0.5);
         std::string t = std::to_string(j);  //stuck with 6 digits output
         char const *n_char = t.c_str();
         legendvalues += "\n";
         legendvalues += n_char;
-        legendvalues += "\n";
-        legendvalues += "\n";
     }
 
-    QString legendvalues2 = "";
 //  adjust so that range is greater than 5 as it may not be for differences
-    float powmin =legend2[96];
+    float powmin =legend2[nL-3];
     float powmax =legend2[0];
     int mult = 1; int logmult = 0;
     if ((powmax-powmin) > 0) {
-    while (powmax-powmin < 5.0) {
+    while (powmax-powmin < 15.0 ) {
         mult = mult*10;
         logmult = logmult + 1;
         powmin = powmin * mult;
         powmax = powmax * mult;
     };};
+
     std::string ss = std::to_string(logmult);
     const char* charArray = ss.c_str();
 
-    for (int i = 1; i <= 13; ++i) {
-        float j = (mult*legend2[(i-1)*8]); // floor(mult*legend2[(i-1)*8]+0.5); //limits to integer values
+    QString legendvalues2 = "";
+    for (int i = 0; i < nL/4; ++i) {
+        float j = (mult*legend2[i*4]);  // floor(mult*legend2[i*4]+0.5); //limits to integer values
         std::string t2 = std::to_string(j);  //stuck with 6 digits output
         char const *n_char2 = t2.c_str();
         legendvalues2 += "\n";
@@ -3399,8 +3389,6 @@ void MainWindow::updateResult()
         legendvalues2 += "  E-";
         legendvalues2 += charArray;
         };
-        legendvalues2 += "\n";
-        legendvalues2 += "\n";
     }
     ui.legend->setText(legendvalues);
     ui.legend->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);

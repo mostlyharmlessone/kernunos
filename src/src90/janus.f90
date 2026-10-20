@@ -934,8 +934,8 @@ if (btest(dat,5)) then
   endif
 
 ! Generate the surface
-  new_crop = 0
-  outer_loop_decenter:  do i=1,M1
+  new_crop = 0 ; i = 1
+  outer_loop_decenter:  do while (i .le. M1)
    inner_loop_decenter: do j=1,JMatrix3%MV(i) ! does not include center point
 !   generate elevations and derivatives; iflag no integration
     call SplineEval1Dx1D(iflag,JMatrix3%R(j,i),JMatrix3%THT(i),JMatrix3%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
@@ -957,20 +957,21 @@ if (btest(dat,5)) then
     JMatrix3%INSTC(j,i)=RFCT*princ1
     JMatrix3%SAGC(j,i)=RFCT*princ2
     JMatrix3%GAUSSC(j,i)=RFCT*gaussian
-! check here for extrapolation
-    if (abs(YP2THETA) .gt. 200) then
-!     write(*,*) 'Warning in decenter: too much extrapolation at the edge where the data &
-!     &is discontinuous circumferentially: abs(YP2THETA) .gt. 200, meridian: ',i
+! check here for extrapolation, but don't overcrop
+    if ((abs(YP2THETA) .gt. 500 .or. YP2R2 .eq. 0) .and. JMatrix%MV(i) > 3) then
+!     write(*,*) 'Warning in decenter: extrapolation at the edge where the data &
+!     &is discontinuous circumferentially: meridian: ',i
      JMatrix3%MV(i) = JMatrix3%MV(i) - 1
      new_crop = new_crop + 1
      cycle outer_loop_decenter
     endif
    end do inner_loop_decenter
+   i = i + 1
   end do outer_loop_decenter
 
   if (new_crop .gt. 0) then
-  write(*,*) 'Warning in decenter: too much extrapolation at the edge where the data &
-              &is discontinuous circumferentially: abs(YP2THETA) .gt. 200'
+  write(*,*) 'Warning in decenter: extrapolation at the edge where the data &
+              &is discontinuous circumferentially'
    write (*,*) "automatic cropping in decenter, iterations: ", new_crop
    if (new_crop .gt. 2000) then
     write(*,*) 'FATAL error in decenter'
@@ -1157,8 +1158,8 @@ if (mod(flag,100) == 10 .or. mod(flag,100) == 12) then
   endif
 
 ! Generate the surface, based on JMatrix3 shape, which is JMatrix1, with decentering
-  new_crop = 0
-  outer_loop_compare:  do i=1,M1
+  new_crop = 0 ; i = 1
+  outer_loop_compare:  do while (i .le. M1)
    inner_loop_compare: do j=1,JMatrix3%MV(i) ! does not include center point
 !   generate elevations and derivatives; iflag no integration
     call SplineEval1Dx1D(iflag,JMatrix3%R(j,i),JMatrix3%THT(i),JMatrix3%Z(j,i),YPR,YP2R2,YPTHETA,YPRTHETA,YP2THETA)
@@ -1180,20 +1181,21 @@ if (mod(flag,100) == 10 .or. mod(flag,100) == 12) then
     JMatrix3%INSTC(j,i)=RFCT*princ1
     JMatrix3%SAGC(j,i)=RFCT*princ2
     JMatrix3%GAUSSC(j,i)=RFCT*gaussian
-! check here for extrapolation
-    if (abs(YP2THETA) .gt. 200) then
-!       write(*,*) 'Warning in compare: too much extrapolation at the edge where the data &
-!       &is discontinuous circumferentially: abs(YP2THETA) .gt. 200, meridian: ',i
+! check here for extrapolation, but don't overcrop
+    if ((abs(YP2THETA) .gt. 500 .or. YP2R2 .eq. 0) .and. JMatrix%MV(i) > 3) then
+!       write(*,*) 'Warning in compare: extrapolation at the edge where the data &
+!       &is discontinuous circumferentially: meridian: ',i
      JMatrix3%MV(i) = JMatrix3%MV(i) - 1
      new_crop = new_crop + 1
      cycle outer_loop_compare
     endif
    end do inner_loop_compare
+   i= i + 1
   end do outer_loop_compare
 
   if (new_crop .gt. 0) then
-   write(*,*) 'Warning in compare: too much extrapolation at the edge where the data &
-              &is discontinuous circumferentially: abs(YP2THETA) .gt. 200'
+   write(*,*) 'Warning in compare: extrapolation at the edge where the data &
+              &is discontinuous circumferentially.'
    write (*,*) "automatic cropping in compare, iterations: ", new_crop
    if (new_crop .gt. 2000) then
     write(*,*) 'FATAL error in compare'
@@ -2733,8 +2735,12 @@ if (mod(flag,100) .ne. 9 .and. mod(flag,100) .ne. 1) then  ! Spline RadSlope
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Generate the surface
-  new_crop = 0
-  outer_loop_main:  do i=1,M1
+
+! Possible skip k values near x-axis
+  k=4
+
+  new_crop = 0 ; i = 1
+  outer_loop_main:  do while (i .le. M1)
    inner_loop_main: do j=1,JMatrix%MV(i) ! does not include center point
    JMatrix%R(j,i)=(rBi+(j-1)*(rBo-rBi)/(N1-1))
 !   generate elevations and derivatives; iflag no integration if .ELE .ELE_CSV file
@@ -2750,30 +2756,48 @@ if (mod(flag,100) .ne. 9 .and. mod(flag,100) .ne. 1) then  ! Spline RadSlope
     if (btest(dat,10)) then
      call axisymmetric_principal(JMatrix%R(j,i),YPR,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
     else
-     call principal(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
+    ! if using circumferential splines
+    ! skip k values near x-axis as they are computationally problematical, spline over them later
+     if ( btest(dat,8) .or. (i .gt. (1+k) .and. i .lt. (M1/2-k)) .or. (i .lt. (M1-k)  .and. i .gt. (M1/2+k))) then
+      call principal(JMatrix%THT(i),JMatrix%R(j,i),YPR,YPTHETA,YPRTHETA,YP2THETA,YP2R2,gaussian,meanpower,princ1,princ2,astigm)
+     else
+      astigm=0; meanpower=0; princ1=0; princ2=0; gaussian=0
+     endif
     endif
     JMatrix%MONGEA(j,i)=RFCT*astigm
     JMatrix%MEANC(j,i)=RFCT*meanpower
     JMatrix%INSTC(j,i)=RFCT*princ1
     JMatrix%SAGC(j,i)=RFCT*princ2
     JMatrix%GAUSSC(j,i)=RFCT*gaussian
-! check here for extrapolation
-    if (abs(YP2THETA) .gt. 200) then
-!     write(*,*) 'Warning in main: too much extrapolation at the edge where the data &
-!     &is discontinuous circumferentially: abs(YP2THETA) .gt. 200, meridian: ',i
-!!     JMatrix%MV(i) = JMatrix%MV(i) - 1
+
+! check here for extrapolation, but don't overcrop
+    if ((abs(YP2THETA) .gt. 500 .or. YP2R2 .eq. 0) .and. JMatrix%MV(i) > 3 ) then !
+!     write(*,*) 'Warning in main: extrapolation at the edge where the data &
+!     &is discontinuous circumferentially: meridian: ',i
+     JMatrix%MV(i) = JMatrix%MV(i) - 1
      new_crop = new_crop + 1
-!!     cycle outer_loop_main
+     cycle outer_loop_main
     endif
    end do inner_loop_main
+   i = i + 1
   end do outer_loop_main
 
+!   if not axisymmetric tweak, spline fill-in over problematic k limits at x-axis
+     if (.not. btest(dat,10) .and. .not. btest(dat,8)) then
+      JMatrix%Warp=splinefillintranspose(JMatrix%Warp)
+      JMatrix%SAGC=splinefillintranspose(JMatrix%SAGC)
+      JMatrix%INSTC=splinefillintranspose(JMatrix%INSTC)
+      JMatrix%GAUSSC=splinefillintranspose(JMatrix%GAUSSC)
+      JMatrix%MEANC=splinefillintranspose(JMatrix%MEANC)
+      JMatrix%MONGEA=splinefillintranspose(JMatrix%MONGEA)
+    endif
+
   if (new_crop .gt. 0) then
-  write(*,*) 'Warning in main: too much extrapolation at the edge where the data &
-              &is discontinuous circumferentially: abs(YP2THETA) .gt. 200'
+  write(*,*) 'Warning in main: extrapolation at the edge where the data &
+              &is discontinuous circumferentially'
    write (*,*) "automatic cropping in main, iterations: ", new_crop
    if (new_crop .gt. 2000) then
-    write(*,*) 'FATAL error in main'
+    write(*,*) 'FATAL error in main, excessive crop'
     return
    endif
   endif
@@ -3255,7 +3279,7 @@ endif
   pupil_elements(1:pupil_nE)=0
   pupil_vertices(1:pupil_nV)=0
   elements(1:nE) = 0
-  vertices(1:nV) = 0
+  vertices(1:nV) = 0  !first nV=nv_cube=72 because Geom not called yet, same with nE
   call Geom(flag, JMatrix, donut, powmin, powmax, elements, vertices, nV, nE)
   call Pupil(JMatrix, dist, pupil_elements, pupil_vertices, pupil_nV, pupil_nE)
   call makelegend(flag, powmin, powmax, legend, nL)

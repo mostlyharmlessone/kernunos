@@ -31,6 +31,13 @@ INTERFACE
    INTEGER, INTENT(OUT) :: high, low
   END SUBROUTINE
 
+  SUBROUTINE heapsort(RealVector,IndexVector,n)
+   USE set_precision, ONLY : wp
+   INTEGER, INTENT(IN) :: n
+   REAL(wp), INTENT(INOUT) :: RealVector(n)
+   INTEGER, INTENT(INOUT) :: IndexVector(n)
+  END SUBROUTINE
+
 END INTERFACE
 
 CONTAINS

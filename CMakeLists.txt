@@ -430,7 +430,9 @@ include_directories(src/cxx src/c "${CMAKE_CURRENT_BINARY_DIR}")
 add_library(rply_includes ${rply_sources})
 set( INSTALL_EXAMPLEDIR  macOS )
 
-if(FALSE)  #superlu example from chapter12
+
+
+if(TRUE)  #superlu example from chapter12 and fortran_stdlib test program
 
 set(LIBS2 ${SUPERLU_LIBRARIES} ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES} )
 
@@ -465,24 +467,38 @@ if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(driverPiecewiseLinear)
 endif()
 
-
 set(HH_SOURCES2
                    src/HansonHopkins/driverPiecewiseCubic.f90
                    src/HansonHopkins/set_precision.f90
                    src/HansonHopkins/LapackInterface.f90
                    )
-               add_executable(driverPiecewiseCubic
-                   ${HH_SOURCES2} ${sparse_sources}
-               )
+add_executable(driverPiecewiseCubic ${HH_SOURCES2} ${sparse_sources})
 target_link_libraries(driverPiecewiseCubic ${LIBS2})
 
-endif()
+#fortran_stdlib test with heapsort vs sort_index
+
+find_package(fortran_stdlib REQUIRED)
+
+set(testme_sources
+    src/src90/test_standard.f90
+    src/HansonHopkins/set_precision.f90
+    src/src90/heapsort.f90
+)
+
+add_executable(testheap ${testme_sources})
+
+target_link_libraries(testheap
+    PRIVATE
+    fortran_stdlib::fortran_stdlib)
+
+endif()  # end_test programs
 
 #kernunos Qt version
 
  set(PROJECT_SOURCES
         src/HansonHopkins/set_precision.f90
         src/HansonHopkins/LapackInterface.f90
+        src/src90/heapsort.f90
         src/src90/gauss-jordan.f90
         src/src90/AdjustRadSplineCenter.f90
         src/src90/Pupil.f90
@@ -576,7 +592,8 @@ set_target_properties(kernunos PROPERTIES
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
-    OUTPUT_NAME "kernunos-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}." #needs the trailing dot to avoid MIME
+#   cannot end in a numeral needs the trailing dot or AARCH to avoid MIME problems with execuatble name
+    OUTPUT_NAME "kernunos-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}-${CMAKE_HOST_SYSTEM_PROCESSOR}"
 )
 
 set_source_files_properties(resources/kernunos.icns PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
@@ -629,6 +646,7 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
            )
 endif()
 
+# comments are cross-compiling notes
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
  target_link_libraries(kernunos
                 PRIVATE

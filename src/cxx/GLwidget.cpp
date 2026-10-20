@@ -655,7 +655,7 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
       //fortran array handling seems a lot more consistently intuitive, to say nothing of the whole static idiocy in c++
       // however in non-DEBUG compilation the program fails to load data without error or crash and has the following warnings
       // warning: iteration 72 (36 in the elements loop) invokes undefined behavior [-Waggressive-loop-optimizations]
-      // and void*_builtin_memcpy(void*,const void*,long unsigned int) reading 292 bytes froma region of size 288 (or 148 from 144 in the elements loop)
+      // and void*_builtin_memcpy(void*,const void*,long unsigned int) reading 292 bytes from a region of size 288 (or 148 from 144 in the elements loop)
       for (int i=0; i< nV[0]; ++i){
       vertices[i]=cube_vertices[i];
      // vertices2[i]=cube_vertices[i];
@@ -664,142 +664,144 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
       elements[i]=cube_elements[i];
      // elements2[i]=cube_elements[i];
       }
-      // USS starting values
+      // USS starting values for legend, perceptual scale for comparison
       //
-      legend[1]=255;
-      legend[2]=238;
-      legend[3]=248;
-      legend[0]=68;
+      legend[1]=255;     legend2[1]=255;
+      legend[2]=238;      legend2[2]=255;
+      legend[3]=248;      legend2[3]=217;
+      legend[0]=68;      legend2[0]=68;
 
-      legend[5]=255;
-      legend[6]=216;
-      legend[7]=226;
-      legend[4]=66;
+      legend[5]=255;      legend2[5]=249;
+      legend[6]=216;      legend2[6]=252;
+      legend[7]=226;      legend2[7]=204;
+      legend[4]=66;      legend2[4]=66;
 
-      legend[9]=255;
-      legend[10]=196;
-      legend[11]=206;
-      legend[8]=65;
+      legend[9]=255;      legend2[9]=243;
+      legend[10]=196;      legend2[10]=250;
+      legend[11]=206;      legend2[11]=191;
+      legend[8]=65;      legend2[8]=65;
 
-      legend[13]=255;
-      legend[14]=175;
-      legend[15]=186;
-      legend[12]=63;
+      legend[13]=255;      legend2[13]=237;
+      legend[14]=175;      legend2[14]=248;
+      legend[15]=186;      legend2[15]=178;
+      legend[12]=63;      legend2[12]=63;
 
-      legend[17]=255;
-      legend[18]=157;
-      legend[19]=167;
-      legend[16]=62;
+      legend[17]=255;      legend2[17]=226;
+      legend[18]=157;      legend2[18]=243;
+      legend[19]=167;      legend2[19]=177;
+      legend[16]=62;      legend2[16]=62;
 
-      legend[21]=255;
-      legend[22]=138;
-      legend[23]=148;
-      legend[20]=60;
+      legend[21]=255;      legend2[21]=214;
+      legend[22]=138;      legend2[22]=239;
+      legend[23]=148;      legend2[23]=178;
+      legend[20]=60;      legend2[20]=60;
 
-      legend[25]=255;
-      legend[26]=114;
-      legend[27]=124;
-      legend[24]=59;
+      legend[25]=255;      legend2[25]=202;
+      legend[26]=114;      legend2[26]=234;
+      legend[27]=124;      legend2[27]=179;
+      legend[24]=59;      legend2[24]=59;
 
-      legend[29]=255;
-      legend[30]=95;
-      legend[31]=105;
-      legend[28]=57;
+      legend[29]=255;      legend2[29]=181;
+      legend[30]=95;      legend2[30]=226;
+      legend[31]=105;      legend2[31]=181;
+      legend[28]=57;      legend2[28]=57;
 
-      legend[33]=255;
-      legend[34]=70;
-      legend[35]=79;
-      legend[32]=56;
+      legend[33]=255;      legend2[33]=158;
+      legend[34]=70;      legend2[34]=217;
+      legend[35]=79;      legend2[35]=183;
+      legend[32]=56;      legend2[32]=56;
 
-      legend[37]=255;
-      legend[38]=40;
-      legend[39]=50;
-      legend[36]=54;
+      legend[37]=255;      legend2[37]=135;
+      legend[38]=40;      legend2[38]=208;
+      legend[39]=50;      legend2[39]=186;
+      legend[36]=54;      legend2[36]=54;
 
-      legend[41]=255;
-      legend[42]=0;
-      legend[43]=0;
-      legend[40]=53;
+      legend[41]=255;      legend2[41]=114;
+      legend[42]=0;      legend2[42]=200;
+      legend[43]=0;      legend2[43]=188;
+      legend[40]=53;      legend2[40]=53;
 
-      legend[45]=254;
-      legend[46]=102;
-      legend[47]=0;
-      legend[44]=51;
+      legend[45]=254;      legend2[45]=94;
+      legend[46]=102;      legend2[46]=193;
+      legend[47]=0;      legend2[47]=191;
+      legend[44]=51;      legend2[44]=51;
 
-      legend[49]=252;
-      legend[50]=153;
-      legend[51]=0;
-      legend[48]=50;
+      legend[49]=252;      legend2[49]=74;
+      legend[50]=153;      legend2[50]=185;
+      legend[51]=0;      legend2[51]=194;
+      legend[48]=50;      legend2[48]=50;
 
-      legend[53]=252;
-      legend[54]=188;
-      legend[55]=0;
-      legend[52]=48;
+      legend[53]=252;      legend2[53]=59;
+      legend[54]=188;      legend2[54]=176;
+      legend[55]=0;      legend2[55]=195;
+      legend[52]=48;      legend2[52]=48;
 
-      legend[57]=254;
-      legend[58]=254;
-      legend[59]=0;
-      legend[56]=47;
+      legend[57]=254;      legend2[57]=47;
+      legend[58]=254;      legend2[58]=164;
+      legend[59]=0;      legend2[59]=194;
+      legend[56]=47;      legend2[56]=47;
 
-      legend[61]=162;
-      legend[62]=250;
-      legend[63]=58;
-      legend[60]=45;
+      legend[61]=162;      legend2[61]=36;
+      legend[62]=250;      legend2[62]=152;
+      legend[63]=58;      legend2[63]=192;
+      legend[60]=45;      legend2[60]=45;
 
-      legend[65]=79;
-      legend[66]=229;
-      legend[67]=51;
-      legend[64]=44;
+      legend[65]=79;      legend2[65]=29;
+      legend[66]=229;      legend2[66]=138;
+      legend[67]=51;      legend2[67]=189;
+      legend[64]=44;      legend2[64]=44;
 
-      legend[69]=51;
-      legend[70]=204;
-      legend[71]=51;
-      legend[68]=42;
+      legend[69]=51;      legend2[69]=31;
+      legend[70]=204;      legend2[70]=122;
+      legend[71]=51;      legend2[71]=181;
+      legend[68]=42;      legend2[68]=42;
 
-      legend[73]=32;
-      legend[74]=176;
-      legend[75]=71;
-      legend[72]=41;
+      legend[73]=32;      legend2[73]=32;
+      legend[74]=176;      legend2[74]=106;
+      legend[75]=71;      legend2[75]=173;
+      legend[72]=41;      legend2[72]=41;
 
-      legend[77]=0;
-      legend[78]=152;
-      legend[79]=102;
-      legend[76]=39;
+      legend[77]=0;      legend2[77]=34;
+      legend[78]=152;      legend2[78]=90;
+      legend[79]=102;      legend2[79]=166;
+      legend[76]=39;      legend2[76]=39;
 
-      legend[81]=0;
-      legend[82]=106;
-      legend[83]=156;
-      legend[80]=38;
+      legend[81]=0;      legend2[81]=35;
+      legend[82]=106;      legend2[82]=77;
+      legend[83]=156;      legend2[83]=160;
+      legend[80]=38;      legend2[80]=38;
 
-      legend[85]=0;
-      legend[86]=50;
-      legend[87]=204;
-      legend[84]=36;
+      legend[85]=0;      legend2[85]=36;
+      legend[86]=50;      legend2[86]=63;
+      legend[87]=204;      legend2[87]=153;
+      legend[84]=36;      legend2[84]=36;
 
-      legend[89]=0;
-      legend[90]=0;
-      legend[91]=203;
-      legend[88]=35;
+      legend[89]=0;      legend2[89]=35;
+      legend[90]=0;      legend2[90]=51;
+      legend[91]=203;      legend2[91]=145;
+      legend[88]=35;      legend2[88]=35;
 
-      legend[93]=0;
-      legend[94]=0;
-      legend[95]=153;
-      legend[92]=33;
+      legend[93]=0;      legend2[93]=26;
+      legend[94]=0;      legend2[94]=43;
+      legend[95]=153;      legend2[95]=126;
+      legend[92]=33;      legend2[92]=33;
 
-      legend[97]=0;
-      legend[98]=0;
-      legend[99]=111;
-      legend[96]=32;
+      legend[97]=0;      legend2[97]=17;
+      legend[98]=0;      legend2[98]=36;
+      legend[99]=111;      legend2[99]=107;
+      legend[96]=32;      legend2[96]=32;
 
-      legend[101]=0;
-      legend[102]=0;
-      legend[103]=80;
-      legend[100]=30;
+      legend[101]=0;      legend2[101]=8;
+      legend[102]=0;      legend2[102]=29;
+      legend[103]=80;      legend2[103]=88;
+      legend[100]=30;      legend2[100]=30;
 
-      //this is very much not the same as legend2=legend as it would be in fortran
-      for (int i=0; i< nL; ++i){
-          legend2[i]=legend[i];       //
+// if you want to change scales: this is very much not the same as legend2=legend as it would be in fortran
+     /*
+      for (int i=0; i < nL; ++i){
+          legend2[i]=legend[i];
       }
+      */
      }    
     paintme=true;
   return true;

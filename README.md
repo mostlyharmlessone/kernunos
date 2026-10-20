@@ -67,7 +67,9 @@ The other and newer class of machine uses scanning technology to measure elevati
 
 "*Do not attribute conditions to villainy that simply result from stupidity.*”<br>
 
-It is rare for data to be written to files as IEEE-754 floating point or ASCII/Unicode in the modern era, and the alternative, yet common choice, of a relatively non-intuitive data storage with questionable computational or storage advantage, (a strategy which has often been deprecated for difficulties in code maintenance), points to possible deliberate obfuscation.<br>
+It is rare for data to be written to files as IEEE-754 floating point or ASCII/Unicode in the modern era, and the alternative, yet common choice, of a relatively non-intuitive data storage with questionable computational or storage advantage, (a strategy which has often been deprecated for difficulties in code maintenance), points to possible deliberate obfuscation. <br>
+
+There might be technical arguments to be made for non-IEEE-754 floating point, such as binary-code decimal, but that choice might be mixed with legal considerations, see for example the 1976 US Supreme Court landmark decision mentioned in https://en.wikipedia.org/wiki/Binary-coded_decimal in which the patentability of the format (and therefore legal blockage of reading data so encoded) was successfully overturned.<br>
 
 Quoting https://en.wikipedia.org/wiki/Raw_image_format<br>
 "Providing a detailed and concise description of the content of raw files is highly problematic. ... Several major camera manufacturers, including Nikon, Canon and Sony, encrypt portions of the file in an attempt to prevent third-party tools from accessing them."  <br>

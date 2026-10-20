@@ -15,6 +15,7 @@
        INTEGER(c_int64_t) :: map
        INTEGER(c_int), INTENT(INOUT) :: nL
 
+       legend(1:nL)=0
        map=mod((flag-mod(flag,100))/100,100)
 
        SELECT CASE (map)
