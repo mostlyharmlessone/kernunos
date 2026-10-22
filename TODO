@@ -1,0 +1,83 @@
+TODO
+
+NEXT VERSION
+
+eye tilt, rotation option
+
+consider replacing sparsekit code with https://stdlib.fortran-lang.org/index.html COO/CSR types https://stdlib.fortran-lang.org/module/stdlib_sparse_kinds.html
+driverPiecewiseLinear has a Fortran array error only found under Darwin/MacOS; probably a compiler mismatch, needs investigation?, currently macro-ed out
+
+2-D LSQSpline: review article again, work on stand-alone program first, but probably want polar version with adjustable grid size
+
+Replace squash/crop: ? needs extreme value filter; or histogram of values for median and color scale like OPDIII use sort and/or other fortran_stdlib functions
+resurrect old noise reduction code to help out monge-astig and meanc for real data?
+?fftpack needs testing to figure out how to effectively remove noise.
+sorting, included a heapsort function; can also use stdlib for that:
+https://stdlib.fortran-lang.org/page/specs/stdlib_sorting.html
+
+build stdlib on Windows and Mac before continuing; if successful build on MacOS 14 with flangLLVM and/or M3, post to fortran_stdlib
+
+
+RELEASES/PACKAGES
+
+Known issues, will not be fixed: openGL on MacOS, under darwin, View|Normals disabled as that's a geometry shader thing.
+
+If there is any demand: Linux flatpak or appImage or PKGBUILD
+appImage, looks straightforward and theres's a linuxdeployqt. Have to make on oldest Ubuntu LTS, need a VM
+
+Deprecate cross-compiling, see notes in README
+
+DOCUMENTATION
+
+update MANIFEST after adding files
+include directions to build fortran_stdlib if incorporating
+include need fypp as dependency of stdlib
+
+NEW MACHINE DATA EXPORTS
+
+Mathematica plots
+
+NEW MACHINE DATA IMPORTS
+
+wrote routine to isolate the block.
+iTrace 8640 points = 360 x 24; has "Data" binary compressed with gzip
+
+Visia ?redo Rowsey curvatures, ?eyesys structure
+
+Orbscan: look for data files on a machine if available, not mdb file, not Orbscan_dataset.zip
+
+PentaCam U12 file looks like it has binary data separated by blocks of zero, possibly readable, could compare with known data?
+
+OPTIMIZING/TESTING
+
+valgrind/profiling 
+Use valgrind in Qt
+
+profiling -g flag doesn't work for H&H codes, link errors (would have to recompile superlu with profiling enabled)
+try script with loadfile or juno alternative profiling janus alone, 
+can also do loadfile with program exit after janus call; might work scripts of multiple loadfile calls
+
+GCC F2018 compliant with deferred length character with Bind C used in janus.f90
+GCC11 problem, ISO_Fortran_binding.h not available or C++ not C?
+
+Review: Spline routines seem to have explicit shape, and are passed possibly assumed-shape
+Passing an assumed-shape array or array pointer to an explicit-shape array can slow run-time performance. 
+https://www.cita.utoronto.ca/~merz/intel_f10b/main_for/mergedProjects/optaps_for/fortran/optaps_prg_arrs_f.htm
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

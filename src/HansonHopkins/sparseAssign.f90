@@ -574,6 +574,7 @@ END SUBROUTINE dhbc_eq_dcsr
 
 SUBROUTINE matrix_eq_dcsr(matrix,dcsr)
 USE sparsekit, ONLY: csrdns
+!USE stdlib_sorting, only: coo2dense,csr2coo
 ! This routine handles the overloaded assignment
 ! REAL(:,:)=TYPE(dpCSRSparseMatrix)
 ! by providing an interface to sparsekit.f90 CSRDNS (modified)
@@ -591,6 +592,7 @@ END SUBROUTINE matrix_eq_dcsr
 
 SUBROUTINE dcsr_eq_matrix(dcsr,matrix)
 USE sparsekit, ONLY: dnscsr
+!USE stdlib_sorting, only: dense2coo,coo2csr
 ! This routine handles the overloaded assignment
 ! TYPE(dpCSRSparseMatrix)=REAL(:,:)
 ! by providing an interface to sparsekit.f90 CSRDNS (modified)
