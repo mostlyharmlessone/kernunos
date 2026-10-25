@@ -201,7 +201,6 @@ endif()
     set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${bounds}")
     set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${dialect}")
     set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${omp}")
-   #set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${profile}")   #doesn't work for H&H possibly not for superlu
     set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${NaN}")
     set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${type}")
  endif()
@@ -382,6 +381,8 @@ endif()
 
 # superlu
  find_package(SuperLU REQUIRED)
+# fortran_stdlib
+ find_package(fortran_stdlib REQUIRED)
 
 # Compile.
 
@@ -457,7 +458,14 @@ MACOSX_BUNDLE TRUE
 WIN32_EXECUTABLE TRUE
 )
 
-target_link_libraries(driverPiecewiseLinear PUBLIC ${LIBS2})
+target_link_libraries(driverPiecewiseLinear
+  PRIVATE
+  fortran_stdlib::fortran_stdlib
+  PUBLIC
+  ${LIBS2})
+
+#allows for conditional compilation with fortran_stdlib through preprocessor macro
+target_compile_definitions(driverPiecewiseLinear PRIVATE fortran_stdlib)
 
 install(TARGETS driverPiecewiseLinear RUNTIME DESTINATION bin 
                 BUNDLE DESTINATION macOS 
@@ -473,11 +481,13 @@ set(HH_SOURCES2
                    src/HansonHopkins/LapackInterface.f90
                    )
 add_executable(driverPiecewiseCubic ${HH_SOURCES2} ${sparse_sources})
-target_link_libraries(driverPiecewiseCubic ${LIBS2})
+target_link_libraries(driverPiecewiseCubic
+  PRIVATE
+  fortran_stdlib::fortran_stdlib
+  PUBLIC
+  ${LIBS2})
 
 #fortran_stdlib test with heapsort vs sort_index
-
-find_package(fortran_stdlib REQUIRED)
 
 set(testme_sources
     src/src90/test_standard.f90
@@ -487,9 +497,13 @@ set(testme_sources
 
 add_executable(testheap ${testme_sources})
 
+#includes library
 target_link_libraries(testheap
     PRIVATE
     fortran_stdlib::fortran_stdlib)
+
+#allows for conditional compilation with fortran_stdlib through preprocessor macro
+target_compile_definitions(testheap PRIVATE fortran_stdlib)
 
 endif()  # end_test programs
 
@@ -617,6 +631,7 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
                 PRIVATE
                 Qt6::Concurrent
                 OpenMP::OpenMP_CXX
+                fortran_stdlib::fortran_stdlib
                 PUBLIC Qt${QT_VERSION_MAJOR}::Core
                 Qt${QT_VERSION_MAJOR}::OpenGLWidgets
                 Qt${QT_VERSION_MAJOR}::Gui
@@ -635,6 +650,7 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
                 PRIVATE
                 Qt6::Concurrent
                 OpenMP::OpenMP_CXX
+                fortran_stdlib::fortran_stdlib
                 PUBLIC Qt${QT_VERSION_MAJOR}::Core
                 Qt${QT_VERSION_MAJOR}::OpenGLWidgets
                 Qt${QT_VERSION_MAJOR}::Gui
@@ -652,6 +668,7 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
                 PRIVATE
                 Qt${QT_VERSION_MAJOR}::Concurrent
                 OpenMP::OpenMP_CXX # if (CMAKE_SYSTEM_NAME MATCHES Windows)
+                fortran_stdlib::fortran_stdlib
                 PUBLIC Qt${QT_VERSION_MAJOR}::Core
                 Qt${QT_VERSION_MAJOR}::OpenGLWidgets
                 Qt${QT_VERSION_MAJOR}::Gui

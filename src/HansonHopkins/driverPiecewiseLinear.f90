@@ -32,6 +32,7 @@
       USE sluInterop, ONLY: OPERATOR(.ip.), ASSIGNMENT(=) 
       USE sparseAssign !, ONLY: ASSIGNMENT(=)
       USE lapackinterface, ONLY: dnrm2, dgesv
+      USE sparseUtils
 
       IMPLICIT NONE
 
@@ -260,7 +261,7 @@
 ! so comparison of fit to data x(k) to computed actual data a(k)**2 at knots (which you don't get as data) is
 sumsq = 0
  do k=1,n
-   write(*,*) a(k),x(k),a(k)**2,x(k)-a(k)**2
+!   write(*,*) a(k),x(k),a(k)**2,x(k)-a(k)**2
    sumsq=sumsq+(x(k)-a(k)**2)**2
 !   write(*,*) a(k),x(k),sin(5*3.14*a(k)),x(k)-sin(5*3.14*a(k))
 !   sumsq=sumsq+(x(k)-sin(5*3.14*a(k)))**2
