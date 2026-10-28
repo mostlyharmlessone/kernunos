@@ -64,6 +64,20 @@
 
      END INTERFACE
 
+#ifdef fortran_stdlib
+     INTERFACE ASSIGNMENT (=)
+! Convert a sparse matrix in CSR format to a dense matrix
+! REAL(:,:)=TYPE(dpCSRSparseMatrix)
+      MODULE PROCEDURE dcsr_std_eq_dcsr
+! Convert a dense matrix to a sparse matrix in CSR format
+! TYPE(dpCSRSparseMatrix)=REAL(:,:)
+      MODULE PROCEDURE dcsr_eq_dcsr_std
+
+     END INTERFACE
+#endif
+
+
+
     INTERFACE
      SUBROUTINE csrcoo ( nrow, job, a, ja, ia, nnz, ao, ir, jc, ierr )
      INTEGER ( kind = 4 ) nrow
@@ -451,7 +465,7 @@ SUBROUTINE list_of_triplets_eq_triplets(triplets,sparse)
 END SUBROUTINE list_of_triplets_eq_triplets
 
 SUBROUTINE list_of_triplets_eq_dcsr(trip,dcsr)
-USE sparsekit, ONLY: csrcoo
+! USE sparsekit, ONLY: csrcoo
 ! This routine handles the overloaded assignment
 ! TYPE(dpTriplet)(:) = TYPE(dpCSRSparseMatrix)
 ! by providing a modern interface/replacement to sparsekit.f90 CSRCOO
@@ -501,65 +515,6 @@ USE sparsekit, ONLY: csrcoo
  end do
 END SUBROUTINE list_of_triplets_eq_dcsr
 
-#ifdef fortran_stdlib
-
-SUBROUTINE dcsr_eq_dcsr_std(dpCSR,CSR)
-! converts to fortran_stdlib
- USE stdlib_sparse
- IMPLICIT NONE
- TYPE (CSR_dp_type), INTENT(IN) :: CSR
- TYPE (dpCSRSparseMatrix), INTENT (OUT) :: dpCSR
-  ALLOCATE(dpCSR%a(1:CSR%nnz), dpCSR%ja(1:CSR%nnz), dpCSR%ia(1:CSR%nnz))
-  dpCSR%nnz=CSR%nnz
-  dpCSR%noOfColumns=CSR%ncols
-  dpCSR%noOfRows=CSR%nrows
-  dpCSR%a(:)=CSR%data(:)
-  dpCSR%ja(:)=CSR%col(:)
-  dpCSR%ia(:)=CSR%rowptr(:)
-END SUBROUTINE dcsr_eq_dcsr_std
-
-SUBROUTINE dcsr_std_eq_dcsr(CSR,dpCSR)
-! converts from fortran_stdlib
- USE stdlib_sparse
- IMPLICIT NONE
- TYPE (dpCSRSparseMatrix), INTENT (IN) :: dpCSR
- TYPE (CSR_dp_type), INTENT(OUT) :: CSR
-! create fortran_stdlib_version
-  call CSR%malloc(dpCSR%noOfRows,dpCSR%noOfColumns,dpCSR%nnz)
-  CSR%nnz=dpCSR%nnz
-  CSR%ncols=dpCSR%noOfColumns
-  CSR%nrows=dpCSR%noOfRows
-  CSR%data(:)=dpCSR%a(:)
-  CSR%col(:)=dpCSR%ja(:)
-  CSR%rowptr(:)=dpCSR%ia(:)
-END SUBROUTINE dcsr_std_eq_dcsr
-
-SUBROUTINE coo_eq_list_of_triplets(dcoo,sparse)
- USE stdlib_sparse
- IMPLICIT NONE
- TYPE (dpTripletList), INTENT (IN), TARGET :: sparse
- TYPE (COO_dp_type), INTENT(OUT) :: dcoo
-END SUBROUTINE coo_eq_list_of_triplets
-
-SUBROUTINE dcsr_eq_list_of_triplets_std(dcsr,sparse)
- USE stdlib_sparse
-! USE stdlib_sparse_conversion
-! This routine handles the overloaded assignment
-! TYPE(dpCSRSparseMatrix)=TYPE(dpTripletList)
-! by providing an interface to fortran_stdlib
-! It builds a Compressed Sparse Row matrix from a list of triplets.
-  IMPLICIT NONE
-  TYPE (dpCSRSparseMatrix), INTENT (INOUT) :: dcsr
-  TYPE (dpTripletList), INTENT (IN), TARGET :: sparse
-  TYPE (COO_dp_type) :: dcoo
-  TYPE (CSR_dp_type) :: dp_csr
-  call coo_eq_list_of_triplets(dcoo,sparse)
-!  call coo2csr(dp_csr,dcoo)
-  call dcsr_eq_dcsr_std(dcsr,dp_csr)
-END SUBROUTINE dcsr_eq_list_of_triplets_std
-
-
-#endif
 
 SUBROUTINE dcsr_eq_list_of_triplets(dcsr,sparse)
 USE sparsekit, ONLY: coocsr
@@ -613,8 +568,73 @@ USE sparsekit, ONLY: coocsr
   call coocsr( dcsr%noOfRows, dcsr%nnz, sparse%values(1:dcsr%nnz), ir(1:dcsr%nnz),&
                &sparse%columns(1:dcsr%nnz), dcsr%a, dcsr%ja, dcsr%ia )
   DEALLOCATE(ind,itemp,ir)
-
 END SUBROUTINE dcsr_eq_list_of_triplets
+
+SUBROUTINE dcsr_eq_dcsr_std(dpCSR,CSR)
+! converts to fortran_stdlib
+ USE stdlib_sparse
+ IMPLICIT NONE
+ TYPE (CSR_dp_type), INTENT(IN) :: CSR
+ TYPE (dpCSRSparseMatrix), INTENT (OUT) :: dpCSR
+  ALLOCATE(dpCSR%a(1:CSR%nnz), dpCSR%ja(1:CSR%nnz), dpCSR%ia(1:CSR%ncols))
+  dpCSR%nnz=CSR%nnz
+  dpCSR%noOfColumns=CSR%ncols
+  dpCSR%noOfRows=CSR%nrows
+  dpCSR%a(:)=CSR%data(:)
+  dpCSR%ja(:)=CSR%col(:)
+  dpCSR%ia(:)=CSR%rowptr(:)
+END SUBROUTINE dcsr_eq_dcsr_std
+
+SUBROUTINE dcsr_std_eq_dcsr(CSR,dpCSR)
+! converts from fortran_stdlib
+ USE stdlib_sparse
+ IMPLICIT NONE
+ TYPE (dpCSRSparseMatrix), INTENT (IN) :: dpCSR
+ TYPE (CSR_dp_type), INTENT(OUT) :: CSR
+ INTEGER :: i
+! create fortran_stdlib_version
+  call CSR%malloc(dpCSR%noOfRows,dpCSR%noOfColumns,dpCSR%nnz)
+  CSR%nnz=dpCSR%nnz
+  CSR%ncols=dpCSR%noOfColumns
+  CSR%nrows=dpCSR%noOfRows
+  CSR%data(:)=dpCSR%a(:)
+  CSR%col(:)=dpCSR%ja(:)
+  do i=1,CSR%nrows+1
+   CSR%rowptr(i)=dpCSR%ia(i)
+  end do
+END SUBROUTINE dcsr_std_eq_dcsr
+
+SUBROUTINE coo_eq_list_of_triplets(dcoo,sparse)
+ USE stdlib_sparse
+ IMPLICIT NONE
+ TYPE (dpTripletList), INTENT (IN), TARGET :: sparse
+ TYPE (COO_dp_type), INTENT(OUT) :: dcoo
+ call from_ijv(dcoo,sparse%rows,sparse%columns,sparse%values)
+END SUBROUTINE coo_eq_list_of_triplets
+
+
+#ifdef fortan_stdlib
+
+SUBROUTINE dcsr_eq_list_of_triplets(dcsr,sparse)
+ USE stdlib_sparse
+ USE stdlib_linalg_constants, only: dp
+! USE stdlib_sparse_conversion
+! This routine handles the overloaded assignment
+! TYPE(dpCSRSparseMatrix)=TYPE(dpTripletList)
+! by providing an interface to fortran_stdlib
+! It builds a Compressed Sparse Row matrix from a list of triplets.
+  IMPLICIT NONE
+  TYPE (dpCSRSparseMatrix), INTENT (INOUT) :: dcsr
+  TYPE (dpTripletList), INTENT (IN), TARGET :: sparse
+  TYPE (COO_dp_type) :: dcoo
+  TYPE (CSR_dp_type) :: dp_csr
+  call coo_eq_list_of_triplets(dcoo,sparse)
+  call coo2csr(dcoo,dp_csr)
+  call dcsr_eq_dcsr_std(dcsr,dp_csr)
+END SUBROUTINE dcsr_eq_list_of_triplets_std
+
+#endif
+
 
 SUBROUTINE dhbc_eq_dcsr(dhbc,dcsr)
 ! This routine handles the overloaded assignment
@@ -662,7 +682,7 @@ USE stdlib_sparse
   TYPE(CSR_dp_type) :: dp_csr
   TYPE(COO_dp_type) :: dcoo
   ALLOCATE (matrix(dcsr%noOfRows,dcsr%noOfColumns))
-  call dcsr_std_eq_dcsr(dp_csr,dcsr)
+  dp_csr=dcsr
   call csr2coo(dp_csr,dcoo)
   call coo2dense(dcoo,matrix)
 END SUBROUTINE matrix_eq_dcsr
@@ -711,7 +731,7 @@ SUBROUTINE dcsr_eq_matrix(dcsr,matrix)
   TYPE(COO_dp_type) :: dcoo
   call dense2coo(matrix,dcoo)
   call coo2csr(dcoo,dp_csr)
-  call dcsr_eq_dcsr_std(dcsr,dp_csr)
+  dcsr=dp_csr
 END SUBROUTINE dcsr_eq_matrix
 
 #endif

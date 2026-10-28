@@ -1,5 +1,3 @@
-! https://stdlib.fortran-lang.org/page/specs/stdlib_sorting.html#sort_index-creates-an-array-of-sorting-indices-for-an-input-array-while-also-sorting-the-array
-
  SUBROUTINE heapsort(RealVector,IndexVector,n)
   USE set_precision, ONLY : wp
   IMPLICIT NONE
@@ -8,6 +6,7 @@
   INTEGER, INTENT(INOUT) :: IndexVector(n)
   INTEGER :: i,j,m,counter,newIndex
   REAL(wp) :: newReal
+
   m=n/2+1
   counter=n
   do

@@ -486,6 +486,9 @@ target_link_libraries(driverPiecewiseCubic
   fortran_stdlib::fortran_stdlib
   PUBLIC
   ${LIBS2})
+#allows for conditional compilation with fortran_stdlib through preprocessor macro
+target_compile_definitions(driverPiecewiseCubic PRIVATE fortran_stdlib)
+
 
 #fortran_stdlib test with heapsort vs sort_index
 
@@ -495,12 +498,14 @@ set(testme_sources
     src/src90/heapsort.f90
 )
 
-add_executable(testheap ${testme_sources})
+add_executable(testheap ${testme_sources} ${sparse_sources})
 
 #includes library
 target_link_libraries(testheap
     PRIVATE
-    fortran_stdlib::fortran_stdlib)
+    fortran_stdlib::fortran_stdlib
+    PUBLIC
+    ${LIBS2})
 
 #allows for conditional compilation with fortran_stdlib through preprocessor macro
 target_compile_definitions(testheap PRIVATE fortran_stdlib)

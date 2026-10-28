@@ -260,6 +260,8 @@ FUNCTION transpose_triplet(b) RESULT (a)
           a = bb
 END FUNCTION transpose_triplet
 
+#ifndef fortran_stdlib
+
 FUNCTION CSR_sparse_matrix_times_CSR_sparse_matrix(a,b) RESULT (c)
 USE sparsekit, ONLY: amub, amubdg
 ! This function computes the product of two Compressed Sparse Row
@@ -310,7 +312,6 @@ IF (ierr/=0) THEN
  c%errFlag = ierr
  RETURN
 END IF
-
 END FUNCTION CSR_sparse_matrix_times_CSR_sparse_matrix
 
 FUNCTION CSR_sparse_matrix_times_vector(h,x) RESULT (y)
@@ -327,6 +328,45 @@ USE sparsekit, ONLY: amux
  REAL (dkind) :: y(h%noOfRows)
  call amux ( h%noOfRows, x, y, h%a, h%ja, h%ia )
 END FUNCTION CSR_sparse_matrix_times_vector
+
+#else
+
+FUNCTION CSR_sparse_matrix_times_CSR_sparse_matrix(a,b) RESULT (c)
+USE stdlib_sparse
+! This function computes the product of two Compressed Sparse Row
+! format sparse matrices, C = A * B.
+! using fortran_stdlib
+! The dimensions of the result are determined by the
+! maximum of the dimensions of the separate factors.
+TYPE (dpCSRSparseMatrix), INTENT (IN) :: a, b
+TYPE (dpCSRSparseMatrix) :: c
+TYPE (CSR_dp_type) :: CSR_a
+TYPE (CSR_dp_type) :: CSR_b
+TYPE (CSR_dp_type) :: CSR_c
+CSR_a=a
+CSR_b=b
+CSR_c=CSR_a*CSR_b ! uses overloaded * from std_lib
+c=CSR_c
+END FUNCTION CSR_sparse_matrix_times_CSR_sparse_matrix
+
+FUNCTION CSR_sparse_matrix_times_vector(h,x) RESULT (y)
+USE stdlib_sparse
+! This routine handles the overloaded operation (*)
+! that stands for a Compressed Sparse Row sparse-matrix times a dense vector.
+! using fortran_stdlib
+! The result is y = H*x.  The size of x must be at least
+! the number of columns in H.  The result y will be the
+! number of rows in H.
+ IMPLICIT NONE
+ TYPE (dpCSRSparseMatrix), INTENT (IN) :: h
+ REAL (dkind), INTENT (IN) :: x(:)
+ TYPE (CSR_dp_type) :: CSR
+ REAL (dkind) :: y(h%noOfRows)
+ CSR=h
+ call spmv(CSR,x,y)
+END FUNCTION CSR_sparse_matrix_times_vector
+
+#endif
 
 END MODULE sparseOps
 
