@@ -1,5 +1,5 @@
 --- Chapter04/sparseUtils.f90	2023-10-15 15:02:37.342383188 -0700
-+++ ../../kernunos/src/HansonHopkins/sparseUtils.f90	2026-07-10 09:50:56.509844862 -0700
++++ ../../kernunos/src/HansonHopkins/sparseUtils.f90	2026-10-31 10:23:52.143414005 -0700
 @@ -1,31 +1,27 @@
  MODULE sparseUtils
 -
@@ -51,7 +51,7 @@
        WRITE(*, '(''Number of rows and columns: '',I6,'', '',I6)') &
           h%noOfRows, h%noOfColumns
        WRITE(*, '(''Error flag: '',i5)') h%errFlag
-@@ -56,6 +49,31 @@
+@@ -56,6 +49,50 @@
            END DO 
          END IF
        END DO
@@ -78,9 +78,28 @@
 +!       WRITE(*, '(I6)') h%ia(i)
 +!      end do
 +       WRITE(*,*) 'Number of non-zero numbers: ',h%nnz
-+       WRITE(*,*) h%a(1:h%nnz)
-+       WRITE(*,*) h%ja(1:h%nnz)
-+       WRITE(*,*) h%ia(1:h%noOfRows+1)
++       WRITE(*,*) 'Values: ',h%a(1:h%nnz)
++       WRITE(*,*) 'Columns: ',h%ja(1:h%nnz)
++       WRITE(*,*) 'Row pointers: ',h%ia(1:h%noOfRows+1)
 +      END SUBROUTINE printDpCSRSparseMatrix
++
++      SUBROUTINE printstandardDpCSRSparseMatrix(h)
++      USE stdlib_sparse
++      TYPE(CSR_dp_type), INTENT(IN) :: h
++!      INTEGER :: i
++      WRITE(*, '(''Number of rows and columns: '',I6,'', '',I6)') &
++         h%nrows, h%ncols
++!      do i=1,h%nnz
++!       WRITE(*, '(I6, E14.6)') h%col(i),h%data(i)
++!      end do
++!      do i=1,h%noOfRows+1
++!       WRITE(*, '(I6)') h%rowptr(i)
++!      end do
++       WRITE(*,*) 'Number of non-zero numbers: ',h%nnz
++       WRITE(*,*) 'Data: ',h%data(1:h%nnz)
++       WRITE(*,*) 'Columns: ',h%col(1:h%nnz)
++       WRITE(*,*) 'Row pointers: ',h%rowptr(1:h%nrows+1)
++      END SUBROUTINE printstandardDpCSRSparseMatrix
++
 +
  END MODULE sparseUtils

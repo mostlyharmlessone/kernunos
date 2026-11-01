@@ -109,7 +109,7 @@ This software was developed at various times under the Slackware, Ubuntu, Arch, 
 
 I have not built a PKGBUILD, nor configured any other Linux package manager installer, or Flatpak etc, nor have I tried it under BSD.<br>
 
-There are some patches to Hanson & Hopkins http://www.siam.org/books/ot134 chapters 2,4, & 11 to accomodate superlu versions > 4.3, for Windows compilation and to support CSR sparse matrices.<br>
+There are some patches to Hanson & Hopkins http://www.siam.org/books/ot134 chapters 2,4, & 11 to accomodate superlu versions > 4.3, for Windows compilation and to support CSR sparse matrices. More recently, I've also included some additional support to support fortran_stdlib sparse matrices. I have submitted a patch to fortran_stdlib, also included here. fortran_stdlib as of this writing only has experimental inclusion and could be excised from the code if it doesn't prove useful.  As of this writing I've included the support, and you'll need to verify if you need the patch. See the source code README under Hanson&Hopkins.<br>
 
 For some file formats, Fortran Linux system calls {call execute_command_line() } to cabextract and rm (or Expand and del under Wiindows) are used for convenience in reading compressed Windows cabinet files and cleaning up temporary files. <br>
 

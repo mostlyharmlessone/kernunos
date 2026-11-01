@@ -44,14 +44,17 @@ kernunos.qhp
 LICENSE
 MANIFEST
 Notes on OPD-III Nidek files
+Notes on TopCon CA-800 files
 openfile.html
 README
 README.html
 README.html_files
 SECURITY.html
+SECURITY.html_files
 spline_notes.odt
 spline_notes.pdf
 SUPPORTED_HARDWARE.html
+SUPPORTED_HARDWARE.html_files
 tweaksmenu.html
 viewmenu.html
 
@@ -120,6 +123,18 @@ github-markdown.css
 images
 
 documentation/README.html_files/images:
+
+documentation/SECURITY.html_files:
+github-markdown.css
+images
+
+documentation/SECURITY.html_files/images:
+
+documentation/SUPPORTED_HARDWARE.html_files:
+github-markdown.css
+images
+
+documentation/SUPPORTED_HARDWARE.html_files/images:
 src:
 c
 cxx
@@ -160,6 +175,7 @@ kernunos.h
 kernunos.pro
 Lib.ttf
 mainwindow.ui
+version.h.in
 
 src/HansonHopkins:
 driverPiecewiseCubic.f90
@@ -186,6 +202,7 @@ sparseTypes.f90
 sparseTypes.f90_patch
 sparseUtils.f90
 sparseUtils.f90_patch
+stdlib_sparse.patch
 superlu_enum_consts.h
 supermatrix.h
 
@@ -214,6 +231,7 @@ dctsv.f90
 gauss-jordan.f90
 Geom.f90
 get_compiler_name.f90
+heapsort.f90
 janus.f90
 linearspline.f90
 linSplineEval.f90
@@ -232,6 +250,7 @@ SplineCenter.f90
 SplineEval1Dx1D.f90
 SplineEvalCenter.f90
 SplineEval.f90
+test_standard.f90
 thomas.f90
 trapez.f90
 WriteCenter.f90
