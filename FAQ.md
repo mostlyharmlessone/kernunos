@@ -335,7 +335,7 @@ A: Yes, though I suspect Github used Copilot(R) to "hallucinate" the nonexisting
 
 Q: Do you accept "AI"/LLM contributions to your code?<br>
 
-A: I should be so lucky that even a bot would take an interest. Having said that, the LICENSE precludes incorporating any of this code into an LLM's sausage works, for everyone's benefit. Since it might well be impossible to detect undeclared or partial "AI"/LLM contributions, at this point, if a human appearing contribution presents itself, I'll look at it.  Use what tools seem right to you, but take responsibility for the output. <br>
+A: I should be so lucky that even a bot would take an interest. Having said that, the LICENSE precludes incorporating any of this code into an LLM's sausage works, for everyone's benefit. Since it might well be impossible to detect undeclared or partial "AI"/LLM contributions, at this point, if a human appearing contribution presents itself, I'll look at it.  Use what tools seem right to you, but take responsibility for the output. Unfortunately I cannot guarantee that third party tools don't have LLM input. For example, avoidable tools such as the fortran_stdlib library explicitly allow LLM contributions, and is in active development with it.  Other unavoidable tools such as Qt, and possibly the compilers, have an unknown amount of AI/LLM input.<br>
 
 Q: Why not just give topography images/data to an AI and have it tell you how they differ or not?<br>
 
