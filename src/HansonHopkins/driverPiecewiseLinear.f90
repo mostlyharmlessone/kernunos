@@ -33,6 +33,7 @@
       USE sparseAssign !, ONLY: ASSIGNMENT(=)
       USE lapackinterface, ONLY: dnrm2, dgesv
       USE sparseUtils
+      USE stdlib_sparse
 
       IMPLICIT NONE
 
@@ -71,14 +72,24 @@
       TYPE (dpCSRSparseMatrix) :: aT_csr
 ! Define what will be the CSR version of A^TA for the design matrix
       TYPE (dpCSRSparseMatrix) :: ata_csr
+
+! fortran_stdlib version
+! Define what will be the CSR version for the design matrix
+      TYPE (CSR_dp_type) :: b_csr
+! Define what will be the transposed CSR version for the design matrix
+      TYPE (CSR_dp_type) :: bT_csr
+! Define what will be the CSR version of A^TA for the design matrix
+      TYPE (CSR_dp_type) :: btb_csr
+! Define COO for stdlib_sparse
+      TYPE (COO_dp_type) :: coo
+
  ! Define variables for test with Gram matrix
-      REAL(dkind), ALLOCATABLE :: rhs_test(:),ata(:,:),d(:)
+      REAL(dkind), ALLOCATABLE :: rhs_test(:),b_rhs_test(:),ata(:,:),d(:)
       INTEGER :: info
       INTEGER, ALLOCATABLE :: ipiv(:)
 ! Timing
       REAL(8) :: time_start, time_end
       REAL(dkind) :: sumsq
-
 
 ! Define local variables
       REAL (dkind) :: delta, u, v, resid_error, residuals
@@ -154,29 +165,32 @@
 ! Use overloaded assigment to convert from a list of
 ! triplets. Create a CSR matrix representation for
 ! This assignment (a_csr =) converts the S list to a sparse matrix format
-      ALLOCATE (rhs_test(n),d(n),ipiv(n), STAT=errno)
+      ALLOCATE (rhs_test(n),b_rhs_test(n),d(n),ipiv(n), STAT=errno)
       a_csr = s_test
       aT_csr =  .t. a_csr        ! generates the sparse transpose (could have done it with triplets above)
       ata_csr = aT_csr .p. a_csr ! generates the NxN Gram matrix which may not be as sparse and may be ill-conditioned
       rhs_test(1:n)= aT_csr .p. rhs(1:m)
+
+!     stdlib version
+      coo = s_test
+      b_csr = coo
+      bT_csr = .t. b_csr
+      btb_csr = bT_csr .p. b_csr ! generates the NxN Gram matrix which may not be as sparse and may be ill-conditioned
+      b_rhs_test(1:n)= bT_csr .p. rhs(1:m)
+
 ! Clear out space used by s_test
       s_test = 0
 
-#if defined(__APPLE__) && defined(__GFORTRAN__)
-! also need to pass -DCMAKE_Fortran_FLAGS="-D__APPLE__" to cmake
-! do not compile for Mac/Darwin/Apple, appears to have array issues at marked lines
-
-#else
 ! Using superlu with Gram matrix and normal equations, fastest
 ! Solve for the coefficients of the piece-wise linear spline; you don't get residuals this way
       call CPU_TIME(time_start)
 ! Convert to HB
       b= ata_csr
       d = b .ip. rhs_test
-      r = ( a_csr .p. d )  - rhs     ! array error compiled under Darwin
+      r = ( a_csr .p. d )  - rhs     ! array error compiled under Darwin c gcc
       residuals = dnrm2(m,r,1)
       call CPU_TIME(time_end)
-      write(*,*) 'Superlu with normal equations'
+      write(*,*) 'Superlu with dense matrix normal equations'
       WRITE (*,'(A)') ' Data Fitting of y(t)=t**2, (0,1).'
       WRITE (*,'(A,1PG12.5)') ' Computed Residuals (00) (Vector Norm)', residuals
       write(*,*) 'time ',time_end-time_start
@@ -197,7 +211,22 @@
       WRITE (*,'(A,1PG12.5)') ' Computed Residuals (0) (Vector Norm)', residuals
       write(*,*) 'time ',time_end-time_start
       write(*,*) ' '
-#endif
+      deallocate(ata)
+
+      call CPU_TIME(time_start)
+! Convert to a dense matrix, fortran_stdlib
+      ata = btb_csr
+      d(:)=b_rhs_test(:)    ! d gets overwritten
+      call DGESV(n, 1, ata, n, IPIV, d, n, info ) ! d is overwritten
+      r = ( b_csr .p. d ) - rhs
+      residuals = dnrm2(m,r,1)
+      call CPU_TIME(time_end)
+      write(*,*) 'Lapack with dense matrix normal equations, stdlib'
+      WRITE (*,'(A)') ' Data Fitting of y(t)=t**2, (0,1).'
+      WRITE (*,'(A,1PG12.5)') ' Computed Residuals (0) (Vector Norm)', residuals
+      write(*,*) 'time ',time_end-time_start
+      write(*,*) ' '
+      deallocate(ata)
 
 ! Using original H & H matrix above avoiding Gram matrix, and using superlu, intermediate in speed
 ! Use overloaded assigment to convert from a list of

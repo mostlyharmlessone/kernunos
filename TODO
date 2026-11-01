@@ -4,49 +4,12 @@ NEXT VERSION
 
 eye tilt, rotation option
 
-consider replacing sparsekit code with https://stdlib.fortran-lang.org/index.html COO/CSR types https://stdlib.fortran-lang.org/module/stdlib_sparse_kinds.html
-driverPiecewiseLinear has a Fortran array error only found under Darwin/MacOS; probably a compiler mismatch, needs investigation?, currently macro-ed out
-
 2-D LSQSpline: review article again, work on stand-alone program first, but probably want polar version with adjustable grid size
 
 Replace squash/crop: ? needs extreme value filter; or histogram of values for median and color scale like OPDIII use sort and/or other fortran_stdlib functions
 resurrect old noise reduction code to help out monge-astig and meanc for real data?
 ?fftpack needs testing to figure out how to effectively remove noise.
 sorting, included a heapsort function; can also use stdlib for that:
-https://stdlib.fortran-lang.org/page/specs/stdlib_sorting.html
-
-fortran_stdlib tests:
-
-builds on Linux, built with some difficulty on Windows
-
-i3: clang/flang-23 not AppleClang built library file, but failed real-128 compilation and tests
-stops at 31% cith cmake Undefined symbols for architecture x86_64
-__FortranACAbsF128
-__extendxftf2
-__trunctfxf2
-referenced from __QMtestdrivePcheck_complex_Xdp in libtest-drive.a(testdrive.F90.o)
-tried cmake -B build -DWITH_QP=OFF -DWITH_XDP=OFF with no effect
-
-M3: clang/flang-23 built without error, failed multiple tests
-	 29 - linalg_eigenvalues (Failed)
-	 30 - linalg_expm (Failed)
-	 34 - linalg_norm (Failed)
-	 35 - linalg_mnorm (Failed)
-	 43 - linalg_solve_iterative (SEGFAULT)
-	242 - solve_bicgstab (SEGFAULT)
-	243 - solve_bicgstab_wilkinson (SEGFAULT)
-	244 - solve_cg (SEGFAULT)
-	245 - solve_gmres (SEGFAULT)
-	246 - solve_pcg (SEGFAULT)
-	247 - solve_custom (SEGFAULT)
-Try:
-cmake -B build -G Ninja \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_Fortran_FLAGS="-O3 -fno-stack-arrays -fmax-stack-var-size=65536" \
-  -DCMAKE_EXE_LINKER_FLAGS="-Wl,-stack_size,0x10000000" \
-  -DCMAKE_INSTALL_PREFIX=$HOME/.local
-
-
 
 RELEASES/PACKAGES
 

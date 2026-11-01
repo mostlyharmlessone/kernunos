@@ -71,9 +71,28 @@ MODULE sparseUtils
 !       WRITE(*, '(I6)') h%ia(i)
 !      end do
        WRITE(*,*) 'Number of non-zero numbers: ',h%nnz
-       WRITE(*,*) h%a(1:h%nnz)
-       WRITE(*,*) h%ja(1:h%nnz)
-       WRITE(*,*) h%ia(1:h%noOfRows+1)
+       WRITE(*,*) 'Values: ',h%a(1:h%nnz)
+       WRITE(*,*) 'Columns: ',h%ja(1:h%nnz)
+       WRITE(*,*) 'Row pointers: ',h%ia(1:h%noOfRows+1)
       END SUBROUTINE printDpCSRSparseMatrix
+
+      SUBROUTINE printstandardDpCSRSparseMatrix(h)
+      USE stdlib_sparse
+      TYPE(CSR_dp_type), INTENT(IN) :: h
+!      INTEGER :: i
+      WRITE(*, '(''Number of rows and columns: '',I6,'', '',I6)') &
+         h%nrows, h%ncols
+!      do i=1,h%nnz
+!       WRITE(*, '(I6, E14.6)') h%col(i),h%data(i)
+!      end do
+!      do i=1,h%noOfRows+1
+!       WRITE(*, '(I6)') h%rowptr(i)
+!      end do
+       WRITE(*,*) 'Number of non-zero numbers: ',h%nnz
+       WRITE(*,*) 'Data: ',h%data(1:h%nnz)
+       WRITE(*,*) 'Columns: ',h%col(1:h%nnz)
+       WRITE(*,*) 'Row pointers: ',h%rowptr(1:h%nrows+1)
+      END SUBROUTINE printstandardDpCSRSparseMatrix
+
 
 END MODULE sparseUtils

@@ -3,99 +3,306 @@
 
 program example_sort_index
 
-#ifdef fortran_stdlib
   use stdlib_sorting, only: sort_index
-  use stdlib_linalg_constants, only: dp
   use stdlib_sparse
 ! testing conversions
   use sparseAssign
   use sparseTypes
-#endif
+  use sparseUtils
+  use sparseops
+  use special_fct
 
   use set_precision, only: wp
   implicit none
 
-  INTERFACE
-   SUBROUTINE heapsort(RealVector,IndexVector,n)
-    USE set_precision, ONLY : wp
-    INTEGER, INTENT(IN) :: n
-    REAL(wp), INTENT(INOUT) :: RealVector(n)
-    INTEGER, INTENT(INOUT) :: IndexVector(n)
-   END SUBROUTINE
-  END INTERFACE
-
-#ifdef fortran_stdlib
   integer :: row(10), col(10)
-  real(dp) :: data(10)
-  type(COO_dp_type) :: COO
-  type(CSR_dp_type) :: CSR
-  type(ELL_dp_type) :: ELL
-  real(dp) :: mat(2, 2)
-  real(dp), allocatable :: dense_matrix(:, :)
-  integer :: locdof(2)
-  TYPE (dpCSRSparseMatrix) :: dpCSR
-#endif
-
+  real(wp) :: data(10),xx
+  type(COO_dp_type) :: COO, COO_T
+  type(CSR_dp_type) :: CSR, CSR_T, CSR2
+  real(wp) :: mat(2, 2)
+  real(wp), allocatable :: dense_matrix(:, :),dense_matrix_T(:, :),dense_matrix2(:, :)
+  TYPE (dpCSRSparseMatrix) :: dpCSR, dpCSR_T, dp_CSR2
+  TYPE (dpTripletList) :: dptriplist
+  TYPE (dpTripletList) :: dptriplist_T
 
   real(wp) :: array(7)
   integer :: index(7),i,j
 
+  real(wp),allocatable :: vector(:),vector2(:)
+
   array = [5, 4, 3, 1, 10, 4, 9]
   index = [1, 2, 3, 4, 5, 6 ,7]
 
-#ifdef fortran_stdlib
+
   call sort_index(array, index)
 
   print *, array   !print [1, 3, 4, 4, 5, 9, 10]
   print *, index   !print [4, 3, 2, 6, 1, 7, 5]
-#endif
 
   call heapsort(array, index, 7)
 
   print *, array   !print [1, 3, 4, 4, 5, 9, 10]
   print *, index   !print [4, 3, 2, 6, 1, 7, 5]
 
-#ifdef fortran_stdlib
   ! Initial data
   row = [1,1,2,2,3,3,3,4,4,4]
   col = [1,5,1,2,2,3,4,1,3,4]
-  data = real([9,-3,4,7,8,-1,8,4,5,6] , kind = dp ) !wp works here
-
-  mat(:, 1) = [1._dp, 2._dp]
-  mat(:, 2) = [2._dp, 1._dp]
-  allocate (dense_matrix(5, 5), source=0._dp)
-  do i = 0, 3
-     dense_matrix(1 + i:2 + i, 1 + i:2 + i) = dense_matrix(1 + i:2 + i, 1 + i:2 + i) + mat
-  end do
-
-  print *, 'Original Matrix'
-  do j = 1, 5
-     print '(5f8.1)', dense_matrix(j, :)
-  end do
+  data = real([9,-3,4,7,8,-1,8,4,5,6] , kind = wp )
 
   ! Create a CSR matrix from triplet
   call from_ijv(CSR,row,col,data)
   print *, 'CSR'
+  print *,'nrows,ncols,nnz',CSR%nrows,CSR%ncols,CSR%nnz
   print '(A,5I8)',    'rowptr :', CSR%rowptr
   print '(A,10I8)',   'col    :', CSR%col
   print '(A,10f8.1)', 'data   :', CSR%data
 
+call CSR%malloc(4,5,10)
+CSR%data(:)   = real([9,-3,4,7,8,-1,8,4,5,6])
+CSR%col(:)    = [1,5,1,2,2,3,4,1,3,4]
+CSR%rowptr(:) = [1,3,5,8,11]
+
+print *, 'CSR by definition'
+print *,'nrows,ncols,nnz',CSR%nrows,CSR%ncols,CSR%nnz
+print '(A,5I8)',    'rowptr :', CSR%rowptr
+print '(A,10I8)',   'col    :', CSR%col
+print '(A,10f8.1)', 'data   :', CSR%data
+
+do i=1,10
+  dptriplist = dpTriplet(row(i),col(i),data(i))
+end do
+  dptriplist_T=.t. dptriplist
+
+  dpCSR = dptriplist
+  dpCSR_T = dptriplist_T
+
+  call printDpCSRSparseMatrix(dpCSR)
+  call printDpCSRSparseMatrix(dpCSR_T)
+
+  dense_matrix = dpCSR
+  dense_matrix_T = dpCSR_T
+
+print *, 'converted from dpcsr first'
+do j = 1, size(dense_matrix,1)
+   print '(5f8.1)', dense_matrix(j, :)
+end do
+print *, 'converted from dpcsr_T first'
+do j = 1, size(dense_matrix_T,1)
+   print '(5f8.1)', dense_matrix_T(j, :)
+end do
+
+allocate(vector(size(dense_matrix,2)),vector2(size(dense_matrix,1)))
+do i=1,size(dense_matrix,2)
+vector(i) = 3.0*i
+end do
+print *, size(dense_matrix,1),size(dense_matrix,2)
+print *, vector(:)
+print *, matmul(dense_matrix,vector)
+vector2(:) =dense_matrix .p. vector
+print *, vector2(:)
+
+vector2 = dpCSR .p. vector
+print *, vector2(:)
+
+call spmv(CSR,vector,vector2)
+print *, vector2(:)
+vector2 = CSR .p. vector
+print *, vector2(:)
+
+deallocate(vector,vector2)
+
+
+allocate(vector(size(dense_matrix_T,2)),vector2(size(dense_matrix_T,1)))
+do i=1,size(dense_matrix_T,2)
+vector(i) = 3.0*i
+end do
+print *, size(dense_matrix_T,1),size(dense_matrix_T,2)
+print *, vector(:)
+vector2 = dense_matrix_T .p. vector
+print *, vector2(:)
+
+vector2 = dpCSR_T .p. vector
+print *, vector2(:)
+
+
+deallocate(vector,vector2)
+
+
+stop
 
 
 
-  call dcsr_eq_dcsr_std(dpCSR,CSR)
+dense_matrix2=matmul(dense_matrix_T,dense_matrix)
 
+print *, 'ATA via matmul'
+do j = 1, size(dense_matrix2,1)
+   print '(5f8.1)', dense_matrix2(j, :)
+end do
 
-  ! Create an ELL matrix from triplet
-  call from_ijv(ELL,row,col,data)
-  print *, 'ELL'
-  print *, ' index        |         data'
-  do i = 1, ELL%nrows
-      print '(3I4,1x,3f8.1)', ELL%index(i,:) , ELL%data(i,:)
+allocate(vector(size(dense_matrix2,1)))
+do i=1,size(dense_matrix2,1)
+vector(i) = 3.0*i
+end do
+print *, size(dense_matrix2,1),size(dense_matrix2,2)
+print *, vector(:)
+vector = dense_matrix2 .p. vector
+print *, vector(:)
+deallocate(vector)
+
+dp_CSR2 = dpCSR_T .p. dpCSR
+call printDpCSRSparseMatrix(dp_CSR2)
+
+dense_matrix2 = dp_CSR2
+
+print *, 'ATA via not standard csr'
+do j = 1, size(dense_matrix2,1)
+   print '(5f8.1)', dense_matrix2(j, :)
+end do
+
+allocate(vector(size(dense_matrix2,1)))
+do i=1,size(dense_matrix2,1)
+vector(i) = 3.0*i
+end do
+print *, size(dense_matrix2,1),size(dense_matrix2,2)
+print *, vector(:)
+vector = dense_matrix2 .p. vector
+print *, vector(:)
+deallocate(vector)
+
+dense_matrix2=matmul(dense_matrix,dense_matrix_T)
+
+print *, 'AAT via matmul'
+do j = 1, size(dense_matrix2,1)
+   print '(5f8.1)', dense_matrix2(j, :)
+end do
+
+allocate(vector(size(dense_matrix2,1)))
+do i=1,size(dense_matrix2,1)
+vector(i) = 3.0*i
+end do
+print *, size(dense_matrix2,1),size(dense_matrix2,2)
+print *, vector(:)
+vector = dense_matrix2 .p. vector
+print *, vector(:)
+deallocate(vector)
+
+dp_CSR2 = dpCSR .p. dpCSR_T
+ call printDpCSRSparseMatrix(dp_CSR2)
+
+  dense_matrix2 = dp_CSR2
+
+  print *, 'ATA via csr'
+  do j = 1, size(dense_matrix2,1)
+     print '(5f8.1)', dense_matrix2(j, :)
   end do
 
-  ! Create a COO matrix from triplet
-  call from_ijv(COO,row,col,data)
+allocate(vector(size(dense_matrix2,1)))
+do i=1,size(dense_matrix2,1)
+vector(i) = 3.0*i
+end do
+print *, size(dense_matrix2,1),size(dense_matrix2,2)
+print *, vector(:)
+vector = dense_matrix2 .p. vector
+print *, vector(:)
+deallocate(vector)
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+call csr2dense(CSR,dense_matrix)
+
+print *, 'converted from csr'
+do j = 1, size(dense_matrix,1)
+   print '(5f8.1)', dense_matrix(j, :)
+end do
+
+!dense_matrix_T = .t. dense_matrix
+
+print *, 'CSR'
+print *,'nrows,ncols,nnz',CSR%nrows,CSR%ncols,CSR%nnz
+print '(A,5I8)',    'rowptr :', CSR%rowptr
+print '(A,10I8)',   'col    :', CSR%col
+print '(A,10f8.1)', 'data   :', CSR%data
+
+call csr2dense(CSR,dense_matrix)
+
+print *, 'converted from csr'
+do j = 1, size(dense_matrix,1)
+   print '(5f8.1)', dense_matrix(j, :)
+end do
+
+ CSR_T = .t. CSR
+
+call CSR_T%malloc(5,4,10)
+CSR_T%data(:)   = real([9,-3,4,7,8,-1,8,4,5,6])
+CSR_T%col(:)    = [1,2,4,2,3,3,4,3,4,1]
+CSR_T%rowptr(:) = [1,4,6,8,10,11]
+
+print *, 'CSR_T'
+print *,'nrows,ncols,nnz',CSR_T%nrows,CSR_T%ncols,CSR_T%nnz
+print '(A,6I8)',    'rowptr :', CSR_T%rowptr
+print '(A,10I8)',   'col    :', CSR_T%col
+print '(A,10f8.1)', 'data   :', CSR_T%data
+
+ call csr2dense(CSR_T,dense_matrix_T)
+
+!these are element by element multiplication, not matmul equivalents
+
+CSR2 = CSR * CSR_T
+dense_matrix2 = CSR2
+
+print *, 'converted after csr'
+do j = 1, size(dense_matrix2,1)
+  print '(5f8.1)', dense_matrix2(j, :)
+end do
+
+CSR2 = CSR_T * CSR
+dense_matrix2 = CSR2
+
+print *, 'converted after csr'
+do j = 1, size(dense_matrix2,1)
+  print '(5f8.1)', dense_matrix2(j, :)
+end do
+
+
+do i=1,10
+  dptriplist = dpTriplet(row(i),col(i),data(i))
+end do
+
+call printDpTripletList(dptriplist)
+
+write(*,*) 'transpose'
+ dptriplist_T=.t. dptriplist
+
+call printDpTripletList(dptriplist_T)
+
+! Create a COO matrix from triplet
+!call from_ijv(COO,row,col,data)
+COO = dptriplist
+
+print *, 'COO'
+print *, '  i,  j,    v'
+do i = 1, COO%nnz
+    print '(2I4,f8.1)', COO%index(:,i), COO%data(i)
+end do
+
+COO_T = .t. COO
+
+print *, 'COO_T'
+print *, '  i,  j,    v'
+do i = 1, COO_T%nnz
+    print '(2I4,f8.1)', COO_T%index(:,i), COO_T%data(i)
+end do
+COO_T=0
+
+
+COO_T = dptriplist_T
+
+print *, 'COO_T'
+print *, '  i,  j,    v'
+do i = 1, COO_T%nnz
+    print '(2I4,f8.1)', COO_T%index(:,i), COO_T%data(i)
+end do
+
   print *, 'COO'
   print *, '  i,  j,    v'
   do i = 1, COO%nnz
@@ -110,16 +317,7 @@ program example_sort_index
       print '(2I4,f8.1)', COO%index(:,i), COO%data(i)
   end do
 
-! Initialize CSR data and reset dense reference matrix
-  call dense2coo(dense_matrix, COO)
-  dense_matrix = 0._dp
 
-print *, 'COO from dense'
-print *, '  i,  j,    v'
-do i = 1, COO%nnz
-    print '(2I4,f8.1)', COO%index(:,i), COO%data(i)
-end do
 
-#endif
 
 end program example_sort_index

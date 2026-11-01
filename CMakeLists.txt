@@ -464,8 +464,6 @@ target_link_libraries(driverPiecewiseLinear
   PUBLIC
   ${LIBS2})
 
-#allows for conditional compilation with fortran_stdlib through preprocessor macro
-target_compile_definitions(driverPiecewiseLinear PRIVATE fortran_stdlib)
 
 install(TARGETS driverPiecewiseLinear RUNTIME DESTINATION bin 
                 BUNDLE DESTINATION macOS 
@@ -486,8 +484,6 @@ target_link_libraries(driverPiecewiseCubic
   fortran_stdlib::fortran_stdlib
   PUBLIC
   ${LIBS2})
-#allows for conditional compilation with fortran_stdlib through preprocessor macro
-target_compile_definitions(driverPiecewiseCubic PRIVATE fortran_stdlib)
 
 
 #fortran_stdlib test with heapsort vs sort_index
@@ -496,6 +492,9 @@ set(testme_sources
     src/src90/test_standard.f90
     src/HansonHopkins/set_precision.f90
     src/src90/heapsort.f90
+    src/mod90/special_fct.f90
+    src/mod90/M_color.f90
+    src/src90/bsearch.f90
 )
 
 add_executable(testheap ${testme_sources} ${sparse_sources})
@@ -507,8 +506,6 @@ target_link_libraries(testheap
     PUBLIC
     ${LIBS2})
 
-#allows for conditional compilation with fortran_stdlib through preprocessor macro
-target_compile_definitions(testheap PRIVATE fortran_stdlib)
 
 endif()  # end_test programs
 

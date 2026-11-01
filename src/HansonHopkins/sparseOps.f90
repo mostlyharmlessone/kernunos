@@ -2,7 +2,7 @@ MODULE sparseOps
 !  Modified to add CSR sparse matrices
   USE set_precision, ONLY : dkind
   USE sparseTypes, ONLY: dpTriplet, dpTripletList, &
-      dpHBSparseMatrix, dpCSRSparseMatrix
+      dpHBSparseMatrix, dpCSRSparseMatrix    
   USE sparseAssign, ONLY: ASSIGNMENT(=)
 
   IMPLICIT NONE
@@ -12,7 +12,8 @@ MODULE sparseOps
 ! Define procedure name for unary defined operation (.t.),
 ! the transpose of a Harwell-Boeing (HB), Compressed Sparse Row (CSR) matrices or triplets.
       INTERFACE OPERATOR (.t.)
-        MODULE PROCEDURE transpose_dhbc,transpose_triplet,transpose_dcsr
+        MODULE PROCEDURE transpose_dhbc,transpose_triplet,transpose_dcsr,&
+        standard_transpose_dcsr,transpose_COO
       END INTERFACE
 
 ! Define the procedure name for the user-defined operation +,
@@ -29,15 +30,19 @@ MODULE sparseOps
       INTERFACE OPERATOR (.p.)
         MODULE PROCEDURE sparse_matrix_times_vector, &
           vector_times_sparse_matrix, sparse_matrix_times_matrix, CSR_sparse_matrix_times_vector, &
-          matrix_times_sparse_matrix, CSR_sparse_matrix_times_CSR_sparse_matrix
+          matrix_times_sparse_matrix, CSR_sparse_matrix_times_CSR_sparse_matrix,&
+          standard_CSR_sparse_matrix_times_CSR_sparse_matrix,&
+          standard_CSR_sparse_matrix_times_vector
       END INTERFACE
 
 ! The (*) operation can be replaced by (.p.) and
 ! will obtain the same results, for dense vectors.
-! For dense matrices use the (.p.) operation.  
+! For a dense matrix with a sparse matrixuse the (.p.) operation.
+! Two dense matrices -> .p. is scalar product; use matmul or (*)
       INTERFACE OPERATOR (*)
         MODULE PROCEDURE sparse_matrix_times_vector, &
-          vector_times_sparse_matrix,CSR_sparse_matrix_times_vector
+          vector_times_sparse_matrix,CSR_sparse_matrix_times_vector,&
+          standard_CSR_sparse_matrix_times_vector
       END INTERFACE
 
      CONTAINS
@@ -206,7 +211,6 @@ MODULE sparseOps
         a = aa
       END FUNCTION transpose_dhbc
 
-
 FUNCTION transpose_dcsr(b) RESULT (a)
 ! This functions constructs the transpose of a
 ! CSR sparse matrix, A=B^T.  It supports the
@@ -235,6 +239,40 @@ FUNCTION transpose_dcsr(b) RESULT (a)
   a = aa
 END FUNCTION transpose_dcsr
 
+FUNCTION standard_transpose_dcsr(b) RESULT (a)
+! This functions constructs the transpose of a
+! CSR sparse matrix, A=B^T.  It supports the
+! overloaded operation .t. B.
+  USE stdlib_sparse
+  IMPLICIT NONE
+  TYPE (CSR_dp_type), INTENT (IN) :: b
+  TYPE (CSR_dp_type) :: a
+! Local working arrays COO
+  TYPE (COO_dp_type) :: bb
+  TYPE (COO_dp_type) :: aa
+! Convert CSR terms to COO
+  bb = b
+! transpose
+  aa = .t. bb
+! Convert COO to output CSR matrix form
+  a = aa
+END FUNCTION standard_transpose_dcsr
+
+FUNCTION transpose_COO(b) RESULT (a)
+! This functions constructs the transpose of a
+! COO sparse matrix, A=B^T.  It supports the
+! overloaded operation .t. B.
+  USE stdlib_sparse
+  IMPLICIT NONE
+  TYPE (COO_dp_type), INTENT(IN) :: b
+  TYPE (COO_dp_type) :: a
+! Interchange row and column indices to get a list
+! of triplets corresponding to the transpose
+  TYPE (dpTripletList) :: aa,bb
+  bb=b
+  aa = .t. bb
+  a=aa
+END FUNCTION transpose_COO
 
 FUNCTION transpose_triplet(b) RESULT (a)
 ! This functions constructs the transpose of a
@@ -259,8 +297,6 @@ FUNCTION transpose_triplet(b) RESULT (a)
   ! Convert array of triplets to a list
           a = bb
 END FUNCTION transpose_triplet
-
-#ifndef fortran_stdlib
 
 FUNCTION CSR_sparse_matrix_times_CSR_sparse_matrix(a,b) RESULT (c)
 USE sparsekit, ONLY: amub, amubdg
@@ -300,13 +336,13 @@ IF (c%nnz==0) THEN
  ! nnz > 0
  ! Allocate just enough space to hold the entries of the CSR matrix
  c%noOfRows = a%noOfRows
- c%noOfColumns = b%noOfRows
+ c%noOfColumns =a%noOfRows
  ALLOCATE (c%ia(c%nnz),c%a(c%nnz),c%ja(c%nnz),STAT=ierr)
  IF (ierr/=0) THEN
   c%errFlag = ierr
   RETURN
  END IF
-call amub ( a%noOfRows, ncol, 1 , a%a, a%ja, a%ia, b%a, b%ja, b%ia, c%a, c%ja, c%ia, c%nnz, iw, ierr )
+call amub ( c%noOfRows, c%noOfColumns, 1 , a%a, a%ja, a%ia, b%a, b%ja, b%ia, c%a, c%ja, c%ia, c%nnz, iw, ierr )
 DEALLOCATE(iw)
 IF (ierr/=0) THEN
  c%errFlag = ierr
@@ -329,44 +365,40 @@ USE sparsekit, ONLY: amux
  call amux ( h%noOfRows, x, y, h%a, h%ja, h%ia )
 END FUNCTION CSR_sparse_matrix_times_vector
 
-#else
-
-FUNCTION CSR_sparse_matrix_times_CSR_sparse_matrix(a,b) RESULT (c)
+FUNCTION standard_CSR_sparse_matrix_times_CSR_sparse_matrix(a,b) RESULT (c)
 USE stdlib_sparse
 ! This function computes the product of two Compressed Sparse Row
-! format sparse matrices, C = A * B.
+! format sparse matrices, C = A * B
 ! using fortran_stdlib
 ! The dimensions of the result are determined by the
 ! maximum of the dimensions of the separate factors.
-TYPE (dpCSRSparseMatrix), INTENT (IN) :: a, b
-TYPE (dpCSRSparseMatrix) :: c
-TYPE (CSR_dp_type) :: CSR_a
-TYPE (CSR_dp_type) :: CSR_b
-TYPE (CSR_dp_type) :: CSR_c
-CSR_a=a
-CSR_b=b
-CSR_c=CSR_a*CSR_b ! uses overloaded * from std_lib
-c=CSR_c
-END FUNCTION CSR_sparse_matrix_times_CSR_sparse_matrix
+! Unfortunately stdlib does't have an equivalent of matrix multiplication yet
+! and c=a*b is element by element
+! use the sparsekit CSR version for now
+TYPE (CSR_dp_type), INTENT (IN) :: a, b
+TYPE (CSR_dp_type) :: c
+TYPE (dpCSRSparseMatrix) :: aa,bb,cc
+aa=a
+bb=b
+cc=aa .p. bb
+c=cc
+END FUNCTION standard_CSR_sparse_matrix_times_CSR_sparse_matrix
 
-FUNCTION CSR_sparse_matrix_times_vector(h,x) RESULT (y)
+FUNCTION standard_CSR_sparse_matrix_times_vector(h,x) RESULT (y)
 USE stdlib_sparse
-! This routine handles the overloaded operation (*)
+! This routine handles the overloaded operation (.p.)
 ! that stands for a Compressed Sparse Row sparse-matrix times a dense vector.
 ! using fortran_stdlib
 ! The result is y = H*x.  The size of x must be at least
 ! the number of columns in H.  The result y will be the
 ! number of rows in H.
  IMPLICIT NONE
- TYPE (dpCSRSparseMatrix), INTENT (IN) :: h
+ TYPE (CSR_dp_type), INTENT (IN) :: h
  REAL (dkind), INTENT (IN) :: x(:)
- TYPE (CSR_dp_type) :: CSR
- REAL (dkind) :: y(h%noOfRows)
- CSR=h
- call spmv(CSR,x,y)
-END FUNCTION CSR_sparse_matrix_times_vector
-
-#endif
+ REAL (dkind), ALLOCATABLE :: y(:)
+ allocate(y(h%nrows))
+ call spmv(h,x,y)
+END FUNCTION standard_CSR_sparse_matrix_times_vector
 
 END MODULE sparseOps
 

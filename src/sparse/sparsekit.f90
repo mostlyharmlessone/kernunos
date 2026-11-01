@@ -189,11 +189,11 @@ SUBROUTINE amub ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, nzmax, &
   REAL ( kind = 8 ) b(*)
   REAL ( kind = 8 ) c(nzmax)
   INTEGER ( kind = 4 ) ia(nrow+1)
-  INTEGER ( kind = 4 ) ib(ncol+1)
+  INTEGER ( kind = 4 ) ib(*)
   INTEGER ( kind = 4 ) ic(ncol+1)
   INTEGER ( kind = 4 ) ierr
   INTEGER ( kind = 4 ) ii
-  INTEGER ( kind = 4 ) iw(ncol)
+  INTEGER ( kind = 4 ) iw(nrow+1)
   INTEGER ( kind = 4 ) ja(*)
   INTEGER ( kind = 4 ) jb(*)
   INTEGER ( kind = 4 ) jc(nzmax)
@@ -265,6 +265,7 @@ SUBROUTINE amub ( nrow, ncol, job, a, ja, ia, b, jb, ib, c, jc, ic, nzmax, &
 
   return
 end
+
 SUBROUTINE amubdg ( nrow, ncol, ncolb, ja, ia, jb, ib, ndegr, nnz, iw )
 
 !*****************************************************************************80

@@ -50,7 +50,7 @@ FUNCTION sum_of_sum_matrix_by_matrix(array1,array2) result(dL2)
  REAL(wp) ::  v3(size(array1,1)),dL2
  INTEGER :: i
  v3=[(1,i=1,size(array1,1))]
- dL2=dot_product(v3,matmul(v3,array1*array2))
+ dL2=dot_product(v3,matmul(v3,matmul(array1,array2)))
 END FUNCTION sum_of_sum_matrix_by_matrix
 
 ! scalar vector (inner) product
@@ -63,14 +63,14 @@ END FUNCTION sum_of_vector_by_vector
 ! vector x matrix (inner) product
 FUNCTION sum_of_vector_by_matrix(v1,array2) result(v2)
  REAL (wp), INTENT (IN) :: v1(:),array2(:,:)
- REAL (wp) :: v2(SIZE(array2,1))
+ REAL (wp) :: v2(SIZE(array2,2))
  v2=matmul(v1,array2)
 END FUNCTION sum_of_vector_by_matrix
 
 ! matrix x vector (inner) product
 FUNCTION sum_of_matrix_by_vector(array1,v2) result(v1)
  REAL (wp), INTENT (IN) :: v2(:),array1(:,:)
- REAL (wp) :: v1(SIZE(array1,2))
+ REAL (wp) :: v1(SIZE(array1,1))
  v1=matmul(array1,v2)
 END FUNCTION sum_of_matrix_by_vector
 
