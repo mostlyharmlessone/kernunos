@@ -108,7 +108,7 @@ make
 set(CMAKE_SYSTEM UNIX)
 </code></pre><p> and the corresponding Darwin and Windows variables commented out.<br></p>
 <p>gcc is used as the default compiler with cmake. Built with Qt 6.8.3 and 6.11.1 <br></p>
-<p>Building within QtCreator is also possible, but the default of using Ninja does not work with the Fortran dependencies. I had to manually edit .qtcreator/CMakeLists.txt.user directly to replace ninja in the following lines:<br>
+<p>Building within QtCreator is also possible, but the default of using Ninja does not work reliably with Fortran dependencies. I had to manually edit .qtcreator/CMakeLists.txt.user directly to replace ninja in the following lines:<br>
 -DCMAKE_GENERATOR:STRING=Unix Makefiles<br>
 -DCMAKE_MAKE_PROGRAM:STRING=/usr/bin/make<br></p>
 <h3 id="under-windows">Under Windows</h3>
@@ -133,7 +133,7 @@ export CXX=&quot;/c/Qt/Tools/mingw1310_64/bin/g++&quot;&lt;br&gt;
 <pre><code>{path to Qt}Qt/6.8.3/mingw_64/bin/windeployqt6.exe assistant.exe
 </code></pre><p>CrossOver(TM) works well, although you might need to manually close some cmd.exe windows manually on installation and when using gnuplot.<br></p>
 <h3 id="cross-compiling-for-windows-under-linux">Cross-compiling for Windows under Linux</h3>
-<p>Under construction. Cross compiling under Linux is not as straightforward as one would like in 2026.  Perhaps it is not the ideal solution; there was a lot more activity &gt;10 years prior, with the option of building in a VM with native tools becoming more common. As of this writing, I haven&#39;t managed a complete cross-compile build. Some notes follow:<br></p>
+<p>Under construction/deprecated. Cross compiling under Linux is not as straightforward as one would like in 2026.  Perhaps it is not the ideal solution; there was a lot more activity &gt;10 years prior, with the option of building in a VM with native tools becoming more common. As of this writing, I haven&#39;t managed a complete cross-compile build. Some notes follow:<br></p>
 <p>Under Arch Linux using AUR packages</p>
 <pre><code>yay -S mingw-w64-gcc 
 yay -S mingw-w64-qt6-base mingw-w64-qt6-tools
@@ -169,7 +169,7 @@ in general<br>
 wxWidgets<br>
 <a href="https://wiki.wxwidgets.org/Cross-Compiling_Under_Linux">https://wiki.wxwidgets.org/Cross-Compiling_Under_Linux</a> <br></p>
 <h3 id="for-macos-darwin">For MacOS/Darwin</h3>
-<p>Build it on a Mac. It appears the little activity in cross-compiling under Linux has largely been abandoned, possibly because of changes in Apple hardware over the last 10 years, which would not only require cross-compiling for Darwin/MacOS/Quartz, but also for the M1/M2/M3/M.. chips and other Apple only hardware. As of this writing Apple will discontinue support for development (ie Xcode) for intel Mac (arch x86_64) in 2027. In addition, unfortunately, the Mac native tools (Appleclang and XCode) are not particularly Fortran friendly and do not support OpenMP, and as with Windows and the default Visual C++/Intel Fortran/Cmake mismatch, one has to replace the native toolchain with an alternate version. Qt binaries for the MacOS are only provided for clang/llvm, so GCC is not an alternative unless you want to recompile/build Qt using GCC on your Mac. </p>
+<p>Build it on a Mac. It appears the little activity in cross-compiling under Linux has largely been abandoned, possibly because of changes in Apple hardware over the last 10 years, which would not only require cross-compiling for Darwin/MacOS/Quartz, but also for the M1/M2/M3/M.. chips and other Apple only hardware. As of this writing Apple will discontinue support for development (ie Xcode) for intel Mac (arch x86_64) in 2027. In addition, unfortunately, the Mac native tools (Appleclang and XCode) are not particularly Fortran friendly and do not support OpenMP, and as with Windows and the default Visual C++/Intel Fortran/Cmake mismatch, one has to replace the native toolchain with an alternate version. Qt binaries for the MacOS are only provided for clang/llvm, so GCC is not an alternative unless you want to recompile/build Qt using GCC on your Mac or try to mix GCC code with clang.. </p>
 <p>OpenGL has also been deprecated on the MacOS (Darwin) for quite some time, but is still (kindof) supported to GLSL 4.1, although geometry shaders (used to display surface normals in kernunos) are not supported.  I have been unsuccessful at forcing the program to use Mesa 3D drivers with software emulation only (as on a Windows VM) on the MacOS, so cannot report if that improves the situation. As of this writing, it successfully builds on a M3 iMac (aarch64/arm64) and intel i3 (x86_64), however View|Normals is disabled at this time.<br></p>
 <p>Instructions:<br></p>
 <p>Download Xcode (app store)and activate it, also:<br></p>
@@ -177,18 +177,25 @@ wxWidgets<br>
 </code></pre><p>Minimal Apple OS version: Sonoma (14), minimum Xcode 16.1. Note that homebrew no longer supports Sonoma as of this writing, though it is available. I have not tried MacPorts.<br></p>
 <p>Download homebrew, use brew install to install the following:<br>
 glfw vulkan-headers libomp superlu Qt gfortran glm gnuplot assimp flang llvm cabextract<br></p>
-<p>Change FC, CC, CXX and other environment vars to use flang/clang/clang++ to overrride Apple default clang if using the command line. For example, your path should have /opt/homebrew/opt/llvm/bin, /opt/homebrew/bin, and /opt/homebrew/sbin precede /usr/local/bin. </p>
+<p>Change FC, CC, CXX and other environment vars to use flang/clang/clang++ to overrride Apple default clang if using the command line. </p>
+<p>On the intel i3 MacOS (Darwin) </p>
 <pre><code>echo &#39;export PATH=&quot;/usr/local/opt/llvm/bin:$PATH&quot;&#39; &gt;&gt; ~/.zshrc
+export FC=/usr/local/bin/flang&lt;br&gt;
 export CC=/usr/local/opt/llvm/bin/clang
 export CXX=/usr/local/opt/llvm/bin/clang++
+</code></pre><p>On the Apple Silicon M3 MacOS (Darwin) </p>
+<pre><code>echo &#39;export PATH=&quot;/opt/homebrew/opt/llvm/bin:$PATH&quot;&#39; &gt;&gt; ~/.zshrc
+export FC=/opt/homebrew/bin/flang&lt;br&gt;
+export CC=/opt/homebrew/opt/llvm/bin/clang
+export CXX=/opt/homebrew/opt/llvm/bin/clang++
 </code></pre><p>There are the usual CMAKE_HOST_NAME and CMAKE_SYSTEM variables to change in CMakeLists.txt. Also uncomment the leading &quot;project&quot; line and uncomment the architecture aarch64 or x86_64 variable.&quot;<br>
 <br>
-I was unable to get a successful build in QtCreator, but command line cmake works with some tweaks, for example on the M3 (aarch64):<br></p>
+On the Apple platform:<br></p>
 <pre><code>cmake -DASSIMP_WARNINGS_AS_ERRORS=OFF -DASSIMP_BUILD_TESTS=off -DCMAKE_Fortran_FLAGS=&quot;-D__APPLE__&quot; -DCMAKE_CXX_FLAGS=&quot;-D__APPLE__&quot; ../&lt;br&gt;
 </code></pre><p>The flags are needed to assure that the cmake preprocessor processes macros in the Fortran code, else only the C and C++ macros get processed.<br></p>
 <p>cmake also makes -F flags (related to Frameworks) in the Fortran include flags which are not ignored by flang (or gfortran).  Two have to be manually removed (or changed to -I) in</p>
 <pre><code>build/CMakeFiles/kernunos.dir/flags.make.
-</code></pre><p>After cmake runs, edit the file, then run make. You will need to move a copy of &quot;documentation&quot; into the kernunos.app/Contents/MacOS folder, as well as a copy of Assistant.app.<br> </p>
+</code></pre><p>After cmake runs, edit the file, then run make. You may also encounter spurious -idirafter flags inserted by cmake. Edit those out too.  You will need to move a copy of &quot;documentation&quot; into the kernunos.app/Contents/MacOS folder, as well as a copy of Assistant.app.<br> </p>
 <p>In the build directory for Apple Intel i3 (x86_64), run<br></p>
 <pre><code>install_name_tool -add_rpath /usr/local/opt/qt/lib kernunos.app/Contents/MacOS/Assistant.app/Contents/MacOS/assistant 
 macdeployqt kernunos.app/Contents/MacOS/Assistant.app 
@@ -197,6 +204,7 @@ macdeployqt kernunos.app
 macdeployqt kernunos.app -dmg (to make a dmg)
 </code></pre><p>Change &quot;/usr/local&quot; to &quot;/opt/homebrew&quot; for Apple Silicon M3 iMac (aarch64/arm64).<br></p>
 <p>There are a few other manual tweaks needed to compile under the MacOS/Darwin.<br></p>
+<h4 id="assimp">assimp</h4>
 <p>In assimp, you will need  to make some edits compiling under LLVM/clang++, change:  </p>
 <pre><code>in assimp/contrib/openddlparser/code/DDLNode.cpp
 change:
@@ -209,15 +217,19 @@ after:
 #include &quot;dll_symbol.h&quot;
 add:
 #include &lt;ostream&gt;
-</code></pre><p>Additional notes for intel i3 MacOS (Darwin):<br></p>
-<pre><code>change FC, CC, CXX and other environment vars to use LLVM:&lt;br&gt;
-export FC=/usr/local/bin/flang&lt;br&gt;
-export CC=/usr/local/opt/llvm/bin/clang&lt;br&gt;
-export CXX=/usr/local/opt/llvm/bin/clang++&lt;br&gt;
 </code></pre><p>cmake command line:<br></p>
 <pre><code>cmake -DASSIMP_WARNINGS_AS_ERRORS=OFF -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_OSX_SYSROOT=$(xcrun --show-sdk-path) -DASSIMP_BUILD_TESTS=off -DCMAKE_Fortran_FLAGS=&quot;-D__APPLE__&quot; -DCMAKE_CXX_FLAGS=&quot;-D__APPLE__&quot; ../
-</code></pre><p>Some Darwin specific Qt code (both 6.8.3 and 6.11.1) is not processed correctly, and needs a patch to compile. I only experienced this problem under Sonoma on the intel i3. <br></p>
-<p>You <em>might</em> need to remove QT_NO_DEPRECATED pragma in qopenglcontext_platform.h
+</code></pre><h4 id="fortran-stdlib">fortran-stdlib</h4>
+<p>When building fortran_stdlib on Darwin, download from github, be aware that it is under active development, and flang on MacOS/Darwin is not supported. You will also need fypp, which you should be able to install with homebrew, if not, go to <a href="https://github.com/aradi/fypp">https://github.com/aradi/fypp</a> and follow the instructions. Then get stdlib<br></p>
+<pre><code>git clone https://github.com/fortran-lang/stdlib
+</code></pre><p>follow the instructions, but also build with:</p>
+<pre><code>cmake -DWITH_XDP=off -DWITH_QP=off -B build
+</code></pre><p>as quadruple precision is not supported by the MacOS. I also found that to run the tests, I had to separately download test-drive, ie.</p>
+<pre><code>git clone https://github.com/fortran-lang/test-drive
+</code></pre><p>and use the same flags.</p>
+<h4 id="qt">Qt</h4>
+<p>Some Darwin specific Qt code (both 6.8.3 and 6.11.1) is not processed correctly, and needs a patch to compile. I only experienced this problem under Sonoma on the intel i3. <br>
+You <em>might</em> need to remove QT_NO_DEPRECATED pragma in qopenglcontext_platform.h
 so for /opt/homebrew/lib/QtGui.framework/Headers/qopenglcontext_platform.h change the following:<br></p>
 <pre><code>struct Q_GUI_EXPORT QCocoaGLContext
 {
@@ -225,8 +237,8 @@ so for /opt/homebrew/lib/QtGui.framework/Headers/qopenglcontext_platform.h chang
     static QOpenGLContext *fromNative(QT_IGNORE_DEPRECATIONS(NSOpenGLContext) *context, QOpenGLContext *shareContext = nullpt$
     virtual QT_IGNORE_DEPRECATIONS(NSOpenGLContext) *nativeContext() const = 0;
 };
-
-struct Q_GUI_EXPORT QCocoaGLContext
+</code></pre><p>to the following:</p>
+<pre><code>struct Q_GUI_EXPORT QCocoaGLContext
 {
     QT_DECLARE_NATIVE_INTERFACE(QCocoaGLContext, 1, QOpenGLContext)
     static QOpenGLContext *fromNative; (NSOpenGLContext);*context, QOpenGLContext; *shareContext = nullptr;
@@ -396,7 +408,8 @@ libigl: <a href="https://libigl.github.io/">https://libigl.github.io/</a> <br></
 <a href="https://stackoverflow.com/questions/3708307/how-to-initialize-two-dimensional-arrays-in-fortran">https://stackoverflow.com/questions/3708307/how-to-initialize-two-dimensional-arrays-in-fortran</a> <br>
 <a href="https://stackoverflow.com/questions/58938347/how-do-i-replace-a-character-in-the-string-with-another-charater-in-fortran">https://stackoverflow.com/questions/58938347/how-do-i-replace-a-character-in-the-string-with-another-charater-in-fortran</a> <br>
 <a href="https://fortran-lang.discourse.group/t/how-to-write-bytes-in-a-binary-file/763/7">https://fortran-lang.discourse.group/t/how-to-write-bytes-in-a-binary-file/763/7</a> <br>
-<a href="https://stackoverflow.com/questions/41254019/reading-variable-length-data-in-fortran">https://stackoverflow.com/questions/41254019/reading-variable-length-data-in-fortran</a> <br></p>
+<a href="https://stackoverflow.com/questions/41254019/reading-variable-length-data-in-fortran">https://stackoverflow.com/questions/41254019/reading-variable-length-data-in-fortran</a> <br>
+<a href="https://tfetimes.com/c-count-occurrences-of-a-substring/">https://tfetimes.com/c-count-occurrences-of-a-substring/</a><br></p>
 <h3 id="io-f90-copied-adapted-from">io.f90 copied/adapted from</h3>
 <p><a href="https://riptutorial.com/ebook/fortran">https://riptutorial.com/ebook/fortran</a> in particular I/O routine from Chapter 7 I/O:  AL-P, Ed Smith, francescalus, Kyle Kanos, TTT</p>
 <h3 id="color-f90-modified-from">color.f90 modified from</h3>

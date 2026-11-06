@@ -3,7 +3,7 @@ cmake_policy(VERSION 3.30)
 
 set(VERSION_MAJOR "0")
 set(VERSION_MINOR "2")
-set(VERSION_PATCH "3")
+set(VERSION_PATCH "4")
 set(PROJECT_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 # need these for Darwin
@@ -494,6 +494,7 @@ set(testme_sources
     src/src90/heapsort.f90
     src/mod90/special_fct.f90
     src/mod90/M_color.f90
+    src/mod90/parameters.f90
     src/src90/bsearch.f90
 )
 

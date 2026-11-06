@@ -302,6 +302,18 @@ static QString homeDirectory()
     return {};
 }
 
+int countSubstring(const std::string& str, const std::string& sub)
+{
+    if (sub.length() == 0) return 0;
+    int count = 0;
+    for (size_t offset = str.find(sub); offset != std::string::npos;
+         offset = str.find(sub, offset + sub.length()))
+    {
+        ++count;
+    }
+    return count;
+}
+
 MainWindow::MainWindow(QMainWindow *parent) : assistant(new Assistant)
 
 {
@@ -416,30 +428,48 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
        return;
    //   QString temp_path = QDir::tempPath();
    QFileInfo fileInfo(fileName);
+   QString temp_name = fileInfo.fileName();
+   QByteArray ba_name = temp_name.toLocal8Bit();
+   std::string temp_name_str = ba_name.data();
    QString temp_path = fileInfo.absolutePath();
    QByteArray ba_temp = temp_path.toLocal8Bit();
    std::string temp_path_str = ba_temp.data();
    QByteArray ba = fileName.toLocal8Bit();
    filename = ba.data();
    ui.infoLabel->setText(tr("filename:  ")+tr(filename));
-   std::string str(filename);
+   std::string str(temp_name_str);
    pentacam =  str.find(".CUR")!= std::string::npos || str.find(".ELE") != std::string::npos ||
                    str.find("_CUR")!= std::string::npos || str.find("_ELE") != std::string::npos;
    bool atlas = (str.find("OD.CSV")!= std::string::npos) || (str.find("OS.CSV")!= std::string::npos && !pentacam); //OD.CSV OS.CSV but not _ELE.CSV and _CUR.CSV ->atlas
    bool eyesys = false;               //if substituting XX for RA or RA for XX results in an openable file, then probably EyeSys
    bool saved = (str.find(".sav")!= std::string::npos);
-   std::string str2(filename);
+   std::string str2(temp_name_str);
    if(replace(str2,"RA","XX")) {
+#ifdef _WIN32
+       str2 = temp_path_str + "\\" + str2;
+#else
+       str2 = temp_path_str + "/" + str2;
+#endif
        if(FILE *file = fopen(str2.c_str(),"r")) {
            fclose(file); eyesys = true;}
    }else{
        if(replace(str2,"XX","RA")) {
+#ifdef _WIN32
+           str2 = temp_path_str + "\\" + str2;
+#else
+           str2 = temp_path_str + "/" + str2;
+#endif
            if(FILE *file = fopen(str2.c_str(),"r")) {
                fclose(file); eyesys = true;
-           }}};   
+           }}};
    bool kerato = false;
-   std::string str4(filename);
+   std::string str4(temp_name_str);
    if (str4.find("EXP_Topo") != std::string::npos){  //compressed Keratograph file, warn that uncompressing will overwrite previous files
+#ifdef _WIN32
+       str4 = temp_path_str + "\\" + str4;
+#else
+       str4 = temp_path_str + "/" + str4;
+#endif
        QMessageBox msgBox;
        msgBox.setInformativeText( "Uncompressing will overwrite previous Keratograph uncompressed files: Proceed?");
        msgBox.setText(tr("Allows compressed Keratograph files " ));
@@ -513,18 +543,28 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
    }
    kerato = str4.find("CORNEA")!= std::string::npos || str4.find("CURVAT") != std::string::npos || str4.find("EXP_Topo") != std::string::npos;
    bool nidek = false;               //if substituting ED for RA or RA for ED results in an openable file, then probably Nidek
-   std::string str3(filename);
+   std::string str3(temp_name_str);
    if(replace(str3,"RA","ED")) {
+#ifdef _WIN32
+       str3 = temp_path_str + "\\" + str3;
+#else
+       str3 = temp_path_str + "/" + str3;
+#endif
        if(FILE *file = fopen(str3.c_str(),"r")) {
            fclose(file); nidek = true;}
    }else{
        if(replace(str3,"ED","RA")) {
+#ifdef _WIN32
+           str3 = temp_path_str + "\\" + str3;
+#else
+           str3 = temp_path_str + "/" + str3;
+#endif
            if(FILE *file = fopen(str3.c_str(),"r")) {
                fclose(file); nidek = true;
            }}};
 
    if (!pentacam && !atlas && !eyesys && !nidek && !kerato && !saved) {
-       std::cout << "Unsupported file format " << __LINE__ << std::endl;
+       std::cout << "Unsupported file format, kernunos line " << __LINE__ << std::endl;
        errorMessageDialog->showMessage(tr("Unsupported file format"));
        return;}   //no supported file format
 
@@ -600,9 +640,14 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
            update();
     if (pentacam) {
        if(GLwidget::isconsistency()){
-           std::string str2(filename);
+           std::string str2(temp_name_str);
             QString fileName2 = QString::fromStdString(str2);
              if(replace(str2,"_ELE.CSV","_CUR.CSV")) {
+#ifdef _WIN32
+                str2 = temp_path_str + "\\" + str2;
+#else
+                str2 = temp_path_str + "/" + str2;
+#endif
                if(FILE *file = fopen(str2.c_str(),"r")) {
                    fclose(file);
                    LogC(("Matching file found " + str2).c_str());
@@ -612,6 +657,11 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
                }else{ LogC("Matching file not found"); }
              }else{
              if(replace(str2,"_CUR.CSV","_ELE.CSV")) {
+#ifdef _WIN32
+                     str2 = temp_path_str + "\\" + str2;
+#else
+                     str2 = temp_path_str + "/" + str2;
+#endif
                  if(FILE *file = fopen(str2.c_str(),"r")) {
                    fclose(file); LogC(("Matching file found " + str2).c_str());
                    fileName2 = QString::fromStdString(str2);
@@ -620,6 +670,11 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
                  }else{LogC("Matching file not found");}
              }}
              if(replace(str2,".ELE",".CUR")) {
+#ifdef _WIN32
+                 str2 = temp_path_str + "\\" + str2;
+#else
+                 str2 = temp_path_str + "/" + str2;
+#endif
                  if(FILE *file = fopen(str2.c_str(),"r")) {
                    fclose(file); LogC(("Matching file found " + str2).c_str());
                    fileName2 = QString::fromStdString(str2);
@@ -628,6 +683,11 @@ void MainWindow::open()   //multiple invocations needed to make a comparison
                  }else{LogC("Matching file not found");}
              }else{
              if(replace(str2,".CUR",".ELE")) {
+#ifdef _WIN32
+                     str2 = temp_path_str + "\\" + str2;
+#else
+                     str2 = temp_path_str + "/" + str2;
+#endif
                  if(FILE *file = fopen(str2.c_str(),"r")) {
                    fclose(file); LogC(("Matching file found " + str2).c_str());
                    fileName2 = QString::fromStdString(str2);
@@ -676,6 +736,9 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
    if (fileName.isEmpty()) return;
    //   QString temp_path = QDir::tempPath();
    QFileInfo fileInfo(fileName);
+   QString temp_name = fileInfo.fileName();
+   QByteArray ba_name = temp_name.toLocal8Bit();
+   std::string temp_name_str = ba_name.data();
    QString temp_path = fileInfo.absolutePath();
    QByteArray ba_temp = temp_path.toLocal8Bit();
    std::string temp_path_str = ba_temp.data();
@@ -684,24 +747,39 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
    ui.infoLabel->setText(tr("filename:  ")+tr(filename));
    if (filepresent){
        m_GLwidget->DataLoad(fileName, true);
-       std::string str(filename);  
+       std::string str(temp_name_str);
        pentacam =  str.find(".CUR")!= std::string::npos || str.find(".ELE") != std::string::npos ||
                    str.find("_CUR")!= std::string::npos || str.find("_ELE") != std::string::npos;
        bool atlas = (str.find("OD.CSV")!= std::string::npos) || (str.find("OS.CSV")!= std::string::npos && !pentacam); //OD.CSV OS.CSV but not _ELE.CSV and _CUR.CSV ->atlas
        bool eyesys= false;               //if subsitutuing XX for RA or RA for XX results in an openable file, then probably EyeSys
        bool saved = (str.find(".sav")!= std::string::npos);
-       std::string str2(filename);
-       if(replace(str2,"RA","XX")) {
+       std::string str2(temp_name_str);
+       if(replace(str2,"RA","XX")) {     
+#ifdef _WIN32
+           str2 = temp_path_str + "\\" + str2;
+#else
+           str2 = temp_path_str + "/" + str2;
+#endif
            if(FILE *file = fopen(str2.c_str(),"r")) {
                fclose(file); eyesys = true;}
        }else{
            if(replace(str2,"XX","RA")) {
+#ifdef _WIN32
+               str2 = temp_path_str + "\\" + str2;
+#else
+               str2 = temp_path_str + "/" + str2;
+#endif
                if(FILE *file = fopen(str2.c_str(),"r")) {
                    fclose(file); eyesys = true;
                }}};
        bool kerato = false;
-       std::string str4(filename);
+       std::string str4(temp_name_str);
        if (str4.find("EXP_Topo") != std::string::npos){  //compressed Keratograph file, warn that uncompressing will overwrite previous files
+#ifdef _WIN32
+           str4 = temp_path_str + "\\" + str4;
+#else
+           str4 = temp_path_str + "/" + str4;
+#endif
            QMessageBox msgBox;
            msgBox.setInformativeText( "Uncompressing will overwrite previous Keratograph uncompressed files: Proceed?");
            msgBox.setText(tr("Allows compressed Keratograph files " ));
@@ -794,12 +872,22 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
        }
        kerato = str4.find("CORNEA")!= std::string::npos || str4.find("CURVAT") != std::string::npos || str4.find("EXP_Topo") != std::string::npos;
        bool nidek = false;               //if substituting ED for RA or RA for ED results in an openable file, then probably Nidek
-       std::string str3(filename);
+       std::string str3(temp_name_str);
        if(replace(str3,"RA","ED")) {
+#ifdef _WIN32
+           str3 = temp_path_str + "\\" + str3;
+#else
+           str3 = temp_path_str + "/" + str3;
+#endif
            if(FILE *file = fopen(str3.c_str(),"r")) {
                fclose(file); nidek = true;}
        }else{
            if(replace(str3,"ED","RA")) {
+#ifdef _WIN32
+               str3 = temp_path_str + "\\" + str3;
+#else
+               str3 = temp_path_str + "/" + str3;
+#endif
                if(FILE *file = fopen(str3.c_str(),"r")) {
                    fclose(file); nidek = true;
                }}};
@@ -879,9 +967,14 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
    update();
    if (pentacam) {
        if(GLwidget::isconsistency()){
-           std::string str2(filename);
+           std::string str2(temp_name_str);
            QString fileName2 = QString::fromStdString(str2);
            if(replace(str2,"_ELE.CSV","_CUR.CSV")) {
+#ifdef _WIN32
+               str2 = temp_path_str + "\\" + str2;
+#else
+               str2 = temp_path_str + "/" + str2;
+#endif
                if(FILE *file = fopen(str2.c_str(),"r")) {
                    fclose(file); LogC(("Matching file found " + str2).c_str());
                    fileName2 = QString::fromStdString(str2);
@@ -890,6 +983,11 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
                }else{LogC("Matching file not found");}
            }else{
                if(replace(str2,"_CUR.CSV","_ELE.CSV")) {
+#ifdef _WIN32
+                   str2 = temp_path_str + "\\" + str2;
+#else
+                   str2 = temp_path_str + "/" + str2;
+#endif
                    if(FILE *file = fopen(str2.c_str(),"r")) {
                        fclose(file); LogC(("Matching file found " + str2).c_str());
                        fileName2 = QString::fromStdString(str2);
@@ -898,6 +996,11 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
                    }else{LogC("Matching file not found");}
                }}
            if(replace(str2,".ELE",".CUR")) {
+#ifdef _WIN32
+               str2 = temp_path_str + "\\" + str2;
+#else
+               str2 = temp_path_str + "/" + str2;
+#endif
                if(FILE *file = fopen(str2.c_str(),"r")) {
                    fclose(file); LogC(("Matching file found " + str2).c_str());
                    fileName2 = QString::fromStdString(str2);
@@ -906,6 +1009,11 @@ void MainWindow::loadFile(QString& fileName, bool filepresent)   //this is for t
                }else{LogC("Matching file not found");}
            }else{
                if(replace(str2,".CUR",".ELE")) {
+#ifdef _WIN32
+                   str2 = temp_path_str + "\\" + str2;
+#else
+                   str2 = temp_path_str + "/" + str2;
+#endif
                    if(FILE *file = fopen(str2.c_str(),"r")) {
                        fclose(file); LogC(("Matching file found " + str2).c_str());
                        fileName2 = QString::fromStdString(str2);

@@ -2216,7 +2216,6 @@ endif ! end (TestData == 1)
      X2=Penta%PU(j,2)-Penta%Pupil_Center(2)
      JMatrix%PU(i)=sqrt(X1*X1+X2*X2)/10.
     end do
-  endif  !(mod(flag,100) /= 0,99,2,3 must be 1 or 4-7, reload the original data
 ! wipe RadSlope/DiaSlope clean to ensure the correct MM,N based on previous assignment
   if (allocated(RadSlope%r)) then
    RadSlope = 0 ; DiaSlope = 0 ; deallocate(RadSplineCenter)
@@ -2264,7 +2263,7 @@ endif ! end (TestData == 1)
   lsq = btest(dat,9)
 ! convert to polar with splining; makes round rings as above with 180x22 - also already has either center value Z0(1) or SAGC0(1)
 ! RadSlope_eq_Skyline puts elevation into JMatrix%Z(j,i) and possibly populates JMatrix%Z(j,i) with crap
-  call RadSlope_eq_Skyline(lsq,JMatrix, RadSlope, Skyline, Penta)  !needs Penta for border check populates RadSlope with ZFCT
+  call RadSlope_eq_Skyline(lsq, JMatrix, RadSlope, Skyline, Penta)  !needs Penta for border check populates RadSlope with ZFCT
   call CPU_TIME(time_end)
   write(floata, '(g0)') (time_end-time_start)*1000
   call LogC("Time to convert Penta: "//floata//c_null_char)
@@ -2276,6 +2275,7 @@ endif ! end (TestData == 1)
     end do
    end do
   endif
+ endif  !(mod(flag,100) /= 0,99,2,3 must be 1 or 4-7, reload the original data
 !  JMatrix%Z(:,:) = 0
  endif
 

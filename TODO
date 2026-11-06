@@ -1,5 +1,7 @@
 TODO
 
+fix RA/XX file name issue in directory named KERATOCONUS OR XXX, needs fix in janus.f90
+
 NEXT VERSION
 
 eye tilt, rotation option
@@ -9,7 +11,8 @@ eye tilt, rotation option
 Replace squash/crop: ? needs extreme value filter; or histogram of values for median and color scale like OPDIII use sort and/or other fortran_stdlib functions
 resurrect old noise reduction code to help out monge-astig and meanc for real data?
 ?fftpack needs testing to figure out how to effectively remove noise.
-sorting, included a heapsort function; can also use stdlib for that:
+
+sorting, included a heapsort function; can also use stdlib for that: might need to strip all fortran_stdlib out, as linking impossible with broken real128 on i3
 
 RELEASES/PACKAGES
 
