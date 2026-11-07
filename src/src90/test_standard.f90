@@ -5,6 +5,7 @@ program example_sort_index
 
   use stdlib_sorting, only: sort_index
   use stdlib_sparse
+  use stdlib_system, only: dir_name,base_name
 ! testing conversions
   use sparseAssign
   use sparseTypes
@@ -26,9 +27,30 @@ program example_sort_index
   TYPE (dpTripletList) :: dptriplist_T
 
   real(wp) :: array(7)
-  integer :: index(7),i,j
+  integer :: index(7),i,j,nblines
 
   real(wp),allocatable :: vector(:),vector2(:)
+  CHARACTER(len=4096) :: new_path
+  CHARACTER(:),save, ALLOCATABLE :: file_name, path_name, full_name
+
+    new_path="C:/Users/amdeb/kernunos/data/ED0000010002L.CAB"
+
+  !  new_path="C:\Users\amdeb\kernunos\data\ED0000010002L.CAB"
+
+    nblines=len(trim(new_path))
+    allocate(CHARACTER(nblines) :: file_name)
+    allocate(CHARACTER(nblines) :: path_name)
+    allocate(CHARACTER(nblines) :: full_name)
+
+    full_name=trim(new_path)
+    path_name=dir_name(full_name)
+    file_name=base_name(full_name)
+
+    write(*,*) "full_name ",full_name
+    write(*,*) "path_name ",path_name
+    write(*,*) "file_name ",file_name
+
+  stop
 
   array = [5, 4, 3, 1, 10, 4, 9]
   index = [1, 2, 3, 4, 5, 6 ,7]

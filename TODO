@@ -1,26 +1,5 @@
 TODO
 
-
-  CHARACTER(len=4096) :: new_path
-  CHARACTER(:),save, ALLOCATABLE :: file_name, path_name, full_name
-
-  new_path="C:/Users/amdeb/kernunos/data/ED0000010002L.CAB"
-
-  new_path="C:\Users\amdeb\kernunos\data\ED0000010002L.CAB"
-
-  nblines=len(trim(new_path))
-  allocate(CHARACTER(nblines) :: file_name)
-  allocate(CHARACTER(nblines) :: path_name)
-  allocate(CHARACTER(nblines) :: full_name)
-
-  full_name=trim(new_path)
-  path_name=dir_name(full_name)
-  file_name=base_name(full_name)
-
-  write(*,*) "full_name ",full_name
-  write(*,*) "path_name ",path_name
-  write(*,*) "file_name ",file_name
-
 NEXT VERSION
 
 eye tilt, rotation option
