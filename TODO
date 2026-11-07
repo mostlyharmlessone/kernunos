@@ -10,7 +10,7 @@ Replace squash/crop: ? needs extreme value filter; or histogram of values for me
 resurrect old noise reduction code to help out monge-astig and meanc for real data?
 ?fftpack needs testing to figure out how to effectively remove noise.
 
-sorting, included a heapsort function; can also use stdlib for that: might need to strip all fortran_stdlib out, as linking impossible with broken real128 on i3
+sorting, included a heapsort function; can also use stdlib for that
 
 RELEASES/PACKAGES
 
@@ -19,13 +19,10 @@ Known issues, will not be fixed: openGL on MacOS, under darwin, View|Normals dis
 If there is any demand: Linux flatpak or appImage or PKGBUILD
 appImage, looks straightforward and theres's a linuxdeployqt. Have to make on oldest Ubuntu LTS, need a VM
 
-Deprecate cross-compiling, see notes in README
 
 DOCUMENTATION
 
 update MANIFEST after adding files
-include directions to build fortran_stdlib if incorporating
-include need fypp as dependency of stdlib
 
 NEW MACHINE DATA EXPORTS
 

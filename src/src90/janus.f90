@@ -1310,8 +1310,9 @@ endif
 ! TestData 7 Oculus Keratograph 5M
 ! Testdata 8 Saved file
 if (mod(flag,100) == 0) then
- call CCounter(0) !,inputfile1//c_null_char)! For EyeSys either RA?.? or XX?.?, set inputfile1 to the XX version, inputfile2 to the RA version, inputfile3 to the PU version,
-! For NIDEK either RA?.? or ED?.?, set inputfile1 to the XX version, inputfile2 to the RA version, inputfile3 to the HT version, inputfile4 to PE
+ call CCounter(0) !,inputfile1//c_null_char)
+! For EyeSys either RA?.? or XX?.?, set inputfile1 to the XX version, inputfile2 to the RA version, inputfile3 to the PU version,
+! For NIDEK either RA?.? or ED?.?,  set inputfile1 to the ED version, inputfile2 to the RA version, inputfile3 to the HT version, inputfile4 to PE
 ! For PentaCam set inputfile1 for _ELE.CSV or .ELE, set inputfile2 for _CUR.CSV or .CUR
 ! For CSV but not _ELE.CSV or _CUR.CSV set inputfile1 to Atlas file
 ! For Oculus Keratograph files ending in .OD or .OS set inputfile2 to CURVAT or CURVAT_F, inputfile1 to CORNEA or CORNEA_F, inputfile3 to PUPIL, inputfile4 to CENTER

@@ -183,7 +183,7 @@ bool success=false;
 bool paintme = false;
 int err_janus = 0;
 
-//how very old Fortran that these need to be static & global
+//how very Fortran that these need to be static & global AFAIK
 // data vectors for corneal images
 int nV[3];
 int nE[3];
@@ -1342,7 +1342,7 @@ void MainWindow::zerncompute()
 
 #ifdef _WIN32
     QString temp_path = QDir::tempPath();
-    temp_path = temp_path + "/gnu_tmp";
+    temp_path = temp_path + "\\gnu_tmp";
     QTemporaryFile FILE(temp_path);
 #else
     QTemporaryFile FILE("/tmp/gnu_tmp");
@@ -1430,7 +1430,7 @@ void MainWindow::showzern()
 
 #ifdef _WIN32
     QString temp_path = QDir::tempPath();
-    temp_path = temp_path + "/gnu_tmp";
+    temp_path = temp_path + "\\gnu_tmp";
     QTemporaryFile FILE(temp_path);
 #else
     QTemporaryFile FILE("/tmp/gnu_tmp");
@@ -1452,7 +1452,7 @@ void MainWindow::importexport(){
 
 #ifdef _WIN32
     QString temp_path = QDir::tempPath();
-    temp_path = temp_path + "/gnu_tmp";
+    temp_path = temp_path + "\\gnu_tmp";
     QTemporaryFile FILE(temp_path);
 #else
     QTemporaryFile FILE("/tmp/gnu_tmp");
@@ -1685,7 +1685,7 @@ void MainWindow::ply2bin(){
 
 #ifdef _WIN32
     QString temp_path = QDir::tempPath();
-    temp_path = temp_path + "/gnu_tmp";
+    temp_path = temp_path + "\\gnu_tmp";
     QTemporaryFile FILE(temp_path);
 #else
     QTemporaryFile FILE("/tmp/gnu_tmp");
@@ -1724,7 +1724,7 @@ void MainWindow::off2stl(){
 
 #ifdef _WIN32
       QString temp_path = QDir::tempPath();
-      temp_path = temp_path + "/gnu_tmp";
+      temp_path = temp_path + "\\gnu_tmp";
       QTemporaryFile FILE(temp_path);
 #else
     QTemporaryFile FILE("/tmp/gnu_tmp");
@@ -1849,7 +1849,7 @@ void MainWindow::LinesofCurvature() {
 
 #ifdef _WIN32
     QString temp_path = QDir::tempPath();
-    temp_path = temp_path + "/gnu_tmp";
+    temp_path = temp_path + "\\gnu_tmp";
     QTemporaryFile FILE(temp_path);
 #else
     QTemporaryFile FILE("/tmp/gnu_tmp");
@@ -1914,7 +1914,7 @@ void MainWindow::gnuplotsplot() {
 
 #ifdef _WIN32
     QString temp_path = QDir::tempPath();
-    temp_path = temp_path + "/gnu_tmp";
+    temp_path = temp_path + "\\gnu_tmp";
     QTemporaryFile FILE(temp_path);
 #else
     QTemporaryFile FILE("/tmp/gnu_tmp");
@@ -1974,7 +1974,7 @@ void MainWindow::center() {
 
 #ifdef _WIN32
     QString temp_path = QDir::tempPath();
-    temp_path = temp_path + "/gnu_tmp";
+    temp_path = temp_path + "\\gnu_tmp";
     QTemporaryFile FILE(temp_path);
 #else
     QTemporaryFile FILE("/tmp/gnu_tmp");
@@ -2034,7 +2034,7 @@ void MainWindow::rings() {
 
 #ifdef _WIN32
     QString temp_path = QDir::tempPath();
-    temp_path = temp_path + "/gnu_tmp";
+    temp_path = temp_path + "\\gnu_tmp";
     QTemporaryFile FILE(temp_path);
 #else
     QTemporaryFile FILE("/tmp/gnu_tmp");
