@@ -1831,7 +1831,7 @@ SUBROUTINE rcnvrte(read_error,RANAME,XXNAME,PUNAME,HXNAME)
       if (file_idx2 > 0) then
        call LogC("XX EyeSys header detected: "//trim(header)//c_null_char)
       else
-       call LogC("No XX/RA EyeSys headers detected, assuming data only"//trim(header)//c_null_char)
+       call LogC("No XX/RA EyeSys headers detected, assuming data only"//c_null_char)
        REWIND(unitno1)
        REWIND(unitno2)
       endif

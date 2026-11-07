@@ -13,6 +13,7 @@
   USE, INTRINSIC :: ieee_arithmetic
   USE c_interfaces, ONLY : LogC, Ccounter, charcount, CleanSemicolons_C
   USE omp_lib
+  use stdlib_system, only: dir_name,base_name
   IMPLICIT NONE
   INTEGER :: i, j, k, ii, kk, m, nn, i1, j1, ierr, info, nrhs
   INTEGER,save :: MM, N ,M1, N1, Power_Rings_Count, loaded_files, crop
@@ -38,6 +39,7 @@
   CHARACTER(len=4096) :: new_path,new_file
   CHARACTER(:),save, ALLOCATABLE :: inputfile1,inputfile2,inputfile3,inputfile4,inputfile5,inputfile6,inputfile7
   CHARACTER(:),save, ALLOCATABLE :: logfile,BigPlot,gnu_instruct,cab_inputfile1,cab_inputfile2,cab_inputfile3,cab_inputfile4
+  CHARACTER(:),save, ALLOCATABLE :: file_name, path_name, full_name
   INTEGER ::  nblines, file_idx, read_error, io, new_crop
   INTEGER,allocatable :: MV(:)
   REAL(8) :: time_start, time_end
@@ -301,16 +303,29 @@ if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3 .or. mod(
 ! write(*,*) 'file from kernunos: ',trim(new_path)
  nblines=len(trim(new_path))
  if (allocated(inputfile1)) then
-  deallocate(inputfile1)
-  deallocate(inputfile2)
-  deallocate(inputfile3)
-  deallocate(inputfile4)
-  deallocate(inputfile5)
-  deallocate(logfile)
+   deallocate(inputfile1)
+   deallocate(inputfile2)
+   deallocate(inputfile3)
+   deallocate(inputfile4)
+   deallocate(inputfile5)
+   deallocate(logfile)
+   deallocate(file_name)
+   deallocate(path_name)
+   deallocate(full_name)
  endif
- allocate(CHARACTER(nblines) :: inputfile1)
- allocate(CHARACTER(nblines) :: logfile)
- inputfile1=trim(new_path)
+  allocate(CHARACTER(nblines) :: inputfile1)
+  allocate(CHARACTER(nblines) :: file_name)
+  allocate(CHARACTER(nblines) :: path_name)
+   allocate(CHARACTER(nblines) :: full_name)
+  allocate(CHARACTER(nblines) :: logfile)
+  inputfile1=trim(new_path)
+  full_name=inputfile1
+  file_name=base_name(inputfile1)
+#ifdef __WIN32__
+  path_name=dir_name(inputfile1) // "\"
+#else
+  path_name=dir_name(inputfile1) // "/"
+#endif
  allocate(CHARACTER(nblines) :: inputfile2)
  allocate(CHARACTER(nblines) :: inputfile3)
  allocate(CHARACTER(nblines+3) :: inputfile4)
@@ -1300,21 +1315,21 @@ if (mod(flag,100) == 0) then
 ! For PentaCam set inputfile1 for _ELE.CSV or .ELE, set inputfile2 for _CUR.CSV or .CUR
 ! For CSV but not _ELE.CSV or _CUR.CSV set inputfile1 to Atlas file
 ! For Oculus Keratograph files ending in .OD or .OS set inputfile2 to CURVAT or CURVAT_F, inputfile1 to CORNEA or CORNEA_F, inputfile3 to PUPIL, inputfile4 to CENTER
- file_idx=index(inputfile1, "RA")+index(inputfile1, "XX")+index(inputfile1, "ED")
-   if( file_idx == 0)then
-      file_idx=index(inputfile1, ".CSV")
+! fixed this up for pathfiles with filenames as parts, as in "RA" in KERATOCONUS.GRP, etc.
+   if (index(file_name, "RA") .ne. 1 .and. index(file_name, "XX") .ne. 1 .and. index(file_name, "ED") .ne. 1) then
+      file_idx=index(file_name, ".CSV")
       if( file_idx == 0) then
-       file_idx=index(inputfile1, ".CUR")
+       file_idx=index(file_name, ".CUR")
        if( file_idx == 0) then
-        file_idx=index(inputfile1, ".ELE")
+        file_idx=index(file_name, ".ELE")
         if( file_idx == 0) then
-         file_idx=index(inputfile1, ".OD")+index(inputfile1, ".OS")+index(inputfile1, "EXP_Topo")
+         file_idx=index(file_name, ".OD")+index(file_name, ".OS")+index(file_name, "EXP_Topo")
          if( file_idx == 0) then
-          file_idx=index(inputfile1, ".sav")
+          file_idx=index(file_name, ".sav")
           if (file_idx /= 0) then
-           inquire(file=trim(inputfile1), exist=exists)
+           inquire(file=trim(full_name), exist=exists)
            if(exists) then
-            call LogC("Saved file: "//inputfile1//c_null_char)
+            call LogC("Saved file: "//full_name//c_null_char)
             TestData=8; MM=180; N=22 ; NP=141
            endif
           else
@@ -1322,121 +1337,103 @@ if (mod(flag,100) == 0) then
            TestData=-1; MM=360; N=16 ; NP=141
           endif
          else
-         TestData=7; MM=100; N=60 ; NP=141
-          file_idx=index(inputfile1, "EXP_Topo")
+          TestData=7; MM=100; N=60 ; NP=141
+          file_idx=index(file_name, "EXP_Topo")
           if( file_idx .ne. 0) then    !set the files to versions in the base directory that were decompressed by kernunos.cpp
            if (allocated(cab_inputfile1)) then
             deallocate(cab_inputfile1)
            endif
            allocate(CHARACTER(nblines) :: cab_inputfile1)
            cab_inputfile1=inputfile1
-           file_idx=index(cab_inputfile1, "EXP_Topo")
-           if (file_idx == 0 ) then
-            write(*,*) "Error in Keratograph file name: ",__LINE__
-            return
-           else
-!          get path
-           inputfile5=inputfile1(1:(file_idx-2))
-           endif
-           file_idx=index(cab_inputfile1, "_OS.")
+           file_idx=index(file_name, "_OS.")
            if (file_idx == 0 ) then  !OD
-            inquire(file=trim(inputfile5) // "/CURVAT_F.OD", exist=exists)
+            inquire(file=path_name // "CURVAT_F.OD", exist=exists)
             if (exists) then
-             inputfile2=trim(inputfile5) // "/CURVAT_F.OD"
-             inputfile1=trim(inputfile5) // "/CORNEA_F.OD"
+             inputfile2=path_name // "CURVAT_F.OD"
+             inputfile1=path_name // "CORNEA_F.OD"
             else
-             inputfile2=trim(inputfile5) // "/CURVAT.OD"
-             inputfile1=trim(inputfile5) // "/CORNEA.OD"
+             inputfile2=path_name // "CURVAT.OD"
+             inputfile1=path_name // "CORNEA.OD"
             endif
-            inputfile3=trim(inputfile5) // "/PUPIL.OD"
-            inputfile4=trim(inputfile5) // "/CENTER.OD"
-            inputfile6=trim(inputfile5) // "/PATIENT.TXT"
-            inputfile7=trim(inputfile5) // "/EXAM.TXT"
-            inputfile5=replacestr(string=cab_inputfile1,search="EXP_Topo_OD.zip",substitute="ZERNIKE.CSV")
+            inputfile3=path_name // "PUPIL.OD"
+            inputfile4=path_name // "CENTER.OD"
+            inputfile6=path_name // "PATIENT.TXT"
+            inputfile7=path_name // "EXAM.TXT"
+            inputfile5=path_name // "ZERNIKE.CSV"
            else  !OS
-           inquire(file=trim(inputfile5) // "/CURVAT_F.OS", exist=exists)
+           inquire(file=path_name // "CURVAT_F.OS", exist=exists)
            if (exists) then
-            inputfile2=trim(inputfile5) // "/CURVAT_F.OS"
-            inputfile1=trim(inputfile5) // "/CORNEA_F.OS"
+            inputfile2=path_name // "CURVAT_F.OS"
+            inputfile1=path_name // "CORNEA_F.OS"
            else
-            inputfile2=trim(inputfile5) // "/CURVAT.OS"
-            inputfile1=trim(inputfile5) // "/CORNEA.OS"
+            inputfile2=path_name // "CURVAT.OS"
+            inputfile1=path_name // "CORNEA.OS"
            endif
-           inputfile3=trim(inputfile5) // "/PUPIL.OS"
-           inputfile4=trim(inputfile5) // "/CENTER.OS"
-           inputfile6=trim(inputfile5) // "/PATIENT.TXT"
-           inputfile7=trim(inputfile5) // "/EXAM.TXT"
-           inputfile5=replacestr(string=cab_inputfile1,search="EXP_Topo_OS.zip",substitute="ZERNIKE.CSV")
+           inputfile3=path_name // "PUPIL.OS"
+           inputfile4=path_name // "CENTER.OS"
+           inputfile6=path_name // "PATIENT.TXT"
+           inputfile7=path_name // "EXAM.TXT"
+            inputfile5=path_name // "ZERNIKE.CSV"
          endif
           else   !not compressed
-          file_idx=index(inputfile1, "CURVAT")
+          file_idx=index(file_name, "CURVAT")
           if( file_idx == 0) then ! a CORNEA file
-           file_idx=index(inputfile1, "CORNEA")
+           file_idx=index(file_name, "CORNEA")
            if( file_idx == 0) then
             write(*,*) 'Error in finding Keratograph file'
             return
            endif
-           file_idx=index(inputfile1, "_F")
-           if( file_idx == 0) then
-            inputfile2=replacestr(string=inputfile1,search="CORNEA",substitute="CURVAT")
+           file_idx=index(file_name, "_F")
+           if( file_idx == 0) then 
+            inputfile2=path_name // replacestr(string=file_name,search="CORNEA",substitute="CURVAT")
             inquire(file=trim(inputfile2), exist=exists)
              if (.not. exists) then
-              inputfile2=replacestr(string=inputfile1,search="CORNEA",substitute="CURVAT_F")
+              inputfile2=path_name // replacestr(string=file_name,search="CORNEA",substitute="CURVAT_F")
              endif
-             inputfile3=replacestr(string=inputfile1,search="CORNEA",substitute="PUPIL")
-             inputfile4=replacestr(string=inputfile1,search="CORNEA",substitute="CENTER")
+             inputfile3=path_name // replacestr(string=file_name,search="CORNEA",substitute="PUPIL")
+             inputfile4=path_name // replacestr(string=file_name,search="CORNEA",substitute="CENTER")
            else
-            inputfile2=replacestr(string=inputfile1,search="CORNEA_F",substitute="CURVAT_F")
+            inputfile2=path_name // replacestr(string=file_name,search="CORNEA_F",substitute="CURVAT_F")
             inquire(file=trim(inputfile2), exist=exists)
              if (.not. exists) then
-              inputfile2=replacestr(string=inputfile1,search="CORNEA_F",substitute="CURVAT")
+              inputfile2=path_name // replacestr(string=file_name,search="CORNEA_F",substitute="CURVAT")
              endif
-              inputfile3=replacestr(string=inputfile1,search="CORNEA_F",substitute="PUPIL")
-              inputfile4=replacestr(string=inputfile1,search="CORNEA_F",substitute="CENTER")
+              inputfile3=path_name // replacestr(string=file_name,search="CORNEA_F",substitute="PUPIL")
+              inputfile4=path_name // replacestr(string=file_name,search="CORNEA_F",substitute="CENTER")
            endif
-           else ! a CURVAT file
-            file_idx=index(inputfile1, "CURVAT")
+           else ! a CURVAT file           
+            file_idx=index(file_name, "CURVAT")
             if( file_idx == 0) then
              write(*,*) 'Error in finding Keratograph file'
              return
             endif
-            file_idx=index(inputfile1, "_F")
+            file_idx=index(file_name, "_F")
+            inputfile2=inputfile1
              if( file_idx == 0) then
-              inputfile2 = inputfile1
-              inputfile1=replacestr(string=inputfile1,search="CURVAT",substitute="CORNEA")
+              inputfile1=path_name // replacestr(string=file_name,search="CURVAT",substitute="CORNEA")
               inquire(file=trim(inputfile1), exist=exists)
                if (.not. exists) then
-                inputfile1=replacestr(string=inputfile2,search="CURVAT",substitute="CORNEA_F")
+                inputfile1=path_name // replacestr(string=file_name,search="CURVAT",substitute="CORNEA_F")
                endif
-               inputfile3=replacestr(string=inputfile2,search="CURVAT",substitute="PUPIL")
-               inputfile4=replacestr(string=inputfile2,search="CURVAT",substitute="CENTER")
+               inputfile3=path_name // replacestr(string=file_name,search="CURVAT",substitute="PUPIL")
+               inputfile4=path_name // replacestr(string=file_name,search="CURVAT",substitute="CENTER")
              else
-              inputfile2 = inputfile1
-              inputfile1=replacestr(string=inputfile2,search="CURVAT_F",substitute="CORNEA_F")
+              inputfile1=path_name // replacestr(string=file_name,search="CURVAT_F",substitute="CORNEA_F")
               inquire(file=trim(inputfile1), exist=exists)
               if (.not. exists) then
-               inputfile1=replacestr(string=inputfile2,search="CURVAT_F",substitute="CORNEA")
+               inputfile1=path_name // replacestr(string=file_name,search="CURVAT_F",substitute="CORNEA")
                endif
-              inputfile3=replacestr(string=inputfile2,search="CURVAT_F",substitute="PUPIL")
-              inputfile4=replacestr(string=inputfile2,search="CURVAT_F",substitute="CENTER")
+              inputfile3=path_name // replacestr(string=file_name,search="CURVAT_F",substitute="PUPIL")
+              inputfile4=path_name //replacestr(string=file_name,search="CURVAT_F",substitute="CENTER")
              endif
            endif !cornea or curvat
-           file_idx=index(inputfile1, ".OD")
-           if (file_idx .ne.0) then
-            inputfile5=replacestr(string=inputfile3,search="PUPIL.OD",substitute="ZERNIKE.CSV")
-            inputfile6=replacestr(string=inputfile3,search="PUPIL.OD",substitute="PATIENT.TXT")
-            inputfile7=replacestr(string=inputfile3,search="PUPIL.OD",substitute="EXAM.TXT")
-           endif
-           file_idx=index(inputfile1, ".OS")
-           if (file_idx .ne.0) then
-            inputfile5=replacestr(string=inputfile3,search="PUPIL.OS",substitute="ZERNIKE.CSV")
-            inputfile6=replacestr(string=inputfile3,search="PUPIL.OS",substitute="PATIENT.TXT")
-            inputfile7=replacestr(string=inputfile3,search="PUPIL.OS",substitute="EXAM.TXT")
-           endif
+           inputfile5=path_name // "ZERNIKE.CSV"
+           inputfile6=path_name // "PATIENT.TXT"
+           inputfile7=path_name // "EXAM.TXT"
           endif
          endif !Keratograph
         else
-        inputfile2=replacestr(string=inputfile1,search=".ELE",substitute=".CUR")
+        inputfile2=path_name // replacestr(string=inputfile1,search=".ELE",substitute=".CUR")
         call LogC("PentaCam .ELE file"//inputfile1//c_null_char)
         inquire(file=trim(inputfile2), exist=exists)
         if(exists) then
@@ -1446,8 +1443,8 @@ if (mod(flag,100) == 0) then
        endif
       else
        inputfile2=inputfile1
-       inputfile1=replacestr(string=inputfile2,search=".CUR",substitute=".ELE")
-        call LogC("PentaCam .CUR file"//inputfile2//c_null_char)
+       inputfile1=path_name // replacestr(string=file_name,search=".CUR",substitute=".ELE")
+        call LogC("PentaCam .CUR file " // inputfile2 //c_null_char)
        inquire(file=trim(inputfile1), exist=exists)
        if(exists) then
         write(*,*) "Matching .ELE file found"
@@ -1455,25 +1452,25 @@ if (mod(flag,100) == 0) then
        TestData=3; MM=180; N=22; NP=141 ! PentaCam CUR
       endif
       else
-       file_idx=index(inputfile1, "_CUR")
+       file_idx=index(file_name, "_CUR")
        if( file_idx == 0) then
-        file_idx=index(inputfile1, "_ELE")
+        file_idx=index(file_name, "_ELE")
         if( file_idx == 0) then
          TestData=1; MM=180; N=25   ! Atlas 900 can be 25, 9000 seems to be 22
-         call LogC("Atlas file: "//inputfile1//c_null_char)
+         call LogC("Atlas file: " // inputfile1 //c_null_char)
         else
-         inputfile2=replacestr(string=inputfile1,search="_ELE.CSV",substitute="_CUR.CSV")
-         call LogC("PentaCam _ELE.CSV file"//inputfile1//c_null_char)
+         inputfile2= path_name // replacestr(string=file_name,search="_ELE.CSV",substitute="_CUR.CSV")
+         call LogC("PentaCam _ELE.CSV file "// inputfile1 // c_null_char)
          inquire(file=trim(inputfile2), exist=exists)
          if(exists) then
-          call LogC("Matching _CUR.CSV file found" //c_null_char)
+          call LogC("Matching _CUR.CSV file found" // c_null_char)
          endif
          TestData=4; MM=180; N=22; NP=141 ! PentaCam _ELE.CSV
         endif
         else
          inputfile2=inputfile1
-         inputfile1=replacestr(string=inputfile2,search="_CUR.CSV",substitute="_ELE.CSV")
-         call LogC("PentaCam _CUR.CSV file"//inputfile2//c_null_char)
+         inputfile1= path_name //  replacestr(string=file_name,search="_CUR.CSV",substitute="_ELE.CSV")
+         call LogC("PentaCam _CUR.CSV file" // inputfile2 //c_null_char)
          inquire(file=trim(inputfile1), exist=exists)
          if(exists) then
           call LogC("Matching _ELE.CSV file found" //c_null_char)
@@ -1482,20 +1479,20 @@ if (mod(flag,100) == 0) then
        endif
       endif
    else
-!  EyeSys or Nidek
-      file_idx=index(inputfile1, "XX")  !index(inputfile1, "XX", back)
-      if (file_idx /= 0) then
+!  EyeSys or Nidek      
+      file_idx=index(file_name, "XX")  !index(inputfile1, "XX", back)
+      if (file_idx == 1) then
 !       write(*,*) 'prefix is found at index: ',file_idx,"length: ",len(inputfile1)
 !       write(*,*) 'prefix:',inputfile1(file_idx:file_idx+1)
-       call LogC("EyeSys XX file: "//inputfile1//c_null_char)
-       inputfile2=replacestr(string=inputfile1,search="XX",substitute="RA")
+       call LogC("EyeSys XX file: " // inputfile1 // c_null_char)
+       inputfile2=path_name // replacestr(string=file_name,search="XX",substitute="RA")
        inquire(file=trim(inputfile2), exist=exists)
        if(exists) then
         TestData=0 ; MM=360; N=16   ! EyeSys
-        call LogC("Matching EyeSys RA file "//inputfile2//c_null_char)
+        call LogC("Matching EyeSys RA file "// inputfile2 // c_null_char)
        endif
-       inputfile3=replacestr(string=inputfile1,search="XX",substitute="PU")
-       inputfile4=replacestr(string=inputfile1,search="XX",substitute="HX")
+       inputfile3=path_name // replacestr(string=file_name,search="XX",substitute="PU")
+       inputfile4=path_name // replacestr(string=file_name,search="XX",substitute="HX")
        file_idx=index(inputfile4, ".")
 !          write(*,*) 'suffix is found at index: ',file_idx,"length: ",len(inputfile4)
 !          write(*,*) 'suffix:',inputfile4(file_idx:len(inputfile4))
@@ -1508,19 +1505,70 @@ if (mod(flag,100) == 0) then
        if(exists) then
         call LogC("Matching EyeSys PU file found"//c_null_char)
        endif
+      endif
+
+      file_idx=index(file_name, "ED")
+      if (file_idx == 1) then
+       call LogC("Nidek ED file: "// inputfile1 //c_null_char)
+       inputfile2=path_name // replacestr(string=file_name,search="ED",substitute="RA")
        inquire(file=trim(inputfile2), exist=exists)
        if(.NOT.exists) then
-        inputfile2=replacestr(string=inputfile1,search="/XX",substitute="/RA")
-        inquire(file=trim(inputfile2), exist=exists)
+        write(*,*) 'Error: EyeSys and Nidek files have to be in pairs, or file name has RA other than prefix'
+        write(*,*) 'No corresponding',inputfile2,'for',inputfile1,'found'
+        err_janus=-1
+        return
+       else
+        call LogC("Matching Nidek RA file: "// inputfile2 // c_null_char)
+        TestData=6 ; MM=360   ! Nidek
+        inputfile3=path_name // replacestr(string=file_name,search="ED",substitute="HT")
+        inputfile4=path_name // replacestr(string=file_name,search="ED",substitute="PE")
+        inquire(file=trim(inputfile3), exist=exists)
         if(exists) then
-         TestData=0 ; MM=360; N=16   ! EyeSys
-         call LogC("Matching EyeSys RA file"//inputfile2//c_null_char)
+         call LogC("Matching Nidek HT file found"//inputfile3//c_null_char)
         endif
-        inputfile3=replacestr(string=inputfile1,search="/XX",substitute="/PU")
-        inputfile4=replacestr(string=inputfile1,search="/XX",substitute="/HX")
+        inquire(file=trim(inputfile4), exist=exists)
+        if(exists) then
+         call LogC("Matching Nidek PE file found"//inputfile4//c_null_char)
+        endif
+       endif
+      endif
+
+      file_idx=index(file_name, "RA")
+      if (file_idx == 1) then
+       call LogC("EyeSys or Nidek RA file: "// inputfile1 // c_null_char)
+       inputfile2=trim(inputfile1)
+       inputfile1=path_name // replacestr(string=file_name,search="RA",substitute="XX")
+       inquire(file=trim(inputfile1), exist=exists)
+       if(.NOT.exists) then
+        inputfile1=path_name // replacestr(string=file_name,search="RA",substitute="ED")
+        inquire(file=trim(inputfile1), exist=exists)
+        if(.NOT.exists) then
+         write(*,*) 'Error: EyeSys and Nidek files have to be in pairs RA/XX or RA/ED, or file name has RA other than prefix'
+         write(*,*) 'No corresponding ',inputfile2,' for ',inputfile1,' found'
+         err_janus=-1
+         return
+        else
+         call LogC("Matching Nidek ED file: "// inputfile1 //c_null_char)
+         TestData=6 ; MM=360   ! Nidek
+         inputfile3=path_name // replacestr(string=file_name,search="RA",substitute="HT")
+         inputfile4=path_name // replacestr(string=file_name,search="RA",substitute="PE")
+         inquire(file=trim(inputfile3), exist=exists)
+         if(exists) then
+           call LogC("Matching Nidek HT file found "//inputfile3//c_null_char)
+         endif
+         inquire(file=trim(inputfile4), exist=exists)
+         if(exists) then
+          call LogC("Matching Nidek PE file found "//inputfile4//c_null_char)
+         endif
+        endif
+       else
+        TestData=0 ; MM=360; N=16   ! EyeSys
+        call LogC("Matching EyeSys XX file: "//inputfile1//c_null_char)
+        inputfile3=path_name // replacestr(string=file_name,search="RA",substitute="PU")
+        inputfile4=path_name // replacestr(string=file_name,search="RA",substitute="HX")
         file_idx=index(inputfile4, ".")
-!          write(*,*) 'suffix is found at index: ',file_idx,"length: ",len(inputfile4)
-!          write(*,*) 'suffix:',inputfile4(file_idx:len(inputfile4))
+!         write(*,*) 'suffix is found at index: ',file_idx,"length: ",len(inputfile4)
+!         write(*,*) 'suffix:',inputfile4(file_idx:len(inputfile4))
         inputfile4=inputfile4(1:file_idx) // "HDR"
         inquire(file=trim(inputfile4), exist=exists)
         if(exists) then
@@ -1529,136 +1577,6 @@ if (mod(flag,100) == 0) then
         inquire(file=trim(inputfile3), exist=exists)
         if(exists) then
          call LogC("Matching EyeSys PU file found"//c_null_char)
-        endif
-        inquire(file=trim(inputfile2), exist=exists)
-        if(.NOT.exists) then
-         write(*,*) 'Error: EyeSys files have to be in pairs, or file name has XX other than prefix'
-         write(*,*) 'No corresponding',inputfile2,'for',inputfile1,'found'
-         err_janus=-1
-         return
-        endif
-       endif
-      else
-       file_idx=index(inputfile1, "RA") !index(inputfile1, "RA", back)
-       if (file_idx /= 0) then
-        call LogC("EyeSys or Nidek RA file: "//inputfile1//c_null_char)
-        inputfile2=inputfile1
-        inputfile1=replacestr(string=inputfile2,search="RA",substitute="XX")
-        inquire(file=trim(inputfile1), exist=exists)
-        if(.NOT.exists) then
-         inputfile1=replacestr(string=inputfile2,search="RA",substitute="ED")
-         inquire(file=trim(inputfile1), exist=exists)
-         if(.NOT.exists) then
-          write(*,*) 'Error: EyeSys and Nidek files have to be in pairs RA/XX or RA/ED, or file name has RA other than prefix'
-          write(*,*) 'No corresponding',inputfile1,'for',inputfile2,'found'
-          err_janus=-1
-          return
-         else
-          call LogC("Matching Nidek ED file: "//inputfile1//c_null_char)
-          TestData=6 ; MM=360   ! Nidek
-          inputfile3=replacestr(string=inputfile2,search="RA",substitute="HT")
-          inputfile4=replacestr(string=inputfile2,search="RA",substitute="PE")
-          inquire(file=trim(inputfile3), exist=exists)
-          if(exists) then
-           call LogC("Matching Nidek HT file found "//inputfile3//c_null_char)
-          endif
-          inquire(file=trim(inputfile4), exist=exists)
-          if(exists) then
-           call LogC("Matching Nidek PE file found "//inputfile4//c_null_char)
-          endif
-         endif
-        else
-         TestData=0 ; MM=360; N=16   ! EyeSys
-         call LogC("Matching EyeSys XX file: "//inputfile1//c_null_char)
-         inputfile3=replacestr(string=inputfile2,search="RA",substitute="PU")
-         inputfile4=replacestr(string=inputfile2,search="RA",substitute="HX")
-         file_idx=index(inputfile4, ".")
-!          write(*,*) 'suffix is found at index: ',file_idx,"length: ",len(inputfile4)
-!          write(*,*) 'suffix:',inputfile4(file_idx:len(inputfile4))
-         inputfile4=inputfile4(1:file_idx) // "HDR"
-         inquire(file=trim(inputfile4), exist=exists)
-         if(exists) then
-          call LogC("Matching EyeSys HX/HDR file found"//c_null_char)
-         endif
-         inquire(file=trim(inputfile3), exist=exists)
-         if(exists) then
-          call LogC("Matching EyeSys PU file found"//c_null_char)
-         endif
-        endif
-        inquire(file=trim(inputfile1), exist=exists)
-        if(.NOT.exists) then
-         inputfile1=replacestr(string=inputfile2,search="/RA",substitute="/XX")
-         inquire(file=trim(inputfile1), exist=exists)
-         if(.NOT.exists) then
-          inputfile1=replacestr(string=inputfile2,search="/RA",substitute="/ED")
-          inquire(file=trim(inputfile1), exist=exists)
-          if(.NOT.exists) then
-           write(*,*) 'Error: EyeSys and Nidek files have to be in pairs, or file name has RA other than prefix'
-           write(*,*) 'No corresponding',inputfile1,'for',inputfile2,'found'
-           err_janus=-1
-           return
-          else
-           call LogC("Matching Nidek ED file: "//inputfile1//c_null_char)
-           TestData=6 ; MM=360    ! Nidek
-           inputfile3=replacestr(string=inputfile2,search="/RA",substitute="/HT")
-           inputfile4=replacestr(string=inputfile2,search="/RA",substitute="/PE")
-           inquire(file=trim(inputfile3), exist=exists)
-           if(exists) then
-           call LogC("Matching Nidek HT file found"//inputfile3//c_null_char)
-           endif
-           inquire(file=trim(inputfile4), exist=exists)
-           if(exists) then
-            call LogC("Matching Nidek PE file found"//inputfile4//c_null_char)
-           endif
-          endif
-         else
-          TestData=0 ; MM=360; N=16   ! EyeSys
-          call LogC("Matching EyeSys XX file: "//inputfile1//c_null_char)
-          inputfile3=replacestr(string=inputfile2,search="/RA",substitute="/PU")
-          inputfile4=replacestr(string=inputfile2,search="/RA",substitute="/HX")
-          file_idx=index(inputfile4, ".")
-!           write(*,*) 'suffix is found at index: ',file_idx,"length: ",len(inputfile4)
-!           write(*,*) 'suffix:',inputfile4(file_idx:len(inputfile4))
-          inputfile4=inputfile4(1:file_idx) // "HDR"
-          inquire(file=trim(inputfile4), exist=exists)
-          if(exists) then
-           call LogC("Matching EyeSys HX/HDR file found"//c_null_char)
-          endif
-          inquire(file=trim(inputfile3), exist=exists)
-          if(exists) then
-           call LogC("Matching EyeSys PU file found"//c_null_char)
-          endif
-         endif
-        endif
-       else
-        file_idx=index(inputfile1, "ED") !index(inputfile1, "ED", back)
-        if (file_idx /= 0) then
-         call LogC("Nidek ED file: "//inputfile1//c_null_char)
-         inputfile2=replacestr(string=inputfile1,search="ED",substitute="RA")
-         inquire(file=trim(inputfile2), exist=exists)
-         if(.NOT.exists) then
-          write(*,*) 'Error: EyeSys and Nidek files have to be in pairs, or file name has RA other than prefix'
-          write(*,*) 'No corresponding',inputfile2,'for',inputfile1,'found'
-          err_janus=-1
-          return
-         else
-          call LogC("Nidek RA file: "//inputfile2//c_null_char)
-          TestData=6 ; MM=360   ! Nidek
-          inputfile3=replacestr(string=inputfile2,search="RA",substitute="HT")
-          inputfile4=replacestr(string=inputfile2,search="RA",substitute="PE")
-          inquire(file=trim(inputfile3), exist=exists)
-          if(exists) then
-           call LogC("Matching Nidek HT file found"//inputfile3//c_null_char)
-          endif
-          inquire(file=trim(inputfile4), exist=exists)
-          if(exists) then
-           call LogC("Matching Nidek PE file found"//inputfile4//c_null_char)
-          endif
-         endif
-        else
-         write(*,*) 'Error parsing EyeSys file name'
-         err_janus=-1
-         return
         endif
        endif
       endif
@@ -1781,7 +1699,7 @@ if (TestData .eq. 7) then
    if(.NOT.exists) then
     call RCNVRTK(read_error,inputfile1,inputfile2,inputfile3)
    else
-    inquire(file=trim(inputfile5), exist=exists)  !?ZERNIKE
+    inquire(file=path_name, exist=exists)  !?ZERNIKE
     if (exists) then
      inquire(file=trim(inputfile6), exist=exists) !?PATIENT.TXT (need PATIENT AND EXAM to read ZERNIKE)
      if (exists) then

@@ -8,7 +8,7 @@ As has been noted by numerous authors in the field, it is hard to directly compa
 
 Each machine typically has and had its own internal analysis software as well as its own unique data storage.  Many data files are in an undocumented, non-ASCII/Unicode state, a trend which has unfortunately increased with newer technology.  There are newer machines which are also tomographic machines, in that they measure the thickness of the cornea, as well as machines that measure aberrometry of the whole eye. It would be lovely if the whole industry agreed on using an open data format, allowing for independent analysis, or if there were a method for importing the photographic data from one machine to another, along with the geometric data of the image cone.  Newer machines, particularly OCT machines as used in posterior segment (retina and optic nerve) images are now being seen for corneal scanning increasingly as well: e.g. Heidelberg's Anterion, or the latest Oculus Pentacam. In general, there is no publicly available description of the exact data rendered and how it is converted to the pictures we see, making it difficult to even know what to look for in the binary data files, assuming they have not been further intentionally obfuscated. https://en.wikipedia.org/wiki/Obfuscation_(software)<br>
 
- The term "enshittification" has been coined recently, which describes the larger phenomenon.  Unfortunately as well, the standard for interoperability of "data" exchange (ie. DICOM https://www.dicomstandard.org/) is image based. Unless the raw data actually is an image, DICOM is rather like sending text by fax machine (as opposed to sending an ASCII or word processing file). A fax is still the common format for exchanging data between medical offices in the USA. A similar phenomenon entails publishing "data" as a picture in a scientific journal, rather than supplying the points used to make the graph.  It is recognized that the "data" provided by the manufacturers below, when supplied at all, has already been processed from the raw image data through a series of unknown proprietary algorithms with an arbitrary amount of precision being presented. As such we are not much better off than being presented with a graph in a journal, laying some graph paper over it and manually digitizing it.<br>
+ The term "enshittification" has been coined recently, which describes the larger phenomenon.  Unfortunately as well, the standard for interoperability of "data" exchange (ie. DICOM https://www.dicomstandard.org/) is image based. Unless the raw data actually is an image, DICOM is rather like sending text by fax machine (as opposed to sending an ASCII or word processing file). A fax, by the way, is still the common format for exchanging data between medical offices in the USA. A similar phenomenon entails publishing "data" as a picture in a scientific journal, rather than supplying the points used to make the graph.  It is recognized that the "data" provided by the manufacturers below, when supplied at all, has already been processed from the raw image data through a series of unknown proprietary algorithms with an arbitrary amount of precision being presented. As such we are not much better off than being presented with a graph in a journal, laying some graph paper over it and manually digitizing it.<br>
 
 
 ## Color scales and legends
@@ -50,7 +50,7 @@ It is also an increasingly common practice for manufacturers to provide several 
 
 "*The magnitude of this error is as yet undetermined, although it is thought to be small.*" <br>
 
-The first, and older, class of machines are Placido disk machines, which take a photo of a reflection of rings on the surface and compute the shape based on the distortion of the image, subject to a number of assumptions, one important being an essentially 2-D simplification that along each radial mire reflected rays stay in their plane (which is not the case for non-axisymmetric or decentered axisymmetric shapes).  Machines do not actually use a flat Placido disk, but rather a cone with concentric rings to maximize the coverage area of the cornea by aiming for evenly spaced images of rings on a test sphere. <br>
+The first, and older, class of machines are Placido disk machines, which take a photo of a reflection of rings on the surface and compute the shape based on the distortion of the image, subject to a number of assumptions, one important being an essentially 2-D simplification that along each radial mire reflected rays stay in their plane (which is not the case for non-axisymmetric or decentered axisymmetric shapes).  Machines do not actually use a flat Placido disk. A cone with muliple sets of complete or partial concentric rings is used to maximize the coverage area of the cornea by aiming for evenly spaced images of rings on the anterior surface of the exposed cornea. <br>
 
  [./images/Placido_cone.jpeg](file:./images/Placido_cone.jpeg)<br>
 
@@ -72,7 +72,7 @@ It is rare for data to be written to files as IEEE-754 floating point or ASCII/U
 There might be technical arguments to be made for non-IEEE-754 floating point, such as binary-code decimal, but that choice might be mixed with legal considerations, see for example the 1976 US Supreme Court landmark decision mentioned in https://en.wikipedia.org/wiki/Binary-coded_decimal in which the patentability of the format (and therefore legal blockage of reading data so encoded) was successfully overturned.<br>
 
 Quoting https://en.wikipedia.org/wiki/Raw_image_format<br>
-"Providing a detailed and concise description of the content of raw files is highly problematic. ... Several major camera manufacturers, including Nikon, Canon and Sony, encrypt portions of the file in an attempt to prevent third-party tools from accessing them."  <br>
+"Providing a detailed and concise description of the content of raw files is highly problematic. ... Several major camera manufacturers, including Nikon, Canon and Sony, encrypt portions of the file in an attempt to prevent third-party tools from accessing them."<br>
 
 In a different way to prevent third-party tools from accessing files, it has been implied that attempting to read proprietary file formats could be seen as IP infringement: https://cloudcompare.org/forum/viewtopic.php?t=5623  The legality of reverse engineering has been discussed, for example in the US, quoting the following: https://en.wikipedia.org/wiki/Reverse_engineering#Legality<br>
 
@@ -105,13 +105,15 @@ It is an embarrassment to have to state the following, as it should be understoo
 
 ## Building
 
-This software was developed at various times under the Slackware, Ubuntu, Arch, Manjaro distributions of GNU/Linux. Dependencies include Qt6, assimp, lapack, rply, gnuplot, freetype, unzip, cabextract and superlu. Some routines are adapted from other sources and included, for example excerpts from Hanson & Hopkins (see below). OpenGL is used as the primary graphics API: GLSL 3.30 is needed as a minimum.  Qt appears to be deprecating C++ support in favor of QML: you may need to make sure the proper support is present. This version was built with Qt 6.8.3 and 6.11.1 with QtCreator 20. You might need to adjust some of the paths in the CMakeLists.txt to build.<br>
+This software was developed at various times under the Slackware, Ubuntu, Arch, Manjaro distributions of GNU/Linux. Dependencies include Qt6, assimp, lapack, rply, gnuplot, freetype, unzip, cabextract, fortran_stdlib and superlu. Some routines are adapted from other sources and included, for example excerpts from Hanson & Hopkins (see below). OpenGL is used as the primary graphics API: GLSL 3.30 is needed as a minimum.  Qt appears to be deprecating C++ support in favor of QML: you may need to make sure the proper support is present. This version was built with Qt 6.8.3 and 6.11.1 with QtCreator 20. You might need to adjust some of the paths in the CMakeLists.txt to build.<br>
+
+fortran_stdlib is used to aid path and file name parsing and it's use may be expanded as the stdlib project is under active development at this time.<br>
 
 I have not built a PKGBUILD, nor configured any other Linux package manager installer, or Flatpak etc, nor have I tried it under BSD.<br>
 
-There are some patches to Hanson & Hopkins http://www.siam.org/books/ot134 chapters 2,4, & 11 to accomodate superlu versions > 4.3, for Windows compilation and to support CSR sparse matrices. More recently, I've also included some additional support to support fortran_stdlib sparse matrices. I have submitted a patch to fortran_stdlib, also included here. fortran_stdlib as of this writing only has experimental inclusion and could be excised from the code if it doesn't prove useful.  As of this writing I've included the support, and you'll need to verify if you need the patch. See the source code README under Hanson&Hopkins.<br>
+There are some patches to Hanson & Hopkins http://www.siam.org/books/ot134 chapters 2,4, & 11 to accomodate superlu versions > 4.3, for Windows compilation and to support CSR sparse matrices using sparsekit.f90. More recently, I've also included some additional support to support fortran_stdlib sparse matrices.  See the source code README under Hanson&Hopkins.<br>
 
-For some file formats, Fortran Linux system calls {call execute_command_line() } to cabextract and rm (or Expand and del under Wiindows) are used for convenience in reading compressed Windows cabinet files and cleaning up temporary files. <br>
+For some file formats, Fortran Linux system calls {call execute_command_line() } to cabextract and rm (or Expand and del under Wiindows) are used for convenience in reading compressed Windows cabinet files and cleaning up temporary files.<br>
 
 Linux system calls from C++  { system() } are called for starting with a command shell for gnuplot and assorted file ops such as unzip, rm, touch, cp, or Windows calls to cmd, tar, del, type and copy.<br>
 
@@ -121,6 +123,7 @@ If you don't have access to those system calls, you'll have to extract the cabin
 
 Built under Manjaro/Arch. After cloning the source:<br>
 load submodules with git submodule update --init<br>
+Make sure you have the dependencies downloaded, built as needed and installed.<br>
 Open the CMakeLists.txt as a Project in QtCreator, configure and build.<br>
 
 Alternatively, the usual command line build should work. There are a few edits that need to be made in CMakeLists.txt depending on command-line cmake, QtCreator and your particular tool-chain setup. Check FC, CC, CXX and other environment vars to make sure cmake/Qt and the environment are in agreement.
@@ -146,8 +149,8 @@ Building within QtCreator is also possible, but the default of using Ninja does 
 
 ### Under Windows
 
-Build under Windows. The precompiled binary and installer were built in a Windows 10 VM using QtCreator https://doc.qt.io/qt-6/windows.html. The binary Windows installer (built with NSIS) includes an option to install gnuplot and the Mesa3D software renderer. I used MingW/GCC for the C/C++/Fortran compiler. The binary was built using QtCreator 19 and Qt 6.8.3, with assimp being built with<br> ASSIMP_WARNINGS_AS_ERRORS:UNINITIALIZED=OFF <br>
-added to the cmake options as well as making sure MingW cmake was used as the build creator and that the environmental variables pointed to the MingW gcc toolchain. In addition, the additional libraries were compiled with the same toolchain.  I built assimp, superlu, glm, freetype, lapack and OpenBLAS with the same toolset using git-bash after downloading them directly from upstream. Again, you might need to adjust paths in CMakeLists.txt in order to build.  These lines need to be uncommented in CMakeLists.txt:
+Build under Windows. The precompiled binary and installer were built in a Windows 10 VM using QtCreator https://doc.qt.io/qt-6/windows.html. The binary Windows installer (built with NSIS) includes an option to install gnuplot and the Mesa3D software renderer. The Mesa3D renderer is not needed for Windows that have actual graphics card support, such as a physical machine or a VM with passthrough. MingW/GCC was used for the C/C++/Fortran compiler. The binary was built using QtCreator 19 and Qt 6.8.3, with assimp being built with<br> ASSIMP_WARNINGS_AS_ERRORS:UNINITIALIZED=OFF <br>
+added to the cmake options as well as making sure MingW cmake was used as the build creator and that the environmental variables pointed to the MingW gcc toolchain. In addition, the additional libraries were compiled with the same toolchain.  I built assimp, superlu, glm, freetype, fortran_stdlib, lapack and OpenBLAS with the same toolset using git-bash after downloading them directly from upstream. Again, you might need to adjust paths in CMakeLists.txt in order to build.  These lines need to be uncommented in CMakeLists.txt:
 ```
 set(CMAKE_HOST_NAME Windows)
 set(CMAKE_SYSTEM Windows)
@@ -291,7 +294,7 @@ macdeployqt kernunos.app -dmg (to make a dmg)
 ```
 Change "/usr/local" to "/opt/homebrew" for Apple Silicon M3 iMac (aarch64/arm64).<br>
 
-There are a few other manual tweaks needed to compile under the MacOS/Darwin.<br>
+There are a few other manual tweaks needed to compile under the MacOS/Darwin with LLVM.<br>
 
 #### assimp
 
@@ -357,7 +360,7 @@ struct Q_GUI_EXPORT QCocoaGLContext
 
 ## Contributing
 
-Requests are welcome. For major changes, please open an issue first to discuss what you would like to change. Any errors found with corrections are very welcome, but if you use an AI/LLM please take ownership of the purported issue regardless of the tools you use. Any legally obtained information on different machines and their data storage and/or better yet data files or documentation is welcome and I'll do my best to incorporate it.  If you are a clinician with an older machine and you want to send patient data please XXXX out/edit out patient information from the files or use John/Jane Doe/Test patient. Do not include any protected information.<br>
+Requests are welcome. For major changes, please open an issue first to discuss what you would like to change. Any errors found with corrections are very welcome, but if you use an AI/LLM please take ownership of the purported issue regardless of the tools you use. Any legally obtained information on different machines and their data storage and/or better yet data files or documentation is welcome and I'll do my best to incorporate it.  If you are a clinician with an older machine and you want to send patient data please XXXX out/edit out patient information from the files or use John/Jane Doe/Test patient. Do not include any protected information. (Hint: HIPAA)<br>
 
 If you are a manufacturer and you'd like to blow my mind by openly sharing information, I will credit you prominently here and everywhere and sing your praises to all of my colleagues, even at the risk of irritating them. <br>
 
@@ -373,8 +376,8 @@ Do let me know if you find this software useful, or at least, amusing. Any const
  
 
 ## License
-To quote or adapt without proper attribution would be bad manners, to take credit for other's works, dishonest, quite aside from legalities.  I am not a lawyer, nor can really understand, let alone agree with, their worldview despite decades of adult life, starting with "ignorantia juris non excusat". Having said that, in so far as I understand from perusing the multiple versions of licenses for the software used in this project, the source code I have written/copied and adapted conforms to their respective licenses and allows for non-commercial use and redistribution with the caveat that the licenses are included and/or referenced and credit is given when known, which I have in good faith attempted. On that note, no AI/LLM was used for any part of this project, the goal of which has been to exercise my imagination, not to outsource the effort of making things up nor using the information of dubious provenance gathered by an LLM without permission or attribution.  Any use of and examination of proprietary trademarks and data has been, to my understanding for the purpose of this project, to be lawful under applicable laws.  My contributions, including the patches for superlu, and any other adaptations of existing software, are licensed as follows:<br>
-[LICENSE](https://github.com/mostlyharmlessone/kernunos/blob/main/LICENSE)<br> if not superseded by the relevant licenses of the adapted software collected under ./licenses.  Written documentation including this README © 1999 by Anthony M de Beus is licensed under CC BY-SA 4.0. https://creativecommons.org/licenses/by-sa/4.0/ <br>
+To quote or adapt without proper attribution would be bad manners, to take credit for other's works, dishonest, quite aside from legalities. I am not a lawyer, nor can really understand, let alone agree with, their worldview despite decades of adult life, starting with "ignorantia juris non excusat". Having said that, in so far as I understand from perusing the multiple versions of licenses for the software used in this project, the source code I have written/copied and adapted conforms to their respective licenses and allows for non-commercial use and redistribution with the caveat that the licenses are included and/or referenced and credit is given when known, which I have in good faith attempted. On that note, no AI/LLM was used for any part of this project, the goal of which has been to exercise my imagination, not to outsource the effort of making things up nor using the information of dubious provenance gathered by an LLM (actually by its makers and or users) without permission or attribution.  Any use of and examination of proprietary trademarks and data has been, to my understanding for the purpose of this project, to be lawful under applicable laws.  My contributions, including the patches for superlu, and any other adaptations of existing software, are licensed as follows:<br>
+[LICENSE](https://github.com/mostlyharmlessone/kernunos/blob/main/LICENSE)<br> if not superseded by the relevant licenses of the adapted software collected under ./licenses.  Written documentation including this README © 1999 by Anthony M de Beus is licensed under CC BY-SA 4.0. https://creativecommons.org/licenses/by-sa/4.0/<br>
 
 ### References
 Broken links, books out of print, and any other disappointments are part of life.<br>
@@ -452,7 +455,7 @@ Fateme Esmaeili *, AliReza Amiri-Simkooei, Vahab Nafisi, Amin Alizadeh Naeini Th
 
 
 ### Wikipedia/Mathematics
-There's nothing wrong with using the encyclopedia as a starting point, and like a dictionary used in a popular crossword word making game, at least we can choose to agree on a common reference.<br>
+There's nothing wrong with using the encyclopedia as a starting point, and like a dictionary used in a popular crossword word making game, at least we can choose to agree on a common reference. In this case it keeps changing!<br>
 https://en.wikipedia.org/wiki/Bicubic_interpolation <br>
 https://en.wikipedia.org/wiki/Differential_geometry_of_surfaces <br>
 https://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm <br>
@@ -467,7 +470,7 @@ https://en.wikipedia.org/wiki/Sparse_matrix <br>
 https://en.wikipedia.org/wiki/Tensor <br>
 
 ### openGL copied from/adapted/referenced 
-Yeah, well, it was popular when I started the project, and is still widely supported, like C, C++ and Fortran.. which were also still popular when I started.<br>
+Yeah, well, it was popular when I started the project, and is still widely supported and cross-platform, like C, C++ and Fortran.. which were also still popular when I started.<br>
 https://www.khronos.org/opengl/wiki/Getting_Started#Writing_an_OpenGL_Application <br>
 https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal <br>
 https://open.gl/ <br>
@@ -530,7 +533,7 @@ https://web.stanford.edu/class/me200c/tutorial_90/08_subprograms.html factorial 
 https://www.mathworks.com/company/newsletters/articles/analyzing-lasik-optical-data-using-zernike-functions.html <br>
 
 ### enshittification
-trying to avoid it, I have downloaded the PDF of the forbrukerradet (fuggedaboutit?)report for your reading pleasure in case the link gets broken in the future <br>
+In trying to avoid it, I have downloaded the PDF of the forbrukerradet (fuggedaboutit?)report for your reading pleasure in case the link gets broken in the future <br>
 https://www.theregister.com/2026/03/06/forbrukerradet_aim_enshittification/ <br>
 related: https://en.wikipedia.org/wiki/Software_archaeology <br>
 https://en.wikipedia.org/wiki/Reverse_engineering#Legality <br>
@@ -588,6 +591,7 @@ https://github.com/g-truc/glm glm <br>
 https://gitlab.freedesktop.org/freetype/freetype freetype <br>
 https://github.com/Reference-LAPACK/lapack lapack <br>
 https://github.com/OpenMathLib/OpenBLAS OpenBLAS <br>
+https://github.com/fortran-lang/stdlib<br>
 https://github.com/kyz/libmspack/tree/master/cabextract (not needed for Windows)<br>
 Only part of this was used, and is copied into the source tree: <br>
 https://people.math.sc.edu/Burkardt/f_src/sparsekit/sparsekit.f90 <br>
