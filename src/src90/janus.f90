@@ -319,11 +319,14 @@ if (mod(flag,100) == 0 .or. mod(flag,100) == 2 .or. mod(flag,100) == 3 .or. mod(
    allocate(CHARACTER(nblines) :: full_name)
   allocate(CHARACTER(nblines) :: logfile)
   inputfile1=trim(new_path)
+#ifdef __WIN32__
+  inputfile1=replacestr(string=inputfile1,search="/",substitute="\")
   full_name=inputfile1
   file_name=base_name(inputfile1)
-#ifdef __WIN32__
   path_name=dir_name(inputfile1) // "\"
 #else
+  full_name=inputfile1
+  file_name=base_name(inputfile1)
   path_name=dir_name(inputfile1) // "/"
 #endif
  allocate(CHARACTER(nblines) :: inputfile2)
@@ -1335,6 +1338,9 @@ if (mod(flag,100) == 0) then
            endif
           else
            write(*,*) 'Unknown file type: make some test data, flag = ',flag
+           write(*,*) "inputfile ",inputfile1
+           write(*,*) "file_name ",file_name
+           write(*,*) "path_name ",path_name
            TestData=-1; MM=360; N=16 ; NP=141
           endif
          else
@@ -1789,7 +1795,7 @@ if (TestData .eq. 6) then
    file_idx=index(inputfile1, ".CAB")
    if ( file_idx .ne. 0 )  then
     allocate(CHARACTER(nblines) :: cab_inputfile1)
-    cab_inputfile1=inputfile1   
+    cab_inputfile1=inputfile1
 #if defined (__WIN32__)
     cab_inputfile1='"' // trim(cab_inputfile1) // '"'
     call execute_command_line ("C:\Windows\system32\Expand.exe -r "&
@@ -1807,11 +1813,14 @@ if (TestData .eq. 6) then
 #endif
     if (io == 0) then
      inputfile1=replacestr(string=inputfile1,search=".CAB",substitute=".DAT")
-     file_idx=1+index(inputfile1, "/ED")
-     inputfile1=inputfile1(file_idx:len(inputfile1))
 #if defined (__WIN32__)
+     inputfile1=replacestr(string=inputfile1,search="/",substitute="\")
+     file_idx=1+index(inputfile1, "\ED")
+     inputfile1=inputfile1(file_idx:len(inputfile1))
      inputfile1=trim(temp_path) // "\" // inputfile1
 #else
+     file_idx=1+index(inputfile1, "/ED")
+     inputfile1=inputfile1(file_idx:len(inputfile1))
      inputfile1="/tmp/" // inputfile1
 #endif
     else
@@ -1839,11 +1848,14 @@ if (TestData .eq. 6) then
 #endif
     if (io == 0) then
      inputfile2=replacestr(string=inputfile2,search=".CAB",substitute=".DAT")
-     file_idx=1+index(inputfile2, "/RA")
-     inputfile2=inputfile2(file_idx:len(inputfile2))
 #if defined (__WIN32__)
+     inputfile2=replacestr(string=inputfile2,search="/",substitute="\")
+     file_idx=1+index(inputfile2, "\RA")
+     inputfile2=inputfile2(file_idx:len(inputfile2))
      inputfile2=trim(temp_path) // "\" // inputfile2
 #else
+     file_idx=1+index(inputfile2, "/RA")
+     inputfile2=inputfile2(file_idx:len(inputfile2))
      inputfile2="/tmp/" // inputfile2
 #endif
     else
@@ -1873,12 +1885,15 @@ if (TestData .eq. 6) then
 #endif
      if (io == 0) then
       inputfile4=replacestr(string=inputfile4,search=".CAB",substitute=".DAT")
-      file_idx=1+index(inputfile4, "/PE")
-      inputfile4=inputfile4(file_idx:len(inputfile4))
 #if defined (__WIN32__)
-     inputfile4=trim(temp_path) // "\" // inputfile4
+      inputfile4=replacestr(string=inputfile4,search="/",substitute="\")
+      file_idx=1+index(inputfile4, "\PE")
+      inputfile4=inputfile4(file_idx:len(inputfile4))
+      inputfile4=trim(temp_path) // "\" // inputfile4
 #else
-     inputfile4="/tmp/" // inputfile4
+      file_idx=1+index(inputfile2, "/PE")
+      inputfile4=inputfile4(file_idx:len(inputfile4))
+      inputfile4="/tmp/" // inputfile4
 #endif
      else
       write(*,*) 'Error opening cabinet file ',inputfile4
