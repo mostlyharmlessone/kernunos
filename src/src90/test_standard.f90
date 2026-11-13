@@ -35,7 +35,11 @@ program example_sort_index
 
     new_path="C:/Users/amdeb/kernunos/data/ED0000010002L.CAB"
 
-  !  new_path="C:\Users\amdeb\kernunos\data\ED0000010002L.CAB"
+    new_path="C:\Users\amdeb\kernunos\data\ED0000010002L.CAB"
+
+    new_path="/MyFileWithoutASeparator"
+    new_path="MyFileWithoutASeparator/"
+    new_path="MyFileWithoutASeparator"
 
     nblines=len(trim(new_path))
     allocate(CHARACTER(nblines) :: file_name)

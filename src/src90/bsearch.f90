@@ -10,8 +10,11 @@ SUBROUTINE bsearch(r,rv,n,high,low)
  INTEGER ::  i, m, direction, i0
  REAL(wp) :: rmin
  if ( n < 1 ) then
-  write(*,*) 'FATAL Error in bsearch, n < 1',n
-  stop
+!  write(*,*) 'FATAL Error in bsearch, n < 1',n
+  write(*,*) 'Warning: degenerate bsearch',r,rv
+  high = 0
+  low = 0
+  return
  endif
  ! degenerate case
  if (n .eq. 1) then

@@ -29,11 +29,16 @@ SUBROUTINE SplineEval(KP,x,y,y2,n,u,f,fp,fpp,fppp)
   LOGICAL :: IsInf
 
   PERD=2*PI ! period of spline if applicable
-  if (n .eq. 1) then  ! degenerate case
+  if (n .le. 1) then  ! degenerate case
    write(*,*) 'Warning: degenerate SplineEval'
-   if (Present(f)) f=y(n)
+   if (n .eq. 1) then
+    if (Present(f)) f=y(n)
+    if (Present(fpp)) fpp=y2(n)
+   else
+    if (Present(f)) f=0
+    if (Present(fpp)) fpp=0
+   endif
    if (Present(fp)) fp=0
-   if (Present(fpp)) fpp=y2(n)
    if (Present(fppp)) fppp=0
    return
   endif

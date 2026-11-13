@@ -797,12 +797,12 @@ bool GLwidget::DataLoad(QString fileName, bool filepresent)  //! filepresent->cu
       legend[100]=30;      legend2[100]=30;
 
 // if you want to change scales: this is very much not the same as legend2=legend as it would be in fortran
-     /*
+      if ((flag%100) == 12){
       for (int i=0; i < nL; ++i){
           legend2[i]=legend[i];
       }
-      */
-     }    
+     }
+    }
     paintme=true;
   return true;
 }

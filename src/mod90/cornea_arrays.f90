@@ -114,7 +114,7 @@ END INTERFACE
 
 ! declaring common global data arrays
  REAL(wp), allocatable :: RadSplineCenter(:,:)
- TYPE(wpJMatrix) :: JMatrix,JMatrix1,JMatrix2,JMatrix3
+ TYPE(wpJMatrix) :: JMatrix,JMatrix1,JMatrix2,JMatrix3,Saved
  TYPE(wpEyeSysMatrix) :: EyeSys
  TYPE(wpRadSlopeMatrix) :: RadSlope
  TYPE(wpAtlasMatrix) :: Atlas
@@ -1193,14 +1193,18 @@ END SUBROUTINE RadSlope_eq_DiaSlope
   a=0  !initialize else the damn thing will fill with NaN
   err_report = 0
   do i=1,M1 
-   call nspline(b%rd(:,i),b%Zpd(:,i),b%L2(i),a(:,i),err_report)
-   if (err_report .ne. 0) then
-    write(*,*) 'FATAL DiaSpline error at meridian: ',i
-    write(*,*) 'rd',b%rd(:,i)
-    write(*,*) 'zpd', b%Zpd(:,i)
-    write(*,*) 'L2', b%L2(i)
-    write(*,*) 'a',a(:,i)
-    return
+   if (b%L2(i) > 3) then
+    call nspline(b%rd(:,i),b%Zpd(:,i),b%L2(i),a(:,i),err_report)
+    if (err_report .ne. 0) then
+     write(*,*) 'Warning: DiaSpline error at meridian: ',i
+     write(*,*) 'rd',b%rd(:,i)
+     write(*,*) 'zpd', b%Zpd(:,i)
+     write(*,*) 'L2', b%L2(i)
+     write(*,*) 'a',a(:,i)
+     return
+    endif
+   else
+    a(:,i) = 0
    endif
   end do
 END FUNCTION DiaSpline

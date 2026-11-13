@@ -12,6 +12,8 @@ resurrect old noise reduction code to help out monge-astig and meanc for real da
 
 sorting, included a heapsort function; can also use stdlib for that
 
+path/filenames with spaces
+
 RELEASES/PACKAGES
 
 Known issues, will not be fixed: openGL on MacOS, under darwin, View|Normals disabled as that's a geometry shader thing.
