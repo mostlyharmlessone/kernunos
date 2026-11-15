@@ -63,7 +63,7 @@
    f= dot_product(z2,z2)
    IsNaN=.not.ieee_is_finite(f) .or. .not.ieee_is_finite(dot_product(r,r)) .or. .not.ieee_is_finite(dot_product(z,z))
    If(IsNaN) then
-    write(*,*) 'Warning from nspline: NaN terms, check r,z,z2, matrix entries; ',INFO
+    write(*,*) 'Warning from nspline: NaN terms, check r,z,z2, matrix entries; ',INFO,n
     do i=2,n-1
      a(i-1)=(r(i)-r(i-1))/6.0
      b(i-1)=(r(i+1)-r(i-1))/3.0

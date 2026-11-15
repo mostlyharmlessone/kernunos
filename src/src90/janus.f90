@@ -2505,9 +2505,10 @@ endif !mod(flag,100) /= 9 and /= 1
    do i=1,M1
     j = mod(i + rotationdegrees,180)
     if (j .eq. 0) j = 180
+
      if(mod(flag,100) == 10) then
       JMatrix2%MV(i)=min(JMatrix%MV(i),JMatrix1%MV(j))
-      JMatrix2%R(:,i)=JMatrix1%R(:,i)
+      JMatrix2%R(:,i)=JMatrix%R(:,i)
        op = -1
        op2 = 1
       do k=1,JMatrix2%MV(i)
@@ -2526,8 +2527,8 @@ endif !mod(flag,100) /= 9 and /= 1
        JMatrix2%ZC(k,i,:)=ABS(op2*JMatrix1%ZC(k,i,:)+op*JMatrix%ZC(k,j,:))
       end do
      else
-      JMatrix2%MV(i)=min(JMatrix%MV(i),JMatrix1%MV(j))
-      JMatrix2%R(:,i)=JMatrix1%R(:,i)
+      JMatrix2%MV(i)=max(JMatrix%MV(i),JMatrix1%MV(j))
+      JMatrix2%R(:,i)=JMatrix%R(:,i)
       do k=1,JMatrix2%MV(i)
        if (JMatrix1%SAGC(k,i) > 0 .and. JMatrix%SAGC(k,j) > 0) then
         op2 = 2
